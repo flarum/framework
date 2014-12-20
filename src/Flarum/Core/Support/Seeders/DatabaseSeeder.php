@@ -1,6 +1,8 @@
 <?php namespace Flarum\Core\Support\Seeders;
 
 use Illuminate\Database\Seeder;
+use Eloquent;
+use DB;
 
 class DatabaseSeeder extends Seeder {
 
