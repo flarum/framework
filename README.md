@@ -54,9 +54,9 @@ The priority at the moment is to build out a lightweight core, and only start bu
 - [ ] Implement discussion title editing (#7)
 - [ ] Implement post deletion (#8)
 - [ ] Implement discussion deletion (#9)
-- [ ] Build Notifications system (#10)
-- [ ] Design user profile interface (#11)
-- [ ] Design admin interfaces (#12)
+- [ ] Design user profile interface (#10)
+- [ ] Design admin interfaces (#11)
+- [ ] Build Notifications system (#12)
 
 For a full list of planned features, see [Features](https://github.com/flarum/core/wiki/Features).
 
