@@ -1,0 +1,32 @@
+// Default blue
+@flarum-hue:                     210;
+@flarum-saturation:                  30%;
+@flarum-lightness:                   90%;
+@flarum-body-saturation:             30%;
+@flarum-body-lightness:              99.99%;
+
+@flarum-primary-color:              hsl(@flarum-hue, @flarum-saturation, 35%);
+
+@flarum-background-color:           hsl(@flarum-hue, @flarum-saturation, @flarum-lightness);
+@flarum-background-image:            none;
+@flarum-background-repeat:			no-repeat;
+
+@flarum-bg-primary-color:			contrast(@flarum-background-color, @flarum-primary-color, #fff);
+@flarum-bg-secondary-color:			contrast(@flarum-background-color, rgba(255, 255, 255, 0.1), darken(@flarum-background-color, 7%));
+@flarum-bg-text-color:				@flarum-bg-primary-color;
+@flarum-bg-link-color:				@flarum-bg-primary-color;
+@flarum-bg-muted-color:				contrast(@flarum-background-color, rgba(255, 255, 255, 0.25), desaturate(darken(@flarum-bg-secondary-color, 25%), 10%));
+
+// styles for a background image
+// @flarum-bg-primary-color:			rgba(255, 255, 255, 0.8);
+// @flarum-bg-secondary-color:			rgba(255, 255, 255, 0.2);
+// @flarum-bg-text-color:				@flarum-bg-primary-color;
+// @flarum-bg-link-color:				@flarum-bg-primary-color;
+// @flarum-bg-muted-color:				contrast(@flarum-background-color, lighten(@flarum-bg-secondary-color, 20%), darken(@flarum-bg-secondary-color, 20%));
+
+@flarum-body-background-color:		hsl(@flarum-hue, @flarum-body-saturation, @flarum-body-lightness);
+@flarum-body-primary-color:			contrast(@flarum-body-background-color, @flarum-primary-color, #fff);
+@flarum-body-secondary-color:		contrast(@flarum-body-background-color, lighten(@flarum-body-background-color, 13%), desaturate(darken(@flarum-body-background-color, 10%), 10%));
+@flarum-body-text-color:			contrast(@flarum-body-background-color, #555, #fff);
+@flarum-body-link-color:			@flarum-body-primary-color;
+@flarum-body-muted-color:			contrast(@flarum-body-background-color, lighten(@flarum-body-secondary-color, 20%), darken(@flarum-body-secondary-color, 25%));

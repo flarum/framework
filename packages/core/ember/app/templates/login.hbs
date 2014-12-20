@@ -1,0 +1,27 @@
+<div class="modal-dialog modal-sm">
+	<div class="modal-content">
+		<form {{action 'authenticate' on='submit'}}>
+			<div class="modal-header">
+				<button type="button" class="close" {{action close target="view"}}>&times;</button>
+				<h3 style="margin:0">Log In</h3>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					{{input value=identification type="text" class="form-control" placeholder="Username or Email"}}
+				</div>
+				<div class="form-group">
+					{{input value=password type="password" class="form-control" placeholder="Password"}}
+				</div>
+				<div class="checkbox" style="margin:0">
+					<label>
+						{{input checked=remember type="checkbox"}} Remember me
+					</label>
+				</div>
+			</div>
+			<div class="modal-footer" style="margin:0">
+				<a href="#" class="btn btn-default" {{action close target="view"}}>Close</a>
+				{{input class="btn btn-primary" type="submit" value="Log In"}}
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,35 @@
+{
+  "name": "flarum",
+  "version": "0.0.0",
+  "private": true,
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "start": "ember server",
+    "build": "ember build",
+    "test": "ember test"
+  },
+  "repository": "https://github.com/stefanpenner/ember-cli",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "body-parser": "^1.2.0",
+    "broccoli-asset-rev": "0.0.17",
+    "broccoli-ember-hbs-template-compiler": "^1.5.0",
+    "broccoli-less-single": "^0.1.4",
+    "ember-cli": "0.0.40",
+    "ember-cli-autoprefixer": "^0.1.0",
+    "ember-cli-ember-data": "0.1.0",
+    "ember-cli-ic-ajax": "0.1.1",
+    "ember-cli-simple-auth": "^0.6.4-1",
+    "express": "^4.1.1",
+    "glob": "^3.2.9",
+    "liquid-fire": "^0.9.2",
+    "originate": "0.1.5"
+  }
+}

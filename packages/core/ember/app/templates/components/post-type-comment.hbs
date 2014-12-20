@@ -1,0 +1,26 @@
+{{#if post.deleteTime}}
+	<i class="post-icon fa fa-trash-o"></i>
+{{/if}}
+
+<header>
+	<h3 class="user">
+		{{#link-to "user" post.user}}{{user-avatar post.user}} {{post.user.username}}{{/link-to}}
+	</h3>
+</header>
+
+<div class="post-body">
+	{{{post.contentHtml}}}
+</div>
+
+<aside class="post-meta">
+	<ul>
+		{{!-- {{menu-list items=meta}} --}}
+        {{#if post.likes}}
+        <li>
+            <a href="">{{fa-icon "thumbs-o-up"}}&nbsp; {{post.likes}}</a>
+            &nbsp;&middot;&nbsp;
+            <a href="">Like</a>
+        </li>
+        {{/if}}
+	</ul>
+</aside>
