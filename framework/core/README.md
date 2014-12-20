@@ -68,18 +68,24 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 2. Create a new [Laravel 4](http://laravel.com/docs/4.2/quick) project.
 3. Run the following command in your project directory:
 
+	```
 	composer require flarum/core
+	```
 
 4. Create a new MySQL database and enter your details into `app/config/packages/flarum/core/config.php`.
 5. Run the Flarum migrations and database seeder to generate dummy data:
 
+	```
 	php artisan migrate
 	php artisan db:seed --class="Flarum\Core\Support\DatabaseSeeder"
+	```
 
 6. Run the following commands to compile the Ember app:
 
+	```
 	cd vendor/flarum/core/ember
 	ember serve --output-path="../public"
+	```
 
 7. Visit your Laravel application in a browser.  
 
@@ -109,9 +115,11 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 3. Create a new branch.
 
+	```
 	git checkout -b new-flarum-branch
+	```
 
-> Please implement only one feature/bugfix per branch to keep pull requests clean and focused.
+	> Please implement only one feature/bugfix per branch to keep pull requests clean and focused.
 
 4. Code. 
 	- Follow the coding style: [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md). 
@@ -123,17 +131,23 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 6. Clean up. Squash together minor commits.
 
+	```
 	git rebase -i
+	```
 
 7. Update your branch so that it is based on top of the latest code from the Flarum repository.
 
+	```
 	git fetch origin
 	git rebase origin/master
+	```
 
 8. Fork your repository on GitHub and push to it.
 
+	```
 	git remote add mine git@github.com:<your user name>/flarum.git
 	git push mine new-flarum-branch
+	```
 
 9. Submit a pull request.
 	- Go to the Flarum repository you just pushed to (e.g. https://github.com/your-user-name/flarum).
@@ -149,7 +163,7 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 ### Core Team
 
-Currently the only person on the core development team is Toby Zerner ([@tobscure](http://twitter.com/tobscure)). Over time, judged by display of commitment to the project, and quantity/quality of contributions, I will be looking for more people to join the core development team. Please do not email me asking to be on the core team; rather, demonstrate initiative and commitment to the project and I will notice!
+Currently the only person on the core development team is Toby Zerner ([@tobscure](http://twitter.com/tobscure)). Over time, judged by display of commitment to the project, and quantity/quality of contributions, I will be looking for more people to join the core development team. Please do not email me asking to be on the core team; rather, demonstrate initiative and commitment to the project, and I will more than likely notice!
 
 ### Contributor License Agreement
 
