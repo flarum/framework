@@ -89,7 +89,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 7. Visit your Laravel application in a browser.  
 
-> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either make your web server's document root the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
+	> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either make your web server's document root the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
 
 If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org).
 
