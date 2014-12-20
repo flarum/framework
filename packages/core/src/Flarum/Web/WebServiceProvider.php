@@ -35,7 +35,8 @@ class WebServiceProvider extends ServiceProvider {
 
 		// publish assets in dev environment
 		$publisher = new AssetPublisher($this->app['files'], $this->app['path.public']);
-		$publisher->publishPackage('flarum/core', $this->app['path.base'].'/workbench');
+		$publisher->setPackagePath(base_path().'/vendor');
+		$publisher->publishPackage('flarum/core');
 
 		include __DIR__.'/../../routes.php';
 	}
