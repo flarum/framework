@@ -103,7 +103,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 	> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either set your web server's document root to the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
 
-If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org).
+If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org) or hop on #flarum on irc.freenode.net.
 
 ## Contributing
 
@@ -113,7 +113,7 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 - **Contribute code.** Start by becoming familiar with Flarum's source code and its [Architecture](https://github.com/flarum/core/wiki/Architecture). Then have a look at what needs to be done in the list above, and see if there's anything you can help out with. See below for instructions on submitting a Pull Request.
 
-- **Participate in discussion.** Review the [wiki](https://github.com/flarum/core/wiki) and [issues](https://github.com/flarum/core/issues) and contribute your constructive thoughts. We'd also love to hear general feedback on the [Flarum Development Forum](http://discuss.flarum.org).
+- **Participate in discussion.** Review the [wiki](https://github.com/flarum/core/wiki) and [issues](https://github.com/flarum/core/issues) and contribute your constructive thoughts. We'd also love to hear general feedback on the [Flarum Development Forum](http://discuss.flarum.org) and on #flarum on irc.freenode.net.
 
 - **Spread the word.** Know someone who could help out? Please share this project with them!
 
