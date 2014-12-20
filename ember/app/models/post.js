@@ -3,7 +3,7 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
 
-	discussion: DS.belongsTo('discussion', {inverse: 'actualPosts'}),
+	discussion: DS.belongsTo('discussion', {inverse: null}),
 	number: DS.attr('number'),
 
 	time: DS.attr('string'),
