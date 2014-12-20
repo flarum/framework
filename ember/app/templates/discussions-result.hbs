@@ -1,0 +1,60 @@
+<div class="controls btn-group">
+	<button data-toggle="dropdown" class="dropdown-toggle btn btn-default btn-xs btn-icon">{{fa-icon "caret-down"}}</button>
+	{{menu-list items=view.controls class="dropdown-menu pull-right"}}
+</div>
+
+<div class="discussion">
+
+	{{!-- {{#if view.action}}
+		<a href="#" class="action" {{action "action" target="view"}}>
+			{{partial view.action}}
+		</a>
+	{{/if}} --}}
+
+	<a href="#" class="action" {{action "action" target="view"}}>
+		{{#if discussion.unread}}
+			<span class="unread">{{discussion.unread}}</span>
+		{{/if}}
+	</a>
+
+	{{#link-to "discussion" discussion.content (query-params searchQuery=searchQuery) class="info"}}
+		{{#if discussion.category}}
+			<span {{bind-attr class=":category view.categoryClass"}}>{{discussion.category}}</span>
+		{{/if}}
+		<span class="name">
+			{{!-- {{#if discussion.following}}{{fa-icon "star" class="icon icon-following"}}{{/if}} --}}
+			{{#if discussion.sticky}}{{fa-icon "thumb-tack" class="icon icon-sticky"}}{{/if}}
+			{{#if discussion.locked}}{{fa-icon "lock" class="icon icon-locked"}}{{/if}}
+			<strong class="title">{{highlight-words discussion.title searchQuery}}</strong>
+		</span>
+		{{#if discussion.sticky}}
+			<span class="excerpt">{{discussion.excerpt}}</span>
+		{{/if}}
+	{{/link-to}}
+
+	<span class="terminal-post">
+		{{#if displayStartPosts}}
+			{{#link-to "user" discussion.startUser}}{{user-avatar discussion.startUser class="avatar-thumb"}}{{/link-to}}
+			{{#link-to "discussion" discussion.content}}{{abbreviate-time discussion.startTime}}{{/link-to}}
+		{{else}}
+			{{#link-to "user" discussion.lastUser}}{{user-avatar discussion.lastUser class="avatar-thumb"}}{{/link-to}}
+			{{#link-to "discussion" discussion.content (query-params start="last")}}{{abbreviate-time discussion.lastTime}}{{/link-to}}
+		{{/if}}
+	</span>
+
+	<span class="replies">{{abbreviate-number discussion.repliesCount}}</span>
+
+	{{#if view.relevantPosts}}
+		<div class="relevant-posts">
+			{{#each post in view.relevantPosts}}
+				{{#link-to "discussion" discussion.content (query-params start=post.number) class="post item"}}
+					{{user-avatar post.user class="avatar-thumb"}}
+					<span class="post-body">{{highlight-words post.relevantContent searchQuery}}</span>
+				{{/link-to}}
+			{{/each}}
+		</div>
+	{{/if}}
+
+	{{render-hook "discussions-result"}}
+
+</div>

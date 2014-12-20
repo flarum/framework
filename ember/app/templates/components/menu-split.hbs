@@ -1,0 +1,13 @@
+{{#if items}}
+    <div class="dropdown">
+        <div class="btn-group btn-group-suffix">
+            {{#each item in visibleItems}}
+                {{view item class="btn btn-default"}}
+            {{/each}}
+            {{#if hiddenItems}}
+                <button data-toggle="dropdown" class="dropdown-toggle btn btn-default">{{fa-icon "caret-down"}}</button>
+                {{menu-list items=hiddenItems class="dropdown-menu pull-right"}}
+            {{/if}}
+        </div>
+    </div>
+{{/if}}

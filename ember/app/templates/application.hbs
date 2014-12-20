@@ -1,0 +1,56 @@
+{{outlet "modal"}}
+
+{{#if notificationMessage}}
+	<div id="message-container">
+		{{notification-message message=notificationMessage closeAction="hideMessage"}}
+	</div>
+{{/if}}
+
+<div id="wrapper" class="sidebar-open">
+
+	<div id="sidebar">
+
+		<div id="sidebar-header">
+			<header>
+				<h1>
+					{{#link-to "discussions" (query-params searchQuery="" sort="recent" show="discussions")}}
+						{{{view.title}}}
+					{{/link-to}}
+				</h1>
+			</header>
+
+			<header class="mobile-header">
+				<a href="javascript:window.history.back()" class="back">{{fa-icon "chevron-left"}}</a>
+				<h1>{{documentTitle}}</h1>
+			</header>	
+
+			<div class="search">
+				{{#if showDiscussionStream}}
+					{{render "discussions-nav" controller="discussions"}}
+				{{else}}
+					{{search-input placeholder="Search forum..." value=searchQuery active=searchActive action="search"}}
+				{{/if}}
+			</div>
+		</div>
+
+		<div id="sidebar-body">
+			<div id="sidebar-content">
+				{{liquid-outlet "sidebar" enableGrowth=false}}
+			</div>
+		</div>
+
+		<div id="sidebar-footer">
+			<footer>
+				{{view "session"}}
+			</footer>
+		</div>
+
+	</div>
+
+	<div id="body">
+		{{outlet}}
+
+		{{render "composer"}}
+	</div>
+
+</div>

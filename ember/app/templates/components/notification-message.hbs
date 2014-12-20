@@ -1,0 +1,9 @@
+<div {{bind-attr class=":message message.class"}}>
+	<span class="message-text">{{message.text}}</span>
+	<span class="message-actions">
+		<a href="#">Undo</a> <!-- menu -->
+		{{#if message.dismissable}}
+			<a href="#" {{action "close"}}><i class="fa fa-times"></i></a>
+		{{/if}}
+	</span>
+</div>
