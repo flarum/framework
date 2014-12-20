@@ -26,11 +26,6 @@ class Entity extends Eloquent
         $this->validator = $validator ?: \App::make('validator');
     }
 
-    public function getConnection()
-    {
-        return static::resolveConnection('flarum');
-    }
-
     public function valid()
     {
         return $this->getValidator()->passes();
