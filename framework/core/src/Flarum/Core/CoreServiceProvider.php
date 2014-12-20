@@ -22,8 +22,6 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->package('flarum/core', 'flarum');
 
-        Config::set('database.connections.flarum', Config::get('flarum::database'));
-
         $this->app->make('validator')->extend('username', 'Flarum\Core\Users\UsernameValidator@validate');
 
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\DiscussionMetadataUpdater');
