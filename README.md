@@ -45,18 +45,18 @@ I’ve been working on a prototype for some time in-between my studies. In addit
 
 The priority at the moment is to build out a lightweight core, and only start building [Extensions](https://github.com/flarum/core/wiki/Extensions) when it is relatively stable. Below is a list of the things to work on immediately, with links to the relevant discussion.
 
-- [ ] Interface redesign (#1)
-- [ ] Upgrade to Laravel 5 (#2)
-- [ ] Set up testing frameworks in both Laravel (#3) and Ember (#4)
-- [ ] Further consolidation of Extension interfaces (see Extensions)
-- [ ] Develop user authentication strategy (#5)
-- [ ] Implement replying, post editing, discussion creation (#6)
-- [ ] Implement discussion title editing (#7)
-- [ ] Implement post deletion (#8)
-- [ ] Implement discussion deletion (#9)
-- [ ] Design user profile interface (#10)
-- [ ] Design admin interfaces (#11)
-- [ ] Build Notifications system (#12)
+- [ ] Interface redesign ([#1](https://github.com/flarum/core/issues/1))
+- [ ] Upgrade to Laravel 5 ([#2](https://github.com/flarum/core/issues/2))
+- [ ] Set up testing frameworks in both Laravel ([#3](https://github.com/flarum/core/issues/3)) and Ember ([#4](https://github.com/flarum/core/issues/4))
+- [ ] Further consolidation of Extension interfaces (see [Extensions](https://github.com/flarum/core/wiki/Extensions))
+- [ ] Develop user authentication strategy ([#5](https://github.com/flarum/core/issues/5))
+- [ ] Implement replying, post editing, discussion creation ([#6](https://github.com/flarum/core/issues/6))
+- [ ] Implement discussion title editing ([#7](https://github.com/flarum/core/issues/7))
+- [ ] Implement post deletion ([#8](https://github.com/flarum/core/issues/8))
+- [ ] Implement discussion deletion ([#9](https://github.com/flarum/core/issues/9))
+- [ ] Design user profile interface ([#10](https://github.com/flarum/core/issues/10))
+- [ ] Design admin interfaces ([#11](https://github.com/flarum/core/issues/11))
+- [ ] Build Notifications system ([#12](https://github.com/flarum/core/issues/12))
 
 For a full list of planned features, see [Features](https://github.com/flarum/core/wiki/Features).
 
@@ -103,7 +103,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 	> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either set your web server's document root to the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
 
-If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org) or hop on #flarum on irc.freenode.net.
+If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org) or hop on the IRC channel (#flarum on irc.freenode.net).
 
 ## Contributing
 
@@ -113,7 +113,7 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 - **Contribute code.** Start by becoming familiar with Flarum's source code and its [Architecture](https://github.com/flarum/core/wiki/Architecture). Then have a look at what needs to be done in the list above, and see if there's anything you can help out with. See below for instructions on submitting a Pull Request.
 
-- **Participate in discussion.** Review the [wiki](https://github.com/flarum/core/wiki) and [issues](https://github.com/flarum/core/issues) and contribute your constructive thoughts. We'd also love to hear general feedback on the [Flarum Development Forum](http://discuss.flarum.org) and on #flarum on irc.freenode.net.
+- **Participate in discussion.** Review the [wiki](https://github.com/flarum/core/wiki) and [issues](https://github.com/flarum/core/issues) and contribute your constructive thoughts. We'd also love to hear general feedback on the [Flarum Development Forum](http://discuss.flarum.org), on IRC (#flarum on irc.freenode.net), and on [Twitter](http://twitter.com/flarum).
 
 - **Spread the word.** Know someone who could help out? Please share this project with them!
 
@@ -135,7 +135,7 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 4. Code. 
 	- Follow the coding style: [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md). 
-	- Include tests and make sure they pass (subject to #3 and #4).
+	- Include tests and make sure they pass (subject to [#3](https://github.com/flarum/core/issues/3) and [#4](https://github.com/flarum/core/issues/4)).
 
 5. Commit. 
 	- Commit messages are **required**. 
