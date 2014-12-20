@@ -15,7 +15,7 @@ class UserTableSeeder extends Seeder
 	 */
     public function run()
     {
-        $faker = Faker\Factory::create();
+        $faker = \Faker\Factory::create();
 
         $groups = ['Administrator', 'Guest', 'Member', 'Moderator', 'Staff'];
         foreach ($groups as $group) {
