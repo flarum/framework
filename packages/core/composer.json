@@ -11,7 +11,9 @@
         "php": ">=5.4.0",
         "illuminate/support": "4.2.*",
         "laracasts/commander": "1.1.*",
-        "fzaninotto/faker": "1.4.0"
+        "fzaninotto/faker": "1.4.0",
+        "tobscure/json-api": "dev-master",
+        "tobscure/permissible": "dev-master"
     },
     "autoload": {
         "classmap": [
