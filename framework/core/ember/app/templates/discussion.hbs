@@ -1,0 +1,19 @@
+<header class="page-header discussion-header">
+	{{partial "discussion-header"}}
+</header>
+
+<section class="items posts">
+{{#each item in postStream}}
+
+	{{#view "discussion-item" item=item}}
+		{{#if item.post}}{{view "discussion-post" post=item.post}}{{/if}}
+	{{/view}}
+
+{{/each}}
+</section>
+
+{{#if postStream.lastLoaded}}
+	<footer class="page-footer discussion-footer">
+		{{menu-list items=view.footerControls class="list-inline"}}
+	</footer>
+{{/if}}

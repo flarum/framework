@@ -1,0 +1,46 @@
+<div {{bind-attr class=":discussions-pane paned paneShowing:showing"}}>
+	<header class="page-header discussions-header">
+		<div class="pull-right">
+			{{#if paned}}
+				<a href="" {{bind-attr class=":btn :btn-default :btn-sm panePinned:active"}} {{action "togglePinned"}}>{{fa-icon "thumb-tack"}}</a>
+			{{else}}
+				<span class="btn-group">
+					{{#link-to (query-params show="discussions") class="btn btn-default btn-sm"}}{{fa-icon "bars"}}{{/link-to}}
+					{{#link-to (query-params show="posts") class="btn btn-default btn-sm"}}{{fa-icon "square-o"}}{{/link-to}}
+				</span>
+
+				{{select-input
+					content=sortOptions
+					optionValuePath="content.sort"
+					optionLabelPath="content.label"
+					value=sort}}
+			{{/if}}
+		</div>
+		
+		{{partial "discussions-header"}}
+	</header>
+
+	{{#if resultsLoading}}
+		{{loading-indicator size="small"}}
+	{{else}}
+		<ul class="discussions">
+		{{#each discussion in content}}
+			{{view "discussions-result" discussion=discussion}}
+		{{/each}}
+		</ul>
+
+		{{#if moreResults}}
+			<div class="load-more">
+				{{#if loadingMore}}
+					{{loading-indicator size="small"}}
+				{{else}}
+					<a href="#" class="btn btn-default" {{action loadMore}}>Load More</a>
+				{{/if}}
+			</div>
+		{{/if}}
+	{{/if}}
+</div>
+
+<div class="discussion-pane">
+	{{liquid-outlet}}
+</div>

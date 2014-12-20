@@ -1,0 +1,357 @@
+.discussion-header, .post, .items div.gap:first-of-type:last-of-type {
+	max-width: 800px;
+}
+
+.posts {
+	// margin-bottom: 15px;
+}
+.posts .post {
+	padding-top: 25px;
+	padding-bottom: 25px;
+	border-bottom: 1px solid @flarum-body-secondary-color;
+}
+.item.highlight .post {
+	box-shadow: inset 0 -5px 0 rgba(255, 255, 0, 0.2), inset 0 5px 0 rgba(255, 255, 0, 0.2);
+}
+.items .item:first-of-type {
+	border-top: 0;
+}
+.items .item:last-of-type {
+	border-bottom: 0;
+}
+.post {
+	padding-left: 65px;
+	transition: 0.2s box-shadow;
+}
+.gap {
+	padding: 20px 0;
+	text-align: center;
+	color: @flarum-bg-muted-color;
+	margin: -1px -30px 0;
+	cursor: pointer;
+	border-top: 1px dashed @flarum-body-background-color !important;
+	border-bottom: 1px dashed @flarum-body-background-color !important;
+	transition: color 0.2s, padding 0.2s;
+	background: lighten(@flarum-background-color, 0%);
+	text-transform: uppercase;
+	font-size: 12px;
+	letter-spacing: 1px;
+	overflow: hidden;
+	position: relative;
+}
+.items div.gap:first-of-type {
+	margin-top: -30px;
+	position: relative;
+}
+.items div.gap:last-of-type {
+	margin-bottom: -30px;
+	border-bottom: 0;
+}
+.items div.gap:first-of-type:last-of-type {
+	margin: 0;
+	background: @flarum-body-background-color;
+	color: @flarum-body-muted-color;
+}
+.items div.gap:first-of-type:last-of-type:after {
+	display: none;
+}
+.gap.active, .gap:hover, .gap.loading {
+	padding: 50px 0;
+}
+.gap.loading {
+	color: @flarum-bg-muted-color;
+	transition: none;
+}
+.gap.down:after {
+	content: '\f078';
+	font-family: 'FontAwesome';
+	display: block;
+	opacity: 0;
+	transition: opacity 0.2s;
+	margin-bottom: -25px;
+	margin-top: 10px;
+	height: 15px;
+	color: @flarum-body-muted-color;
+}
+.gap.up:before {
+	content: '\f077';
+	font-family: 'FontAwesome';
+	display: block;
+	opacity: 0;
+	transition: opacity 0.4s;
+	margin-top: -25px;
+	margin-bottom: 10px;
+	height: 15px;
+}
+.gap:hover:before, .gap:hover:after, .gap.loading:before, .gap.loading:after, .gap.active:before, .gap.active:after {
+	opacity: 1;
+}
+
+
+
+.post {
+	line-height: 1.75em;
+	position: relative;
+}
+.item .controls {
+	// position: absolute;
+	// right: 10px;
+	// top: -2px;
+	// display: none;
+	float: right;
+	margin: 0 0 0 10px;
+}
+.item:hover .controls {
+	display: block;
+}
+.post .controls .btn {
+	margin-top: -2px;
+}
+.post header {
+	margin-bottom: 10px;
+}
+.post header, .post header a {
+	color: @flarum-body-muted-color;
+}
+.post .user {
+	margin: 0;
+	display: inline;
+}
+.post .user, .post .user a {
+	color: @flarum-body-primary-color;
+	font-weight: 600;
+	font-size: 16px;
+}
+.post .time {
+	font-size: 12px;
+	float: right;
+	&, & a {
+		color: @flarum-body-muted-color;
+	}
+}
+.post .reply-to {
+	margin-left: 5px;
+}
+
+.post {
+	// float: left;
+}
+.post-meta {
+	// float: left;
+	position: absolute;
+	left: 100%;
+	top: 25px;
+	margin-left: 30px;
+	width: 100px;
+	color: @flarum-body-muted-color;
+	// opacity: 0;
+	// transition: opacity 0s;
+}
+.post-icon {
+	float: left;
+
+}
+
+.post.deleted {
+
+	& .post-body,
+	& .post-meta,
+	& .avatar,
+	& .reply-to {
+		display: none;
+	}
+
+	& header {
+		margin-bottom: 0;
+	}
+
+	&, & header, & header a {
+		color: fadeout(@flarum-body-text-color, 50%);
+	}
+}
+
+@media screen and (max-width: 1300px) {
+	.post-meta {
+		position: static;
+		margin: 0;
+		width: auto;
+		margin-bottom: -15px;
+	}
+	.post-meta li {
+		display: inline;
+		margin-right: 15px;
+	}
+	.post-meta .reveal {
+		opacity: 1 !important;
+	}
+}
+.post-meta ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	line-height: 2em;
+}
+.post-meta a {
+	color: @flarum-body-muted-color;
+}
+.post-meta a:hover {
+	color: @flarum-body-primary-color;
+	text-decoration: none;
+}
+.post-meta .reveal {
+	opacity: 0;
+	transition: opacity 0.2s;
+}
+.item:hover .post-meta .reveal {
+	opacity: 1
+}
+
+.post header .avatar, .post .post-icon {
+	margin-left: -65px;
+	float: left;
+}
+.activity {
+	font-size: 16px;
+	// padding-top: 20px;
+	// padding-bottom: 20px;
+}
+.activity, .activity a {
+	color: @flarum-body-text-color;
+}
+.post .post-icon {
+	width: 48px;
+	text-align: right;
+	font-size: 22px;
+}
+.activity a {
+	font-weight: 600;
+}
+.discussion-header h4 {
+	font-size: 14px;
+	text-align: center;
+	margin: 0 0 15px 0;
+}
+.discussion-header h4, .discussion-header h4 a {
+	color: @flarum-body-muted-color;
+}
+.discussion-header .category {
+	padding: 3px 7px;
+	font-size: 13px;
+}
+.discussion-header h4 a {
+	font-weight: 600;
+}
+
+
+.discussion-footer {
+	margin-top: 15px;
+}
+.discussion-footer .list-inline {
+	margin-bottom: 0;
+}
+
+.discussion-controls {
+	margin: 0 auto;
+	margin-bottom: 30px;
+}
+.discussion-controls .btn {
+	// margin-top: 10px;
+}
+.discussion-controls .btn-group {
+	width: 100%;
+}
+
+.btn-group-suffix {
+	display: table;
+	border-spacing: 1px;
+}
+.btn-group-suffix .btn {
+	display: table-cell;
+	float: none;
+	width: 100%;
+}
+// .btn-group-suffix .dropdown-toggle {
+// 	float: right;
+// 	margin-right: -40px;
+// 	width: 39px;
+// }
+
+
+@media (min-width: @screen-md-min) {
+
+	.discussion-scrubber {
+		margin: 0 auto;
+		text-align: right;
+		margin-right: 3px;
+	}
+	.scrubber a {
+		color: @flarum-bg-muted-color;
+	}
+	.scrubber a i {
+		font-size: 14px;
+		margin-left: 5px;
+	}
+	.scrubber a:hover {
+		text-decoration: none;
+		color: @flarum-bg-link-color;
+	}
+	.scrubber .scrollbar {
+		margin: 10px 4px 10px 0;
+		position: relative;
+		cursor: pointer;
+	}
+	.scrubber .scrollbar-before, .scrubber .scrollbar-after {
+		border-right: 1px solid @flarum-bg-secondary-color;
+	}
+	.scrubber .scrollbar-slider {
+		position: relative;
+		width: 100%;
+		padding: 5px 0;
+	}
+	.scrubber .handle {
+		height: 100%;
+		width: 9px;
+		background: @flarum-bg-primary-color;
+		border-radius: 9px;
+		float: right;
+		margin-right: -4px;
+		transition: background 0.2s;
+	}
+	.scrubber .disabled .handle {
+		background: @flarum-bg-secondary-color;
+	}
+	.scrubber .info {
+		height: (2em * @line-height-base);
+		margin-top: (-1em * @line-height-base);
+		position: absolute;
+		top: 50%;
+		width: 100%;
+		right: 15px;
+	}
+	.scrubber .info strong {
+		display: block;
+	}
+	.scrubber .info .description {
+		color: @flarum-bg-muted-color;
+	}
+	.scrollbar-highlights {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		list-style-type: none;
+	}
+	.scrollbar-highlights li {
+		position: absolute;
+		right: -6px;
+		background: #fc0;
+		height: 8px;
+		width: 13px;
+		border-radius: 4px;
+		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+		opacity: 0.99;
+	}
+}
+
+

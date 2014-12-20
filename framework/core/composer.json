@@ -1,0 +1,33 @@
+{
+    "name": "flarum/core",
+    "description": "",
+    "authors": [
+        {
+            "name": "Toby Zerner",
+            "email": "toby@flarum.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
+        "laracasts/commander": "1.1.*",
+        "leafo/lessphp": "0.4.0",
+        "fzaninotto/faker": "1.4.0"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Flarum\\Core": "src/",
+            "Flarum\\Api": "src/",
+            "Flarum\\Web": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php artisan config:publish flarum/core"
+        ]
+    },
+    "minimum-stability": "dev"
+}
