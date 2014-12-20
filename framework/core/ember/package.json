@@ -26,7 +26,6 @@
     "ember-cli-autoprefixer": "^0.1.0",
     "ember-cli-ember-data": "0.1.0",
     "ember-cli-ic-ajax": "0.1.1",
-    "ember-cli-simple-auth": "^0.6.4-1",
     "express": "^4.1.1",
     "glob": "^3.2.9",
     "liquid-fire": "^0.9.2",
