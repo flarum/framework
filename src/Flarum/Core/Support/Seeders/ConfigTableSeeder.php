@@ -1,4 +1,6 @@
-<?php
+<?php  namespace Flarum\Core\Support\Seeders;
+
+use Illuminate\Database\Seeder;
 
 class ConfigTableSeeder extends Seeder {
 

@@ -18,7 +18,7 @@ class DiscussionTableSeeder extends Seeder
      */
     public function run()
     {
-        $faker = Faker\Factory::create();
+        $faker = \Faker\Factory::create();
 
         $users = User::count();
 
@@ -118,7 +118,7 @@ class DiscussionTableSeeder extends Seeder
                         'read_number'   => rand(0, $posts_count - 1),
                         'read_time'     => $faker->dateTimeBetween($discussion->start_time, 'now')
                     ]);
-                } catch (Exception $e) {
+                } catch (\Illuminate\Database\QueryException $e) {
 
                 }
             }
