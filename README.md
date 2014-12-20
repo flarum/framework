@@ -64,32 +64,44 @@ For a full list of planned features, see [Features](https://github.com/flarum/co
 
 Currently Flarum is in its very early stages, and it isn’t pretty. **It is far from usable.** Set it up only if you know what you’re doing, and expect it to break a lot.
 
-1. Make sure you have [Composer](http://getcomposer.org) and [ember-cli](http://www.ember-cli.com) installed globally.
+1. Make sure you have [Composer](http://getcomposer.org), [ember-cli](http://www.ember-cli.com), and [Bower](http://bower.io) installed globally.
 2. Create a new [Laravel 4](http://laravel.com/docs/4.2/quick) project.
-3. Run the following command in your project directory:
+3. Open up `composer.json` and change `minimum-stability` to `dev`.
+4. Run the following command in your project directory:
 
 	```
 	composer require flarum/core
 	```
 
-4. Create a new MySQL database and enter your details into `app/config/packages/flarum/core/config.php`.
-5. Run the Flarum migrations and database seeder to generate dummy data:
+5. Create a new MySQL database and configure your database details in `app/config/database.php`.
+6. Run the Flarum migrations and database seeder to generate dummy data:
 
 	```
-	php artisan migrate
-	php artisan db:seed --class="Flarum\Core\Support\DatabaseSeeder"
+	php artisan migrate --package="flarum/core"
+	php artisan db:seed --class="Flarum\Core\Support\Seeders\DatabaseSeeder"
 	```
 
-6. Run the following commands to compile the Ember app:
+7. Add the Flarum service providers to the `providers` array in `app/config/app.php`:
+
+	```
+	'Flarum\Core\CoreServiceProvider',
+	'Flarum\Api\ApiServiceProvider',
+	'Flarum\Web\WebServiceProvider'
+	```
+
+8. Remove the default route in `app/routes.php`.
+9. Run the following commands to compile the Ember app:
 
 	```
 	cd vendor/flarum/core/ember
+	npm install
+	bower install
 	ember serve --output-path="../public"
 	```
 
-7. Visit your Laravel application in a browser.  
+10. Visit your Laravel application in a browser.  
 
-	> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either make your web server's document root the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
+	> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either set your web server's document root to the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
 
 If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org).
 
