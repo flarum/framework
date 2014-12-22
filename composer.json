@@ -11,18 +11,20 @@
         "php": ">=5.4.0",
         "illuminate/support": "4.2.*",
         "laracasts/commander": "1.1.*",
-        "fzaninotto/faker": "1.4.0",
         "tobscure/json-api": "dev-master",
         "tobscure/permissible": "dev-master"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "1.4.0"
     },
     "autoload": {
         "classmap": [
             "src/migrations"
         ],
-        "psr-0": {
-            "Flarum\\Core": "src/",
-            "Flarum\\Api": "src/",
-            "Flarum\\Web": "src/"
+        "psr-4": {
+            "Flarum\\Core": "src/Flarum/Core",
+            "Flarum\\Api": "src/Flarum/Api",
+            "Flarum\\Web": "src/Flarum/Web"
         }
     },
     "scripts": {
