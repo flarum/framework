@@ -33,6 +33,8 @@ Ember.js is a mature JavaScript framework which will power Flarum’s front-end.
 
 I’ve been working on a prototype for some time in-between my studies. In addition to interface design, most of my time has been spent building out the architecture: making decisions about which frameworks to use, the most effective way to componentize everything, standardizing the API, etc.
 
+You might notice that a lot of the code is a bit of a mess right now. This is because I wanted to get things working on a superficial level in order to record material for the Kickstarter video, and since then I haven't yet had sufficient time to clean it up. Please be aware that the mess is not at all indicative of the standard that we're aiming for!
+
 ### What’s Done
 
 - [x] The basic technology stack (Laravel and Ember – see above)
