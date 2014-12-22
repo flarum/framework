@@ -15,16 +15,17 @@
         "tobscure/permissible": "dev-master"
     },
     "require-dev": {
-        "fzaninotto/faker": "1.4.0"
+        "fzaninotto/faker": "1.4.0",
+        "codeception/codeception": "~2.0.0"
     },
     "autoload": {
         "classmap": [
             "src/migrations"
         ],
         "psr-4": {
-            "Flarum\\Core": "src/Flarum/Core",
-            "Flarum\\Api": "src/Flarum/Api",
-            "Flarum\\Web": "src/Flarum/Web"
+            "Flarum\\Core\\": "src/Flarum/Core",
+            "Flarum\\Api\\": "src/Flarum/Api",
+            "Flarum\\Web\\": "src/Flarum/Web"
         }
     },
     "scripts": {
