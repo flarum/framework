@@ -28,10 +28,5 @@
             "Flarum\\Web\\": "src/Flarum/Web"
         }
     },
-    "scripts": {
-        "post-install-cmd": [
-            "php artisan config:publish flarum/core"
-        ]
-    },
     "minimum-stability": "dev"
 }
