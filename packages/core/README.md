@@ -82,7 +82,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 6. Run the Flarum migrations and database seeder to generate dummy data:
 
 	```
-	php artisan migrate --package="flarum/core"
+	php artisan migrate --bench="flarum/core"
 	php artisan db:seed --class="Flarum\Core\Support\Seeders\DatabaseSeeder"
 	```
 
@@ -98,7 +98,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 9. Run the following commands to compile the Ember app:
 
 	```
-	cd vendor/flarum/core/ember
+	cd workbench/flarum/core/ember
 	npm install
 	bower install
 	ember serve --output-path="../public"
