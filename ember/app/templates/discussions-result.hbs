@@ -1,7 +1,7 @@
-<div class="controls btn-group">
+{{!-- <div class="controls btn-group">
 	<button data-toggle="dropdown" class="dropdown-toggle btn btn-default btn-xs btn-icon">{{fa-icon "caret-down"}}</button>
 	{{menu-list items=view.controls class="dropdown-menu pull-right"}}
-</div>
+</div> --}}
 
 <div class="discussion">
 
@@ -40,7 +40,7 @@
 			{{#link-to "user" discussion.lastUser}}{{user-avatar discussion.lastUser class="avatar-thumb"}}{{/link-to}}
 			{{#link-to "discussion" discussion.content (query-params start="last")}}{{abbreviate-time discussion.lastTime}}{{/link-to}}
 		{{/if}}
-	</span>
+	</span> 
 
 	<span class="replies">{{abbreviate-number discussion.repliesCount}}</span>
 

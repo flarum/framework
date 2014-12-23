@@ -9,6 +9,10 @@ export default Ember.View.extend({
 
 	controls: null,
 
+	contentComponent: function() {
+		return 'post-type-'+this.get('post.type');
+	}.property('post.type'),
+
 	classNames: ['post'],
 	classNameBindings: ['post.deleted', 'post.edited'],
 
