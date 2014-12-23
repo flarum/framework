@@ -7,20 +7,19 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {{BASE_TAG}}
+    {{content-for 'head'}}
 
     <link rel="stylesheet" href="assets/vendor.css">
     <link rel="stylesheet" href="assets/flarum.css">
+
+    {{content-for 'head-footer'}}
   </head>
   <body>
-    <script>
-      window.FlarumENV = {{ENV}};
-      window.EmberENV = window.FlarumENV.EmberENV;
-    </script>
+    {{content-for 'body'}}
+
     <script src="assets/vendor.js"></script>
     <script src="assets/flarum.js"></script>
-    <script>
-      window.Flarum = require('flarum/app')['default'].create(FlarumENV.APP);
-    </script>
+
+    {{content-for 'body-footer'}}
   </body>
 </html>

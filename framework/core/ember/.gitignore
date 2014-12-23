@@ -6,8 +6,7 @@
 
 # dependencies
 /node_modules
-/vendor/*
-!/vendor/json-api.js
+/bower_components
 
 # misc
 /.sass-cache

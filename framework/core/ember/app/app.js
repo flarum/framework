@@ -1,21 +1,17 @@
 import Ember from 'ember';
 import Resolver from 'ember/resolver';
 import loadInitializers from 'ember/load-initializers';
+import config from './config/environment';
 
 Ember.MODEL_FACTORY_INJECTIONS = true;
 
 var App = Ember.Application.extend({
-  modulePrefix: 'flarum', // TODO: loaded via config
-  Resolver: Resolver,
-
-  registerPlugin: function(plugin) {
-        console.log('Plugin loaded: '+plugin.name);
-        plugin.boot();
-    }
+  modulePrefix: config.modulePrefix,
+  podModulePrefix: config.podModulePrefix,
+  Resolver: Resolver
 });
 
-loadInitializers(App, 'flarum');
-
+loadInitializers(App, config.modulePrefix);
 
 //-----------------------------------------
 // TODO: Move all this to an initializer

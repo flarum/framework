@@ -1,14 +1,12 @@
-import Ember from 'ember';
-import DS from 'ember-data';
+import JsonApiSerializer from 'ember-json-api/json-api-serializer';
+export default JsonApiSerializer.extend({
+	normalize: function(type, hash, property) {
+		var json = {};
 
-export default DS.JsonApiSerializer.extend({
-  normalize: function(type, hash, property) {
-    var json = {};
+		for (var prop in hash) {
+			json[prop.camelize()] = hash[prop]; 
+		}
 
-    for (var prop in hash) {
-      json[prop.camelize()] = hash[prop]; 
-    }
-
-    return this._super(type, json, property);
-}
+		return this._super(type, json, property);
+	}
 });

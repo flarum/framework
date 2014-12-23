@@ -10,4 +10,4 @@
     {{!-- #{{view.post.number}} (ID: {{view.post.id}}) --}}
 {{/link-to}}
 
-{{post-content view.post}}
+{{dynamic-component type=view.contentComponent post=view.post}}
