@@ -68,13 +68,14 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 1. Make sure you have [Composer](http://getcomposer.org), [ember-cli](http://www.ember-cli.com), and [Bower](http://bower.io) installed globally.
 2. Create a new [Laravel 4](http://laravel.com/docs/4.2/quick) project.
-3. Open up `composer.json` and change `minimum-stability` to `dev`.
-4. Run the following commands in your project directory:
-
+3. Clone the Flarum repository into the workbench and install dependencies:
+	
 	```
-	composer require flarum/core
-	cd vendor/flarum/core
+	git clone https://github.com/flarum/core.git workbench/flarum/core
+	cd workbench/flarum/core
 	composer install
+	cd ../../..
+	php artisan dump-autoload
 	```
 
 5. Create a new MySQL database and configure your database details in `app/config/database.php`.
