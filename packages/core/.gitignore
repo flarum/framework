@@ -4,3 +4,4 @@ composer.phar
 Thumbs.db
 public/*
 tests/_output/*
+.vagrant
