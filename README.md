@@ -66,47 +66,26 @@ For a full list of planned features, see [Features](https://github.com/flarum/co
 
 Currently Flarum is in its very early stages, and it isn’t pretty. **It is far from usable.** Set it up only if you know what you’re doing, and expect it to break a lot.
 
-1. Make sure you have [Composer](http://getcomposer.org), [ember-cli](http://www.ember-cli.com), and [Bower](http://bower.io) installed globally.
-2. Create a new [Laravel 4](http://laravel.com/docs/4.2/quick) project.
-3. Clone the Flarum repository into the workbench and install dependencies:
-	
-	```
-	git clone https://github.com/flarum/core.git workbench/flarum/core
-	cd workbench/flarum/core
-	composer install
-	cd ../../..
-	php artisan dump-autoload
-	```
-
-5. Create a new MySQL database and configure your database details in `app/config/database.php`.
-6. Run the Flarum migrations and database seeder to generate dummy data:
+1. Install [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org).
+2. Clone the [Flarum skeleton app](https://github.com/flarum/flarum) and set up the Vagrant box:
 
 	```
-	php artisan migrate --bench="flarum/core"
-	php artisan db:seed --class="Flarum\Core\Support\Seeders\DatabaseSeeder"
+	git clone git@github.com:flarum/flarum
+	cd flarum
+	vagrant up
 	```
 
-7. Add the Flarum service providers to the `providers` array in `app/config/app.php`:
+3. SSH into the Vagrant box and compile the Ember app:
 
-	```
-	'Flarum\Core\CoreServiceProvider',
-	'Flarum\Api\ApiServiceProvider',
-	'Flarum\Web\WebServiceProvider'
-	```
+	```cd /vagrant/workbench/flarum/core/ember && ember serve --output-path="../public"```
 
-8. Remove the default route in `app/routes.php`.
-9. Run the following commands to compile the Ember app:
+	> You can also use the `esv` alias to run the above command.
 
-	```
-	cd workbench/flarum/core/ember
-	npm install
-	bower install
-	ember serve --output-path="../public"
-	```
+4. Add the following to your /etc/hosts file:
 
-10. Visit your Laravel application in a browser.  
+	```192.168.29.29 flarum.dev```
 
-	> Note: You must access the Laravel application so that it is at the top level (i.e. not under any sub-directories.) To do this, you can either set your web server's document root to the `public` folder of your application, or you can [configure a virtual host](http://davidwalsh.name/create-virtual-host) pointing to the `public` folder.
+5. Visit flarum.dev in a browser.  
 
 If you’re having trouble, **do not** create a new issue — instead, get help on the [Flarum Development Forum](http://discuss.flarum.org) or hop on the IRC channel (#flarum on irc.freenode.net).
 
