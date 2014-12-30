@@ -37,7 +37,8 @@ class DiscussionTableSeeder extends Seeder
                 'time'          => $discussion->start_time,
                 'user_id'       => $discussion->start_user_id,
                 'type'          => 'comment',
-                'content'       => $faker->realText(rand(100, 1000))
+                'content'       => $faker->realText(rand(100, 1000)),
+                'html_content'       => $faker->realText(rand(100, 1000))
             ]);
 
             $discussion->start_post_id = $post->id;
@@ -63,7 +64,8 @@ class DiscussionTableSeeder extends Seeder
                         'time'          => $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')),
                         'user_id'       => rand(1, $users),
                         'type'          => 'title',
-                        'content'       => $discussion->title
+                        'content'       => $discussion->title,
+                        'html_content'       => $discussion->title
                     ]);
                 } else {
                     $edited = rand(1, 20) == 1;
@@ -80,6 +82,7 @@ class DiscussionTableSeeder extends Seeder
                         'user_id'       => rand(1, $users),
                         'type'          => 'comment',
                         'content'       => $faker->realText(rand(50, 500)),
+                        'html_content'       => $faker->realText(rand(50, 500)),
                         'edit_time'     => $edited ? $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')) : null,
                         'edit_user_id'  => $edited ? rand(1, $users) : null,
                         'delete_time'     => $deleted ? $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')) : null,
