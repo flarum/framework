@@ -77,7 +77,10 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 3. SSH into the Vagrant box and compile the Ember app:
 
-	```cd /vagrant/workbench/flarum/core/ember && ember serve --output-path="../public"```
+	```
+	vagrant ssh
+	cd /vagrant/workbench/flarum/core/ember && ember serve --output-path="../public"
+	```
 
 	> You can also use the `esv` alias to run the above command.
 
