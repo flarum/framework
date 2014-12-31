@@ -61,6 +61,7 @@ class DiscussionTableSeeder extends Seeder
 
                     $post = Post::create([
                         'discussion_id' => $discussion->id,
+                        'number'        => $j + 2 + $numberOffset,
                         'time'          => $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')),
                         'user_id'       => rand(1, $users),
                         'type'          => 'title',
