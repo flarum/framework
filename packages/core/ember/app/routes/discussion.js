@@ -6,14 +6,6 @@ export default Ember.Route.extend({
 		start: {replace: true}
 	},
 
-	renderTemplate: function() {
-		this.render();
-		this.render('discussion-sidebar', {
-			into: 'application',
-			outlet: 'sidebar'
-		});
-	},
-
 	model: function(params) {
 		return this.store.find('discussion', params.id);
 	},

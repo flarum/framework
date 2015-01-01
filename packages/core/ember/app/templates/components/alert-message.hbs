@@ -1,0 +1,9 @@
+<div {{bind-attr class=":alert alert.class"}}>
+	<span class="alert-text">{{alert.text}}</span>
+	<span class="alert-actions">
+		<a href="#">Undo</a> <!-- menu -->
+		{{#if alert.dismissable}}
+			<a href="#" {{action "close"}}>{{fa-icon "times"}}</a>
+		{{/if}}
+	</span>
+</div>
