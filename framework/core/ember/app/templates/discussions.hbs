@@ -1,9 +1,17 @@
-<div {{bind-attr class=":discussions-pane paned paneShowing:showing"}}>
-	<header class="page-header discussions-header">
-		<div class="pull-right">
-			{{#if paned}}
-				<a href="" {{bind-attr class=":btn :btn-default :btn-sm panePinned:active"}} {{action "togglePinned"}}>{{fa-icon "thumb-tack"}}</a>
-			{{else}}
+<div class="discussions-area">
+
+	<nav class="discussions-nav">
+		<button class="btn btn-primary">
+			{{fa-icon "edit"}}
+			<span class="label">Start a Discussion</span>
+		</button>
+		{{menu-list items=discussionsNavItems class="nav"}}
+	</nav>
+
+	<div class="discussions-results">
+
+		<div class="discussions-toolbar">
+			<div class="discussions-toolbar-view">
 				<span class="btn-group">
 					{{#link-to (query-params show="discussions") class="btn btn-default btn-sm"}}{{fa-icon "bars"}}{{/link-to}}
 					{{#link-to (query-params show="posts") class="btn btn-default btn-sm"}}{{fa-icon "square-o"}}{{/link-to}}
@@ -14,33 +22,36 @@
 					optionValuePath="content.sort"
 					optionLabelPath="content.label"
 					value=sort}}
-			{{/if}}
-		</div>
-		
-		{{partial "discussions-header"}}
-	</header>
-
-	{{#if resultsLoading}}
-		{{loading-indicator size="small"}}
-	{{else}}
-		<ul class="discussions">
-		{{#each discussion in content}}
-			{{view "discussions-result" discussion=discussion}}
-		{{/each}}
-		</ul>
-
-		{{#if moreResults}}
-			<div class="load-more">
-				{{#if loadingMore}}
-					{{loading-indicator size="small"}}
-				{{else}}
-					<a href="#" class="btn btn-default" {{action loadMore}}>Load More</a>
-				{{/if}}
 			</div>
+			<div class="discussions-toolbar-action">
+				<button class="btn btn-default">{{fa-icon "check"}}</button>
+			</div>
+		</div>
+
+		{{#if resultsLoading}}
+			{{loading-indicator size="small"}}
+		{{else}}
+			<ul class="discussions-list">
+				{{#each discussion in content}}
+					{{discussions-list-item discussion=discussion}}
+				{{/each}}
+			</ul>
+
+			{{#if moreResults}}
+				<div class="load-more">
+					{{#if loadingMore}}
+						{{loading-indicator size="small"}}
+					{{else}}
+						<button class="btn btn-default" {{action loadMore}}>Load More</button>
+					{{/if}}
+				</div>
+			{{/if}}
 		{{/if}}
-	{{/if}}
+
+	</div>
+	
 </div>
 
-<div class="discussion-pane">
-	{{liquid-outlet}}
+<div class="discussion-area">
+	{{outlet}}
 </div>

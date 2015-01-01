@@ -1,13 +1,13 @@
 <header class="page-header discussion-header">
-	{{partial "discussion-header"}}
+	{{partial "partials/discussion-header"}}
 </header>
 
 <section class="items posts">
 {{#each item in postStream}}
 
-	{{#view "discussion-item" item=item}}
-		{{#if item.post}}{{view "discussion-post" post=item.post}}{{/if}}
-	{{/view}}
+	{{#discussion-item item=item}}
+		{{#if item.post}}{{discussion-post post=item.post}}{{/if}}
+	{{/discussion-item}}
 
 {{/each}}
 </section>

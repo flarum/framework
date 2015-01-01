@@ -16,7 +16,6 @@ Router.map(function() {
 	this.resource('user', { path: '/user/:username' }, function() {
 		this.route('activity');
 		this.route('posts');
-		this.route('discussions');
 		this.route('preferences');
 	});
 });
