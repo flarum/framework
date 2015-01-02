@@ -1,10 +1,16 @@
 import Ember from 'ember';
 
+import NamedContainerView from '../utils/named-container-view';
 import Menu from '../utils/menu';
 import MenuItem from '../components/menu-item';
+import DropdownSplit from '../components/dropdown-split';
+import DropdownButton from '../components/dropdown-button';
+import DiscussionScrollbar from '../components/discussion-scrollbar';
 import PostStreamMixin from '../mixins/post-stream';
 
 export default Ember.View.extend(Ember.Evented, PostStreamMixin, {
+
+    sidebar: Ember.ContainerView,
 
     // Set up a new menu view that will contain controls to be shown in the
     // footer. The template will only render these controls if the last post is
@@ -23,11 +29,8 @@ export default Ember.View.extend(Ember.Evented, PostStreamMixin, {
 
     didInsertElement: function() {
 
-        this.set('footerControls', Menu.create());
-
-        // We've just inserted the discussion view. Let's start off by
-        // populating the footer controls menu object.
-        this.trigger('populateControls', this.get('footerControls'));
+        // We've just inserted the discussion view.
+        this.trigger('populateSidebar', this.get('sidebar'));
 
         // Whenever the window's scroll position changes, we want to check to
         // see if any terminal 'gaps' are in the viewport and trigger their
@@ -56,13 +59,26 @@ export default Ember.View.extend(Ember.Evented, PostStreamMixin, {
         controller.off('loadedIndex', this, this.loadedIndex);
     },
 
-    // By default, we just populate the footer controls with a 'reply' button.
-    addDefaultControls: function(controls) {
+    setupSidebar: function(sidebar) {
+        this.set('controls', Menu.create());
+        this.trigger('populateControls', this.get('controls'));
+        sidebar.pushObject(DropdownSplit.create({
+            items: this.get('controls'),
+            icon: 'reply',
+            buttonClass: 'btn-primary',
+            menuClass: 'pull-right'
+        }));
+
+        sidebar.pushObject(DropdownButton.create({items: this.get('controls')}));
+
+        sidebar.pushObject(DiscussionScrollbar.create());
+    }.on('populateSidebar'),
+
+    setupControls: function(controls) {
         var view = this;
         var ReplyItem = MenuItem.extend({
             title: 'Reply',
             icon: 'reply',
-            className: 'btn btn-primary',
             classNameBindings: ['className', 'replying:disabled'],
             replying: function() {
                 return this.get('parentController.controllers.composer.showing');

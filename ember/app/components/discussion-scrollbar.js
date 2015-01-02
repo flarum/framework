@@ -10,7 +10,7 @@ export default Ember.View.extend(PostStreamMixin, {
     @property templateName
     @type String
   */
-  templateName: 'discussion-scrollbar',
+  templateName: 'components/discussion-scrollbar',
   classNames: ['scrubber', 'discussion-scrubber'],
 
   // An object which represents/ecapsulates the scrollbar.
@@ -28,7 +28,7 @@ export default Ember.View.extend(PostStreamMixin, {
 
   windowWasResized: function(event) {
     var view = event.data.view;
-    view.scrollbar.$.height($('#sidebar-content').height() + $('#sidebar-content').offset().top - view.scrollbar.$.offset().top - 80);
+    // view.scrollbar.$.height($('#sidebar-content').height() + $('#sidebar-content').offset().top - view.scrollbar.$.offset().top - 80);
     view.scrollbar.update();
   },
 

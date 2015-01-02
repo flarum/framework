@@ -48,15 +48,7 @@ export default Ember.ArrayProxy.extend({
 
 	firstItem: function() {
     	return this.objectAt(0);
-    }.property(),
-
-    secondItem: function() {
-        return this.objectAt(1);
-    }.property(),
-
-    remainingItems: function() {
-    	return this.slice(2);
-    }.property(),
+    }.property('content.@each'),
 
     getItem: function(name) {
     	return this.get('namedViews').get(name);
