@@ -70,7 +70,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 2. Clone the [Flarum skeleton app](https://github.com/flarum/flarum) and set up the Vagrant box:
 
 	```
-	git clone git@github.com:flarum/flarum
+	git clone https://github.com/flarum/flarum.git
 	cd flarum
 	vagrant up
 	```
