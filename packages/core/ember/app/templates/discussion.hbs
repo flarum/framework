@@ -2,6 +2,10 @@
 	{{partial "partials/discussion-header"}}
 </header>
 
+<nav class="discussion-nav">
+	{{view view.sidebar viewName="sidebar"}}
+</nav>
+
 <section class="items posts">
 {{#each item in postStream}}
 
@@ -11,9 +15,3 @@
 
 {{/each}}
 </section>
-
-{{#if postStream.lastLoaded}}
-	<footer class="page-footer discussion-footer">
-		{{menu-list items=view.footerControls class="list-inline"}}
-	</footer>
-{{/if}}
