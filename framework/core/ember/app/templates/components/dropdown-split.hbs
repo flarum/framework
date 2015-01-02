@@ -1,0 +1,8 @@
+{{#if items}}
+    {{view items.firstItem class=mainButtonClass}}
+    <button {{bind-attr class=":dropdown-toggle :btn buttonClass"}}>
+        {{fa-icon "caret-down" class="icon-caret"}}
+        {{fa-icon icon class="icon-glyph"}}
+    </button>
+    {{menu-list items=items class=dropdownMenuClass}}
+{{/if}}
