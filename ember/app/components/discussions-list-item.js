@@ -131,18 +131,18 @@ export default Ember.View.extend({
 
 		var discussion = this.get('discussion');
 
-		var controls = this.get('controls');
+		// var controls = this.get('controls');
 
-		controls.addItem('sticky', MenuItem.extend({title: 'Sticky', icon: 'thumb-tack', action: 'sticky'}));
-		controls.addItem('lock', MenuItem.extend({title: 'Lock', icon: 'lock', action: 'lock'}));
+		// controls.addItem('sticky', MenuItem.extend({title: 'Sticky', icon: 'thumb-tack', action: 'sticky'}));
+		// controls.addItem('lock', MenuItem.extend({title: 'Lock', icon: 'lock', action: 'lock'}));
 
-		controls.addSeparator();
+		// controls.addSeparator();
 
-		controls.addItem('delete', MenuItem.extend({title: 'Delete', icon: 'times', className: 'delete', action: function() {
-			// this.get('controller').send('delete', discussion);
-			var discussion = view.$().slideUp().find('.discussion');
-			discussion.css('position', 'relative').animate({left: -discussion.width()});
-		}}));
+		// controls.addItem('delete', MenuItem.extend({title: 'Delete', icon: 'times', className: 'delete', action: function() {
+		// 	// this.get('controller').send('delete', discussion);
+		// 	var discussion = view.$().slideUp().find('.discussion');
+		// 	discussion.css('position', 'relative').animate({left: -discussion.width()});
+		// }}));
 	},
 
 	actions: {

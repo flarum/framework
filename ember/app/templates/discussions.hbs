@@ -1,11 +1,7 @@
 <div class="discussions-area">
 
 	<nav class="discussions-nav">
-		<button class="btn btn-primary">
-			{{fa-icon "edit"}}
-			<span class="label">Start a Discussion</span>
-		</button>
-		{{menu-list items=discussionsNavItems class="nav"}}
+		{{view view.sidebarView viewName="sidebar"}}
 	</nav>
 
 	<div class="discussions-results">

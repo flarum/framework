@@ -6,6 +6,7 @@ var MenuItem = Ember.Component.extend({
     className: '',
     action: null,
     divider: false,
+    active: false,
 
     tagName: 'a',
     attributeBindings: ['href'],
