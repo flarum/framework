@@ -10,7 +10,7 @@ export default Ember.View.extend({
 	classNames: ['btn'],
 	classNameBindings: ['class', 'disabled'],
 
-	layout: Ember.Handlebars.compile('{{#if view.icon}}{{fa-icon view.icon class="fa-fw"}} {{/if}}<span>{{view.title}}</span>'),
+	layout: Ember.Handlebars.compile('{{#if view.icon}}{{fa-icon view.icon class="fa-fw"}} {{/if}}<span class="label">{{view.title}}</span>'),
 
 	click: function() {
 		this.action();

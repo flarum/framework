@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import MenuItemContainer from '../components/menu-item-container';
+
 export default Ember.Component.extend({
     items: null, // NamedContainerView/Menu
     layoutName: 'components/dropdown-button',
@@ -17,5 +19,19 @@ export default Ember.Component.extend({
 
     itemCountClass: function() {
         return 'item-count-'+this.get('items.length');
-    }.property('items')
+    }.property('items'),
+
+    containedItems: function() {
+        var contained = [];
+        this.get('items').forEach(function(item) {
+            if (item.tagName != 'li') {
+                contained.push(MenuItemContainer.extend({
+                    item: item
+                }));
+            } else {
+                contained.push(item);
+            }
+        });
+        return contained;
+    }.property('items.[]')
 });
