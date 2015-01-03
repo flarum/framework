@@ -23,17 +23,17 @@
 					{{/link-to}}
 				</h1>
 
-				{{menu-list items=headerPrimaryControls class="nav"}}
+				{{ui/controls/item-list items=headerPrimaryControls class="nav"}}
 
 			</div>
 
 			<div id="header-secondary">
 
 				<div class="search">
-					{{search-input placeholder="Search forum" value=searchQuery active=searchActive action="search"}}
+					{{ui/controls/search-input placeholder="Search forum" value=searchQuery active=searchActive action="search"}}
 				</div>
 
-				{{menu-list items=headerSecondaryControls}}
+				{{ui/controls/item-list items=headerSecondaryControls}}
 
 			</div>
 
@@ -46,7 +46,7 @@
 	</main>
 
 	<footer id="footer">
-		{{menu-list items=footerControls}}
+		{{ui/controls/item-list items=footerControls}}
 	</footer>
 
 </div>

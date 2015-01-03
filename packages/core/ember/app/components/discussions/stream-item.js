@@ -4,7 +4,7 @@ import Ember from 'ember';
 // single item may represent a single post, or it may represent a gap of many
 // posts which have not been loaded.
 
-export default Ember.View.extend({
+export default Ember.Component.extend({
 	classNames: ['item'],
 	classNameBindings: ['item.gap:gap', 'loading', 'direction'],
 	attributeBindings: [

@@ -1,12 +1,12 @@
-
 import Ember from 'ember';
-import Menu from '../utils/menu';
-import MenuItem from '../components/menu-item';
 
-export default Ember.View.extend({
+import TaggedArray from '../../utils/tagged-array';
+import ActionButton from '../ui/controls/action-button';
+
+export default Ember.Component.extend({
 
 	_init: function() {
-		this.set('controls', Menu.create());
+		// this.set('controls', Menu.create());
 	}.on('init'),
 
 	tagName: 'li',
@@ -18,7 +18,7 @@ export default Ember.View.extend({
 		'discussion.following:following',
 		'active'
 	],
-	templateName: 'discussions-result',
+	templateName: 'components/discussions/discussion-listing',
 
 	active: function() {
 		return this.get('childViews').anyBy('active');
