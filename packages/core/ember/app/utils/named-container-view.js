@@ -3,11 +3,10 @@ import Ember from 'ember';
 export default Ember.ArrayProxy.extend({
 
     content: null,
-
 	namedViews: null,
 
     init: function() {
-        this.set('content', Ember.A());
+        this.set('content', Ember.A()); // this is an important line.
         this.set('namedViews', Ember.Object.create());
         this._super();
     },

@@ -1,8 +1,8 @@
 {{#if items}}
-    <button {{bind-attr class=":dropdown-toggle :btn buttonClass"}}>
+    <button {{bind-attr class=":dropdown-toggle :btn buttonClass"}} data-toggle="dropdown">
         {{fa-icon icon class="icon-glyph"}}
     	<span class="label">{{title}}</span>
         {{fa-icon "caret-down" class="icon-caret"}}
     </button>
-    {{menu-list items=items class=dropdownMenuClass}}
+    {{menu-list items=containedItems class=dropdownMenuClass}}
 {{/if}}

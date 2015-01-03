@@ -1,6 +1,13 @@
 import Ember from 'ember';
 
+import DropdownSelect from '../components/dropdown-select';
+import ButtonItem from '../components/button-item';
+import NavItem from '../components/nav-item';
+import Menu from '../utils/menu';
+
 export default Ember.View.extend({
+
+	sidebarView: Ember.ContainerView.extend(),
 
 	classNameBindings: ['pinned'],
 
@@ -9,6 +16,8 @@ export default Ember.View.extend({
     }.property('controller.panePinned'),
 
 	didInsertElement: function() {
+
+		this.trigger('populateSidebar', this.get('sidebar'));
 
 		var view = this;
 
@@ -48,6 +57,46 @@ export default Ember.View.extend({
 			}
 		});
 	},
+
+	setupSidebar: function(sidebar) {
+        sidebar.pushObject(ButtonItem.create({
+        	title: 'Start a Discussion',
+        	icon: 'edit',
+        	class: 'btn-primary'
+        }));
+
+        var nav = Menu.create();
+        this.trigger('populateNav', nav);
+        sidebar.pushObject(DropdownSelect.create({
+            items: nav
+        }));
+    }.on('populateSidebar'),
+
+    setupNav: function(nav) {
+        nav.addItem('all', NavItem.create({
+			title: 'All Discussions',
+			icon: 'comments-o',
+			linkTo: '"discussions" (query-params filter="")'
+		}));
+
+		nav.addItem('private', NavItem.create({
+			title: 'Private',
+			icon: 'envelope-o',
+			linkTo: '"discussions" (query-params filter="private")'
+		}));
+
+		nav.addItem('following', NavItem.create({
+			title: 'Following',
+			icon: 'star',
+			linkTo: '"discussions" (query-params filter="following")'
+		}));
+
+		nav.addItem('categories', NavItem.create({
+			title: 'Categories',
+			icon: 'reorder',
+			linkTo: '"categories"'
+		}));
+    }.on('populateNav'),
 
 	willDestroyElement: function() {
 		this.set('controller.test', $(window).scrollTop());

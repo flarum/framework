@@ -5,18 +5,24 @@ export default Ember.Component.extend({
 	title: '',
 	action: null,
 	badge: '',
-	badgeAction: null,
-	// active: false,
 
 	tagName: 'li',
 	classNameBindings: ['active'],
     active: function() {
-        return this.get('childViews').anyBy('active');
+        return !! this.get('childViews').anyBy('active');
     }.property('childViews.@each.active'),
 
+    // init: function() {
+    //     var params = this.params;
+    //     if (params[params.length - 1].queryParams) {
+    //         this.queryParamsObject = {values: params.pop().queryParams};
+    //     }
+
+    //     this._super();
+    // },
+
 	layout: function() {
-        return Ember.Handlebars.compile('<a href="#" class="count" {{action "badge"}}>{{badge}}</a>\
-            {{#link-to '+this.get('linkTo')+'}}'+this.get('iconTemplate')+'{{title}}{{/link-to}}');
+        return Ember.Handlebars.compile('{{#link-to '+this.get('linkTo')+'}}'+this.get('iconTemplate')+' {{title}} <span class="count">{{badge}}</span>{{/link-to}}');
     }.property('linkTo', 'iconTemplate'),
 
     iconTemplate: function() {
@@ -26,9 +32,6 @@ export default Ember.Component.extend({
     actions: {
         main: function() {
             this.get('action')();
-        },
-        badge: function() {
-            this.get('badgeAction')();
         }
     }
 });
