@@ -7,17 +7,19 @@ var Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-	this.resource('categories', { path: '/categories' });
 
-	this.resource('discussions', { path: '/' }, function() {
-        this.resource('discussion', { path: '/:id/:slug' });
+	this.resource('discussions', {path: '/'}, function() {
+        this.resource('discussion', {path: '/:id/:slug'}, function() {
+        	this.route('near', {path: '/:near'});
+        });
     });
 
-	this.resource('user', { path: '/user/:username' }, function() {
+	this.resource('user', {path: '/u/:username'}, function() {
 		this.route('activity');
 		this.route('posts');
-		this.route('preferences');
+		this.resource('preferences');
 	});
+
 });
 
 export default Router;
