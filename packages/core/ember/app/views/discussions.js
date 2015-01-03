@@ -1,6 +1,13 @@
 import Ember from 'ember';
 
+import DropdownSelect from '../components/ui/controls/dropdown-select';
+import ActionButton from '../components/ui/controls/action-button';
+import NavItem from '../components/ui/items/nav-item';
+import TaggedArray from '../utils/tagged-array';
+
 export default Ember.View.extend({
+
+	sidebarItems: null,
 
 	classNameBindings: ['pinned'],
 
@@ -9,6 +16,10 @@ export default Ember.View.extend({
     }.property('controller.panePinned'),
 
 	didInsertElement: function() {
+
+		var sidebarItems = TaggedArray.create();
+		this.trigger('populateSidebar', sidebarItems);
+		this.set('sidebarItems', sidebarItems);
 
 		var view = this;
 
@@ -48,6 +59,39 @@ export default Ember.View.extend({
 			}
 		});
 	},
+
+	populateSidebarDefault: function(sidebar) {
+		var newDiscussion = ActionButton.create({
+        	title: 'Start a Discussion',
+        	icon: 'edit',
+        	class: 'btn-primary'
+        })
+        sidebar.pushObjectWithTag(newDiscussion, 'newDiscussion');
+
+        var nav = TaggedArray.create();
+        this.trigger('populateNav', nav);
+        sidebar.pushObjectWithTag(DropdownSelect.createWithItems(nav), 'nav');
+    }.on('populateSidebar'),
+
+    populateNavDefault: function(nav) {
+        nav.pushObjectWithTag(NavItem.create({
+			title: 'All Discussions',
+			icon: 'comments-o',
+			linkTo: '"discussions" (query-params filter="")'
+		}), 'all');
+
+		nav.pushObjectWithTag(NavItem.create({
+			title: 'Private',
+			icon: 'envelope-o',
+			linkTo: '"discussions" (query-params filter="private")'
+		}), 'private');
+
+		nav.pushObjectWithTag(NavItem.create({
+			title: 'Following',
+			icon: 'star',
+			linkTo: '"discussions" (query-params filter="following")'
+		}), 'following');
+    }.on('populateNav'),
 
 	willDestroyElement: function() {
 		this.set('controller.test', $(window).scrollTop());

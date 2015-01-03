@@ -1,56 +1,62 @@
-{{outlet "modal"}}
+<div id="wrapper">
 
-{{#if notificationMessage}}
-	<div id="message-container">
-		{{notification-message message=notificationMessage closeAction="hideMessage"}}
-	</div>
-{{/if}}
+	<header id="header">
 
-<div id="wrapper" class="sidebar-open">
+		<div id="back-nav">
+			<div class="btn-group">
+				<button class="btn">{{fa-icon "chevron-left"}}</button>
+				<button class="btn">{{fa-icon "thumb-tack"}}</button>
+			</div>
+		</div>
 
-	<div id="sidebar">
+		<div id="header-content">
 
-		<div id="sidebar-header">
-			<header>
-				<h1>
+			<div id="header-primary">
+
+				<h1 id="header-title">
 					{{#link-to "discussions" (query-params searchQuery="" sort="recent" show="discussions")}}
-						{{{view.title}}}
+						{{#if view.image}}
+							<img {{bind-attr src=view.image alt=view.title}}>
+						{{else}}
+							{{view.title}}
+						{{/if}}
 					{{/link-to}}
 				</h1>
-			</header>
 
-			<header class="mobile-header">
-				<a href="javascript:window.history.back()" class="back">{{fa-icon "chevron-left"}}</a>
-				<h1>{{documentTitle}}</h1>
-			</header>	
+				{{ui/controls/item-list items=headerPrimaryControls class="nav"}}
 
-			<div class="search">
-				{{#if showDiscussionStream}}
-					{{render "discussions-nav" controller="discussions"}}
-				{{else}}
-					{{search-input placeholder="Search forum..." value=searchQuery active=searchActive action="search"}}
-				{{/if}}
 			</div>
-		</div>
 
-		<div id="sidebar-body">
-			<div id="sidebar-content">
-				{{liquid-outlet "sidebar" enableGrowth=false}}
+			<div id="header-secondary">
+
+				<div class="search">
+					{{ui/controls/search-input placeholder="Search forum" value=searchQuery active=searchActive action="search"}}
+				</div>
+
+				{{ui/controls/item-list items=headerSecondaryControls}}
+
 			</div>
+
 		</div>
 
-		<div id="sidebar-footer">
-			<footer>
-				{{view "session"}}
-			</footer>
-		</div>
+	</header>
 
-	</div>
-
-	<div id="body">
+	<main id="body">
 		{{outlet}}
+	</main>
 
-		{{render "composer"}}
-	</div>
+	<footer id="footer">
+		{{ui/controls/item-list items=footerControls}}
+	</footer>
 
+</div>
+
+{{outlet "modal"}}
+
+{{render "composer"}}
+
+<div id="alerts">
+	{{#each alert in alerts}}
+		{{alert-message message=alert}}
+	{{/each}}
 </div>
