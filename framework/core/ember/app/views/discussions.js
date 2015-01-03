@@ -1,13 +1,13 @@
 import Ember from 'ember';
 
-import DropdownSelect from '../components/dropdown-select';
-import ButtonItem from '../components/button-item';
-import NavItem from '../components/nav-item';
-import Menu from '../utils/menu';
+import DropdownSelect from '../components/ui/controls/dropdown-select';
+import ActionButton from '../components/ui/controls/action-button';
+import NavItem from '../components/ui/items/nav-item';
+import TaggedArray from '../utils/tagged-array';
 
 export default Ember.View.extend({
 
-	sidebarView: Ember.ContainerView.extend(),
+	sidebarItems: null,
 
 	classNameBindings: ['pinned'],
 
@@ -17,7 +17,9 @@ export default Ember.View.extend({
 
 	didInsertElement: function() {
 
-		this.trigger('populateSidebar', this.get('sidebar'));
+		var sidebarItems = TaggedArray.create();
+		this.trigger('populateSidebar', sidebarItems);
+		this.set('sidebarItems', sidebarItems);
 
 		var view = this;
 
@@ -58,44 +60,37 @@ export default Ember.View.extend({
 		});
 	},
 
-	setupSidebar: function(sidebar) {
-        sidebar.pushObject(ButtonItem.create({
+	populateSidebarDefault: function(sidebar) {
+		var newDiscussion = ActionButton.create({
         	title: 'Start a Discussion',
         	icon: 'edit',
         	class: 'btn-primary'
-        }));
+        })
+        sidebar.pushObjectWithTag(newDiscussion, 'newDiscussion');
 
-        var nav = Menu.create();
+        var nav = TaggedArray.create();
         this.trigger('populateNav', nav);
-        sidebar.pushObject(DropdownSelect.create({
-            items: nav
-        }));
+        sidebar.pushObjectWithTag(DropdownSelect.createWithItems(nav), 'nav');
     }.on('populateSidebar'),
 
-    setupNav: function(nav) {
-        nav.addItem('all', NavItem.create({
+    populateNavDefault: function(nav) {
+        nav.pushObjectWithTag(NavItem.create({
 			title: 'All Discussions',
 			icon: 'comments-o',
 			linkTo: '"discussions" (query-params filter="")'
-		}));
+		}), 'all');
 
-		nav.addItem('private', NavItem.create({
+		nav.pushObjectWithTag(NavItem.create({
 			title: 'Private',
 			icon: 'envelope-o',
 			linkTo: '"discussions" (query-params filter="private")'
-		}));
+		}), 'private');
 
-		nav.addItem('following', NavItem.create({
+		nav.pushObjectWithTag(NavItem.create({
 			title: 'Following',
 			icon: 'star',
 			linkTo: '"discussions" (query-params filter="following")'
-		}));
-
-		nav.addItem('categories', NavItem.create({
-			title: 'Categories',
-			icon: 'reorder',
-			linkTo: '"categories"'
-		}));
+		}), 'following');
     }.on('populateNav'),
 
 	willDestroyElement: function() {

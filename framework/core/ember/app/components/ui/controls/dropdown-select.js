@@ -1,10 +1,8 @@
 import Ember from 'ember';
 
-import Menu from '../utils/menu';
-
 export default Ember.Component.extend({
     items: [],
-    layoutName: 'components/dropdown-select',
+    layoutName: 'components/ui/controls/dropdown-select',
     classNames: ['dropdown', 'dropdown-select', 'btn-group'],
     classNameBindings: ['itemCountClass'],
 
@@ -24,7 +22,12 @@ export default Ember.Component.extend({
         return 'item-count-'+this.get('items.length');
     }.property('items.length'),
 
-    currentItem: function() {
+    activeItem: function() {
         return this.get('menu.childViews').findBy('active');
     }.property('menu.childViews.@each.active')
+
+}).reopenClass({
+    createWithItems: function(items) {
+        return this.create({items: items});
+    }
 });

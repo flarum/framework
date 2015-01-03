@@ -1,8 +1,8 @@
 {{#if items}}
-    {{view items.firstItem class=mainButtonClass}}
+    {{view firstItem class=mainButtonClass}}
     <button {{bind-attr class=":dropdown-toggle :btn buttonClass"}} data-toggle="dropdown">
         {{fa-icon "caret-down" class="icon-caret"}}
         {{fa-icon icon class="icon-glyph"}}
     </button>
-    {{menu-list items=containedItems class=dropdownMenuClass}}
+    {{ui/controls/item-list items=items class=dropdownMenuClass}}
 {{/if}}

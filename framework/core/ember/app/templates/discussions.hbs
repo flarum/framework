@@ -1,44 +1,40 @@
 <div class="discussions-area">
 
 	<nav class="discussions-nav">
-		{{view view.sidebarView viewName="sidebar"}}
+		{{ui/controls/item-list items=view.sidebarItems}}
 	</nav>
 
 	<div class="discussions-results">
 
 		<div class="discussions-toolbar">
 			<div class="discussions-toolbar-view">
-				<span class="btn-group">
-					{{#link-to (query-params show="discussions") class="btn btn-default btn-sm"}}{{fa-icon "bars"}}{{/link-to}}
-					{{#link-to (query-params show="posts") class="btn btn-default btn-sm"}}{{fa-icon "square-o"}}{{/link-to}}
+				<span class="btn-group control-show">
+					{{#link-to (query-params show="discussions") class="btn btn-default"}}{{fa-icon "bars"}}{{/link-to}}
+					{{#link-to (query-params show="posts") class="btn btn-default"}}{{fa-icon "square-o"}}{{/link-to}}
 				</span>
 
-				{{select-input
-					content=sortOptions
-					optionValuePath="content.sort"
-					optionLabelPath="content.label"
-					value=sort}}
+				{{ui/controls/select-input class="control-sort" content=sortOptions optionValuePath="content.sort" optionLabelPath="content.label" value=sort}}
 			</div>
 			<div class="discussions-toolbar-action">
-				<button class="btn btn-default">{{fa-icon "check"}}</button>
+				{{#ui/controls/action-button class="control-markAsRead"}}{{fa-icon "check"}}{{/ui/controls/action-button}}
 			</div>
 		</div>
 
 		{{#if resultsLoading}}
-			{{loading-indicator size="small"}}
+			{{ui/controls/loading-indicator size="small"}}
 		{{else}}
 			<ul class="discussions-list">
 				{{#each discussion in content}}
-					{{discussions-list-item discussion=discussion}}
+					{{discussions/discussion-listing discussion=discussion}}
 				{{/each}}
 			</ul>
 
 			{{#if moreResults}}
 				<div class="load-more">
 					{{#if loadingMore}}
-						{{loading-indicator size="small"}}
+						{{ui/controls/loading-indicator size="small"}}
 					{{else}}
-						<button class="btn btn-default" {{action loadMore}}>Load More</button>
+						{{#ui/controls/action-button class="control-loadMore" action="loadMore"}}Load More{{/ui/controls/action-button}}
 					{{/if}}
 				</div>
 			{{/if}}

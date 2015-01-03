@@ -1,7 +1,6 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-
 	classNames: ['loading'],
 
 	layout: Ember.Handlebars.compile('&nbsp;'),
@@ -9,5 +8,4 @@ export default Ember.Component.extend({
 	didInsertElement: function() {
 		this.$().spin(this.get('size'));
 	}
-
 });
