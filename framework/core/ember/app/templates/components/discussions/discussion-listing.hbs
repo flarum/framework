@@ -1,0 +1,47 @@
+{{ui/controls/dropdown-button items=controls class="contextual-controls"}}
+
+<div class="discussion-summary">
+
+	{{#link-to "user" discussion.startUser}}{{user-avatar discussion.startUser}}{{/link-to}}
+
+	<div class="badges">
+		{{#each badge in badges}}
+			{{fl-badge badge}}
+		{{/each}}
+	</div>
+
+	{{#link-to "discussion" discussion.content (query-params searchQuery=searchQuery) class="info"}}
+		<span class="name">
+			<h3 class="title">{{highlight-words discussion.title searchQuery}}</h3>
+		</span>
+		<span class="terminal-post">
+			{{#if displayStartPosts}}
+				{{#link-to "user" discussion.startUser}}{{discussion.startUser.username}}{{/link-to}} posted
+				{{#link-to "discussion" discussion.content}}{{abbreviate-time discussion.startTime}}{{/link-to}}
+			{{else}}
+				{{#link-to "user" discussion.lastUser}}{{discussion.lastUser.username}}{{/link-to}} posted
+				{{#link-to "discussion" discussion.content (query-params start="last")}}{{abbreviate-time discussion.lastTime}}{{/link-to}}
+			{{/if}}
+		</span>
+	{{/link-to}}
+
+	<div class="count">
+		{{#if discussion.unread}}
+			<strong>{{abbreviate-number discussion.unreadCount}}</strong> unread
+		{{else}}
+			<strong>{{abbreviate-number discussion.repliesCount}}</strong> replies
+		{{/if}}
+	</div>
+
+	{{#if relevantPosts}}
+		<div class="relevant-posts">
+			{{#each post in relevantPosts}}
+				{{#link-to "discussion" discussion.content (query-params start=post.number) class="post item"}}
+					{{user-avatar post.user class="avatar-thumb"}}
+					<span class="post-body">{{highlight-words post.relevantContent searchQuery}}</span>
+				{{/link-to}}
+			{{/each}}
+		</div>
+	{{/if}}
+
+</div>
