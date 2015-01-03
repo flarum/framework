@@ -1,16 +1,15 @@
 import Ember from 'ember';
 
-import NamedContainerView from '../utils/named-container-view';
-import Menu from '../utils/menu';
-import MenuItem from '../components/menu-item';
-import DropdownSplit from '../components/dropdown-split';
-import DropdownButton from '../components/dropdown-button';
-import DiscussionScrollbar from '../components/discussion-scrollbar';
+import TaggedArray from '../utils/tagged-array';
+import ActionButton from '../components/ui/controls/action-button';
+import DropdownSplit from '../components/ui/controls/dropdown-split';
+import DropdownButton from '../components/ui/controls/dropdown-button';
+import DiscussionScrollbar from '../components/discussions/stream-scrollbar';
 import PostStreamMixin from '../mixins/post-stream';
 
 export default Ember.View.extend(Ember.Evented, PostStreamMixin, {
 
-    sidebar: Ember.ContainerView,
+    sidebarItems: Ember.ContainerView,
 
     // Set up a new menu view that will contain controls to be shown in the
     // footer. The template will only render these controls if the last post is
@@ -30,7 +29,7 @@ export default Ember.View.extend(Ember.Evented, PostStreamMixin, {
     didInsertElement: function() {
 
         // We've just inserted the discussion view.
-        this.trigger('populateSidebar', this.get('sidebar'));
+        // this.trigger('populateSidebar', this.get('sidebar'));
 
         // Whenever the window's scroll position changes, we want to check to
         // see if any terminal 'gaps' are in the viewport and trigger their
@@ -60,14 +59,14 @@ export default Ember.View.extend(Ember.Evented, PostStreamMixin, {
     },
 
     setupSidebar: function(sidebar) {
-        this.set('controls', Menu.create());
-        this.trigger('populateControls', this.get('controls'));
-        sidebar.pushObject(DropdownSplit.create({
-            items: this.get('controls'),
+        var items = TaggedArray.create();
+        this.trigger('populateControls', items);
+        sidebarItems.pushObject(DropdownSplit.create({
+            items: items,
             icon: 'reply',
             buttonClass: 'btn-primary',
             menuClass: 'pull-right'
-        }));
+        }), 'controls');
 
         sidebar.pushObject(DropdownButton.create({items: this.get('controls')}));
 

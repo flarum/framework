@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
-var MenuItem = Ember.Component.extend({
+export default Ember.Component.extend({
     title: '',
     icon: '',
     className: '',
     action: null,
     divider: false,
     active: false,
+
+    classNames: ['btn', 'btn-default'],
 
     tagName: 'a',
     attributeBindings: ['href'],
@@ -20,13 +22,3 @@ var MenuItem = Ember.Component.extend({
         this.get('action')();
     }
 });
-
-MenuItem.reopenClass({
-    separator: function() {
-        return this.create({
-            divider: true
-        });
-    }
-})
-
-export default MenuItem;

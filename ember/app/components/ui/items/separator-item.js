@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    liClass: 'divider',
-    active: false
+    tagName: 'li',
+    classNames: ['divider']
 });
