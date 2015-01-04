@@ -14,9 +14,9 @@ class CreatePermissionsTable extends Migration {
 	{
 		Schema::create('permissions', function($table)
 		{
-			$table->string('grantee');
-			$table->string('entity');
-			$table->string('permission');
+			$table->string('grantee', 100);
+			$table->string('entity', 100);
+			$table->string('permission', 100);
 			$table->primary(['grantee', 'entity', 'permission']);
 		});
 	}
