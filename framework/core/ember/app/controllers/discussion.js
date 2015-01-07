@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import PostStream from '../models/post-stream';
+import Stream from '../models/stream';
 
 export default Ember.ObjectController.extend(Ember.Evented, {
 
@@ -11,7 +11,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
     searchQuery: '',
 
     loaded: false,
-    postStream: null,
+    stream: null,
 
     setup: function(discussion) {
         this.set('model', discussion);
@@ -19,10 +19,10 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         // Set up the post stream object. It needs to know about the discussion
         // its representing the posts for, and we also need to inject the Ember
         // data store.
-        var postStream = PostStream.create();
-        postStream.set('discussion', discussion);
-        postStream.set('store', this.get('store'));
-        this.set('postStream', postStream);
+        var stream = Stream.create();
+        stream.set('discussion', discussion);
+        stream.set('store', this.get('store'));
+        this.set('stream', stream);
 
         // Next, we need to load a list of the discussion's post IDs into the
         // post stream object. If we don't already have this information, we'll
@@ -33,7 +33,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         // them. Then we're ready to load some posts!
         var controller = this;
         promise.then(function(discussion) {
-            postStream.setup(discussion.get('postIds'));
+            stream.setup(discussion.get('postIds'));
             controller.set('loaded', true);
             controller.send('jumpToNumber', controller.get('start'));
         });
@@ -71,7 +71,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
             // position are loaded. We will tell our listeners when they are.
             // Again, the view will scroll down to the appropriate post.
             var controller = this;
-            this.get('postStream').loadNearNumber(number).then(function() {
+            this.get('stream').loadNearNumber(number).then(function() {
                 Ember.run.scheduleOnce('afterRender', function() {
                     controller.trigger('loadedNumber', number);
                 });
@@ -89,7 +89,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
             // loaded. We will tell our listeners when they are. Again, the view
             // will scroll down to the appropriate post.
             var controller = this;
-            this.get('postStream').loadNearIndex(index).then(function() {
+            this.get('stream').loadNearIndex(index).then(function() {
                 Ember.run.scheduleOnce('afterRender', function() {
                     controller.trigger('loadedIndex', index);
                 });
@@ -97,7 +97,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         },
 
         loadRange: function(start, end, backwards) {
-            this.get('postStream').loadRange(start, end, backwards);
+            this.get('stream').loadRange(start, end, backwards);
         }
     }
 });
