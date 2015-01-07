@@ -1,0 +1,23 @@
+{{#if post.deleteTime}}
+	{{fa-icon "trash-o" class="post-icon"}}
+{{/if}}
+
+<header>
+	<h3 class="user">
+		{{#link-to "user" post.user}}{{user-avatar post.user}} {{post.user.username}}{{/link-to}}
+	</h3>
+	{{#link-to "discussion" post.discussion (query-params start=post.number) class="time"}}
+		{{abbreviate-time post.time}}
+	{{/link-to}}
+	{{#if post.editTime}}
+		<span class="post-edited" {{bind-attr title=editDescription}}>{{fa-icon "pencil"}}</span>
+	{{/if}}
+</header>
+
+<div class="post-body">
+	{{{post.contentHtml}}}
+</div>
+
+<aside class="post-meta">
+	{{ui/controls/item-list items=meta}}
+</aside>

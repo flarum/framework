@@ -5,12 +5,12 @@ import ActionButton from '../ui/controls/action-button';
 
 export default Ember.Component.extend({
 	tagName: 'article',
-	templateName: 'components/discussions/post',
+	layoutName: 'components/discussions/post-full',
 
 	// controls: null,
 
 	contentComponent: function() {
-		return 'discussions/post-'+this.get('post.type');
+		return 'discussions/post-content-'+this.get('post.type');
 	}.property('post.type'),
 
 	classNames: ['post'],
