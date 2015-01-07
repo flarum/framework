@@ -5,11 +5,7 @@ import PostStreamMixin from '../../mixins/post-stream';
 
 export default Ember.View.extend(PostStreamMixin, {
 
-  /**
-    @property templateName
-    @type String
-  */
-  templateName: 'components/discussions/stream-scrollbar',
+  layoutName: 'components/discussions/stream-scrollbar',
   classNames: ['scrubber', 'discussion-scrubber'],
 
   // An object which represents/ecapsulates the scrollbar.
