@@ -33,11 +33,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
             'lastTime'       => $discussion->last_time ? $discussion->last_time->toRFC3339String() : null,
             'lastPostNumber' => $discussion->last_post_number,
             'canEdit'        => $discussion->permission('edit'),
-            'canDelete'      => $discussion->permission('delete'),
-
-            // temp
-            'sticky'      => $discussion->sticky,
-            'category'    => $discussion->category
+            'canDelete'      => $discussion->permission('delete')
         ];
 
         if ($state = $discussion->state) {
