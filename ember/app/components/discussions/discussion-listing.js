@@ -18,7 +18,7 @@ export default Ember.Component.extend({
 		'discussion.following:following',
 		'active'
 	],
-	templateName: 'components/discussions/discussion-listing',
+	layoutName: 'components/discussions/discussion-listing',
 
 	active: function() {
 		return this.get('childViews').anyBy('active');
