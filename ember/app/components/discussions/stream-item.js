@@ -118,7 +118,7 @@ export default Ember.Component.extend({
         // Tell the controller that we want to load the range of posts that this
 		// gap represents. We also specify which direction we want to load the
 		// posts from.
-		this.get('controller').send(
+		this.sendAction(
 			'loadRange',
 			this.get('start') + (relativeIndex || 0),
 			this.get('end'),
