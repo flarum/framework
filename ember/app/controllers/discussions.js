@@ -108,9 +108,9 @@ export default Ember.ArrayController.extend(Ember.Evented, {
 			var results = Em.A();
 			discussions.forEach(function(discussion) {
 				var relevantPosts = Em.A();
-				discussion.get('relevantPosts.content').forEach(function(post) {
-					relevantPosts.pushObject(PostResult.create(post));
-				});
+				// discussion.get('relevantPosts.content').forEach(function(post) {
+				// 	relevantPosts.pushObject(PostResult.create(post));
+				// });
 				results.pushObject(DiscussionResult.create({
 					content: discussion,
 					relevantPosts: relevantPosts,
