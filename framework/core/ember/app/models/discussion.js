@@ -34,48 +34,12 @@ var Discussion = DS.Model.extend({
 		return this.get('posts').split(',');
 	}.property('posts'),
 
+	readTime: DS.attr('date'),
 	readNumber: DS.attr('number'),
 	unreadCount: function() {
 		return this.get('lastPostNumber') - this.get('readNumber');
 	}.property('lastPostNumber', 'readNumber'),
-
-	//--------------------------------
-	// Prototype generated properties
-
-	// category: function() {
-	// 	var categories = [null, 'Announcements', 'General', 'Support', 'Feedback', 'Core', 'Plugins', 'Themes'];
-	// 	return categories[Math.floor(Math.random() * categories.length)];
-	// }.property(),
-	category: DS.attr('string'),
-
-	_recent: function() {
-		var cutoff = new Date('September 19, 2014');
-		return this.get('lastTime') > cutoff;
-	}.property('lastTime'),
-
-	unread: function() {
-		return Math.round(Math.random() * (this.get('_recent') ? 0.8 : 0) * this.get('postsCount'));
-	}.property(),
-
-	// sticky: function() {
-	// 	return Math.random() > (this.get('_recent') ? 0.95 : 0.99);
-	// }.property(),
-	sticky: DS.attr('boolean'),
-
-	excerpt: function() {
-		// return 'I want to get your thoughts on this one TV Addicts: what new show have you been getting into this year, and why?';
-		// return 'Here\'s the near-final game list, in no particular order. The list may be subject to amendments, as we\'re still chasing up copies of some games.';
-		// return 'Nominating for the Annual General Meeting is easy. Read this to find out how.'
-		return 'There are many apps made with Ninetech in the Mac App Store. If you\'d like, take a moment to share your Nintech-made apps in this thread.';
-	}.property(),
-
-	locked: function() {
-		return Math.random() > 0.95;
-	}.property(),
-
-	following: function() {
-		return Math.random() > 0.95;
-	}.property()
+	isUnread: Ember.computed.bool('unreadCount')
 });
 
 export default Discussion;

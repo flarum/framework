@@ -26,7 +26,7 @@
 	{{/link-to}}
 
 	<div class="count">
-		{{#if discussion.unread}}
+		{{#if discussion.isUnread}}
 			<strong>{{abbreviate-number discussion.unreadCount}}</strong> unread
 		{{else}}
 			<strong>{{abbreviate-number discussion.repliesCount}}</strong> replies

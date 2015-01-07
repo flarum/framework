@@ -1,17 +1,15 @@
 <header class="page-header discussion-header">
-	{{partial "partials/discussion-header"}}
+	<h1>{{title}}</h1>
 </header>
 
 <nav class="discussion-nav">
-	{{view view.sidebar viewName="sidebar"}}
+	{{ui/controls/item-list items=view.sidebarItems}}
 </nav>
 
-<section class="items posts">
-{{#each item in postStream}}
-
-	{{#discussion-item item=item}}
-		{{#if item.post}}{{discussion-post post=item.post}}{{/if}}
-	{{/discussion-item}}
-
-{{/each}}
+<section class="discussion-posts stream posts">
+	{{#each item in stream}}
+		{{#discussions/stream-item item=item loadRange="loadRange"}}
+			{{#if item.post}}{{discussions/post-full post=item.post}}{{/if}}
+		{{/discussions/stream-item}}
+	{{/each}}
 </section>
