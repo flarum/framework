@@ -88,10 +88,10 @@ class DiscussionTableSeeder extends Seeder
                     ]);
 
                     $posts[] = $post;
-                }
 
-                if (! $lastPost or $post->time >= $lastPost->time) {
-                    $lastPost = $post;
+                    if (! $lastPost or $post->time >= $lastPost->time) {
+                        $lastPost = $post;
+                    }
                 }
 
                 if (rand(1, 20) == 1) {
