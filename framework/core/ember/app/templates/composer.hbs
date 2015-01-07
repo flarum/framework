@@ -1,12 +1,14 @@
 <div class="composer-handle"></div>
 
-<div class="composer-body">
+<div class="composer-controls">
+	<a href="#" {{action "fullScreen"}}>{{fa-icon "fa-expand"}}</a>
+	<a href="#" {{action "hide"}}>{{fa-icon "fa-caret-square-o-down"}}</a>
+	<a href="#" {{action "close"}}>{{fa-icon "fa-times"}}</a>
+</div>
 
-	<div class="composer-controls">
-		<a href="#" {{action "fullScreen"}}><i class="fa fa-fw fa-expand"></i></a>
-		<a href="#" {{action "hide"}}><i class="fa fa-fw fa-caret-square-o-down"></i></a>
-		<a href="#" {{action "close"}}><i class="fa fa-fw fa-times"></i></a>
-	</div>
+{{user-avatar user}}
+
+<div class="composer-body">
 
 	<h3>{{{title}}}</h3>
 
