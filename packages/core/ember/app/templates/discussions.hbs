@@ -25,7 +25,7 @@
 		{{else}}
 			<ul class="discussions-list">
 				{{#each discussion in content}}
-					{{discussions/discussion-listing discussion=discussion}}
+					{{discussions/discussion-listing discussion=discussion searchQuery=searchQuery}}
 				{{/each}}
 			</ul>
 
