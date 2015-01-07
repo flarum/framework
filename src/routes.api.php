@@ -37,7 +37,7 @@ Route::group(['prefix' => 'api'], function () {
     ]);
 
     // Edit a user
-    Route::put('users/{id}', [
+    Route::match(['PUT', 'PATCH'], 'users/{id}', [
         'as' => 'flarum.api.users.update',
         'uses' => action_handler('Flarum\Api\Actions\Users\Update')
     ]);
@@ -91,7 +91,7 @@ Route::group(['prefix' => 'api'], function () {
     ]);
 
     // Edit a discussion
-    Route::put('discussions/{id}', [
+    Route::match(['PUT', 'PATCH'], 'discussions/{id}', [
         'as' => 'flarum.api.discussions.update',
         'uses' => action_handler('Flarum\Api\Actions\Discussions\Update')
     ]);
@@ -128,7 +128,7 @@ Route::group(['prefix' => 'api'], function () {
     ]);
 
     // Edit a post
-    Route::put('posts/{id}', [
+    Route::match(['PUT', 'PATCH'], 'posts/{id}', [
         'as' => 'flarum.api.posts.update',
         'uses' => action_handler('Flarum\Api\Actions\Posts\Update')
     ]);
@@ -164,7 +164,7 @@ Route::group(['prefix' => 'api'], function () {
     ]);
 
     // Edit a group
-    Route::put('groups/{id}', [
+    Route::match(['PUT', 'PATCH'], 'groups/{id}', [
         'as' => 'flarum.api.groups.update',
         'uses' => action_handler('Flarum\Api\Actions\Groups\Update')
     ]);
