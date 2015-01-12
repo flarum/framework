@@ -69,7 +69,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 1. Install [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org).
 2. Clone the [Flarum skeleton app](https://github.com/flarum/flarum) and set up the Vagrant box:
 
-	```
+	```sh
 	git clone https://github.com/flarum/flarum.git
 	cd flarum
 	vagrant up
@@ -77,7 +77,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 3. SSH into the Vagrant box and compile the Ember app:
 
-	```
+	```sh
 	vagrant ssh
 	cd /vagrant/workbench/flarum/core/ember && ember serve --output-path="../public"
 	```
@@ -114,7 +114,7 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 3. Create a new branch.
 
-	```
+	```sh
 	git checkout -b new-flarum-branch
 	```
 
@@ -130,20 +130,20 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 
 6. Clean up. Squash together minor commits.
 
-	```
+	```sh
 	git rebase -i
 	```
 
 7. Update your branch so that it is based on top of the latest code from the Flarum repository.
 
-	```
+	```sh
 	git fetch origin
 	git rebase origin/master
 	```
 
 8. Fork your repository on GitHub and push to it.
 
-	```
+	```sh
 	git remote add mine git@github.com:<your user name>/flarum.git
 	git push mine new-flarum-branch
 	```
