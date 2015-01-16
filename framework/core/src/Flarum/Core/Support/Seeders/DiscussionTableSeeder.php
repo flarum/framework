@@ -29,7 +29,7 @@ class DiscussionTableSeeder extends Seeder
                 'start_time'    => $faker->dateTimeThisYear,
                 'start_user_id' => rand(1, $users)
             ]);
-            $discussion->posts_count = $posts_count;
+            $discussion->comments_count = $posts_count;
 
             $post = Post::create([
                 'discussion_id' => $discussion->id,
@@ -57,7 +57,7 @@ class DiscussionTableSeeder extends Seeder
 
             for ($j = 0; $j < $count - 1; $j++) {
                 if (rand(1, 100) == 1) {
-                    $discussion->posts_count--;
+                    $discussion->comments_count--;
 
                     $post = Post::create([
                         'discussion_id' => $discussion->id,
@@ -71,7 +71,7 @@ class DiscussionTableSeeder extends Seeder
                     $deleted = rand(1, 100) == 1;
 
                     if ($deleted) {
-                        $discussion->posts_count--;
+                        $discussion->comments_count--;
                     }
 
                     $post = Post::create([
