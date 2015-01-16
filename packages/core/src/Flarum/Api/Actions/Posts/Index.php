@@ -8,13 +8,14 @@ use Flarum\Api\Serializers\PostSerializer;
 class Index extends Base
 {
     /**
-	 * Show posts from a discussion.
+     * Show posts from a discussion, or by providing an array of IDs.
 	 *
 	 * @return Response
 	 */
     protected function run()
     {
         $discussionId = $this->input('discussions');
+        $postIds = (array) $this->input('ids');
 
         $count = $this->count(20, 50);
 
@@ -40,9 +41,16 @@ class Index extends Base
 
         // @todo move to post repository
         $posts = Post::with($relations)
-            ->whereCanView()
-            ->where('discussion_id', $discussionId)
-            ->skip($start)
+            ->whereCanView();
+
+        if ($discussionId) {
+            $posts->where('discussion_id', $discussionId);
+        }
+        if (count($postIds)) {
+            $posts->whereIn('id', $postIds);
+        }
+
+        $posts = $posts->skip($start)
             ->take($count)
             ->orderBy($sort['by'], $sort['order'] ?: 'asc')
             ->get();
