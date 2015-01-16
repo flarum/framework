@@ -1,0 +1,224 @@
+// ------------------------------------
+// Buttons
+
+.btn {
+	border: 0;
+	.box-shadow(none);
+	line-height: 20px;
+
+	& .fa {
+		font-size: 14px;
+	}
+}
+.btn-group .btn + .btn {
+	margin-left: 1px;
+}
+.btn-icon {
+	padding-left: 9px;
+	padding-right: 9px;
+}
+.btn-link {
+	color: @fl-body-muted-color;
+
+	&:hover,
+    &:focus {
+		text-decoration: none;
+	}
+}
+.btn-primary {
+	font-weight: bold;
+	& .icon-glyph {
+		display: none;
+	}
+}
+
+// Redefine Bootstrap's mixin to make some general changes
+.button-variant(@color; @background; @border) {
+	&:hover,
+	&:focus,
+	&.focus,
+	&:active,
+	&.active,
+	.open > .dropdown-toggle& {
+		background-color: darken(@background, 5%);
+	}
+	&.active {
+		.box-shadow(none);
+	}
+}
+
+// Little round icon buttons
+.btn-icon.btn-sm {
+	border-radius: 12px;
+	height: 24px;
+	width: 24px;
+	text-align: center;
+	padding: 3px 0;
+
+	& .label, & .icon-caret {
+		display: none;
+	}
+	& .fa-ellipsis-v {
+		font-size: 17px;
+		vertical-align: middle;
+	}
+}
+
+// Buttons that blend into the background
+.btn-blend {
+	background: transparent;
+	&:hover {
+		background: @fl-body-control-bg;
+	}
+}
+
+// ------------------------------------
+// Form Controls
+
+.form-control {
+	.box-shadow(none);
+	&:focus,
+	&.focus {
+		background-color: @input-border-focus;
+		.box-shadow(none);
+	}
+}
+
+// Search inputs
+// @todo Extract some of this into header-specific definitions
+.search-input {
+	margin-right: 10px;
+	&:before {
+		.fa();
+		content: @fa-var-search;
+		float: left;
+		margin-right: -36px;
+		width: 36px;
+		font-size: 14px;
+		text-align: center;
+		color: @fl-body-muted-color;
+		position: relative;
+		padding: @padding-base-vertical - 1 0;
+		line-height: @line-height-base;
+		pointer-events: none;
+	}
+}
+.search-input .form-control {
+	float: left;
+	width: 225px;
+	padding-left: 36px;
+	padding-right: 36px;
+	.transition(~"all 0.4s");
+
+	&:focus {
+		width: 400px;
+	}
+}
+.search-input .clear {
+	float: left;
+	margin-left: -36px;
+	vertical-align: top;
+	.scale(0.001);
+	.transition(~"transform 0.15s");
+}
+.search-input.clearable .clear {
+	.scale(1);
+}
+
+// Select inputs
+.select-input {
+	display: inline-block;
+	vertical-align: middle;
+}
+.select-input select {
+	display: inline-block;
+	width: auto;
+	-webkit-appearance: none;
+	padding-right: @padding-base-horizontal + 16;
+	cursor: pointer;
+}
+.select-input .fa {
+	margin-left: -@padding-base-horizontal - 16;
+	pointer-events: none;
+	color: @fl-body-muted-color;
+}
+
+// ------------------------------------
+// Dropdown Menus
+
+.dropdown-menu {
+	border: 0;
+	padding: 8px 0;
+	margin-top: 7px;
+	.box-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+
+	& > li > a {
+		padding: 8px 15px;
+		color: @fl-body-color;
+		&:hover, &:focus {
+			color: @fl-body-color;
+			background-color: @fl-secondary-color;
+		}
+		& .fa {
+			margin-right: 5px;
+			font-size: 14px;
+		}
+	}
+	& .divider {
+		margin: 10px 0;
+		background-color: darken(@fl-secondary-color, 2%);
+	}
+}
+.dropdown-split.item-count-1 {
+	& .btn {
+		border-radius: @border-radius-base !important;
+	}
+	& .dropdown-toggle {
+		display: none;
+	}
+}
+
+// ------------------------------------
+// Tooltips
+
+.tooltip-inner {
+	padding: 5px 10px;
+}
+
+// ------------------------------------
+// Loading Indicators
+
+.loading-indicator {
+	position: relative;
+	color: @fl-primary-color;
+}
+.loading-indicator-block {
+	height: 100px;
+}
+
+// ------------------------------------
+// Avatars
+
+.avatar-size(@size) {
+	width: @size;
+	height: @size;
+	border-radius: @size / 2;
+	font-size: @size / 2;
+	line-height: @size;
+}
+.avatar {
+	display: inline-block;
+	color: #fff;
+	font-weight: 300;
+	text-align: center;
+	vertical-align: top;
+	.avatar-size(48px);
+
+	& img {
+		display: inline-block;
+		width: 100%;
+		height: 100%;
+		border-radius: 100%;
+		vertical-align: top;
+	}
+}

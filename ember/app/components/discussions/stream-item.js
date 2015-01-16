@@ -14,33 +14,16 @@ export default Ember.Component.extend({
 		'number:data-number'
 	],
 
-	start: function() {
-		return this.get('item.indexStart');
-	}.property('item.indexStart'),
-
-	end: function() {
-		return this.get('item.indexEnd');
-	}.property('item.indexEnd'),
+	start: Ember.computed.alias('item.indexStart'),
+	end: Ember.computed.alias('item.indexEnd'),
+	time: Ember.computed.alias('item.content.time'),
+	number: Ember.computed.alias('item.content.number'),
+	loading: Ember.computed.alias('item.loading'),
+	direction: Ember.computed.alias('item.direction'),
 
 	count: function() {
 		return this.get('end') - this.get('start') + 1;
 	}.property('start', 'end'),
-
-	time: function() {
-		return this.get('item.post.time');
-	}.property('item.post.time'),
-
-	number: function() {
-		return this.get('item.post.number');
-	}.property('item.post.number'),
-
-	loading: function() {
-		return this.get('item.loading');
-	}.property('item.loading'),
-
-	direction: function() {
-		return this.get('item.direction');
-	}.property(),
 
 	loadingChanged: function() {
 		this.rerender();
@@ -73,8 +56,10 @@ export default Ember.Component.extend({
 		} else {
 			var self = this;
 			this.$().hover(function(e) {
-				var up = e.clientY > $(this).offset().top - $(document).scrollTop() + $(this).outerHeight(true) / 2;
-				self.set('direction', up ? 'up' : 'down');
+				if (! self.get('loading')) {
+					var up = e.clientY > $(this).offset().top - $(document).scrollTop() + $(this).outerHeight(true) / 2;
+					self.set('direction', up ? 'up' : 'down');
+				}
 			});
 		}
 	},
@@ -97,7 +82,7 @@ export default Ember.Component.extend({
 			// Immediately after the posts have been loaded (but before they
 			// have been rendered,) we want to grab the distance from the top of
 			// the viewport to the top of the anchor element.
-            this.get('controller.postStream').one('postsLoaded', function() {
+            this.get('stream').one('postsLoaded', function() {
                 if (anchor.length) {
                     var scrollOffset = anchor.offset().top - $(document).scrollTop();
                 }

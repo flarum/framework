@@ -1,0 +1,8 @@
+{{#if target}}
+	<div class="btn-group">
+		<button class="btn btn-default btn-icon back" {{action "back"}}>{{fa-icon "chevron-left"}}</button>
+		{{#if target.paned}}
+			<button {{bind-attr class=":btn :btn-default :btn-icon :pin target.panePinned:active"}} {{action "togglePinned"}}>{{fa-icon "thumb-tack"}}</button>
+		{{/if}}
+	</div>
+{{/if}}

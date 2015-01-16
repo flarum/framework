@@ -1,15 +1,18 @@
-<header class="page-header discussion-header">
-	<h1>{{title}}</h1>
+<header class="hero discussion-hero">
+	<div class="container">
+		<h2>{{title}}</h2>
+	</div>
 </header>
 
-<nav class="discussion-nav">
-	{{ui/controls/item-list items=view.sidebarItems}}
-</nav>
+<div class="container">
+	<nav class="discussion-nav">
+		{{ui/controls/item-list items=view.sidebarItems}}
+	</nav>
 
-<section class="discussion-posts stream posts">
-	{{#each item in stream}}
-		{{#discussions/stream-item item=item loadRange="loadRange"}}
-			{{#if item.post}}{{discussions/post-full post=item.post}}{{/if}}
-		{{/discussions/stream-item}}
-	{{/each}}
-</section>
+	{{discussions/stream-content
+		viewName="streamContent"
+		stream=stream
+		class="discussion-posts posts"
+		component="discussions/post-wrapper"
+		updateStart="updateStart"}}
+</div>

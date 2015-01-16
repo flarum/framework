@@ -1,0 +1,61 @@
+// ------------------------------------
+// Composer
+
+.composer-container {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: @zindex-navbar-fixed;
+	pointer-events: none;
+}
+.composer {
+	pointer-events: auto;
+	margin-left: 200px;
+	.box-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+	border-radius: 4px 4px 0 0;
+	background: rgba(255, 255, 255, 0.98);
+	transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
+}
+.composer-content {
+	padding: 0 20px 15px;
+}
+.composer-handle {
+	height: 20px;
+	cursor: row-resize;
+}
+.composer-controls {
+	float: right;
+	margin: -5px 15px 0 0;
+}
+.composer-avatar {
+	float: left;
+	width: 64px;
+	height: 64px;
+}
+.composer-body {
+	margin-left: 84px;
+	
+	& h3 {
+		margin: 5px 0 10px;
+		color: @fl-body-muted-color;
+		font-size: 16px;
+		font-weight: normal;
+	}
+}
+.composer-editor textarea {
+	background: none;
+	border-radius: 0;
+	padding: 0;
+	margin-bottom: 10px;
+	height: 200px;
+	border: 0;
+	resize: none;
+	color: @fl-body-color;
+	font-size: 15px;
+	line-height: 1.6;
+
+	&:focus {
+		background: none;
+	}
+}

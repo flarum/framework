@@ -1,12 +1,24 @@
+// This files is where our LESS journey begins.
+
+// We begin by importing our own configuration variables, which are used all
+// throughout the stylesheets. These pertain to 
 // @import "config-default.less";
 @import "config.less";
 
-@flarum-base:       "flarum/";
-@bootstrap-base:    "../../bower_components/bootstrap/less/";
+@flarum-base: "flarum/";
+@bootstrap-base: "../../bower_components/bootstrap/less/";
 @font-awesome-base: "../../bower_components/font-awesome/less/";
 
 @import "bootstrap/bootstrap.less";
-@import "@{font-awesome-base}font-awesome.less";
 
+// We want to specify the @fa-font-path variable AFTER we import font awesome
+// so that it overrides the default definition.
+@import "@{font-awesome-base}font-awesome.less";
 @fa-font-path: "../font-awesome/fonts";
 
+// Finally, with our vendor CSS loaded, we can import Flarum-specific stuff.
+@import "@{flarum-base}components.less";
+@import "@{flarum-base}layout.less";
+
+@import "@{flarum-base}index.less";
+@import "@{flarum-base}discussion.less";

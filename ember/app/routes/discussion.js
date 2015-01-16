@@ -16,40 +16,45 @@ export default Ember.Route.extend({
 		controller.set('start', '1');
 		controller.set('searchQuery', '');
 		controller.set('loaded', false);
-		controller.set('postStream', null);
+		controller.set('stream', null);
 	},
 
 	setupController: function(controller, model) {
 		controller.setup(model);
 
-		this.controllerFor('application').set('showDiscussionStream', true);
-		this.controllerFor('discussions').set('paned', true);
-		this.controllerFor('discussions').set('current', model);
+		// Tell the discussions controller that the discussions list should be
+		// displayed as a pane, hidden on the side of the screen. Also set the
+		// application back button's target as the discussions controller.
+		this.controllerFor('index').set('paned', true);
+		this.controllerFor('application').set('backButtonTarget', this.controllerFor('index'));
 	},
 
 	actions: {
 
 		queryParamsDidChange: function(params) {
-			// We're only interested in changes to the ?start param, and we're
-			// not interested if nothing has actually changed. If the start
-			// param has changed, we want to tell the controller to load posts
-			// near it.
-			if (! params.start || params.start == this.get('controller.start') || ! this.get('controller.loaded')) {
-				return;
-			}
-			this.get('controller').send('jumpToNumber', params.start);
+			// If the ?start param has changed, we want to tell the view to
+			// tell the streamContent component to jump to this start point.
+			// We postpone running this code until the next run loop because
+			// when transitioning directly from one discussion to another,
+			// queryParamsDidChange is fired before the controller is reset.
+			// Thus, controller.loaded would still be true and the
+			// startWasChanged event would be triggered inappropriately.
+			var controller = this.get('controller'),
+			    oldStart = this.get('controller.start');
+			Ember.run.next(function() {
+				if (! params.start || ! controller || ! controller.get('loaded') || params.start == oldStart) {
+					return;
+				}
+				controller.trigger('startWasChanged', params.start);
+			});
 		},
 
 		willTransition: function(transition) {
-			// If we're going to transition out, we need to abort any unfinished
-			// AJAX requests. We need to do this because sometimes a transition
-			// to another discussion will happen very rapidly (i.e. when using
-			// the arrow buttons on the result stream.) If a previous
-			// discussion's posts finish loading while displaying a new
-			// discussion, strange things will happen.
-			this.store.adapterFor('discussion').xhr.forEach(function(xhr) {
-				xhr.abort();
-			});
+			// When we transition away from this discussion, we want to hide
+			// the discussions list pane. This means that when the user
+			// selects a different discussion within the pane, the pane will
+			// slide away.
+			this.controllerFor('index').set('paneShowing', false);
 		}
 
 	}

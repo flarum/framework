@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import Stream from '../models/stream';
+import PostStream from '../models/post-stream';
 
 export default Ember.ObjectController.extend(Ember.Evented, {
 
@@ -19,7 +19,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         // Set up the post stream object. It needs to know about the discussion
         // its representing the posts for, and we also need to inject the Ember
         // data store.
-        var stream = Stream.create();
+        var stream = PostStream.create();
         stream.set('discussion', discussion);
         stream.set('store', this.get('store'));
         this.set('stream', stream);
@@ -30,74 +30,25 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         var promise = discussion.get('posts') ? Ember.RSVP.resolve(discussion) : discussion.reload();
 
         // When we know we have the post IDs, we can set up the post stream with
-        // them. Then we're ready to load some posts!
+        // them. Then the view will trigger the stream to load as it sees fit.
         var controller = this;
         promise.then(function(discussion) {
             stream.setup(discussion.get('postIds'));
             controller.set('loaded', true);
-            controller.send('jumpToNumber', controller.get('start'));
         });
     },
 
     actions: {
-
         reply: function() {
             this.set('controllers.composer.showing', true);
             this.set('controllers.composer.title', 'Replying to <em>'+this.get('model.title')+'</em>');
         },
 
-        jumpToNumber: function(number) {
-            // In some instances, we might be given a placeholder start index
-            // value. We need to convert this into a numerical value.
-            switch (number) {
-                case 'last':
-                    number = this.get('model.lastPostNumber');
-                    break;
-
-                case 'unread':
-                    number = this.get('model.readNumber') + 1;
-                    break;
-            }
-
-            number = Math.max(number, 1);
-
-            // Let's start by telling our listeners that we're going to load
-            // posts near this number. The discussion view will listen and
-            // consequently scroll down to the appropriate position in the
-            // discussion.
-            this.trigger('loadingNumber', number);
-
-            // Now we have to actually make sure the posts around this new start
-            // position are loaded. We will tell our listeners when they are.
-            // Again, the view will scroll down to the appropriate post.
-            var controller = this;
-            this.get('stream').loadNearNumber(number).then(function() {
-                Ember.run.scheduleOnce('afterRender', function() {
-                    controller.trigger('loadedNumber', number);
-                });
-            });
-        },
-
-        jumpToIndex: function(index) {
-            // Let's start by telling our listeners that we're going to load
-            // posts at this index. The discussion view will listen and
-            // consequently scroll down to the appropriate position in the
-            // discussion.
-            this.trigger('loadingIndex', index);
-
-            // Now we have to actually make sure the posts around this index are
-            // loaded. We will tell our listeners when they are. Again, the view
-            // will scroll down to the appropriate post.
-            var controller = this;
-            this.get('stream').loadNearIndex(index).then(function() {
-                Ember.run.scheduleOnce('afterRender', function() {
-                    controller.trigger('loadedIndex', index);
-                });
-            });
-        },
-
-        loadRange: function(start, end, backwards) {
-            this.get('stream').loadRange(start, end, backwards);
+        // This action is called when the start position of the discussion
+        // currently being viewed changes (i.e. when the user scrolls up/down
+        // the post stream.)
+        updateStart: function(start) {
+            this.set('start', start);
         }
     }
 });
