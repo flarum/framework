@@ -4,12 +4,12 @@ export default Ember.Component.extend({
     items: null, // TaggedArray
     layoutName: 'components/ui/controls/dropdown-button',
     classNames: ['dropdown', 'btn-group'],
-    classNameBindings: ['itemCountClass'],
+    classNameBindings: ['itemCountClass', 'class'],
 
     title: 'Controls',
     icon: 'ellipsis-v',
-    buttonClass: 'btn-default',
-    menuClass: 'pull-right',
+    buttonClass: 'btn btn-default',
+    menuClass: '',
 
     dropdownMenuClass: function() {
     	return 'dropdown-menu '+this.get('menuClass');
@@ -17,5 +17,11 @@ export default Ember.Component.extend({
 
     itemCountClass: function() {
         return 'item-count-'+this.get('items.length');
-    }.property('items.length')    
+    }.property('items.length'),
+
+    actions: {
+        buttonClick: function() {
+            this.sendAction('buttonClick');
+        }
+    }
 });

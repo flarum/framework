@@ -4,6 +4,8 @@ export default Ember.Component.extend({
     classNames: ['search-input'],
     classNameBindings: ['active', 'value:clearable'],
 
+    layoutName: 'components/ui/controls/search-input',
+
     didInsertElement: function() {
         var self = this;
         this.$().find('input').on('keydown', function(e) {
@@ -21,7 +23,7 @@ export default Ember.Component.extend({
 
     clear: function() {
         this.set('value', '');
-        this.sendAction('action', '');
+        this.send('search');
         this.$().find('input').focus();
     },
 
@@ -32,7 +34,7 @@ export default Ember.Component.extend({
 
     actions: {
         search: function() {
-            this.sendAction('action', this.get('value'));
+            this.get('action')(this.get('value'));
         }
     }
 });

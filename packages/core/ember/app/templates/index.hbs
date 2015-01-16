@@ -1,0 +1,57 @@
+<div {{bind-attr class=":index-area paned paneShowing:showing"}}>
+
+	{{welcome-hero}}
+
+	<div class="container">
+
+		<nav class="index-nav">
+			{{ui/controls/item-list items=view.sidebarItems}}
+		</nav>
+
+		<div class="index-results">
+
+			<div class="index-toolbar">
+				<div class="index-toolbar-view">
+					<span class="btn-group control-show">
+						{{#link-to (query-params show="discussions") class="btn btn-default btn-icon"}}{{fa-icon "bars"}}{{/link-to}}
+						{{#link-to (query-params show="posts") class="btn btn-default btn-icon"}}{{fa-icon "square-o"}}{{/link-to}}
+					</span>
+
+					{{ui/controls/select-input class="control-sort" content=sortOptions optionValuePath="content.sort" optionLabelPath="content.label" value=sort}}
+				</div>
+				<div class="index-toolbar-action">
+					{{ui/controls/action-button class="control-markAllAsRead btn btn-default btn-icon" icon="check" title="Mark All as Read"}}
+				</div>
+			</div>
+
+			<ul class="discussions-list">
+				{{#each discussion in content}}
+					{{discussions/discussion-listing
+						discussion=discussion
+						searchQuery=searchQuery
+						terminalPostType=terminalPostType
+						countType=countType}}
+				{{/each}}
+			</ul>
+
+			{{#if resultsLoading}}
+				{{ui/controls/loading-indicator size="small"}}
+			{{/if}}
+
+			{{#if moreResults}}
+				<div class="load-more">
+					{{#unless resultsLoading}}
+						{{ui/controls/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
+					{{/unless}}
+				</div>
+			{{/if}}
+
+		</div>
+
+	</div>
+	
+</div>
+
+<div class="discussion-area">
+	{{outlet}}
+</div>

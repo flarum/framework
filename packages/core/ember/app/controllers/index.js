@@ -2,43 +2,15 @@ import Ember from 'ember';
 
 import DiscussionResult from '../models/discussion-result';
 import PostResult from '../models/post-result';
+import PaneableMixin from '../mixins/paneable';
 
-export default Ember.ArrayController.extend(Ember.Evented, {
+export default Ember.ArrayController.extend(Ember.Evented, PaneableMixin, {
 
 	needs: ['application', 'composer'],
 
-	paned: false,
-	paneShowing: false,
-	paneTimeout: null,
-	panePinned: false,
-
-	current: null,
-
-	index: function() {
-		var index = '?';
-		var id = this.get('current.id');
-		this.get('model').some(function(result, i) {
-			if (result.get('id') == id) {
-				index = i + 1;
-				return true;
-			}
-		});
-		return index;
-	}.property('current', 'model.@each'),
-	
 	count: function() {
 		return this.get('model.length');
 	}.property('model.@each'),
-
-	previous: function() {
-		var result = this.get('model').objectAt(this.get('index') - 2);
-		return result && result.get('content');
-	}.property('index'),
-
-	next: function() {
-		var result = this.get('model').objectAt(this.get('index'));
-		return result && result.get('content');
-	}.property('index'),
 
 	queryParams: ['sort', 'show', {searchQuery: 'q'}, 'filter'],
 	sort: 'recent',
@@ -55,8 +27,12 @@ export default Ember.ArrayController.extend(Ember.Evented, {
 		{sort: 'oldest', label: 'Oldest'},
 	],
 
-	displayStartUsers: function() {
-		return ['newest', 'oldest'].indexOf(this.get('sort')) != -1;
+	terminalPostType: function() {
+		return ['newest', 'oldest'].indexOf(this.get('sort')) != -1 ? 'start' : 'last';
+	}.property('sort'),
+
+	countType: function() {
+		return this.get('sort') == 'replies' ? 'replies' : 'unread';
 	}.property('sort'),
 
 	discussionsCount: function() {
@@ -80,10 +56,11 @@ export default Ember.ArrayController.extend(Ember.Evented, {
 		var show = this.get('show');
 		var searchQuery = this.get('searchQuery');
 
-		if (sort == 'newest') sort = 'created';
-		else if (sort == 'oldest') {
+		if (sort == 'newest') {
 			sort = 'created';
-			order = 'asc';
+			order = 'desc';
+		} else if (sort == 'oldest') {
+			sort = 'created';
 		}
 		else if (sort == 'recent') {
 			sort = '';
@@ -124,37 +101,24 @@ export default Ember.ArrayController.extend(Ember.Evented, {
 	},
 
 	actions: {
-		showDiscussionPane: function() {
-			this.set('paneShowing', true);
-		},
-
-		hideDiscussionPane: function() {
-			this.set('paneShowing', false);
-		},
-		
-		togglePinned: function() {
-			this.set('panePinned', ! this.get('panePinned'));
-		},
-
 		loadMore: function() {
 			var self = this;
 			this.set('start', this.get('length'));
-			this.set('loadingMore', true);
+			this.set('resultsLoading', true);
 
 			this.getResults(this.get('start')).then(function(results) {
 				self.get('model').addObjects(results);
 				self.set('meta', results.get('meta'));
-				// self.set('moreResults', !! results.get('meta.moreUrl'));
-				self.set('loadingMore', false);
+				self.set('resultsLoading', false);
 			});
 		},
 
-		delete: function(discussion) {
-			alert('are you sure you want to delete discusn: '+discussion.get('title'));
+		transitionFromBackButton: function() {
+			this.transitionToRoute('index');
 		}
 	},
 
-	queryDidChange: function(q) {
+	searchQueryDidChange: function(q) {
 		this.get('controllers.application').set('searchQuery', this.get('searchQuery'));
 		this.get('controllers.application').set('searchActive', !! this.get('searchQuery'));
 

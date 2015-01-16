@@ -1,0 +1,20 @@
+<a href="#" class="scrubber-first" {{action "first"}}>{{fa-icon "angle-double-up"}} Original Post</a>
+<div class="scrubber-scrollbar">
+    <div class="scrubber-before"></div>
+    <div class="scrubber-slider">
+        <div class="scrubber-handle"></div>
+        {{#if loaded}}
+            <div class="scrubber-info">
+                <strong><span class="index">{{visibleIndex}}</span> of <span class="count">{{count}}</span> posts</strong>
+                <span class="description">{{description}}</span>
+            </div>
+        {{/if}}
+    </div>
+    <div class="scrubber-after"></div>
+    <ul class="scrubber-highlights">
+        {{#each index in relevantPostIndexes}}
+            <li {{bind-attr style=index}}></li>
+        {{/each}}
+    </ul>
+</div>
+<a href="#" class="scrubber-last" {{action "last"}}>{{fa-icon "angle-double-down"}} Now</a>
