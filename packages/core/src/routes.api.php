@@ -108,7 +108,7 @@ Route::group(['prefix' => 'api'], function () {
     |--------------------------------------------------------------------------
     */
 
-    // List posts
+    // List posts, usually for a discussion
     Route::get('posts', [
         'as' => 'flarum.api.posts.index',
         'uses' => action_handler('Flarum\Api\Actions\Posts\Index')
@@ -121,7 +121,7 @@ Route::group(['prefix' => 'api'], function () {
         'uses' => action_handler('Flarum\Api\Actions\Posts\Create')
     ]);
 
-    // Show a single post
+    // Show a single or multiple posts by ID
     Route::get('posts/{id}', [
         'as' => 'flarum.api.posts.show',
         'uses' => action_handler('Flarum\Api\Actions\Posts\Show')
