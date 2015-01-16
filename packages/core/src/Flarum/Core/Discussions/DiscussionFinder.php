@@ -16,7 +16,7 @@ class DiscussionFinder
 
     protected $sortMap = [
         'lastPost' => ['last_time', 'desc'],
-        'replies'  => ['posts_count', 'desc'],
+        'replies'  => ['comments_count', 'desc'],
         'created'  => ['start_time', 'desc']
     ];
 

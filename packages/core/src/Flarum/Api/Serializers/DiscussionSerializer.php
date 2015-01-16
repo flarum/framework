@@ -28,7 +28,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
         $attributes = parent::attributes($discussion);
 
         $attributes += [
-            'postsCount'     => (int) $discussion->posts_count,
+            'commentsCount'  => (int) $discussion->comments_count,
             'startTime'      => $discussion->start_time->toRFC3339String(),
             'lastTime'       => $discussion->last_time ? $discussion->last_time->toRFC3339String() : null,
             'lastPostNumber' => $discussion->last_post_number,

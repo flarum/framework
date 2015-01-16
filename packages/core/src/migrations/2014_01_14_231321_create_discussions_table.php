@@ -18,7 +18,7 @@ class CreateDiscussionsTable extends Migration {
 
 			$table->increments('id');
 			$table->string('title');
-			$table->integer('posts_count')->unsigned()->default(0);
+			$table->integer('comments_count')->unsigned()->default(0);
 			$table->integer('number_index')->unsigned()->default(0);
 
 			$table->dateTime('start_time');
