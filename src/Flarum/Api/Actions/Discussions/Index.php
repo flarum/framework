@@ -37,7 +37,7 @@ class Index extends Base
         $key     = $this->input('key');
         $start   = $this->start();
         $include = $this->included(['startPost', 'lastPost', 'relevantPosts']);
-        $count   = $this->count($include ? 20 : 50, 30);
+        $count   = $this->count(20, 50);
         $sort    = $this->sort(['', 'lastPost', 'replies', 'created']);
 
         $relations = array_merge(['startUser', 'lastUser'], $include);
