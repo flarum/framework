@@ -2,7 +2,9 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
 
-    needs: ['discussions'],
+    needs: ['index'],
+
+    user: Ember.Object.create({avatarNumber: 1}),
 
     showing: false,
 

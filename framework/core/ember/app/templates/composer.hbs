@@ -1,19 +1,29 @@
 <div class="composer-handle"></div>
 
-<div class="composer-controls">
-	<a href="#" {{action "fullScreen"}}>{{fa-icon "fa-expand"}}</a>
-	<a href="#" {{action "hide"}}>{{fa-icon "fa-caret-square-o-down"}}</a>
-	<a href="#" {{action "close"}}>{{fa-icon "fa-times"}}</a>
+<div class="composer-controls btn-group">
+	<div class="btn-group dropdown">
+		<a href="#" {{action "fullScreen"}} class="btn btn-icon btn-link dropdown-toggle" data-toggle="dropdown">{{fa-icon "ellipsis-v"}}</a>
+		<ul class="dropdown-menu pull-right">
+			<li><a href="#">{{fa-icon "expand"}} Full Screen</a></li>
+			<li><a href="#">{{fa-icon "external-link"}} Pop-Out</a></li>
+		</ul>
+	</div>
+	<a href="#" {{action "hide"}} class="btn btn-icon btn-link">{{fa-icon "chevron-down"}}</a>
+	<a href="#" {{action "close"}} class="btn btn-icon btn-link">{{fa-icon "times"}}</a>
 </div>
 
-{{user-avatar user}}
+<div class="composer-content">
 
-<div class="composer-body">
+	{{user-avatar user class="composer-avatar"}}
 
-	<h3>{{{title}}}</h3>
+	<div class="composer-body">
 
-	<div class="composer-editor">
-		{{ui/controls/text-editor placeholder=""}}
+		<h3>{{{title}}}</h3>
+
+		<div class="composer-editor">
+			{{ui/controls/text-editor placeholder=""}}
+		</div>
+
 	</div>
 
 </div>

@@ -1,20 +1,14 @@
-<div id="wrapper">
+<div {{bind-attr class=":page panePinned:with-pane"}}>
 
-	<header id="header">
+	<header id="header" class="global-header">
 
-		<div id="back-nav">
-			<div class="btn-group">
-				<button class="btn">{{fa-icon "chevron-left"}}</button>
-				<button class="btn">{{fa-icon "thumb-tack"}}</button>
-			</div>
-		</div>
+		{{back-button target=backButtonTarget}}
 
-		<div id="header-content">
+		<div class="container">
 
-			<div id="header-primary">
-
-				<h1 id="header-title">
-					{{#link-to "discussions" (query-params searchQuery="" sort="recent" show="discussions")}}
+			<div class="header-primary">
+				<h1 class="header-title">
+					{{#link-to "index" (query-params searchQuery="" sort="recent" show="discussions")}}
 						{{#if view.image}}
 							<img {{bind-attr src=view.image alt=view.title}}>
 						{{else}}
@@ -23,39 +17,39 @@
 					{{/link-to}}
 				</h1>
 
-				{{ui/controls/item-list items=headerPrimaryControls class="nav"}}
-
+				{{ui/controls/item-list items=view.headerPrimaryItems class="header-controls"}}
 			</div>
 
-			<div id="header-secondary">
-
-				<div class="search">
-					{{ui/controls/search-input placeholder="Search forum" value=searchQuery active=searchActive action="search"}}
-				</div>
-
-				{{ui/controls/item-list items=headerSecondaryControls}}
-
+			<div class="header-secondary">
+				{{ui/controls/item-list items=view.headerSecondaryItems class="header-controls"}}
 			</div>
 
 		</div>
 
 	</header>
 
-	<main id="body">
+	<main id="main" class="global-main">
 		{{outlet}}
+
+		{{!-- <div class="composer-container">
+			<div class="container">
+				{{render "composer"}}
+			</div>
+		</div> --}}
 	</main>
 
-	<footer id="footer">
-		{{ui/controls/item-list items=footerControls}}
+	<footer id="footer" class="global-footer">
+		<div class="container">
+			{{ui/controls/item-list items=view.footerPrimaryItems class="footer-primary"}}
+			{{ui/controls/item-list items=view.footerSecondaryItems class="footer-secondary"}}
+		</div>
 	</footer>
 
 </div>
 
 {{outlet "modal"}}
 
-{{render "composer"}}
-
-<div id="alerts">
+<div class="alerts">
 	{{#each alert in alerts}}
 		{{alert-message message=alert}}
 	{{/each}}

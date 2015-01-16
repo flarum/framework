@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 	icon: '',
-	title: '',
+	label: '',
 	action: null,
 	badge: '',
 
@@ -22,7 +22,7 @@ export default Ember.Component.extend({
     // },
 
 	layout: function() {
-        return Ember.Handlebars.compile('{{#link-to '+this.get('linkTo')+'}}'+this.get('iconTemplate')+' {{title}} <span class="count">{{badge}}</span>{{/link-to}}');
+        return Ember.Handlebars.compile('{{#link-to '+this.get('linkTo')+'}}'+this.get('iconTemplate')+' {{label}} <span class="count">{{badge}}</span>{{/link-to}}');
     }.property('linkTo', 'iconTemplate'),
 
     iconTemplate: function() {

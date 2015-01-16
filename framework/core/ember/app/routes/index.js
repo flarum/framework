@@ -8,7 +8,7 @@ export default Ember.Route.extend({
 
 		if ( ! model.get('length')) {
 			controller.set('resultsLoading', true);
-		
+
 			controller.getResults().then(function(results) {
 				controller
 					.set('resultsLoading', false)

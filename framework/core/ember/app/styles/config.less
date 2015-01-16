@@ -1,4 +1,4 @@
-@fl-primary-color:                  #4d698e;
+@fl-primary-color:                  #4d698e;//#E7562E;
 @fl-secondary-color:                #edf2f7;
 @fl-dark-hdr:                       false;
 
@@ -7,7 +7,7 @@
 
 @fl-body-bg:                        #fff;
 @fl-body-color:                     #444;
-@fl-body-muted-color:               hsl(hue(@fl-secondary-color), 18%, 72%); // todo
+@fl-body-muted-color:               hsv(hue(@fl-secondary-color), 18%, 72%); // todo
 @fl-body-muted-more-color:          #bbb;
 @fl-body-heading-color:             @fl-body-color;
 
@@ -20,14 +20,24 @@
 // ---------------------------------
 // HEADER
 
-@fl-hdr-light-bg:                   @fl-body-bg;
-@fl-hdr-light-color:                @fl-primary-color;
-@fl-hdr-light-muted-color:          @fl-body-muted-color;
-@fl-hdr-light-control-bg:           @fl-body-control-bg;
-@fl-hdr-light-control-color:        @fl-body-control-color;
+.define-hdr-variables(@fl-dark-hdr);
+.define-hdr-variables(false) {
+	@fl-hdr-bg:                   @fl-body-bg;
+	@fl-hdr-color:                @fl-primary-color;
+	@fl-hdr-muted-color:          @fl-body-muted-color;
+	@fl-hdr-control-bg:           @fl-body-control-bg;
+	@fl-hdr-control-color:        @fl-body-control-color;
 
-@fl-hdr-dark-bg:                    @fl-primary-color;
-@fl-hdr-dark-color:                 #fff;
-@fl-hdr-dark-muted-color:           fade(#fff, 0.5);
-@fl-hdr-dark-control-bg:            fade(#000, 0.1);
-@fl-hdr-dark-control-color:         #fff;
+	@fl-body-hero-bg:             @fl-primary-color;
+	@fl-body-hero-color:          #fff;
+}
+.define-hdr-variables(true) {
+	@fl-hdr-bg:                    @fl-primary-color;
+	@fl-hdr-color:                 #fff;
+	@fl-hdr-muted-color:           fade(#fff, 0.5);
+	@fl-hdr-control-bg:            fade(#000, 0.1);
+	@fl-hdr-control-color:         #fff;
+
+	@fl-body-hero-bg:             @fl-secondary-color;
+	@fl-body-hero-color:          @fl-body-muted-color;
+}

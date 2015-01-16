@@ -4,10 +4,10 @@ export default Ember.Component.extend({
     items: [],
     layoutName: 'components/ui/controls/dropdown-select',
     classNames: ['dropdown', 'dropdown-select', 'btn-group'],
-    classNameBindings: ['itemCountClass'],
+    classNameBindings: ['itemCountClass', 'class'],
 
-    buttonClass: 'btn-default',
-    menuClass: 'pull-right',
+    buttonClass: 'btn btn-default',
+    menuClass: '',
     icon: 'ellipsis-v',
 
     mainButtonClass: function() {
@@ -25,9 +25,4 @@ export default Ember.Component.extend({
     activeItem: function() {
         return this.get('menu.childViews').findBy('active');
     }.property('menu.childViews.@each.active')
-
-}).reopenClass({
-    createWithItems: function(items) {
-        return this.create({items: items});
-    }
 });

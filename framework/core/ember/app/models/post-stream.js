@@ -6,8 +6,10 @@ import Ember from 'ember';
 export default Ember.ArrayProxy.extend(Ember.Evented, {
 
 	// An array of all of the post IDs, in chronological order, in the discussion.
-	ids: Em.A(),
-	content: Em.A(),
+	ids: null,
+
+	content: null,
+
 	store: null,
 	discussion: null,
 
@@ -19,12 +21,14 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
 	setup: function(ids) {
 		this.set('ids', ids);
-		this.clear();
+		this.get('content').objectAt(0).set('indexEnd', this.get('count') - 1);
 	},
 
-	count: function() {
-		return this.get('ids.length');
-	}.property('ids'),
+	count: Ember.computed.alias('ids.length'),
+
+	loadedCount: function() {
+		return this.get('content').filterBy('content').length;
+	}.property('content.@each'),
 
 	firstLoaded: function() {
 		var first = this.objectAt(0);
@@ -38,15 +42,15 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
 	// Clear the contents of the post stream, resetting it to one big gap.
 	clear: function() {
-		var stream = this.get('content');
-		stream.enumerableContentWillChange();
-		stream.clear().pushObject(Em.Object.create({
+		var content = Ember.A();
+		content.clear().pushObject(Em.Object.create({
 			gap: true,
 			indexStart: 0,
 			indexEnd: this.get('count') - 1,
 			loading: true
 		}));
-		stream.enumerableContentDidChange();
+		this.set('content', content);
+		this.set('ids', Ember.A());
 	},
 
 	loadRange: function(start, end, backwards) {
@@ -92,8 +96,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		// request.) Or, if it's a gap, we'll switch on its loading flag.
 		var item = this.findNearestToNumber(number);
 		if (item) {
-			if (item.get('post.number') == number) {
-				return Ember.RSVP.resolve([item.get('post')]);
+			if (item.get('content.number') == number) {
+				return Ember.RSVP.resolve([item.get('content')]);
 			} else if (item.gap) {
 				item.set('direction', 'down').set('loading', true);
 			}
@@ -102,7 +106,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		var stream = this;
 		return this.store.find('post', {
 			discussions: this.get('discussion.id'),
-			near: number
+			near: number,
+			count: this.get('postLoadCount')
 		}).then(function(posts) {
 			stream.addPosts(posts);
 		});
@@ -116,11 +121,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		var item = this.findNearestToIndex(index);
 		if (item) {
 			if (! item.gap) {
-				return Ember.RSVP.resolve([item.get('post')]);
+				return Ember.RSVP.resolve([item.get('content')]);
 			} else {
 				item.set('direction', 'down').set('loading', true);
 			}
-			return this.loadRange(Math.max(item.indexStart, index - 10), item.indexEnd);
+			return this.loadRange(Math.max(item.indexStart, index - this.get('postLoadCount') / 2), item.indexEnd);
 		}
 
 		return Ember.RSVP.reject();
@@ -158,7 +163,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 				newItems.push(Ember.Object.create({
 					indexStart: index,
 					indexEnd: index,
-					post: post
+					content: post
 				}));
 				if (item.indexEnd > index) {
 					newItems.push(Ember.Object.create({
@@ -167,35 +172,29 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 						indexEnd: item.indexEnd
 					}));
 				}
-				content.enumerableContentWillChange();
 				content.replace(i, 1, newItems);
-				content.enumerableContentDidChange();
 				return true;
 			}
-		});		
+		});
+	},
+
+	findNearestTo: function(index, property) {
+		var nearestItem;
+        this.get('content').some(function(item) {
+            nearestItem = item;
+            if (item.get(property) > index) {
+                return true;
+            }
+        });
+        return nearestItem;
 	},
 
 	findNearestToNumber: function(number) {
-        var nearestItem;
-        this.get('content').some(function(item) {
-            var thisNumber = item.get('post.number');
-            if (thisNumber > number) {
-                return true;
-            }
-            nearestItem = item;
-        });
-        return nearestItem;
+		return this.findNearestTo(number, 'content.number');
     },
 
     findNearestToIndex: function(index) {
-    	var nearestItem;
-        this.get('content').some(function(item) {
-            if (item.indexStart <= index && item.indexEnd >= index) {
-                nearestItem = item;
-                return true;
-            }
-        });
-        return nearestItem;
+    	return this.findNearestTo(index, 'indexEnd');
     }
 
 });
