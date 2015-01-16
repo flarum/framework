@@ -15,11 +15,11 @@ export default Ember.Handlebars.makeBoundHelper(function(time) {
 	var diff = Math.abs(m.diff(moment()));
 
 	if (diff < 60 * minute) {
-		ago = moment.duration(diff).minutes()+'m';
+		ago = moment.duration(diff).minutes()+'m ago';
 	} else if (diff < 24 * hour) {
-		ago = moment.duration(diff).hours()+'h';
+		ago = moment.duration(diff).hours()+'h ago';
 	} else if (diff < 30 * day) {
-		ago = moment.duration(diff).days()+'d';
+		ago = moment.duration(diff).days()+'d ago';
 	} else if (m.year() == moment().year()) {
 		ago = m.format('D MMM');
 	} else {

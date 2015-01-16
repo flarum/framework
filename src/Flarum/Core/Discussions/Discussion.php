@@ -19,7 +19,7 @@ class Discussion extends Entity
     protected static $rules = [
         'title'            => 'required',
         'start_time'       => 'required|date',
-        'posts_count'      => 'integer',
+        'comments_count'   => 'integer',
         'start_user_id'    => 'integer',
         'start_post_id'    => 'integer',
         'last_time'        => 'date',
@@ -79,13 +79,13 @@ class Discussion extends Entity
 
     public function refreshLastPost()
     {
-        $lastPost = $this->dialog()->orderBy('time', 'desc')->first();
+        $lastPost = $this->comments()->orderBy('time', 'desc')->first();
         $this->setLastPost($lastPost);
     }
 
-    public function refreshPostsCount()
+    public function refreshCommentsCount()
     {
-        $this->posts_count = $this->dialog()->count();
+        $this->comments_count = $this->comments()->count();
     }
 
     public function rename($title, $user)
@@ -109,7 +109,7 @@ class Discussion extends Entity
         return $this->hasMany('Flarum\Core\Posts\Post')->orderBy('time', 'asc');
     }
 
-    public function dialog()
+    public function comments()
     {
         return $this->posts()->where('type', 'comment')->whereNull('delete_time');
     }

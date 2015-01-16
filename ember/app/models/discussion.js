@@ -24,10 +24,10 @@ var Discussion = DS.Model.extend({
 
 	relevantPosts: DS.hasMany('post'),
 
-	postsCount: DS.attr('number'),
+	commentsCount: DS.attr('number'),
 	repliesCount: function() {
-		return Math.max(0, this.get('postsCount') - 1);
-	}.property('postsCount'),
+		return Math.max(0, this.get('commentsCount') - 1);
+	}.property('commentsCount'),
 
 	posts: DS.attr('string'),
 	postIds: function() {
