@@ -151,7 +151,9 @@ abstract class Base extends Controller
     protected function respondWithDocument($statusCode = 200, $headers = [])
     {
         // @todo remove this
-        $this->document->addMeta('pageload', microtime(true) - LARAVEL_START);
+        if (defined('LARAVEL_START')) {
+            $this->document->addMeta('pageload', microtime(true) - LARAVEL_START);
+        }
 
         Event::fire('flarum.api.willRespondWithDocument', [$this->document]);
 
