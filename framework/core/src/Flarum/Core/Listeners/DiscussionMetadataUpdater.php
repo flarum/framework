@@ -22,7 +22,7 @@ class DiscussionMetadataUpdater extends EventListener
     {
         $discussion = $this->discussionRepo->find($event->post->discussion_id);
 
-        $discussion->replies_count++;
+        $discussion->comments_count++;
         $discussion->setLastPost($event->post);
 
         $this->discussionRepo->save($discussion);
@@ -42,7 +42,7 @@ class DiscussionMetadataUpdater extends EventListener
     {
         $discussion = $this->discussionRepo->find($event->post->discussion_id);
 
-        $discussion->replies_count++;
+        $discussion->comments_count++;
         $discussion->refreshLastPost();
 
         $this->discussionRepo->save($discussion);
@@ -52,7 +52,7 @@ class DiscussionMetadataUpdater extends EventListener
     {
         $discussion = $this->discussionRepo->find($post->discussion_id);
 
-        $discussion->replies_count--;
+        $discussion->comments_count--;
 
         if ($discussion->last_post_id == $post->id) {
             $discussion->refreshLastPost();
