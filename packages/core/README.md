@@ -4,6 +4,8 @@ I’m [Toby Zerner](http://tobyzerner.com), the developer of [esoTalk](http://es
 
 **As it stands, there is a need for modern, well-architected, powerful forum software that is easy to use and self-host.** That’s what Flarum is. But I'm a full-time student and I don't have time to do this by myself. So I'm opening up Flarum to the world — let's build it together.
 
+![Flarum screenshot](https://pbs.twimg.com/media/B7eOB3bCMAE88_f.png:large)
+
 ## Philosophy
 
 I have a vision for Flarum — one that has grown over years of playing with forums, developing esoTalk, and learning from mistakes. It is captured by the following four points:
@@ -47,16 +49,15 @@ You might notice that a lot of the code is a bit of a mess right now. This is be
 
 The priority at the moment is to build out a lightweight core, and only start building [Extensions](https://github.com/flarum/core/wiki/Extensions) when it is relatively stable. Below is a list of the things to work on immediately, with links to the relevant discussion.
 
-- [ ] Interface redesign ([#1](https://github.com/flarum/core/issues/1))
-- [ ] Upgrade to Laravel 5 ([#2](https://github.com/flarum/core/issues/2))
-- [ ] Set up testing frameworks in both Laravel ([#3](https://github.com/flarum/core/issues/3)) and Ember ([#4](https://github.com/flarum/core/issues/4))
+- [x] Interface redesign ([#1](https://github.com/flarum/core/issues/1))
+- [ ] Write tests in both Laravel ([#3](https://github.com/flarum/core/issues/3)) and Ember ([#4](https://github.com/flarum/core/issues/4))
 - [ ] Further consolidation of Extension interfaces (see [Extensions](https://github.com/flarum/core/wiki/Extensions))
 - [ ] Develop user authentication strategy ([#5](https://github.com/flarum/core/issues/5))
 - [ ] Implement replying, post editing, discussion creation ([#6](https://github.com/flarum/core/issues/6))
 - [ ] Implement discussion title editing ([#7](https://github.com/flarum/core/issues/7))
 - [ ] Implement post deletion ([#8](https://github.com/flarum/core/issues/8))
 - [ ] Implement discussion deletion ([#9](https://github.com/flarum/core/issues/9))
-- [ ] Design user profile interface ([#10](https://github.com/flarum/core/issues/10))
+- [x] Design user profile interface ([#10](https://github.com/flarum/core/issues/10))
 - [ ] Design admin interfaces ([#11](https://github.com/flarum/core/issues/11))
 - [ ] Build Notifications system ([#12](https://github.com/flarum/core/issues/12))
 
