@@ -1,6 +1,8 @@
 <?php
 use \ApiTester;
 
+use Laracasts\TestDummy\Factory;
+
 class DiscussionsResourceCest {
 
     protected $endpoint = '/api/discussions';
@@ -9,24 +11,37 @@ class DiscussionsResourceCest {
     {
         $I->wantTo('get discussions via API');
 
-        $id = $I->haveRecord('discussions', ['title' => 'Game of Thrones', 'last_time' => date('c')]);
-        $id2 = $I->haveRecord('discussions', ['title' => 'Lord of the Rings', 'last_time' => date('c')]);
+        $discussions = Factory::times(2)->create('Flarum\Core\Discussions\Discussion');
 
         $I->sendGET($this->endpoint);
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
-        $I->expect('both items are in response');
-        $I->seeResponseContainsJson(['id' => (string) $id, 'title' => 'Game of Thrones']);
-        $I->seeResponseContainsJson(['id' => (string) $id2, 'title' => 'Lord of the Rings']);
+        $I->expect('there are two discussions in the response');
+        $I->assertEquals(2, count($I->grabDataFromJsonResponse('discussions')));
 
-        $I->expect('both items are in root discussions array');
-        $I->seeResponseContainsJson(['discussions' => [['id' => (string) $id], ['id' => (string) $id2]]]);
+        $I->expect('they are the discussions we created');
+        $I->seeResponseContainsJson(['id' => (string) $discussions[0]->id, 'title' => $discussions[0]->title]);
+        $I->seeResponseContainsJson(['id' => (string) $discussions[1]->id, 'title' => $discussions[1]->title]);
+    }
+
+    public function showDiscussion(ApiTester $I)
+    {
+        $I->wantTo('show a single discussion via API');
+
+        $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
+
+        $I->sendGET($this->endpoint.'/'.$discussion->id);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson(['discussions' => ['id' => (string) $discussion->id, 'title' => $discussion->title]]);
     }
 
     public function createDiscussion(ApiTester $I)
     {
         $I->wantTo('create a discussion via API');
+
         $I->haveHttpHeader('Authorization', 'Token 123456');
 
         $I->sendPOST($this->endpoint, ['discussions' => ['title' => 'foo', 'content' => 'bar']]);
@@ -37,5 +52,37 @@ class DiscussionsResourceCest {
 
         $id = $I->grabDataFromJsonResponse('discussions.id');
         $I->seeRecord('discussions', ['id' => $id, 'title' => 'foo']);
+    }
+
+    public function updateDiscussion(ApiTester $I)
+    {
+        $I->wantTo('update a discussion via API');
+
+        $I->haveHttpHeader('Authorization', 'Token 123456');
+
+        $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
+
+        $I->sendPUT($this->endpoint.'/'.$discussion->id, ['discussions' => ['title' => 'foo']]);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(['title' => 'foo']);
+
+        $id = $I->grabDataFromJsonResponse('discussions.id');
+        $I->seeRecord('discussions', ['id' => $id, 'title' => 'foo']);
+    }
+
+    public function deleteDiscussion(ApiTester $I)
+    {
+        $I->wantTo('delete a discussion via API');
+
+        $I->haveHttpHeader('Authorization', 'Token 123456');
+
+        $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
+
+        $I->sendDELETE($this->endpoint.'/'.$discussion->id);
+        $I->seeResponseCodeIs(204);
+        $I->seeResponseEquals('');
+
+        $I->dontSeeRecord('discussions', ['id' => $discussion->id]);
     }
 }
