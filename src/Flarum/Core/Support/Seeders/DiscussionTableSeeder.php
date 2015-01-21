@@ -37,8 +37,7 @@ class DiscussionTableSeeder extends Seeder
                 'time'          => $discussion->start_time,
                 'user_id'       => $discussion->start_user_id,
                 'type'          => 'comment',
-                'content'       => $faker->realText(rand(100, 1000)),
-                'html_content'       => $faker->realText(rand(100, 1000))
+                'content'       => $faker->realText(rand(100, 1000))
             ]);
 
             $discussion->start_post_id = $post->id;
