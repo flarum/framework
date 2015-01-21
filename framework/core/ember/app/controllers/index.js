@@ -28,11 +28,11 @@ export default Ember.ArrayController.extend(Ember.Evented, PaneableMixin, {
 	],
 
 	terminalPostType: function() {
-		return ['newest', 'oldest'].indexOf(this.get('sort')) != -1 ? 'start' : 'last';
+		return ['newest', 'oldest'].indexOf(this.get('sort')) !== -1 ? 'start' : 'last';
 	}.property('sort'),
 
 	countType: function() {
-		return this.get('sort') == 'replies' ? 'replies' : 'unread';
+		return this.get('sort') === 'replies' ? 'replies' : 'unread';
 	}.property('sort'),
 
 	discussionsCount: function() {
@@ -56,35 +56,39 @@ export default Ember.ArrayController.extend(Ember.Evented, PaneableMixin, {
 		var show = this.get('show');
 		var searchQuery = this.get('searchQuery');
 
-		if (sort == 'newest') {
+		if (sort === 'newest') {
 			sort = 'created';
 			order = 'desc';
-		} else if (sort == 'oldest') {
+		} else if (sort === 'oldest') {
 			sort = 'created';
 		}
-		else if (sort == 'recent') {
+		else if (sort === 'recent') {
 			sort = '';
 		}
-		else if (sort == 'replies') {
+		else if (sort === 'replies') {
 			order = 'desc';
 		}
 
 		var params = {
-			sort: (order == 'desc' ? '-' : '')+sort,
+			sort: (order === 'desc' ? '-' : '')+sort,
 			q: searchQuery,
 			start: start
 		};
 
-		if (show == 'posts') {
-			if (searchQuery) params.include = 'relevantPosts';
-			else if (sort == 'created') params.include = 'startPost,startUser';
-			else params.include = 'lastPost,lastUser';
+		if (show === 'posts') {
+			if (searchQuery) {
+				params.include = 'relevantPosts';
+			} else if (sort === 'created') {
+				params.include = 'startPost,startUser';
+			} else {
+				params.include = 'lastPost,lastUser';
+			}
 		}
 
 		return this.store.find('discussion', params).then(function(discussions) {
-			var results = Em.A();
+			var results = Ember.A();
 			discussions.forEach(function(discussion) {
-				var relevantPosts = Em.A();
+				var relevantPosts = Ember.A();
 				// discussion.get('relevantPosts.content').forEach(function(post) {
 				// 	relevantPosts.pushObject(PostResult.create(post));
 				// });
@@ -118,21 +122,21 @@ export default Ember.ArrayController.extend(Ember.Evented, PaneableMixin, {
 		}
 	},
 
-	searchQueryDidChange: function(q) {
+	searchQueryDidChange: function() {
 		this.get('controllers.application').set('searchQuery', this.get('searchQuery'));
 		this.get('controllers.application').set('searchActive', !! this.get('searchQuery'));
 
 		var sortOptions = this.get('sortOptions');
 
-		if (this.get('searchQuery') && sortOptions[0].sort != 'relevance') {
+		if (this.get('searchQuery') && sortOptions[0].sort !== 'relevance') {
 			sortOptions.unshiftObject({sort: 'relevance', label: 'Relevance'});
 		}
-		else if ( ! this.get('searchQuery') && sortOptions[0].sort == 'relevance') {
+		else if ( ! this.get('searchQuery') && sortOptions[0].sort === 'relevance') {
 			sortOptions.shiftObject();
 		}
 	}.observes('searchQuery'),
 
-	paramsDidChange: function(show) {
+	paramsDidChange: function() {
 		this.set('start', 0);
 	}.observes('show', 'sort', 'searchQuery')
 

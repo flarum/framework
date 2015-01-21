@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-export default Ember.Handlebars.makeBoundHelper(function(text, phrase, options) {
+export default Ember.Handlebars.makeBoundHelper(function(text, phrase) {
     if (phrase) {
         var words = phrase.split(' ');
         var replacement = function(matched) {
@@ -13,6 +13,6 @@ export default Ember.Handlebars.makeBoundHelper(function(text, phrase, options) 
             );
         });
     }
-    return new Handlebars.SafeString(text);
+    return new Ember.Handlebars.SafeString(text);
 });
 

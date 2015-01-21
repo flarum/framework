@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import Discussion from '../models/discussion';
 
 export default Ember.Route.extend({
 
@@ -18,14 +17,14 @@ export default Ember.Route.extend({
 		}
 	},
 
-	model: function(params) {
+	model: function() {
 		var model = Ember.ArrayProxy.create();
 
 		return Ember.RSVP.resolve(model);
 	},
 
 	actions: {
-		queryParamsDidChange: function(newParams, params) {
+		queryParamsDidChange: function() {
 			var self = this;
 			Ember.run.scheduleOnce('afterRender', function() {
 				self.refresh();

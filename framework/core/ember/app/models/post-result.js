@@ -8,7 +8,9 @@ var PostResult = Ember.ObjectProxy.extend({
 
 PostResult.reopenClass({
 	create: function(post) {
-		if (!post) return null;
+		if (!post) {
+			return null;
+		}
 		
 		var result = this._super();
 		result.set('content', post);

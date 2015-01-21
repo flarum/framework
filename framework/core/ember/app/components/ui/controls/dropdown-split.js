@@ -1,5 +1,3 @@
-import Ember from 'ember';
-
 import DropdownButton from './dropdown-button';
 
 export default DropdownButton.extend({

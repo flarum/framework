@@ -42,14 +42,14 @@ export default Ember.Route.extend({
 			var controller = this.get('controller'),
 			    oldStart = this.get('controller.start');
 			Ember.run.next(function() {
-				if (! params.start || ! controller || ! controller.get('loaded') || params.start == oldStart) {
+				if (! params.start || ! controller || ! controller.get('loaded') || params.start === oldStart) {
 					return;
 				}
 				controller.trigger('startWasChanged', params.start);
 			});
 		},
 
-		willTransition: function(transition) {
+		willTransition: function() {
 			// When we transition away from this discussion, we want to hide
 			// the discussions list pane. This means that when the user
 			// selects a different discussion within the pane, the pane will

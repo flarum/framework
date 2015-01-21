@@ -2,7 +2,6 @@ import Ember from 'ember';
 
 import TaggedArray from '../../utils/tagged-array';
 import ActionButton from '../ui/controls/action-button';
-import SeparatorItem from '../ui/items/separator-item';
 
 export default Ember.Component.extend({
 
@@ -23,11 +22,11 @@ export default Ember.Component.extend({
 	}.property('childViews.@each.active'),
 
 	displayUnread: function() {
-		return this.get('countType') == 'unread' && this.get('discussion.isUnread');
+		return this.get('countType') === 'unread' && this.get('discussion.isUnread');
 	}.property('countType', 'discussion.isUnread'),
 
 	displayLastPost: function() {
-		return this.get('terminalPostType') == 'last' && this.get('discussion.repliesCount');
+		return this.get('terminalPostType') === 'last' && this.get('discussion.repliesCount');
 	}.property('terminalPostType', 'discussion.repliesCount'),
 
 	start: function() {
@@ -37,11 +36,13 @@ export default Ember.Component.extend({
 	discussionId: Ember.computed.alias('discussion.id'),
 
 	relevantPosts: function() {
-		if (this.get('controller.show') != 'posts') return [];
+		if (this.get('controller.show') !== 'posts') {
+			return [];
+		}
 		
 		if (this.get('controller.searchQuery')) {
 			return this.get('discussion.relevantPosts');
-		} else if (this.get('controller.sort') == 'newest' || this.get('controller.sort') == 'oldest') {
+		} else if (this.get('controller.sort') === 'newest' || this.get('controller.sort') === 'oldest') {
 			return [this.get('discussion.startPost')];
 		} else {
 			return [this.get('discussion.lastPost')];
