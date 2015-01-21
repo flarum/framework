@@ -9,7 +9,7 @@ export default Ember.Component.extend({
     didInsertElement: function() {
         var self = this;
         this.$().find('input').on('keydown', function(e) {
-            if (e.which == 27) {
+            if (e.which === 27) {
                 self.clear();
             }
         });
@@ -18,7 +18,7 @@ export default Ember.Component.extend({
         }).on('click', function(e) {
             e.preventDefault();
             self.clear();
-        })
+        });
     },
 
     clear: function() {

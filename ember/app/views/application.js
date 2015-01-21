@@ -5,6 +5,8 @@ import SearchInput from '../components/ui/controls/search-input';
 import DropdownSelect from '../components/ui/controls/dropdown-select';
 import TaggedArray from '../utils/tagged-array';
 
+var $ = Ember.$;
+
 export default Ember.View.extend({
 
     title: function() {

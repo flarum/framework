@@ -7,10 +7,12 @@ export default Ember.Component.extend({
     layoutName: 'components/ui/controls/item-list',
 
     listItems: function() {
-        if (!Ember.isArray(this.get('items'))) return [];
+        if (!Ember.isArray(this.get('items'))) {
+            return [];
+        }
         var listItems = [];
         this.get('items').forEach(function(item) {
-            if (item.tagName != 'li') {
+            if (item.tagName !== 'li') {
                 item = ComponentItem.extend({component: item});
             }
             listItems.push(item);

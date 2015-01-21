@@ -3,8 +3,9 @@ import Ember from 'ember';
 import TaggedArray from '../utils/tagged-array';
 import ActionButton from '../components/ui/controls/action-button';
 import DropdownSplit from '../components/ui/controls/dropdown-split';
-import DropdownButton from '../components/ui/controls/dropdown-button';
 import StreamScrubber from '../components/discussions/stream-scrubber';
+
+var $ = Ember.$;
 
 export default Ember.View.extend(Ember.Evented, {
 

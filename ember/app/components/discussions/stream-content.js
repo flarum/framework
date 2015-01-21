@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+var $ = Ember.$;
+
 export default Ember.Component.extend({
 
 	classNames: ['stream'],
@@ -177,7 +179,7 @@ export default Ember.Component.extend({
 		if ($item.length) {
 			var marginTop = this.getMarginTop();
 			var scrollTop = $item.is(':first-child') ? 0 : $item.offset().top - marginTop;
-			if (scrollTop != $(document).scrollTop()) {
+			if (scrollTop !== $(document).scrollTop()) {
 				$container.stop(true).animate({scrollTop: scrollTop});
 			}
 		}

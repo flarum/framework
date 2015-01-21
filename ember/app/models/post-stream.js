@@ -43,7 +43,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 	// Clear the contents of the post stream, resetting it to one big gap.
 	clear: function() {
 		var content = Ember.A();
-		content.clear().pushObject(Em.Object.create({
+		content.clear().pushObject(Ember.Object.create({
 			gap: true,
 			indexStart: 0,
 			indexEnd: this.get('count') - 1,
@@ -60,10 +60,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		// Find the appropriate gap objects in the post stream. When we find
 		// one, we will turn on its loading flag.
 		this.get('content').forEach(function(item) {
-			if (item.gap && (
-					(item.indexStart >= start && item.indexStart <= end)
-					|| (item.indexEnd >= start && item.indexEnd <= end)
-				)) {
+			if (item.gap && ((item.indexStart >= start && item.indexStart <= end) || (item.indexEnd >= start && item.indexEnd <= end))) {
 				item.set('loading', true);
 				item.set('direction', backwards ? 'up' : 'down');
 			}
@@ -96,7 +93,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		// request.) Or, if it's a gap, we'll switch on its loading flag.
 		var item = this.findNearestToNumber(number);
 		if (item) {
-			if (item.get('content.number') == number) {
+			if (item.get('content.number') === number) {
 				return Ember.RSVP.resolve([item.get('content')]);
 			} else if (item.gap) {
 				item.set('direction', 'down').set('loading', true);
@@ -143,7 +140,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 	},
 
 	addPost: function(post) {
-		var stream = this;
 		var index = this.get('ids').indexOf(post.get('id'));
 		var content = this.get('content');
 

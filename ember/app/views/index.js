@@ -5,6 +5,8 @@ import ActionButton from '../components/ui/controls/action-button';
 import NavItem from '../components/ui/items/nav-item';
 import TaggedArray from '../utils/tagged-array';
 
+var $ = Ember.$;
+
 export default Ember.View.extend({
 
 	sidebarItems: null,
@@ -24,7 +26,7 @@ export default Ember.View.extend({
 					return $sidebar.offset().top - $('#header').outerHeight(true) - parseInt($sidebar.css('margin-top'));
 				},
 				bottom: function () {
-					return (this.bottom = $('#footer').outerHeight(true))
+					return (this.bottom = $('#footer').outerHeight(true));
 				}
 			}
 		});
@@ -57,7 +59,7 @@ export default Ember.View.extend({
         	label: 'Start a Discussion',
         	icon: 'edit',
         	className: 'btn btn-primary new-discussion'
-        })
+        });
         sidebar.pushObjectWithTag(newDiscussion, 'newDiscussion');
 
         var nav = TaggedArray.create();

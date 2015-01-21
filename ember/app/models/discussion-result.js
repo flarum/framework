@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 var DiscussionResult = Ember.ObjectProxy.extend({
 
-	relevantPosts: Em.A(),
+	relevantPosts: null,
 
 	startPost: null,
 	lastPost: null
