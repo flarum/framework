@@ -20,7 +20,7 @@ class DiscussionRepositoryTest extends \Codeception\TestCase\Test
     }
 
     /** @test */
-    public function it_gets_a_discussion_by_id()
+    public function testGetDiscussionByID()
     {
         // Given I have a discussion
         $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
@@ -36,7 +36,7 @@ class DiscussionRepositoryTest extends \Codeception\TestCase\Test
      * @test
      * @expectedException Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function it_throws_an_exception_when_a_discussion_cannot_be_viewed()
+    public function testDiscussionCannotBeViewed()
     {
         // Given I have a discussion
         $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
@@ -51,7 +51,7 @@ class DiscussionRepositoryTest extends \Codeception\TestCase\Test
     }
 
     /** @test */
-    public function it_saves_a_discussion()
+    public function testSaveDiscussion()
     {
         // Given I have a new discussion
         $user = Factory::create('Flarum\Core\Users\User');
@@ -68,7 +68,7 @@ class DiscussionRepositoryTest extends \Codeception\TestCase\Test
      * @test
      * @expectedException Flarum\Core\Support\Exceptions\ValidationFailureException
      */
-    public function it_will_not_save_an_invalid_discussion()
+    public function testSaveInvalidDiscussion()
     {
         // Given I have a new discussion containing no information
         $discussion = new Discussion;
@@ -78,7 +78,7 @@ class DiscussionRepositoryTest extends \Codeception\TestCase\Test
     }
 
     /** @test */
-    public function it_deletes_a_discussion()
+    public function testDeleteDiscussion()
     {
         // Given I have a discussion
         $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
