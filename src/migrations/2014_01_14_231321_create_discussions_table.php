@@ -14,8 +14,6 @@ class CreateDiscussionsTable extends Migration {
 	{
 		Schema::create('discussions', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
 			$table->string('title');
 			$table->integer('comments_count')->unsigned()->default(0);

@@ -14,8 +14,6 @@ class CreatePostsTable extends Migration {
 	{
 		Schema::create('posts', function(Blueprint $table)
 		{
-			$table->engine = 'MyISAM';
-
 			$table->increments('id');
 			$table->integer('discussion_id')->unsigned();
 			$table->integer('number')->unsigned()->nullable();
@@ -23,8 +21,8 @@ class CreatePostsTable extends Migration {
 			$table->dateTime('time');
 			$table->integer('user_id')->unsigned()->nullable();
 			$table->string('type')->nullable();
-			$table->text('content');
-			$table->text('content_html');
+			$table->text('content')->nullable();
+			$table->text('content_html')->nullable();
 
 			$table->dateTime('edit_time')->nullable();
 			$table->integer('edit_user_id')->unsigned()->nullable();
