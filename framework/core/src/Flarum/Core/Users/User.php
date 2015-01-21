@@ -103,8 +103,7 @@ class User extends Entity /*implements UserInterface, RemindableInterface*/
 
         if (Auth::guest()) {
             if (! isset($current)) {
-                // $current = new Guest;
-                $current = User::find(1);
+                $current = new Guest;
             }
             return $current;
         }
