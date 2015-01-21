@@ -16,7 +16,9 @@
     },
     "require-dev": {
         "fzaninotto/faker": "1.4.0",
-        "codeception/codeception": "~2.0.0"
+        "codeception/codeception": "~2.0.0",
+        "codeception/mockery-module": "*",
+        "laracasts/testdummy": "~2.0"
     },
     "autoload": {
         "classmap": [
