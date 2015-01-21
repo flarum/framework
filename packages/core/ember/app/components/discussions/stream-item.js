@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+var $ = Ember.$;
+
 // A discussion 'item' represents one item in the post stream. In other words, a
 // single item may represent a single post, or it may represent a gap of many
 // posts which have not been loaded.
@@ -38,7 +40,7 @@ export default Ember.Component.extend({
 		if (this.get('loading')) {
 			buffer.push('&nbsp;');
 		} else {
-			buffer.push(this.get('count')+' more post'+(this.get('count') != 1 ? 's' : ''));
+			buffer.push(this.get('count')+' more post'+(this.get('count') !== 1 ? 's' : ''));
 		}
 		buffer.push('</span>');
 	},
@@ -93,9 +95,7 @@ export default Ember.Component.extend({
                 // anchor (i.e. this gap is terminal,) then we'll scroll to the
                 // bottom of the document.
                 Ember.run.scheduleOnce('afterRender', function() {
-                    $('body').scrollTop(anchor.length
-                        ? anchor.offset().top - scrollOffset
-                        : $('body').height());
+                    $('body').scrollTop(anchor.length ? anchor.offset().top - scrollOffset : $('body').height());
                 });
             });
         }

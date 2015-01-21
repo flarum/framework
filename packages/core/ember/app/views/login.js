@@ -14,7 +14,7 @@ export default Ember.View.extend({
 	},
 
 	willDestroyElement: function() {
-		this.get('controller.session').off('sessionAuthenticationSucceeded', this, this.hide)
+		this.get('controller.session').off('sessionAuthenticationSucceeded', this, this.hide);
 	},
 
 	hide: function() {

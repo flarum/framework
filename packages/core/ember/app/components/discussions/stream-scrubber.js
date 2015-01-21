@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+var $ = Ember.$;
+
 export default Ember.Component.extend({
 	layoutName: 'components/discussions/stream-scrubber',
 	classNames: ['scrubber', 'stream-scrubber'],
@@ -245,7 +247,7 @@ export default Ember.Component.extend({
 		// Now loop through each of the items in the discussion. An 'item' is
 		// either a single post or a 'gap' of one or more posts that haven't
 		// been loaded yet.
-		$items.each(function(k) {
+		$items.each(function() {
 			var $this  = $(this),
 				top    = $this.offset().top,
 				height = $this.outerHeight(true);
@@ -319,7 +321,7 @@ export default Ember.Component.extend({
 
         	// jQuery likes to put overflow:hidden, but because the scrollbar
         	// handle has a negative margin-left, we need to override.
-        	if (func == 'animate') {
+        	if (func === 'animate') {
         		$part.css('overflow', 'visible');
         	}
         }
@@ -369,7 +371,7 @@ export default Ember.Component.extend({
         // percentage to account for it.
         var minPercentVisible = 50 / this.$('.scrubber-scrollbar').outerHeight() * 100;
         var percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
-        var percentPerPost = count == visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
+        var percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
 
         return {
             index: percentPerPost,

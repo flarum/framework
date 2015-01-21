@@ -21,7 +21,7 @@ export default Ember.ArrayProxy.extend({
 
     insertAfterTag: function(anchorTag, obj, tag) {
     	var idx = this.indexOfTag(anchorTag);
-    	this.insertAtWithTag(idx + 1, obj, newTag);
+    	this.insertAtWithTag(idx + 1, obj, tag);
     },
 
     insertBeforeTag: function(anchorTag, obj, tag) {

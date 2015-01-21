@@ -19,9 +19,9 @@ export default Ember.Component.extend({
     click: function(e) {
         e.preventDefault();
         var action = this.get('action');
-        if (typeof action == 'string') {
+        if (typeof action === 'string') {
             this.sendAction('action');
-        } else if (typeof action == 'function') {
+        } else if (typeof action === 'function') {
             action();
         }
     }

@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import TaggedArray from '../../utils/tagged-array';
-import ActionButton from '../ui/controls/action-button';
+// import TaggedArray from '../../utils/tagged-array';
+// import ActionButton from '../ui/controls/action-button';
 
 export default Ember.Component.extend({
 	tagName: 'article',
@@ -45,18 +45,18 @@ export default Ember.Component.extend({
 		}, 100);
 	},
 
-	addControl: function(tag, title, icon, permissionAttribute) {
-		if (permissionAttribute && ! this.get('post').get(permissionAttribute)) {
-			return;
-		}
+	// addControl: function(tag, title, icon, permissionAttribute) {
+	// 	if (permissionAttribute && ! this.get('post').get(permissionAttribute)) {
+	// 		return;
+	// 	}
 
-		var self = this;
-		var action = function(post) {
-			self.get('controller').send(actionName, post);
-		};
+	// 	var self = this;
+	// 	var action = function(post) {
+	// 		self.get('controller').send(actionName, post);
+	// 	};
 
-		var item = MenuItem.extend({title: title, icon: icon, action: action});
-		this.get('controls').addItem(tag, item);
-	}
+	// 	var item = MenuItem.extend({title: title, icon: icon, action: action});
+	// 	this.get('controls').addItem(tag, item);
+	// }
 
 });
