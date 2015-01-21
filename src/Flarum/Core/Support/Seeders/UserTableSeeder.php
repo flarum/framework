@@ -51,7 +51,7 @@ class UserTableSeeder extends Seeder
             ['group.2' , 'forum'          , 'view'],
 
             // Members can create and reply to discussions + edit their own stuff
-            ['group.3' , 'discussion'     , 'create'],
+            ['group.3' , 'forum'          , 'startDiscussion'],
             ['group.3' , 'discussion'     , 'editOwn'],
             ['group.3' , 'discussion'     , 'reply'],
             ['group.3' , 'post'           , 'editOwn'],
