@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration {
 			$table->string('username');
 			$table->string('email');
 			$table->string('password');
+			$table->rememberToken();
 			$table->dateTime('join_time');
 			$table->string('time_zone');
 			$table->dateTime('last_seen_time')->nullable();

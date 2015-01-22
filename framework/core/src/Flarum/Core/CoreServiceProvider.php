@@ -24,6 +24,8 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->app->make('validator')->extend('username', 'Flarum\Core\Users\UsernameValidator@validate');
 
+        $this->app['config']->set('auth.model', 'Flarum\Core\Users\User');
+
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\DiscussionMetadataUpdater');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\UserMetadataUpdater');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\PostFormatter');

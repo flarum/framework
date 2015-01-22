@@ -1,7 +1,9 @@
 <?php namespace Flarum\Core\Users;
 
 use Illuminate\Auth\UserInterface;
+use Illuminate\Auth\UserTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
+use Illuminate\Auth\Reminders\RemindableTrait;
 use Auth;
 use DB;
 use Event;
@@ -13,10 +15,12 @@ use Flarum\Core\Entity;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Support\Exceptions\PermissionDeniedException;
 
-class User extends Entity /*implements UserInterface, RemindableInterface*/
+class User extends Entity implements UserInterface, RemindableInterface
 {
     use EventGenerator;
     use Permissible;
+    
+    use UserTrait, RemindableTrait;
 
     protected static $rules = [
         'username'          => 'required|username|unique',
@@ -205,35 +209,5 @@ class User extends Entity /*implements UserInterface, RemindableInterface*/
     public function activity()
     {
         return $this->hasMany('Flarum\Core\Activity\Activity');
-    }
-
-    /**
-	 * Get the unique identifier for the user.
-	 *
-	 * @return mixed
-	 */
-    public function getAuthIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-	 * Get the password for the user.
-	 *
-	 * @return string
-	 */
-    public function getAuthPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-	 * Get the e-mail address where password reminders are sent.
-	 *
-	 * @return string
-	 */
-    public function getReminderEmail()
-    {
-        return $this->email;
     }
 }
