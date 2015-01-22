@@ -3,14 +3,35 @@
 $action = function($class)
 {
     return function () use ($class) {
-        $action = \App::make($class);
+        $action = App::make($class);
         $request = app('request');
         $parameters = Route::current()->parameters();
         return $action->handle($request, $parameters);
     };
 };
 
-Route::group(['prefix' => 'api'], function () use ($action) {
+// @todo refactor into a unit-testable class
+Route::filter('attemptLogin', function($route, $request) {
+    $prefix = 'Token ';
+    if (starts_with($request->headers->get('authorization'), $prefix)) {
+        $token = substr($request->headers->get('authorization'), strlen($prefix));
+        Auth::once(['remember_token' => $token]);
+    }
+});
+
+Route::group(['prefix' => 'api', 'before' => 'attemptLogin'], function () use ($action) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auth
+    |--------------------------------------------------------------------------
+    */
+
+    // Login
+    Route::post('auth/login', [
+        'as' => 'flarum.api.auth.login',
+        'uses' => $action('Flarum\Api\Actions\Auth\Login')
+    ]);
 
     /*
     |--------------------------------------------------------------------------

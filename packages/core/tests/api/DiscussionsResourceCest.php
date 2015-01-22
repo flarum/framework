@@ -42,7 +42,7 @@ class DiscussionsResourceCest {
     {
         $I->wantTo('create a discussion via API');
 
-        $I->haveHttpHeader('Authorization', 'Token 123456');
+        $I->amAuthenticated();
 
         $I->sendPOST($this->endpoint, ['discussions' => ['title' => 'foo', 'content' => 'bar']]);
         $I->seeResponseCodeIs(200);
@@ -58,9 +58,9 @@ class DiscussionsResourceCest {
     {
         $I->wantTo('update a discussion via API');
 
-        $I->haveHttpHeader('Authorization', 'Token 123456');
+        $user = $I->amAuthenticated();
 
-        $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
+        $discussion = Factory::create('Flarum\Core\Discussions\Discussion', ['start_user_id' => $user->id]);
 
         $I->sendPUT($this->endpoint.'/'.$discussion->id, ['discussions' => ['title' => 'foo']]);
         $I->seeResponseCodeIs(200);
@@ -75,9 +75,10 @@ class DiscussionsResourceCest {
     {
         $I->wantTo('delete a discussion via API');
 
-        $I->haveHttpHeader('Authorization', 'Token 123456');
+        $user = $I->amAuthenticated();
+        $user->groups()->attach(4);
 
-        $discussion = Factory::create('Flarum\Core\Discussions\Discussion');
+        $discussion = Factory::create('Flarum\Core\Discussions\Discussion', ['start_user_id' => $user->id]);
 
         $I->sendDELETE($this->endpoint.'/'.$discussion->id);
         $I->seeResponseCodeIs(204);

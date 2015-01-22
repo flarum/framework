@@ -44,7 +44,7 @@ class Discussion extends Entity
         // Allow a user to edit their own discussion.
         static::grant('edit', function ($grant, $user) {
             if (app('flarum.permissions')->granted($user, 'editOwn', 'discussion')) {
-                $grant->where('user_id', $user->id);
+                $grant->where('start_user_id', $user->id);
             }
         });
 
