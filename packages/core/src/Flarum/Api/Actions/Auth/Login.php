@@ -16,17 +16,20 @@ class Login extends Base
      */
     protected function run()
     {
-        $identifier = $this->input('identifier');
+        $identification = $this->input('identification');
         $password = $this->input('password');
-        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        $credentials = [$field => $identifier, 'password' => $password];
+        $field = filter_var($identification, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $credentials = [$field => $identification, 'password' => $password];
 
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials, true)) {
             return $this->respondWithError('invalidLogin', 401);
         }
 
-        $token = Auth::user()->getRememberToken();
+        $user = Auth::user();
 
-        return Response::json(compact('token'));
+        return Response::json([
+            'token' => $user->getRememberToken(),
+            'userId' => $user->id
+        ]);
     }
 }

@@ -12,9 +12,9 @@ class ApiHelper extends \Codeception\Module
 		return Factory::create('Flarum\Core\Users\User', $data);
 	}
 
-	public function login($identifier, $password)
+	public function login($identification, $password)
 	{
-		$this->getModule('REST')->sendPOST('/api/auth/login', ['identifier' => $identifier, 'password' => $password]);
+		$this->getModule('REST')->sendPOST('/api/auth/login', ['identification' => $identification, 'password' => $password]);
 
 		$response = json_decode($this->getModule('REST')->grabResponse(), true);
 		if ($response && is_array($response) && isset($response['token'])) {
