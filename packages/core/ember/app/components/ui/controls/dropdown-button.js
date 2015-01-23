@@ -6,7 +6,7 @@ export default Ember.Component.extend({
     classNames: ['dropdown', 'btn-group'],
     classNameBindings: ['itemCountClass', 'class'],
 
-    title: 'Controls',
+    label: 'Controls',
     icon: 'ellipsis-v',
     buttonClass: 'btn btn-default',
     menuClass: '',
