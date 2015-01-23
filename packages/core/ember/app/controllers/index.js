@@ -18,7 +18,6 @@ export default Ember.ArrayController.extend(Ember.Evented, PaneableMixin, {
 	filter: '',
 
 	searchQuery: '',
-	loadingMore: false,
 
 	sortOptions: [
 		{sort: 'recent', label: 'Recent'},
