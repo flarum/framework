@@ -5,6 +5,7 @@ module.exports = function(environment) {
     modulePrefix: 'flarum',
     environment: environment,
     baseURL: '/',
+    apiURL: '/api',
     locationType: 'hash',
     EmberENV: {
       FEATURES: {
@@ -31,6 +32,7 @@ module.exports = function(environment) {
     // Testem prefers this...
     ENV.baseURL = '/';
     ENV.locationType = 'none';
+    ENV.apiURL = 'http://flarum.dev/api',
 
     // keep test console output quieter
     ENV.APP.LOG_ACTIVE_GENERATION = false;

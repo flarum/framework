@@ -142,8 +142,8 @@ abstract class Base extends Controller
 
     protected function respondWithArray($array, $statusCode = 200, $headers = [])
     {
-        // @todo remove this
-        $headers['Access-Control-Allow-Origin'] = 'http://0.0.0.0:4200';
+        // @todo remove this?
+        $headers['Access-Control-Allow-Origin'] = '*';
 
         return Response::json($array, $statusCode, $headers);
     }
