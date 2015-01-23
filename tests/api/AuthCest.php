@@ -16,11 +16,15 @@ class AuthCest
             'password' => 'pass7word'
         ]);
 
-        $token = $I->login('foo@bar.com', 'pass7word');
+        $I->login('foo@bar.com', 'pass7word');
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         
-        $loggedIn = User::where('remember_token', $token)->first();
+        $token = $I->grabDataFromJsonResponse('token');
+        $userId = $I->grabDataFromJsonResponse('userId');
+        $I->assertNotEmpty($token);
+        
+        $loggedIn = User::where('remember_token', $token)->where('id', $userId)->first();
         $I->assertEquals($user->id, $loggedIn->id);
     }
 
@@ -33,11 +37,15 @@ class AuthCest
             'password' => 'pass7word'
         ]);
 
-        $token = $I->login('tobscure', 'pass7word');
+        $I->login('tobscure', 'pass7word');
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         
-        $loggedIn = User::where('remember_token', $token)->first();
+        $token = $I->grabDataFromJsonResponse('token');
+        $userId = $I->grabDataFromJsonResponse('userId');
+        $I->assertNotEmpty($token);
+
+        $loggedIn = User::where('remember_token', $token)->where('id', $userId)->first();
         $I->assertEquals($user->id, $loggedIn->id);
     }
 
