@@ -39,11 +39,11 @@
 			{{/if}}
 
 			{{#if moreResults}}
-				<div class="load-more">
-					{{#unless resultsLoading}}
+				{{#unless resultsLoading}}
+					<div class="load-more">
 						{{ui/controls/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
-					{{/unless}}
-				</div>
+					</div>
+				{{/unless}}
 			{{/if}}
 
 		</div>
