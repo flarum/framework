@@ -40,9 +40,9 @@ export default Ember.Route.extend({
 			// Thus, controller.loaded would still be true and the
 			// startWasChanged event would be triggered inappropriately.
 			var controller = this.get('controller'),
-			    oldStart = this.get('controller.start');
+			    oldStart = parseInt(this.get('controller.start'));
 			Ember.run.next(function() {
-				if (! params.start || ! controller || ! controller.get('loaded') || params.start === oldStart) {
+				if (! params.start || ! controller || ! controller.get('loaded') || parseInt(params.start) === oldStart) {
 					return;
 				}
 				controller.trigger('startWasChanged', params.start);
