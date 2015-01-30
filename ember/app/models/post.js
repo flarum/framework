@@ -19,19 +19,8 @@ export default DS.Model.extend({
 	deleteTime: DS.attr('string'),
 	deleteUser: DS.belongsTo('user'),
 	deleted: Ember.computed.notEmpty('deleteTime'),
-	
-	replyTo: DS.belongsTo('post', {inverse: 'replies'}),
-	replyToNumber: DS.attr('number'),
-	replyToUser: DS.belongsTo('user'),
-
-	replies: DS.hasMany('post', {inverse: 'replyTo'}),
-	repliesCount: DS.attr('number'),
 
 	canEdit: DS.attr('boolean'),
-	canDelete: DS.attr('boolean'),
-
-	likes: function() {
-		return Math.floor(Math.random() * (Math.random() < 0.3 ? 10 : 1));
-	}.property()
+	canDelete: DS.attr('boolean')
 
 });
