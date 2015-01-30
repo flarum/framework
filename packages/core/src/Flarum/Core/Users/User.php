@@ -210,4 +210,9 @@ class User extends Entity implements UserInterface, RemindableInterface
     {
         return $this->hasMany('Flarum\Core\Activity\Activity');
     }
+
+    public function setRememberToken($value)
+    {
+        return;
+    }
 }
