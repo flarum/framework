@@ -1,4 +1,4 @@
-<div {{bind-attr class=":page panePinned:with-pane"}}>
+<div id="page" {{bind-attr class=":page panePinned:with-pane"}}>
 
 	<header id="header" class="global-header">
 
@@ -31,11 +31,11 @@
 	<main id="main" class="global-main">
 		{{outlet}}
 
-		{{!-- <div class="composer-container">
+		<div class="composer-container">
 			<div class="container">
 				{{render "composer"}}
 			</div>
-		</div> --}}
+		</div>
 	</main>
 
 	<footer id="footer" class="global-footer">

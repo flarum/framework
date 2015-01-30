@@ -89,20 +89,14 @@ export default Ember.View.extend(Ember.Evented, {
 
 	populateControlsDefault: function(controls) {
 		var view = this;
-		var ReplyItem = ActionButton.extend({
+		var reply = ActionButton.create({
 			label: 'Reply',
 			icon: 'reply',
-			classNameBindings: ['className', 'replying:disabled'],
-			replying: function() {
-				return this.get('parentController.controllers.composer.showing');
-			}.property('parentController.controllers.composer.showing'),
 			action: function() {
-				var lastPost = $('.posts .item:last');
-				$('html, body').animate({scrollTop: lastPost.offset().top + lastPost.outerHeight() - $(window).height() + $('.composer').height() + 19}, 'fast');
+				view.get('streamContent').send('goToIndex', view.get('controller.stream.count') - 1);
 				view.get('controller').send('reply');
 			},
-			parentController: this.get('controller'),
 		});
-		controls.pushObjectWithTag(ReplyItem.create(), 'reply');
+		controls.pushObjectWithTag(reply, 'reply');
 	}.on('populateControls')
 });
