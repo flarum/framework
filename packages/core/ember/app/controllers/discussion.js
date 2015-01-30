@@ -40,8 +40,26 @@ export default Ember.ObjectController.extend(Ember.Evented, {
 
     actions: {
         reply: function() {
-            this.set('controllers.composer.showing', true);
-            this.set('controllers.composer.title', 'Replying to <em>'+this.get('model.title')+'</em>');
+            var composer = this.get('controllers.composer');
+            // composer.beginPropertyChanges();
+            composer.set('minimized', false);
+            composer.set('showing', true);
+            composer.set('title', 'Replying to <em>'+this.get('model.title')+'</em>');
+            composer.set('delegate', this);
+            composer.set('discussion', this.get('model'));
+            // composer.endPropertyChanges();
+        },
+
+        replyAdded: function(post) {
+            var stream = this.get('stream');
+            stream.set('ids', this.get('model.postIds'));
+            var index = stream.get('count') - 1;
+            stream.get('content').pushObject(Ember.Object.create({
+                indexStart: index,
+                indexEnd: index,
+                content: post
+            }));
+            this.get('controllers.composer').set('showing', false);
         },
 
         // This action is called when the start position of the discussion

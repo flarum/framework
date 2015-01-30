@@ -1,7 +1,7 @@
-<textarea class="form-control" {{bind-attr placeholder=placeholder}}></textarea>
+{{textarea value=value placeholder=placeholder class="form-control"}}
 
 <div class="composer-editor-controls">
-	<button class="btn btn-primary">Submit Reply</button>
+	<button class="btn btn-primary" {{action "save"}}>Submit Reply</button>
 	<div class="btn-group">
         <button class="btn btn-default btn-icon"><i class="fa fa-fw fa-image"></i></button>
 		<button class="btn btn-default btn-icon"><i class="fa fa-fw fa-paperclip"></i></button>
