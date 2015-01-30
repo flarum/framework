@@ -20,7 +20,7 @@ class Create extends Base
         // the post content, and the author's user account. Let's set up a
         // command with this information. We also fire an event to allow plugins
         // to add data to the command.
-        $discussionId = $this->input('posts.links.discussions');
+        $discussionId = $this->input('posts.links.discussion');
         $content = $this->input('posts.content');
         $command = new PostReplyCommand($discussionId, $content, User::current());
 
