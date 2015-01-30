@@ -1,0 +1,32 @@
+.modal-login {
+	& .form-group {
+		margin-bottom: 12px;
+	}
+}
+.form-group {
+	position: relative;
+}
+.form-alert {
+	position: absolute;
+	bottom: 100%;
+	left: 0;
+	right: 0;
+	margin-bottom: 12px;
+	& .alert {
+		display: inline-block;
+	}
+}
+.alert-warning {
+	background: #D83E3E;
+	.box-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+	color: #fff;
+	padding: 12px 16px;
+	border-radius: @border-radius-base;
+}
+
+.btn-user {
+	& .avatar {
+		margin: -2px 5px -2px -5px;
+		.avatar-size(24px);
+	}
+}
