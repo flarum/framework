@@ -11,6 +11,8 @@ export default Ember.View.extend(Ember.Evented, {
 
 	sidebarItems: null,
 
+	loadingNumber: false,
+
 	didInsertElement: function() {
 		// Create and populate an array of items to be rendered in the sidebar.
 		var sidebarItems = TaggedArray.create();
@@ -28,18 +30,25 @@ export default Ember.View.extend(Ember.Evented, {
 		// changes, we want to tell our stream content component to jump down
 		// to it.
 		this.get('controller').on('startWasChanged', this, this.goToNumber);
+		this.get('streamContent').on('loadedNumber', this, this.loadedNumber);
 	},
 
 	willDestroyElement: function() {
 		this.get('controller').off('startWasChanged', this, this.goToNumber);
+		this.get('streamContent').off('loadedNumber', this, this.loadedNumber);
 	},
 
 	goToNumber: function(start) {
 		// We can only proceed if the controller has loaded the discussion
 		// details and the view has been rendered.
-		if (this.get('controller.loaded') && this.get('streamContent')) {
+		if (this.get('controller.loaded') && this.get('streamContent') && ! this.get('loadingNumber')) {
 			this.get('streamContent').send('goToNumber', start);
+			this.set('loadingNumber', true);
 		}
+	},
+
+	loadedNumber: function() {
+		this.set('loadingNumber', false);
 	},
 
 	// ------------------------------------------------------------------------
