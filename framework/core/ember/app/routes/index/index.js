@@ -1,6 +1,8 @@
 import Ember from 'ember';
 
-export default Ember.Route.extend({
+import AddCssClassToBodyMixin from '../../mixins/add-css-class-to-body';
+
+export default Ember.Route.extend(AddCssClassToBodyMixin, {
 
 	// When we enter the discussions list view, we no longer want the
 	// discussions list to be in pane mode.
