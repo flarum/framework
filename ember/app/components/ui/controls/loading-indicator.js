@@ -7,6 +7,8 @@ export default Ember.Component.extend({
 	size: 'small',
 
 	didInsertElement: function() {
-		this.$().spin(this.get('size'));
+		var size = this.get('size');
+		Ember.$.fn.spin.presets[size].zIndex = 'auto';
+		this.$().spin(size);
 	}
 });
