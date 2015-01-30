@@ -238,7 +238,7 @@ export default Ember.Component.extend({
             });
         },
 
-        goToIndex: function(index) {
+        goToIndex: function(index, backwards) {
             // Let's start by telling our listeners that we're going to load
             // posts at this index. Elsewhere we will listen and consequently
             // scroll down to the appropriate position.
@@ -248,9 +248,28 @@ export default Ember.Component.extend({
             // are loaded. We will tell our listeners when they are. Again, a
             // listener will scroll down to the appropriate post.
             var controller = this;
-            this.get('stream').loadNearIndex(index).then(function() {
+            this.get('stream').loadNearIndex(index, backwards).then(function() {
                 controller.trigger('loadedIndex', index);
             });
+        },
+
+        goToFirst: function() {
+        	this.send('goToIndex', 0);
+        },
+
+        goToLast: function() {
+        	this.send('goToIndex', this.get('stream.count') - 1, true);
+
+        	// If the post stream is loading some new posts, then after it's
+        	// done we'll want to immediately scroll down to the bottom of the
+        	// page.
+        	if (! this.get('stream.lastLoaded')) {
+	        	this.get('stream').one('postsLoaded', function() {
+	        		Ember.run.scheduleOnce('afterRender', function() {
+	                    $('html, body').stop(true).scrollTop($('body').height());
+	                });
+	        	});
+	        }
         },
 
         loadRange: function(start, end, backwards) {

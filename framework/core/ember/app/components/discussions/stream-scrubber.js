@@ -382,11 +382,11 @@ export default Ember.Component.extend({
 
     actions: {
 		first: function() {
-			this.get('streamContent').send('goToIndex', 0);
+			this.get('streamContent').send('goToFirst');
 		},
 
 		last: function() {
-			this.get('streamContent').send('goToIndex', this.get('count') - 1);
+			this.get('streamContent').send('goToLast');
 		}
 	}
 });
