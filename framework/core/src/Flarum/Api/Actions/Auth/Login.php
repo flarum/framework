@@ -21,14 +21,16 @@ class Login extends Base
         $field = filter_var($identification, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $credentials = [$field => $identification, 'password' => $password];
 
-        if (! Auth::attempt($credentials, true)) {
+        if (! Auth::validate($credentials)) {
             return $this->respondWithError('invalidLogin', 401);
         }
 
-        $user = Auth::user();
+        $user = Auth::getLastAttempted();
+        $user->token = str_random(60);
+        $user->save();
 
         return Response::json([
-            'token' => $user->getRememberToken(),
+            'token' => $user->token,
             'userId' => $user->id
         ]);
     }

@@ -15,7 +15,9 @@ Route::filter('attemptLogin', function($route, $request) {
     $prefix = 'Token ';
     if (starts_with($request->headers->get('authorization'), $prefix)) {
         $token = substr($request->headers->get('authorization'), strlen($prefix));
-        Auth::once(['remember_token' => $token]);
+        if ($user = Flarum\Core\Users\User::where('token', $token)->first()) {
+            Auth::setUser($user);
+        }
     }
 });
 

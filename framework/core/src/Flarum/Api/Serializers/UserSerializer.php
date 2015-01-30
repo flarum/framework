@@ -27,8 +27,8 @@ class UserSerializer extends UserBasicSerializer
         $attributes = parent::attributes($user);
 
         $attributes += [
-            'joinTime'         => $user->join_time ? $user->join_time->toRFC3339String() : '',
-            'lastSeenTime'     => $user->last_seen_time ? $user->last_seen_time->toRFC3339String() : '',
+            'joinTime'         => $user->join_time ? $user->join_time->toRFC3339String() : null,
+            'lastSeenTime'     => $user->last_seen_time ? $user->last_seen_time->toRFC3339String() : null,
             'discussionsCount' => (int) $user->discussions_count,
             'postsCount'       => (int) $user->posts_count,
             'canEdit'          => $user->permission('edit'),
