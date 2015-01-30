@@ -55,7 +55,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
 	loadRange: function(start, end, backwards) {
 		var limit = this.get('postLoadCount');
-		end = end || start + limit;
 
 		// Find the appropriate gap objects in the post stream. When we find
 		// one, we will turn on its loading flag.
@@ -93,7 +92,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		// request.) Or, if it's a gap, we'll switch on its loading flag.
 		var item = this.findNearestToNumber(number);
 		if (item) {
-			if (item.get('content.number') === number) {
+			if (item.get('content.number') == number) {
 				return Ember.RSVP.resolve([item.get('content')]);
 			} else if (item.gap) {
 				item.set('direction', 'down').set('loading', true);
