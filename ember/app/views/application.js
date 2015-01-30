@@ -3,6 +3,8 @@ import Ember from 'ember';
 import ActionButton from '../components/ui/controls/action-button';
 import SearchInput from '../components/ui/controls/search-input';
 import DropdownSelect from '../components/ui/controls/dropdown-select';
+import DropdownButton from '../components/ui/controls/dropdown-button';
+import SeparatorItem from '../components/ui/items/separator-item';
 import TaggedArray from '../utils/tagged-array';
 
 var $ = Ember.$;
@@ -14,10 +16,7 @@ export default Ember.View.extend({
     }.property('controller.forumTitle'),
 
     didInsertElement: function() {
-        // Create and populate an array of items to be rendered in the header.
-		this.set('headerPrimaryItems', TaggedArray.create());
-		this.set('headerSecondaryItems', TaggedArray.create());
-		this.trigger('populateHeader', this.get('headerPrimaryItems'), this.get('headerSecondaryItems'));
+        
 
         // Create and populate an array of items to be rendered in the footer.
 		this.set('footerPrimaryItems', TaggedArray.create());
@@ -36,6 +35,13 @@ export default Ember.View.extend({
         }).resize();
     },
 
+    switchHeader: function() {
+        // Create and populate an array of items to be rendered in the header.
+        this.set('headerPrimaryItems', TaggedArray.create());
+        this.set('headerSecondaryItems', TaggedArray.create());
+        this.trigger('populateHeader', this.get('headerPrimaryItems'), this.get('headerSecondaryItems'));
+    }.observes('controller.session.user'),
+
     populateHeaderDefault: function(primary, secondary) {
     	var controller = this.get('controller');
 
@@ -50,17 +56,64 @@ export default Ember.View.extend({
     	});
     	secondary.pushObjectWithTag(search, 'search');
 
-        var signUp = ActionButton.create({
-        	label: 'Sign Up',
-        	className: 'btn btn-link'
-        });
-        secondary.pushObjectWithTag(signUp, 'signUp');
+        if (this.get('controller.session.isAuthenticated')) {
+            var userItems = TaggedArray.create();
 
-        var logIn = ActionButton.create({
-        	label: 'Log In',
-        	className: 'btn btn-link'
-        });
-        secondary.pushObjectWithTag(logIn, 'logIn');
+            var profile = ActionButton.create({
+                label: 'Profile',
+                icon: 'user'
+            });
+            userItems.pushObjectWithTag(profile, 'profile');
+
+            var settings = ActionButton.create({
+                label: 'Settings',
+                icon: 'cog'
+            });
+            userItems.pushObjectWithTag(settings, 'settings');
+
+            userItems.pushObject(SeparatorItem.create());
+
+            var rememberMe = ActionButton.create({
+                label: 'Remember Me',
+                icon: 'square-o'
+            });
+            userItems.pushObjectWithTag(rememberMe, 'rememberMe');
+
+            var logOut = ActionButton.create({
+                label: 'Log Out',
+                icon: 'sign-out',
+                action: function() {
+                    controller.send('invalidateSession');
+                }
+            });
+            userItems.pushObjectWithTag(logOut, 'logOut');
+
+            var userDropdown = DropdownButton.extend({
+                label: Ember.computed.alias('user.username'),
+                buttonClass: 'btn btn-default btn-naked btn-rounded btn-user',
+                buttonPartial: 'partials/user-button',
+                menuClass: 'pull-right'
+            });
+            secondary.pushObjectWithTag(userDropdown.create({
+                items: userItems,
+                user: this.get('controller.session.user')
+            }), 'user');
+        } else {
+            var signUp = ActionButton.create({
+                label: 'Sign Up',
+                className: 'btn btn-link'
+            });
+            secondary.pushObjectWithTag(signUp, 'signUp');
+
+            var logIn = ActionButton.create({
+                label: 'Log In',
+                className: 'btn btn-link',
+                action: function() {
+                    controller.send('login');
+                }
+            });
+            secondary.pushObjectWithTag(logIn, 'logIn');
+        }
     }.on('populateHeader'),
 
     populateFooterDefault: function(primary, secondary) {
