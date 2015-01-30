@@ -56,7 +56,7 @@ export default Ember.View.extend(Ember.Evented, {
 	// ------------------------------------------------------------------------
 
 	// Whenever the controller has switched out the old discussion model for a
-	// new one, we want to 
+	// new one, we want to begin loading posts according to the ?start param.
 	loadStreamContentForNewDiscussion: function() {
 		if (this.get('controller.loaded')) {
 			this.goToNumber(this.get('controller.start'));
@@ -93,7 +93,7 @@ export default Ember.View.extend(Ember.Evented, {
 			label: 'Reply',
 			icon: 'reply',
 			action: function() {
-				view.get('streamContent').send('goToIndex', view.get('controller.stream.count') - 1);
+				view.get('streamContent').send('goToLast');
 				view.get('controller').send('reply');
 			},
 		});

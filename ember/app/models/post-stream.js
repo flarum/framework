@@ -109,7 +109,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		});
 	},
 
-	loadNearIndex: function(index) {
+	loadNearIndex: function(index, backwards) {
 		// Find the item in the post stream which is nearest to this index. If
 		// it turns out the be the actual post we're trying to load, then we can
 		// return a resolved promise (i.e. we don't need to make an API
@@ -118,10 +118,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		if (item) {
 			if (! item.gap) {
 				return Ember.RSVP.resolve([item.get('content')]);
-			} else {
-				item.set('direction', 'down').set('loading', true);
 			}
-			return this.loadRange(Math.max(item.indexStart, index - this.get('postLoadCount') / 2), item.indexEnd);
+			return this.loadRange(Math.max(item.indexStart, index - this.get('postLoadCount') / 2), item.indexEnd, backwards);
 		}
 
 		return Ember.RSVP.reject();
