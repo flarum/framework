@@ -65,11 +65,15 @@
 }
 
 // Buttons that blend into the background
-.btn-blend {
+.btn-naked {
 	background: transparent;
 	&:hover {
 		background: @fl-body-control-bg;
 	}
+}
+
+.btn-rounded {
+	border-radius: 18px;
 }
 
 // ------------------------------------
@@ -79,7 +83,8 @@
 	.box-shadow(none);
 	&:focus,
 	&.focus {
-		background-color: @input-border-focus;
+		background-color: #fff;
+		color: @fl-body-color;
 		.box-shadow(none);
 	}
 }
