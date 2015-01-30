@@ -24,7 +24,7 @@ class AuthCest
         $userId = $I->grabDataFromJsonResponse('userId');
         $I->assertNotEmpty($token);
         
-        $loggedIn = User::where('remember_token', $token)->where('id', $userId)->first();
+        $loggedIn = User::where('token', $token)->where('id', $userId)->first();
         $I->assertEquals($user->id, $loggedIn->id);
     }
 
@@ -45,7 +45,7 @@ class AuthCest
         $userId = $I->grabDataFromJsonResponse('userId');
         $I->assertNotEmpty($token);
 
-        $loggedIn = User::where('remember_token', $token)->where('id', $userId)->first();
+        $loggedIn = User::where('token', $token)->where('id', $userId)->first();
         $I->assertEquals($user->id, $loggedIn->id);
     }
 
