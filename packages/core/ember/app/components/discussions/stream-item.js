@@ -8,7 +8,7 @@ var $ = Ember.$;
 
 export default Ember.Component.extend({
 	classNames: ['item'],
-	classNameBindings: ['item.gap:gap', 'loading', 'direction'],
+	classNameBindings: ['gap', 'loading', 'direction'],
 	attributeBindings: [
 		'start:data-start',
 		'end:data-end',
@@ -22,6 +22,7 @@ export default Ember.Component.extend({
 	number: Ember.computed.alias('item.content.number'),
 	loading: Ember.computed.alias('item.loading'),
 	direction: Ember.computed.alias('item.direction'),
+	gap: Ember.computed.not('item.content'),
 
 	count: function() {
 		return this.get('end') - this.get('start') + 1;
@@ -32,7 +33,7 @@ export default Ember.Component.extend({
 	}.observes('loading'),
 
 	render: function(buffer) {
-		if (! this.get('item.gap')) {
+		if (this.get('item.content')) {
 			return this._super(buffer);
 		}
 
@@ -46,7 +47,7 @@ export default Ember.Component.extend({
 	},
 
 	didInsertElement: function() {
-		if (! this.get('item.gap')) {
+		if (! this.get('gap')) {
 			return;
 		}
 
@@ -69,7 +70,7 @@ export default Ember.Component.extend({
 	load: function(relativeIndex) {
 		// If this item is not a gap, or if we're already loading its posts,
 		// then we don't need to do anything.
-		if (! this.get('item.gap') || this.get('loading')) {
+		if (! this.get('gap') || this.get('loading')) {
 			return false;
 		}
 
