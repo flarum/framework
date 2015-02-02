@@ -1,31 +1,9 @@
 <div class="composer-handle"></div>
 
-<div class="composer-controls btn-group">
-	{{#unless minimized}}
-		<div class="btn-group dropdown">
-			<a href="#" {{action "fullScreen"}} class="btn btn-icon btn-link dropdown-toggle" data-toggle="dropdown">{{fa-icon "ellipsis-v"}}</a>
-			<ul class="dropdown-menu pull-right">
-				<li><a href="#">{{fa-icon "expand"}} Full Screen</a></li>
-				<li><a href="#">{{fa-icon "external-link"}} Pop-Out</a></li>
-			</ul>
-		</div>
-		<a href="#" {{action "minimize"}} class="btn btn-icon btn-link">{{fa-icon "chevron-down"}}</a>
-	{{/unless}}
-	<a href="#" {{action "close"}} class="btn btn-icon btn-link">{{fa-icon "times"}}</a>
-</div>
+{{ui/controls/item-list items=view.controlItems class="composer-controls"}}
 
 <div class="composer-content">
-
-	{{user-avatar user class="composer-avatar"}}
-
-	<div class="composer-body">
-
-		<h3>{{{title}}}</h3>
-
-		<div class="composer-editor">
-			{{ui/controls/text-editor placeholder="" save="save"}}
-		</div>
-
-	</div>
-
+	{{#if content}}
+		{{view content}}
+	{{/if}}
 </div>
