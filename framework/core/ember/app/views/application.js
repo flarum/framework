@@ -73,12 +73,6 @@ export default Ember.View.extend({
 
             userItems.pushObject(SeparatorItem.create());
 
-            var rememberMe = ActionButton.create({
-                label: 'Remember Me',
-                icon: 'square-o'
-            });
-            userItems.pushObjectWithTag(rememberMe, 'rememberMe');
-
             var logOut = ActionButton.create({
                 label: 'Log Out',
                 icon: 'sign-out',
