@@ -10,6 +10,12 @@ export default Ember.Route.extend(AddCssClassToBodyMixin, {
         this.controllerFor('index').set('paned', false);
         this.controllerFor('index').set('paneShowing', false);
         this._super(controller, model);
-    }
+    },
 
+    actions: {
+	    didTransition: function() {
+	    	// @todo only if it's not a new discussion
+	    	this.controllerFor('composer').send('minimize');
+	    }
+	}
 });
