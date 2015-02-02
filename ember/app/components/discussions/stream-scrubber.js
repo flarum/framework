@@ -207,7 +207,7 @@ export default Ember.Component.extend({
 		// If the index we've landed on is in a gap, then tell the stream-
 		// content that we want to load those posts.
 		var intIndex = Math.floor(view.get('index'));
-		if (view.get('stream').findNearestToIndex(intIndex).gap) {
+		if (! view.get('stream').findNearestToIndex(intIndex).content) {
 			view.get('streamContent').send('goToIndex', intIndex);
 		} else {
 			view.set('streamContent.paused', false);
