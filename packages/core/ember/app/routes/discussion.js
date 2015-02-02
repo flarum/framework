@@ -50,12 +50,15 @@ export default Ember.Route.extend({
 		},
 
 		willTransition: function() {
-			// When we transition away from this discussion, we want to hide
-			// the discussions list pane. This means that when the user
-			// selects a different discussion within the pane, the pane will
-			// slide away.
+			// When we transition into a new discussion, we want to hide the
+			// discussions list pane. This means that when the user selects a
+			// different discussion within the pane, the pane will slide away.
 			this.controllerFor('index').set('paneShowing', false);
-		}
+		},
+
+	    didTransition: function() {
+	    	this.controllerFor('composer').send('minimize');
+	    }
 
 	}
 });

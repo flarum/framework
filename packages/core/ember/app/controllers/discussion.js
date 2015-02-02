@@ -1,6 +1,8 @@
 import Ember from 'ember';
 
 import PostStream from '../models/post-stream';
+import ComposerReply from '../components/discussions/composer-reply';
+import ActionButton from '../components/ui/controls/action-button';
 
 export default Ember.ObjectController.extend(Ember.Evented, {
 
@@ -38,28 +40,52 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         });
     },
 
+    saveReply: function(discussion, content) {
+        var controller = this;
+        var composer = this.get('controllers.composer');
+        var stream = this.get('stream');
+
+        composer.set('content.loading', true);
+
+        var post = this.store.createRecord('post', {
+            content: content,
+            discussion: discussion
+        });
+
+        var promise = post.save().then(function(post) {
+            if (discussion == controller.get('model')) {
+                discussion.set('posts', discussion.get('posts')+','+post.get('id'));
+                stream.set('ids', controller.get('model.postIds'));
+                stream.addPostToEnd(post);
+            }
+            composer.send('hide');
+        }, function(reason) {
+            var error = reason.errors[0].detail;
+            alert(error);
+        });
+
+        promise.finally(function() {
+            composer.set('content.loading', false);
+        });
+
+        return promise;
+    },
+
     actions: {
         reply: function() {
+            var controller = this;
+            var discussion = this.get('model');
             var composer = this.get('controllers.composer');
-            // composer.beginPropertyChanges();
-            composer.set('minimized', false);
-            composer.set('showing', true);
-            composer.set('title', 'Replying to <em>'+this.get('model.title')+'</em>');
-            composer.set('delegate', this);
-            composer.set('discussion', this.get('model'));
-            // composer.endPropertyChanges();
-        },
-
-        replyAdded: function(post) {
-            var stream = this.get('stream');
-            stream.set('ids', this.get('model.postIds'));
-            var index = stream.get('count') - 1;
-            stream.get('content').pushObject(Ember.Object.create({
-                indexStart: index,
-                indexEnd: index,
-                content: post
-            }));
-            this.get('controllers.composer').set('showing', false);
+            if (composer.get('content.discussion') != discussion) {
+                composer.switchContent(ComposerReply.create({
+                    user: controller.get('session.user'),
+                    discussion: discussion,
+                    submit: function(value) {
+                        controller.saveReply(this.get('discussion'), value);
+                    }
+                }));
+            }
+            composer.send('show');
         },
 
         // This action is called when the start position of the discussion
