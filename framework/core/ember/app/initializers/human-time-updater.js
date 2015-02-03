@@ -9,6 +9,7 @@ export default {
   initialize: function(container) {
 
     // Livestamp.js / v1.1.2 / (c) 2012 Matt Bradley / MIT License
+    // @todo rewrite this to be simpler and cleaner
 	(function($, moment) {
 	  var updateInterval = 1e3,
 	      paused = false,
