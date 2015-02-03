@@ -186,5 +186,4 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     findNearestToIndex: function(index) {
     	return this.findNearestTo(index, 'indexEnd');
     }
-
 });
