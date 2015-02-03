@@ -27,9 +27,20 @@ export default Ember.Controller.extend({
 	searchQuery: '',
 	searchActive: false,
 
+	alerts: [],
+
 	actions: {
 		search: function(query) {
 			this.transitionToRoute('index', {queryParams: {searchQuery: query, sort: query ? 'relevance' : 'recent'}});
+		},
+		alert: function(message) {
+			this.get('alerts').pushObject(message);
+		},
+		dismissAlert: function(message) {
+			this.get('alerts').removeObject(message);
+		},
+		clearAlerts: function() {
+			this.get('alerts').clear();
 		}
 	}
 });

@@ -51,6 +51,8 @@
 
 <div class="alerts">
 	{{#each alert in alerts}}
-		{{alert-message message=alert}}
+		<div class="alert-wrapper">
+			{{view alert dismiss="dismissAlert"}}
+		</div>
 	{{/each}}
 </div>
