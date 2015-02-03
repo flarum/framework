@@ -57,7 +57,7 @@ export default Ember.Component.extend({
 		}, 100);
 
 		if (this.get('discussion.isUnread')) {
-			this.$().find('.count').tooltip();
+			this.$().find('.count').tooltip({container: 'body'});
 		}
 
 		// var view = this;
