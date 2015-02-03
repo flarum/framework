@@ -1,15 +1,27 @@
 import Ember from 'ember';
 
+export var PositionEnum = {
+    HIDDEN: 'hidden',
+    NORMAL: 'normal',
+    MINIMIZED: 'minimized',
+    FULLSCREEN: 'fullscreen'
+};
+
 export default Ember.Controller.extend(Ember.Evented, {
-
-    needs: ['index', 'application'],
-
     content: null,
+    position: PositionEnum.HIDDEN,
 
-    showing: false,
-    minimized: false,
-    fullScreen: false,
+    visible: Ember.computed.or('normal', 'minimized', 'fullscreen'),
+    normal: Ember.computed.equal('position', PositionEnum.NORMAL),
+    minimized: Ember.computed.equal('position', PositionEnum.MINIMIZED),
+    fullscreen: Ember.computed.equal('position', PositionEnum.FULLSCREEN),
 
+    // Switch out the composer's content for a new component. The old
+    // component will be given the opportunity to abort the switch. Note:
+    // there appears to be a bug in Ember where the content binding won't
+    // update in the view if we switch the value out immediately. As a
+    // workaround, we set it to null, and then set it to its new value in the
+    // next run loop iteration.
     switchContent: function(newContent) {
         var composer = this;
         this.confirmExit().then(function() {
@@ -20,6 +32,9 @@ export default Ember.Controller.extend(Ember.Evented, {
         });
     },
 
+    // Ask the content component if it's OK to close it, and give it the
+    // opportunity to abort. The content component must respond to the
+    // `willExit(abort)` action, and call `abort()` if we should not proceed.
     confirmExit: function() {
         var composer = this;
         var promise = new Ember.RSVP.Promise(function(resolve, reject) {
@@ -33,39 +48,43 @@ export default Ember.Controller.extend(Ember.Evented, {
     },
 
     actions: {
+        show: function() {
+            var composer = this;
+
+            // We do this in the next run loop because we need to wait for new
+            // content to be switched in. See `switchContent` above.
+            Ember.run.next(function() {
+                composer.set('position', PositionEnum.NORMAL);
+                composer.trigger('focus');
+            });
+        },
+
+        hide: function() {
+            this.set('position', PositionEnum.HIDDEN);
+            var content = this.get('content');
+            if (content) {
+                content.send('reset');
+            }
+        },
+
         close: function() {
             var composer = this;
             this.confirmExit().then(function() {
                 composer.send('hide');
             });
         },
-        hide: function() {
-            this.set('showing', false);
-            this.set('fullScreen', false);
-            var content = this.get('content');
-            if (content) {
-                content.send('reset');
-            }
-        },
+
         minimize: function() {
-            this.set('minimized', true);
-        	this.set('fullScreen', false);
+            this.set('position', PositionEnum.MINIMIZED);
         },
-        show: function() {
-            var composer = this;
-            Ember.run.next(function() {
-                composer.set('showing', true);
-            	composer.set('minimized', false);
-                composer.trigger('focus');
-            });
-        },
-        fullScreen: function() {
-            this.set('fullScreen', true);
-            this.set('minimized', false);
+
+        fullscreen: function() {
+            this.set('position', PositionEnum.FULLSCREEN);
             this.trigger('focus');
         },
-        exitFullScreen: function() {
-            this.set('fullScreen', false);
+
+        exitFullscreen: function() {
+            this.set('position', PositionEnum.NORMAL);
             this.trigger('focus');
         }
     }
