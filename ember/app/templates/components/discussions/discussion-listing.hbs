@@ -26,13 +26,15 @@
 	</span>
 {{/link-to}}
 
-<div class="count" title="Mark as Read" {{action "markAsRead"}}>
-	{{#if displayUnread}}
-		<strong>{{abbreviate-number discussion.unreadCount}}</strong> unread
-	{{else}}
-		<strong>{{abbreviate-number discussion.repliesCount}}</strong> replies
-	{{/if}}
-</div>
+{{#link-to "discussion" discussion.content (query-params start=discussion.lastPostNumber) current-when=null class="count" title=countTitle}}
+	<span {{action "markAsRead"}}>
+		{{#if displayUnread}}
+			<strong>{{abbreviate-number discussion.unreadCount}}</strong> unread
+		{{else}}
+			<strong>{{abbreviate-number discussion.repliesCount}}</strong> replies
+		{{/if}}
+	</span>
+{{/link-to}}
 
 {{#if relevantPosts}}
 	<div class="relevant-posts">
