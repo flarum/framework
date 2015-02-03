@@ -4,6 +4,8 @@ import TaggedArray from '../../../utils/tagged-array';
 import ActionButton from './action-button';
 
 export default Ember.Component.extend({
+	disabled: false,
+
 	classNames: ['text-editor'],
 
 	didInsertElement: function() {

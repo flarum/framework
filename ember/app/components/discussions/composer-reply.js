@@ -7,37 +7,43 @@ var precompileTemplate = Ember.Handlebars.compile;
 export default Ember.Component.extend(Ember.Evented, {
 	layoutName: 'components/discussions/composer-body',
 
-	placeholder: 'Write your reply...',
 	submitLabel: 'Post Reply',
+	placeholder: '',
 	value: '',
+	submit: null,
+	loading: false,
 
 	didInsertElement: function() {
-		var headerItems = TaggedArray.create();
-		this.trigger('populateHeader', headerItems);
-		this.set('headerItems', headerItems);
+		var controls = TaggedArray.create();
+		this.trigger('populateControls', controls);
+		this.set('controls', controls);
 	},
 
-	populateHeader: function(header) {
+	populateControls: function(controls) {
 		var title = Ember.Component.create({
 			tagName: 'h3',
 			layout: precompileTemplate('Replying to <em>{{component.discussion.title}}</em>'),
 			component: this
 		});
-		header.pushObjectWithTag(title, 'title');
+		controls.pushObjectWithTag(title, 'title');
 	},
 
 	actions: {
 		submit: function(value) {
-			this.get('submit').call(this, value);
+			this.get('submit')(value);
 		},
+
 		willExit: function(abort) {
+			// If the user has typed something, prompt them before exiting
+			// this composer state.
 			if (this.get('value') && ! confirm('You have not posted your reply. Do you wish to discard it?')) {
 				abort();
 			}
 		},
+
 		reset: function() {
 			this.set('loading', false);
 			this.set('value', '');
-		},
+		}
 	}
 });

@@ -1,10 +1,10 @@
 {{user-avatar user class="composer-avatar"}}
 
 <div class="composer-body">
-	{{ui/controls/item-list items=headerItems class="composer-header list-inline"}}
+	{{ui/controls/item-list items=controls class="composer-header list-inline"}}
 
 	<div class="composer-editor">
-		{{ui/controls/text-editor submit="submit" value=value placeholder=placeholder submitLabel=submitLabel}}
+		{{ui/controls/text-editor submit="submit" value=value placeholder=placeholder submitLabel=submitLabel disabled=loading}}
 	</div>
 </div>
 
