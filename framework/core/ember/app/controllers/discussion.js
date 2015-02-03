@@ -60,10 +60,20 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         return post.save().then(function(post) {
             composer.send('hide');
 
+            discussion.setProperties({
+                posts: discussion.get('posts')+','+post.get('id'),
+                lastTime: post.get('time'),
+                lastUser: post.get('user'),
+                lastPost: post,
+                lastPostNumber: post.get('number'),
+                commentsCount: discussion.get('commentsCount') + 1,
+                readTime: post.get('time'),
+                readNumber: post.get('number')
+            });
+
             // If we're currently viewing the discussion which this reply was
             // made in, then we can add the post to the end of the post
             // stream.
-            discussion.set('posts', discussion.get('posts')+','+post.get('id'));
             if (discussion == controller.get('model')) {
                 stream.set('ids', discussion.get('postIds'));
                 stream.addPostToEnd(post);
