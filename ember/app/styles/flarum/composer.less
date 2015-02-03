@@ -6,7 +6,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	z-index: @zindex-navbar-fixed;
+	z-index: @zindex-navbar-fixed + 2;
 	pointer-events: none;
 	.transition(left 0.2s);
 
@@ -79,6 +79,9 @@
 	& li {
 		display: inline-block;
 	}
+	.minimized & {
+		top: 7px;
+	}
 }
 .fa-minus.minimize {
 	vertical-align: -5px;
@@ -112,7 +115,6 @@
 }
 .text-editor {
 	& textarea {
-		background: none;
 		border-radius: 0;
 		padding: 0;
 		border: 0;
@@ -121,7 +123,7 @@
 		font-size: 14px;
 		line-height: 1.6;
 
-		&:focus {
+		&, &:focus, &[disabled] {
 			background: none;
 		}
 	}
