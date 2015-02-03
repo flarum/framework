@@ -88,11 +88,14 @@ export default Ember.ObjectController.extend(Ember.Evented, {
             }
         },
         function(reason) {
-            var message = AlertMessage.create({
-                type: 'warning',
-                message: reason.errors[0].detail
-            });
-            controller.get('controllers.application').send('alert', message);
+            var errors = reason.errors;
+            for (var i in reason.errors) {
+                var message = AlertMessage.create({
+                    type: 'warning',
+                    message: reason.errors[i]
+                });
+                controller.get('controllers.application').send('alert', message);
+            }
         })
         .finally(function() {
             composer.set('content.loading', false);
