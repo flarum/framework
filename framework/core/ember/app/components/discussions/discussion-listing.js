@@ -25,6 +25,10 @@ export default Ember.Component.extend({
 		return this.get('countType') === 'unread' && this.get('discussion.isUnread');
 	}.property('countType', 'discussion.isUnread'),
 
+	countTitle: function() {
+		return this.get('discussion.isUnread') ? 'Mark as Read' : 'Jump to Last';
+	}.property('discussion.isUnread'),
+
 	displayLastPost: function() {
 		return this.get('terminalPostType') === 'last' && this.get('discussion.repliesCount');
 	}.property('terminalPostType', 'discussion.repliesCount'),
@@ -55,10 +59,6 @@ export default Ember.Component.extend({
 		setTimeout(function() {
 			$this.animate({opacity: 1}, 'fast');
 		}, 100);
-
-		if (this.get('discussion.isUnread')) {
-			this.$().find('.count').tooltip({container: 'body'});
-		}
 
 		// var view = this;
 		// this.$().find('a.info').click(function() {
@@ -147,6 +147,13 @@ export default Ember.Component.extend({
 		populateControls: function() {
 			if ( ! this.get('controls.length')) {
 				this.trigger('populateControls', this.get('controls'));
+			}
+		},
+
+		markAsRead: function() {
+			if (this.get('discussion.isUnread')) {
+				window.event.stopPropagation();
+				this.sendAction('markAsRead', this.get('discussion'));
 			}
 		}
 	}
