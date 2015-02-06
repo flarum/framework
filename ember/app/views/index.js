@@ -19,7 +19,7 @@ export default Ember.View.extend({
 
 		// Affix the sidebar so that when the user scrolls down it will stick
 		// to the top of their viewport.
-		var $sidebar = this.$().find('.index-nav');
+		var $sidebar = this.$('.index-nav');
 		$sidebar.find('> ul').affix({
 			offset: {
 				top: function () {
@@ -47,12 +47,27 @@ export default Ember.View.extend({
             if (e.pageX < 10) {
             	controller.send('showPane');
             }
-        });        
+        });
 	},
 
 	willDestroyElement: function() {
 		$(document).off('mousemove.showPane');
 	},
+
+	scrollToDiscussion: function() {
+		var view = this;
+		Ember.run.scheduleOnce('afterRender', function() {
+			var $index = view.$('.index-area');
+			var $discussion = $index.find('.discussion-summary.active');
+			if ($discussion.length) {
+				var indexTop = $index.offset().top;
+				var discussionTop = $discussion.offset().top;
+				if (discussionTop < indexTop || discussionTop + $discussion.outerHeight() > indexTop + $index.outerHeight()) {
+					$index.scrollTop($index.scrollTop() - indexTop + discussionTop);
+				}
+			}
+		});
+	}.observes('controller.controllers.discussion.model'),
 
 	populateSidebarDefault: function(sidebar) {
 		var newDiscussion = ActionButton.create({
