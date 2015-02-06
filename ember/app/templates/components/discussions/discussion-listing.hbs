@@ -13,7 +13,7 @@
 	{{/each}}
 </div>
 
-{{#link-to "discussion" discussion.content (query-params searchQuery=searchQuery start=start) current-when="discussion" class="info"}}
+{{#link-to "discussion" discussion.content (query-params start=start) current-when="discussion" class="info"}}
 	<h3 class="title">{{highlight-words discussion.title searchQuery}}</h3>
 	<span class="terminal-post">
 		{{#if displayLastPost}}

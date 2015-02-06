@@ -143,8 +143,6 @@
 
 // When the pane is pinned, move the other page content inwards
 .global-main, .global-footer {
-	.transition(margin-left 0.2s);
-
 	.with-pane & {
 		margin-left: @index-pane-width;
 		& .container {
@@ -154,8 +152,6 @@
 	}
 }
 .global-header .container {
-	.transition(width 0.2s);
-
 	.with-pane & {
 		width: 100%;
 	}

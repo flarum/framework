@@ -1,4 +1,4 @@
-<div {{bind-attr class=":index-area paned paneShowing:showing"}}>
+<div {{bind-attr class=":index-area paned paneIsShowing:showing"}}>
 
 	{{welcome-hero}}
 
@@ -17,7 +17,7 @@
 						{{#link-to (query-params show="posts") class="btn btn-default btn-icon"}}{{fa-icon "square-o"}}{{/link-to}}
 					</span>
 
-					{{ui/controls/select-input class="control-sort" content=sortOptions optionValuePath="content.sort" optionLabelPath="content.label" value=sort}}
+					{{ui/controls/select-input class="control-sort" content=index.sortOptions optionValuePath="content.key" optionLabelPath="content.label" value=index.sort}}
 				</div>
 				<div class="index-toolbar-action">
 					{{ui/controls/action-button class="control-markAllAsRead btn btn-default btn-icon" icon="check" title="Mark All as Read"}}
@@ -25,22 +25,22 @@
 			</div>
 
 			<ul class="discussions-list">
-				{{#each discussion in content}}
+				{{#each discussion in index.model}}
 					{{discussions/discussion-listing
 						discussion=discussion
-						searchQuery=searchQuery
-						terminalPostType=terminalPostType
-						countType=countType
+						searchQuery=index.searchQuery
+						terminalPostType=index.terminalPostType
+						countType=index.countType
 						markAsRead="markAsRead"}}
 				{{/each}}
 			</ul>
 
-			{{#if resultsLoading}}
+			{{#if index.resultsLoading}}
 				{{ui/controls/loading-indicator size="small"}}
 			{{/if}}
 
-			{{#if moreResults}}
-				{{#unless resultsLoading}}
+			{{#if index.moreResults}}
+				{{#unless index.resultsLoading}}
 					<div class="load-more">
 						{{ui/controls/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
 					</div>

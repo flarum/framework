@@ -3,7 +3,8 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 	classNames: ['back-button'],
 	classNameBindings: ['active'],
-	active: Ember.computed.or('target.paneShowing', 'target.panePinned'),
+
+	active: Ember.computed.or('target.paneIsShowing', 'target.paneIsPinned'),
  
 	mouseEnter: function() {
         this.get('target').send('showPane');
@@ -18,9 +19,9 @@ export default Ember.Component.extend({
     		this.get('target').send('transitionFromBackButton');
             this.set('target', null);
     	},
+
     	togglePinned: function() {
             this.get('target').send('togglePinned');
     	}
     }
-
 });
