@@ -38,7 +38,7 @@ export default Ember.View.extend(Ember.Evented, {
         var controller = this.get('controller');
 
         // Hide the composer to begin with.
-        this.set('height', this.$().height());
+        this.set('height', localStorage.getItem('composerHeight') || this.$().height());
         this.$().hide();
 
         // If the composer is minimized, allow the user to click anywhere on
@@ -223,9 +223,12 @@ export default Ember.View.extend(Ember.Evented, {
         // height so that it fills the height of the composer, and update the
         // body's padding.
         var deltaPixels = event.data.mouseStart - event.clientY;
-        view.set('height', event.data.heightStart + deltaPixels);
+        var height = event.data.heightStart + deltaPixels;
+        view.set('height', height);
         view.updateContentHeight();
         view.updateBodyPadding();
+        
+        localStorage.setItem('composerHeight', height);
     },
 
     mouseWasReleased: function(event) {
