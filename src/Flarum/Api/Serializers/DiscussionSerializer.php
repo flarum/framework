@@ -58,7 +58,8 @@ class DiscussionSerializer extends DiscussionBasicSerializer
     }
 
     /**
-     * Get a collection containing a discussion's viewable posts.
+     * Get a collection containing a discussion's viewable posts. Assumes that
+     * the discussion model's posts attributes has been filled.
      * 
      * @param Discussion $discussion
      * @param array $relations
@@ -66,7 +67,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
      */
     public function includePosts(Discussion $discussion, $relations)
     {
-        return (new PostSerializer($relations))->collection($discussion->posts()->whereCanView()->get());
+        return (new PostSerializer($relations))->collection($discussion->posts);
     }
 
     /**

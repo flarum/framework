@@ -15,15 +15,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
 	postLoadCount: 20,
 
-	_init: function() {
-		this.clear();
-	}.on('init'),
-
-	setup: function(ids) {
-		this.set('ids', ids);
-		this.get('content').objectAt(0).set('indexEnd', this.get('count') - 1);
-	},
-
 	count: Ember.computed.alias('ids.length'),
 
 	loadedCount: function() {
@@ -40,12 +31,35 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		return last && last.content;
 	}.property('content.@each'),
 
+	init: function() {
+		this._super();
+		this.set('ids', Ember.A());
+		this.clear();
+	},
+
+	setup: function(ids) {
+		// Set our ids to the array provided and reset the content of the
+		// stream to a big gap that covers the amount of posts we now have.
+		this.set('ids', ids);
+		this.clear();
+
+		// Look in the store and see if we already have the data for any of
+		// these posts. If we do, we can add them to the stream.
+		var posts = [];
+		var store = this.get('store');
+		ids.forEach(function(id) {
+			if (store.hasRecordForId('post', id)) {
+				posts.pushObject(store.getById('post', id));
+			}
+		});
+		this.addPosts(posts);
+	},
+
 	// Clear the contents of the post stream, resetting it to one big gap.
 	clear: function() {
 		var content = Ember.A();
 		content.clear().pushObject(this.makeItem(0, this.get('count') - 1).set('loading', true));
 		this.set('content', content);
-		this.set('ids', Ember.A());
 	},
 
 	loadRange: function(start, end, backwards) {
@@ -124,9 +138,12 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		this.trigger('postsLoaded', posts);
 
 		var stream = this;
+		var content = this.get('content');
+		content.beginPropertyChanges();
 		posts.forEach(function(post) {
 			stream.addPost(post);
 		});
+		content.endPropertyChanges();
 
 		this.trigger('postsAdded');
 	},
@@ -156,6 +173,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 	},
 
 	addPostToEnd: function(post) {
+		this.get('ids').pushObject(post.get('id'));
 		var index = this.get('count') - 1;
         this.get('content').pushObject(this.makeItem(index, index, post));
 	},
@@ -171,10 +189,10 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 	findNearestTo: function(index, property) {
 		var nearestItem;
         this.get('content').some(function(item) {
-            nearestItem = item;
             if (item.get(property) > index) {
                 return true;
             }
+            nearestItem = item;
         });
         return nearestItem;
 	},
@@ -184,6 +202,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     },
 
     findNearestToIndex: function(index) {
-    	return this.findNearestTo(index, 'indexEnd');
+    	return this.findNearestTo(index, 'indexStart');
     }
 });
