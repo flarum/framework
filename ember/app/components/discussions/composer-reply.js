@@ -9,7 +9,7 @@ export default Ember.Component.extend(Ember.Evented, {
 
 	submitLabel: 'Post Reply',
 	placeholder: '',
-	value: '',
+	content: '',
 	submit: null,
 	loading: false,
 
@@ -29,21 +29,23 @@ export default Ember.Component.extend(Ember.Evented, {
 	},
 
 	actions: {
-		submit: function(value) {
-			this.get('submit')(value);
+		submit: function(content) {
+			this.get('submit')({
+				content: content
+			});
 		},
 
 		willExit: function(abort) {
 			// If the user has typed something, prompt them before exiting
 			// this composer state.
-			if (this.get('value') && ! confirm('You have not posted your reply. Do you wish to discard it?')) {
+			if (this.get('content') && ! confirm('You have not posted your reply. Do you wish to discard it?')) {
 				abort();
 			}
 		},
 
 		reset: function() {
 			this.set('loading', false);
-			this.set('value', '');
+			this.set('content', '');
 		}
 	}
 });

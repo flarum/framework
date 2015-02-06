@@ -119,9 +119,9 @@ export default Ember.View.extend(Ember.Evented, {
     // an element with the class .flexible-height — this element is intended
     // to fill up the height of the composer, minus the space taken up by the
     // composer's header/footer/etc.
-    updateContentHeight: function() {
+    setContentHeight: function(height) {
         var content = this.$('.composer-content');
-        this.$('.flexible-height').height(this.get('computedHeight')
+        this.$('.flexible-height').height(height
             - parseInt(content.css('padding-top'))
             - parseInt(content.css('padding-bottom'))
             - this.$('.composer-header').outerHeight(true)
@@ -144,14 +144,16 @@ export default Ember.View.extend(Ember.Evented, {
     // Whenever the composer's computed height changes, update the DOM to
     // reflect it.
     updateHeight: function() {
-        if (!this.$()) { return; }
-
-        var view = this;
-        Ember.run.scheduleOnce('afterRender', function() {
-            view.$().height(view.get('computedHeight'));
-            view.updateContentHeight();
+        Ember.run.scheduleOnce('afterRender', this, function() {
+            this.$().height(this.get('computedHeight'));
         });
     }.observes('computedHeight'),
+
+    updateContentHeight: function() {
+        Ember.run.scheduleOnce('afterRender', this, function() {
+            this.setContentHeight(this.get('computedHeight'));
+        });
+    }.observes('computedHeight', 'controller.content'),
 
     positionWillChange: function() {
         this.set('oldPosition', this.get('position'));
@@ -160,28 +162,28 @@ export default Ember.View.extend(Ember.Evented, {
     // Whenever the composer's display state changes, update the DOM to slide
     // it in or out.
     positionDidChange: function() {
-        var $composer = this.$();
-        if (!$composer) { return; }
-        var view = this;
-
         // At this stage, the position property has just changed, and the
         // class name hasn't been altered in the DOM. So, we can grab the
         // composer's current height which we might want to animate from.
         // After the DOM has updated, we animate to its new height.
-        var oldHeight = $composer.height();
+        var $composer = this.$();
+        var oldHeight = $composer ? $composer.height() : 0;
 
-        Ember.run.scheduleOnce('afterRender', function() {
+        Ember.run.scheduleOnce('afterRender', this, function() {
+            var $composer = this.$();
             var newHeight = $composer.height();
+            var view = this;
 
-            switch (view.get('position')) {
+            switch (this.get('position')) {
                 case PositionEnum.HIDDEN:
-                    $composer.animate({bottom: -oldHeight}, 'fast', function() {
+                    $composer.animate({bottom: -newHeight}, 'fast', function() {
                         $composer.hide();
+                        view.get('controller').send('clearContent');
                     });
                     break;
 
                 case PositionEnum.NORMAL:
-                    if (view.get('oldPosition') !== PositionEnum.FULLSCREEN) {
+                    if (this.get('oldPosition') !== PositionEnum.FULLSCREEN) {
                         $composer.show();
                         $composer.css({height: oldHeight}).animate({bottom: 0, height: newHeight}, 'fast', function() {
                             view.focus();
@@ -196,10 +198,10 @@ export default Ember.View.extend(Ember.Evented, {
                     break;
             }
 
-            if (view.get('position') !== PositionEnum.FULLSCREEN) {
-                view.updateBodyPadding(true);
+            if (this.get('position') !== PositionEnum.FULLSCREEN) {
+                this.updateBodyPadding(true);
             }
-            view.updateContentHeight();
+            this.setContentHeight(this.get('computedHeight'));
         });
     }.observes('position'),
 
@@ -225,7 +227,7 @@ export default Ember.View.extend(Ember.Evented, {
         var deltaPixels = event.data.mouseStart - event.clientY;
         var height = event.data.heightStart + deltaPixels;
         view.set('height', height);
-        view.updateContentHeight();
+        view.setContentHeight(height);
         view.updateBodyPadding();
         
         localStorage.setItem('composerHeight', height);
@@ -238,7 +240,11 @@ export default Ember.View.extend(Ember.Evented, {
     },
 
     focus: function() {
-        this.$().find(':input:enabled:visible:first').focus();
+        if (this.$().is(':hidden')) { return; }
+
+        Ember.run.scheduleOnce('afterRender', this, function() {
+            this.$().find(':input:enabled:visible:first').focus();
+        });
     },
 
     populateControls: function(controls) {

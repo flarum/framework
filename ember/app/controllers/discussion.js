@@ -17,7 +17,9 @@ export default Ember.ObjectController.extend(Ember.Evented, {
     // Save a reply. This may be called by a composer-reply component that was
     // set up on a different discussion, so we require a discussion model to
     // be explicitly passed rather than using the controller's implicit one.
-    saveReply: function(discussion, content) {
+    // @todo break this down into bite-sized functions so that extensions can
+    // easily override where they please.
+    saveReply: function(discussion, data) {
         var controller = this;
         var composer = this.get('controllers.composer');
         var stream = this.get('stream');
@@ -26,7 +28,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         controller.get('controllers.application').send('clearAlerts');
 
         var post = this.store.createRecord('post', {
-            content: content,
+            content: data.content,
             discussion: discussion
         });
 
@@ -91,12 +93,12 @@ export default Ember.ObjectController.extend(Ember.Evented, {
 
             // If the composer is already set up for this discussion, then we
             // don't need to change its content - we can just show it.
-            if (composer.get('content.discussion') != discussion) {
+            if (!(composer.get('content') instanceof ComposerReply) || composer.get('content.discussion') != discussion) {
                 composer.switchContent(ComposerReply.create({
                     user: controller.get('session.user'),
                     discussion: discussion,
-                    submit: function(value) {
-                        controller.saveReply(discussion, value);
+                    submit: function(data) {
+                        controller.saveReply(discussion, data);
                     }
                 }));
             }
