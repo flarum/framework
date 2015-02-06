@@ -1,12 +1,10 @@
 import Ember from 'ember';
 
-import PostStream from '../models/post-stream';
 import ComposerReply from '../components/discussions/composer-reply';
 import ActionButton from '../components/ui/controls/action-button';
 import AlertMessage from '../components/alert-message';
 
 export default Ember.ObjectController.extend(Ember.Evented, {
-
     needs: ['application', 'composer'],
     
     queryParams: ['start'],
@@ -15,31 +13,6 @@ export default Ember.ObjectController.extend(Ember.Evented, {
 
     loaded: false,
     stream: null,
-
-    setup: function(discussion) {
-        this.set('model', discussion);
-
-        // Set up the post stream object. It needs to know about the discussion
-        // its representing the posts for, and we also need to inject the Ember
-        // data store.
-        var stream = PostStream.create();
-        stream.set('discussion', discussion);
-        stream.set('store', this.get('store'));
-        this.set('stream', stream);
-
-        // Next, we need to load a list of the discussion's post IDs into the
-        // post stream object. If we don't already have this information, we'll
-        // need to reload the discussion model.
-        var promise = discussion.get('posts') ? Ember.RSVP.resolve(discussion) : discussion.reload();
-
-        // When we know we have the post IDs, we can set up the post stream with
-        // them. Then the view will trigger the stream to load as it sees fit.
-        var controller = this;
-        promise.then(function(discussion) {
-            stream.setup(discussion.get('postIds'));
-            controller.set('loaded', true);
-        });
-    },
 
     // Save a reply. This may be called by a composer-reply component that was
     // set up on a different discussion, so we require a discussion model to
@@ -61,7 +34,6 @@ export default Ember.ObjectController.extend(Ember.Evented, {
             composer.send('hide');
 
             discussion.setProperties({
-                posts: discussion.get('posts')+','+post.get('id'),
                 lastTime: post.get('time'),
                 lastUser: post.get('user'),
                 lastPost: post,
@@ -74,8 +46,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
             // If we're currently viewing the discussion which this reply was
             // made in, then we can add the post to the end of the post
             // stream.
-            if (discussion == controller.get('model')) {
-                stream.set('ids', discussion.get('postIds'));
+            if (discussion == controller.get('model') && stream) {
                 stream.addPostToEnd(post);
             } else {
                 // Otherwise, we'll create an alert message to inform the user

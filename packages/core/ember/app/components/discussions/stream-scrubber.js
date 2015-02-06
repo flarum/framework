@@ -218,10 +218,13 @@ export default Ember.Component.extend({
 	// after a bunch of posts have been loaded), then we want to update the
 	// scrubber scrollbar according to the window's current scroll position.
 	resume: function() {
-		if (this.get('streamContent.active')) {
-			this.update();
-			this.updateScrollbar(true);
-		}
+		var scrubber = this;
+		Ember.run.scheduleOnce('afterRender', function() {
+			if (scrubber.get('streamContent.active')) {
+				scrubber.update();
+				scrubber.updateScrollbar(true);
+			}
+		});
 	}.observes('streamContent.active'),
 
 	// Update the index/visible/description properties according to the

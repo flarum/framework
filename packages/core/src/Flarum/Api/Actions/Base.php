@@ -26,7 +26,7 @@ abstract class Base extends Controller
     
     abstract protected function run();
 
-    public function handle($request, $parameters)
+    public function handle($request, $parameters = [])
     {
         $this->registerErrorHandlers();
 
@@ -37,6 +37,11 @@ abstract class Base extends Controller
         $this->document->addMeta('profile', '?');
 
         return $this->run();
+    }
+
+    public function setRequest($request)
+    {
+        $this->request = $request;
     }
 
     public function param($key, $default = null)
@@ -74,7 +79,7 @@ abstract class Base extends Controller
     protected function included($available)
     {
         $requested = explode(',', $this->input('include'));
-        return array_intersect($available, $requested);
+        return array_intersect((array) $available, $requested);
     }
 
     protected function explodeIds($ids)

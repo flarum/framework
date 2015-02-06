@@ -24,6 +24,11 @@ export default Ember.Component.extend({
 		return this.get('loaded') && ! this.get('paused');
 	}.property('loaded', 'paused'),
 
+	refresh: function() {
+		this.set('paused', true);
+		clearTimeout(this.updateStateTimeout);
+	}.observes('stream'),
+
 	didInsertElement: function() {
 		$(window).on('scroll', {view: this}, this.windowWasScrolled);
 	},
@@ -105,41 +110,41 @@ export default Ember.Component.extend({
 		}, 250);
 	}.observes('active'),
 
-	loadingNumber: function(number) {
+	loadingNumber: function(number, noAnimation) {
 		// The post with this number is being loaded. We want to scroll to where
 		// we think it will appear. We may be scrolling to the edge of the page,
 		// but we don't want to trigger any terminal post gaps to load by doing
 		// that. So, we'll disable the window's scroll handler for now.
 		this.set('paused', true);
-		this.jumpToNumber(number);
+		this.jumpToNumber(number, noAnimation);
 	},
 
-	loadedNumber: function(number) {
+	loadedNumber: function(number, noAnimation) {
 		// The post with this number has been loaded. After we scroll to this
 		// post, we want to resume scroll events.
 		var view = this;
 		Ember.run.scheduleOnce('afterRender', function() {
-			view.jumpToNumber(number).done(function() {
+			view.jumpToNumber(number, noAnimation).done(function() {
 				view.set('paused', false);
 			});
 		});
 	},
 
-	loadingIndex: function(index) {
+	loadingIndex: function(index, noAnimation) {
 		// The post at this index is being loaded. We want to scroll to where we
 		// think it will appear. We may be scrolling to the edge of the page,
 		// but we don't want to trigger any terminal post gaps to load by doing
 		// that. So, we'll disable the window's scroll handler for now.
 		this.set('paused', true);
-		this.jumpToIndex(index);
+		this.jumpToIndex(index, noAnimation);
 	},
 
-	loadedIndex: function(index) {
+	loadedIndex: function(index, noAnimation) {
 		// The post at this index has been loaded. After we scroll to this post,
 		// we want to resume scroll events.
 		var view = this;
 		Ember.run.scheduleOnce('afterRender', function() {
-			view.jumpToIndex(index).done(function() {
+			view.jumpToIndex(index, noAnimation).done(function() {
 				view.set('paused', false);
 			});
 		});
@@ -147,7 +152,7 @@ export default Ember.Component.extend({
 
 	// Scroll down to a certain post by number (or the gap which we think the
 	// post is in) and highlight it.
-	jumpToNumber: function(number) {
+	jumpToNumber: function(number, noAnimation) {
 		// Clear the highlight class from all posts, and attempt to find and
 		// highlight a post with the specified number. However, we don't apply
 		// the highlight to the first post in the stream because it's pretty
@@ -165,22 +170,26 @@ export default Ember.Component.extend({
 			$item = this.findNearestToNumber(number);
 		}
 
-		return this.scrollToItem($item);
+		return this.scrollToItem($item, noAnimation);
 	},
 
 	// Scroll down to a certain post by index (or the gap the post is in.)
-	jumpToIndex: function(index) {
+	jumpToIndex: function(index, noAnimation) {
 		var $item = this.findNearestToIndex(index);
-		return this.scrollToItem($item);
+		return this.scrollToItem($item, noAnimation);
 	},
 
-	scrollToItem: function($item) {
+	scrollToItem: function($item, noAnimation) {
 		var $container = $('html, body');
 		if ($item.length) {
 			var marginTop = this.getMarginTop();
 			var scrollTop = $item.is(':first-child') ? 0 : $item.offset().top - marginTop;
 			if (scrollTop !== $(document).scrollTop()) {
-				$container.stop(true).animate({scrollTop: scrollTop});
+				if (noAnimation) {
+					$container.stop(true).scrollTop(scrollTop);
+				} else {
+					$container.stop(true).animate({scrollTop: scrollTop});
+				}
 			}
 		}
 		return $container.promise();
@@ -221,35 +230,35 @@ export default Ember.Component.extend({
     },
 
     actions: {
-    	goToNumber: function(number) {
+    	goToNumber: function(number, noAnimation) {
             number = Math.max(number, 1);
 
             // Let's start by telling our listeners that we're going to load
             // posts near this number. Elsewhere we will listen and
             // consequently scroll down to the appropriate position.
-            this.trigger('loadingNumber', number);
+            this.trigger('loadingNumber', number, noAnimation);
 
             // Now we have to actually make sure the posts around this new start
             // position are loaded. We will tell our listeners when they are.
             // Again, a listener will scroll down to the appropriate post.
             var controller = this;
             this.get('stream').loadNearNumber(number).then(function() {
-                controller.trigger('loadedNumber', number);
+                controller.trigger('loadedNumber', number, noAnimation);
             });
         },
 
-        goToIndex: function(index, backwards) {
+        goToIndex: function(index, backwards, noAnimation) {
             // Let's start by telling our listeners that we're going to load
             // posts at this index. Elsewhere we will listen and consequently
             // scroll down to the appropriate position.
-            this.trigger('loadingIndex', index);
+            this.trigger('loadingIndex', index, noAnimation);
 
             // Now we have to actually make sure the posts around this index
             // are loaded. We will tell our listeners when they are. Again, a
             // listener will scroll down to the appropriate post.
             var controller = this;
             this.get('stream').loadNearIndex(index, backwards).then(function() {
-                controller.trigger('loadedIndex', index);
+                controller.trigger('loadedIndex', index, noAnimation);
             });
         },
 
