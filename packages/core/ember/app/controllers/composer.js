@@ -27,6 +27,7 @@ export default Ember.Controller.extend(Ember.Evented, {
         this.confirmExit().then(function() {
             composer.set('content', null);
             Ember.run.next(function() {
+                newContent.set('composer', composer);
                 composer.set('content', newContent);
             });
         });
@@ -61,10 +62,10 @@ export default Ember.Controller.extend(Ember.Evented, {
 
         hide: function() {
             this.set('position', PositionEnum.HIDDEN);
-            var content = this.get('content');
-            if (content) {
-                content.send('reset');
-            }
+        },
+
+        clearContent: function() {
+            this.set('content', null);
         },
 
         close: function() {
@@ -75,17 +76,23 @@ export default Ember.Controller.extend(Ember.Evented, {
         },
 
         minimize: function() {
-            this.set('position', PositionEnum.MINIMIZED);
+            if (this.get('position') !== PositionEnum.HIDDEN) {
+                this.set('position', PositionEnum.MINIMIZED);
+            }
         },
 
         fullscreen: function() {
-            this.set('position', PositionEnum.FULLSCREEN);
-            this.trigger('focus');
+            if (this.get('position') !== PositionEnum.HIDDEN) {
+                this.set('position', PositionEnum.FULLSCREEN);
+                this.trigger('focus');
+            }
         },
 
         exitFullscreen: function() {
-            this.set('position', PositionEnum.NORMAL);
-            this.trigger('focus');
+            if (this.get('position') === PositionEnum.FULLSCREEN) {
+                this.set('position', PositionEnum.NORMAL);
+                this.trigger('focus');
+            }
         }
     }
 
