@@ -104,15 +104,16 @@ abstract class Base extends Controller
     protected function sort($options)
     {
         $criteria = (string) $this->input('sort', '');
+
+        if (! in_array($criteria, $options)) {
+            $criteria = reset($options);
+        }
+
         $order = $criteria ? 'asc' : null;
 
         if ($criteria && $criteria[0] == '-') {
             $order = 'desc';
             $criteria = substr($criteria, 1);
-        }
-
-        if (! in_array($criteria, $options)) {
-            $criteria = reset($options);
         }
 
         return [
