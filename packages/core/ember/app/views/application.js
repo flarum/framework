@@ -11,6 +11,17 @@ var $ = Ember.$;
 
 export default Ember.View.extend({
 
+    // When either the forum title or the page title changes, we want to
+    // refresh the document's title.
+    updateTitle: function() {
+        var parts = [this.get('controller.forumTitle')];
+        var pageTitle = this.get('controller.pageTitle');
+        if (pageTitle) {
+            parts.unshift(pageTitle);
+        }
+        document.title = parts.join(' - ');
+    }.observes('controller.pageTitle', 'controller.forumTitle'),
+
     title: function() {
         return this.get('controller.forumTitle');
     }.property('controller.forumTitle'),

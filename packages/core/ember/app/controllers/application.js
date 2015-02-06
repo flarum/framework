@@ -10,19 +10,7 @@ export default Ember.Controller.extend({
 	// controllers/views.
 	pageTitle: '',
 
-	// When either the forum title or the page title changes, we want to
-	// refresh the document's title.
-	updateTitle: function() {
-		var parts = [this.get('forumTitle')];
-		var pageTitle = this.get('pageTitle');
-		if (pageTitle) {
-			parts.unshift(pageTitle);
-		}
-		document.title = parts.join(' - ');
-	}.observes('pageTitle', 'forumTitle'),
-
-	// Whether or not a pane is currently pinned to the side of the interface.
-	panePinned: false,
+	backButtonTarget: null,
 
 	searchQuery: '',
 	searchActive: false,
