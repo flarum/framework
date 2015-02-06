@@ -98,7 +98,7 @@
 
 	&.paned {
 		position: fixed;
-		z-index: @zindex-navbar-fixed + 1;
+		z-index: @zindex-pane;
 		overflow: auto;
 		top: 56px;
 		bottom: 0;
@@ -110,6 +110,10 @@
 
 		&.showing, .with-pane & {
 			left: 0;
+		}
+		.with-pane & {
+			z-index: @zindex-composer - 1;
+			.transition(none);
 		}
 		& .container {
 			width: auto;
