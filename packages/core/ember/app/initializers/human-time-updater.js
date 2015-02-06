@@ -28,6 +28,9 @@ export default {
 	      .removeData('livestamp');
 
 	    timestamp = moment(timestamp);
+	    if (timestamp.diff(moment()) < 60 * 60) {
+	    	return;
+	    }
 	    if (moment.isMoment(timestamp) && !isNaN(+timestamp)) {
 	      var newData = $.extend({ }, { 'original': $el.contents() }, oldData);
 	      newData.moment = moment(timestamp);
