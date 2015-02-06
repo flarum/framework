@@ -70,10 +70,14 @@ export default Ember.View.extend({
 	}.observes('controller.controllers.discussion.model'),
 
 	populateSidebarDefault: function(sidebar) {
+		var view = this;
 		var newDiscussion = ActionButton.create({
         	label: 'Start a Discussion',
         	icon: 'edit',
-        	className: 'btn btn-primary new-discussion'
+        	className: 'btn btn-primary new-discussion',
+        	action: function() {
+        		view.get('controller').send('newDiscussion');
+        	}
         });
         sidebar.pushObjectWithTag(newDiscussion, 'newDiscussion');
 

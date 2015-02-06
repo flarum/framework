@@ -8,11 +8,6 @@ export default Ember.Route.extend({
 	},
 
 	model: function(params) {
-		// Each time we view a discussion we want to reload its posts from
-		// scratch so that we have the most up-to-date data. Also, if we were
-		// to leave them in the store, the stream would try and render them
-		// which has the potential to be slow.
-		this.store.unloadAll('post');
 		return this.store.findQueryOne('discussion', params.id, {
 			include: 'posts',
 			near: params.start
@@ -48,6 +43,12 @@ export default Ember.Route.extend({
         	id: discussion.get('id'),
         	start: controller.get('start')
         });
+
+        // Each time we view a discussion we want to reload its posts from
+		// scratch so that we have the most up-to-date data. Also, if we were
+		// to leave them in the store, the stream would try and render them
+		// which has the potential to be slow.
+		this.store.unloadAll('post');
 
         // When we know we have the post IDs, we can set up the post stream with
         // them. Then we will tell the view that we have finished loading so that
