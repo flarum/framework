@@ -2,11 +2,31 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Posts\Post;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Api\Actions\Base;
 use Flarum\Api\Serializers\PostSerializer;
 
 class Index extends Base
 {
+    use GetsPostsForDiscussion;
+
+    /**
+     * The post repository.
+     * 
+     * @var PostRepository
+     */
+    protected $posts;
+
+    /**
+     * Instantiate the action.
+     *
+     * @param PostRepository $posts
+     */
+    public function __construct(PostRepository $posts)
+    {
+        $this->posts = $posts;
+    }
+
     /**
      * Show posts from a discussion, or by providing an array of IDs.
 	 *
@@ -14,46 +34,15 @@ class Index extends Base
 	 */
     protected function run()
     {
-        $discussionId = $this->input('discussions');
         $postIds = (array) $this->input('ids');
+        $include = ['user', 'user.groups', 'editUser', 'deleteUser'];
 
-        $count = $this->count(20, 50);
-
-        if ($near = $this->input('near')) {
-            // fetch the nearest post
-            $post = Post::orderByRaw('ABS(CAST(number AS SIGNED) - ?)', [$near])->whereNotNull('number')->where('discussion_id', $discussionId)->take(1)->first();
-
-            $start = max(
-                0,
-                Post::whereCanView()
-                    ->where('discussion_id', $discussionId)
-                    ->where('time', '<=', $post->time)
-                    ->count() - round($count / 2)
-            );
-        } else {
-            $start = $this->start();
-        }
-
-        $include = $this->included([]);
-        $sort    = $this->sort(['time']);
-
-        $relations = array_merge(['user', 'user.groups', 'editUser', 'deleteUser'], $include);
-
-        // @todo move to post repository
-        $posts = Post::with($relations)
-            ->whereCanView();
-
-        if ($discussionId) {
-            $posts->where('discussion_id', $discussionId);
-        }
         if (count($postIds)) {
-            $posts->whereIn('id', $postIds);
+            $posts = $this->posts->findMany($postIds, $include);
+        } else {
+            $discussionId = $this->input('discussions');
+            $posts = $this->getPostsForDiscussion($this->posts, $discussionId, $include);
         }
-
-        $posts = $posts->skip($start)
-            ->take($count)
-            ->orderBy($sort['by'], $sort['order'] ?: 'asc')
-            ->get();
 
         if (! count($posts)) {
             throw new ModelNotFoundException;
@@ -62,7 +51,7 @@ class Index extends Base
         // Finally, we can set up the post serializer and use it to create
         // a post resource or collection, depending on how many posts were
         // requested.
-        $serializer = new PostSerializer($relations);
+        $serializer = new PostSerializer($include);
         $this->document->setPrimaryElement($serializer->collection($posts));
 
         return $this->respondWithDocument();
