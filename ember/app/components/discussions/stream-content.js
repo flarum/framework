@@ -180,16 +180,14 @@ export default Ember.Component.extend({
 	},
 
 	scrollToItem: function($item, noAnimation) {
-		var $container = $('html, body');
+		var $container = $('html, body').stop(true);
 		if ($item.length) {
 			var marginTop = this.getMarginTop();
 			var scrollTop = $item.is(':first-child') ? 0 : $item.offset().top - marginTop;
-			if (scrollTop !== $(document).scrollTop()) {
-				if (noAnimation) {
-					$container.stop(true).scrollTop(scrollTop);
-				} else {
-					$container.stop(true).animate({scrollTop: scrollTop});
-				}
+			if (noAnimation) {
+				$container.scrollTop(scrollTop);
+			} else if (scrollTop !== $(document).scrollTop()) {
+				$container.animate({scrollTop: scrollTop});
 			}
 		}
 		return $container.promise();
