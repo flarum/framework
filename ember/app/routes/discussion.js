@@ -30,6 +30,7 @@ export default Ember.Route.extend({
 
 	setupController: function(controller, discussion) {
 		controller.set('model', discussion);
+		this.controllerFor('index/index').set('lastDiscussion', discussion);
 
         // Set up the post stream object. It needs to know about the discussion
         // it's representing the posts for, and we also need to inject the Ember
