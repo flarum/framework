@@ -4,6 +4,7 @@ import DS from 'ember-data';
 var Discussion = DS.Model.extend({
 
 	title: DS.attr('string'),
+	content: DS.attr('string'), // only used to save a new discussion
 
 	slug: function() {
 		return this.get('title').toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-');
@@ -31,7 +32,8 @@ var Discussion = DS.Model.extend({
 
 	posts: DS.attr('string'),
 	postIds: function() {
-		return this.get('posts').split(',');
+		var posts = this.get('posts') || '';
+		return posts.split(',');
 	}.property('posts'),
 
 	readTime: DS.attr('date'),

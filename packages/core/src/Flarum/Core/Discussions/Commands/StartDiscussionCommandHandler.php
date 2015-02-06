@@ -52,6 +52,10 @@ class StartDiscussionCommandHandler implements CommandHandler
             new PostReplyCommand($discussion->id, $command->content, $command->user)
         );
 
+        // The discussion may have been updated by the PostReplyCommand; we need
+        // to refresh its data.
+        $discussion = $this->discussionRepo->find($discussion->id);
+        
         $this->dispatchEventsFor($discussion);
         
         return $discussion;
