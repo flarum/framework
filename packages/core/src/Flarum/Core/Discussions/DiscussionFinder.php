@@ -30,15 +30,6 @@ class DiscussionFinder
 
     protected $fulltext;
 
-    public function __construct($user = null, $tokens = null, $sort = null, $order = null, $key = null)
-    {
-        $this->user = $user;
-        $this->tokens = $tokens;
-        $this->sort = $sort;
-        $this->order = $order;
-        $this->key = $key;
-    }
-
     public function getUser()
     {
         return $this->user;
