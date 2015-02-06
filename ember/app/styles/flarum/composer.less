@@ -99,9 +99,17 @@
 	
 	& h3 {
 		margin: 5px 0 10px;
-		color: @fl-body-muted-color;
-		font-size: 16px;
-		font-weight: normal;
+		&, & input {
+			color: @fl-body-muted-color;
+			font-size: 16px;
+			font-weight: normal;
+		}
+		& input {
+			background: none;
+			border: 0;
+			padding: 0;
+			height: auto;
+		}
 	}
 
 	.minimized & {

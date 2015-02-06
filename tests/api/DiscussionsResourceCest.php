@@ -50,6 +50,8 @@ class DiscussionsResourceCest {
         $I->seeResponseContainsJson(['title' => 'foo']);
         $I->seeResponseContainsJson(['type' => 'comment', 'contentHtml' => '<p>bar</p>']);
 
+        // @todo check for post in response
+
         $id = $I->grabDataFromJsonResponse('discussions.id');
         $I->seeRecord('discussions', ['id' => $id, 'title' => 'foo']);
     }
