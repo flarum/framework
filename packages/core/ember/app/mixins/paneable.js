@@ -17,7 +17,25 @@ export default Ember.Mixin.create({
 
 	// Whether or not the pane is always visible on screen, even when the
 	// mouse is taken away.
-	panePinned: false,
+	panePinned: localStorage.getItem('panePinned'),
+
+	// Disable the paneable behaviour completely, regardless of if it is
+	// paned, showing, or pinned.
+	paneDisabled: false,
+
+	paneIsShowing: function() {
+		return this.get('paned') && this.get('paneShowing') && !this.get('paneDisabled');
+	}.property('paned', 'paneShowing', 'paneDisabled'),
+
+	paneIsPinned: function() {
+		return this.get('paned') && this.get('panePinned') && !this.get('paneDisabled');
+	}.property('paned', 'panePinned', 'paneDisabled'),
+
+	// Tell the application controller when we pin/unpin the pane so that
+	// other parts of the interface can respond appropriately.
+	paneIsPinnedChanged: function() {
+		this.set('controllers.application.panePinned', this.get('paneIsPinned'));
+	}.observes('paneIsPinned'),
 
 	actions: {
 		showPane: function() {
@@ -35,13 +53,7 @@ export default Ember.Mixin.create({
 		},
 		
 		togglePinned: function() {
-			this.toggleProperty('panePinned');
+			localStorage.setItem('panePinned', this.toggleProperty('panePinned') || '');
 		}
-	},
-
-	// Tell the application controller when we pin/unpin the pane so that
-	// other parts of the interface can respond appropriately.
-	panePinnedChanged: function() {
-		this.set('controllers.application.panePinned', this.get('paned') && this.get('panePinned'));
-	}.observes('paned', 'panePinned')
+	}
 });
