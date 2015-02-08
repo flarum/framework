@@ -12,7 +12,7 @@ export default Ember.Component.extend({
         }
         var listItems = [];
         this.get('items').forEach(function(item) {
-            if (item.tagName !== 'li') {
+            if (item.get('tagName') !== 'li') {
                 item = ComponentItem.extend({component: item});
             }
             listItems.push(item);
