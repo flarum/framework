@@ -26,6 +26,16 @@ export default Ember.View.extend({
         return this.get('controller.forumTitle');
     }.property('controller.forumTitle'),
 
+    modalShowingChanged: function() {
+        if (!this.$()) { return; }
+
+        if (this.get('controller.modalController')) {
+            this.$('#modal').modal('show');
+        } else {
+            this.$('#modal').modal('hide');
+        }
+    }.observes('controller.modalController'),
+
     didInsertElement: function() {
         
 
@@ -44,6 +54,15 @@ export default Ember.View.extend({
         $(window).resize(function() {
             $('#main').css('min-height', $(window).height() - $('#header').outerHeight() - $('#footer').outerHeight(true));
         }).resize();
+
+        var view = this;
+        this.$('#modal').on('hide.bs.modal', function() {
+            view.get('controller').send('closeModal');
+        }).on('hidden.bs.modal', function() {
+            view.get('controller').send('destroyModal');
+        }).on('shown.bs.modal', function() {
+            view.get('controller.modalController').send('focus');
+        });
     },
 
     switchHeader: function() {
@@ -106,7 +125,10 @@ export default Ember.View.extend({
         } else {
             var signUp = ActionButton.create({
                 label: 'Sign Up',
-                className: 'btn btn-link'
+                className: 'btn btn-link',
+                action: function() {
+                    controller.send('signup');
+                }
             });
             secondary.pushObjectWithTag(signUp, 'signUp');
 
