@@ -227,7 +227,6 @@ export default Ember.View.extend(Ember.Evented, {
         var deltaPixels = event.data.mouseStart - event.clientY;
         var height = event.data.heightStart + deltaPixels;
         view.set('height', height);
-        view.setContentHeight(height);
         view.updateBodyPadding();
         
         localStorage.setItem('composerHeight', height);
