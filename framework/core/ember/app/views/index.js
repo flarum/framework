@@ -55,19 +55,21 @@ export default Ember.View.extend({
 	},
 
 	scrollToDiscussion: function() {
-		var view = this;
-		Ember.run.scheduleOnce('afterRender', function() {
-			var $index = view.$('.index-area');
-			var $discussion = $index.find('.discussion-summary.active');
-			if ($discussion.length) {
-				var indexTop = $index.offset().top;
-				var discussionTop = $discussion.offset().top;
-				if (discussionTop < indexTop || discussionTop + $discussion.outerHeight() > indexTop + $index.outerHeight()) {
-					$index.scrollTop($index.scrollTop() - indexTop + discussionTop);
+		if (this.get('controller.paned')) {
+			var view = this;
+			Ember.run.scheduleOnce('afterRender', function() {
+				var $index = view.$('.index-area');
+				var $discussion = $index.find('.discussion-summary.active');
+				if ($discussion.length) {
+					var indexTop = $index.offset().top;
+					var discussionTop = $discussion.offset().top;
+					if (discussionTop < indexTop || discussionTop + $discussion.outerHeight() > indexTop + $index.outerHeight()) {
+						$index.scrollTop($index.scrollTop() - indexTop + discussionTop);
+					}
 				}
-			}
-		});
-	}.observes('controller.controllers.discussion.model'),
+			});
+		}
+	}.observes('controller.paned'),
 
 	populateSidebarDefault: function(sidebar) {
 		var view = this;
