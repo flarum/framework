@@ -4,8 +4,8 @@ import ComposerReply from '../components/discussions/composer-reply';
 import ActionButton from '../components/ui/controls/action-button';
 import AlertMessage from '../components/alert-message';
 
-export default Ember.ObjectController.extend(Ember.Evented, {
-    needs: ['application', 'composer'],
+export default Ember.Controller.extend(Ember.Evented, {
+    needs: ['application', 'alerts', 'composer'],
     
     queryParams: ['start'],
     start: '1',
@@ -25,7 +25,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
         var stream = this.get('stream');
 
         composer.set('content.loading', true);
-        controller.get('controllers.application').send('clearAlerts');
+        controller.get('controllers.alerts').send('clearAlerts');
 
         var post = this.store.createRecord('post', {
             content: data.content,
@@ -59,7 +59,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
                     message: 'Your reply was posted.'
                 });
                 message.on('populateControls', function(controls) {
-                    controls.pushObjectWithTag(ActionButton.extend({
+                    controls.pushObjectWithTag(ActionButton.create({
                         label: 'View',
                         action: function() {
                             controller.transitionToRoute('discussion', post.get('discussion'), {queryParams: {start: post.get('number')}});
@@ -67,7 +67,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
                         }
                     }), 'view');
                 });
-                controller.get('controllers.application').send('alert', message);
+                controller.get('controllers.alerts').send('alert', message);
             }
         },
         function(reason) {
@@ -77,7 +77,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
                     type: 'warning',
                     message: reason.errors[i]
                 });
-                controller.get('controllers.application').send('alert', message);
+                controller.get('controllers.alerts').send('alert', message);
             }
         })
         .finally(function() {
@@ -93,7 +93,7 @@ export default Ember.ObjectController.extend(Ember.Evented, {
 
             // If the composer is already set up for this discussion, then we
             // don't need to change its content - we can just show it.
-            if (!(composer.get('content') instanceof ComposerReply) || composer.get('content.discussion') != discussion) {
+            if (!(composer.get('content') instanceof ComposerReply) || composer.get('content.discussion') !== discussion) {
                 composer.switchContent(ComposerReply.create({
                     user: controller.get('session.user'),
                     discussion: discussion,

@@ -7,7 +7,7 @@ import ComposerDiscussion from '../components/discussions/composer-discussion';
 import AlertMessage from '../components/alert-message';
 
 export default Ember.Controller.extend(Ember.Evented, PaneableMixin, {
-	needs: ['application', 'composer', 'index/index', 'discussion'],
+	needs: ['application', 'composer', 'alerts', 'index/index', 'discussion'],
 
 	index: Ember.computed.alias('controllers.index/index'),
 
@@ -19,7 +19,7 @@ export default Ember.Controller.extend(Ember.Evented, PaneableMixin, {
         var stream = this.get('stream');
 
         composer.set('content.loading', true);
-        controller.get('controllers.application').send('clearAlerts');
+        controller.get('controllers.alerts').send('clearAlerts');
 
         var discussion = this.store.createRecord('discussion', {
             title: data.title,
@@ -38,7 +38,7 @@ export default Ember.Controller.extend(Ember.Evented, PaneableMixin, {
                     type: 'warning',
                     message: reason.errors[i]
                 });
-                controller.get('controllers.application').send('alert', message);
+                controller.get('controllers.alerts').send('alert', message);
             }
         })
         .finally(function() {
