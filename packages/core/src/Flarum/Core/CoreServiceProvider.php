@@ -4,6 +4,8 @@ use Illuminate\Support\ServiceProvider;
 use Config;
 use Event;
 
+use Flarum\Core\Formatter\FormatterManager;
+
 class CoreServiceProvider extends ServiceProvider
 {
     /**
@@ -28,7 +30,6 @@ class CoreServiceProvider extends ServiceProvider
 
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\DiscussionMetadataUpdater');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\UserMetadataUpdater');
-        Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\PostFormatter');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\TitleChangePostCreator');
     }
 
@@ -62,6 +63,13 @@ class CoreServiceProvider extends ServiceProvider
 
 
         $this->app->bind('flarum.discussionFinder', 'Flarum\Core\Discussions\DiscussionFinder');
+
+        $this->app->singleton('flarum.formatter', function () {
+            $formatter = new FormatterManager($this->app);
+            $formatter->add('basic', 'Flarum\Core\Formatter\BasicFormatter');
+            return $formatter;
+        });
+        
 
         
         // $this->app->singleton(

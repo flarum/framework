@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core\Posts;
 
+use App;
 use Laracasts\Commander\Events\EventGenerator;
 use Tobscure\Permissible\Permissible;
 
@@ -25,6 +26,7 @@ class CommentPost extends Post
         $post = new static;
 
         $post->content       = $content;
+        $post->content_html  = static::formatContent($post->content);
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
@@ -38,6 +40,7 @@ class CommentPost extends Post
     public function revise($content, $user)
     {
         $this->content = $content;
+        $this->content_html = static::formatContent($this->content);
 
         $this->edit_time = time();
         $this->edit_user_id = $user->id;
@@ -59,5 +62,21 @@ class CommentPost extends Post
         $this->delete_user_id = null;
 
         $this->raise(new Events\PostWasRestored($this));
+    }
+
+    public function getContentHtmlAttribute($value)
+    {
+        if (! $value) {
+            $this->content_html = $value = static::formatContent($this->content);
+            $this->save();
+        }
+
+        return $value;
+    }
+
+    protected static function formatContent($content)
+    {
+        $formatter = App::make('flarum.formatter');
+        return $formatter->format($content);
     }
 }
