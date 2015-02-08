@@ -18,7 +18,10 @@ export default Ember.Component.extend({
 
 	start: Ember.computed.alias('item.indexStart'),
 	end: Ember.computed.alias('item.indexEnd'),
-	time: Ember.computed.alias('item.content.time'),
+	time: function() {
+		var time = this.get('item.content.time');
+		return time ? time.toString() : null;
+	}.property('item.content.time'),
 	number: Ember.computed.alias('item.content.number'),
 	loading: Ember.computed.alias('item.loading'),
 	direction: Ember.computed.alias('item.direction'),
