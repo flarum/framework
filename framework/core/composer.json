@@ -12,7 +12,8 @@
         "illuminate/support": "4.2.*",
         "laracasts/commander": "1.1.*",
         "tobscure/json-api": "dev-master",
-        "tobscure/permissible": "dev-master"
+        "tobscure/permissible": "dev-master",
+        "misd/linkify": "1.1.*"
     },
     "require-dev": {
         "fzaninotto/faker": "1.4.0",
