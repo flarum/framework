@@ -47,12 +47,8 @@
 
 </div>
 
-{{outlet "modal"}}
-
-<div class="alerts">
-	{{#each alert in alerts}}
-		<div class="alert-wrapper">
-			{{view alert dismiss="dismissAlert"}}
-		</div>
-	{{/each}}
+<div id="modal" class="modal fade">
+	{{outlet "modal"}}
 </div>
+
+{{render "alerts"}}
