@@ -1,21 +1,38 @@
-@fl-primary-color:                  #4d698e;//#E7562E;
+@fl-primary-color:                  #4d698e;
 @fl-secondary-color:                #edf2f7;
+@fl-dark-body:                      false;
 @fl-dark-hdr:                       false;
 
 // ---------------------------------
 // BODY
 
-@fl-body-bg:                        #fff;
-@fl-body-color:                     #444;
-@fl-body-muted-color:               hsv(hue(@fl-secondary-color), 18%, 72%); // todo
-@fl-body-muted-more-color:          #bbb;
-@fl-body-heading-color:             @fl-body-color;
+.define-body-variables(@fl-dark-body);
+.define-body-variables(false) {
+	@fl-body-bg:                        #fff;
+	@fl-body-color:                     #444;
+	@fl-body-muted-color:               hsv(hue(@fl-secondary-color), max(0, saturation(@fl-secondary-color) - 20%), 65%); // todo
+	@fl-body-muted-more-color:          #bbb;
+	@fl-body-heading-color:             @fl-body-color;
 
-@fl-body-control-bg:                @fl-secondary-color;
-@fl-body-control-color:             @fl-body-muted-color;
+	@fl-body-control-bg:                @fl-secondary-color;
+	@fl-body-control-color:             @fl-body-muted-color;
 
-@fl-body-control-primary-bg:        @fl-primary-color;
-@fl-body-control-primary-color:     #fff;
+	@fl-body-control-primary-bg:        @fl-primary-color;
+	@fl-body-control-primary-color:     #fff;
+}
+.define-body-variables(true) {
+	@fl-body-bg:                        #333;
+	@fl-body-color:                     #ccc;
+	@fl-body-muted-color:               hsv(hue(@fl-secondary-color), max(0, saturation(@fl-secondary-color) - 20%), 65%); // todo
+	@fl-body-muted-more-color:          #bbb;
+	@fl-body-heading-color:             @fl-body-color;
+
+	@fl-body-control-bg:                @fl-secondary-color;
+	@fl-body-control-color:             @fl-body-muted-color;
+
+	@fl-body-control-primary-bg:        @fl-primary-color;
+	@fl-body-control-primary-color:     #fff;
+}
 
 // ---------------------------------
 // HEADER
@@ -32,11 +49,11 @@
 	@fl-body-hero-color:          #fff;
 }
 .define-hdr-variables(true) {
-	@fl-hdr-bg:                    @fl-primary-color;
-	@fl-hdr-color:                 #fff;
-	@fl-hdr-muted-color:           fade(#fff, 0.5);
-	@fl-hdr-control-bg:            fade(#000, 0.1);
-	@fl-hdr-control-color:         #fff;
+	@fl-hdr-bg:                   @fl-primary-color;
+	@fl-hdr-color:                #fff;
+	@fl-hdr-muted-color:          fade(#fff, 50%);
+	@fl-hdr-control-bg:           fade(#000, 10%);
+	@fl-hdr-control-color:        #fff;
 
 	@fl-body-hero-bg:             @fl-secondary-color;
 	@fl-body-hero-color:          @fl-body-muted-color;

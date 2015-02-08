@@ -118,11 +118,19 @@
 	margin-bottom: 10px;
 	color: @fl-body-muted-color;
 
+	& > ul {
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+		& > li {
+			display: inline;
+		}
+	}
 	& .user {
 		margin: 0;
 		display: inline;
 		font-weight: bold;
-		font-size: 16px;
+		font-size: 15px;
 		&, & a {
 			color: @fl-body-heading-color;
 		}

@@ -27,6 +27,35 @@ body {
 	.scrolled & {
 		.box-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
 	}
+
+	& when (@fl-dark-hdr = true) {
+		&, & .btn-link {
+			color: @fl-hdr-control-color;
+		}
+		& .form-control {
+			background: @fl-hdr-control-bg;
+			border: 0;
+			color: @fl-hdr-control-color;
+			.placeholder(@fl-hdr-control-color);
+
+			&:focus {
+				background: fadein(@fl-hdr-control-bg, 5%);
+			}
+		}
+		& .search-input:before {
+			color: @fl-hdr-control-color;
+		}
+		& .btn-default, & .btn-default:hover {
+			background: @fl-hdr-control-bg;
+			color: @fl-hdr-control-color;
+		}
+		& .btn-default.active, .open > .dropdown-toggle.btn-default {
+			background: fadein(@fl-hdr-control-bg, 5%);
+		}
+		& .btn-naked {
+			background: transparent;
+		}
+	}
 }
 .header-controls {
 	margin: 0;
@@ -113,6 +142,10 @@ body {
 	margin: 0;
 	font-size: 22px;
 	font-weight: normal;
+
+	& when (@fl-dark-hdr = true) {
+		color: @fl-body-color;
+	}
 }
 .hero p {
 	margin: 10px 0 0;
