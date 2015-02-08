@@ -168,11 +168,17 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 	},
 
 	makeItem: function(indexStart, indexEnd, post) {
-		return Ember.Object.create({
+		var item = Ember.Object.create({
 			indexStart: indexStart,
-			indexEnd: indexEnd,
-			content: post
+			indexEnd: indexEnd
 		});
+		if (post) {
+			item.setProperties({
+				content: post,
+				component: 'discussions/post-'+post.get('type')
+			});
+		}
+		return item;
 	},
 
 	findNearestTo: function(index, property) {
