@@ -44,18 +44,41 @@ export default Ember.Route.extend({
         	start: controller.get('start')
         });
 
-        // Each time we view a discussion we want to reload its posts from
-		// scratch so that we have the most up-to-date data. Also, if we were
-		// to leave them in the store, the stream would try and render them
-		// which has the potential to be slow.
-		this.store.unloadAll('post');
-
         // When we know we have the post IDs, we can set up the post stream with
         // them. Then we will tell the view that we have finished loading so that
         // it can scroll down to the appropriate post.
         promise.then(function(discussion) {
-            stream.setup(discussion.get('postIds'));
+            var postIds = discussion.get('postIds');
+            stream.setup(postIds);
+            
+            // A page of posts will have been returned as linked data by this
+            // request, and automatically loaded into the store. In turn, we
+            // want to load them into the stream. However, since there is no
+            // way to access them directly, we need to retrieve them based on
+            // the requested start number. This code finds the post for that
+            // number, gets its index, slices an array of surrounding post
+            // IDs, and finally adds these posts to the stream.
+            var posts = discussion.get('loadedPosts');
+            var startPost = posts.findBy('number', parseInt(controller.get('start')));
+            if (startPost) {
+            	var startIndex = postIds.indexOf(startPost.get('id'));
+            	var count = stream.get('postLoadCount');
+            	startIndex = Math.max(0, startIndex - count / 2);
+            	var loadIds = postIds.slice(startIndex, startIndex + count);
+	            stream.addPosts(posts.filter(function(item) {
+	            	return loadIds.indexOf(item.get('id')) !== -1;
+	            }));
+            }
+
+            // Clear the list of post IDs for this discussion (without
+            // dirtying the record), so that next time we load the discussion,
+            // the discussion details and post IDs will be refreshed.
             controller.store.push('discussion', {id: discussion.get('id'), posts: ''});
+
+            // It's possible for this promise to have resolved but the user
+            // has clicked away to a different discussion. So only if we're
+            // still on the original one, we will tell the view that we're
+            // done loading.
             if (controller.get('model') === discussion) {
 	            controller.set('loaded', true);
 	            Ember.run.scheduleOnce('afterRender', function() {
