@@ -110,4 +110,19 @@ class Post extends Entity
             throw new PermissionDeniedException;
         }
     }
+
+    public function newFromBuilder($attributes = [])
+    {
+        if (!empty($attributes->type)) {
+            $class = 'Flarum\Core\Posts\\'.ucfirst($attributes->type).'Post';
+            if (class_exists($class)) {
+                $instance = new $class;
+                $instance->exists = true;
+                $instance->setRawAttributes((array) $attributes, true);
+                return $instance;
+            }
+        }
+        
+        return parent::newFromBuilder($attributes);
+    }
 }

@@ -1,7 +1,7 @@
 {{#each item in stream}}
 	{{#discussions/stream-item item=item stream=stream loadRange="loadRange"}}
 		{{#if item.content}}
-			{{dynamic-component type=component content=item.content}}
+			{{dynamic-component type=item.component content=item.content}}
 		{{/if}}
 	{{/discussions/stream-item}}
 {{/each}}

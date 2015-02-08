@@ -1,3 +1,5 @@
 {{#each item in listItems}}
-    {{view item}}
+    {{#unless item.hideItem}}
+    	{{view item}}
+    {{/unless}}
 {{/each}}
