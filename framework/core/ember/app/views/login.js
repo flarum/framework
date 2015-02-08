@@ -1,38 +1,27 @@
 import Ember from 'ember';
 
-export default Ember.View.extend({
-	classNames: ['modal', 'fade'],
+import ModalViewMixin from '../mixins/modal-view';
+
+export default Ember.View.extend(ModalViewMixin, {
+	classNames: ['modal-dialog', 'modal-sm', 'modal-login'],
 	templateName: 'login',
 
 	didInsertElement: function() {
-		var self = this;
-		this.$().modal('show').on('hidden.bs.modal', function() {
-			self.get('controller').send('closeModal');
-		}).on('shown.bs.modal', function() {
-		    $(this).find('input:first').select();
-		});
-
 		this.get('controller.session').on('sessionAuthenticationSucceeded', this, this.hide);
+
+		this.get('controller').on('refocus', this, this.refocus);
 	},
 
 	refocus: function() {
-		var view = this;
-		Ember.run.scheduleOnce('afterRender', function() {
-			view.$('input[name=password]').select();
+		Ember.run.scheduleOnce('afterRender', this, function() {
+			console.log('focus password')
+			this.$('input[name=password]').select();
 		});
-	}.observes('controller.loading'),
+	},
 
 	willDestroyElement: function() {
 		this.get('controller.session').off('sessionAuthenticationSucceeded', this, this.hide);
-	},
 
-	hide: function() {
-		this.$().modal('hide');
-	},
-
-	actions: {
-		close: function() {
-			this.$().modal('hide');
-		}
+		this.get('controller').off('refocus', this, this.refocus);
 	}
 });

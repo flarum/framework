@@ -73,7 +73,7 @@ class User extends Entity implements UserInterface, RemindableInterface
 
     public function setPasswordAttribute($password)
     {
-        $this->attributes['password'] = Hash::make($password);
+        $this->attributes['password'] = $password ? Hash::make($password) : null;
         $this->raise(new Events\PasswordWasChanged($this));
     }
 

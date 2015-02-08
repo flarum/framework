@@ -1,30 +1,27 @@
 <div class="modal-content">
 	<button class="close btn btn-icon btn-link" {{action "closeModal"}}>{{fa-icon "times"}}</button>
-	<form {{action "authenticate" on="submit"}}>
+	<form {{action "submit" on="submit"}}>
 		<div class="modal-header">
-			<h3>Log In</h3>
+			<h3>Sign Up</h3>
 		</div>
 		<div class="modal-body">
 			<div class="form-centered">
 				<div class="form-group">
-					{{#if error}}
-						<div class="form-alert">
-							<div class="alert alert-warning">{{error}}</div>
-						</div>
-					{{/if}}
-					{{input value=identification name="email" type="text" class="form-control" placeholder="Username or Email" disabled=loading}}
+					{{input value=username name="username" type="text" class="form-control" placeholder="Username" disabled=loading}}
+				</div>
+				<div class="form-group">
+					{{input value=email name="email" type="text" class="form-control" placeholder="Email" disabled=loading}}
 				</div>
 				<div class="form-group">
 					{{input value=password name="password" type="password" class="form-control" placeholder="Password" disabled=loading}}
 				</div>
 				<div class="form-group">
-					<button type="submit" class="btn btn-primary btn-block" {{bind-attr disabled=loading}}>Log In</button>
+					<button type="submit" class="btn btn-primary btn-block" {{bind-attr disabled=loading}}>Sign Up</button>
 				</div>
 			</div>
 		</div>
 		<div class="modal-footer">
-			<p class="forgot-password-link"><a href="#">Forgot password?</a></p>
-			<p class="sign-up-link">Don't have an account? <a href="#" {{action "signup"}}>Sign Up</a></p>
+			<p class="log-in-link">Already have an account? <a href="#" {{action "login"}}>Log In</a></p>
 		</div>
 	</form>
 </div>
