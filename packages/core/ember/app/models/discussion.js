@@ -35,6 +35,7 @@ var Discussion = DS.Model.extend({
 		var posts = this.get('posts') || '';
 		return posts.split(',');
 	}.property('posts'),
+	loadedPosts: DS.hasMany('post'),
 
 	readTime: DS.attr('date'),
 	readNumber: DS.attr('number'),

@@ -14,7 +14,7 @@ class CommentPost extends Post
     {
         parent::boot();
 
-        static::saving(function ($post) {
+        static::creating(function ($post) {
             $post->number = ++$post->discussion->number_index;
             $post->discussion->save();
         });

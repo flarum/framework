@@ -32,6 +32,7 @@ class PostSerializer extends PostBasicSerializer
     protected function attributes(Post $post)
     {
         $attributes = parent::attributes($post);
+        $user = User::current();
 
         unset($attributes['content']);
         if ($post->type != 'comment') {
@@ -39,17 +40,19 @@ class PostSerializer extends PostBasicSerializer
         } else {
             // @todo move to a formatter class
             $attributes['contentHtml'] = $post->content_html ?: '<p>'.nl2br(htmlspecialchars(trim($post->content))).'</p>';
+            if ($post->can($user, 'edit')) {
+                $attributes['content'] = $post->content;
+            }
         }
 
         if ($post->edit_time) {
-            $attributes['editTime'] = (string) $post->edit_time;
+            $attributes['editTime'] = $post->edit_time->toRFC3339String();
         }
 
         if ($post->delete_time) {
-            $attributes['deleteTime'] = (string) $post->delete_time;
+            $attributes['deleteTime'] = $post->delete_time->toRFC3339String();
         }
 
-        $user = User::current();
 
         $attributes += [
             'canEdit'   => $post->can($user, 'edit'),

@@ -42,17 +42,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 		// stream to a big gap that covers the amount of posts we now have.
 		this.set('ids', ids);
 		this.clear();
-
-		// Look in the store and see if we already have the data for any of
-		// these posts. If we do, we can add them to the stream.
-		var posts = [];
-		var store = this.get('store');
-		ids.forEach(function(id) {
-			if (store.hasRecordForId('post', id)) {
-				posts.pushObject(store.getById('post', id));
-			}
-		});
-		this.addPosts(posts);
 	},
 
 	// Clear the contents of the post stream, resetting it to one big gap.
