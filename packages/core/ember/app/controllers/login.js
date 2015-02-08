@@ -1,10 +1,12 @@
 import Ember from 'ember';
 
 import AuthenticationControllerMixin from 'simple-auth/mixins/authentication-controller-mixin';
+import ModalControllerMixin from '../mixins/modal-controller';
 
-export default Ember.Controller.extend(AuthenticationControllerMixin, {
+export default Ember.Controller.extend(ModalControllerMixin, AuthenticationControllerMixin, {
 
 	authenticator: 'authenticator:flarum',
+	loading: false,
 
 	actions: {
 		authenticate: function() {
@@ -14,7 +16,8 @@ export default Ember.Controller.extend(AuthenticationControllerMixin, {
 	      this.set('loading', true);
 	      return this._super(data).then(function() {
 	      	controller.send("sessionChanged");
-	      }).catch(function(errors) {
+	      	controller.send("closeModal");
+	      }, function(errors) {
 	      	switch(errors[0].code) {
 	      		case 'invalidLogin':
 	      			controller.set('error', 'Your login details are incorrect.');
@@ -23,6 +26,7 @@ export default Ember.Controller.extend(AuthenticationControllerMixin, {
 	      		default:
 	      			controller.set('error', 'Something went wrong. (Error code: '+errors[0].code+')');
 	      	}
+	      	controller.trigger('refocus');
 	      }).finally(function() {
 	      	controller.set('loading', false);
 	      });

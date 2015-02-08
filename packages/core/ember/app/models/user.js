@@ -14,6 +14,9 @@ export default DS.Model.extend({
 
 	groups: DS.hasMany('group'),
 
+	email: DS.attr('string'),
+	password: DS.attr('string'),
+
     avatarNumber: function() {
         return Math.random() > 0.3 ? Math.floor(Math.random() * 19) + 1 : null;
     }.property()
