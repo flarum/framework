@@ -77,32 +77,34 @@ export default Ember.Component.extend({
 			return false;
 		}
 
-		// If new posts are being loaded in an upwards direction, then when they
-		// are rendered, the rest of the posts will be pushed down the page.
-		// However, we want to maintain the current scroll position relative to
-		// the content after the gap. To do this, we need to find item directly
-		// after the gap and use it as an anchor.
-        if (this.get('direction') === 'up') {
-			var anchor = this.$().nextAll('.item:first');
+		// If new posts are being loaded in an upwards direction, then when
+		// they are rendered, the rest of the posts will be pushed down the
+		// page. If loaded in a downwards direction from the end of a
+		// discussion, the terminal gap will disappear and the page will
+		// scroll up a bit before the new posts are rendered. In order to
+		// maintain the current scroll position relative to the content
+		// before/after the gap, we need to find item directly after the gap
+		// and use it as an anchor.
+    	var siblingFunc = this.get('direction') === 'up' ? 'nextAll' : 'prevAll';
+		var anchor = this.$()[siblingFunc]('.item:first');
 
-			// Immediately after the posts have been loaded (but before they
-			// have been rendered,) we want to grab the distance from the top of
-			// the viewport to the top of the anchor element.
-            this.get('stream').one('postsLoaded', function() {
-                if (anchor.length) {
-                    var scrollOffset = anchor.offset().top - $(document).scrollTop();
-                }
+		// Immediately after the posts have been loaded (but before they
+		// have been rendered,) we want to grab the distance from the top of
+		// the viewport to the top of the anchor element.
+        this.get('stream').one('postsLoaded', function() {
+            if (anchor.length) {
+                var scrollOffset = anchor.offset().top - $(document).scrollTop();
+            }
 
-                // After they have been rendered, we scroll back to a position
-                // so that the distance from the top of the viewport to the top
-                // of the anchor element is the same as before. If there is no
-                // anchor (i.e. this gap is terminal,) then we'll scroll to the
-                // bottom of the document.
-                Ember.run.scheduleOnce('afterRender', function() {
-                    $('body').scrollTop(anchor.length ? anchor.offset().top - scrollOffset : $('body').height());
-                });
+            // After they have been rendered, we scroll back to a position
+            // so that the distance from the top of the viewport to the top
+            // of the anchor element is the same as before. If there is no
+            // anchor (i.e. this gap is terminal,) then we'll scroll to the
+            // bottom of the document.
+            Ember.run.scheduleOnce('afterRender', function() {
+                $('body').scrollTop(anchor.length ? anchor.offset().top - scrollOffset : $('body').height());
             });
-        }
+        });
 
         // Tell the controller that we want to load the range of posts that this
 		// gap represents. We also specify which direction we want to load the
