@@ -1,81 +1,67 @@
 import Ember from 'ember';
 
-import TaggedArray from '../utils/tagged-array';
-import ActionButton from '../components/ui/controls/action-button';
-import DropdownSplit from '../components/ui/controls/dropdown-split';
-import StreamScrubber from '../components/discussions/stream-scrubber';
+import HasItemLists from 'flarum/mixins/has-item-lists';
+import DropdownSplit from 'flarum/components/ui/dropdown-split';
+import StreamScrubber from 'flarum/components/discussion/stream-scrubber';
 
 var $ = Ember.$;
 
-export default Ember.View.extend(Ember.Evented, {
+export default Ember.View.extend(HasItemLists, {
+  itemLists: ['sidebar'],
 
-	sidebarItems: null,
+  didInsertElement: function() {
+    this.get('controller').on('loaded', this, this.loaded);
+    this.get('controller').on('startWasChanged', this, this.startWasChanged);
+  },
 
-	didInsertElement: function() {
-		// Create and populate an array of items to be rendered in the sidebar.
-		var sidebarItems = TaggedArray.create();
-		this.trigger('populateSidebar', sidebarItems);
-		this.set('sidebarItems', sidebarItems);
+  willDestroyElement: function() {
+    this.get('controller').off('loaded', this, this.loaded);
+    this.get('controller').off('startWasChanged', this, this.startWasChanged);
+  },
 
-		this.get('controller').on('loaded', this, this.loaded);
-		this.get('controller').on('startWasChanged', this, this.startWasChanged);
-	},
+  // When the controller has finished loading, we want to scroll down to the
+  // appropriate post instantly (without animation).
+  loaded: function() {
+    this.get('streamContent').send('goToNumber', this.get('controller.start'), true);
+  },
 
-	willDestroyElement: function() {
-		this.get('controller').off('loaded', this, this.loaded);
-		this.get('controller').off('startWasChanged', this, this.startWasChanged);
-	},
+  // When the start position of the discussion changes, we want to scroll
+  // down to the appropriate post.
+  startWasChanged: function(start) {
+    this.get('streamContent').send('goToNumber', start);
+  },
 
-	// When the controller has finished loading, we want to scroll down to the
-	// appropriate post instantly (without animation).
-	loaded: function() {
-		this.get('streamContent').send('goToNumber', this.get('controller.start'), true);
-	},
+  // ------------------------------------------------------------------------
+  // OBSERVERS
+  // ------------------------------------------------------------------------
 
-	// When the start position of the discussion changes, we want to scroll
-	// down to the appropriate post.
-	startWasChanged: function(start) {
-		this.get('streamContent').send('goToNumber', start);
-	},
+  // Whenever the model's title changes, we want to update that document's
+  // title the reflect the new title.
+  updateTitle: Ember.observer('controller.model.title', function() {
+    this.set('controller.controllers.application.pageTitle', this.get('controller.model.title'));
+  }),
 
-	// ------------------------------------------------------------------------
-	// OBSERVERS
-	// ------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
+  // LISTENERS
+  // ------------------------------------------------------------------------
 
-	// Whenever the model's title changes, we want to update that document's
-	// title the reflect the new title.
-	updateTitle: function() {
-		this.set('controller.controllers.application.pageTitle', this.get('controller.model.title'));
-	}.observes('controller.model.title'),
+  populateSidebar: function(items) {
+    items.pushObjectWithTag(DropdownSplit.create({
+      items: this.populateItemList('controls'),
+      icon: 'reply',
+      buttonClass: 'btn-primary'
+    }), 'controls');
 
-	// ------------------------------------------------------------------------
-	// LISTENERS
-	// ------------------------------------------------------------------------
+    items.pushObjectWithTag(StreamScrubber.create({
+      streamContent: this.get('streamContent')
+    }), 'scrubber');
+  },
 
-	populateSidebarDefault: function(sidebar) {
-		var controls = TaggedArray.create();
-		this.trigger('populateControls', controls);
-		sidebar.pushObjectWithTag(DropdownSplit.create({
-			items: controls,
-			icon: 'reply',
-			buttonClass: 'btn-primary'
-		}), 'controls');
-
-		sidebar.pushObjectWithTag(StreamScrubber.create({
-			streamContent: this.get('streamContent')
-		}), 'scrubber');
-	}.on('populateSidebar'),
-
-	populateControlsDefault: function(controls) {
-		var view = this;
-		var reply = ActionButton.create({
-			label: 'Reply',
-			icon: 'reply',
-			action: function() {
-				view.get('streamContent').send('goToLast');
-				view.get('controller').send('reply');
-			},
-		});
-		controls.pushObjectWithTag(reply, 'reply');
-	}.on('populateControls')
+  populateControls: function(items) {
+    var view = this;
+    this.addActionItem(items, 'reply', 'Reply').set('action', function() {
+      view.get('streamContent').send('goToLast');
+      view.get('controller').send('reply');
+    });
+  }
 });

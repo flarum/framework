@@ -1,28 +1,28 @@
 <div class="modal-content">
-	<button class="close btn btn-icon btn-link" {{action "closeModal"}}>{{fa-icon "times"}}</button>
-	<form {{action "submit" on="submit"}}>
-		<div class="modal-header">
-			<h3>Sign Up</h3>
-		</div>
-		<div class="modal-body">
-			<div class="form-centered">
-				<div class="form-group">
-					{{input value=username name="username" type="text" class="form-control" placeholder="Username" disabled=loading}}
-				</div>
-				<div class="form-group">
-					{{input value=email name="email" type="text" class="form-control" placeholder="Email" disabled=loading}}
-				</div>
-				<div class="form-group">
-					{{input value=password name="password" type="password" class="form-control" placeholder="Password" disabled=loading}}
-				</div>
-				<div class="form-group">
-					<button type="submit" class="btn btn-primary btn-block" {{bind-attr disabled=loading}}>Sign Up</button>
-				</div>
-			</div>
-		</div>
-		<div class="modal-footer">
-			<p class="log-in-link">Already have an account? <a href="#" {{action "login"}}>Log In</a></p>
-		</div>
-	</form>
+  <button class="close btn btn-icon btn-link" {{action "closeModal"}}>{{fa-icon "times"}}</button>
+  <form {{action "submit" on="submit"}}>
+    <div class="modal-header">
+      <h3>Sign Up</h3>
+    </div>
+    <div class="modal-body">
+      <div class="form-centered">
+        <div class="form-group">
+          {{input value=username name="username" type="text" class="form-control" placeholder="Username" disabled=loading}}
+        </div>
+        <div class="form-group">
+          {{input value=email name="email" type="text" class="form-control" placeholder="Email" disabled=loading}}
+        </div>
+        <div class="form-group">
+          {{input value=password name="password" type="password" class="form-control" placeholder="Password" disabled=loading}}
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block" {{bind-attr disabled=loading}}>Sign Up</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="log-in-link">Already have an account? <a href="#" {{action "login"}}>Log In</a></p>
+    </div>
+  </form>
 </div>
-{{ui/controls/loading-indicator classNameBindings=":modal-loading loading:active"}}
+{{ui/loading-indicator classNameBindings=":modal-loading loading:active"}}

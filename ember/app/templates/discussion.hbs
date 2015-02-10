@@ -1,17 +1,17 @@
 <header class="hero discussion-hero">
-	<div class="container">
-		<h2>{{model.title}}</h2>
-	</div>
+  <div class="container">
+    <h2>{{model.title}}</h2>
+  </div>
 </header>
 
 <div class="container">
-	<nav class="discussion-nav">
-		{{ui/controls/item-list items=view.sidebarItems}}
-	</nav>
+  <nav class="discussion-nav">
+    {{ui/item-list items=view.sidebar}}
+  </nav>
 
-	{{discussions/stream-content
-		viewName="streamContent"
-		stream=stream
-		class="discussion-posts posts"
-		updateStart="updateStart"}}
+  {{discussion/stream-content
+    viewName="streamContent"
+    stream=stream
+    class="discussion-posts posts"
+    positionChanged="positionChanged"}}
 </div>

@@ -30,12 +30,12 @@ export default Ember.Handlebars.makeBoundHelper(function(user, options) {
         return;
     }
 
-    var number;
-    if (number = user.get('avatarNumber')) {
-        number = number + '';
-        var filename = number.length >= 3 ? number : new Array(3 - number.length + 1).join('0') + number;
-        return new Ember.Handlebars.SafeString('<img src="/packages/flarum/core/avatars/'+filename+'.jpg" class="avatar '+options.hash.class+'">');
-    }
+    // var number;
+    // if (number = user.get('avatarNumber')) {
+    //     number = number + '';
+    //     var filename = number.length >= 3 ? number : new Array(3 - number.length + 1).join('0') + number;
+    //     return new Ember.Handlebars.SafeString('<img src="/packages/flarum/core/avatars/'+filename+'.jpg" class="avatar '+options.hash.class+'">');
+    // }
 
 	var username = user.get('username');
     if (!username) {

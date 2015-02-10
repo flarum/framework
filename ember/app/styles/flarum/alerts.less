@@ -1,58 +1,58 @@
 .alerts {
-	position: fixed;
-	bottom: 20px;
-	left: 20px;
-	z-index: @zindex-alerts;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: @zindex-alerts;
 
-	& .alert {
-		display: inline-block;
-		.box-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
-		margin-top: 20px;
-	}
+  & .alert {
+    display: inline-block;
+    .box-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+    margin-top: 20px;
+  }
 }
 .alert {
-	padding: 12px 16px;
-	border-radius: @border-radius-base;
-	background: #FFF2AE;
-	&, & a, & a:hover {
-		color: #AD6C00;
-	}
+  padding: 12px 16px;
+  border-radius: @border-radius-base;
+  background: #FFF2AE;
+  &, & a, & a:hover {
+    color: #AD6C00;
+  }
 }
 .alert-warning {
-	background: #D83E3E;
-	&, & a, & a:hover {
-		color: #fff;
-	}
+  background: #D83E3E;
+  &, & a, & a:hover {
+    color: #fff;
+  }
 }
 .alert-controls {
-	list-style-type: none;
-	padding: 0;
-	margin: 0 -8px 0 8px;
-	display: inline-block;
+  list-style-type: none;
+  padding: 0;
+  margin: 0 -8px 0 8px;
+  display: inline-block;
 
-	& li {
-		display: inline-block;
-		margin: 0 5px;
-	}
-	& a {
-		text-transform: uppercase;
-		font-size: 12px;
-		font-weight: bold;
-	}
-	& .btn {
-		margin: -10px;
-	}
+  & li {
+    display: inline-block;
+    margin: 0 5px;
+  }
+  & a {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  & .btn {
+    margin: -10px;
+  }
 }
 .form-group { // probably move this elsewhere
-	position: relative;
+  position: relative;
 }
 .form-alert {
-	position: absolute;
-	bottom: 100%;
-	left: 0;
-	right: 0;
-	margin-bottom: 12px;
-	& .alert {
-		display: inline-block;
-	}
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: 12px;
+  & .alert {
+    display: inline-block;
+  }
 }

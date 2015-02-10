@@ -1,4 +1,4 @@
-import FlarumAuthorizer from '../authorizers/flarum';
+import FlarumAuthorizer from 'flarum/authorizers/flarum';
 
 export default {
   name: 'authentication',
