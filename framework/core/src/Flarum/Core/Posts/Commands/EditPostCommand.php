@@ -8,7 +8,7 @@ class EditPostCommand
 
     public $content;
 
-    public $hidden;
+    public $isHidden;
 
     public function __construct($postId, $user)
     {
