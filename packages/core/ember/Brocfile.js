@@ -2,7 +2,13 @@
 
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-var app = new EmberApp();
+var app = new EmberApp({
+	vendorFiles: {
+		'handlebars.js': null
+	}
+});
+
+app.import('bower_components/ember/ember-template-compiler.js');
 
 app.import('bower_components/bootstrap/dist/js/bootstrap.js');
 app.import('bower_components/spin.js/spin.js');

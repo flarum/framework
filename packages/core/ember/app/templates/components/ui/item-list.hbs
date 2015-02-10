@@ -1,0 +1,9 @@
+{{#each item in listItems}}
+  {{#unless item.hideItem}}
+    {{#if item.isListItem}}
+      {{view item}}
+    {{else}}
+      <li>{{view item}}</li>
+    {{/if}}
+  {{/unless}}
+{{/each}}

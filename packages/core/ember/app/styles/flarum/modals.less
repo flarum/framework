@@ -2,78 +2,78 @@
 // Modals
 
 .modal-backdrop {
-	background-color: @fl-primary-color;
-	&.in {
-		opacity: 0.9;
-	}
+  background-color: @fl-primary-color;
+  &.in {
+    opacity: 0.9;
+  }
 }
 .modal-dialog {
-	margin: 120px auto;
+  margin: 120px auto;
 
-	& .close {
-		position: absolute;
-		right: 5px;
-		top: 5px;
-	}
+  & .close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
 }
 .modal-content {
-	border: 0;
-	border-radius: @border-radius-base;
-	.box-shadow(0 7px 15px rgba(0, 0, 0, 0.3));
+  border: 0;
+  border-radius: @border-radius-base;
+  .box-shadow(0 7px 15px rgba(0, 0, 0, 0.3));
 }
 .modal-sm {
-	width: 375px;
+  width: 375px;
 }
 
 .modal-header {
-	text-align: center;
-	border: 0;
-	padding: 25px;
+  text-align: center;
+  border: 0;
+  padding: 25px;
 
-	& h3 {
-		font-size: 22px;
-		margin: 0;
-	}
+  & h3 {
+    font-size: 22px;
+    margin: 0;
+  }
 }
 .modal-body {
-	background-color: @fl-secondary-color;
-	padding: 25px;
+  background-color: @fl-secondary-color;
+  padding: 25px;
 
-	& .form-control {
-		background-color: #fff;
-	}
+  & .form-control {
+    background-color: #fff;
+  }
 }
 .modal-footer {
-	border: 0;
-	padding: 20px;
-	text-align: center;
-	color: @fl-body-muted-color;
+  border: 0;
+  padding: 20px;
+  text-align: center;
+  color: @fl-body-muted-color;
 }
 
 .modal-loading {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(255, 255, 255, 0.9);
-	opacity: 0;
-	pointer-events: none;
-	border-radius: @border-radius-base;
-	.transition(opacity 0.2s);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  border-radius: @border-radius-base;
+  .transition(opacity 0.2s);
 
-	&.active {
-		opacity: 1;
-		pointer-events: auto;
-	}
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .form-centered {
-	text-align: center;
+  text-align: center;
 
-	& .form-control, & .btn {
-		width: 220px;
-		margin: 0 auto;
-		text-align: center;
-	}
+  & .form-control, & .btn {
+    width: 220px;
+    margin: 0 auto;
+    text-align: center;
+  }
 }

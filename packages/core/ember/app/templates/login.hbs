@@ -1,31 +1,31 @@
 <div class="modal-content">
-	<button class="close btn btn-icon btn-link" {{action "closeModal"}}>{{fa-icon "times"}}</button>
-	<form {{action "authenticate" on="submit"}}>
-		<div class="modal-header">
-			<h3>Log In</h3>
-		</div>
-		<div class="modal-body">
-			<div class="form-centered">
-				<div class="form-group">
-					{{#if error}}
-						<div class="form-alert">
-							<div class="alert alert-warning">{{error}}</div>
-						</div>
-					{{/if}}
-					{{input value=identification name="email" type="text" class="form-control" placeholder="Username or Email" disabled=loading}}
-				</div>
-				<div class="form-group">
-					{{input value=password name="password" type="password" class="form-control" placeholder="Password" disabled=loading}}
-				</div>
-				<div class="form-group">
-					<button type="submit" class="btn btn-primary btn-block" {{bind-attr disabled=loading}}>Log In</button>
-				</div>
-			</div>
-		</div>
-		<div class="modal-footer">
-			<p class="forgot-password-link"><a href="#">Forgot password?</a></p>
-			<p class="sign-up-link">Don't have an account? <a href="#" {{action "signup"}}>Sign Up</a></p>
-		</div>
-	</form>
+  <button class="close btn btn-icon btn-link" {{action "closeModal"}}>{{fa-icon "times"}}</button>
+  <form {{action "authenticate" on="submit"}}>
+    <div class="modal-header">
+      <h3>Log In</h3>
+    </div>
+    <div class="modal-body">
+      <div class="form-centered">
+        <div class="form-group">
+          {{#if error}}
+            <div class="form-alert">
+              <div class="alert alert-warning">{{error}}</div>
+            </div>
+          {{/if}}
+          {{input value=identification name="email" type="text" class="form-control" placeholder="Username or Email" disabled=loading}}
+        </div>
+        <div class="form-group">
+          {{input value=password name="password" type="password" class="form-control" placeholder="Password" disabled=loading}}
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block" {{bind-attr disabled=loading}}>Log In</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="forgot-password-link"><a href="#">Forgot password?</a></p>
+      <p class="sign-up-link">Don't have an account? <a href="#" {{action "signup"}}>Sign Up</a></p>
+    </div>
+  </form>
 </div>
-{{ui/controls/loading-indicator classNameBindings=":modal-loading loading:active"}}
+{{ui/loading-indicator classNameBindings=":modal-loading loading:active"}}

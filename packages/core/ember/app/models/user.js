@@ -1,23 +1,20 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
+  username: DS.attr('string'),
+  email: DS.attr('string'),
+  password: DS.attr('string'),
+  avatarUrl: DS.attr('string'),
 
-	username: DS.attr('string'),
-	avatarUrl: DS.attr('string'),
-	joinTime: DS.attr('date'),
-	lastSeenTime: DS.attr('date'),
-	discussionsCount: DS.attr('number'),
-	postsCount: DS.attr('number'),
+  groups: DS.hasMany('group'),
 
-	canEdit: DS.attr('boolean'),
-	canDelete: DS.attr('boolean'),
+  joinTime: DS.attr('date'),
+  lastSeenTime: DS.attr('date'),
+  readTime: DS.attr('date'),
 
-	groups: DS.hasMany('group'),
+  discussionsCount: DS.attr('number'),
+  postsCount: DS.attr('number'),
 
-	email: DS.attr('string'),
-	password: DS.attr('string'),
-
-    avatarNumber: function() {
-        return Math.random() > 0.3 ? Math.floor(Math.random() * 19) + 1 : null;
-    }.property()
+  canEdit: DS.attr('boolean'),
+  canDelete: DS.attr('boolean')
 });

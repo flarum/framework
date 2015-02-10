@@ -1,54 +1,54 @@
 <div id="page" {{bind-attr class=":page backButtonTarget.paneIsPinned:with-pane"}}>
 
-	<header id="header" class="global-header">
+  <header id="header" class="global-header">
 
-		{{back-button target=backButtonTarget}}
+    {{application/back-button target=backButtonTarget}}
 
-		<div class="container">
+    <div class="container">
 
-			<div class="header-primary">
-				<h1 class="header-title">
-					{{#link-to "index" (query-params searchQuery="" sort="recent" show="discussions")}}
-						{{#if view.image}}
-							<img {{bind-attr src=view.image alt=view.title}}>
-						{{else}}
-							{{view.title}}
-						{{/if}}
-					{{/link-to}}
-				</h1>
+      <div class="header-primary">
+        <h1 class="header-title">
+          {{#link-to "index" (query-params searchQuery="" sort="recent" show="discussions")}}
+            {{#if view.image}}
+              <img {{bind-attr src=view.image alt=view.title}}>
+            {{else}}
+              {{view.title}}
+            {{/if}}
+          {{/link-to}}
+        </h1>
 
-				{{ui/controls/item-list items=view.headerPrimaryItems class="header-controls"}}
-			</div>
+        {{ui/item-list items=view.headerPrimary class="header-controls"}}
+      </div>
 
-			<div class="header-secondary">
-				{{ui/controls/item-list items=view.headerSecondaryItems class="header-controls"}}
-			</div>
+      <div class="header-secondary">
+        {{ui/item-list items=view.headerSecondary class="header-controls"}}
+      </div>
 
-		</div>
+    </div>
 
-	</header>
+  </header>
 
-	<main id="main" class="global-main">
-		{{outlet}}
+  <main id="main" class="global-main">
+    {{outlet}}
 
-		<div class="composer-container">
-			<div class="container">
-				{{render "composer"}}
-			</div>
-		</div>
-	</main>
+    <div class="composer-container">
+      <div class="container">
+        {{render "composer"}}
+      </div>
+    </div>
+  </main>
 
-	<footer id="footer" class="global-footer">
-		<div class="container">
-			{{ui/controls/item-list items=view.footerPrimaryItems class="footer-primary"}}
-			{{ui/controls/item-list items=view.footerSecondaryItems class="footer-secondary"}}
-		</div>
-	</footer>
+  <footer id="footer" class="global-footer">
+    <div class="container">
+      {{ui/item-list items=view.footerPrimary class="footer-primary"}}
+      {{ui/item-list items=view.footerSecondary class="footer-secondary"}}
+    </div>
+  </footer>
 
 </div>
 
 <div id="modal" class="modal fade">
-	{{outlet "modal"}}
+  {{outlet "modal"}}
 </div>
 
 {{render "alerts"}}

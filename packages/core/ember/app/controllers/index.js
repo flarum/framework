@@ -1,76 +1,59 @@
 import Ember from 'ember';
 
-import DiscussionResult from '../models/discussion-result';
-import PostResult from '../models/post-result';
-import PaneableMixin from '../mixins/paneable';
-import ComposerDiscussion from '../components/discussions/composer-discussion';
-import AlertMessage from '../components/alert-message';
+import DiscussionResult from 'flarum/models/discussion-result';
+import PostResult from 'flarum/models/post-result';
+import Paneable from 'flarum/mixins/paneable';
+import ComposerDiscussion from 'flarum/components/composer/composer-discussion';
+import AlertMessage from 'flarum/components/ui/alert-message';
+import UseComposer from 'flarum/mixins/use-composer';
 
-export default Ember.Controller.extend(Ember.Evented, PaneableMixin, {
-	needs: ['application', 'composer', 'alerts', 'index/index', 'discussion'],
+export default Ember.Controller.extend(UseComposer, Paneable, {
+  needs: ['application', 'index/index', 'discussion'],
+  composer: Ember.inject.controller('composer'),
+  alerts: Ember.inject.controller('alerts'),
 
-	index: Ember.computed.alias('controllers.index/index'),
+  index: Ember.computed.alias('controllers.index/index'),
 
-	paneDisabled: Ember.computed.not('index.model.length'),
+  paneDisabled: Ember.computed.not('index.model.length'),
 
-	saveDiscussion: function(data) {
-        var controller = this;
-        var composer = this.get('controllers.composer');
-        var stream = this.get('stream');
+  saveDiscussion: function(data) {
+    var discussion = this.store.createRecord('discussion', {
+      title: data.title,
+      content: data.content
+    });
 
-        composer.set('content.loading', true);
-        controller.get('controllers.alerts').send('clearAlerts');
+    var controller = this;
+    return this.saveAndDismissComposer(discussion).then(function(discussion) {
+      controller.get('index').set('model', null).send('refresh');
+      controller.transitionToRoute('discussion', discussion);
+    });
+  },
 
-        var discussion = this.store.createRecord('discussion', {
-            title: data.title,
-            content: data.content
-        });
-
-        return discussion.save().then(function(discussion) {
-            composer.send('hide');
-            controller.get('index').set('model', null).send('refresh');
-            controller.transitionToRoute('discussion', discussion);
-        },
-        function(reason) {
-            var errors = reason.errors;
-            for (var i in reason.errors) {
-                var message = AlertMessage.create({
-                    type: 'warning',
-                    message: reason.errors[i]
-                });
-                controller.get('controllers.alerts').send('alert', message);
-            }
-        })
-        .finally(function() {
-            composer.set('content.loading', false);
-        });
+  actions: {
+    transitionFromBackButton: function() {
+      this.transitionToRoute('index');
     },
 
-	actions: {
-		transitionFromBackButton: function() {
-			this.transitionToRoute('index');
-		},
+    loadMore: function() {
+      this.get('index').send('loadMore');
+    },
 
-		loadMore: function() {
-			this.get('index').send('loadMore');
-		},
+    markAllAsRead: function() {
+      var user = this.get('session.user');
+      user.set('readTime', new Date);
+      user.save();
+    },
 
-		newDiscussion: function() {
-            var controller = this;
-            var composer = this.get('controllers.composer');
-
-            // If the composer is already set up for starting a discussion, then we
-            // don't need to change its content - we can just show it.
-            if (!(composer.get('content') instanceof ComposerDiscussion)) {
-                composer.switchContent(ComposerDiscussion.create({
-                    user: controller.get('session.user'),
-                    submit: function(data) {
-                        controller.saveDiscussion(data);
-                    }
-                }));
-            }
-
-            composer.send('show');
-        }
-	}
+    newDiscussion: function() {
+      var controller = this;
+      this.showComposer(function() {
+        return ComposerDiscussion.create({
+          user: controller.get('session.user'),
+          submit: function(data) {
+            controller.saveDiscussion(data);
+          }
+        });
+      });
+    }
+  }
 });

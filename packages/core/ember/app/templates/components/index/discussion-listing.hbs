@@ -1,0 +1,40 @@
+{{#if controls}}
+  {{ui/dropdown-button
+    items=renderControls
+    class="contextual-controls"
+    buttonClass="btn btn-default btn-icon btn-sm btn-naked"
+    buttonClick="renderControls"
+    menuClass="pull-right"}}
+{{/if}}
+
+{{#link-to "user" discussion.startUser class="author"}}{{user-avatar discussion.startUser}}{{/link-to}}
+
+<div class="badges">
+  {{#each badge in badges}}
+    {{fl-badge badge}}
+  {{/each}}
+</div>
+
+{{#link-to "discussion" discussion.content (query-params start=start) current-when="discussion" class="main"}}
+  <h3 class="title">{{highlight-words discussion.title searchQuery}}</h3>
+  {{ui/item-list items=info class="info"}}
+{{/link-to}}
+
+<span class="count" {{action "markAsRead"}} {{bind-attr title=countTitle}}>
+  {{#if displayUnread}}
+    <strong>{{abbreviate-number discussion.unreadCount}}</strong> unread
+  {{else}}
+    <strong>{{abbreviate-number discussion.repliesCount}}</strong> replies
+  {{/if}}
+</span>
+
+{{#if relevantPosts}}
+  <div class="relevant-posts">
+    {{#each post in relevantPosts}}
+      {{#link-to "discussion" discussion.content (query-params start=post.number) class="post item"}}
+        {{user-avatar post.user class="avatar-thumb"}}
+        <span class="post-body">{{highlight-words post.relevantContent searchQuery}}</span>
+      {{/link-to}}
+    {{/each}}
+  </div>
+{{/if}}

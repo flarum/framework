@@ -1,114 +1,101 @@
 import Ember from 'ember';
 
-import DropdownSelect from '../components/ui/controls/dropdown-select';
-import ActionButton from '../components/ui/controls/action-button';
-import NavItem from '../components/ui/items/nav-item';
-import TaggedArray from '../utils/tagged-array';
+import DropdownSelect from 'flarum/components/ui/dropdown-select';
+import ActionButton from 'flarum/components/ui/action-button';
+import NavItem from 'flarum/components/ui/nav-item';
+import WelcomeHero from 'flarum/components/index/welcome-hero';
+import HasItemLists from 'flarum/mixins/has-item-lists';
 
+var precompileTemplate = Ember.Handlebars.compile;
 var $ = Ember.$;
 
-export default Ember.View.extend({
+export default Ember.View.extend(HasItemLists, {
+  itemLists: ['sidebar'],
 
-	sidebarItems: null,
+  didInsertElement: function() {
+    this.set('hero', WelcomeHero.create({
+      title: this.get('controller.controllers.application.forumTitle'),
+      description: 'Thanks for stopping by!'
+    }));
 
-	didInsertElement: function() {
-		// Create and populate an array of items to be rendered in the sidebar.
-		var sidebarItems = TaggedArray.create();
-		this.trigger('populateSidebar', sidebarItems);
-		this.set('sidebarItems', sidebarItems);
+    // Affix the sidebar so that when the user scrolls down it will stick
+    // to the top of their viewport.
+    var $sidebar = this.$('.index-nav');
+    $sidebar.find('> ul').affix({
+      offset: {
+        top: function () {
+          return $sidebar.offset().top - $('#header').outerHeight(true) - parseInt($sidebar.css('margin-top'));
+        },
+        bottom: function () {
+          return (this.bottom = $('#footer').outerHeight(true));
+        }
+      }
+    });
 
-		// Affix the sidebar so that when the user scrolls down it will stick
-		// to the top of their viewport.
-		var $sidebar = this.$('.index-nav');
-		$sidebar.find('> ul').affix({
-			offset: {
-				top: function () {
-					return $sidebar.offset().top - $('#header').outerHeight(true) - parseInt($sidebar.css('margin-top'));
-				},
-				bottom: function () {
-					return (this.bottom = $('#footer').outerHeight(true));
-				}
-			}
-		});
+    // When viewing a discussion (for which the discussions route is the
+    // parent,) the discussion list is still rendered but it becomes a
+    // pane hidden on the side of the screen. When the mouse enters and
+    // leaves the discussions pane, we want to show and hide the pane
+    // respectively. We also create a 10px 'hot edge' on the left of the
+    // screen to activate the pane.
+    var controller = this.get('controller');
+    this.$('.index-area').hover(function() {
+      controller.send('showPane');
+    }, function() {
+      controller.send('hidePane');
+    });
+    $(document).on('mousemove.showPane', function(e) {
+      if (e.pageX < 10) {
+        controller.send('showPane');
+      }
+    });
+  },
 
-		// When viewing a discussion (for which the discussions route is the
-		// parent,) the discussion list is still rendered but it becomes a
-		// pane hidden on the side of the screen. When the mouse enters and
-		// leaves the discussions pane, we want to show and hide the pane
-		// respectively. We also create a 10px 'hot edge' on the left of the
-		// screen to activate the pane.
-		var controller = this.get('controller');
-		this.$('.index-area').hover(function() {
-			controller.send('showPane');
-		}, function() {
-			controller.send('hidePane');
-		});
-		$(document).on('mousemove.showPane', function(e) {
-            if (e.pageX < 10) {
-            	controller.send('showPane');
-            }
-        });
-	},
+  willDestroyElement: function() {
+    $(document).off('mousemove.showPane');
+  },
 
-	willDestroyElement: function() {
-		$(document).off('mousemove.showPane');
-	},
+  scrollToDiscussion: Ember.observer('controller.paned', function() {
+    if (this.get('controller.paned')) {
+      var view = this;
+      Ember.run.scheduleOnce('afterRender', function() {
+        var $index = view.$('.index-area');
+        var $discussion = $index.find('.discussion-summary.active');
+        if ($discussion.length) {
+          var indexTop = $index.offset().top;
+          var discussionTop = $discussion.offset().top;
+          if (discussionTop < indexTop || discussionTop + $discussion.outerHeight() > indexTop + $index.outerHeight()) {
+            $index.scrollTop($index.scrollTop() - indexTop + discussionTop);
+          }
+        }
+      });
+    }
+  }),
 
-	scrollToDiscussion: function() {
-		if (this.get('controller.paned')) {
-			var view = this;
-			Ember.run.scheduleOnce('afterRender', function() {
-				var $index = view.$('.index-area');
-				var $discussion = $index.find('.discussion-summary.active');
-				if ($discussion.length) {
-					var indexTop = $index.offset().top;
-					var discussionTop = $discussion.offset().top;
-					if (discussionTop < indexTop || discussionTop + $discussion.outerHeight() > indexTop + $index.outerHeight()) {
-						$index.scrollTop($index.scrollTop() - indexTop + discussionTop);
-					}
-				}
-			});
-		}
-	}.observes('controller.paned'),
+  populateSidebar: function(items) {
+    this.addActionItem(items, 'newDiscussion', 'Start a Discussion', 'edit').set('className', 'btn btn-primary new-discussion');
 
-	populateSidebarDefault: function(sidebar) {
-		var view = this;
-		var newDiscussion = ActionButton.create({
-        	label: 'Start a Discussion',
-        	icon: 'edit',
-        	className: 'btn btn-primary new-discussion',
-        	action: function() {
-        		view.get('controller').send('newDiscussion');
-        	}
-        });
-        sidebar.pushObjectWithTag(newDiscussion, 'newDiscussion');
+    var nav = this.populateItemList('nav');
+    items.pushObjectWithTag(DropdownSelect.create({ items: nav }), 'nav');
+  },
 
-        var nav = TaggedArray.create();
-        this.trigger('populateNav', nav);
-        sidebar.pushObjectWithTag(DropdownSelect.create({
-        	items: nav
-		}), 'nav');
-    }.on('populateSidebar'),
+  populateNav: function(items) {
+    items.pushObjectWithTag(NavItem.create({
+      label: 'All Discussions',
+      icon: 'comments-o',
+      layout: precompileTemplate('{{#link-to "index" (query-params filter="")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
+    }), 'all');
 
-    populateNavDefault: function(nav) {
-        nav.pushObjectWithTag(NavItem.create({
-			label: 'All Discussions',
-			icon: 'comments-o',
-			linkTo: '"index" (query-params filter="")'
-		}), 'all');
+    items.pushObjectWithTag(NavItem.create({
+      label: 'Private',
+      icon: 'envelope-o',
+      layout: precompileTemplate('{{#link-to "index" (query-params filter="private")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
+    }), 'private');
 
-        // The below items are just temporary; they will be extracted into
-        // extensions in the future.
-		nav.pushObjectWithTag(NavItem.create({
-			label: 'Private',
-			icon: 'envelope-o',
-			linkTo: '"index" (query-params filter="private")'
-		}), 'private');
-
-		nav.pushObjectWithTag(NavItem.create({
-			label: 'Following',
-			icon: 'star',
-			linkTo: '"index" (query-params filter="following")'
-		}), 'following');
-    }.on('populateNav')
+    items.pushObjectWithTag(NavItem.create({
+      label: 'Following',
+      icon: 'star',
+      layout: precompileTemplate('{{#link-to "index" (query-params filter="following")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
+    }), 'following');
+  }
 });
