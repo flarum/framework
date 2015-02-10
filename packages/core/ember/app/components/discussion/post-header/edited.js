@@ -9,8 +9,9 @@ var precompileTemplate = Ember.Handlebars.compile;
   hover which details who edited the post and when.
  */
 export default Ember.Component.extend({
-  tagName: 'span',
+  tagName: 'li',
   classNames: ['post-edited'],
+  classNameBindings: ['hidden'],
   attributeBindings: ['title'],
   layout: precompileTemplate('{{fa-icon "pencil"}}'),
 
@@ -20,7 +21,7 @@ export default Ember.Component.extend({
 
   // In the context of an item list, this item will be hidden if the post
   // hasn't been edited, or if it's been hidden.
-  hideItem: Ember.computed('post.isEdited', 'post.isHidden', function() {
+  hidden: Ember.computed('post.isEdited', 'post.isHidden', function() {
     return !this.get('post.isEdited') || this.get('post.isHidden');
   }),
 

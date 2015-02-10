@@ -9,9 +9,10 @@ var precompileTemplate = Ember.Handlebars.compile;
  */
 export default Ember.Component.extend({
   tagName: 'li',
+  classNameBindings: ['hidden'],
   layout: precompileTemplate('<a href="#" class="btn btn-default btn-more" {{action "toggle"}}>{{fa-icon "ellipsis-h"}}</a>'),
 
-  hideItem: Ember.computed.not('post.isHidden'),
+  hidden: Ember.computed.not('post.isHidden'),
 
   actions: {
     toggle: function() {
