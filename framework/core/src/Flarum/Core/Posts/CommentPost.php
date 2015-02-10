@@ -39,6 +39,10 @@ class CommentPost extends Post
 
     public function revise($content, $user)
     {
+        if ($this->content === $content) {
+            return;
+        }
+
         $this->content = $content;
         $this->content_html = static::formatContent($this->content);
 
@@ -50,6 +54,10 @@ class CommentPost extends Post
 
     public function hide($user)
     {
+        if ($this->delete_time) {
+            return;
+        }
+
         $this->delete_time = time();
         $this->delete_user_id = $user->id;
 
@@ -58,6 +66,10 @@ class CommentPost extends Post
 
     public function restore($user)
     {
+        if ($this->delete_time === null) {
+            return;
+        }
+
         $this->delete_time = null;
         $this->delete_user_id = null;
 
