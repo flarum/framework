@@ -36,6 +36,10 @@ class EditUserCommandHandler implements CommandHandler
             $userToEdit->password = $command->password;
         }
 
+        if (! empty($command->readTime)) {
+            $userToEdit->read_time = time();
+        }
+
         Event::fire('Flarum.Core.Users.Commands.EditUser.UserWillBeSaved', [$userToEdit, $command]);
 
         $this->userRepo->save($userToEdit);
