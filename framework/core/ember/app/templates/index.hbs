@@ -1,58 +1,59 @@
 <div {{bind-attr class=":index-area paned paneIsShowing:showing"}}>
 
-	{{welcome-hero}}
+  {{#if view.hero}}
+    {{view view.hero}}
+  {{/if}}
 
-	<div class="container">
+  <div class="container">
 
-		<nav class="index-nav">
-			{{ui/controls/item-list items=view.sidebarItems}}
-		</nav>
+    <nav class="index-nav">
+      {{ui/item-list items=view.sidebar}}
+    </nav>
 
-		<div class="index-results">
+    <div class="index-results">
 
-			<div class="index-toolbar">
-				<div class="index-toolbar-view">
-					<span class="btn-group control-show">
-						{{#link-to (query-params show="discussions") class="btn btn-default btn-icon"}}{{fa-icon "bars"}}{{/link-to}}
-						{{#link-to (query-params show="posts") class="btn btn-default btn-icon"}}{{fa-icon "square-o"}}{{/link-to}}
-					</span>
+      <div class="index-toolbar">
+        <div class="index-toolbar-view">
+          <span class="btn-group control-show">
+            {{#link-to (query-params show="discussions") class="btn btn-default btn-icon"}}{{fa-icon "bars"}}{{/link-to}}
+            {{#link-to (query-params show="posts") class="btn btn-default btn-icon"}}{{fa-icon "square-o"}}{{/link-to}}
+          </span>
 
-					{{ui/controls/select-input class="control-sort" content=index.sortOptions optionValuePath="content.key" optionLabelPath="content.label" value=index.sort}}
-				</div>
-				<div class="index-toolbar-action">
-					{{ui/controls/action-button class="control-markAllAsRead btn btn-default btn-icon" icon="check" title="Mark All as Read"}}
-				</div>
-			</div>
+          {{ui/select-input class="control-sort" content=index.sortOptions optionValuePath="content.key" optionLabelPath="content.label" value=index.sort}}
+        </div>
+        <div class="index-toolbar-action">
+          {{ui/action-button class="control-markAllAsRead btn btn-default btn-icon" icon="check" title="Mark All as Read" action="markAllAsRead"}}
+        </div>
+      </div>
 
-			<ul class="discussions-list">
-				{{#each discussion in index.model}}
-					{{discussions/discussion-listing
-						discussion=discussion
-						searchQuery=index.searchQuery
-						terminalPostType=index.terminalPostType
-						countType=index.countType
-						markAsRead="markAsRead"}}
-				{{/each}}
-			</ul>
+      <ul class="discussions-list">
+        {{#each discussion in index.model}}
+          {{index/discussion-listing
+            discussion=discussion
+            searchQuery=index.searchQuery
+            terminalPostType=index.terminalPostType
+            countType=index.countType}}
+        {{/each}}
+      </ul>
 
-			{{#if index.resultsLoading}}
-				{{ui/controls/loading-indicator size="small"}}
-			{{/if}}
+      {{#if index.resultsLoading}}
+        {{ui/loading-indicator size="small"}}
+      {{/if}}
 
-			{{#if index.moreResults}}
-				{{#unless index.resultsLoading}}
-					<div class="load-more">
-						{{ui/controls/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
-					</div>
-				{{/unless}}
-			{{/if}}
+      {{#if index.moreResults}}
+        {{#unless index.resultsLoading}}
+          <div class="load-more">
+            {{ui/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
+          </div>
+        {{/unless}}
+      {{/if}}
 
-		</div>
+    </div>
 
-	</div>
-	
+  </div>
+
 </div>
 
 <div class="discussion-area">
-	{{outlet}}
+  {{outlet}}
 </div>

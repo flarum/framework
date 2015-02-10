@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import DiscussionResult from '../../models/discussion-result';
-import PostResult from '../../models/post-result';
+import DiscussionResult from 'flarum/models/discussion-result';
+import PostResult from 'flarum/models/post-result';
 
 export default Ember.Controller.extend({
 	needs: ['application'],
@@ -22,17 +22,15 @@ export default Ember.Controller.extend({
 		{key: 'oldest', label: 'Oldest', sort: 'created'},
 	],
 
-	terminalPostType: function() {
+	terminalPostType: Ember.computed('sort', function() {
 		return ['newest', 'oldest'].indexOf(this.get('sort')) !== -1 ? 'start' : 'last';
-	}.property('sort'),
+	}),
 
-	countType: function() {
+	countType: Ember.computed('sort', function() {
 		return this.get('sort') === 'replies' ? 'replies' : 'unread';
-	}.property('sort'),
+	}),
 
-	moreResults: function() {
-		return !!this.get('meta.moreUrl');
-	}.property('meta.moreUrl'),
+	moreResults: Ember.computed.bool('meta.moreUrl'),
 
 	getResults: function(start) {
 		var searchQuery = this.get('searchQuery');
@@ -75,9 +73,12 @@ export default Ember.Controller.extend({
 		});
 	},
 
-	searchQueryDidChange: function() {
-		this.get('controllers.application').set('searchQuery', this.get('searchQuery'));
-		this.get('controllers.application').set('searchActive', !! this.get('searchQuery'));
+	searchQueryDidChange: Ember.observer('searchQuery', function() {
+    var searchQuery = this.get('searchQuery');
+		this.get('controllers.application').setProperties({
+      searchQuery: searchQuery,
+      searchActive: !!searchQuery
+    });
 
 		var sortOptions = this.get('sortOptions');
 
@@ -86,13 +87,13 @@ export default Ember.Controller.extend({
 		} else if (!this.get('searchQuery') && sortOptions[0].sort === 'relevance') {
 			sortOptions.shiftObject();
 		}
-	}.observes('searchQuery'),
+	}),
 
-	paramsDidChange: function() {
+	paramsDidChange: Ember.observer('sort', 'show', 'searchQuery', function() {
 		if (this.get('model')) {
 			this.send('refresh');
 		}
-	}.observes('sort', 'show', 'searchQuery'),
+	}),
 
 	actions: {
 		loadMore: function() {

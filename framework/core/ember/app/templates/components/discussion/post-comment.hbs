@@ -1,0 +1,20 @@
+{{#if controls}}
+  {{ui/dropdown-button
+    items=renderControls
+    class="contextual-controls"
+    buttonClass="btn btn-default btn-icon btn-sm btn-naked"
+    buttonClick="renderControls"
+    menuClass="pull-right"}}
+{{/if}}
+
+<header class="post-header">
+  {{ui/item-list items=header}}
+</header>
+
+<div class="post-body">
+  {{{post.contentHtml}}}
+</div>
+
+<aside class="post-footer">
+  {{ui/item-list items=footer}}
+</aside>

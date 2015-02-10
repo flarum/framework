@@ -2,163 +2,163 @@
 // Composer
 
 .composer-container {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: @zindex-composer;
-	pointer-events: none;
-	.transition(left 0.2s);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: @zindex-composer;
+  pointer-events: none;
+  .transition(left 0.2s);
 
-	.with-pane & {
-		left: @index-pane-width;
-	}
+  .with-pane & {
+    left: @index-pane-width;
+  }
 }
 .composer {
-	pointer-events: auto;
-	margin-left: -20px;
-	margin-right: 180px;
-	.box-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
-	border-radius: @border-radius-base @border-radius-base 0 0;
-	background: rgba(255, 255, 255, 0.9);
-	transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
-	position: relative;
-	height: 300px;
-	.transition(~"background 0.2s");
+  pointer-events: auto;
+  margin-left: -20px;
+  margin-right: 180px;
+  .box-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+  border-radius: @border-radius-base @border-radius-base 0 0;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
+  position: relative;
+  height: 300px;
+  .transition(~"background 0.2s");
 
-	.index-index & {
-		margin-left: 205px;
-		margin-right: -20px;
-	}
-	&.active, &.fullscreen {
-		background: #fff;
-	}
-	&.minimized {
-		height: 50px;
-		cursor: pointer;
-	}
-	&.fullscreen {
-		position: fixed;
-		left: 0;
-		top: 0;
-		bottom: 0;
-		right: 0;
-		margin: 0;
-		height: auto;
-	}
+  .index-index & {
+    margin-left: 205px;
+    margin-right: -20px;
+  }
+  &.active, &.fullscreen {
+    background: #fff;
+  }
+  &.minimized {
+    height: 50px;
+    cursor: pointer;
+  }
+  &.fullscreen {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    height: auto;
+  }
 }
 .composer-content {
-	padding: 20px 20px 15px;
+  padding: 20px 20px 15px;
 
-	.minimized & {
-		padding: 10px 20px;
-	}
-	.fullscreen & {
-		max-width: 900px;
-		margin: 0 auto;
-		padding: 30px;
-	}
+  .minimized & {
+    padding: 10px 20px;
+  }
+  .fullscreen & {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+  }
 }
 .composer-handle {
-	height: 20px;
-	margin-bottom: -20px;
-	position: relative;
+  height: 20px;
+  margin-bottom: -20px;
+  position: relative;
 
-	.minimized &, .fullscreen & {
-		display: none;
-	}
+  .minimized &, .fullscreen & {
+    display: none;
+  }
 }
 .composer-controls {
-	position: absolute;
-	right: 10px;
-	top: 10px;
-	list-style-type: none;
-	padding: 0;
-	margin: 0;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 
-	& li {
-		display: inline-block;
-	}
-	.minimized & {
-		top: 7px;
-	}
+  & li {
+    display: inline-block;
+  }
+  .minimized & {
+    top: 7px;
+  }
 }
 .fa-minus.minimize {
-	vertical-align: -5px;
+  vertical-align: -5px;
 }
 .composer-avatar {
-	float: left;
-	.avatar-size(64px);
+  float: left;
+  .avatar-size(64px);
 
-	.minimized & {
-		display: none;
-	}
+  .minimized & {
+    display: none;
+  }
 }
 .composer-body {
-	margin-left: 90px;
-	
-	& h3 {
-		margin: 5px 0 10px;
-		&, & input {
-			color: @fl-body-muted-color;
-			font-size: 16px;
-			font-weight: normal;
-		}
-		& input {
-			background: none;
-			border: 0;
-			padding: 0;
-			height: auto;
-		}
-	}
+  margin-left: 90px;
 
-	.minimized & {
-		margin-left: 0;
-	}
+  & h3 {
+    margin: 5px 0 10px;
+    &, & input {
+      color: @fl-body-muted-color;
+      font-size: 16px;
+      font-weight: normal;
+    }
+    & input {
+      background: none;
+      border: 0;
+      padding: 0;
+      height: auto;
+    }
+  }
+
+  .minimized & {
+    margin-left: 0;
+  }
 }
 .composer-editor {
-	.minimized & {
-		visibility: hidden;
-	}
+  .minimized & {
+    visibility: hidden;
+  }
 }
 .text-editor {
-	& textarea {
-		border-radius: 0;
-		padding: 0;
-		border: 0;
-		resize: none;
-		color: @fl-body-color;
-		font-size: 14px;
-		line-height: 1.6;
+  & textarea {
+    border-radius: 0;
+    padding: 0;
+    border: 0;
+    resize: none;
+    color: @fl-body-color;
+    font-size: 14px;
+    line-height: 1.6;
 
-		&, &:focus, &[disabled] {
-			background: none;
-		}
-	}
+    &, &:focus, &[disabled] {
+      background: none;
+    }
+  }
 }
 .text-editor-controls {
-	margin: 10px 0 0;
-	padding: 0;
-	list-style-type: none;
-	& li {
-		display: inline-block;
-	}
+  margin: 10px 0 0;
+  padding: 0;
+  list-style-type: none;
+  & li {
+    display: inline-block;
+  }
 }
 
 .composer-loading {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(255, 255, 255, 0.9);
-	opacity: 0;
-	pointer-events: none;
-	border-radius: @border-radius-base @border-radius-base 0 0;
-	.transition(opacity 0.2s);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  border-radius: @border-radius-base @border-radius-base 0 0;
+  .transition(opacity 0.2s);
 
-	&.active {
-		opacity: 1;
-		pointer-events: auto;
-	}
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

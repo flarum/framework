@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import humanTime from '../utils/human-time';
+import humanTime from 'flarum/utils/human-time';
 
 var $ = Ember.$;
 
@@ -28,7 +28,7 @@ export default {
 	      .removeData('livestamp');
 
 	    timestamp = moment(timestamp);
-	    if (timestamp.diff(moment()) < 60 * 60) {
+	    if (timestamp.diff(moment(new Date())) < 60 * 60) {
 	    	return;
 	    }
 	    if (moment.isMoment(timestamp) && !isNaN(+timestamp)) {

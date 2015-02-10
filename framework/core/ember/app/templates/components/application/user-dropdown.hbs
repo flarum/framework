@@ -1,0 +1,5 @@
+<a href="#" {{bind-attr class=":dropdown-toggle buttonClass"}} data-toggle="dropdown" {{action "buttonClick"}}>
+  {{user-avatar user}}
+  <span class="label">{{label}}</span>
+</a>
+{{ui/item-list items=items class=dropdownMenuClass}}

@@ -2,89 +2,89 @@
 // Sidebar
 
 .index-nav {
-	float: left;
+  float: left;
 
-	&, & > ul {
-		width: 175px;
-	}
-	& > ul {
-		margin: 30px 0 0;
-		padding: 0;
-		list-style-type: none;
+  &, & > ul {
+    width: 175px;
+  }
+  & > ul {
+    margin: 30px 0 0;
+    padding: 0;
+    list-style-type: none;
 
-		&.affix {
-			top: 56px;
-		}
-		& > li {
-			margin-bottom: 10px;
-		}
-	}
-	& .new-discussion {
-		display: block;
-		margin-bottom: 20px;
-	}
+    &.affix {
+      top: 56px;
+    }
+    & > li {
+      margin-bottom: 10px;
+    }
+  }
+  & .new-discussion {
+    display: block;
+    margin-bottom: 20px;
+  }
 
-	// Expand the dropdown-select component into a normal nav list
-	// @todo Extract this into a mixin as we'll need to do it elsewhere.
-	& .dropdown-select {
-		display: block;
+  // Expand the dropdown-select component into a normal nav list
+  // @todo Extract this into a mixin as we'll need to do it elsewhere.
+  & .dropdown-select {
+    display: block;
 
-		& .dropdown-toggle {
-			display: none;
-		}
-		& .dropdown-menu {
-			display: block;
-			border: 0;
-			width: auto;
-			margin: 0;
-			padding: 0;
-			min-width: 0;
-			float: none;
-			position: static;
-			background: none;
-			.box-shadow(none);
-			& > li > a {
-				padding: 8px 0;
-				color: @fl-body-muted-color;
-				& .fa {
-					margin-right: 8px;
-					font-size: 15px;
-				}
-				&:hover {
-					background: none;
-					color: @link-hover-color;
-				}
-			}
-			& > li.active > a {
-				background: none;
-				color: @fl-primary-color;
-				font-weight: bold;
-			}
-		}
-	}
+    & .dropdown-toggle {
+      display: none;
+    }
+    & .dropdown-menu {
+      display: block;
+      border: 0;
+      width: auto;
+      margin: 0;
+      padding: 0;
+      min-width: 0;
+      float: none;
+      position: static;
+      background: none;
+      .box-shadow(none);
+      & > li > a {
+        padding: 8px 0;
+        color: @fl-body-muted-color;
+        & .fa {
+          margin-right: 8px;
+          font-size: 15px;
+        }
+        &:hover {
+          background: none;
+          color: @link-hover-color;
+        }
+      }
+      & > li.active > a {
+        background: none;
+        color: @fl-primary-color;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 // ------------------------------------
 // Results
 
 .index-results {
-	margin-top: 30px;
-	margin-left: 225px;
-	& .loading-indicator {
-		height: 46px;
-	}
+  margin-top: 30px;
+  margin-left: 225px;
+  & .loading-indicator {
+    height: 46px;
+  }
 }
 .index-toolbar {
-	margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 .index-toolbar-view {
-	display: inline-block;
-	& .control-show {
-		margin-right: 10px;
-	}
+  display: inline-block;
+  & .control-show {
+    margin-right: 10px;
+  }
 }
 .index-toolbar-action {
-	float: right;
+  float: right;
 }
 
 // ------------------------------------
@@ -93,162 +93,161 @@
 @index-pane-width: 400px;
 
 .index-area {
-	left: -@index-pane-width;
-	width: 100%;
+  left: -@index-pane-width;
+  width: 100%;
 
-	&.paned {
-		position: fixed;
-		z-index: @zindex-pane;
-		overflow: auto;
-		top: 56px;
-		bottom: 0;
-		width: @index-pane-width;
-		background: #fff;
-		padding-bottom: 200px;
-		.box-shadow(2px 2px 6px -2px rgba(0, 0, 0, 0.25));
-		.transition(left 0.2s);
+  &.paned {
+    position: fixed;
+    z-index: @zindex-pane;
+    overflow: auto;
+    top: 56px;
+    bottom: 0;
+    width: @index-pane-width;
+    background: #fff;
+    padding-bottom: 200px;
+    .box-shadow(2px 2px 6px -2px rgba(0, 0, 0, 0.25));
+    .transition(left 0.2s);
 
-		&.showing, .with-pane & {
-			left: 0;
-		}
-		.with-pane & {
-			z-index: @zindex-composer - 1;
-			.transition(none);
-		}
-		& .container {
-			width: auto;
-			margin: 0;
-			padding: 0 !important;
-		}
-		& .index-results {
-			margin: 0;
-		}
-		& .hero, & .index-nav, & .index-toolbar {
-			display: none;
-		}
-		& .discussions-list > li {
-			margin: 0;
-			padding-left: 65px + 15px;
-			padding-right: 65px + 15px;
-			&.active {
-				background: @fl-secondary-color;
-			}
-		}
-		& .discussion-summary {
-			& .title {
-				font-size: 14px;
-			}
-			& .count strong {
-				font-size: 18px;
-			}
-		}
-	}
+    &.showing, .with-pane & {
+      left: 0;
+    }
+    .with-pane & {
+      z-index: @zindex-composer - 1;
+      .transition(none);
+    }
+    & .container {
+      width: auto;
+      margin: 0;
+      padding: 0 !important;
+    }
+    & .index-results {
+      margin: 0;
+    }
+    & .hero, & .index-nav, & .index-toolbar {
+      display: none;
+    }
+    & .discussions-list > li {
+      margin: 0;
+      padding-left: 65px + 15px;
+      padding-right: 65px + 15px;
+      &.active {
+        background: @fl-secondary-color;
+      }
+    }
+    & .discussion-summary {
+      & .title {
+        font-size: 14px;
+      }
+      & .count strong {
+        font-size: 18px;
+      }
+    }
+  }
 }
 
 // When the pane is pinned, move the other page content inwards
 .global-main, .global-footer {
-	.with-pane & {
-		margin-left: @index-pane-width;
-		& .container {
-			max-width: 100%;
-			padding: 0 30px;
-		}
-	}
+  .with-pane & {
+    margin-left: @index-pane-width;
+    & .container {
+      max-width: 100%;
+      padding: 0 30px;
+    }
+  }
 }
 .global-header .container {
-	.with-pane & {
-		width: 100%;
-	}
+  .with-pane & {
+    width: 100%;
+  }
 }
 
 // ------------------------------------
 // Discussions List
 
 .discussions-list {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-	position: relative;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  position: relative;
 
-	& > li {
-		margin-right: -25px;
-		padding-right: 65px + 25px;
-		& .contextual-controls {
-			position: absolute;
-			right: 0;
-			top: 18px;
-			visibility: hidden;
-		}
-		&:hover .contextual-controls, & .contextual-controls.open {
-			visibility: visible;
-		}
-	}
+  & > li {
+    margin-right: -25px;
+    padding-right: 65px + 25px;
+    & .contextual-controls {
+      position: absolute;
+      right: 0;
+      top: 18px;
+      visibility: hidden;
+    }
+    &:hover .contextual-controls, & .contextual-controls.open {
+      visibility: visible;
+    }
+  }
 }
 .discussion-summary {
-	padding-left: 65px;
-	padding-right: 65px;
-	position: relative;
+  padding-left: 65px;
+  padding-right: 65px;
+  position: relative;
 
-	& .author {
-		float: left;
-		margin-left: -65px;
-		margin-top: 18px;
-	}
-	& .info {
-		display: inline-block;
-		width: 100%;
-		margin-right: -65px;
-		color: @fl-body-muted-color;
-		padding: 20px 0;
+  &, & a {
+    color: @fl-body-muted-color;
+  }
+  & .author {
+    float: left;
+    margin-left: -65px;
+    margin-top: 18px;
+  }
+  & .main {
+    display: inline-block;
+    width: 100%;
+    padding: 20px 0;
+    margin-right: -65px;
 
-		&:hover, &:active, &.active, &:focus {
-			text-decoration: none;
-			& .title {
-				text-decoration: underline;
-			}
-		}
-		&.active .title {
-			text-decoration: none;
-		}
-	}
-	& .title {
-		margin: 0 0 5px;
-		font-size: 15px;
-		line-height: 1.3;
-		&, & a {
-			font-weight: normal;
-			color: @fl-body-muted-color;
-		}
-		.unread&, .unread& a {
-			font-weight: bold;
-			color: @fl-body-heading-color;
-		}
-	}
-	& .count {
-		float: right;
-		margin-top: 18px;
-		margin-right: -65px;
-		width: 60px;
-		text-align: center;
-		text-transform: uppercase;
-		color: @fl-body-muted-color;
-		font-size: 11px;
-		cursor: pointer;
-		text-decoration: none;
+    &.active {
+      text-decoration: none;
+    }
+  }
+  & .title {
+    margin: 0 0 5px;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  & .info {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 
-		& strong {
-			font-size: 20px;
-			display: block;
-			font-weight: 300;
-		}
-		.unread&, .unread& strong {
-			color: @fl-body-heading-color;
-			font-weight: bold;
-		}
-	}
+    & > li {
+      display: inline-block;
+    }
+  }
+  & .count {
+    float: right;
+    margin-top: 18px;
+    margin-right: -65px;
+    width: 60px;
+    text-align: center;
+    text-transform: uppercase;
+    color: @fl-body-muted-color;
+    font-size: 11px;
+    text-decoration: none;
+
+    & strong {
+      font-size: 20px;
+      display: block;
+      font-weight: 300;
+    }
+    .unread& {
+      cursor: pointer;
+    }
+    .unread&, .unread& strong {
+      color: @fl-body-heading-color;
+      font-weight: bold;
+    }
+  }
 }
 
 .load-more {
-	text-align: center;
-	margin-top: 10px;
+  text-align: center;
+  margin-top: 10px;
 }

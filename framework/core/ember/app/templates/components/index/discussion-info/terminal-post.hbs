@@ -1,0 +1,7 @@
+{{#if displayLastPost}}
+  <span class="username">{{discussion.lastUser.username}}</span> replied
+  <span class="time">{{human-time discussion.lastTime}}</span>
+{{else}}
+  <span class="username">{{discussion.startUser.username}}</span> started
+  <span class="time">{{human-time discussion.startTime}}</span>
+{{/if}}
