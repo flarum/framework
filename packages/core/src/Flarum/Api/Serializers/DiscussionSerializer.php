@@ -54,7 +54,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
      */
     public function linkPosts(Discussion $discussion)
     {
-        return (new PostBasicSerializer)->collection($discussion->posts()->whereCanView()->ids());
+        return (new PostBasicSerializer)->collection($discussion->posts()->whereCanView()->orderBy('time', 'asc')->ids());
     }
 
     /**

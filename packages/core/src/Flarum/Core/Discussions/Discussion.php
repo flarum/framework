@@ -106,7 +106,7 @@ class Discussion extends Entity
 
     public function posts()
     {
-        return $this->hasMany('Flarum\Core\Posts\Post')->orderBy('time', 'asc');
+        return $this->hasMany('Flarum\Core\Posts\Post');
     }
 
     public function comments()
