@@ -28,9 +28,9 @@ class EditPostCommandHandler implements CommandHandler
             $post->revise($command->content, $user);
         }
 
-        if ($command->hidden === true) {
+        if ($command->isHidden === true) {
             $post->hide($user);
-        } elseif ($command->hidden === false) {
+        } elseif ($command->isHidden === false) {
             $post->restore($user);
         }
 
