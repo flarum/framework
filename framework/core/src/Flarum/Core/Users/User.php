@@ -93,7 +93,7 @@ class User extends Entity implements UserInterface, RemindableInterface
 
     public function getDates()
     {
-        return ['join_time', 'last_seen_time'];
+        return ['join_time', 'last_seen_time', 'read_time'];
     }
 
     public function getAvatarUrlAttribute()

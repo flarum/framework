@@ -12,6 +12,8 @@ class EditUserCommand
 
     public $password;
 
+    public $readTime;
+
     public function __construct($userId, $user)
     {
         $this->userId = $userId;
