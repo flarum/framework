@@ -35,12 +35,14 @@ class PostSerializer extends PostBasicSerializer
         $user = User::current();
 
         unset($attributes['content']);
+
+        $canEdit = $post->can($user, 'edit');
+
         if ($post->type != 'comment') {
             $attributes['content'] = $post->content;
         } else {
-            // @todo move to a formatter class
-            $attributes['contentHtml'] = $post->content_html ?: '<p>'.nl2br(htmlspecialchars(trim($post->content))).'</p>';
-            if ($post->can($user, 'edit')) {
+            $attributes['contentHtml'] = $post->content_html;
+            if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
         }
@@ -50,12 +52,12 @@ class PostSerializer extends PostBasicSerializer
         }
 
         if ($post->delete_time) {
+            $attributes['isHidden'] = true;
             $attributes['deleteTime'] = $post->delete_time->toRFC3339String();
         }
 
-
         $attributes += [
-            'canEdit'   => $post->can($user, 'edit'),
+            'canEdit'   => $canEdit,
             'canDelete' => $post->can($user, 'delete')
         ];
 
