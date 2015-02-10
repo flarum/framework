@@ -27,21 +27,19 @@ class DiscussionSerializer extends DiscussionBasicSerializer
     {
         $attributes = parent::attributes($discussion);
 
+        $state = $discussion->state;
+
         $attributes += [
             'commentsCount'  => (int) $discussion->comments_count,
             'startTime'      => $discussion->start_time->toRFC3339String(),
             'lastTime'       => $discussion->last_time ? $discussion->last_time->toRFC3339String() : null,
             'lastPostNumber' => $discussion->last_post_number,
             'canEdit'        => $discussion->permission('edit'),
-            'canDelete'      => $discussion->permission('delete')
-        ];
+            'canDelete'      => $discussion->permission('delete'),
 
-        if ($state = $discussion->state) {
-            $attributes += [
-                'readTime'   => $state->read_time ? $state->read_time->toRFC3339String() : null,
-                'readNumber' => (int) $state->read_number
-            ];
-        }
+            'readTime'       => $state && $state->read_time ? $state->read_time->toRFC3339String() : null,
+            'readNumber'     => $state ? (int) $state->read_number : 0
+        ];
 
         return $this->attributesEvent($discussion, $attributes);
     }
