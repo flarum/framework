@@ -42,7 +42,7 @@ class DiscussionMetadataUpdater extends EventListener
     {
         $discussion = $this->discussionRepo->find($event->post->discussion_id);
 
-        $discussion->comments_count++;
+        $discussion->refreshCommentsCount();
         $discussion->refreshLastPost();
 
         $this->discussionRepo->save($discussion);
@@ -52,7 +52,7 @@ class DiscussionMetadataUpdater extends EventListener
     {
         $discussion = $this->discussionRepo->find($post->discussion_id);
 
-        $discussion->comments_count--;
+        $discussion->refreshCommentsCount();
 
         if ($discussion->last_post_id == $post->id) {
             $discussion->refreshLastPost();
