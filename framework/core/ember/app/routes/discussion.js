@@ -7,10 +7,19 @@ export default Ember.Route.extend({
     start: {replace: true}
   },
 
-  model: function(params) {
-    return this.store.findQueryOne('discussion', params.id, {
+  discussion: function(id, start) {
+    return this.store.findQueryOne('discussion', id, {
       include: 'posts',
-      near: params.start
+      near: start
+    });
+  },
+
+  // When we fetch the discussion from the model hook (i.e. on a fresh page
+  // load), we'll wrap it in an object proxy and set a `loaded` flag to true
+  // so that it won't be reloaded later on.
+  model: function(params) {
+    return this.discussion(params.id, params.start).then(function(discussion) {
+      return Ember.ObjectProxy.create({content: discussion, loaded: true});
     });
   },
 
@@ -36,18 +45,18 @@ export default Ember.Route.extend({
     });
     controller.set('stream', stream);
 
-    // Next, we need to make sure we have a list of the discussion's post
-    // IDs. If we don't already have this information, we'll need to
-    // reload the discussion model.
-    var promise = discussion.get('posts') ? Ember.RSVP.resolve(discussion) : this.model({
-      id: discussion.get('id'),
-      start: controller.get('start')
-    });
+    // We need to make sure we have an up-to-date list of the discussion's
+    // post IDs. If we didn't enter this route using the model hook (like if
+    // clicking on a discussion in the index), then we'll reload the model.
+    var promise = discussion.get('loaded') ?
+      Ember.RSVP.resolve(discussion.get('content')) :
+      this.discussion(discussion.get('id'), controller.get('start'));
 
     // When we know we have the post IDs, we can set up the post stream with
     // them. Then we will tell the view that we have finished loading so that
     // it can scroll down to the appropriate post.
     promise.then(function(discussion) {
+      controller.set('model', discussion);
       var postIds = discussion.get('postIds');
       stream.setup(postIds);
 
@@ -69,11 +78,6 @@ export default Ember.Route.extend({
           return loadIds.indexOf(item.get('id')) !== -1;
         }));
       }
-
-      // Clear the list of post IDs for this discussion (without
-      // dirtying the record), so that next time we load the discussion,
-      // the discussion details and post IDs will be refreshed.
-      controller.store.push('discussion', {id: discussion.get('id'), posts: ''});
 
       // It's possible for this promise to have resolved but the user
       // has clicked away to a different discussion. So only if we're

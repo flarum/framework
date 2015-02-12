@@ -8,18 +8,28 @@ use Flarum\Core\Permission;
 use Flarum\Core\Support\Exceptions\PermissionDeniedException;
 use Flarum\Core\Users\User;
 
-class TitleChangePost extends Post
+class RenamedPost extends Post
 {
-    public static function reply($discussionId, $content, $userId)
+    public static function reply($discussionId, $userId, $oldTitle, $newTitle)
     {
         $post = new static;
 
-        $post->content       = $content;
+        $post->content       = [$oldTitle, $newTitle];
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
-        $post->type          = 'titleChange';
+        $post->type          = 'renamed';
 
         return $post;
+    }
+
+    public function getContentAttribute($value)
+    {
+        return json_decode($value);
+    }
+
+    public function setContentAttribute($value)
+    {
+        $this->attributes['content'] = json_encode($value);
     }
 }

@@ -107,7 +107,16 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
     rename: function(title) {
       var discussion = this.get('model');
       discussion.set('title', title);
-      discussion.save();
+
+      // When we save the title, we should get back an 'added post' in the
+      // response which documents the title change. We'll add this to the post
+      // stream.
+      var controller = this;
+      discussion.save().then(function(discussion) {
+        discussion.get('addedPosts').forEach(function(post) {
+          controller.get('stream').addPostToEnd(post);
+        });
+      });
     },
 
     delete: function() {
