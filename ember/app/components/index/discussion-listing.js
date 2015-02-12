@@ -55,7 +55,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
   }),
 
   populateControls: function(items) {
-
+    this.addActionItem(items, 'delete', 'Delete', 'times', 'discussion.canDelete');
   },
 
   populateInfo: function(items) {
@@ -78,9 +78,18 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
     },
 
     markAsRead: function() {
-      if (this.get('discussion.isUnread')) {
+      var discussion = this.get('discussion');
+      if (discussion.get('isUnread')) {
         discussion.set('readNumber', discussion.get('lastPostNumber'));
         discussion.save();
+      }
+    },
+
+    delete: function() {
+      if (confirm('Are you sure you want to delete this discussion?')) {
+        var discussion = this.get('discussion.content');
+        discussion.destroyRecord();
+        this.sendAction('discussionRemoved', discussion);
       }
     }
   }

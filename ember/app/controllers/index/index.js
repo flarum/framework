@@ -104,6 +104,11 @@ export default Ember.Controller.extend({
 				controller.set('meta', results.get('meta'));
 				controller.set('resultsLoading', false);
 			});
-		}
+		},
+
+    discussionRemoved: function(discussion) {
+      var model = this.get('model');
+      model.removeObject(model.findBy('content', discussion));
+    }
 	}
 });
