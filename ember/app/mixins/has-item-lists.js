@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 import TaggedArray from 'flarum/utils/tagged-array';
 import ActionButton from 'flarum/components/ui/action-button';
+import SeparatorItem from 'flarum/components/ui/separator-item';
 
 export default Ember.Mixin.create({
   itemLists: [],
@@ -23,16 +24,15 @@ export default Ember.Mixin.create({
     return items;
   },
 
-  addActionItem: function(items, tag, label, icon, conditionProperty, actionName, actionTarget) {
+  addActionItem: function(items, tag, label, icon, conditionProperty, action) {
     if (conditionProperty && !this.get(conditionProperty)) { return; }
 
     var self = this;
-    actionTarget = actionTarget || self.get('controller');
     var item = ActionButton.extend({
       label: label,
       icon: icon,
-      action: function() {
-        actionTarget.send(actionName || tag);
+      action: action || function() {
+        self.get('controller').send(tag);
       }
     });
 
@@ -41,5 +41,13 @@ export default Ember.Mixin.create({
     items.pushObjectWithTag(itemInstance, tag);
 
     return itemInstance;
+  },
+
+  addSeparatorItem: function(items) {
+    var length = items.get('length');
+    var last = items.objectAt(length - 1);
+    if (last && !(last instanceof SeparatorItem)) {
+      items.pushObject(SeparatorItem.create());
+    }
   }
 });
