@@ -24,7 +24,7 @@ export default Ember.Controller.extend(UseComposer, Paneable, {
 
     var controller = this;
     return this.saveAndDismissComposer(discussion).then(function(discussion) {
-      controller.get('index').set('model', null).send('refresh');
+      controller.get('index').send('refresh');
       controller.transitionToRoute('discussion', discussion);
     });
   },
