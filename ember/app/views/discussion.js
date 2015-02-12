@@ -66,5 +66,21 @@ export default Ember.View.extend(HasItemLists, {
       view.get('streamContent').send('goToLast');
       view.get('controller').send('reply');
     });
+
+    this.addSeparatorItem(items);
+
+    this.addActionItem(items, 'rename', 'Rename', 'pencil', 'discussion.canEdit', function() {
+      var discussion = view.get('controller.model');
+      var title = prompt('Enter a new title for this discussion:', discussion.get('title'));
+      if (title) {
+        view.get('controller').send('rename', title);
+      }
+    });
+
+    this.addActionItem(items, 'delete', 'Delete', 'times', 'discussion.canDelete', function() {
+      if (confirm('Are you sure you want to delete this discussion?')) {
+        view.get('controller').send('delete');
+      }
+    });
   }
 });
