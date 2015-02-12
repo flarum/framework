@@ -152,10 +152,9 @@
 }
 .post-icon {
   float: left;
-  margin-top: -2px;
   margin-left: -90px;
   width: 64px;
-  text-align: center;
+  text-align: right;
   font-size: 22px;
 }
 .post.is-hidden {
@@ -191,6 +190,25 @@
   }
   & .permalink {
     margin-top: 10px;
+  }
+}
+
+.post-activity {
+  &, & a {
+    color: @fl-body-muted-color;
+  }
+  & a {
+    font-weight: bold;
+  }
+}
+.post-activity-info {
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+.post-renamed {
+  & .old-title, & .new-title {
+    font-weight: normal;
+    font-style: italic;
   }
 }
 

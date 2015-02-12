@@ -9,17 +9,17 @@ use Flarum\Core\Formatter\FormatterManager;
 class CoreServiceProvider extends ServiceProvider
 {
     /**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
     protected $defer = false;
 
     /**
-	 * Bootstrap the application events.
-	 *
-	 * @return void
-	 */
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
     public function boot()
     {
         $this->package('flarum/core', 'flarum');
@@ -30,14 +30,14 @@ class CoreServiceProvider extends ServiceProvider
 
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\DiscussionMetadataUpdater');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\UserMetadataUpdater');
-        Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\TitleChangePostCreator');
+        Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\RenamedPostCreator');
     }
 
     /**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
+     * Register the service provider.
+     *
+     * @return void
+     */
     public function register()
     {
         // Start up the Laracasts Commander package. This is used as the basis
@@ -69,36 +69,36 @@ class CoreServiceProvider extends ServiceProvider
             $formatter->add('basic', 'Flarum\Core\Formatter\BasicFormatter');
             return $formatter;
         });
-        
 
-        
+
+
         // $this->app->singleton(
-        // 	'Flarum\Core\Repositories\Contracts\DiscussionRepository',
-        // 	function($app)
-        // 	{
-        // 		$discussion = new \Flarum\Core\Repositories\EloquentDiscussionRepository;
-        // 		return new DiscussionCacheDecorator($discussion);
-        // 	}
+        //  'Flarum\Core\Repositories\Contracts\DiscussionRepository',
+        //  function($app)
+        //  {
+        //      $discussion = new \Flarum\Core\Repositories\EloquentDiscussionRepository;
+        //      return new DiscussionCacheDecorator($discussion);
+        //  }
         // );
         // $this->app->singleton(
-        // 	'Flarum\Core\Repositories\Contracts\UserRepository',
-        // 	'Flarum\Core\Repositories\EloquentUserRepository'
+        //  'Flarum\Core\Repositories\Contracts\UserRepository',
+        //  'Flarum\Core\Repositories\EloquentUserRepository'
         // );
         // $this->app->singleton(
-        // 	'Flarum\Core\Repositories\Contracts\PostRepository',
-        // 	'Flarum\Core\Repositories\EloquentPostRepository'
+        //  'Flarum\Core\Repositories\Contracts\PostRepository',
+        //  'Flarum\Core\Repositories\EloquentPostRepository'
         // );
         // $this->app->singleton(
-        // 	'Flarum\Core\Repositories\Contracts\GroupRepository',
-        // 	'Flarum\Core\Repositories\EloquentGroupRepository'
+        //  'Flarum\Core\Repositories\Contracts\GroupRepository',
+        //  'Flarum\Core\Repositories\EloquentGroupRepository'
         // );
     }
 
     /**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
     public function provides()
     {
         return array();

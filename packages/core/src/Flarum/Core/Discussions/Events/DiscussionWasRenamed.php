@@ -9,9 +9,12 @@ class DiscussionWasRenamed
 
     public $user;
 
-    public function __construct(Discussion $discussion, User $user)
+    public $oldTitle;
+
+    public function __construct(Discussion $discussion, User $user, $oldTitle)
     {
         $this->discussion = $discussion;
         $this->user = $user;
+        $this->oldTitle = $oldTitle;
     }
 }

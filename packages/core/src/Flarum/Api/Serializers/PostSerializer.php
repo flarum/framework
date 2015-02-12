@@ -38,13 +38,13 @@ class PostSerializer extends PostBasicSerializer
 
         $canEdit = $post->can($user, 'edit');
 
-        if ($post->type != 'comment') {
-            $attributes['content'] = $post->content;
-        } else {
+        if ($post->type === 'comment') {
             $attributes['contentHtml'] = $post->content_html;
             if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
+        } else {
+            $attributes['content'] = json_encode($post->content);
         }
 
         if ($post->edit_time) {

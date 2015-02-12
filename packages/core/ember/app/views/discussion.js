@@ -71,8 +71,9 @@ export default Ember.View.extend(HasItemLists, {
 
     this.addActionItem(items, 'rename', 'Rename', 'pencil', 'discussion.canEdit', function() {
       var discussion = view.get('controller.model');
-      var title = prompt('Enter a new title for this discussion:', discussion.get('title'));
-      if (title) {
+      var currentTitle = discussion.get('title');
+      var title = prompt('Enter a new title for this discussion:', currentTitle);
+      if (title && title !== currentTitle) {
         view.get('controller').send('rename', title);
       }
     });

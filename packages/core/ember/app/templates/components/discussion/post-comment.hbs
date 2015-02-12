@@ -1,11 +1,4 @@
-{{#if controls}}
-  {{ui/dropdown-button
-    items=renderControls
-    class="contextual-controls"
-    buttonClass="btn btn-default btn-icon btn-sm btn-naked"
-    buttonClick="renderControls"
-    menuClass="pull-right"}}
-{{/if}}
+{{partial "components/discussion/post-controls"}}
 
 <header class="post-header">
   {{ui/item-list items=header}}

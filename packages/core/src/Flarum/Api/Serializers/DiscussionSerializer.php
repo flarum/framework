@@ -130,4 +130,17 @@ class DiscussionSerializer extends DiscussionBasicSerializer
     {
         return (new PostBasicSerializer($relations))->resource($discussion->lastPost);
     }
+
+    /**
+     * Get a resource containing a discussion's list of posts that have been
+     * added during this request.
+     *
+     * @param Discussion $discussion
+     * @param array $relations
+     * @return Tobscure\JsonApi\Collection
+     */
+    public function includeAddedPosts(Discussion $discussion, $relations)
+    {
+        return (new PostBasicSerializer($relations))->collection($discussion->getAddedPosts());
+    }
 }
