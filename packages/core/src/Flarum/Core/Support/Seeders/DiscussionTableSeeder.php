@@ -67,9 +67,9 @@ class DiscussionTableSeeder extends Seeder
                     ]);
                 } else {
                     $edited = rand(1, 20) == 1;
-                    $deleted = rand(1, 100) == 1;
+                    $hidden = rand(1, 100) == 1;
 
-                    if ($deleted) {
+                    if ($hidden) {
                         $discussion->comments_count--;
                     }
 
@@ -82,8 +82,8 @@ class DiscussionTableSeeder extends Seeder
                         'content'       => $faker->realText(rand(50, 500)),
                         'edit_time'     => $edited ? $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')) : null,
                         'edit_user_id'  => $edited ? rand(1, $users) : null,
-                        'delete_time'     => $deleted ? $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')) : null,
-                        'delete_user_id'  => $deleted ? rand(1, $users) : null,
+                        'hide_time'     => $hidden ? $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')) : null,
+                        'hide_user_id'  => $hidden ? rand(1, $users) : null,
                     ]);
 
                     $posts[] = $post;

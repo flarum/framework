@@ -15,9 +15,9 @@ export default DS.Model.extend({
   editUser: DS.belongsTo('user'),
   isEdited: Ember.computed.notEmpty('editTime'),
 
+  hideTime: DS.attr('date'),
+  hideUser: DS.belongsTo('user'),
   isHidden: DS.attr('boolean'),
-  deleteTime: DS.attr('date'),
-  deleteUser: DS.belongsTo('user'),
 
   canEdit: DS.attr('boolean'),
   canDelete: DS.attr('boolean')

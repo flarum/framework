@@ -12,7 +12,7 @@ class Index extends Base
 
     /**
      * The post repository.
-     * 
+     *
      * @var PostRepository
      */
     protected $posts;
@@ -35,7 +35,7 @@ class Index extends Base
     protected function run()
     {
         $postIds = (array) $this->input('ids');
-        $include = ['user', 'user.groups', 'editUser', 'deleteUser'];
+        $include = ['user', 'user.groups', 'editUser', 'hideUser'];
 
         if (count($postIds)) {
             $posts = $this->posts->findMany($postIds, $include);

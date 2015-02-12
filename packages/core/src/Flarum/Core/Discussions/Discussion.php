@@ -111,7 +111,7 @@ class Discussion extends Entity
 
     public function comments()
     {
-        return $this->posts()->where('type', 'comment')->whereNull('delete_time');
+        return $this->posts()->where('type', 'comment')->whereNull('hide_time');
     }
 
     public function startPost()
