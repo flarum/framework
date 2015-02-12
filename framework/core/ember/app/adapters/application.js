@@ -27,7 +27,7 @@ export default JsonApiAdapter.extend({
     if (errors instanceof JsonApiAdapter.ServerError) {
       var message = AlertMessage.create({
         type: 'warning',
-        message: errors.message
+        message: 'Something went wrong: '+errors.message.errors[0].code
       });
       this.get('alerts').send('alert', message);
       return;
