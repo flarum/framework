@@ -102,6 +102,19 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
 
     postRemoved: function(post) {
       this.get('stream').removePost(post);
+    },
+
+    rename: function(title) {
+      var discussion = this.get('model');
+      discussion.set('title', title);
+      discussion.save();
+    },
+
+    delete: function() {
+      var controller = this;
+      this.get('model').destroyRecord().then(function() {
+        controller.transitionToRoute('index');
+      });
     }
   }
 });
