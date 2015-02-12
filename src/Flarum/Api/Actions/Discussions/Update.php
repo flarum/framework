@@ -20,12 +20,13 @@ class Update extends Base
     {
         $discussionId = $this->param('id');
         $readNumber = $this->input('discussions.readNumber');
+        $user = User::current();
 
         // First, we will run the EditDiscussionCommand. This will update the
         // discussion's direct properties; by default, this is just the title.
         // As usual, however, we will fire an event to allow plugins to update
         // additional properties.
-        $command = new EditDiscussionCommand($discussionId, User::current());
+        $command = new EditDiscussionCommand($discussionId, $user);
         $this->fillCommandWithInput($command, 'discussions');
 
         Event::fire('Flarum.Api.Actions.Discussions.Update.WillExecuteCommand', [$command]);
@@ -36,14 +37,14 @@ class Update extends Base
         // ReadDiscussionCommand. We won't bother firing an event for this one,
         // because it's pretty specific. (This may need to change in the future.)
         if ($readNumber) {
-            $command = new ReadDiscussionCommand($discussionId, User::current(), $readNumber);
-            $discussion = $this->commandBus->execute($command);
+            $command = new ReadDiscussionCommand($discussionId, $user, $readNumber);
+            $this->commandBus->execute($command);
         }
 
         // Presumably, the discussion was updated successfully. (One of the command
         // handlers would have thrown an exception if not.) We set this
         // discussion as our document's primary element.
-        $serializer = new DiscussionSerializer;
+        $serializer = new DiscussionSerializer(['addedPosts', 'addedPosts.user']);
         $this->document->setPrimaryElement($serializer->resource($discussion));
 
         return $this->respondWithDocument();

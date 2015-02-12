@@ -3,10 +3,10 @@
 use Laracasts\Commander\Events\EventListener;
 
 use Flarum\Core\Posts\PostRepository;
-use Flarum\Core\Posts\TitleChangePost;
+use Flarum\Core\Posts\RenamedPost;
 use Flarum\Core\Discussions\Events\DiscussionWasRenamed;
 
-class TitleChangePostCreator extends EventListener
+class RenamedPostCreator extends EventListener
 {
     protected $postRepo;
 
@@ -17,12 +17,15 @@ class TitleChangePostCreator extends EventListener
 
     public function whenDiscussionWasRenamed(DiscussionWasRenamed $event)
     {
-        $post = TitleChangePost::reply(
+        $post = RenamedPost::reply(
             $event->discussion->id,
-            $event->discussion->title,
-            $event->user->id
+            $event->user->id,
+            $event->oldTitle,
+            $event->discussion->title
         );
 
         $this->postRepo->save($post);
+
+        $event->discussion->postWasAdded($post);
     }
 }

@@ -30,7 +30,7 @@ class PostBasicSerializer extends BaseSerializer
 
     /**
      * Serialize attributes of a Post model for JSON output.
-     * 
+     *
      * @param Post $post The Post model to serialize.
      * @return array
      */
@@ -40,9 +40,14 @@ class PostBasicSerializer extends BaseSerializer
             'id'      => (int) $post->id,
             'number'  => (int) $post->number,
             'time'    => $post->time->toRFC3339String(),
-            'type'    => $post->type,
-            'content' => str_limit($post->content, 200)
+            'type'    => $post->type
         ];
+
+        if ($post->type === 'comment') {
+            $attributes['content'] = str_limit($post->content, 200);
+        } else {
+            $attributes['content'] = json_encode($post->content);
+        }
 
         return $this->attributesEvent($post, $attributes);
     }
@@ -50,7 +55,7 @@ class PostBasicSerializer extends BaseSerializer
     /**
      * Get the URL templates where this resource and its related resources can
      * be accessed.
-     * 
+     *
      * @return array
      */
     public function href()
@@ -62,7 +67,7 @@ class PostBasicSerializer extends BaseSerializer
 
     /**
      * Get a resource containing a post's user.
-     * 
+     *
      * @param Post $post
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -74,7 +79,7 @@ class PostBasicSerializer extends BaseSerializer
 
     /**
      * Get a resource containing a post's discussion ID.
-     * 
+     *
      * @param Post $post
      * @return Tobscure\JsonApi\Resource
      */

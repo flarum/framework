@@ -8,6 +8,7 @@ use Flarum\Core\Forum;
 use Flarum\Core\Permission;
 use Flarum\Core\Support\Exceptions\PermissionDeniedException;
 use Flarum\Core\Users\User;
+use Flarum\Core\Posts\Post;
 
 class Discussion extends Entity
 {
@@ -27,6 +28,8 @@ class Discussion extends Entity
         'last_post_id'     => 'integer',
         'last_post_number' => 'integer'
     ];
+
+    protected $addedPosts = [];
 
     public static function boot()
     {
@@ -69,7 +72,7 @@ class Discussion extends Entity
         return $discussion;
     }
 
-    public function setLastPost($post)
+    public function setLastPost(Post $post)
     {
         $this->last_time        = $post->time;
         $this->last_user_id     = $post->user_id;
@@ -79,8 +82,19 @@ class Discussion extends Entity
 
     public function refreshLastPost()
     {
-        $lastPost = $this->comments()->orderBy('time', 'desc')->first();
-        $this->setLastPost($lastPost);
+        if ($lastPost = $this->comments()->orderBy('time', 'desc')->first()) {
+            $this->setLastPost($lastPost);
+        }
+    }
+
+    public function getAddedPosts()
+    {
+        return $this->addedPosts;
+    }
+
+    public function postWasAdded(Post $post)
+    {
+        $this->addedPosts[] = $post;
     }
 
     public function refreshCommentsCount()
@@ -94,9 +108,10 @@ class Discussion extends Entity
             return;
         }
 
+        $oldTitle = $this->title;
         $this->title = $title;
 
-        $this->raise(new Events\DiscussionWasRenamed($this, $user));
+        $this->raise(new Events\DiscussionWasRenamed($this, $user, $oldTitle));
     }
 
     public function getDates()

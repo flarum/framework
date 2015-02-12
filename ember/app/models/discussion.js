@@ -36,6 +36,7 @@ export default DS.Model.extend({
   }),
   loadedPosts: DS.hasMany('post'),
   relevantPosts: DS.hasMany('post'),
+  addedPosts: DS.hasMany('post'),
 
   readTime: DS.attr('date'),
   readNumber: DS.attr('number'),

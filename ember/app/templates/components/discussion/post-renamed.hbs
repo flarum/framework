@@ -1,0 +1,7 @@
+{{partial "components/discussion/post-controls"}}
+
+{{fa-icon "pencil" class="post-icon"}}
+
+<div class="post-activity-info">{{#link-to "user" post.user class="post-user"}}{{post.user.username}}{{/link-to}} changed the title from <strong class="old-title">{{oldTitle}}</strong> to <strong class="new-title">{{newTitle}}</strong>.</div>
+
+<div class="post-activity-time">{{human-time post.time}}</div>
