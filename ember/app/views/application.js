@@ -3,7 +3,6 @@ import Ember from 'ember';
 import HasItemLists from 'flarum/mixins/has-item-lists';
 import SearchInput from 'flarum/components/ui/search-input';
 import UserDropdown from 'flarum/components/application/user-dropdown';
-import GoToTop from 'flarum/components/application/go-to-top';
 import ForumStatistic from 'flarum/components/application/forum-statistic';
 import PoweredBy from 'flarum/components/application/powered-by';
 
@@ -81,8 +80,6 @@ export default Ember.View.extend(HasItemLists, {
   },
 
   populateFooterPrimary: function(items) {
-    items.pushObjectWithTag(GoToTop.create(), 'top');
-
     var addStatistic = function(label, number) {
       items.pushObjectWithTag(ForumStatistic.create({
         label: label,
