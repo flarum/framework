@@ -54,6 +54,13 @@ export default Ember.Controller.extend(UseComposer, Paneable, {
           }
         });
       });
+    },
+
+    discussionRemoved: function(discussion) {
+      if (this.get('controllers.discussion.model') === discussion) {
+        this.transitionToRoute('index');
+      }
+      this.get('index').send('discussionRemoved', discussion);
     }
   }
 });
