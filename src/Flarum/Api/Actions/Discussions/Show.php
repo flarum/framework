@@ -12,7 +12,7 @@ class Show extends Base
 
     /**
      * The post repository.
-     * 
+     *
      * @var PostRepository
      */
     protected $posts;
@@ -39,7 +39,7 @@ class Show extends Base
         $discussion = Discussion::whereCanView()->findOrFail($this->param('id'));
 
         if (in_array('posts', $include)) {
-            $relations = ['user', 'user.groups', 'editUser', 'deleteUser'];
+            $relations = ['user', 'user.groups', 'editUser', 'hideUser'];
             $discussion->posts = $this->getPostsForDiscussion($this->posts, $discussion->id, $relations);
 
             $include = array_merge($include, array_map(function ($relation) {

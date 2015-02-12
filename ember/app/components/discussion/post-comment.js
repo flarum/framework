@@ -21,8 +21,8 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
   tagName: 'article',
   classNames: ['post', 'post-comment'],
   classNameBindings: [
-    'post.isHidden:deleted',
-    'post.isEdited:edited',
+    'post.isHidden:is-hidden',
+    'post.isEdited:is-edited',
     'revealContent:reveal-content'
   ],
   itemLists: ['controls', 'header', 'footer'],
@@ -35,7 +35,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
   populateControls: function(items) {
     if (this.get('post.isHidden')) {
       this.addActionItem(items, 'restore', 'Restore', 'reply', 'post.canEdit');
-      this.addActionItem(items, 'delete', 'Delete', 'times', 'post.canDelete');
+      this.addActionItem(items, 'delete', 'Delete Forever', 'times', 'post.canDelete');
     } else {
       this.addActionItem(items, 'edit', 'Edit', 'pencil', 'post.canEdit');
       this.addActionItem(items, 'hide', 'Delete', 'times', 'post.canEdit');
@@ -88,8 +88,8 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
       var post = this.get('post');
       post.setProperties({
         isHidden: true,
-        deleteTime: new Date,
-        deleteUser: this.get('session.user')
+        hideTime: new Date,
+        hideUser: this.get('session.user')
       });
       post.save();
     },
@@ -98,10 +98,16 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
       var post = this.get('post');
       post.setProperties({
         isHidden: false,
-        deleteTime: null,
-        deleteUser: null
+        hideTime: null,
+        hideUser: null
       });
       post.save();
+    },
+
+    delete: function() {
+      var post = this.get('post');
+      post.destroyRecord();
+      this.sendAction('postRemoved', post);
     }
   }
 });

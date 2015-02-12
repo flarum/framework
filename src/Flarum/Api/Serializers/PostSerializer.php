@@ -21,7 +21,7 @@ class PostSerializer extends PostBasicSerializer
      * Default relations to include.
      * @var array
      */
-    protected $include = ['user', 'editUser', 'deleteUser'];
+    protected $include = ['user', 'editUser', 'hideUser'];
 
     /**
      * Serialize attributes of a Post model for JSON output.
@@ -51,9 +51,9 @@ class PostSerializer extends PostBasicSerializer
             $attributes['editTime'] = $post->edit_time->toRFC3339String();
         }
 
-        if ($post->delete_time) {
+        if ($post->hide_time) {
             $attributes['isHidden'] = true;
-            $attributes['deleteTime'] = $post->delete_time->toRFC3339String();
+            $attributes['hideTime'] = $post->hide_time->toRFC3339String();
         }
 
         $attributes += [
@@ -66,7 +66,7 @@ class PostSerializer extends PostBasicSerializer
 
     /**
      * Get a resource containing a post's user.
-     * 
+     *
      * @param Post $post
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -78,7 +78,7 @@ class PostSerializer extends PostBasicSerializer
 
     /**
      * Get a resource containing a post's discussion.
-     * 
+     *
      * @param Post $post
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -90,7 +90,7 @@ class PostSerializer extends PostBasicSerializer
 
     /**
      * Get a resource containing a post's edit user.
-     * 
+     *
      * @param Post $post
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -101,14 +101,14 @@ class PostSerializer extends PostBasicSerializer
     }
 
     /**
-     * Get a resource containing a post's delete user.
-     * 
+     * Get a resource containing a post's hide user.
+     *
      * @param Post $post
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
      */
-    public function includeDeleteUser(Post $post, $relations = [])
+    public function includeHideUser(Post $post, $relations = [])
     {
-        return (new UserBasicSerializer($relations))->resource($post->deleteUser);
+        return (new UserBasicSerializer($relations))->resource($post->hideUser);
     }
 }

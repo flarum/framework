@@ -54,24 +54,24 @@ class CommentPost extends Post
 
     public function hide($user)
     {
-        if ($this->delete_time) {
+        if ($this->hide_time) {
             return;
         }
 
-        $this->delete_time = time();
-        $this->delete_user_id = $user->id;
+        $this->hide_time = time();
+        $this->hide_user_id = $user->id;
 
         $this->raise(new Events\PostWasHidden($this));
     }
 
     public function restore($user)
     {
-        if ($this->delete_time === null) {
+        if ($this->hide_time === null) {
             return;
         }
 
-        $this->delete_time = null;
-        $this->delete_user_id = null;
+        $this->hide_time = null;
+        $this->hide_user_id = null;
 
         $this->raise(new Events\PostWasRestored($this));
     }

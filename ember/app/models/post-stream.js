@@ -168,6 +168,12 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     this.get('content').pushObject(this.makeItem(index, index, post));
   },
 
+  removePost: function(post) {
+    this.get('ids').removeObject(post.get('id'));
+    var content = this.get('content');
+    content.removeObject(content.findBy('content', post));
+  },
+
   makeItem: function(indexStart, indexEnd, post) {
     var item = Ember.Object.create({
       indexStart: indexStart,

@@ -98,6 +98,10 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
         discussion.set('readNumber', endNumber);
         discussion.save();
       }
+    },
+
+    postRemoved: function(post) {
+      this.get('stream').removePost(post);
     }
   }
 });

@@ -23,7 +23,7 @@ class Show extends Base
         }
 
         $include = $this->included(['discussion', 'replyTo']);
-        $relations = array_merge(['user', 'editUser', 'deleteUser'], $include);
+        $relations = array_merge(['user', 'editUser', 'hideUser'], $include);
         $posts->load($relations);
 
         // Finally, we can set up the post serializer and use it to create
