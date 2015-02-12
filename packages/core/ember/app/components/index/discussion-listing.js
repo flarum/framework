@@ -78,7 +78,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
     },
 
     markAsRead: function() {
-      var discussion = this.get('discussion');
+      var discussion = this.get('discussion.content');
       if (discussion.get('isUnread')) {
         discussion.set('readNumber', discussion.get('lastPostNumber'));
         discussion.save();
