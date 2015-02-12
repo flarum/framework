@@ -26,8 +26,8 @@ class CreatePostsTable extends Migration {
 
 			$table->dateTime('edit_time')->nullable();
 			$table->integer('edit_user_id')->unsigned()->nullable();
-			$table->dateTime('delete_time')->nullable();
-			$table->integer('delete_user_id')->unsigned()->nullable();
+			$table->dateTime('hide_time')->nullable();
+			$table->integer('hide_user_id')->unsigned()->nullable();
 		});
 
 		// add fulltext index to content (and title?)

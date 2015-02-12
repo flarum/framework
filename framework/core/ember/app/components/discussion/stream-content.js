@@ -288,6 +288,10 @@ export default Ember.Component.extend({
 
     loadRange: function(start, end, backwards) {
       this.get('stream').loadRange(start, end, backwards);
+    },
+
+    postRemoved: function(post) {
+      this.sendAction('postRemoved', post);
     }
   }
 });

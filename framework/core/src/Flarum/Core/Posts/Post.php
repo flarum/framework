@@ -23,8 +23,8 @@ class Post extends Entity
         'user_id'        => 'integer',
         'edit_time'      => 'date',
         'edit_user_id'   => 'integer',
-        'delete_time'    => 'date',
-        'delete_user_id' => 'integer',
+        'hide_time'    => 'date',
+        'hide_user_id' => 'integer',
     ];
 
     public static function boot()
@@ -43,7 +43,7 @@ class Post extends Entity
         });
 
         static::check('view', function ($check, $user) {
-            $check->whereNull('delete_user_id')
+            $check->whereNull('hide_user_id')
                   ->orWhereCan('edit');
         });
 
@@ -55,8 +55,8 @@ class Post extends Entity
         });
 
         static::check('editOwn', function ($check, $user) {
-            $check->whereNull('delete_user_id')
-                  ->orWhere('delete_user_id', $user->id);
+            $check->whereNull('hide_user_id')
+                  ->orWhere('hide_user_id', $user->id);
         });
 
         static::deleted(function ($post) {
@@ -79,14 +79,14 @@ class Post extends Entity
         return $this->belongsTo('Flarum\Core\Users\User', 'edit_user_id');
     }
 
-    public function deleteUser()
+    public function hideUser()
     {
-        return $this->belongsTo('Flarum\Core\Users\User', 'delete_user_id');
+        return $this->belongsTo('Flarum\Core\Users\User', 'hide_user_id');
     }
 
     public function getDates()
     {
-        return ['time', 'edit_time', 'delete_time'];
+        return ['time', 'edit_time', 'hide_time'];
     }
 
     // Terminates the query and returns an array of matching IDs.
@@ -122,7 +122,7 @@ class Post extends Entity
                 return $instance;
             }
         }
-        
+
         return parent::newFromBuilder($attributes);
     }
 }
