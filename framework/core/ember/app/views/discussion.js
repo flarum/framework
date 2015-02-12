@@ -9,6 +9,8 @@ var $ = Ember.$;
 export default Ember.View.extend(HasItemLists, {
   itemLists: ['sidebar'],
 
+  discussion: Ember.computed.alias('controller.model'),
+
   didInsertElement: function() {
     this.get('controller').on('loaded', this, this.loaded);
     this.get('controller').on('startWasChanged', this, this.startWasChanged);
@@ -59,7 +61,8 @@ export default Ember.View.extend(HasItemLists, {
 
   populateControls: function(items) {
     var view = this;
-    this.addActionItem(items, 'reply', 'Reply').set('action', function() {
+
+    this.addActionItem(items, 'reply', 'Reply', 'reply', 'discussion.canReply', function() {
       view.get('streamContent').send('goToLast');
       view.get('controller').send('reply');
     });
