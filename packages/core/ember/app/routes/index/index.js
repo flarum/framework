@@ -16,13 +16,7 @@ export default Ember.Route.extend(AddCssClassToBody, {
     controller.set('model', model);
 
     if (!model.get('length')) {
-      controller.set('resultsLoading', true);
-      controller.getResults().then(function(results) {
-        controller
-          .set('resultsLoading', false)
-          .set('meta', results.get('meta'))
-          .set('model.content', results);
-      });
+      controller.send('refresh');
     }
   },
 
