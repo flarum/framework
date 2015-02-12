@@ -19,7 +19,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
     /**
      * Serialize attributes of a Discussion model for JSON output.
-     * 
+     *
      * @param Discussion $discussion The Discussion model to serialize.
      * @return array
      */
@@ -34,6 +34,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
             'startTime'      => $discussion->start_time->toRFC3339String(),
             'lastTime'       => $discussion->last_time ? $discussion->last_time->toRFC3339String() : null,
             'lastPostNumber' => $discussion->last_post_number,
+            'canReply'       => $discussion->permission('reply'),
             'canEdit'        => $discussion->permission('edit'),
             'canDelete'      => $discussion->permission('delete'),
 
@@ -46,7 +47,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
     /**
      * Get a collection containing a discussion's viewable post IDs.
-     * 
+     *
      * @param Discussion $discussion
      * @return Tobscure\JsonApi\Collection
      */
@@ -58,7 +59,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
     /**
      * Get a collection containing a discussion's viewable posts. Assumes that
      * the discussion model's posts attributes has been filled.
-     * 
+     *
      * @param Discussion $discussion
      * @param array $relations
      * @return Tobscure\JsonApi\Collection
@@ -72,7 +73,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
      * Get a collection containing a discussion's relevant posts. Assumes that
      * the discussion model's relevantPosts attributes has been filled (this
      * happens in the DiscussionFinder.)
-     * 
+     *
      * @param Discussion $discussion
      * @param array $relations
      * @return Tobscure\JsonApi\Collection
@@ -84,7 +85,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
     /**
      * Get a resource containing a discussion's start user.
-     * 
+     *
      * @param Discussion $discussion
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -96,7 +97,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
     /**
      * Get a resource containing a discussion's starting post.
-     * 
+     *
      * @param Discussion $discussion
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -108,7 +109,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
     /**
      * Get a resource containing a discussion's last user.
-     * 
+     *
      * @param Discussion $discussion
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
@@ -120,7 +121,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
     /**
      * Get a resource containing a discussion's last post.
-     * 
+     *
      * @param Discussion $discussion
      * @param array $relations
      * @return Tobscure\JsonApi\Resource
