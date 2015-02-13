@@ -17,7 +17,7 @@ export default DropdownButton.extend(HasItemLists, {
     this.addActionItem(items, 'settings', 'Settings', 'cog');
     this.addSeparatorItem(items);
     this.addActionItem(items, 'logout', 'Log Out', 'sign-out', null, function() {
-      self.sendAction('logout');
+      self.get('logout')();
     });
   }
 })
