@@ -5,6 +5,7 @@ use Config;
 use Event;
 
 use Flarum\Core\Formatter\FormatterManager;
+use Flarum\Core\Posts\Post;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,9 @@ class CoreServiceProvider extends ServiceProvider
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\DiscussionMetadataUpdater');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\UserMetadataUpdater');
         Event::listen('Flarum.Core.*', 'Flarum\Core\Listeners\RenamedPostCreator');
+
+        Post::addType('comment', 'Flarum\Core\Posts\CommentPost');
+        Post::addType('renamed', 'Flarum\Core\Posts\RenamedPost');
     }
 
     /**
