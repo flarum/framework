@@ -62,8 +62,8 @@ class DiscussionTableSeeder extends Seeder
                         'discussion_id' => $discussion->id,
                         'time'          => $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')),
                         'user_id'       => rand(1, $users),
-                        'type'          => 'title',
-                        'content'       => $discussion->title
+                        'type'          => 'renamed',
+                        'content'       => json_encode(array($faker->realText(rand(20, 40)), $discussion->title))
                     ]);
                 } else {
                     $edited = rand(1, 20) == 1;
