@@ -10,7 +10,7 @@ export default Ember.Component.extend({
   attributeBindings: ['href', 'title'],
   classNameBindings: ['className'],
   href: '#',
-  layout: precompileTemplate('{{#if icon}}{{fa-icon icon class="fa-fw icon-glyph"}} {{/if}}<span>{{label}}</span>'),
+  layout: precompileTemplate('{{#if icon}}{{fa-icon icon class="fa-fw icon-glyph"}} {{/if}}<span class="label">{{label}}</span>'),
 
   label: '',
   icon: '',

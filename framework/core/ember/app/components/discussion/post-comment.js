@@ -9,8 +9,6 @@ import PostHeaderMeta from 'flarum/components/discussion/post-header/meta';
 import PostHeaderEdited from 'flarum/components/discussion/post-header/edited';
 import PostHeaderToggle from 'flarum/components/discussion/post-header/toggle';
 
-var precompileTemplate = Ember.Handlebars.compile;
-
 /**
   Component for a `comment`-typed post. Displays a number of item lists
   (controls, header, and footer) surrounding the post's HTML content. Allows
@@ -25,7 +23,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
     'post.isEdited:is-edited',
     'revealContent:reveal-content'
   ],
-  itemLists: ['controls', 'header', 'footer'],
+  itemLists: ['controls', 'header', 'footer', 'actions'],
 
   // The stream-content component instansiates this component and sets the
   // `content` property to the content of the item in the post-stream object.
@@ -88,7 +86,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
       var post = this.get('post');
       post.setProperties({
         isHidden: true,
-        hideTime: new Date,
+        hideTime: new Date(),
         hideUser: this.get('session.user')
       });
       post.save();
