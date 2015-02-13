@@ -21,6 +21,6 @@ export default DS.Model.extend({
   canDelete: DS.attr('boolean'),
 
   color: Ember.computed('username', function() {
-    return '#'+stringToHex(this.get('username'));
+    return '#'+stringToColor(this.get('username'));
   })
 });
