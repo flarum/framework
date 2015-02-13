@@ -27,6 +27,8 @@ class Post extends Entity
         'hide_user_id' => 'integer',
     ];
 
+    protected static $types = [];
+
     public static function boot()
     {
         parent::boot();
@@ -111,15 +113,23 @@ class Post extends Entity
         }
     }
 
+    public static function addType($type, $class)
+    {
+        static::$types[$type] = $class;
+    }
+
     public function newFromBuilder($attributes = [])
     {
         if (!empty($attributes->type)) {
-            $class = 'Flarum\Core\Posts\\'.ucfirst($attributes->type).'Post';
-            if (class_exists($class)) {
-                $instance = new $class;
-                $instance->exists = true;
-                $instance->setRawAttributes((array) $attributes, true);
-                return $instance;
+            $type = $attributes->type;
+            if (isset(static::$types[$type])) {
+                $class = static::$types[$type];
+                if (class_exists($class)) {
+                    $instance = new $class;
+                    $instance->exists = true;
+                    $instance->setRawAttributes((array) $attributes, true);
+                    return $instance;
+                }
             }
         }
 
