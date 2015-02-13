@@ -212,6 +212,43 @@
   }
 }
 
+.post-footer, .post-actions {
+  & > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  &, & a {
+    color: @fl-body-muted-color;
+  }
+}
+.post-footer {
+  & > ul {
+    & > li {
+      margin-bottom: 5px;
+    }
+  }
+  & .fa {
+    font-size: 14px;
+    margin-right: 5px;
+  }
+}
+.post-actions {
+  margin-top: 10px;
+  opacity: 0;
+  .transition(opacity 0.2s);
+
+  & > ul {
+    & > li {
+      margin-right: 10px;
+      display: inline-block;
+    }
+  }
+  .post:hover & {
+    opacity: 1;
+  }
+}
+
 // ------------------------------------
 // Scrubber
 
