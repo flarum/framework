@@ -14,12 +14,13 @@ use Laracasts\Commander\Events\EventGenerator;
 use Flarum\Core\Entity;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Support\Exceptions\PermissionDeniedException;
+use Flarum\Core\Support\Exceptions\InvalidConfirmationTokenException;
 
 class User extends Entity implements UserInterface, RemindableInterface
 {
     use EventGenerator;
     use Permissible;
-    
+
     use UserTrait, RemindableTrait;
 
     protected static $rules = [
@@ -35,7 +36,7 @@ class User extends Entity implements UserInterface, RemindableInterface
     protected $table = 'users';
 
     protected $hidden = ['password'];
-    
+
     public static function boot()
     {
         parent::boot();
@@ -61,12 +62,20 @@ class User extends Entity implements UserInterface, RemindableInterface
 
     public function setUsernameAttribute($username)
     {
+        if ($username === $this->username) {
+            return;
+        }
+
         $this->attributes['username'] = $username;
         $this->raise(new Events\UserWasRenamed($this));
     }
 
     public function setEmailAttribute($email)
     {
+        if ($email === $this->email) {
+            return;
+        }
+
         $this->attributes['email'] = $email;
         $this->raise(new Events\EmailWasChanged($this));
     }
@@ -77,6 +86,14 @@ class User extends Entity implements UserInterface, RemindableInterface
         $this->raise(new Events\PasswordWasChanged($this));
     }
 
+    public function activate()
+    {
+        $this->join_time = time();
+        $this->groups()->sync([3]);
+
+        $this->raise(new Events\UserWasActivated($this));
+    }
+
     public static function register($username, $email, $password)
     {
         $user = new static;
@@ -84,11 +101,37 @@ class User extends Entity implements UserInterface, RemindableInterface
         $user->username  = $username;
         $user->email     = $email;
         $user->password  = $password;
-        $user->join_time = time();
+
+        $user->refreshConfirmationToken();
 
         $user->raise(new Events\UserWasRegistered($user));
 
         return $user;
+    }
+
+    public function validateConfirmationToken($token)
+    {
+        return ! $this->is_confirmed
+            && $token
+            && $this->confirmation_token === $token;
+    }
+
+    public function refreshConfirmationToken()
+    {
+        $this->is_confirmed = false;
+        $this->confirmation_token = str_random(30);
+    }
+
+    public function confirmEmail($token)
+    {
+        if (! $this->validateConfirmationToken($token)) {
+            throw new InvalidConfirmationTokenException;
+        }
+
+        $this->is_confirmed = true;
+        $this->confirmation_token = null;
+
+        $this->raise(new Events\EmailWasConfirmed($this));
     }
 
     public function getDates()

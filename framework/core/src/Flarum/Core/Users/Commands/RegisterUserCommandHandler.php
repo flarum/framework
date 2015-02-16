@@ -39,9 +39,8 @@ class RegisterUserCommandHandler implements CommandHandler
         );
 
         Event::fire('Flarum.Core.Users.Commands.RegisterUser.UserWillBeSaved', [$user, $command]);
-        
+
         $this->userRepo->save($user);
-        $this->userRepo->syncGroups($user, [3]); // default groups
         $this->dispatchEventsFor($user);
 
         return $user;
