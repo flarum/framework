@@ -17,10 +17,10 @@ class CommandValidator
 
     public function validate($command)
     {
-        if (! $command->user) {
+        if (empty($command->user)) {
             throw new InvalidArgumentException('Empty argument [user] in command ['.get_class($command).']');
         }
-        
+
         $validator = $this->validator->make(get_object_vars($command), $this->rules);
 
         $this->fireValidationEvent([$validator, $command]);
