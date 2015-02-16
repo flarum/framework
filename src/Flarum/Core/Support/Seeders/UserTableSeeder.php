@@ -24,11 +24,11 @@ class UserTableSeeder extends Seeder
 
         for ($i = 0; $i < 100; $i++) {
             $user = User::create([
-                'username'  => $faker->userName,
-                'email'     => $faker->safeEmail,
-                'password'  => 'password',
-                'join_time' => $faker->dateTimeThisYear,
-                'time_zone' => $faker->timezone
+                'username'     => $faker->userName,
+                'email'        => $faker->safeEmail,
+                'is_confirmed' => true,
+                'password'     => 'password',
+                'join_time'    => $faker->dateTimeThisYear
             ]);
 
             // Assign the users to the 'Member' group, and possibly some others.
@@ -49,6 +49,7 @@ class UserTableSeeder extends Seeder
 
             // Guests can view the forum
             ['group.2' , 'forum'          , 'view'],
+            ['group.2' , 'forum'          , 'register'],
 
             // Members can create and reply to discussions + edit their own stuff
             ['group.3' , 'forum'          , 'startDiscussion'],
