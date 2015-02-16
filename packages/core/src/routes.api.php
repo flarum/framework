@@ -1,7 +1,6 @@
 <?php
 
-$action = function($class)
-{
+$action = function ($class) {
     return function () use ($class) {
         $action = App::make($class);
         $request = app('request');
@@ -76,7 +75,7 @@ Route::group(['prefix' => 'api', 'before' => 'attemptLogin'], function () use ($
     | Activity
     |--------------------------------------------------------------------------
     */
-   
+
     // List activity
     Route::get('activity', [
         'as' => 'flarum.api.activity.index',
@@ -197,5 +196,5 @@ Route::group(['prefix' => 'api', 'before' => 'attemptLogin'], function () use ($
         'as' => 'flarum.api.groups.delete',
         'uses' => $action('Flarum\Api\Actions\Groups\Delete')
     ]);
-    
+
 });
