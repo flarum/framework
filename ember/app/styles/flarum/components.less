@@ -137,11 +137,13 @@
   float: left;
   margin-left: -36px;
   vertical-align: top;
-  .scale(0.001);
-  .transition(~"transform 0.15s");
+  opacity: 0;
+  .rotate(-180deg);
+  .transition(~"transform 0.2s, opacity 0.2s");
 }
 .search-input.clearable .clear {
-  .scale(1);
+  opacity: 1;
+  .rotate(0deg);
 }
 
 // Select inputs
