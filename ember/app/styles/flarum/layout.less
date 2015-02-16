@@ -25,10 +25,10 @@ body {
   .transition(box-shadow 0.2s);
 
   .scrolled & {
-    .box-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+    .box-shadow(0 2px 6px @fl-shadow-color);
   }
 
-  & when (@fl-dark-hdr = true) {
+  & when (@fl-colored-hdr = true) {
     &, & .btn-link {
       color: @fl-hdr-control-color;
     }
@@ -121,7 +121,7 @@ body {
 // Main
 
 .global-main, .paned {
-  border-top: 1px solid @fl-secondary-color;
+  border-top: 1px solid @fl-body-control-bg;
 }
 
 // Hero
@@ -143,10 +143,11 @@ body {
   margin: 0;
   font-size: 22px;
   font-weight: normal;
+  // color: @fl-body-heading-color;
 
-  & when (@fl-dark-hdr = true) {
-    color: @fl-body-color;
-  }
+  // & when (@fl-colored-hdr = true) {
+  //   color: @fl-body-color;
+  // }
 }
 .hero p {
   margin: 10px 0 0;
