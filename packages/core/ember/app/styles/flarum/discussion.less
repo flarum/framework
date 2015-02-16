@@ -277,7 +277,7 @@
     position: relative;
   }
   .scrubber-before, .scrubber-after {
-    border-left: 1px solid darken(@fl-secondary-color, 2%);
+    border-left: 1px solid @fl-body-secondary-color;
   }
   .scrubber-slider {
     position: relative;
@@ -287,13 +287,13 @@
   .scrubber-handle {
     height: 100%;
     width: 5px;
-    background: @fl-primary-color;
+    background: @fl-body-primary-color;
     border-radius: 4px;
     float: left;
     margin-left: -2px;
     transition: background 0.2s;
     .disabled & {
-      background: @fl-secondary-color;
+      background: @fl-body-secondary-color;
     }
   }
   .scrubber-info {

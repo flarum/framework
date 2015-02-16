@@ -57,7 +57,7 @@
       }
       & > li.active > a {
         background: none;
-        color: @fl-primary-color;
+        color: @fl-body-primary-color;
         font-weight: bold;
       }
     }
@@ -103,9 +103,9 @@
     top: 56px;
     bottom: 0;
     width: @index-pane-width;
-    background: #fff;
+    background: @fl-body-bg;
     padding-bottom: 200px;
-    .box-shadow(2px 2px 6px -2px rgba(0, 0, 0, 0.25));
+    .box-shadow(2px 2px 6px -2px @fl-shadow-color);
     .transition(left 0.2s);
 
     &.showing, .with-pane & {
@@ -131,7 +131,7 @@
       padding-left: 65px + 15px;
       padding-right: 65px + 15px;
       &.active {
-        background: @fl-secondary-color;
+        background: @fl-body-control-bg;
       }
     }
     & .discussion-summary {
@@ -191,6 +191,7 @@
 
   &, & a {
     color: @fl-body-muted-color;
+    text-decoration: none;
   }
   & .author {
     float: left;
@@ -206,11 +207,18 @@
     &.active {
       text-decoration: none;
     }
+    &:hover .title {
+      text-decoration: underline;
+    }
   }
   & .title {
     margin: 0 0 5px;
     font-size: 15px;
     line-height: 1.3;
+  }
+  &.unread .title {
+    color: @fl-body-heading-color;
+    font-weight: bold;
   }
   & .info {
     list-style-type: none;
