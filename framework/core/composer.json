@@ -21,9 +21,6 @@
         "laracasts/testdummy": "~2.0"
     },
     "autoload": {
-        "classmap": [
-            "seeds"
-        ],
         "psr-4": {
             "Flarum\\": "src/"
         }
