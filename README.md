@@ -80,7 +80,7 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 	```sh
 	vagrant ssh
-	cd /vagrant/workbench/flarum/core/ember && ember serve --output-path="../public"
+	cd /vagrant/flarum/core/ember && ember serve --output-path="../public"
 	```
 
 	> You can also use the `esv` alias to run the above command.
