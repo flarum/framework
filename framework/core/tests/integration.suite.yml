@@ -1,3 +1,7 @@
 class_name: IntegrationTester
 modules:
-    enabled: [IntegrationHelper, Laravel4, Mockery]
+    enabled: [IntegrationHelper, Laravel5, Mockery]
+    config:
+        Laravel5:
+            root: ../../
+            environment_file: .env.testing
