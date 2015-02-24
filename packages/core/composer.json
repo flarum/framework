@@ -9,8 +9,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "4.2.*",
-        "laracasts/commander": "1.1.*",
+        "illuminate/support": "5.0.*",
         "tobscure/json-api": "dev-master",
         "tobscure/permissible": "dev-master",
         "misd/linkify": "1.1.*"
@@ -23,12 +22,10 @@
     },
     "autoload": {
         "classmap": [
-            "src/migrations"
+            "seeds"
         ],
         "psr-4": {
-            "Flarum\\Core\\": "src/Flarum/Core",
-            "Flarum\\Api\\": "src/Flarum/Api",
-            "Flarum\\Web\\": "src/Flarum/Web"
+            "Flarum\\": "src/"
         }
     },
     "minimum-stability": "dev"
