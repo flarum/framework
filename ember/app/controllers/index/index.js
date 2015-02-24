@@ -54,6 +54,8 @@ export default Ember.Controller.extend({
       }
     }
 
+    // var results = Ember.RSVP.resolve(FLARUM_DATA.discussions);
+
     return this.store.find('discussion', params).then(function(discussions) {
       var results = Ember.A();
       discussions.forEach(function(discussion) {

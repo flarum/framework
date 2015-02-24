@@ -1,3 +1,7 @@
 class_name: ApiTester
 modules:
-    enabled: [Laravel4, REST, Asserts, ApiHelper]
+    enabled: [Laravel5, REST, Asserts, ApiHelper]
+    config:
+        Laravel5:
+            root: ../../
+            environment_file: .env.testing

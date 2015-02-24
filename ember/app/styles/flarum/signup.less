@@ -1,0 +1,23 @@
+.signup-welcome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: @border-radius-base - 1px;
+  padding: 60px;
+  text-align: center;
+  color: #fff;
+
+  & .avatar {
+    .avatar-size(64px);
+    .box-shadow(0 0 0 4px #fff);
+  }
+  & h3, & p {
+    margin-bottom: 20px;
+  }
+  & .btn-default {
+    background: fade(#000, 10%);
+    color: #fff;
+  }
+}

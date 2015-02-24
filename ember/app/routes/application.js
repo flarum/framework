@@ -1,7 +1,15 @@
 import Ember from 'ember';
 import ApplicationRouteMixin from 'simple-auth/mixins/application-route-mixin';
 
+import AlertMessage from 'flarum/components/ui/alert-message';
+
 export default Ember.Route.extend(ApplicationRouteMixin, {
+  activate: function() {
+    if (!Ember.isEmpty(FLARUM_ALERT)) {
+      this.controllerFor('alerts').send('alert', AlertMessage.create(FLARUM_ALERT));
+    }
+  },
+
   actions: {
     login: function() {
       this.controllerFor('login').set('error', null);
@@ -9,7 +17,7 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
     },
 
     signup: function() {
-      this.controllerFor('signup').set('error', null);
+      this.controllerFor('signup').set('error', null).set('welcomeUser', null);
       this.send('showModal', 'signup');
     },
 
@@ -33,7 +41,7 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
     },
 
     sessionChanged: function() {
-        this.refresh();
+      this.refresh();
     }
   }
 });

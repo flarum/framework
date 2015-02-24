@@ -19,11 +19,11 @@ class AuthCest
         $I->login('foo@bar.com', 'pass7word');
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
-        
+
         $token = $I->grabDataFromJsonResponse('token');
         $userId = $I->grabDataFromJsonResponse('userId');
         $I->assertNotEmpty($token);
-        
+
         $loggedIn = User::where('token', $token)->where('id', $userId)->first();
         $I->assertEquals($user->id, $loggedIn->id);
     }
@@ -40,7 +40,7 @@ class AuthCest
         $I->login('tobscure', 'pass7word');
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
-        
+
         $token = $I->grabDataFromJsonResponse('token');
         $userId = $I->grabDataFromJsonResponse('userId');
         $I->assertNotEmpty($token);

@@ -4,31 +4,31 @@ import AuthenticationControllerMixin from 'simple-auth/mixins/authentication-con
 import ModalController from 'flarum/mixins/modal-controller';
 
 export default Ember.Controller.extend(ModalController, AuthenticationControllerMixin, {
-	authenticator: 'authenticator:flarum',
-	loading: false,
+  authenticator: 'authenticator:flarum',
+  loading: false,
 
-	actions: {
-		authenticate: function() {
+  actions: {
+    authenticate: function() {
       var data = this.getProperties('identification', 'password');
       var controller = this;
       this.set('error', null);
       this.set('loading', true);
       return this._super(data).then(function() {
-      	controller.send("sessionChanged");
-      	controller.send("closeModal");
+        controller.send("sessionChanged");
+        controller.send("closeModal");
       }, function(errors) {
-      	switch(errors[0].code) {
-      		case 'invalidLogin':
-      			controller.set('error', 'Your login details are incorrect.');
-      			break;
+        switch(errors[0].code) {
+          case 'invalidLogin':
+            controller.set('error', 'Your login details are incorrect.');
+            break;
 
-      		default:
-      			controller.set('error', 'Something went wrong. (Error code: '+errors[0].code+')');
-      	}
-      	controller.trigger('refocus');
+          default:
+            controller.set('error', 'Something went wrong. (Error code: '+errors[0].code+')');
+        }
+        controller.trigger('refocus');
       }).finally(function() {
-      	controller.set('loading', false);
+        controller.set('loading', false);
       });
     }
-	}
+  }
 });

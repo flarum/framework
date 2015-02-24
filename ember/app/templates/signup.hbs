@@ -26,3 +26,15 @@
   </form>
 </div>
 {{ui/loading-indicator classNameBindings=":modal-loading loading:active"}}
+
+{{#if welcomeUser}}
+  <div {{bind-attr class=":signup-welcome :fade" style=welcomeStyle}}>
+    {{user-avatar welcomeUser}}
+    <h3>Welcome, {{welcomeUser.username}}!</h3>
+
+    {{#unless welcomeUser.isConfirmed}}
+      <p>We've sent a confirmation email to <strong>{{welcomeUser.email}}</strong>. If it doesn't arrive soon, check your spam folder.</p>
+      <p><a {{bind-attr href=emailProviderUrl}} class="btn btn-default">Go to {{emailProviderName}}</a></p>
+    {{/unless}}
+  </div>
+{{/if}}
