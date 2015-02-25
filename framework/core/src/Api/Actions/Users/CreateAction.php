@@ -22,8 +22,8 @@ class CreateAction extends BaseAction
         $email    = $params->get('users.email');
         $password = $params->get('users.password');
 
-        $command = new RegisterUserCommand($username, $email, $password, $this->actor->getUser());
-        $this->dispatch($command, $params);
+        $command = new RegisterUserCommand($username, $email, $password, $this->actor->getUser(), app('flarum.forum'));
+        $user = $this->dispatch($command, $params);
 
         // Presumably, the user was created successfully. (The command handler
         // would have thrown an exception if not.) We set this post as our

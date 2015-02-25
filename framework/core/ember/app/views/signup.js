@@ -9,10 +9,10 @@ export default Ember.View.extend(ModalView, {
   didInsertElement: function() {
   },
 
-  welcomeUserDidChange: Ember.observer('welcomeUser', function() {
-    if (this.get('welcomeUser')) {
+  welcomeUserDidChange: Ember.observer('controller.welcomeUser', function() {
+    if (this.get('controller.welcomeUser')) {
       Ember.run.scheduleOnce('afterRender', this, function() {
-        this.$('.signup-welcome').addClass('in');
+        this.$('.signup-welcome').hide().fadeIn();
       });
     }
   })

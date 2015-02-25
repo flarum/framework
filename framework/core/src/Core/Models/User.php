@@ -6,10 +6,10 @@ use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Events\UserWasDeleted;
 use Flarum\Core\Events\UserWasRegistered;
 use Flarum\Core\Events\UserWasRenamed;
-use Flarum\Core\Events\EmailWasChanged;
-use Flarum\Core\Events\PasswordWasChanged;
+use Flarum\Core\Events\UserEmailWasChanged;
+use Flarum\Core\Events\UserPasswordWasChanged;
 use Flarum\Core\Events\UserWasActivated;
-use Flarum\Core\Events\EmailWasConfirmed;
+use Flarum\Core\Events\UserEmailWasConfirmed;
 
 class User extends Model
 {
@@ -115,7 +115,7 @@ class User extends Model
     {
         if ($email !== $this->email) {
             $this->email = $email;
-            $this->raise(new EmailWasChanged($this));
+            $this->raise(new UserEmailWasChanged($this));
         }
 
         return $this;
@@ -130,7 +130,7 @@ class User extends Model
     public function changePassword($password)
     {
         $this->password = $password ? static::$hasher->make($password) : null;
-        $this->raise(new PasswordWasChanged($this));
+        $this->raise(new UserPasswordWasChanged($this));
 
         return $this;
     }
@@ -211,7 +211,7 @@ class User extends Model
         $this->is_confirmed = true;
         $this->confirmation_token = null;
 
-        $this->raise(new EmailWasConfirmed($this));
+        $this->raise(new UserEmailWasConfirmed($this));
 
         return $this;
     }
@@ -300,6 +300,16 @@ class User extends Model
     public function permissions()
     {
         return Permission::whereIn('grantee', $this->getGrantees());
+    }
+
+    /**
+     * Define the relationship with the user's access tokens.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function accessTokens()
+    {
+        return $this->hasMany('Flarum\Core\Models\AccessToken');
     }
 
     /**

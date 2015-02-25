@@ -2,7 +2,7 @@
 
 use Flarum\Core\Models\User;
 
-class EmailWasConfirmed
+class UserEmailWasConfirmed
 {
     public $user;
 
