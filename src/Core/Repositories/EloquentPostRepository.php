@@ -96,8 +96,11 @@ class EloquentPostRepository implements PostRepositoryInterface
                       ->from('posts')
                       ->where('discussion_id', $discussionId)
                       ->whereNotNull('number')
-                      ->orderByRaw('ABS(CAST(number AS SIGNED) - ?)', [$number])
-                      ->take(1);
+                      ->take(1)
+
+                      // We don't add $number as a binding because for some
+                      // reason doing so makes the bindings go out of order.
+                      ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')')
             });
 
         return $this->scopeVisibleForUser($query, $user)->count();
