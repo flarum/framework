@@ -113,9 +113,8 @@ export default Ember.Controller.extend({
       model.removeObject(model.findBy('content', discussion));
     },
 
-    refresh: function() {
+    loadResults: function() {
       var controller = this;
-      controller.set('model', Ember.ArrayProxy.create());
       controller.set('resultsLoading', true);
       controller.getResults().then(function(results) {
         controller
