@@ -10,7 +10,7 @@ var $ = Ember.$;
 export default Ember.Component.extend({
   tagName: 'li',
   classNames: ['dropdown'],
-  layoutName: 'components/discussion/post-header/time',
+  layoutName: 'components/discussion/post-header/meta',
 
   // Construct a permalink by looking up the router in the container, and
   // using it to generate a link to this post within its discussion.
