@@ -27,7 +27,7 @@ export default Ember.Mixin.create({
 
   showErrorsAsAlertMessages: function(errors) {
     for (var i in errors) {
-      var message = AlertMessage.create({
+      var message = AlertMessage.extend({
         type: 'warning',
         message: errors[i]
       });

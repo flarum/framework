@@ -60,7 +60,7 @@ export default Ember.View.extend(HasItemLists, {
   populateHeaderSecondary: function(items) {
   	var controller = this.get('controller');
 
-  	items.pushObjectWithTag(SearchInput.create({
+  	items.pushObjectWithTag(SearchInput.extend({
       placeholder: 'Search Forum',
       controller: controller,
       valueBinding: Ember.Binding.oneWay('controller.searchQuery'),
@@ -69,7 +69,7 @@ export default Ember.View.extend(HasItemLists, {
     }), 'search');
 
     if (this.get('controller.session.isAuthenticated')) {
-      items.pushObjectWithTag(UserDropdown.create({
+      items.pushObjectWithTag(UserDropdown.extend({
         user: this.get('controller.session.user'),
         logout: function() { controller.send('invalidateSession'); }
       }), 'user');
@@ -81,7 +81,7 @@ export default Ember.View.extend(HasItemLists, {
 
   populateFooterPrimary: function(items) {
     var addStatistic = function(label, number) {
-      items.pushObjectWithTag(ForumStatistic.create({
+      items.pushObjectWithTag(ForumStatistic.extend({
         label: label,
         number: number
       }), 'statistics.'+label);
@@ -93,6 +93,6 @@ export default Ember.View.extend(HasItemLists, {
   },
 
   populateFooterSecondary: function(items) {
-    items.pushObjectWithTag(PoweredBy.create(), 'poweredBy');
+    items.pushObjectWithTag(PoweredBy, 'poweredBy');
   }
 });

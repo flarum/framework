@@ -233,7 +233,7 @@ export default Ember.View.extend(HasItemLists, {
   populateControls: function(items) {
     var view = this;
     var addControl = function(tag, title, icon) {
-      view.addActionItem(items, tag, null, icon).set('className', 'btn btn-icon btn-link').set('title', title);
+      view.addActionItem(items, tag, null, icon).reopen({className: 'btn btn-icon btn-link', title: title});
     };
 
     if (this.get('fullscreen')) {

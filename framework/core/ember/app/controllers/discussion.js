@@ -50,7 +50,7 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
         // Otherwise, we'll create an alert message to inform the user
         // that their reply has been posted, containing a button which
         // will transition to their new post when clicked.
-        var message = AlertMessage.create({
+        var message = AlertMessage.extend({
           type: 'success',
           message: 'Your reply was posted.',
           buttons: [{

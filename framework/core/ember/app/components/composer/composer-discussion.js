@@ -16,7 +16,7 @@ export default ComposerBody.extend({
   title: '',
 
   populateControls: function(items) {
-    var title = Ember.Component.create({
+    var title = Ember.Component.extend({
       tagName: 'h3',
       layout: precompileTemplate('{{ui/text-input value=component.title class="form-control" placeholder=component.titlePlaceholder disabled=component.disabled autoGrow=true}}'),
       component: this
