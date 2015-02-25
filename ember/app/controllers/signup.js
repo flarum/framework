@@ -28,6 +28,7 @@ export default Ember.Controller.extend(ModalController, {
       return user.save().then(function(user) {
         controller.set('welcomeUser', user);
         controller.set('loading', false);
+        controller.send('saveState');
       }, function(reason) {
         controller.set('loading', false);
       });
