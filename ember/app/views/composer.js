@@ -159,7 +159,7 @@ export default Ember.View.extend(HasItemLists, {
 
       switch (this.get('position')) {
         case PositionEnum.HIDDEN:
-          $composer.animate({bottom: -newHeight}, 'fast', function() {
+          $composer.css({height: oldHeight}).animate({bottom: -newHeight}, 'fast', function() {
             $composer.hide();
             view.get('controller').send('clearContent');
           });
