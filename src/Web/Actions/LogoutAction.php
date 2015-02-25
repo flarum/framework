@@ -1,16 +1,22 @@
 <?php namespace Flarum\Web\Actions;
 
+use Illuminate\Http\Request;
+use Flarum\Web\Events\UserLoggedOut;
 use Cookie;
 
-class LoginAction extends Action
+class LogoutAction extends Action
 {
-    public function respond(Request $request, $params = [])
+    public function handle(Request $request, $params = [])
     {
-        Auth::user()->accessTokens()->delete();
+        $user = $this->actor->getUser();
 
-        $this->event(new UserLoggedOut(Auth::user()));
+        if ($user->exists) {
+            $user->accessTokens()->delete();
 
-        return Redirect::to('')->withCookie($this->makeForgetCookie());
+            event(new UserLoggedOut($user));
+        }
+
+        return redirect('')->withCookie($this->makeForgetCookie());
     }
 
     public function makeForgetCookie()
