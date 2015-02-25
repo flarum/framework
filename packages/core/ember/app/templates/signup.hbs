@@ -28,7 +28,7 @@
 {{ui/loading-indicator classNameBindings=":modal-loading loading:active"}}
 
 {{#if welcomeUser}}
-  <div {{bind-attr class=":signup-welcome :fade" style=welcomeStyle}}>
+  <div {{bind-attr class=":signup-welcome" style=welcomeStyle}}>
     {{user-avatar welcomeUser}}
     <h3>Welcome, {{welcomeUser.username}}!</h3>
 

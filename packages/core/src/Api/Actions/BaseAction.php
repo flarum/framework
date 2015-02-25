@@ -44,7 +44,7 @@ abstract class BaseAction extends Action
         }
     }
 
-    protected function dispatch($command, $params)
+    protected function dispatch($command, $params = [])
     {
         $this->event(new CommandWillBeDispatched($command, $params));
         return $this->bus->dispatch($command);

@@ -21,7 +21,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot(Dispatcher $events, Bus $bus)
     {
-        $this->loadViewsFrom(__DIR__.'../../views', 'flarum');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
         $this->registerEventHandlers($events);
         $this->registerPostTypes();

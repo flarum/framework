@@ -2,7 +2,7 @@
 
 use Flarum\Core\Models\User;
 
-class PasswordWasChanged
+class UserPasswordWasChanged
 {
     public $user;
 

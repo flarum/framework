@@ -3,6 +3,7 @@
 use Illuminate\Mail\Mailer;
 use Flarum\Core\Events\UserWasRegistered;
 use Flarum\Core\Events\EmailWasChanged;
+use Config;
 
 class EmailConfirmationMailer
 {
@@ -29,7 +30,7 @@ class EmailConfirmationMailer
     {
         $user = $event->user;
 
-        $forumTitle = Config::get('flarum::forum_tite');
+        $forumTitle = Config::get('flarum::forum_title');
 
         $data = [
             'username' => $user->username,
@@ -37,8 +38,10 @@ class EmailConfirmationMailer
             'url' => route('flarum.confirm', ['id' => $user->id, 'token' => $user->confirmation_token])
         ];
 
-        $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user) {
-            $message->to($user->email)->subject('['.$forumTitle.'] Email Address Confirmation');
+        $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user, $forumTitle) {
+            $message->to($user->email);
+            $message->subject('['.$forumTitle.'] Email Address Confirmation');
+            $message->from('noreply@localhost', $forumTitle);
         });
     }
 

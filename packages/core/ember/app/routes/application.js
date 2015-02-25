@@ -7,6 +7,13 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
   activate: function() {
     if (!Ember.isEmpty(FLARUM_ALERT)) {
       this.controllerFor('alerts').send('alert', AlertMessage.create(FLARUM_ALERT));
+      FLARUM_ALERT = null;
+    }
+
+    var restoreUrl = localStorage.getItem('restoreUrl');
+    if (restoreUrl && this.get('session.isAuthenticated')) {
+      this.transitionTo(restoreUrl);
+      localStorage.removeItem('restoreUrl');
     }
   },
 
@@ -42,6 +49,10 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
 
     sessionChanged: function() {
       this.refresh();
+    },
+
+    saveState: function() {
+      localStorage.setItem('restoreUrl', this.router.get('url'));
     }
   }
 });

@@ -2,7 +2,7 @@
 
 use Flarum\Core\Models\User;
 
-class EmailWasChanged
+class UserEmailWasChanged
 {
     public $user;
 

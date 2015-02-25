@@ -1,5 +1,7 @@
 <?php namespace Flarum\Core\Handlers\Commands;
 
+use Flarum\Core\Models\User;
+use Flarum\Core\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
 
 class RegisterUserCommandHandler
