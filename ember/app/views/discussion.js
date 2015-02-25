@@ -48,13 +48,13 @@ export default Ember.View.extend(HasItemLists, {
   // ------------------------------------------------------------------------
 
   populateSidebar: function(items) {
-    items.pushObjectWithTag(DropdownSplit.create({
+    items.pushObjectWithTag(DropdownSplit.extend({
       items: this.populateItemList('controls'),
       icon: 'reply',
       buttonClass: 'btn-primary'
     }), 'controls');
 
-    items.pushObjectWithTag(StreamScrubber.create({
+    items.pushObjectWithTag(StreamScrubber.extend({
       streamContent: this.get('streamContent')
     }), 'scrubber');
   },

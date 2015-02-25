@@ -14,7 +14,7 @@ export default Ember.Component.extend({
       return [];
     }
     items.forEach(function(item) {
-      item.set('isListItem', item.get('tagName') === 'li');
+      item.reopenClass({isListItem: item.proto().tagName === 'li'});
     });
     return items;
   })

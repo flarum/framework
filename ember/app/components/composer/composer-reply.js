@@ -12,7 +12,7 @@ export default ComposerBody.extend({
   submitLabel: 'Post Reply',
 
   populateControls: function(items) {
-    var title = Ember.Component.create({
+    var title = Ember.Component.extend({
       tagName: 'h3',
       layout: precompileTemplate('Replying to <em>{{component.discussion.title}}</em>'),
       component: this
