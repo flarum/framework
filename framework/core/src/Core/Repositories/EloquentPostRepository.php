@@ -100,7 +100,7 @@ class EloquentPostRepository implements PostRepositoryInterface
 
                       // We don't add $number as a binding because for some
                       // reason doing so makes the bindings go out of order.
-                      ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')')
+                      ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')');
             });
 
         return $this->scopeVisibleForUser($query, $user)->count();
