@@ -64,7 +64,8 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
       layoutName: 'components/index/discussion-info/terminal-post',
       discussion: Ember.computed.alias('parent.discussion'),
       displayLastPost: Ember.computed.alias('parent.displayLastPost'),
-    }).create({parent: this}), 'terminalPost');
+      parent: this
+    }), 'terminalPost');
   },
 
   actions: {

@@ -49,10 +49,10 @@ export default Ember.Component.extend(FadeIn, HasItemLists, UseComposer, {
 
   populateHeader: function(items) {
     var properties = this.getProperties('post');
-    items.pushObjectWithTag(PostHeaderUser.create(properties), 'user');
-    items.pushObjectWithTag(PostHeaderMeta.create(properties), 'meta');
-    items.pushObjectWithTag(PostHeaderEdited.create(properties), 'edited');
-    items.pushObjectWithTag(PostHeaderToggle.create(properties, {parent: this}), 'toggle');
+    items.pushObjectWithTag(PostHeaderUser.extend(properties), 'user');
+    items.pushObjectWithTag(PostHeaderMeta.extend(properties), 'meta');
+    items.pushObjectWithTag(PostHeaderEdited.extend(properties), 'edited');
+    items.pushObjectWithTag(PostHeaderToggle.extend(properties, {parent: this}), 'toggle');
   },
 
   savePost: function(post, data) {

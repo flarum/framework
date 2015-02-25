@@ -21,6 +21,7 @@ export default Ember.Mixin.create({
   populateItemList: function(name) {
     var items = TaggedArray.create();
     this.trigger('populate'+name.charAt(0).toUpperCase()+name.slice(1), items);
+    this.removeUnneededSeparatorItems(items);
     return items;
   },
 
@@ -36,18 +37,26 @@ export default Ember.Mixin.create({
       }
     });
 
-    var itemInstance = item.create();
+    items.pushObjectWithTag(item, tag);
 
-    items.pushObjectWithTag(itemInstance, tag);
-
-    return itemInstance;
+    return item;
   },
 
   addSeparatorItem: function(items) {
-    var length = items.get('length');
-    var last = items.objectAt(length - 1);
-    if (last && !(last instanceof SeparatorItem)) {
-      items.pushObject(SeparatorItem.create());
+    items.pushObject(SeparatorItem);
+  },
+
+  removeUnneededSeparatorItems: function(items) {
+    var prevItem = null;
+    items.forEach(function(item) {
+      if (prevItem === SeparatorItem && item === SeparatorItem) {
+        items.removeObject(item);
+        return;
+      }
+      prevItem = item;
+    });
+    if (prevItem === SeparatorItem) {
+      items.removeObject(prevItem);
     }
   }
 });

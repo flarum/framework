@@ -15,7 +15,7 @@ export default ComposerBody.extend({
   originalContent: Ember.computed.oneWay('post.content'),
 
   populateControls: function(controls) {
-    var title = Ember.Component.create({
+    var title = Ember.Component.extend({
       tagName: 'h3',
       layout: precompileTemplate('Editing Post #{{component.post.number}} in <em>{{discussion.title}}</em>'),
       discussion: this.get('post.discussion'),

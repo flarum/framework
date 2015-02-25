@@ -13,7 +13,7 @@ export default Ember.View.extend(HasItemLists, {
   itemLists: ['sidebar'],
 
   didInsertElement: function() {
-    this.set('hero', WelcomeHero.create({
+    this.set('hero', WelcomeHero.extend({
       title: this.get('controller.controllers.application.forumTitle'),
       description: 'Thanks for stopping by!'
     }));
@@ -73,26 +73,26 @@ export default Ember.View.extend(HasItemLists, {
   }),
 
   populateSidebar: function(items) {
-    this.addActionItem(items, 'newDiscussion', 'Start a Discussion', 'edit').set('className', 'btn btn-primary new-discussion');
+    this.addActionItem(items, 'newDiscussion', 'Start a Discussion', 'edit').reopen({className: 'btn btn-primary new-discussion'});
 
     var nav = this.populateItemList('nav');
-    items.pushObjectWithTag(DropdownSelect.create({ items: nav }), 'nav');
+    items.pushObjectWithTag(DropdownSelect.extend({items: nav}), 'nav');
   },
 
   populateNav: function(items) {
-    items.pushObjectWithTag(NavItem.create({
+    items.pushObjectWithTag(NavItem.extend({
       label: 'All Discussions',
       icon: 'comments-o',
       layout: precompileTemplate('{{#link-to "index" (query-params filter="")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'all');
 
-    items.pushObjectWithTag(NavItem.create({
+    items.pushObjectWithTag(NavItem.extend({
       label: 'Private',
       icon: 'envelope-o',
       layout: precompileTemplate('{{#link-to "index" (query-params filter="private")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'private');
 
-    items.pushObjectWithTag(NavItem.create({
+    items.pushObjectWithTag(NavItem.extend({
       label: 'Following',
       icon: 'star',
       layout: precompileTemplate('{{#link-to "index" (query-params filter="following")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
