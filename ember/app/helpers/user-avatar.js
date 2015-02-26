@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Handlebars.makeBoundHelper(function(user, options) {
-  var attributes = 'class="avatar '+options.hash.class+'"';
+  var attributes = 'class="avatar '+(options.hash.class || '')+'"';
   var content = '';
 
   if (user) {
