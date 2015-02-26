@@ -1,6 +1,5 @@
 <?php namespace Flarum\Core\Support;
 
-use Flarum\Core\Models\User;
 use Flarum\Core\Models\Guest;
 
 class Actor
@@ -12,7 +11,7 @@ class Actor
         return $this->user ?: new Guest;
     }
 
-    public function setUser(User $user)
+    public function setUser($user)
     {
         $this->user = $user;
     }
