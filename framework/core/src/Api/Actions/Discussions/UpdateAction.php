@@ -25,9 +25,14 @@ class UpdateAction extends BaseAction
         // As usual, however, we will fire an event to allow plugins to update
         // additional properties.
         if ($data = array_except($params->get('discussions'), ['readNumber'])) {
-            $command = new EditDiscussionCommand($discussionId, $user);
-            $this->hydrate($command, $params->get('discussions'));
-            $discussion = $this->dispatch($command, $params);
+            try {
+                $command = new EditDiscussionCommand($discussionId, $user);
+                $this->hydrate($command, $params->get('discussions'));
+                $discussion = $this->dispatch($command, $params);
+            } catch (PermissionDeniedException $e) {
+                // Temporary fix. See @todo below
+                $discussion = \Flarum\Core\Models\Discussion::find($discussionId);
+            }
         }
 
         // Next, if a read number was specified in the request, we will run the
@@ -35,7 +40,7 @@ class UpdateAction extends BaseAction
         //
         // @todo Currently, if the user doesn't have permission to edit a
         //     discussion, they're unable to update their readNumber because a
-        //     PermissionsDeniedException is thrown by the
+        //     PermissionDeniedException is thrown by the
         //     EditDiscussionCommand above. So this needs to be extracted into
         //     its own endpoint.
         if ($readNumber = $params->get('discussions.readNumber')) {
