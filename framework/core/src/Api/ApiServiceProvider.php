@@ -12,6 +12,11 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->app->singleton(
+            'Illuminate\Contracts\Debug\ExceptionHandler',
+            'Flarum\Api\ExceptionHandler'
+        );
+
         include __DIR__.'/routes.php';
 
         BaseSerializer::setActor($this->app['Flarum\Core\Support\Actor']);
