@@ -94,7 +94,7 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
       this.set('start', startNumber);
 
       var discussion = this.get('model');
-      if (endNumber > discussion.get('readNumber')) {
+      if (endNumber > discussion.get('readNumber') && this.get('session.isAuthenticated')) {
         discussion.set('readNumber', endNumber);
         discussion.save();
       }
