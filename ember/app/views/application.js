@@ -74,8 +74,8 @@ export default Ember.View.extend(HasItemLists, {
         logout: function() { controller.send('invalidateSession'); }
       }), 'user');
     } else {
-      this.addActionItem(items, 'signup', 'Sign Up').set('className', 'btn btn-link');
-      this.addActionItem(items, 'login', 'Log In').set('className', 'btn btn-link');
+      this.addActionItem(items, 'signup', 'Sign Up').reopen({className: 'btn btn-link'});
+      this.addActionItem(items, 'login', 'Log In').reopen({className: 'btn btn-link'});
     }
   },
 
