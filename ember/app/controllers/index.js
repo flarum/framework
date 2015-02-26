@@ -24,8 +24,10 @@ export default Ember.Controller.extend(UseComposer, Paneable, {
 
     var controller = this;
     return this.saveAndDismissComposer(discussion).then(function(discussion) {
-      controller.get('index').send('loadResults');
-      controller.transitionToRoute('discussion', discussion);
+      if (discussion) {
+        controller.get('index').send('loadResults');
+        controller.transitionToRoute('discussion', discussion);
+      }
     });
   },
 
@@ -46,14 +48,18 @@ export default Ember.Controller.extend(UseComposer, Paneable, {
 
     newDiscussion: function() {
       var controller = this;
-      this.showComposer(function() {
-        return ComposerDiscussion.create({
-          user: controller.get('session.user'),
-          submit: function(data) {
-            controller.saveDiscussion(data);
-          }
+      if (this.get('session.isAuthenticated')) {
+        this.showComposer(function() {
+          return ComposerDiscussion.create({
+            user: controller.get('session.user'),
+            submit: function(data) {
+              controller.saveDiscussion(data);
+            }
+          });
         });
-      });
+      } else {
+        this.send('signup');
+      }
     },
 
     discussionRemoved: function(discussion) {

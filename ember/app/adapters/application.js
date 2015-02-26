@@ -25,12 +25,17 @@ export default JsonApiAdapter.extend({
     // If it's a server error, show an alert message. The alerts controller
     // has been injected into this adapter.
     if (errors instanceof JsonApiAdapter.ServerError) {
-      var message = AlertMessage.create({
+      var message;
+      if (errors.status === 401) {
+        message = 'You don\'t have permission to do this.';
+      } else {
+        message = errors.message;
+      }
+      var alert = AlertMessage.create({
         type: 'warning',
-        message: 'Something went wrong: '+errors.message.errors[0].code
+        message: message
       });
-      this.get('alerts').send('alert', message);
-      return;
+      this.get('alerts').send('alert', alert);
     }
 
     return errors;

@@ -23,8 +23,6 @@ abstract class BaseAction extends Action
 
     public function handle(Request $request, $routeParams = [])
     {
-        $this->registerErrorHandlers(); // @todo convert to middleware and add to route group?
-
         $params = array_merge($request->all(), $routeParams);
 
         return $this->call($params);
@@ -85,31 +83,6 @@ abstract class BaseAction extends Action
         $this->event(new WillRespondWithDocument($document, $statusCode, $headers));
 
         return $this->respondWithArray($document->toArray(), $statusCode, $headers);
-    }
-
-    protected function registerErrorHandlers()
-    {
-        // if (! Config::get('app.debug')) {
-        //     App::error(function ($exception, $code) {
-        //         return $this->respondWithError('ApplicationError', $code);
-        //     });
-        // }
-
-        // App::error(function (ModelNotFoundException $exception) {
-        //     return $this->respondWithError('ResourceNotFound', 404);
-        // });
-
-        // App::error(function (ValidationFailureException $exception) {
-        //     $errors = [];
-        //     foreach ($exception->getErrors()->getMessages() as $field => $messages) {
-        //         $errors[] = [
-        //             'code' => 'ValidationFailure',
-        //             'detail' => implode("\n", $messages),
-        //             'path' => $field
-        //         ];
-        //     }
-        //     return $this->respondWithErrors($errors, 422);
-        // });
     }
 
     protected function respondWithErrors($errors, $httpCode = 500)
