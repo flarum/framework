@@ -26,7 +26,7 @@ export default Ember.Component.extend(HasItemLists, {
     var component = this;
 
     this.get('buttons').forEach(function(button) {
-      controls.pushObject(ActionButton.create({
+      controls.pushObject(ActionButton.extend({
         label: button.label,
         action: function() {
           component.send('dismiss');
@@ -36,7 +36,7 @@ export default Ember.Component.extend(HasItemLists, {
     });
 
     if (this.get('dismissable')) {
-      var dismiss = ActionButton.create({
+      var dismiss = ActionButton.extend({
         icon: 'times',
         className: 'btn btn-icon btn-link',
         action: function() { component.send('dismiss'); }
