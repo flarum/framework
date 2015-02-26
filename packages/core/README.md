@@ -4,6 +4,8 @@ I’m [Toby Zerner](http://tobyzerner.com), the developer of [esoTalk](http://es
 
 **As it stands, there is a need for modern, well-architected, powerful forum software that is easy to use and self-host.** That’s what Flarum is. But I'm a full-time student and I don't have time to do this by myself. So I'm opening up Flarum to the world — let's build it together.
 
+**[Live Demo &raquo;](http://demo.flarum.org#/1/welcome-to-the-first-public-demo-of-flarum)**
+
 ![Flarum screenshot](https://pbs.twimg.com/media/B7eOB3bCMAE88_f.png:large)
 
 ## Philosophy
@@ -33,33 +35,19 @@ Ember.js is a mature JavaScript framework which will power Flarum’s front-end.
 
 ## Current State
 
-I’ve been working on a prototype for some time in-between my studies. In addition to interface design, most of my time has been spent building out the architecture: making decisions about which frameworks to use, the most effective way to componentize everything, standardizing the API, etc.
+Take a look at the [live demo](http://demo.flarum.org#/1/welcome-to-the-first-public-demo-of-flarum) to see Flarum in action.
 
-You might notice that a lot of the code is a bit of a mess right now. This is because I wanted to get things working on a superficial level in order to record material for the Kickstarter video, and since then I haven't yet had sufficient time to clean it up. Please be aware that the mess is not at all indicative of the standard that we're aiming for!
+For a general overview of where Flarum is headed, read [this blog post](http://tobyzerner.com/flarum).
 
-### What’s Done
+In short, the priority at the moment is to build out a lightweight core, and only start building [Extensions](https://github.com/flarum/core/wiki/Extensions) when it is relatively stable. Below is a list of the things to work on, with links to the relevant discussion.
 
-- [x] The basic technology stack (Laravel and Ember – see above)
-- [x] The [architectural foundation](https://github.com/flarum/core/wiki/Architecture) (core/API/web layers)
-- [x] Some of the API (discussion and post read + write)
-- [x] Discussion list view and basic search functionality
-- [x] Discussion viewing and scrolling
-
-### What’s Next
-
-The priority at the moment is to build out a lightweight core, and only start building [Extensions](https://github.com/flarum/core/wiki/Extensions) when it is relatively stable. Below is a list of the things to work on immediately, with links to the relevant discussion.
-
-- [x] Interface redesign ([#1](https://github.com/flarum/core/issues/1))
 - [ ] Write tests in both Laravel ([#3](https://github.com/flarum/core/issues/3)) and Ember ([#4](https://github.com/flarum/core/issues/4))
 - [ ] Further consolidation of Extension interfaces (see [Extensions](https://github.com/flarum/core/wiki/Extensions))
-- [ ] Develop user authentication strategy ([#5](https://github.com/flarum/core/issues/5))
-- [ ] Implement replying, post editing, discussion creation ([#6](https://github.com/flarum/core/issues/6))
-- [ ] Implement discussion title editing ([#7](https://github.com/flarum/core/issues/7))
-- [ ] Implement post deletion ([#8](https://github.com/flarum/core/issues/8))
-- [ ] Implement discussion deletion ([#9](https://github.com/flarum/core/issues/9))
-- [x] Design user profile interface ([#10](https://github.com/flarum/core/issues/10))
-- [ ] Design admin interfaces ([#11](https://github.com/flarum/core/issues/11))
 - [ ] Build Notifications system ([#12](https://github.com/flarum/core/issues/12))
+- [ ] Make design responsive
+- [ ] Discussion and user badges
+- [ ] User profiles/cards/preferences
+- [ ] Build admin infrastructure
 
 For a full list of planned features, see [Features](https://github.com/flarum/core/wiki/Features).
 
@@ -104,8 +92,6 @@ Building Flarum is going to be a team effort, and we'd love for you to help! All
 - **Participate in discussion.** Review the [wiki](https://github.com/flarum/core/wiki) and [issues](https://github.com/flarum/core/issues) and contribute your constructive thoughts. We'd also love to hear general feedback on the [Flarum Development Forum](http://discuss.flarum.org), on IRC (#flarum on irc.freenode.net), and on [Twitter](http://twitter.com/flarum).
 
 - **Spread the word.** Know someone who could help out? Please share this project with them!
-
-> In this early stage of development, bug reports won't be particularly helpful, because things will be constantly changing and breaking.
 
 ### Process
 
