@@ -6,7 +6,7 @@ import AlertMessage from 'flarum/components/ui/alert-message';
 export default Ember.Route.extend(ApplicationRouteMixin, {
   activate: function() {
     if (!Ember.isEmpty(FLARUM_ALERT)) {
-      this.controllerFor('alerts').send('alert', AlertMessage.create(FLARUM_ALERT));
+      this.controllerFor('alerts').send('alert', AlertMessage.extend(FLARUM_ALERT));
       FLARUM_ALERT = null;
     }
 
