@@ -5,6 +5,7 @@ import ActionButton from 'flarum/components/ui/action-button';
 import NavItem from 'flarum/components/ui/nav-item';
 import WelcomeHero from 'flarum/components/index/welcome-hero';
 import HasItemLists from 'flarum/mixins/has-item-lists';
+import config from 'flarum/config/environment';
 
 var precompileTemplate = Ember.Handlebars.compile;
 var $ = Ember.$;
@@ -15,7 +16,7 @@ export default Ember.View.extend(HasItemLists, {
   didInsertElement: function() {
     this.set('hero', WelcomeHero.extend({
       title: this.get('controller.controllers.application.forumTitle'),
-      description: 'Thanks for stopping by!'
+      description: config.welcomeDescription
     }));
 
     // Affix the sidebar so that when the user scrolls down it will stick

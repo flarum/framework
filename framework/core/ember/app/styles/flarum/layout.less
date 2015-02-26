@@ -127,11 +127,17 @@ body {
 // Hero
 .hero {
   background: @fl-body-hero-bg;
-  color: @fl-body-hero-color;
   margin-top: -1px;
   text-align: center;
   padding: 30px 0;
   font-size: 14px;
+
+  &, & a {
+    color: @fl-body-hero-color;
+  }
+  & a {
+    opacity: 0.5;
+  }
 }
 .hero .close {
   float: right;
@@ -143,11 +149,6 @@ body {
   margin: 0;
   font-size: 22px;
   font-weight: normal;
-  // color: @fl-body-heading-color;
-
-  // & when (@fl-colored-hdr = true) {
-  //   color: @fl-body-color;
-  // }
 }
 .hero p {
   margin: 10px 0 0;
