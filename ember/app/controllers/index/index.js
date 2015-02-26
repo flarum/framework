@@ -57,9 +57,9 @@ export default Ember.Controller.extend({
     // var results = Ember.RSVP.resolve(FLARUM_DATA.discussions);
 
     return this.store.find('discussion', params).then(function(discussions) {
-      var results = Ember.A();
+      var results = [];
       discussions.forEach(function(discussion) {
-        var relevantPosts = Ember.A();
+        var relevantPosts = [];
         // discussion.get('relevantPosts.content').forEach(function(post) {
         //  relevantPosts.pushObject(PostResult.create(post));
         // });
@@ -92,10 +92,14 @@ export default Ember.Controller.extend({
   }),
 
   paramsDidChange: Ember.observer('sort', 'show', 'searchQuery', function() {
-    if (this.get('model')) {
-      this.send('refresh');
+    if (this.get('model') && !this.get('resultsLoading')) {
+      Ember.run.once(this, this.loadResults);
     }
   }),
+
+  loadResults: function() {
+    this.send('loadResults');
+  },
 
   actions: {
     loadMore: function() {
@@ -115,6 +119,7 @@ export default Ember.Controller.extend({
 
     loadResults: function() {
       var controller = this;
+      controller.get('model').clear();
       controller.set('resultsLoading', true);
       controller.getResults().then(function(results) {
         controller
