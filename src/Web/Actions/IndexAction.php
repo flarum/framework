@@ -20,7 +20,7 @@ class IndexAction extends Action
             'EmberENV' => [],
             'APP' => [],
             'forumTitle' => Config::get('flarum::forum_title', 'Flarum Demo Forum'),
-            'welcomeDescription' => 'Flarum is now at a point where you can have basic conversations, so here is a little demo for you to break. <a href="http://flarum.dev/#/107/starting-a-new-discussion-title">Learn more &raquo;</a>'
+            'welcomeDescription' => 'Flarum is now at a point where you can have basic conversations, so here is a little demo for you to break. <a href="http://demo.flarum.org/#/1/welcome-to-the-first-public-demo-of-flarum">Learn more &raquo;</a>'
         ];
         $data = [];
         $session = [];
