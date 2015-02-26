@@ -21,7 +21,7 @@ class User extends Model
      * @var array
      */
     public static $rules = [
-        'username'          => 'required|username|unique',
+        'username'          => 'required|unique',
         'email'             => 'required|email|unique',
         'password'          => 'required',
         'join_time'         => 'date',

@@ -12,6 +12,7 @@ export default Ember.Mixin.create({
 
   saveAndDismissComposer: function(model) {
     var composer = this.get('composer');
+    var controller = this;
     composer.set('content.loading', true);
     this.get('alerts').send('clearAlerts');
 
