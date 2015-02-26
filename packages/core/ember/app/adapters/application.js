@@ -31,7 +31,7 @@ export default JsonApiAdapter.extend({
       } else {
         message = errors.message;
       }
-      var alert = AlertMessage.create({
+      var alert = AlertMessage.extend({
         type: 'warning',
         message: message
       });
