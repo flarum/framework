@@ -41,7 +41,6 @@ class EmailConfirmationMailer
         $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user, $forumTitle) {
             $message->to($user->email);
             $message->subject('['.$forumTitle.'] Email Address Confirmation');
-            $message->from('noreply@localhost', $forumTitle);
         });
     }
 
