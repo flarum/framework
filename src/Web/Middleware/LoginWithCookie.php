@@ -5,7 +5,7 @@ use Flarum\Core\Models\AccessToken;
 use Auth;
 use Closure;
 
-class LoginWithCookieMiddleware
+class LoginWithCookie
 {
     protected $actor;
 
