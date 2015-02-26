@@ -39,6 +39,20 @@ class Model extends Eloquent
     protected static $validator;
 
     /**
+     * Validate the model on save.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $model->assertValid();
+        });
+    }
+
+    /**
      * Define the relationship with the forum.
      *
      * @return \Flarum\Core\Models\Forum
@@ -87,7 +101,8 @@ class Model extends Eloquent
      */
     public function assertValid()
     {
-        if ($this->makeValidator()->fails()) {
+        $validation = $this->makeValidator();
+        if ($validation->fails()) {
             throw (new ValidationFailureException)
                 ->setErrors($validation->errors())
                 ->setInput($validation->getData());
@@ -103,7 +118,7 @@ class Model extends Eloquent
     {
         $rules = $this->expandUniqueRules(static::$rules);
 
-        return $this->validator->make($this->attributes, $rules, static::$messages);
+        return static::$validator->make($this->attributes, $rules);
     }
 
     /**
