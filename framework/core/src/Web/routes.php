@@ -9,7 +9,7 @@ $action = function ($class) {
     };
 };
 
-Route::group(['middleware' => 'Flarum\Web\Middleware\LoginWithCookieMiddleware'], function () use ($action) {
+Route::group(['middleware' => 'Flarum\Web\Middleware\LoginWithCookie'], function () use ($action) {
 
     Route::get('/', [
         'as' => 'flarum.index',

@@ -4,7 +4,7 @@ use Flarum\Core\Models\AccessToken;
 use Flarum\Core\Support\Actor;
 use Closure;
 
-class LoginWithHeaderMiddleware
+class LoginWithHeader
 {
     protected $actor;
 

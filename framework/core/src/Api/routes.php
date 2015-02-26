@@ -9,7 +9,7 @@ $action = function ($class) {
     };
 };
 
-Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWithHeaderMiddleware'], function () use ($action) {
+Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWithHeader'], function () use ($action) {
 
     Route::post('token', [
         'as' => 'flarum.api.token',
