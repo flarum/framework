@@ -29,7 +29,7 @@ class TokenAction extends BaseAction
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            return $this->respondWithError('invalidLogin', 401);
+            return $this->respondWithError('invalidCredentials', 401);
         }
 
         $command = new GenerateAccessTokenCommand($user->id);

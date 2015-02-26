@@ -76,15 +76,19 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
     reply: function() {
       var discussion = this.get('model');
       var controller = this;
-      this.showComposer(function() {
-        return ComposerReply.create({
-          user: controller.get('session.user'),
-          discussion: discussion,
-          submit: function(data) {
-            controller.saveReply(discussion, data);
-          }
+      if (this.get('session.isAuthenticated')) {
+        this.showComposer(function() {
+          return ComposerReply.create({
+            user: controller.get('session.user'),
+            discussion: discussion,
+            submit: function(data) {
+              controller.saveReply(discussion, data);
+            }
+          });
         });
-      });
+      } else {
+        this.send('signup');
+      }
     },
 
     // This action is called when the start position of the discussion

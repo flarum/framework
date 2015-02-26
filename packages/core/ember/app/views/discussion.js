@@ -62,7 +62,7 @@ export default Ember.View.extend(HasItemLists, {
   populateControls: function(items) {
     var view = this;
 
-    this.addActionItem(items, 'reply', 'Reply', 'reply', 'discussion.canReply', function() {
+    this.addActionItem(items, 'reply', 'Reply', 'reply', null, function() {
       view.get('streamContent').send('goToLast');
       view.get('controller').send('reply');
     });
