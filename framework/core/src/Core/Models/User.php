@@ -129,10 +129,21 @@ class User extends Model
      */
     public function changePassword($password)
     {
-        $this->password = $password ? static::$hasher->make($password) : null;
+        $this->password = $password;
+
         $this->raise(new UserPasswordWasChanged($this));
 
         return $this;
+    }
+
+    /**
+     * Store the password as a hash.
+     *
+     * @param  string  $value
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = $value ? static::$hasher->make($value) : null;
     }
 
     /**
