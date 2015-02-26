@@ -8,5 +8,5 @@ var precompileTemplate = Ember.Handlebars.compile;
 export default Ember.Component.extend({
   tagName: 'h3',
   classNames: ['post-user'],
-  layout: precompileTemplate('{{#link-to "user" post.user}}{{user-avatar post.user}} {{post.user.username}}{{/link-to}}')
+  layout: precompileTemplate('{{#if post.user}}{{#link-to "user" post.user}}{{user-avatar post.user}} {{user-name post.user}}{{/link-to}}{{else}}{{user-avatar post.user}} {{user-name post.user}}{{/if}}')
 });
