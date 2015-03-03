@@ -199,6 +199,9 @@
   & .permalink {
     margin-top: 10px;
   }
+  & a.permalink {
+    display: none;
+  }
 }
 
 .post-icon {
@@ -275,6 +278,16 @@
     font-size: 18px;
     margin-left: -30px;
     margin-top: 2px;
+  }
+  .post-meta {
+    & a.permalink {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    & input.permalink {
+      display: none;
+    }
   }
 }
 
