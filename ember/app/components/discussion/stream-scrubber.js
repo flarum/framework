@@ -208,7 +208,7 @@ export default Ember.Component.extend({
 
     var view = event.data.view;
 
-    if (! view.$().is('.open')) {
+    if (view.$().is('.open')) {
       view.scrollToIndex(view.get('index'));
       view.$().removeClass('open');
     }
