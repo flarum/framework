@@ -46,6 +46,7 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
       // stream.
       if (discussion == controller.get('model') && stream) {
         stream.addPostToEnd(post);
+        controller.transitionToRoute({queryParams: {start: post.get('number')}});
       } else {
         // Otherwise, we'll create an alert message to inform the user
         // that their reply has been posted, containing a button which
