@@ -16,7 +16,6 @@ body {
 .toolbar() {
   background: fade(@fl-hdr-bg, 98%);
   transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
-  height: 56px;
   position: fixed;
   top: 0;
   left: 0;
@@ -24,6 +23,13 @@ body {
   z-index: @zindex-navbar-fixed;
   border-bottom: 1px solid @fl-body-control-bg;
   .transition(~"box-shadow 0.2s, left 0.2s");
+
+  @media @phone {
+    height: @mobile-header-height;
+  }
+  @media @tablet, @desktop, @desktop-hd {
+    height: @header-height;
+  }
 }
 
 // Fix a solid white box to the top of the viewport. This toolbar's contents
@@ -54,7 +60,7 @@ body {
   .primary-control, .title-control, .back-control {
     position: fixed;
     z-index: @zindex-navbar-fixed + 1;
-    top: 10px;
+    top: 5px;
     margin: 0;
 
     & .btn {
@@ -69,7 +75,7 @@ body {
   }
   .primary-control {
     width: auto;
-    right: 10px;
+    right: 5px;
     .transition(right 0.2s);
 
     .drawer-open .global-page & {
@@ -117,7 +123,7 @@ body {
     }
   }
   .back-control {
-    left: 10px;
+    left: 5px;
     .transition(left 0.2s);
 
     .drawer-open .global-page & {
@@ -210,7 +216,7 @@ body {
     font-size: 16px;
     font-weight: normal;
     margin: 0;
-    line-height: 56px;
+    line-height: @mobile-header-height;
     white-space: nowrap;
     text-align: center;
   }
@@ -231,7 +237,7 @@ body {
 @media @tablet, @desktop, @desktop-hd {
   .global-header {
     padding: 10px;
-    height: 56px;
+    height: @header-height;
     position: fixed;
     top: 0;
     left: 0;
@@ -308,10 +314,6 @@ body {
 // ------------------------------------
 // Content Area
 
-.global-content {
-  padding-top: 56px;
-}
-
 // On phones, the content area overlays the drawer, so we must give it a
 // background and min-height so it cannot be seen through. When the drawer is
 // meant to be open, we slide the content to the right to reveal the drawer.
@@ -322,12 +324,19 @@ body {
     width: 100%;
     min-height: 100vh;
     padding-bottom: 15px;
-    .transition(margin-left 0.2s);
+    padding-top: @mobile-header-height;
     .box-shadow(0 0 6px @fl-shadow-color);
+    .transition(margin-left 0.2s);
 
     .drawer-open & {
       margin-left: @drawer-width;
     }
+  }
+}
+
+@media @tablet, @desktop, @desktop-hd {
+  .global-content {
+    padding-top: @header-height;
   }
 }
 
