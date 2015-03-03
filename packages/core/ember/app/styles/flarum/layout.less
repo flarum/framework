@@ -176,9 +176,9 @@ body {
   }
 }
 
-// PHONES: On phones, the drawer is displayed in its semantic sense: as a
-// drawer on the left side of the screen. On other devices, the drawer has no
-// specific appearance.
+// On phones, the drawer is displayed in its semantic sense: as a drawer on
+// the left side of the screen. On other devices, the drawer has no specific
+// appearance.
 @media @phone {
   .drawer-open {
     overflow: hidden;
@@ -191,8 +191,15 @@ body {
     left: 0;
     top: 0;
     bottom: 0;
+    visibility: hidden;
+    .transition(visibility 0s 0.2s);
 
     .drawer-components();
+
+    .drawer-open & {
+      visibility: visible;
+      transition-delay: 0s;
+    }
   }
 }
 
