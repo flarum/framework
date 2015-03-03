@@ -8,7 +8,7 @@ var $ = Ember.$;
  */
 export default Ember.Component.extend({
   layoutName: 'components/discussion/stream-scrubber',
-  classNames: ['scrubber', 'stream-scrubber'],
+  classNames: ['stream-scrubber', 'dropdown'],
   classNameBindings: ['disabled'],
 
   // The stream-content component to which this scrubber is linked.

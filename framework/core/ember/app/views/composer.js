@@ -7,7 +7,7 @@ var $ = Ember.$;
 
 export default Ember.View.extend(HasItemLists, {
   classNames: ['composer'],
-  classNameBindings: ['minimized', 'fullscreen', 'active'],
+  classNameBindings: ['visible', 'minimized', 'fullscreen', 'active'],
   itemLists: ['controls'],
 
   position: Ember.computed.alias('controller.position'),
@@ -142,6 +142,12 @@ export default Ember.View.extend(HasItemLists, {
     });
   }),
 
+  updateBody: Ember.observer('visible', function() {
+    Ember.run.scheduleOnce('afterRender', this, function() {
+      $('body').toggleClass('composer-open', this.get('visible'));
+    });
+  }),
+
   // Whenever the composer's display state changes, update the DOM to slide
   // it in or out.
   positionDidChange: Ember.observer('position', function() {
@@ -180,6 +186,8 @@ export default Ember.View.extend(HasItemLists, {
           });
           break;
       }
+
+      $composer.css('overflow', '');
 
       if (this.get('position') !== PositionEnum.FULLSCREEN) {
         this.updateBodyPadding(true);
@@ -233,7 +241,7 @@ export default Ember.View.extend(HasItemLists, {
   populateControls: function(items) {
     var view = this;
     var addControl = function(tag, title, icon) {
-      view.addActionItem(items, tag, null, icon).reopen({className: 'btn btn-icon btn-link', title: title});
+      return view.addActionItem(items, tag, null, icon).reopen({className: 'btn btn-icon btn-link', title: title});
     };
 
     if (this.get('fullscreen')) {
@@ -243,7 +251,7 @@ export default Ember.View.extend(HasItemLists, {
         addControl('minimize', 'Minimize', 'minus minimize');
         addControl('fullscreen', 'Full Screen', 'expand');
       }
-      addControl('close', 'Close', 'times');
+      addControl('close', 'Close', 'times').reopen({listItemClass: 'back-control'});
     }
   },
 

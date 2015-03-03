@@ -2,30 +2,38 @@
 // Sidebar
 
 .discussion-nav {
-  float: right;
-
-  &, & > ul {
-    width: 150px;
-  }
   & > ul {
-    position: fixed;
-    margin: 30px 0 0;
     padding: 0;
-    list-style-type: none;
+    margin: 0;
+    list-style: none;
+  }
+}
 
-    & > li {
-      margin-bottom: 10px;
+@media @tablet, @desktop, @desktop-hd {
+  .discussion-nav {
+    float: right;
+
+    &, & > ul {
+      width: 150px;
     }
-  }
-  & .btn-group, & .btn {
-    width: 100%;
-  }
-  & .btn-group:not(.item-count-1) {
-    & .btn {
-      width: 77%;
+    & > ul {
+      position: fixed;
+      margin-top: 30px;
+
+      & > li {
+        margin-bottom: 10px;
+      }
     }
-    & .dropdown-toggle {
-      width: 22%;
+    & .btn-group, & .btn {
+      width: 100%;
+    }
+    & .btn-group:not(.item-count-1) {
+      & .btn {
+        width: 77%;
+      }
+      & .dropdown-toggle {
+        width: 22%;
+      }
     }
   }
 }
@@ -35,7 +43,7 @@
 
 .discussion-posts {
   margin-top: 40px;
-  margin-right: 200px;
+
   & .item {
     margin-bottom: 40px;
   }
@@ -56,6 +64,7 @@
 
   &:hover, &.loading, &.active {
     padding: 50px 0;
+
     &.up:before, &.down:after {
       opacity: 1;
     }
@@ -91,30 +100,39 @@
   }
 }
 
+@media @phone {
+  .gap {
+    margin-left: -15px;
+    margin-right: -15px;
+    border-left: 0;
+    border-right: 0;
+  }
+}
+
+@media @tablet @desktop @desktop-hd {
+  .discussion-posts {
+    margin-right: 200px;
+  }
+}
+
 // ------------------------------------
 // Posts
 
 .post {
-  padding-left: 90px;
   padding-bottom: 1px;
   transition: 0.2s box-shadow;
 
   & .contextual-controls {
     float: right;
-    margin: -2px 0 0 10px;
-    visibility: hidden;
-  }
-  &:hover .contextual-controls, & .contextual-controls.open {
-    visibility: visible;
+    margin-left: 10px;
   }
 }
 .item.highlight .post {
   border: 8px solid rgba(255, 255, 0, 0.2);
   border-radius: 8px;
-  padding: 15px 15px 1px 105px;
-  margin: -23px -23px -8px -23px;
+  padding: 15px;
+  margin: -23px;
 }
-
 .post-header {
   margin-bottom: 10px;
   color: @fl-body-muted-color;
@@ -123,12 +141,13 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
+
+    &, & a {
+      color: @fl-body-muted-color;
+    }
     & > li {
       display: inline;
       margin-right: 10px;
-    }
-    &, & a {
-      color: @fl-body-muted-color;
     }
   }
   & .post-user {
@@ -136,26 +155,15 @@
     display: inline;
     font-weight: bold;
     font-size: 15px;
+
     &, & a {
       color: @fl-body-heading-color;
     }
   }
-  & .avatar {
-    margin-left: -90px;
-    float: left;
-    .avatar-size(64px);
-  }
 }
 .post-body {
   font-size: 14px;
-  line-height: 1.6;
-}
-.post-icon {
-  float: left;
-  margin-left: -90px;
-  width: 64px;
-  text-align: right;
-  font-size: 22px;
+  line-height: 1.6em;
 }
 .post.is-hidden {
   & .post-user, & .post-header > ul, & .post-header > ul a:not(.btn) {
@@ -193,6 +201,9 @@
   }
 }
 
+.post-icon {
+  float: left;
+}
 .post-activity {
   &, & a {
     color: @fl-body-muted-color;
@@ -249,84 +260,146 @@
   }
 }
 
+@media @phone {
+  .post-header {
+    & .avatar {
+      .avatar-size(32px);
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+  }
+  .post-activity {
+    padding-left: 30px;
+  }
+  .post-icon {
+    font-size: 18px;
+    margin-left: -30px;
+    margin-top: 2px;
+  }
+}
+
+@media @tablet @desktop @desktop-hd {
+  .post {
+    padding-left: 90px;
+
+    & .contextual-controls {
+      visibility: hidden;
+    }
+    &:hover .contextual-controls, & .contextual-controls.open {
+      visibility: visible;
+    }
+  }
+  .item.highlight .post {
+    padding-left: 90px + 15px;
+  }
+  .post-header {
+    & .avatar {
+      margin-left: -90px;
+      float: left;
+      .avatar-size(64px);
+    }
+  }
+  .post-icon {
+    text-align: right;
+    margin-left: -90px;
+    width: 64px;
+    font-size: 22px;
+  }
+}
+
 // ------------------------------------
 // Scrubber
 
-@media (min-width: @screen-md-min) {
+.scrubber {
+  & a {
+    margin-left: -5px;
+    color: @fl-body-muted-color;
+    & .fa {
+      font-size: 14px;
+      margin-right: 2px;
+    }
+    &:hover, &:focus {
+      text-decoration: none;
+      color: @link-hover-color;
+    }
+  }
+}
+.scrubber-scrollbar {
+  margin: 8px 0 8px 3px;
+  height: 300px;
+  min-height: 50px; // JavaScript sets a max-height
+  position: relative;
+}
+.scrubber-before, .scrubber-after {
+  border-left: 1px solid @fl-body-secondary-color;
+}
+.scrubber-slider {
+  position: relative;
+  width: 100%;
+  padding: 5px 0;
+}
+.scrubber-handle {
+  height: 100%;
+  width: 5px;
+  background: @fl-body-primary-color;
+  border-radius: 4px;
+  float: left;
+  margin-left: -2px;
+  transition: background 0.2s;
+  .disabled & {
+    background: @fl-body-secondary-color;
+  }
+}
+.scrubber-info {
+  height: (2em * @line-height-base);
+  margin-top: (-1em * @line-height-base);
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  left: 15px;
+  & strong {
+    display: block;
+  }
+  & .description {
+    color: @fl-body-muted-color;
+  }
+}
+.scrubber-highlights {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  list-style-type: none;
+  pointer-events: none;
+}
+.scrubber-highlights li {
+  position: absolute;
+  right: -6px;
+  background: #fc0;
+  height: 8px;
+  width: 13px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  opacity: 0.99;
+}
+
+@media @phone {
+  .stream-scrubber {
+    & .dropdown-toggle {
+      font-size: 14px;
+    }
+    & .dropdown-menu {
+      padding: 30px;
+      font-size: 14px;
+    }
+  }
+}
+
+@media @tablet, @desktop, @desktop-hd {
   .stream-scrubber {
     margin: 30px 0 0 0;
-  }
-  .scrubber {
-    & a {
-      margin-left: -5px;
-      color: @fl-body-muted-color;
-      & .fa {
-        font-size: 14px;
-        margin-right: 2px;
-      }
-      &:hover, &:focus {
-        text-decoration: none;
-        color: @link-hover-color;
-      }
-    }
-  }
-  .scrubber-scrollbar {
-    margin: 8px 0 8px 3px;
-    height: 300px;
-    min-height: 50px; // JavaScript sets a max-height
-    position: relative;
-  }
-  .scrubber-before, .scrubber-after {
-    border-left: 1px solid @fl-body-secondary-color;
-  }
-  .scrubber-slider {
-    position: relative;
-    width: 100%;
-    padding: 5px 0;
-  }
-  .scrubber-handle {
-    height: 100%;
-    width: 5px;
-    background: @fl-body-primary-color;
-    border-radius: 4px;
-    float: left;
-    margin-left: -2px;
-    transition: background 0.2s;
-    .disabled & {
-      background: @fl-body-secondary-color;
-    }
-  }
-  .scrubber-info {
-    height: (2em * @line-height-base);
-    margin-top: (-1em * @line-height-base);
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    left: 15px;
-    & strong {
-      display: block;
-    }
-    & .description {
-      color: @fl-body-muted-color;
-    }
-  }
-  .scrubber-highlights {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    list-style-type: none;
-    pointer-events: none;
-  }
-  .scrubber-highlights li {
-    position: absolute;
-    right: -6px;
-    background: #fc0;
-    height: 8px;
-    width: 13px;
-    border-radius: 4px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    opacity: 0.99;
+
+    .expand-dropdown();
   }
 }

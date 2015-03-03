@@ -5,7 +5,7 @@ import Ember from 'ember';
  */
 export default Ember.Component.extend({
   classNames: ['back-button'],
-  classNameBindings: ['active'],
+  classNameBindings: ['active', 'className'],
 
   active: Ember.computed.or('target.paneIsShowing', 'target.paneIsPinned'),
 
@@ -25,6 +25,10 @@ export default Ember.Component.extend({
 
     togglePinned: function() {
       this.get('target').send('togglePinned');
+    },
+
+    toggleDrawer: function() {
+      this.sendAction('toggleDrawer');
     }
   }
 });

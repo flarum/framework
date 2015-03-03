@@ -1,0 +1,42 @@
+.hero {
+  background: @fl-body-hero-bg;
+  text-align: center;
+  padding: 20px 0;
+
+  &, & a, & .close {
+    color: @fl-body-hero-color;
+  }
+  & a, & .close {
+    opacity: 0.5;
+  }
+  & .close {
+    float: right;
+    margin-top: -10px;
+  }
+  & h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1.5em;
+  }
+  & p {
+    margin: 5px 0 0;
+  }
+}
+@media @phone {
+  .hero {
+    & .close {
+      margin-right: -10px;
+    }
+  }
+}
+@media @tablet, @desktop, @desktop-hd {
+  .hero {
+    padding: 30px 0;
+    font-size: 14px;
+
+    & h2 {
+      font-size: 22px;
+    }
+  }
+}
