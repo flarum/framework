@@ -208,8 +208,10 @@ export default Ember.Component.extend({
 
     var view = event.data.view;
 
-    view.scrollToIndex(view.get('index'));
-    view.$().removeClass('open');
+    if (! view.$().is('.open')) {
+      view.scrollToIndex(view.get('index'));
+      view.$().removeClass('open');
+    }
 
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
