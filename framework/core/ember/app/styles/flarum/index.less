@@ -102,8 +102,10 @@
 // ------------------------------------
 // Discussions Pane
 
-.index-area.paned {
-  display: none;
+@media @phone {
+  .index-area.paned {
+    display: none;
+  }
 }
 
 @media @tablet, @desktop, @desktop-hd {
@@ -161,7 +163,7 @@
   }
 
   // When the pane is pinned, move the other page content inwards
-  .global-main, .global-footer {
+  .global-content, .global-footer {
     .with-pane & {
       margin-left: @index-pane-width;
       & .container {
