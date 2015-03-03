@@ -5,6 +5,6 @@
       <button {{bind-attr class=":btn :btn-default :btn-icon :pin target.panePinned:active"}} {{action "togglePinned"}}>{{fa-icon "thumb-tack" class="icon-glyph"}}</button>
     {{/if}}
   </div>
-{{else}}
+{{else if toggleDrawer}}
   <button class="btn btn-default btn-icon drawer-toggle" {{action "toggleDrawer"}}>{{fa-icon "reorder" class="icon-glyph"}}</button>
 {{/if}}

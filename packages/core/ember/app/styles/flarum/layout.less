@@ -215,8 +215,13 @@ body {
 // On phones, the header is displayed inside of the drawer. We lay its
 // contents out vertically.
 @media @phone {
-  .global-header .container {
-    padding: 0;
+  .global-header {
+    & .container {
+      padding: 0;
+    }
+    & .back-button {
+      display: none;
+    }
   }
   .header-title {
     border-bottom: 1px solid @fl-drawer-control-bg;
@@ -242,6 +247,9 @@ body {
 // the page toolbar that we styled earlier. We lay its contents out
 // horizontally.
 @media @tablet, @desktop, @desktop-hd {
+  .back-button.back-control {
+    display: none;
+  }
   .global-header {
     padding: 10px;
     height: @header-height;
@@ -254,6 +262,11 @@ body {
 
     & when (@fl-colored-hdr = true) {
       .drawer-components();
+    }
+
+    & .back-button {
+      float: left;
+      margin-right: 25px;
     }
   }
   .header-controls {
@@ -285,34 +298,6 @@ body {
 
       &:focus {
         width: 400px;
-      }
-    }
-  }
-  .back-button {
-    float: left;
-    margin-right: 25px;
-
-    & .back {
-      z-index: 3 !important; // z-index of an active .btn-group .btn is 2
-      border-radius: @border-radius-base !important;
-      .transition(border-radius 0.2s);
-    }
-    & .pin {
-      opacity: 0;
-      margin-left: -36px !important;
-      .transition(~"opacity 0.2s, margin-left 0.2s");
-
-      &:not(.active) .fa {
-        .rotate(45deg);
-      }
-    }
-    &.active {
-      & .back {
-        border-radius: @border-radius-base 0 0 @border-radius-base !important;
-      }
-      & .pin {
-        opacity: 1;
-        margin-left: 1px !important;
       }
     }
   }

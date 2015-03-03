@@ -83,3 +83,30 @@
 .btn-rounded {
   border-radius: 18px;
 }
+
+
+.back-button {
+  & .back {
+    z-index: 3 !important; // z-index of an active .btn-group .btn is 2
+    border-radius: @border-radius-base !important;
+    .transition(border-radius 0.2s);
+  }
+  & .pin {
+    opacity: 0;
+    margin-left: -36px !important;
+    .transition(~"opacity 0.2s, margin-left 0.2s");
+
+    &:not(.active) .fa {
+      .rotate(45deg);
+    }
+  }
+  &.active {
+    & .back {
+      border-radius: @border-radius-base 0 0 @border-radius-base !important;
+    }
+    & .pin {
+      opacity: 1;
+      margin-left: 1px !important;
+    }
+  }
+}
