@@ -1,0 +1,71 @@
+.form-group {
+  margin-bottom: 12px;
+}
+.form-control {
+  .box-shadow(none);
+  &:focus,
+  &.focus {
+    background-color: #fff;
+    color: @fl-body-color;
+    .box-shadow(none);
+  }
+}
+
+// Search inputs
+// @todo Extract some of this into header-specific definitions
+.search-input {
+  overflow: hidden;
+
+  &:before {
+    .fa();
+    content: @fa-var-search;
+    float: left;
+    margin-right: -36px;
+    width: 36px;
+    font-size: 14px;
+    text-align: center;
+    color: @fl-body-muted-color;
+    position: relative;
+    padding: @padding-base-vertical - 1 0;
+    line-height: @line-height-base;
+    pointer-events: none;
+  }
+  & .form-control {
+    float: left;
+    width: 225px;
+    padding-left: 36px;
+    padding-right: 36px;
+    .transition(~"all 0.4s");
+  }
+  & .clear {
+    float: left;
+    margin-left: -36px;
+    vertical-align: top;
+    opacity: 0;
+    width: 36px !important;
+    .rotate(-180deg);
+    .transition(~"transform 0.2s, opacity 0.2s");
+  }
+  &.clearable .clear {
+    opacity: 1;
+    .rotate(0deg);
+  }
+}
+
+// Select inputs
+.select-input {
+  display: inline-block;
+  vertical-align: middle;
+}
+.select-input select {
+  display: inline-block;
+  width: auto;
+  -webkit-appearance: none;
+  padding-right: @padding-base-horizontal + 16;
+  cursor: pointer;
+}
+.select-input .fa {
+  margin-left: -@padding-base-horizontal - 16;
+  pointer-events: none;
+  color: @fl-body-muted-color;
+}

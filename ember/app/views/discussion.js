@@ -51,11 +51,13 @@ export default Ember.View.extend(HasItemLists, {
     items.pushObjectWithTag(DropdownSplit.extend({
       items: this.populateItemList('controls'),
       icon: 'reply',
-      buttonClass: 'btn-primary'
+      buttonClass: 'btn-primary',
+      listItemClass: 'primary-control',
     }), 'controls');
 
     items.pushObjectWithTag(StreamScrubber.extend({
-      streamContent: this.get('streamContent')
+      streamContent: this.get('streamContent'),
+      listItemClass: 'title-control'
     }), 'scrubber');
   },
 

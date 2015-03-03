@@ -2,6 +2,6 @@
   {{#if item.isListItem}}
     {{view item}}
   {{else}}
-    <li>{{view item}}</li>
+    <li class="{{item.listItemClass}}">{{view item}}</li>
   {{/if}}
 {{/each}}

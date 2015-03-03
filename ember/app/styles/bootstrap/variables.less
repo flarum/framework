@@ -36,6 +36,15 @@
 @fl-body-control-color:             @fl-body-muted-color;
 
 // ---------------------------------
+// DRAWER
+
+@fl-drawer-bg:                   @fl-body-primary-color;
+@fl-drawer-color:                #fff;
+@fl-drawer-muted-color:          fade(#fff, 50%);
+@fl-drawer-control-bg:           fade(#000, 10%);
+@fl-drawer-control-color:        #fff;
+
+// ---------------------------------
 // HEADER
 
 .define-hdr-variables(@fl-colored-hdr);
@@ -50,15 +59,21 @@
   @fl-body-hero-color:          #fff;
 }
 .define-hdr-variables(true) {
-  @fl-hdr-bg:                   @fl-body-primary-color;
-  @fl-hdr-color:                #fff;
-  @fl-hdr-muted-color:          fade(#fff, 50%);
-  @fl-hdr-control-bg:           fade(#000, 10%);
-  @fl-hdr-control-color:        #fff;
+  @fl-hdr-bg:                   @fl-drawer-bg;
+  @fl-hdr-color:                @fl-drawer-color;
+  @fl-hdr-muted-color:          @fl-drawer-muted-color;
+  @fl-hdr-control-bg:           @fl-drawer-control-bg;
+  @fl-hdr-control-color:        @fl-drawer-control-color;
 
   @fl-body-hero-bg:             @fl-body-control-bg;
   @fl-body-hero-color:          @fl-body-control-color;
 }
+
+// ---------------------------------
+// LAYOUT
+
+@drawer-width: 270px;
+@index-pane-width: 400px;
 
 // ---------------------------------
 // BOOTSTRAP
@@ -88,3 +103,11 @@
 @zindex-alerts: @zindex-modal + 10;
 
 @link-hover-color: @link-color;
+
+// ---------------------------------
+// MEDIA SHORTCODES
+
+@phone: ~"(max-width: @{screen-xs-max})";
+@tablet: ~"(min-width: @{screen-sm-min}) and (max-width: @{screen-sm-max})";
+@desktop: ~"(min-width: @{screen-md-min}) and (max-width: @{screen-md-max})";
+@desktop-hd: ~"(min-width: @{screen-lg-min})";

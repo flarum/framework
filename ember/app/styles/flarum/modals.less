@@ -7,34 +7,6 @@
     opacity: 0.9;
   }
 }
-.modal-dialog {
-  margin: 120px auto;
-
-  & .close {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-  }
-}
-.modal-content {
-  border: 0;
-  border-radius: @border-radius-base;
-  .box-shadow(0 7px 15px @fl-shadow-color);
-}
-.modal-sm {
-  width: 375px;
-}
-
-.modal-header {
-  text-align: center;
-  border: 0;
-  padding: 25px;
-
-  & h3 {
-    font-size: 22px;
-    margin: 0;
-  }
-}
 .modal-body {
   background-color: @fl-body-secondary-color;
   padding: 25px;
@@ -49,7 +21,6 @@
   text-align: center;
   color: @fl-body-muted-color;
 }
-
 .modal-loading {
   position: absolute;
   top: 0;
@@ -67,7 +38,6 @@
     pointer-events: auto;
   }
 }
-
 .form-centered {
   text-align: center;
 
@@ -75,5 +45,85 @@
     width: 220px;
     margin: 0 auto;
     text-align: center;
+  }
+}
+
+
+@media @phone {
+  .modal.fade {
+    opacity: 1;
+  }
+  .modal-backdrop.in {
+    opacity: 0;
+  }
+  .modal-dialog {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+  }
+  .modal-dialog {
+    margin: 0;
+
+    .modal.fade & {
+      .transition(top 0.3s);
+      top: 100%;
+      .translate(0, 0);
+    }
+    .modal.in & {
+      top: 0;
+    }
+
+    &:before {
+      content: " ";
+      .toolbar();
+    }
+  }
+  .modal-content {
+    border-radius: 0;
+    border: 0;
+    min-height: 100vh;
+    padding-top: 56px;
+    .box-shadow(none);
+  }
+  .modal-header {
+    padding: 0;
+    border: 0;
+    min-height: 0;
+
+    & h3 {
+      line-height: 36px;
+    }
+  }
+}
+
+@media @tablet, @desktop, @desktop-hd {
+  .modal-dialog {
+    margin: 120px auto;
+
+    & .close {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+    }
+  }
+  .modal-content {
+    border: 0;
+    border-radius: @border-radius-base;
+    .box-shadow(0 7px 15px @fl-shadow-color);
+  }
+  .modal-sm {
+    width: 375px;
+  }
+  .modal-header {
+    text-align: center;
+    border: 0;
+    padding: 25px;
+
+    & h3 {
+      font-size: 22px;
+      margin: 0;
+    }
   }
 }

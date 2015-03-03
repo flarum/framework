@@ -1,194 +1,426 @@
 body {
   background: @fl-body-bg;
   color: @fl-body-color;
-  padding-top: 56px;
 }
 .container-narrow {
   max-width: 500px;
   margin: 0 auto;
 }
+.global-page {
+  overflow: hidden;
+}
 
 // ------------------------------------
-// Header
+// Page Toolbar
 
-.global-header {
+.toolbar() {
   background: fade(@fl-hdr-bg, 98%);
   transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
-  padding: 10px;
   height: 56px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: @zindex-navbar-fixed;
-  .clearfix();
-  .transition(box-shadow 0.2s);
+  border-bottom: 1px solid @fl-body-control-bg;
+  .transition(~"box-shadow 0.2s, left 0.2s");
+}
+
+// Fix a solid white box to the top of the viewport. This toolbar's contents
+// will differ depending on the device: on phones it will be content
+// controls, whereas on desktops it will be the header. We will overlay
+// these things on top of it later.
+.global-page:before {
+  content: " ";
+  .toolbar();
 
   .scrolled & {
+    border-bottom: 0;
     .box-shadow(0 2px 6px @fl-shadow-color);
   }
 
-  & when (@fl-colored-hdr = true) {
-    &, & .btn-link {
-      color: @fl-hdr-control-color;
+  // PHONES: Push the toolbar to the right when the drawer is open.
+  @media @phone {
+    .drawer-open & {
+      left: @drawer-width;
     }
-    & .form-control {
-      background: @fl-hdr-control-bg;
-      border: 0;
-      color: @fl-hdr-control-color;
-      .placeholder(@fl-hdr-control-color);
+  }
+}
 
-      &:focus {
-        background: fadein(@fl-hdr-control-bg, 5%);
+// PHONES: Somewhere on the page there will be a .back-button, a .primary-
+// control, and a .title-control. We will position these on the left, right,
+// and center of the header respectively.
+@media @phone {
+  .primary-control, .title-control, .back-control {
+    position: fixed;
+    z-index: @zindex-navbar-fixed + 1;
+    top: 10px;
+    margin: 0;
+
+    & .btn {
+      float: none;
+      background: transparent !important;
+      .box-shadow(~"none !important");
+
+      &:active {
+        opacity: 0.5;
       }
     }
-    & .search-input:before {
-      color: @fl-hdr-control-color;
-    }
-    & .btn-default, & .btn-default:hover {
-      background: @fl-hdr-control-bg;
-      color: @fl-hdr-control-color;
-    }
-    & .btn-default.active, .open > .dropdown-toggle.btn-default {
-      background: fadein(@fl-hdr-control-bg, 5%);
-    }
-    & .btn-naked {
-      background: transparent;
-    }
   }
-}
-.header-controls {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  &, & > li {
-    display: inline-block;
-    vertical-align: top;
-  }
-}
-.header-primary {
-  float: left;
-  & h1 {
-    display: inline-block;
-    vertical-align: top;
-  }
-}
-.header-title {
-  font-size: 18px;
-  font-weight: normal;
-  margin: 0;
-  line-height: 36px;
-  &, & a {
-    color: @fl-hdr-color;
-  }
-}
-.header-secondary {
-  float: right;
-}
+  .primary-control {
+    width: auto;
+    right: 10px;
+    .transition(right 0.2s);
 
-// Back button
-// @todo Lots of !importants in here, could we be more specific?
-.back-button {
-  float: left;
-  margin-right: 25px;
+    .drawer-open .global-page & {
+      right: -@drawer-width;
+    }
 
-  & .back {
-    z-index: 3 !important; // z-index of an active .btn-group .btn is 2
-    border-radius: @border-radius-base !important;
-    .transition(border-radius 0.2s);
-  }
-  & .pin {
-    opacity: 0;
-    margin-left: -36px !important;
-    .transition(~"opacity 0.2s, margin-left 0.2s");
-
-    &:not(.active) .fa {
-      .rotate(45deg);
+    & .dropdown-split {
+      & .btn, & .icon-caret {
+        display: none;
+      }
+      & .dropdown-toggle {
+        display: block;
+      }
     }
   }
-  &.active {
-    & .back {
-      border-radius: @border-radius-base 0 0 @border-radius-base !important;
+  .primary-control, .back-control {
+    & .btn {
+      color: @fl-hdr-control-color !important;
+      padding-left: 5px;
+      padding-right: 5px;
+
+      & .icon-glyph {
+        display: block;
+        font-size: 18px;
+      }
+      & .label {
+        display: none;
+      }
     }
+  }
+  .title-control {
+    width: 200px;
+    left: 50%;
+    margin-left: -100px;
+    text-align: center;
+    .transition(margin-left 0.2s);
+
+    .drawer-open .global-page & {
+      margin-left: -100px + @drawer-width;
+    }
+
+    &, & .btn {
+      color: @fl-hdr-color;
+      font-size: 16px;
+    }
+  }
+  .back-control {
+    left: 10px;
+    .transition(left 0.2s);
+
+    .drawer-open .global-page & {
+      left: @drawer-width + 10px;
+    }
+
     & .pin {
-      opacity: 1;
-      margin-left: 1px !important;
+      display: none;
     }
   }
 }
 
 // ------------------------------------
-// Main
+// Drawer
 
-.global-main, .paned {
-  border-top: 1px solid @fl-body-control-bg;
-}
-
-// Hero
-.hero {
-  background: @fl-body-hero-bg;
-  margin-top: -1px;
-  text-align: center;
-  padding: 30px 0;
-  font-size: 14px;
-
-  &, & a {
-    color: @fl-body-hero-color;
+// This is a mixin which styles components (buttons, inputs, etc.) for use in
+// the drawer. We define it as a mixin because it is also pulled in when
+// styling a "colored header".
+.drawer-components() {
+  .header-title {
+    &, & a {
+      color: @fl-drawer-color;
+    }
   }
-  & a {
-    opacity: 0.5;
+  &, & a, & .btn-link {
+    color: @fl-drawer-control-color;
+  }
+  & .form-control {
+    background: @fl-drawer-control-bg;
+    border: 0;
+    color: @fl-drawer-control-color;
+    .placeholder(@fl-drawer-control-color);
+
+    &:focus {
+      background: fadein(@fl-drawer-control-bg, 5%);
+    }
+  }
+  & .search-input:before {
+    color: @fl-drawer-control-color;
+  }
+  & .btn-default, & .btn-default:hover {
+    background: @fl-drawer-control-bg;
+    color: @fl-drawer-control-color;
+  }
+  & .btn-default.active, .open > .dropdown-toggle.btn-default {
+    background: fadein(@fl-drawer-control-bg, 5%);
+  }
+  & .btn-naked {
+    background: transparent;
   }
 }
-.hero .close {
-  float: right;
-  margin-top: -10px;
-  color: #fff;
-  opacity: 0.5;
+
+// PHONES: On phones, the drawer is displayed in its semantic sense: as a
+// drawer on the left side of the screen. On other devices, the drawer has no
+// specific appearance.
+@media @phone {
+  .drawer-open {
+    overflow: hidden;
+  }
+  .global-drawer {
+    background: @fl-drawer-bg;
+    color: @fl-drawer-color;
+    width: @drawer-width;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    .drawer-components();
+  }
 }
-.hero h2 {
+
+// ------------------------------------
+// Header
+
+.header-controls {
   margin: 0;
-  font-size: 22px;
-  font-weight: normal;
+  padding: 0;
+  list-style: none;
 }
-.hero p {
-  margin: 10px 0 0;
+
+// On phones, the header is displayed inside of the drawer. We lay its
+// contents out vertically.
+@media @phone {
+  .global-header .container {
+    padding: 0;
+  }
+  .header-title {
+    border-bottom: 1px solid @fl-drawer-control-bg;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0;
+    line-height: 56px;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .header-controls {
+    & > li {
+      padding: 10px 10px 0;
+    }
+    & .form-control, & .btn-group, & .btn {
+      width: 100%;
+      text-align: left;
+    }
+  }
+}
+
+// On other devices, we stick the header up the top of the page, overlaying
+// the page toolbar that we styled earlier. We lay its contents out
+// horizontally.
+@media @tablet, @desktop, @desktop-hd {
+  .global-header {
+    padding: 10px;
+    height: 56px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: @zindex-navbar-fixed;
+    .clearfix();
+
+    & when (@fl-colored-hdr = true) {
+      .drawer-components();
+    }
+  }
+  .header-controls {
+    &, & > li {
+      display: inline-block;
+      vertical-align: top;
+    }
+  }
+  .header-primary {
+    float: left;
+  }
+  .header-title {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 18px;
+    font-weight: normal;
+    margin: 0;
+    line-height: 36px;
+
+    &, & a {
+      color: @fl-hdr-color;
+    }
+  }
+  .header-secondary {
+    float: right;
+
+    & .search-input {
+      margin-right: 10px;
+
+      &:focus {
+        width: 400px;
+      }
+    }
+  }
+  .back-control {
+    float: left;
+    margin-right: 25px;
+
+    & .back {
+      z-index: 3 !important; // z-index of an active .btn-group .btn is 2
+      border-radius: @border-radius-base !important;
+      .transition(border-radius 0.2s);
+    }
+    & .pin {
+      opacity: 0;
+      margin-left: -36px !important;
+      .transition(~"opacity 0.2s, margin-left 0.2s");
+
+      &:not(.active) .fa {
+        .rotate(45deg);
+      }
+    }
+    &.active {
+      & .back {
+        border-radius: @border-radius-base 0 0 @border-radius-base !important;
+      }
+      & .pin {
+        opacity: 1;
+        margin-left: 1px !important;
+      }
+    }
+  }
+}
+
+// ------------------------------------
+// Content Area
+
+.global-content {
+  padding-top: 56px;
+}
+
+// On phones, the content area overlays the drawer, so we must give it a
+// background and min-height so it cannot be seen through. When the drawer is
+// meant to be open, we slide the content to the right to reveal the drawer.
+@media @phone {
+  .global-content {
+    background: @fl-body-bg;
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding-bottom: 15px;
+    .transition(margin-left 0.2s);
+    .box-shadow(0 0 6px @fl-shadow-color);
+
+    .drawer-open & {
+      margin-left: @drawer-width;
+    }
+  }
 }
 
 // ------------------------------------
 // Footer
 
-.global-footer {
-  margin: 100px 0 20px;
-  color: @fl-body-muted-more-color;
-  .clearfix();
-}
 .footer-primary, .footer-secondary {
   margin: 0;
   padding: 0;
-  list-style-type: none;
+  list-style: none;
 
   & > li {
     display: inline-block;
     vertical-align: middle;
   }
-  & a {
-    color: @fl-body-muted-more-color;
-    &:hover,
-    &:focus {
-      text-decoration: none;
-      color: @link-hover-color;
+}
+
+// On phones, the footer is displayed at the bottom of the drawer. The
+// footer's primary controls  don't display, but the secondary ones do.
+// @todo Maybe we should reverse the naming of primary/secondary then?
+@media @phone {
+  .global-footer {
+    position: fixed;
+    left: 15px;
+    bottom: 15px;
+    width: @drawer-width;
+    margin: 0;
+    z-index: 1;
+
+    & .container {
+      padding: 0;
+    }
+  }
+  .footer-primary {
+    display: none;
+  }
+  .footer-secondary {
+    float: none;
+
+    & > li {
+      margin-right: 15px;
     }
   }
 }
-.footer-primary {
-  display: inline-block;
-  & > li {
-    margin-right: 15px;
+
+// On other devices, we put the footer at the bottom of the page by absolutely
+// positioning it, relative to the page which we pad out at the bottom. We
+// show the primary controls on the left, and the secondary controls on the
+// right.
+@media @tablet, @desktop, @desktop-hd {
+  .global-page {
+    padding-bottom: 150px;
+    position: relative;
+  }
+  .global-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+
+    &, & a {
+      color: @fl-body-muted-more-color;
+    }
+    & a {
+      &:hover,
+      &:focus {
+        text-decoration: none;
+        color: @link-hover-color;
+      }
+    }
+  }
+  .footer-primary {
+    display: inline-block;
+
+    & > li {
+      margin-right: 15px;
+    }
+  }
+  .footer-secondary {
+    float: right;
+
+    & > li {
+      margin-left: 15px;
+    }
   }
 }
-.footer-secondary {
-  float: right;
-  & > li {
-    margin-left: 15px;
+
+// ------------------------------------
+// Miscellaneous
+
+// On phones, we disregard "affixed" elements and make them static.
+@media @phone {
+  .affix {
+    position: static;
   }
 }

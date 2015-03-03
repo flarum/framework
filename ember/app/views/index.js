@@ -74,10 +74,11 @@ export default Ember.View.extend(HasItemLists, {
   }),
 
   populateSidebar: function(items) {
-    this.addActionItem(items, 'newDiscussion', 'Start a Discussion', 'edit').reopen({className: 'btn btn-primary new-discussion'});
+    this.addActionItem(items, 'newDiscussion', 'Start a Discussion', 'edit')
+        .reopen({className: 'btn btn-primary new-discussion', listItemClass: 'primary-control'});
 
     var nav = this.populateItemList('nav');
-    items.pushObjectWithTag(DropdownSelect.extend({items: nav}), 'nav');
+    items.pushObjectWithTag(DropdownSelect.extend({items: nav, listItemClass: 'title-control'}), 'nav');
   },
 
   populateNav: function(items) {

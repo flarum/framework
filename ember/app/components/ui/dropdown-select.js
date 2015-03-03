@@ -7,7 +7,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   layoutName: 'components/ui/dropdown-select',
   classNames: ['dropdown', 'dropdown-select', 'btn-group'],
-  classNameBindings: ['itemCountClass', 'class'],
+  classNameBindings: ['itemCountClass', 'className'],
 
   buttonClass: 'btn btn-default',
   menuClass: '',

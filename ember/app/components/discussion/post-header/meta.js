@@ -28,8 +28,8 @@ export default Ember.Component.extend({
       setTimeout(function() { component.$('.permalink').select(); }, 1);
     });
 
-    // Prevent clicking on the dropdown menu from closing it.
-    this.$('.dropdown-menu').click(function(e) {
+    // Prevent clicking on the input from closing it.
+    this.$('.permalink').click(function(e) {
       e.stopPropagation();
     });
   }

@@ -120,6 +120,11 @@ export default Ember.Route.extend({
         .set('paned', true)
         .set('paneShowing', false);
       this.controllerFor('composer').send('minimize');
+
+      var application = this.controllerFor('application');
+      if (!application.get('backButtonTarget')) {
+        application.set('backButtonTarget', this.controllerFor('index'));
+      }
     }
   }
 });

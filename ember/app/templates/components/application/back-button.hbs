@@ -1,8 +1,10 @@
 {{#if target}}
   <div class="btn-group">
-    <button class="btn btn-default btn-icon back" {{action "back"}}>{{fa-icon "chevron-left"}}</button>
+    <button class="btn btn-default btn-icon back" {{action "back"}}>{{fa-icon "chevron-left" class="icon-glyph"}}</button>
     {{#if target.paned}}
-      <button {{bind-attr class=":btn :btn-default :btn-icon :pin target.panePinned:active"}} {{action "togglePinned"}}>{{fa-icon "thumb-tack"}}</button>
+      <button {{bind-attr class=":btn :btn-default :btn-icon :pin target.panePinned:active"}} {{action "togglePinned"}}>{{fa-icon "thumb-tack" class="icon-glyph"}}</button>
     {{/if}}
   </div>
+{{else}}
+  <button class="btn btn-default btn-icon drawer-toggle" {{action "toggleDrawer"}}>{{fa-icon "reorder" class="icon-glyph"}}</button>
 {{/if}}
