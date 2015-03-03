@@ -22,9 +22,9 @@
 
 <span class="count" {{action "markAsRead"}} {{bind-attr title=countTitle}}>
   {{#if displayUnread}}
-    <strong>{{abbreviate-number discussion.unreadCount}}</strong> unread
+    {{abbreviate-number discussion.unreadCount}} <span class="label">unread</span>
   {{else}}
-    <strong>{{abbreviate-number discussion.repliesCount}}</strong> replies
+    {{abbreviate-number discussion.repliesCount}} <span class="label">replies</span>
   {{/if}}
 </span>
 

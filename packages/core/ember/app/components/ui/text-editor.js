@@ -22,7 +22,7 @@ export default Ember.Component.extend(HasItemLists, {
   },
 
   populateControls: function(items) {
-    this.addActionItem(items, 'submit', this.get('submitLabel')).reopen({className: 'btn btn-primary'});
+    this.addActionItem(items, 'submit', this.get('submitLabel'), 'check').reopen({className: 'btn btn-primary', listItemClass: 'primary-control'});
   },
 
   actions: {

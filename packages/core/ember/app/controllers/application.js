@@ -1,7 +1,6 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-
   // The title of the forum.
   // TODO: Preload this value in the index.html payload from Laravel config.
   forumTitle: 'Flarum Demo Forum',
@@ -18,6 +17,9 @@ export default Ember.Controller.extend({
   actions: {
     search: function(query) {
       this.transitionToRoute('index', {queryParams: {searchQuery: query, sort: query ? 'relevance' : 'recent'}});
+    },
+    toggleDrawer: function() {
+      this.toggleProperty('drawerShowing');
     }
   }
 });

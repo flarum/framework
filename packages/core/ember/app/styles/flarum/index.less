@@ -1,64 +1,66 @@
 // ------------------------------------
 // Sidebar
 
-.index-nav {
-  float: left;
+.index-nav > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
-  &, & > ul {
-    width: 175px;
-  }
-  & > ul {
-    margin: 30px 0 0;
-    padding: 0;
-    list-style-type: none;
+// On phones, the index sidebar will pretty much take care of itself. The
+// navigation list is a .dropdown-select and will be shown as the title-
+// control; the new discussion button is the primary-control. On anything
+// larger than a phone, however, we need to affix the sidebar and expand the
+// .dropdown-select into a plain list.
+@media @tablet, @desktop, @desktop-hd {
+  .index-nav {
+    float: left;
 
-    &.affix {
-      top: 56px;
+    &, & > ul {
+      width: 175px;
     }
-    & > li {
-      margin-bottom: 10px;
-    }
-  }
-  & .new-discussion {
-    display: block;
-    margin-bottom: 20px;
-  }
+    & > ul {
+      margin-top: 30px;
 
-  // Expand the dropdown-select component into a normal nav list
-  // @todo Extract this into a mixin as we'll need to do it elsewhere.
-  & .dropdown-select {
-    display: block;
-
-    & .dropdown-toggle {
-      display: none;
-    }
-    & .dropdown-menu {
-      display: block;
-      border: 0;
-      width: auto;
-      margin: 0;
-      padding: 0;
-      min-width: 0;
-      float: none;
-      position: static;
-      background: none;
-      .box-shadow(none);
-      & > li > a {
-        padding: 8px 0;
-        color: @fl-body-muted-color;
-        & .fa {
-          margin-right: 8px;
-          font-size: 15px;
-        }
-        &:hover {
-          background: none;
-          color: @link-hover-color;
-        }
+      &.affix {
+        top: 56px;
       }
-      & > li.active > a {
-        background: none;
-        color: @fl-body-primary-color;
-        font-weight: bold;
+      & > li {
+        margin-bottom: 10px;
+      }
+    }
+    & .new-discussion {
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    // Expand the dropdown-select component into a normal nav list
+    // @todo Extract this into a mixin as we'll probably need to do it elsewhere.
+    & .dropdown-select {
+      display: block;
+
+      .expand-dropdown();
+
+      & .dropdown-menu {
+        & > li > a {
+          padding: 8px 0;
+          color: @fl-body-muted-color;
+
+          &:hover {
+            background: none;
+            color: @link-hover-color;
+          }
+
+          & .fa {
+            margin-right: 8px;
+            font-size: 15px;
+          }
+        }
+        & > li.active > a {
+          background: none;
+          color: @fl-body-primary-color;
+          font-weight: bold;
+        }
       }
     }
   }
@@ -67,18 +69,12 @@
 // ------------------------------------
 // Results
 
-.index-results {
-  margin-top: 30px;
-  margin-left: 225px;
-  & .loading-indicator {
-    height: 46px;
-  }
-}
 .index-toolbar {
   margin-bottom: 15px;
 }
 .index-toolbar-view {
   display: inline-block;
+
   & .control-show {
     margin-right: 10px;
   }
@@ -86,78 +82,98 @@
 .index-toolbar-action {
   float: right;
 }
+.index-results .loading-indicator {
+  height: 46px;
+}
+
+@media @phone {
+  .index-results {
+    margin-top: 15px;
+  }
+}
+
+@media @tablet, @desktop, @desktop-hd {
+  .index-results {
+    margin-top: 30px;
+    margin-left: 225px;
+  }
+}
 
 // ------------------------------------
 // Discussions Pane
 
-@index-pane-width: 400px;
-
-.index-area {
-  left: -@index-pane-width;
-  width: 100%;
-
-  &.paned {
-    position: fixed;
-    z-index: @zindex-pane;
-    overflow: auto;
-    top: 56px;
-    bottom: 0;
-    width: @index-pane-width;
-    background: @fl-body-bg;
-    padding-bottom: 200px;
-    .box-shadow(2px 2px 6px -2px @fl-shadow-color);
-    .transition(left 0.2s);
-
-    &.showing, .with-pane & {
-      left: 0;
-    }
-    .with-pane & {
-      z-index: @zindex-composer - 1;
-      .transition(none);
-    }
-    & .container {
-      width: auto;
-      margin: 0;
-      padding: 0 !important;
-    }
-    & .index-results {
-      margin: 0;
-    }
-    & .hero, & .index-nav, & .index-toolbar {
-      display: none;
-    }
-    & .discussions-list > li {
-      margin: 0;
-      padding-left: 65px + 15px;
-      padding-right: 65px + 15px;
-      &.active {
-        background: @fl-body-control-bg;
-      }
-    }
-    & .discussion-summary {
-      & .title {
-        font-size: 14px;
-      }
-      & .count strong {
-        font-size: 18px;
-      }
-    }
-  }
+.index-area.paned {
+  display: none;
 }
 
-// When the pane is pinned, move the other page content inwards
-.global-main, .global-footer {
-  .with-pane & {
-    margin-left: @index-pane-width;
-    & .container {
-      max-width: 100%;
-      padding: 0 30px;
-    }
-  }
-}
-.global-header .container {
-  .with-pane & {
+@media @tablet, @desktop, @desktop-hd {
+  .index-area {
+    left: -@index-pane-width;
     width: 100%;
+
+    &.paned {
+      position: fixed;
+      z-index: @zindex-pane;
+      overflow: auto;
+      top: 56px;
+      bottom: 0;
+      width: @index-pane-width;
+      background: @fl-body-bg;
+      padding-bottom: 200px;
+      .box-shadow(2px 2px 6px -2px @fl-shadow-color);
+      .transition(left 0.2s);
+
+      &.showing, .with-pane & {
+        left: 0;
+      }
+      .with-pane & {
+        z-index: @zindex-composer - 1;
+        .transition(none);
+      }
+      & .container {
+        width: auto;
+        margin: 0;
+        padding: 0 !important;
+      }
+      & .index-results {
+        margin: 0;
+      }
+      & .hero, & .index-nav, & .index-toolbar {
+        display: none;
+      }
+      & .discussions-list > li {
+        margin: 0;
+        padding-left: 65px + 15px;
+        padding-right: 65px + 15px;
+        &.active {
+          background: @fl-body-control-bg;
+        }
+      }
+      & .discussion-summary {
+        & .title {
+          font-size: 14px;
+        }
+        & .count strong {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  // When the pane is pinned, move the other page content inwards
+  .global-main, .global-footer {
+    .with-pane & {
+      margin-left: @index-pane-width;
+      & .container {
+        max-width: 100%;
+        padding: 0 30px;
+      }
+    }
+  }
+  .global-header .container {
+    .with-pane & {
+      width: 100%;
+    }
   }
 }
 
@@ -169,24 +185,38 @@
   padding: 0;
   list-style-type: none;
   position: relative;
+}
 
-  & > li {
-    margin-right: -25px;
-    padding-right: 65px + 25px;
+@media @phone {
+  .discussions-list > li {
+    padding-right: 45px;
+
     & .contextual-controls {
-      position: absolute;
-      right: 0;
-      top: 18px;
-      visibility: hidden;
-    }
-    &:hover .contextual-controls, & .contextual-controls.open {
-      visibility: visible;
+      display: none;
     }
   }
 }
+
+@media @tablet, @desktop, @desktop-hd {
+  .discussions-list {
+    & > li {
+      margin-right: -25px;
+      padding-right: 65px + 25px;
+
+      & .contextual-controls {
+        position: absolute;
+        right: 0;
+        top: 18px;
+        visibility: hidden;
+      }
+      &:hover .contextual-controls, & .contextual-controls.open {
+        visibility: visible;
+      }
+    }
+  }
+}
+
 .discussion-summary {
-  padding-left: 65px;
-  padding-right: 65px;
   position: relative;
 
   &, & a {
@@ -195,25 +225,21 @@
   }
   & .author {
     float: left;
-    margin-left: -65px;
     margin-top: 18px;
   }
   & .main {
     display: inline-block;
     width: 100%;
     padding: 20px 0;
-    margin-right: -65px;
-
-    &.active {
-      text-decoration: none;
-    }
-    &:hover .title {
-      text-decoration: underline;
-    }
+  }
+  &.active {
+    text-decoration: none;
+  }
+  &:hover .title {
+    text-decoration: underline;
   }
   & .title {
     margin: 0 0 5px;
-    font-size: 15px;
     line-height: 1.3;
   }
   &.unread .title {
@@ -229,33 +255,94 @@
       display: inline-block;
     }
   }
+  & .username {
+    font-weight: bold;
+  }
   & .count {
     float: right;
     margin-top: 18px;
-    margin-right: -65px;
-    width: 60px;
-    text-align: center;
-    text-transform: uppercase;
-    color: @fl-body-muted-color;
-    font-size: 11px;
     text-decoration: none;
 
-    & strong {
-      font-size: 20px;
-      display: block;
-      font-weight: 300;
-    }
     .unread& {
       cursor: pointer;
     }
-    .unread&, .unread& strong {
-      color: @fl-body-heading-color;
-      font-weight: bold;
+  }
+}
+.load-more {
+  text-align: center;
+  margin-top: 10px;
+}
+
+@media @phone {
+  .discussion-summary {
+    padding-left: 45px;
+    padding-right: 45px;
+
+    & .author {
+      margin-left: -45px;
+    }
+    & .avatar {
+      .avatar-size(32px);
+    }
+    & .main {
+      margin-right: -45px;
+    }
+    & .title {
+      font-size: 14px;
+    }
+    & .count {
+      margin-right: -45px;
+      background: @fl-body-control-bg;
+      color: @fl-body-control-color;
+      border-radius: @border-radius-base;
+      font-size: 12px;
+      padding: 1px 6px;
+
+      .unread& {
+        background: @fl-body-primary-color;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      & .label {
+        display: none;
+      }
     }
   }
 }
 
-.load-more {
-  text-align: center;
-  margin-top: 10px;
+@media @tablet, @desktop, @desktop-hd {
+  .discussion-summary {
+    padding-left: 65px;
+    padding-right: 65px;
+
+    & .author {
+      margin-left: -65px;
+    }
+    & .main {
+      margin-right: -65px;
+    }
+    & .title {
+      font-size: 15px;
+    }
+    & .count {
+      margin-right: -65px;
+      width: 60px;
+      text-align: center;
+      text-transform: uppercase;
+      color: @fl-body-muted-color;
+      font-size: 20px;
+      font-weight: 300;
+
+      & .label {
+        font-size: 11px;
+        display: block;
+        font-weight: normal;
+      }
+      .unread& {
+        color: @fl-body-heading-color;
+        font-weight: bold;
+      }
+    }
+  }
 }

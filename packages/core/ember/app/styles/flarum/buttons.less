@@ -1,0 +1,85 @@
+.btn {
+  border: 0;
+  .box-shadow(none);
+  line-height: 20px;
+
+  & .fa {
+    font-size: 14px;
+  }
+}
+.btn-group .btn + .btn {
+  margin-left: 1px;
+}
+.btn-icon {
+  padding-left: 9px;
+  padding-right: 9px;
+}
+.btn-link {
+  color: @fl-body-muted-color;
+
+  &:hover,
+    &:focus {
+    text-decoration: none;
+  }
+}
+.btn-primary {
+  font-weight: bold;
+  & .icon-glyph {
+    display: none;
+  }
+}
+.btn-user {
+  & .avatar {
+    margin: -2px 5px -2px -5px;
+    .avatar-size(24px);
+  }
+}
+.btn-more {
+  padding: 1px 3px;
+  border-radius: 2px;
+  line-height: 1;
+}
+
+// Redefine Bootstrap's mixin to make some general changes
+.button-variant(@color; @background; @border) {
+  &:hover,
+  &:focus,
+  &.focus,
+  &:active,
+  &.active,
+  .open > .dropdown-toggle& {
+    background-color: darken(@background, 5%);
+  }
+  &.active {
+    .box-shadow(none);
+  }
+}
+
+// Little round icon buttons
+.btn-icon.btn-sm {
+  border-radius: 12px;
+  height: 24px;
+  width: 24px;
+  text-align: center;
+  padding: 3px 0;
+
+  & .label, & .icon-caret {
+    display: none;
+  }
+  & .fa-ellipsis-v {
+    font-size: 17px;
+    vertical-align: middle;
+  }
+}
+
+// Buttons that blend into the background
+.btn-naked {
+  background: transparent;
+  &:hover {
+    background: @fl-body-control-bg;
+  }
+}
+
+.btn-rounded {
+  border-radius: 18px;
+}

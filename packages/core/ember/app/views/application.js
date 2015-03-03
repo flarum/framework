@@ -30,6 +30,12 @@ export default Ember.View.extend(HasItemLists, {
     });
   }),
 
+  drawerShowingChanged: Ember.observer('controller.drawerShowing', function() {
+    Ember.run.scheduleOnce('afterRender', this, function() {
+      $('body').toggleClass('drawer-open', this.get('controller.drawerShowing'));
+    });
+  }),
+
   didInsertElement: function() {
     // Add a class to the body when the window is scrolled down.
   	$(window).scroll(function() {
@@ -38,9 +44,9 @@ export default Ember.View.extend(HasItemLists, {
 
     // Resize the main content area so that the footer sticks to the
     // bottom of the viewport.
-    $(window).resize(function() {
-      $('#main').css('min-height', $(window).height() - $('#header').outerHeight() - $('#footer').outerHeight(true));
-    }).resize();
+    // $(window).resize(function() {
+    //   $('#main').css('min-height', $(window).height() - $('#header').outerHeight() - $('#footer').outerHeight(true));
+    // }).resize();
 
     var view = this;
     this.$('#modal').on('hide.bs.modal', function() {
@@ -49,6 +55,19 @@ export default Ember.View.extend(HasItemLists, {
       view.get('controller').send('destroyModal');
     }).on('shown.bs.modal', function() {
       view.get('controller.modalController').send('focus');
+    });
+
+    this.$().on('show.bs.dropdown', function() {
+      $('body').addClass('dropdown-open');
+    }).on('hide.bs.dropdown', function() {
+      $('body').removeClass('dropdown-open');
+    });
+
+    this.$('.global-content').click(function(e) {
+      if (view.get('controller.drawerShowing')) {
+        e.preventDefault();
+        view.set('controller.drawerShowing', false);
+      }
     });
   },
 
