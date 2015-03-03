@@ -67,7 +67,7 @@ export default Ember.Component.extend({
     // When any part of the whole scrollbar is clicked, we want to jump to
     // that position.
     this.$('.scrubber-scrollbar')
-      .click(function(e) {
+      .bind('click touchstart', function(e) {
         if (!view.get('streamContent.active')) { return; }
 
         // Calculate the index which we want to jump to based on the
@@ -75,7 +75,7 @@ export default Ember.Component.extend({
         // 1. Get the offset of the click from the top of the
         //    scrollbar, as a percentage of the scrollbar's height.
         var $this = $(this);
-        var offsetPixels = e.clientY - $this.offset().top + $('body').scrollTop();
+        var offsetPixels = (e.clientY || e.originalEvent.touches[0].clientY) - $this.offset().top + $('body').scrollTop();
         var offsetPercent = offsetPixels / $this.outerHeight() * 100;
 
         // 2. We want the handle of the scrollbar to end up centered
@@ -89,6 +89,8 @@ export default Ember.Component.extend({
         var offsetIndex = offsetPercent / view.percentPerPost().index;
         offsetIndex = Math.max(0, Math.min(view.get('count') - 1, offsetIndex));
         view.get('streamContent').send('goToIndex', Math.floor(offsetIndex));
+
+        view.$().removeClass('open');
       });
 
     // Now we want to make the scrollbar handle draggable. Let's start by
@@ -98,7 +100,7 @@ export default Ember.Component.extend({
         cursor: 'pointer',
         'user-select': 'none'
       })
-      .bind('dragstart mousedown', function(e) {
+      .bind('dragstart mousedown touchstart', function(e) {
         e.preventDefault();
       });
 
@@ -114,8 +116,8 @@ export default Ember.Component.extend({
     };
     this.$('.scrubber-slider')
       .css('cursor', 'move')
-      .mousedown(function(e) {
-        dragData.mouseStart = e.clientY;
+      .bind('mousedown touchstart', function(e) {
+        dragData.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
         dragData.indexStart = view.get('index');
         dragData.handle = $(this);
         view.set('streamContent.paused', true);
@@ -131,8 +133,8 @@ export default Ember.Component.extend({
     // some event handlers. These handlers will move the scrollbar/stream-
     // content as appropriate.
     $(document)
-      .on('mousemove', dragData, this.mouseWasMoved)
-      .on('mouseup', dragData, this.mouseWasReleased);
+      .on('mousemove touchmove', dragData, this.mouseWasMoved)
+      .on('mouseup touchend', dragData, this.mouseWasReleased);
 
     // Finally, we'll just make sure the scrollbar is in the correct
     // position according to the values of this.index/visible.
@@ -147,8 +149,8 @@ export default Ember.Component.extend({
       .off('scroll', this.windowWasScrolled);
 
     $(document)
-      .off('mousemove', this.mouseWasMoved)
-      .off('mouseup', this.mouseWasReleased);
+      .off('mousemove touchmove', this.mouseWasMoved)
+      .off('mouseup touchend', this.mouseWasReleased);
   },
 
   // When the stream-content component begins loading posts at a certain
@@ -184,14 +186,17 @@ export default Ember.Component.extend({
     // convert it to a percentage of the scrollbar's height, and then
     // finally convert it into an index. Add this delta index onto
     // the index at which the drag was started, and then scroll there.
-    var deltaPixels = event.clientY - event.data.mouseStart;
+    var deltaPixels = (event.clientY || event.originalEvent.touches[0].clientY) - event.data.mouseStart;
     var deltaPercent = deltaPixels / view.$('.scrubber-scrollbar').outerHeight() * 100;
     var deltaIndex = deltaPercent / view.percentPerPost().index;
     var newIndex = Math.min(event.data.indexStart + deltaIndex, view.get('count') - 1);
 
     view.set('index', Math.max(0, newIndex));
     view.updateScrollbar();
-    view.scrollToIndex(newIndex);
+
+    if (! view.$().is('.open')) {
+      view.scrollToIndex(newIndex);
+    }
   },
 
   mouseWasReleased: function(event) {
@@ -202,6 +207,9 @@ export default Ember.Component.extend({
     $('body').css('cursor', '');
 
     var view = event.data.view;
+
+    view.scrollToIndex(view.get('index'));
+    view.$().removeClass('open');
 
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
