@@ -14,26 +14,6 @@
 // .dropdown-select into a plain list.
 @media @tablet, @desktop, @desktop-hd {
   .index-nav {
-    float: left;
-
-    &, & > ul {
-      width: 175px;
-    }
-    & > ul {
-      margin-top: 30px;
-
-      &.affix {
-        top: 56px;
-      }
-      & > li {
-        margin-bottom: 10px;
-      }
-    }
-    & .new-discussion {
-      display: block;
-      margin-bottom: 20px;
-    }
-
     // Expand the dropdown-select component into a normal nav list
     // @todo Extract this into a mixin as we'll probably need to do it elsewhere.
     & .dropdown-select {
@@ -66,6 +46,61 @@
   }
 }
 
+@media @tablet {
+  .index-nav {
+    padding: 15px 0;
+    white-space: nowrap;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &:after {
+      content: " ";
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin-top: 15px;
+      border-bottom: 1px solid @fl-body-secondary-color;
+    }
+
+    & > ul > li, & .dropdown-menu > li {
+      display: inline-block;
+      margin-right: 25px;
+    }
+
+    & .dropdown-select .dropdown-menu > li > a .fa {
+      margin-right: 3px;
+    }
+
+    & .affix {
+      position: static;
+    }
+  }
+}
+
+@media @desktop, @desktop-hd {
+  .index-nav {
+    float: left;
+
+    &, & > ul {
+      width: 175px;
+    }
+    & > ul {
+      margin-top: 30px;
+
+      &.affix {
+        top: 56px;
+      }
+      & > li {
+        margin-bottom: 10px;
+      }
+    }
+    & .new-discussion {
+      display: block;
+      margin-bottom: 20px;
+    }
+  }
+}
+
 // ------------------------------------
 // Results
 
@@ -86,13 +121,13 @@
   height: 46px;
 }
 
-@media @phone {
+@media @phone, @tablet {
   .index-results {
     margin-top: 15px;
   }
 }
 
-@media @tablet, @desktop, @desktop-hd {
+@media @desktop, @desktop-hd {
   .index-results {
     margin-top: 30px;
     margin-left: 225px;
