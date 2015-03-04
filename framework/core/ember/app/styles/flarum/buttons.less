@@ -84,7 +84,6 @@
   border-radius: 18px;
 }
 
-
 .back-button {
   & .back {
     z-index: 3 !important; // z-index of an active .btn-group .btn is 2
@@ -100,13 +99,15 @@
       .rotate(45deg);
     }
   }
-  &.active {
-    & .back {
-      border-radius: @border-radius-base 0 0 @border-radius-base !important;
-    }
-    & .pin {
-      opacity: 1;
-      margin-left: 1px !important;
+  @media @desktop-hd {
+    &.active {
+      & .back {
+        border-radius: @border-radius-base 0 0 @border-radius-base !important;
+      }
+      & .pin {
+        opacity: 1;
+        margin-left: 1px !important;
+      }
     }
   }
 }
