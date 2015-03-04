@@ -2,6 +2,9 @@
 <div class="dropdown-menu post-meta">
   <span class="number">Post #{{post.number}}</span>
   <span class="time">{{full-time post.time}}</span>
-  <input value="{{permalink}}" class="form-control permalink">
-  <a href="{{permalink}}" class="btn btn-default permalink">{{permalink}}</a>
+  {{#if touch}}
+    <a href="{{permalink}}" class="btn btn-default permalink">{{permalink}}</a>
+  {{else}}
+    <input value="{{permalink}}" class="form-control permalink">
+  {{/if}}
 </div>

@@ -24,7 +24,7 @@ export default Ember.Component.extend({
     // When the dropdown menu is shown, select the contents of the permalink
     // input so that the user can quickly copy the URL.
     var component = this;
-    this.$('a').click(function() {
+    this.$('.dropdown-toggle').click(function() {
       setTimeout(function() { component.$('.permalink').select(); }, 1);
     });
 
@@ -32,5 +32,7 @@ export default Ember.Component.extend({
     this.$('.permalink').click(function(e) {
       e.stopPropagation();
     });
+
+    this.set('touch', 'ontouchstart' in document.documentElement);
   }
 });
