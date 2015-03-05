@@ -1,7 +1,25 @@
 import Ember from 'ember';
 import DS from 'ember-data';
 
-export default DS.Model.extend({
+import HasItemLists from 'flarum/mixins/has-item-lists';
+
+export default DS.Model.extend(HasItemLists, {
+  /**
+    Define a "badges" item list. Example usage:
+    ```
+    populateBadges: function(items) {
+      items.pushObjectWithTag(BadgeButton.extend({
+        label: 'Sticky',
+        icon: 'thumb-tack',
+        className: 'badge-sticky',
+        discussion: this,
+        isHiddenInList: Ember.computed.not('discussion.sticky')
+      }), 'sticky');
+    }
+    ```
+   */
+  itemLists: ['badges'],
+
   title: DS.attr('string'),
   slug: Ember.computed('title', function() {
     return this.get('title').toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-');

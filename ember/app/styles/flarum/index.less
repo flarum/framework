@@ -262,13 +262,24 @@
 .discussion-summary {
   position: relative;
 
-  &, & a {
+  &, & .main {
     color: @fl-body-muted-color;
     text-decoration: none;
   }
   & .author {
     float: left;
-    margin-top: 18px;
+    margin-top: 20px;
+  }
+  & .badges {
+    float: left;
+    margin-top: 17px;
+    text-align: right;
+    white-space: nowrap;
+
+    & .badge {
+      margin-left: -15px;
+      position: relative;
+    }
   }
   & .main {
     display: inline-block;
@@ -324,6 +335,15 @@
     & .author {
       margin-left: -45px;
     }
+    & .badges {
+      margin-left: -45px;
+      width: 38px;
+
+      & .badge {
+        .badge-size(20px);
+        margin-left: -13px;
+      }
+    }
     & .avatar {
       .avatar-size(32px);
     }
@@ -361,6 +381,10 @@
 
     & .author {
       margin-left: -65px;
+    }
+    & .badges {
+      margin-left: -65px;
+      width: 58px;
     }
     & .main {
       margin-right: -65px;

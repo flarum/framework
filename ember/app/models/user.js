@@ -1,8 +1,11 @@
 import DS from 'ember-data';
 
+import HasItemLists from 'flarum/mixins/has-item-lists';
 import stringToColor from 'flarum/utils/string-to-color';
 
-export default DS.Model.extend({
+export default DS.Model.extend(HasItemLists, {
+  itemLists: ['badges'],
+
   username: DS.attr('string'),
   email: DS.attr('string'),
   password: DS.attr('string'),

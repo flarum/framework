@@ -9,11 +9,7 @@
 
 {{#link-to "user" discussion.startUser class="author"}}{{user-avatar discussion.startUser}}{{/link-to}}
 
-<div class="badges">
-  {{#each badge in badges}}
-    {{fl-badge badge}}
-  {{/each}}
-</div>
+{{ui/item-list items=discussion.badges class="badges"}}
 
 {{#link-to "discussion" discussion.content (query-params start=start) current-when="discussion" class="main"}}
   <h3 class="title">{{highlight-words discussion.title searchQuery}}</h3>
