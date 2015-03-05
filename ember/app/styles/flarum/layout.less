@@ -39,9 +39,9 @@ body {
 .global-page:before {
   content: " ";
   .toolbar();
+  border-bottom: 0;
 
   .scrolled & {
-    border-bottom: 0;
     .box-shadow(0 2px 6px @fl-shadow-color);
   }
 
@@ -306,6 +306,10 @@ body {
 // ------------------------------------
 // Content Area
 
+.global-content {
+  border-top: 1px solid @fl-body-control-bg;
+}
+
 // On phones, the content area overlays the drawer, so we must give it a
 // background and min-height so it cannot be seen through. When the drawer is
 // meant to be open, we slide the content to the right to reveal the drawer.
@@ -316,7 +320,7 @@ body {
     width: 100%;
     min-height: 100vh;
     padding-bottom: 15px;
-    padding-top: @mobile-header-height;
+    margin-top: @mobile-header-height;
     .box-shadow(0 0 6px @fl-shadow-color);
     .transition(margin-left 0.2s);
 
@@ -328,7 +332,7 @@ body {
 
 @media @tablet, @desktop, @desktop-hd {
   .global-content {
-    padding-top: @header-height;
+    margin-top: @header-height;
   }
 }
 
