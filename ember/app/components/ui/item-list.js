@@ -13,12 +13,12 @@ export default Ember.Component.extend({
     if (!Ember.isArray(items)) {
       return [];
     }
+    var instances = [];
     items.forEach(function(item) {
-      item.reopenClass({
-        isListItem: item.proto().tagName === 'li',
-        listItemClass: item.proto().listItemClass
-      });
+      item = item.create();
+      item.set('isListItem', item.constructor.proto().tagName === 'li');
+      instances.pushObject(item);
     });
-    return items;
+    return instances;
   })
 });
