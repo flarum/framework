@@ -152,11 +152,12 @@
       position: fixed;
       z-index: @zindex-pane;
       overflow: auto;
-      top: 56px;
+      top: @header-height;
       bottom: 0;
       width: @index-pane-width;
       background: @fl-body-bg;
       padding-bottom: 200px;
+      border-top: 1px solid @fl-body-control-bg;
       .box-shadow(2px 2px 6px -2px @fl-shadow-color);
       .transition(left 0.2s);
 
