@@ -1,4 +1,17 @@
 // ------------------------------------
+// Hero
+
+.discussion-hero {
+  & .badges {
+    margin-right: 5px;
+  }
+}
+.discussion-title {
+  display: inline;
+  vertical-align: middle;
+}
+
+// ------------------------------------
 // Sidebar
 
 .discussion-nav {
@@ -159,6 +172,16 @@
     &, & a {
       color: @fl-body-heading-color;
     }
+
+    & .badges {
+      text-align: right;
+      white-space: nowrap;
+
+      & .badge {
+        margin-left: -15px;
+        position: relative;
+      }
+    }
   }
 }
 .post-body {
@@ -273,6 +296,21 @@
       margin-right: 5px;
     }
   }
+  .post-user {
+    position: relative;
+
+    & .badges {
+      position: absolute;
+      top: -7px;
+      left: 5px;
+      width: 32px;
+
+      & .badge {
+        .badge-size(20px);
+        margin-left: -13px;
+      }
+    }
+  }
   .post-activity {
     padding-left: 30px;
   }
@@ -302,6 +340,14 @@
       margin-left: -90px;
       float: left;
       .avatar-size(64px);
+    }
+  }
+  .post-user {
+    & .badges {
+      float: left;
+      margin-left: -85px;
+      margin-top: -3px;
+      width: 64px;
     }
   }
   .post-icon {
