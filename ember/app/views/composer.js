@@ -96,7 +96,7 @@ export default Ember.View.extend(HasItemLists, {
     // right to the bottom of the page. If we are, we'll want to anchor
     // the body's scroll position to the bottom after we update the
     // padding.
-    var anchorScroll = $(window).scrollTop() + $(window).height() >= $(document).height();
+    var anchorScroll = $(window).scrollTop() + $(window).height() > $(document).height();
 
     var func = animate ? 'animate' : 'css';
     var paddingBottom = this.get('visible') ? this.get('computedHeight') - Ember.$('#footer').outerHeight(true) : 0;
