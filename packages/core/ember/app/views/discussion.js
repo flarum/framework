@@ -54,12 +54,14 @@ export default Ember.View.extend(HasItemLists, {
       buttonClass: 'btn-primary',
       listItemClass: 'primary-control',
     }), 'controls');
+  },
 
-    items.pushObjectWithTag(StreamScrubber.extend({
+  addStreamScrubber: Ember.on('didInsertElement', function() {
+    this.get('sidebar').pushObjectWithTag(StreamScrubber.extend({
       streamContent: this.get('streamContent'),
       listItemClass: 'title-control'
     }), 'scrubber');
-  },
+  }),
 
   populateControls: function(items) {
     var view = this;
