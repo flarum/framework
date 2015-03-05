@@ -1,0 +1,31 @@
+.badges {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &, & > li {
+    display: inline-block;
+  }
+}
+
+.badge-size(@size) {
+  width: @size;
+  height: @size;
+  border-radius: @size / 2;
+  line-height: @size - 4px;
+  &, & .fa {
+    font-size: 0.6 * @size;
+  }
+}
+.badge {
+  .badge-size(24px);
+  border: 2px solid @fl-body-bg;
+  background: @fl-body-secondary-color;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+
+  & .label {
+    display: none;
+  }
+}
