@@ -7,7 +7,7 @@ import SeparatorItem from 'flarum/components/ui/separator-item';
 export default Ember.Mixin.create({
   itemLists: [],
 
-  initItemLists: Ember.on('didInsertElement', function() {
+  initItemLists: Ember.on('init', function() {
     var self = this;
     this.get('itemLists').forEach(function(name) {
       self.initItemList(name);
