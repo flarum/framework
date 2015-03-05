@@ -167,7 +167,7 @@ export default Ember.Component.extend({
     // Adjust the height of the scrollbar so that it fills the height of
     // the sidebar and doesn't overlap the footer.
     var scrollbar = view.$('.scrubber-scrollbar');
-    scrollbar.css('max-height', $(window).height() - scrollbar.offset().top + $(window).scrollTop() - $('#footer').outerHeight(true));
+    scrollbar.css('max-height', $(window).height() - scrollbar.offset().top + $(window).scrollTop() - parseInt($('#page').css('padding-bottom')));
   },
 
   windowWasScrolled: function(event) {
