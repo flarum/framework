@@ -1,0 +1,29 @@
+<div class="container">
+  {{#if controls}}
+    {{ui/dropdown-button items=controls class="contextual-controls" menuClass="pull-right" buttonClass=controlsButtonClass}}
+  {{/if}}
+
+  <div class="user-profile">
+    <h2 class="user-identity">
+      {{#link-to "user" user}}{{user-avatar user}}{{user-name user}}{{/link-to}}
+    </h2>
+
+    {{ui/item-list items=user.badges class="badges user-badges"}}
+
+    {{#if showBio}}
+      <div class="user-bio {{if bioEditable "editable"}} {{if editingBio "editing"}}" {{action "editBio"}}>
+        {{#if editingBio}}
+          {{textarea value=user.bio class="form-control"}}
+        {{else}}
+          {{#if user.bioHtml}}
+            {{{user.bioHtml}}}
+          {{else if bioEditable}}
+            <p>Write something about yourself...</p>
+          {{/if}}
+        {{/if}}
+      </div>
+    {{/if}}
+
+    {{ui/item-list items=info class="user-info"}}
+  </div>
+</div>
