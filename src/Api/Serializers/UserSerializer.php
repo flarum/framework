@@ -33,7 +33,7 @@ class UserSerializer extends UserBasicSerializer
             'joinTime'         => $user->join_time ? $user->join_time->toRFC3339String() : null,
             'lastSeenTime'     => $user->last_seen_time ? $user->last_seen_time->toRFC3339String() : null,
             'discussionsCount' => (int) $user->discussions_count,
-            'postsCount'       => (int) $user->posts_count,
+            'commentsCount'    => (int) $user->comments_count,
             'canEdit'          => $canEdit,
             'canDelete'        => $user->can($actorUser, 'delete'),
         ];
