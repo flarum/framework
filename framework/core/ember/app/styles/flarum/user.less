@@ -42,10 +42,23 @@
   & .badges {
     margin-left: 10px;
   }
+  & .user-info {
+    margin: 15px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+
+    & > li {
+      display: inline-block;
+      margin-right: 15px;
+    }
+    & .block-item {
+      display: block;
+    }
+  }
   & .user-bio {
-    margin-top: 15px;
     padding: 10px 10px 1px;
-    margin: 5px -10px -5px;
+    margin: -10px -10px 10px;
 
     &.editable:not(.editing) {
       cursor: text;
@@ -64,17 +77,6 @@
       padding: 10px;
       margin: -10px -10px 0;
       font-size: 14px;
-    }
-  }
-  & .user-info {
-    margin: 15px 0 0;
-    padding: 0;
-    list-style: none;
-    font-size: 12px;
-
-    & > li {
-      display: inline-block;
-      margin-right: 15px;
     }
   }
 }
