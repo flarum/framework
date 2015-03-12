@@ -90,7 +90,7 @@ export default Ember.View.extend(HasItemLists, {
     if (this.get('controller.session.isAuthenticated')) {
       items.pushObjectWithTag(UserDropdown.extend({
         user: this.get('controller.session.user'),
-        logout: function() { controller.send('invalidateSession'); }
+        parentController: controller
       }), 'user');
     } else {
       this.addActionItem(items, 'signup', 'Sign Up').reopen({className: 'btn btn-link'});
