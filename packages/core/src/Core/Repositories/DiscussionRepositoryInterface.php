@@ -5,7 +5,7 @@ use Flarum\Core\Models\User;
 interface DiscussionRepositoryInterface
 {
     /**
-     * Get a new query builder for ths discussions table.
+     * Get a new query builder for the discussions table.
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */

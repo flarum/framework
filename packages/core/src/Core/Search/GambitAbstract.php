@@ -1,12 +1,10 @@
 <?php namespace Flarum\Core\Search;
 
-use Flarum\Core\Search\Discussions\DiscussionSearcher;
-
 abstract class GambitAbstract
 {
 	protected $pattern;
 
-    public function apply($bit, DiscussionSearcher $searcher)
+    public function apply($bit, SearcherInterface $searcher)
     {
         if ($matches = $this->match($bit)) {
             $this->conditions($matches, $searcher);

@@ -1,83 +1,79 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Users\User;
-use Flarum\Core\Users\UserFinder;
-use Flarum\Api\Actions\Base;
+use Flarum\Core\Search\Users\UserSearchCriteria;
+use Flarum\Core\Search\Users\UserSearcher;
+use Flarum\Core\Support\Actor;
+use Flarum\Api\Actions\BaseAction;
+use Flarum\Api\Actions\ApiParams;
 use Flarum\Api\Serializers\UserSerializer;
 
 class IndexAction extends BaseAction
 {
     /**
-     * The user finder.
+     * The user searcher.
      *
-     * @var UserFinder
+     * @var \Flarum\Core\Search\Discussions\UserSearcher
      */
-    protected $finder;
+    protected $searcher;
 
     /**
      * Instantiate the action.
      *
-     * @param UserFinder $finder
+     * @param  \Flarum\Core\Search\Discussions\UserSearcher  $searcher
      */
-    public function __construct(UserFinder $finder)
+    public function __construct(Actor $actor, UserSearcher $searcher)
     {
-        $this->finder = $finder;
+        $this->actor = $actor;
+        $this->searcher = $searcher;
     }
 
     /**
      * Show a list of users.
      *
-     * @todo custom rate limit for this function? determined by if $key was valid?
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
-    protected function run()
+    protected function run(ApiParams $params)
     {
-        $query     = $this->input('q');
-        $key       = $this->input('key');
-        $sort      = $this->sort(['', 'username', 'posts', 'discussions', 'lastActive', 'created']);
-        $start     = $this->start();
-        $count     = $this->count(50, 100);
-        $include   = $this->included(['groups']);
+        $query   = $params->get('q');
+        $start   = $params->start();
+        $include = $params->included(['groups']);
+        $count   = $params->count(20, 50);
+        $sort    = $params->sort(['', 'username', 'posts', 'discussions', 'lastActive', 'created']);
+
         $relations = array_merge(['groups'], $include);
 
-        // Set up the user finder with our search criteria, and get the
+        // Set up the user searcher with our search criteria, and get the
         // requested range of results with the necessary relations loaded.
-        $this->finder->setUser(User::current());
-        $this->finder->setQuery($query);
-        $this->finder->setSort($sort['by']);
-        $this->finder->setOrder($sort['order']);
-        $this->finder->setKey($key);
+        $criteria = new UserSearchCriteria($this->actor->getUser(), $query, $sort['field'], $sort['order']);
 
-        $users = $this->finder->results($count, $start);
-        $users->load($relations);
+        $results = $this->searcher->search($criteria, $count, $start, $relations);
 
-        if (($total = $this->finder->getCount()) !== null) {
-            $this->document->addMeta('total', $total);
-        }
-        if (($key = $this->finder->getKey()) !== null) {
-            $this->document->addMeta('key', $key);
+        $document = $this->document();
+
+        if (($total = $results->getTotal()) !== null) {
+            $document->addMeta('total', $total);
         }
 
         // If there are more results, then we need to construct a URL to the
         // next results page and add that to the metadata. We do this by
         // compacting all of the valid query parameters which have been
         // specified.
-        if ($this->finder->areMoreResults()) {
+        if ($results->areMoreResults()) {
             $start += $count;
             $include = implode(',', $include);
             $sort = $sort['string'];
-            $input = array_filter(compact('query', 'key', 'sort', 'start', 'count', 'include'));
+            $input = array_filter(compact('query', 'sort', 'start', 'count', 'include'));
             $moreUrl = $this->buildUrl('users.index', [], $input);
         } else {
             $moreUrl = '';
         }
-        $this->document->addMeta('moreUrl', $moreUrl);
+        $document->addMeta('moreUrl', $moreUrl);
 
-        // Finally, we can set up the user serializer and use it to create
-        // a collection of user results.
+        // Finally, we can set up the discussion serializer and use it to create
+        // a collection of discussion results.
         $serializer = new UserSerializer($relations);
-        $this->document->setPrimaryElement($serializer->collection($users));
+        $document->setPrimaryElement($serializer->collection($results->getUsers()));
 
-        return $this->respondWithDocument();
+        return $this->respondWithDocument($document);
     }
 }

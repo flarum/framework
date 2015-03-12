@@ -6,6 +6,16 @@ use Flarum\Core\Models\User;
 class EloquentUserRepository implements UserRepositoryInterface
 {
     /**
+     * Get a new query builder for the users table.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function query()
+    {
+        return User::query();
+    }
+
+    /**
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
@@ -47,6 +57,24 @@ class EloquentUserRepository implements UserRepositoryInterface
         $query = User::where('username', 'like', $username);
 
         return $this->scopeVisibleForUser($query, $user)->pluck('id');
+    }
+
+    /**
+     * Find users by matching a string of words against their username,
+     * optionally making sure they are visible to a certain user.
+     *
+     * @param  string  $string
+     * @param  \Flarum\Core\Models\User|null  $user
+     * @return array
+     */
+    public function getIdsForUsername($string, User $user = null)
+    {
+        $query = User::select('id')
+            ->where('username', 'like', '%'.$string.'%')
+            ->orderByRaw('username = ? desc', [$string])
+            ->orderByRaw('username like ? desc', [$string.'%']);
+
+        return $this->scopeVisibleForUser($query, $user)->lists('id');
     }
 
     /**

@@ -1,18 +1,19 @@
 <?php namespace Flarum\Core\Search\Discussions;
 
 use Flarum\Core\Models\Discussion;
+use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repositories\DiscussionRepositoryInterface;
 use Flarum\Core\Repositories\PostRepositoryInterface;
 
-class DiscussionSearcher
+class DiscussionSearcher implements SearcherInterface
 {
     public $query;
 
     protected $sortMap = [
         'lastPost' => ['last_time', 'desc'],
         'replies'  => ['comments_count', 'desc'],
-        'created'  => ['start_time', 'desc']
+        'created'  => ['start_time', 'asc']
     ];
 
     protected $defaultSort = 'lastPost';
@@ -43,6 +44,11 @@ class DiscussionSearcher
         $this->defaultSort = $defaultSort;
     }
 
+    public function query()
+    {
+        return $this->query;
+    }
+
     public function search(DiscussionSearchCriteria $criteria, $count = null, $start = 0, $load = [])
     {
         $this->user = $criteria->user;
@@ -56,7 +62,6 @@ class DiscussionSearcher
         if (empty($sort)) {
             $sort = $this->defaultSort;
         }
-        // dd($sort);
         if (is_array($sort)) {
             foreach ($sort as $id) {
                 $this->query->orderByRaw('id != '.(int) $id);

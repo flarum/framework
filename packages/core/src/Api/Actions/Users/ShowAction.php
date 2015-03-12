@@ -25,7 +25,13 @@ class ShowAction extends BaseAction
      */
     public function run(ApiParams $params)
     {
-        $user = $this->users->findOrFail($params->get('id'), $this->actor->getUser());
+        $id = $params->get('id');
+
+        if (! is_numeric($id)) {
+            $id = $this->users->getIdForUsername($id);
+        }
+
+        $user = $this->users->findOrFail($id, $this->actor->getUser());
 
         // Set up the user serializer, which we will use to create the
         // document's primary resource. We will specify that we want the
