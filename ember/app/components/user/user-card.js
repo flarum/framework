@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 import HasItemLists from 'flarum/mixins/has-item-lists';
+import UserBio from 'flarum/components/user/user-bio';
 
 export default Ember.Component.extend(HasItemLists, {
   layoutName: 'components/user/user-card',
@@ -12,44 +13,20 @@ export default Ember.Component.extend(HasItemLists, {
     return 'background-color: '+this.get('user.color');
   }),
 
-  bioEditable: Ember.computed.and('user.canEdit', 'editable'),
-  showBio: Ember.computed.or('user.bioHtml', 'bioEditable'),
-
-  didInsertElement: function() {
-    this.$().on('click', '.user-bio a', function(e) {
-      e.stopPropagation();
-    });
-  },
-
-  actions: {
-    editBio: function() {
-      if (!this.get('bioEditable')) {
-        return;
-      }
-
-      this.set('editingBio', true);
-      var component = this;
-      Ember.run.scheduleOnce('afterRender', this, function() {
-        this.$('.user-bio textarea').focus().blur(function() {
-          component.send('saveBio', $(this).val());
-        });
-      });
-    },
-
-    saveBio: function(value) {
-      var user = this.get('user');
-      user.set('bio', value);
-      user.save();
-      this.set('editingBio', false);
-    }
-  },
-
   populateControls: function(items) {
     this.addActionItem(items, 'edit', 'Edit', 'pencil');
     this.addActionItem(items, 'delete', 'Delete', 'times');
   },
 
   populateInfo: function(items) {
+    if (this.get('user.bioHtml') || (this.get('editable') && this.get('user.canEdit'))) {
+      items.pushObjectWithTag(UserBio.extend({
+        user: this.get('user'),
+        editable: this.get('editable'),
+        listItemClass: 'block-item'
+      }), 'bio');
+    }
+
     items.pushObjectWithTag(Ember.Component.extend({
       layout: Ember.Handlebars.compile('{{fa-icon "circle"}} Online')
     }), 'lastActiveTime');
