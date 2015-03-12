@@ -1,6 +1,8 @@
 <?php namespace Flarum\Core\Handlers\Commands;
 
 use Flarum\Core\Repositories\UserRepositoryInterface as UserRepository;
+use Flarum\Core\Events\UserWillBeSaved;
+use Flarum\Core\Support\DispatchesEvents;
 
 class EditUserCommandHandler
 {
@@ -28,6 +30,9 @@ class EditUserCommandHandler
         }
         if (isset($command->password)) {
             $userToEdit->changePassword($command->password);
+        }
+        if (isset($command->bio)) {
+            $userToEdit->changeBio($command->bio);
         }
         if (! empty($command->readTime)) {
             $userToEdit->markAllAsRead();
