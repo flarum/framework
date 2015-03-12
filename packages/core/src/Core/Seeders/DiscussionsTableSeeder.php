@@ -131,7 +131,7 @@ class DiscussionsTableSeeder extends Seeder
         $prefix = DB::getTablePrefix();
         DB::table('users')->update([
             'discussions_count' => DB::raw('(SELECT COUNT(id) FROM '.$prefix.'discussions WHERE start_user_id = '.$prefix.'users.id)'),
-            'posts_count' => DB::raw('(SELECT COUNT(id) FROM '.$prefix.'posts WHERE user_id = '.$prefix.'users.id and type = "comment")'),
+            'comments_count' => DB::raw('(SELECT COUNT(id) FROM '.$prefix.'posts WHERE user_id = '.$prefix.'users.id and type = "comment")'),
         ]);
     }
 }

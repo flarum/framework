@@ -25,7 +25,7 @@ class CreateUsersTable extends Migration {
             $table->dateTime('last_seen_time')->nullable();
             $table->dateTime('read_time')->nullable();
             $table->integer('discussions_count')->unsigned()->default(0);
-            $table->integer('posts_count')->unsigned()->default(0);
+            $table->integer('comments_count')->unsigned()->default(0);
         });
     }
 
