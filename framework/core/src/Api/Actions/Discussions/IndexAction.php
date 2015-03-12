@@ -12,14 +12,14 @@ class IndexAction extends BaseAction
     /**
      * The discussion searcher.
      *
-     * @var DiscussionSearcher
+     * @var \Flarum\Core\Search\Discussions\DiscussionSearcher
      */
     protected $searcher;
 
     /**
      * Instantiate the action.
      *
-     * @param DiscussionSearcher $searcher
+     * @param \Flarum\Core\Search\Discussions\DiscussionSearcher $searcher
      */
     public function __construct(Actor $actor, DiscussionSearcher $searcher)
     {
@@ -30,8 +30,7 @@ class IndexAction extends BaseAction
     /**
      * Show a list of discussions.
      *
-     * @todo custom rate limit for this function? determined by if $key was valid?
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
     protected function run(ApiParams $params)
     {
@@ -43,7 +42,7 @@ class IndexAction extends BaseAction
 
         $relations = array_merge(['startUser', 'lastUser'], $include);
 
-        // Set up the discussion finder with our search criteria, and get the
+        // Set up the discussion searcher with our search criteria, and get the
         // requested range of results with the necessary relations loaded.
         $criteria = new DiscussionSearchCriteria($this->actor->getUser(), $query, $sort['field'], $sort['order']);
         $load = array_merge($relations, ['state']);

@@ -5,6 +5,13 @@ use Flarum\Core\Models\User;
 interface UserRepositoryInterface
 {
     /**
+     * Get a new query builder for the users table.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function query();
+
+    /**
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
@@ -32,4 +39,14 @@ interface UserRepositoryInterface
      * @return integer|null
      */
     public function getIdForUsername($username, User $user = null);
+
+    /**
+     * Find users by matching a string of words against their username,
+     * optionally making sure they are visible to a certain user.
+     *
+     * @param  string  $string
+     * @param  \Flarum\Core\Models\User|null  $user
+     * @return array
+     */
+    public function getIdsForUsername($string, User $user = null);
 }
