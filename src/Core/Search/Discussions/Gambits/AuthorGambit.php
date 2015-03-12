@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Search\Discussions\Gambits;
 
 use Flarum\Core\Repositories\UserRepositoryInterface as UserRepository;
-use Flarum\Core\Search\Discussions\DiscussionSearcher;
+use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitAbstract;
 
 class AuthorGambit extends GambitAbstract
@@ -19,12 +19,12 @@ class AuthorGambit extends GambitAbstract
         $this->users = $users;
     }
 
-    public function conditions($matches, DiscussionSearcher $searcher)
+    public function conditions($matches, SearcherInterface $searcher)
     {
         $username = trim($matches[1], '"');
 
         $id = $this->users->getIdForUsername($username);
 
-        $searcher->query->where('start_user_id', $id);
+        $searcher->query()->where('start_user_id', $id);
     }
 }

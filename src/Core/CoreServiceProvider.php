@@ -77,13 +77,23 @@ class CoreServiceProvider extends ServiceProvider
 
     public function registerGambits()
     {
-        $this->app->bind('Flarum\Core\Search\GambitManager', function () {
-            $gambits = new GambitManager($this->app);
-            $gambits->add('Flarum\Core\Search\Discussions\Gambits\AuthorGambit');
-            $gambits->add('Flarum\Core\Search\Discussions\Gambits\UnreadGambit');
-            $gambits->setFulltextGambit('Flarum\Core\Search\Discussions\Gambits\FulltextGambit');
-            return $gambits;
-        });
+        $this->app->when('Flarum\Core\Search\Discussions\DiscussionSearcher')
+            ->needs('Flarum\Core\Search\GambitManager')
+            ->give(function () {
+                $gambits = new GambitManager($this->app);
+                $gambits->add('Flarum\Core\Search\Discussions\Gambits\AuthorGambit');
+                $gambits->add('Flarum\Core\Search\Discussions\Gambits\UnreadGambit');
+                $gambits->setFulltextGambit('Flarum\Core\Search\Discussions\Gambits\FulltextGambit');
+                return $gambits;
+            });
+
+        $this->app->when('Flarum\Core\Search\Users\UserSearcher')
+            ->needs('Flarum\Core\Search\GambitManager')
+            ->give(function () {
+                $gambits = new GambitManager($this->app);
+                $gambits->setFulltextGambit('Flarum\Core\Search\Users\Gambits\FulltextGambit');
+                return $gambits;
+            });
     }
 
     public function registerPostTypes()

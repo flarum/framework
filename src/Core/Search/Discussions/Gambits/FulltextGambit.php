@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Search\Discussions\Gambits;
 
 use Flarum\Core\Repositories\PostRepositoryInterface;
-use Flarum\Core\Search\Discussions\DiscussionSearcher;
+use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitAbstract;
 
 class FulltextGambit extends GambitAbstract
@@ -13,7 +13,7 @@ class FulltextGambit extends GambitAbstract
         $this->posts = $posts;
     }
 
-    public function apply($string, DiscussionSearcher $searcher)
+    public function apply($string, SearcherInterface $searcher)
     {
         $posts = $this->posts->findByContent($string, $searcher->user);
 
@@ -24,7 +24,7 @@ class FulltextGambit extends GambitAbstract
         }
         $discussions = array_unique($discussions);
 
-        $searcher->query->whereIn('id', $discussions);
+        $searcher->query()->whereIn('id', $discussions);
 
         $searcher->setDefaultSort($discussions);
     }

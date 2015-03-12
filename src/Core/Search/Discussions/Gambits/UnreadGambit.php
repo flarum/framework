@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Search\Discussions\Gambits;
 
 use Flarum\Core\Repositories\DiscussionRepositoryInterface as DiscussionRepository;
-use Flarum\Core\Search\Discussions\DiscussionSearcher;
+use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitAbstract;
 
 class UnreadGambit extends GambitAbstract
@@ -19,7 +19,7 @@ class UnreadGambit extends GambitAbstract
         $this->discussions = $discussions;
     }
 
-    protected function conditions($matches, DiscussionSearcher $searcher)
+    protected function conditions($matches, SearcherInterface $searcher)
     {
         $user = $searcher->user;
 
@@ -27,9 +27,9 @@ class UnreadGambit extends GambitAbstract
             $readIds = $this->discussions->getReadIds($user);
 
             if ($matches[1] === 'true') {
-                $searcher->query->whereNotIn('id', $readIds)->where('last_time', '>', $user->read_time ?: 0);
+                $searcher->query()->whereNotIn('id', $readIds)->where('last_time', '>', $user->read_time ?: 0);
             } else {
-                $searcher->query->whereIn('id', $readIds)->orWhere('last_time', '<=', $user->read_time ?: 0);
+                $searcher->query()->whereIn('id', $readIds)->orWhere('last_time', '<=', $user->read_time ?: 0);
             }
         }
     }
