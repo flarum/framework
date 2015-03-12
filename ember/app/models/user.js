@@ -10,6 +10,8 @@ export default DS.Model.extend(HasItemLists, {
   email: DS.attr('string'),
   password: DS.attr('string'),
   avatarUrl: DS.attr('string'),
+  bio: DS.attr('string'),
+  bioHtml: DS.attr('string'),
 
   groups: DS.hasMany('group'),
 

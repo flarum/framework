@@ -150,14 +150,14 @@
   margin-bottom: 10px;
   color: @fl-body-muted-color;
 
+  &, & a {
+    color: @fl-body-muted-color;
+  }
   & > ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 
-    &, & a {
-      color: @fl-body-muted-color;
-    }
     & > li {
       display: inline;
       margin-right: 10px;
@@ -166,11 +166,16 @@
   & .post-user {
     margin: 0;
     display: inline;
-    font-weight: bold;
-    font-size: 15px;
+    font-weight: normal;
+    position: relative;
 
-    &, & a {
+    & h3 {
+      display: inline;
+    }
+    & h3, & h3 a {
       color: @fl-body-heading-color;
+      font-weight: bold;
+      font-size: 15px;
     }
 
     & .badges {
@@ -181,6 +186,13 @@
         margin-left: -15px;
         position: relative;
       }
+    }
+
+    & .user-card {
+      position: absolute;
+      top: 100%;
+      margin-top: 5px;
+      z-index: @zindex-popover;
     }
   }
 }
