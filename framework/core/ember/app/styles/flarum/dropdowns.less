@@ -21,6 +21,11 @@
     margin: 10px 0;
     background-color: @fl-body-control-bg;
   }
+  & .count {
+    font-weight: bold;
+    font-size: 12px;
+    margin-left: 5px;
+  }
 }
 .dropdown-split.item-count-1 {
   & .btn {
@@ -103,5 +108,27 @@
     position: static;
     background: none;
     .box-shadow(none);
+  }
+}
+
+.nav-list() {
+  & > li > a {
+    padding: 8px 0;
+    color: @fl-body-muted-color;
+
+    &:hover {
+      background: none;
+      color: @link-hover-color;
+    }
+
+    & .fa {
+      margin-right: 8px;
+      font-size: 15px;
+    }
+  }
+  & > li.active > a {
+    background: none;
+    color: @fl-body-primary-color;
+    font-weight: bold;
   }
 }

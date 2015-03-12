@@ -20,7 +20,7 @@ export default DS.Model.extend(HasItemLists, {
   readTime: DS.attr('date'),
 
   discussionsCount: DS.attr('number'),
-  postsCount: DS.attr('number'),
+  commentsCount: DS.attr('number'),
 
   canEdit: DS.attr('boolean'),
   canDelete: DS.attr('boolean'),
