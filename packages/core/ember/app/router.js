@@ -6,7 +6,6 @@ var Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-
   this.resource('index', {path: '/'}, function() {
     this.resource('discussion', {path: '/:id/:slug'}, function() {
       this.route('near', {path: '/:near'});
@@ -16,9 +15,10 @@ Router.map(function() {
   this.resource('user', {path: '/u/:username'}, function() {
     this.route('activity');
     this.route('posts');
-    this.resource('preferences');
+    this.route('edit');
   });
 
+  this.resource('settings');
 });
 
 export default Router;

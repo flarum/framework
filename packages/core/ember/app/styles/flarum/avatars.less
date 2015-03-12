@@ -1,12 +1,13 @@
 .avatar-size(@size) {
   width: @size;
   height: @size;
-  border-radius: @size / 2;
+  border-radius: @size;
   font-size: @size / 2;
   line-height: @size;
 }
 .avatar {
   display: inline-block;
+  box-sizing: content-box;
   color: @fl-body-bg;
   font-weight: 300;
   text-align: center;
