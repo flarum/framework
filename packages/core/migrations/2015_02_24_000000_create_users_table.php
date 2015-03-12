@@ -21,6 +21,8 @@ class CreateUsersTable extends Migration {
             $table->string('confirmation_token')->nullable();
             $table->boolean('is_activated')->default(0);
             $table->string('password');
+            $table->text('bio')->nullable();
+            $table->text('bio_html')->nullable();
             $table->dateTime('join_time')->nullable();
             $table->dateTime('last_seen_time')->nullable();
             $table->dateTime('read_time')->nullable();

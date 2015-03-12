@@ -12,6 +12,8 @@ class EditUserCommand
 
     public $password;
 
+    public $bio;
+
     public $readTime;
 
     public function __construct($userId, $user)

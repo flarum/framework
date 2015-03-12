@@ -118,6 +118,7 @@ class CoreServiceProvider extends ServiceProvider
         Model::setValidator($this->app['validator']);
 
         User::setHasher($this->app['hash']);
+        User::setFormatter($this->app['flarum.formatter']);
     }
 
     public function registerPermissions()

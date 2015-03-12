@@ -2,18 +2,27 @@
 
 use Illuminate\Contracts\Hashing\Hasher;
 use Tobscure\Permissible\Permissible;
+use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Events\UserWasDeleted;
 use Flarum\Core\Events\UserWasRegistered;
 use Flarum\Core\Events\UserWasRenamed;
 use Flarum\Core\Events\UserEmailWasChanged;
 use Flarum\Core\Events\UserPasswordWasChanged;
+use Flarum\Core\Events\UserBioWasChanged;
 use Flarum\Core\Events\UserWasActivated;
 use Flarum\Core\Events\UserEmailWasConfirmed;
 
 class User extends Model
 {
     use Permissible;
+
+    /**
+     * The text formatter instance.
+     *
+     * @var \Flarum\Core\Formatter\Formatter
+     */
+    protected static $formatter;
 
     /**
      * The validation rules for this model.
@@ -144,6 +153,37 @@ class User extends Model
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = $value ? static::$hasher->make($value) : null;
+    }
+
+    /**
+     * Change the user's bio.
+     *
+     * @param  string  $bio
+     * @return $this
+     */
+    public function changeBio($bio)
+    {
+        $this->bio = $bio;
+
+        $this->raise(new UserBioWasChanged($this));
+
+        return $this;
+    }
+
+    /**
+     * Get the content formatter as HTML.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getBioHtmlAttribute($value)
+    {
+        if (! $value) {
+            $this->bio_html = $value = static::formatBio($this->bio);
+            $this->save();
+        }
+
+        return $value;
     }
 
     /**
@@ -331,5 +371,36 @@ class User extends Model
     public static function setHasher(Hasher $hasher)
     {
         static::$hasher = $hasher;
+    }
+
+    /**
+     * Get text formatter instance.
+     *
+     * @return \Flarum\Core\Formatter\FormatterManager
+     */
+    public static function getFormatter()
+    {
+        return static::$formatter;
+    }
+
+    /**
+     * Set text formatter instance.
+     *
+     * @param  \Flarum\Core\Formatter\FormatterManager  $formatter
+     */
+    public static function setFormatter(FormatterManager $formatter)
+    {
+        static::$formatter = $formatter;
+    }
+
+    /**
+     * Format a string of post content using the set formatter.
+     *
+     * @param  string  $content
+     * @return string
+     */
+    protected static function formatBio($content)
+    {
+        return static::$formatter->format($content);
     }
 }
