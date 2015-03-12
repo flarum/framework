@@ -22,7 +22,7 @@ class UpdateAction extends BaseAction
         // second one failed, the first one would still have succeeded.)
         $command = new EditUserCommand($userId, $this->actor->getUser());
         $this->hydrate($command, $params->get('users'));
-        $this->dispatch($command);
+        $user = $this->dispatch($command, $params);
 
         // Presumably, the user was updated successfully. (The command handler
         // would have thrown an exception if not.) We set this user as our
