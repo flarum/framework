@@ -102,16 +102,6 @@ export default Ember.Controller.extend({
   },
 
   actions: {
-    loadMore: function() {
-      var controller = this;
-      this.set('resultsLoading', true);
-      this.getResults(this.get('model.length')).then(function(results) {
-        controller.get('model').addObjects(results);
-        controller.set('meta', results.get('meta'));
-        controller.set('resultsLoading', false);
-      });
-    },
-
     discussionRemoved: function(discussion) {
       var model = this.get('model');
       model.removeObject(model.findBy('content', discussion));
@@ -127,6 +117,16 @@ export default Ember.Controller.extend({
           .set('meta', results.get('meta'))
           .set('model.content', results);
       });
-    }
+    },
+
+    loadMore: function() {
+      var controller = this;
+      this.set('resultsLoading', true);
+      this.getResults(this.get('model.length')).then(function(results) {
+        controller.get('model').addObjects(results);
+        controller.set('meta', results.get('meta'));
+        controller.set('resultsLoading', false);
+      });
+    },
   }
 });
