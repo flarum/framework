@@ -24,10 +24,10 @@ class EloquentPostRepository implements PostRepositoryInterface
     }
 
     /**
-     * Find posts in a discussion, optionally making sure they are visible to
-     * a certain user, and/or using other criteria.
+     * Find posts that match certain conditions, optionally making sure they
+     * are visible to a certain user, and/or using other criteria.
      *
-     * @param  integer  $discussionId
+     * @param  array  $where
      * @param  \Flarum\Core\Models\User|null  $user
      * @param  string  $sort
      * @param  string  $order
@@ -35,9 +35,9 @@ class EloquentPostRepository implements PostRepositoryInterface
      * @param  integer  $start
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function findByDiscussion($discussionId, User $user = null, $sort = 'time', $order = 'asc', $count = null, $start = 0)
+    public function findWhere($where = [], User $user = null, $sort = 'time', $order = 'asc', $count = null, $start = 0)
     {
-        $query = Post::where('discussion_id', $discussionId)
+        $query = Post::where($where)
             ->orderBy($sort, $order)
             ->skip($start)
             ->take($count);

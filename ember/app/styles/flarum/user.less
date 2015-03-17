@@ -95,3 +95,76 @@
     }
   }
 }
+
+.user-content .loading-indicator {
+  height: 46px;
+}
+.user-activity {
+  border-left: 3px solid @fl-body-secondary-color;
+  list-style: none;
+  margin: 0 0 0 16px;
+  padding: 0;
+
+  & > li {
+    margin-bottom: 30px;
+    padding-left: 32px;
+  }
+  & .activity-icon {
+    .avatar-size(32px);
+    float: left;
+    margin-left: -49px;
+    .box-shadow(0 0 0 3px #fff);
+    margin-top: -5px;
+  }
+}
+.activity-info {
+  color: @fl-body-muted-color;
+  margin-bottom: 10px;
+
+  & strong {
+    margin-right: 5px;
+  }
+}
+.activity-content {
+  display: block;
+  padding: 20px;
+  background: @fl-body-secondary-color;
+  border-radius: @border-radius-base;
+  color: @fl-body-muted-color;
+
+  &, &:hover {
+    text-decoration: none;
+  }
+  & .discussion-summary {
+    margin: -20px 0;
+    padding-left: 0;
+
+    & .author {
+      display: none;
+    }
+  }
+}
+.activity-post {
+  overflow: hidden;
+
+  & .title {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: bold;
+
+    &, & a {
+      color: @fl-body-heading-color;
+    }
+  }
+  &:hover .title {
+    text-decoration: underline;
+  }
+  & .body {
+    color: @fl-body-muted-color;
+    line-height: 1.7em;
+
+    & :last-child {
+      margin-bottom: 0;
+    }
+  }
+}

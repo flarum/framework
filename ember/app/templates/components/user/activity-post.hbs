@@ -1,0 +1,21 @@
+{{user-avatar activity.post.user class="activity-icon"}}
+
+<div class="activity-info">
+  <strong>{{if isFirstPost "Started a discussion" "Posted a reply"}}</strong>
+  {{human-time activity.time}}
+</div>
+
+{{#if isFirstPost}}
+  <div class="activity-content activity-discussion">
+    {{index/discussion-listing discussion=activity.post.discussion}}
+  </div>
+{{else}}
+  {{#link-to "discussion" activity.post.discussion (query-params start=activity.post.number) class="activity-content activity-post"}}
+    <h3 class="title">
+      {{activity.post.discussion.title}}
+    </h3>
+    <div class="body">
+      {{{activity.post.contentHtml}}}
+    </div>
+  {{/link-to}}
+{{/if}}

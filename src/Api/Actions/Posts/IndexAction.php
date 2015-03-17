@@ -9,7 +9,7 @@ use Flarum\Api\Serializers\PostSerializer;
 
 class IndexAction extends BaseAction
 {
-    use GetsPostsForDiscussion;
+    use GetsPosts;
 
     /**
      * The post repository.
@@ -37,14 +37,19 @@ class IndexAction extends BaseAction
     protected function run(ApiParams $params)
     {
         $postIds = (array) $params->get('ids');
-        $include = ['user', 'user.groups', 'editUser', 'hideUser'];
+        $include = ['user', 'user.groups', 'editUser', 'hideUser', 'discussion'];
         $user = $this->actor->getUser();
 
         if (count($postIds)) {
             $posts = $this->posts->findByIds($postIds, $user);
         } else {
-            $discussionId = $params->get('discussions');
-            $posts = $this->getPostsForDiscussion($params, $discussionId, $user);
+            if ($discussionId = $params->get('discussions')) {
+                $where['discussion_id'] = $discussionId;
+            }
+            if ($userId = $params->get('users')) {
+                $where['user_id'] = $userId;
+            }
+            $posts = $this->getPosts($params, $where, $user);
         }
 
         if (! count($posts)) {
