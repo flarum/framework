@@ -17,10 +17,10 @@ interface PostRepositoryInterface
     public function findOrFail($id, User $user = null);
 
     /**
-     * Find posts in a discussion, optionally making sure they are visible to
-     * a certain user, and/or using other criteria.
+     * Find posts that match certain conditions, optionally making sure they
+     * are visible to a certain user, and/or using other criteria.
      *
-     * @param  integer  $discussionId
+     * @param  array  $where
      * @param  \Flarum\Core\Models\User|null  $user
      * @param  string  $sort
      * @param  string  $order
@@ -28,7 +28,7 @@ interface PostRepositoryInterface
      * @param  integer  $start
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function findByDiscussion($discussionId, User $user = null, $sort = 'time', $order = 'asc', $count = null, $start = 0);
+    public function findWhere($where = [], User $user = null, $sort = 'time', $order = 'asc', $count = null, $start = 0);
 
     /**
      * Find posts by their IDs, optionally making sure they are visible to a
