@@ -58,7 +58,7 @@ class UserMetadataUpdater
 
     protected function updateRepliesCount(User $user, $amount)
     {
-        $user->posts_count += $amount;
+        $user->comments_count += $amount;
         $user->save();
     }
 
