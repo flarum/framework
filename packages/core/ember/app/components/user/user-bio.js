@@ -24,10 +24,14 @@ export default Ember.Component.extend({
 
       this.set('editing', true);
       var component = this;
+      var height = this.$().height();
       Ember.run.scheduleOnce('afterRender', this, function() {
-        this.$('textarea').focus().blur(function() {
+        var save = function(e) {
+          if (e.shiftKey) { return; }
+          e.preventDefault();
           component.send('save', $(this).val());
-        });
+        };
+        this.$('textarea').css('height', height).focus().bind('blur', save).bind('keydown', 'return', save);
       });
     },
 

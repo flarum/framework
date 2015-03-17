@@ -70,17 +70,20 @@
     }
   }
   & .user-bio {
-    padding: 10px 10px 1px;
     margin: -10px -10px 10px;
+    border: 1px dashed transparent;
+    border-radius: @border-radius-base;
 
     &.editable:not(.editing) {
       cursor: text;
 
       &:hover {
-        border: 1px dashed rgba(255, 255, 255, 0.5);
-        border-radius: @border-radius-base;
-        padding: 9px 9px 0;
+        border-color: rgba(255, 255, 255, 0.5);
       }
+    }
+
+    .bio-content {
+      padding: 10px 10px 1px;
     }
 
     &, & textarea {
@@ -88,7 +91,6 @@
     }
     & textarea {
       padding: 10px;
-      margin: -10px -10px 0;
       font-size: 14px;
     }
   }
