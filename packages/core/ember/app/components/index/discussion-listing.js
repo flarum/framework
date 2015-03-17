@@ -9,7 +9,6 @@ import FadeIn from 'flarum/mixins/fade-in';
  */
 export default Ember.Component.extend(FadeIn, HasItemLists, {
   layoutName: 'components/index/discussion-listing',
-  tagName: 'li',
   attributeBindings: ['discussionId:data-id'],
   classNames: ['discussion-summary'],
   classNameBindings: [

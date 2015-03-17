@@ -10,7 +10,7 @@
       {{ui/item-list items=view.sidebar}}
     </nav>
 
-    <div class="index-results">
+    <div class="offset-content index-results">
 
       <div class="index-toolbar">
         <div class="index-toolbar-view">
@@ -29,7 +29,8 @@
       <ul class="discussions-list">
         {{#each discussion in index.model}}
           {{index/discussion-listing
-            discussion=discussion
+            tagName="li"
+            discussion=discussion.content
             searchQuery=index.searchQuery
             terminalPostType=index.terminalPostType
             countType=index.countType
@@ -39,14 +40,10 @@
 
       {{#if index.resultsLoading}}
         {{ui/loading-indicator size="small"}}
-      {{/if}}
-
-      {{#if index.moreResults}}
-        {{#unless index.resultsLoading}}
-          <div class="load-more">
-            {{ui/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
-          </div>
-        {{/unless}}
+      {{else if index.moreResults}}
+        <div class="load-more">
+          {{ui/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
+        </div>
       {{/if}}
 
     </div>
