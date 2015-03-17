@@ -79,7 +79,7 @@ class PostSerializer extends PostBasicSerializer
      */
     public function includeDiscussion(Post $post, $relations = [])
     {
-        return (new DiscussionBasicSerializer($relations))->resource($post->discussion);
+        return (new DiscussionSerializer($relations))->resource($post->discussion);
     }
 
     /**

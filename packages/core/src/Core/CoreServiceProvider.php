@@ -73,6 +73,14 @@ class CoreServiceProvider extends ServiceProvider
             'Flarum\Core\Repositories\UserRepositoryInterface',
             'Flarum\Core\Repositories\EloquentUserRepository'
         );
+        $this->app->bind(
+            'Flarum\Core\Repositories\ActivityRepositoryInterface',
+            'Flarum\Core\Repositories\EloquentActivityRepository'
+        );
+        $this->app->bind(
+            'Flarum\Core\Repositories\NotificationRepositoryInterface',
+            'Flarum\Core\Repositories\EloquentNotificationRepository'
+        );
     }
 
     public function registerGambits()

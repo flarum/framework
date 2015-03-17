@@ -1,0 +1,13 @@
+<ul class="user-activity">
+  {{#each activity in model}}
+    {{user/activity-item activity=activity}}
+  {{/each}}
+</ul>
+
+{{#if resultsLoading}}
+  {{ui/loading-indicator size="small"}}
+{{else if moreResults}}
+  <div class="load-more">
+    {{ui/action-button class="control-loadMore btn btn-default" action="loadMore" label="Load More"}}
+  </div>
+{{/if}}

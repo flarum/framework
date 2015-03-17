@@ -7,6 +7,13 @@ import AlertMessage from 'flarum/components/ui/alert-message';
 export default JsonApiAdapter.extend({
   host: config.apiURL,
 
+  pathForType: function(type) {
+    if (type == 'activity') {
+      return type;
+    }
+    return this._super(type);
+  },
+
   ajaxError: function(jqXHR) {
     var errors = this._super(jqXHR);
 

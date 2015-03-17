@@ -5,12 +5,12 @@ use Flarum\Core\Repositories\DiscussionRepositoryInterface as DiscussionReposito
 use Flarum\Core\Repositories\PostRepositoryInterface as PostRepository;
 use Flarum\Api\Actions\BaseAction;
 use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Actions\Posts\GetsPostsForDiscussion;
+use Flarum\Api\Actions\Posts\GetsPosts;
 use Flarum\Api\Serializers\DiscussionSerializer;
 
 class ShowAction extends BaseAction
 {
-    use GetsPostsForDiscussion;
+    use GetsPosts;
 
     /**
      * The discussion repository.
@@ -51,7 +51,7 @@ class ShowAction extends BaseAction
 
         if (in_array('posts', $include)) {
             $relations = ['user', 'user.groups', 'editUser', 'hideUser'];
-            $discussion->posts = $this->getPostsForDiscussion($params, $discussion->id)->load($relations);
+            $discussion->posts = $this->getPosts($params, ['discussion_id' => $discussion->id])->load($relations);
 
             $include = array_merge($include, array_map(function ($relation) {
                 return 'posts.'.$relation;
