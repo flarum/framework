@@ -105,13 +105,13 @@
 }
 
 @media @phone, @tablet {
-  .index-results {
+  .offset-content {
     margin-top: 15px;
   }
 }
 
 @media @desktop, @desktop-hd {
-  .index-results {
+  .offset-content {
     margin-top: 30px;
     margin-left: 225px;
   }
@@ -228,16 +228,6 @@
     & > li {
       margin-right: -25px;
       padding-right: 65px + 25px;
-
-      & .contextual-controls {
-        position: absolute;
-        right: 0;
-        top: 18px;
-        visibility: hidden;
-      }
-      &:hover .contextual-controls, & .contextual-controls.open {
-        visibility: visible;
-      }
     }
   }
 }
@@ -249,9 +239,18 @@
     color: @fl-body-muted-color;
     text-decoration: none;
   }
+  & .contextual-controls {
+    visibility: hidden;
+    position: absolute;
+    right: 0;
+    top: 18px;
+  }
+  &:hover .contextual-controls, & .contextual-controls.open {
+    visibility: visible;
+  }
   & .author {
     float: left;
-    margin-top: 20px;
+    margin-top: 18px;
   }
   & .badges {
     float: left;
