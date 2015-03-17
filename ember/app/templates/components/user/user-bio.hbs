@@ -1,9 +1,11 @@
 {{#if editing}}
   {{textarea value=user.bio class="form-control"}}
 {{else}}
-  {{#if user.bioHtml}}
-    {{{user.bioHtml}}}
-  {{else if isEditable}}
-    <p>Write something about yourself...</p>
-  {{/if}}
+  <div class="bio-content">
+    {{#if user.bioHtml}}
+      {{{user.bioHtml}}}
+    {{else if isEditable}}
+      <p>Write something about yourself...</p>
+    {{/if}}
+  </div>
 {{/if}}
