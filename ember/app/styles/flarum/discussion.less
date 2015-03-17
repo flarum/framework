@@ -191,8 +191,12 @@
     & .user-card {
       position: absolute;
       top: 100%;
-      margin-top: 5px;
       z-index: @zindex-popover;
+      .transition(~"opacity 0.2s, margin-top 0.2s");
+
+      &.in {
+        margin-top: 5px;
+      }
     }
   }
 }
