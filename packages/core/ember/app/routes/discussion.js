@@ -1,8 +1,11 @@
 import Ember from 'ember';
 
 import PostStream from 'flarum/models/post-stream';
+import PushesHistory from 'flarum/mixins/pushes-history';
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(PushesHistory, {
+  historyKey: 'discussion',
+
   queryParams: {
     start: {replace: true}
   },
@@ -33,7 +36,7 @@ export default Ember.Route.extend({
   },
 
   setupController: function(controller, discussion) {
-    controller.set('model', discussion);
+    this._super(controller, discussion);
     this.controllerFor('index/index').set('lastDiscussion', discussion);
 
     // Set up the post stream object. It needs to know about the discussion
@@ -94,6 +97,8 @@ export default Ember.Route.extend({
 
   actions: {
     queryParamsDidChange: function(params) {
+      this._super(params);
+
       // If the ?start param has changed, we want to tell the view to
       // tell the streamContent component to jump to this start point.
       // We postpone running this code until the next run loop because

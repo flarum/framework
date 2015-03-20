@@ -10,21 +10,30 @@ export default Ember.Component.extend({
   active: Ember.computed.or('target.paneIsShowing', 'target.paneIsPinned'),
 
   mouseEnter: function() {
-    this.get('target').send('showPane');
+    var target = this.get('target');
+    if (target) {
+      target.send('showPane');
+    }
   },
 
   mouseLeave: function() {
-    this.get('target').send('hidePane');
+    var target = this.get('target');
+    if (target) {
+      target.send('hidePane');
+    }
   },
 
   actions: {
+    // WE HAVE TO GO BACK. WAAAAAALLLLLLTTTTT
     back: function() {
-      this.get('target').send('transitionFromBackButton');
-      this.set('target', null);
+      this.sendAction('goBack');
     },
 
     togglePinned: function() {
-      this.get('target').send('togglePinned');
+      var target = this.get('target');
+      if (target) {
+        target.send('togglePinned');
+      }
     },
 
     toggleDrawer: function() {
