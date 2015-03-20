@@ -1,10 +1,10 @@
 <div id="page" {{bind-attr class=":global-page backButtonTarget.paneIsPinned:with-pane"}}>
 
-  {{application/back-button target=backButtonTarget className="back-control" toggleDrawer="toggleDrawer"}}
+  {{application/back-button target=backButtonTarget className="back-control" toggleDrawer="toggleDrawer" goBack="goBack" canGoBack=canGoBack}}
 
   <div id="drawer" class="global-drawer">
     <header id="header" class="global-header">
-      {{application/back-button target=backButtonTarget}}
+      {{application/back-button target=backButtonTarget goBack="goBack" canGoBack=canGoBack}}
 
       <div class="container">
 

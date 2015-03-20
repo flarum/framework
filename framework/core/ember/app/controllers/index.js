@@ -32,10 +32,6 @@ export default Ember.Controller.extend(UseComposer, Paneable, {
   },
 
   actions: {
-    transitionFromBackButton: function() {
-      this.transitionToRoute('index');
-    },
-
     loadMore: function() {
       this.get('index').send('loadMore');
     },
