@@ -11,7 +11,18 @@
     {!! $styles !!}
   </head>
   <body>
+    <div id="assets-loading" class="fade">Loading...</div>
+    <script>
+        setTimeout(function() {
+            var loading = document.getElementById('assets-loading');
+            if (loading) {
+                loading.className += ' in';
+            }
+        }, 1000);
+    </script>
+
     {!! $content !!}
+
     <script>
         var FLARUM_DATA = {!! json_encode($data) !!};
         var FLARUM_SESSION = {!! json_encode($session) !!};

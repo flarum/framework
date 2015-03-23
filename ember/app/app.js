@@ -13,4 +13,6 @@ var App = Ember.Application.extend({
 
 loadInitializers(App, config.modulePrefix);
 
+Ember.$('#assets-loading').remove();
+
 export default App;
