@@ -56,6 +56,6 @@ class DiscussionBasicSerializer extends BaseSerializer
 
     public function addedPosts()
     {
-        return $this->hasMany('Flarum\Api\Serializers\PostBasicSerializer');
+        return $this->hasMany('Flarum\Api\Serializers\PostSerializer');
     }
 }
