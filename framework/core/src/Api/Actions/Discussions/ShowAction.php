@@ -49,6 +49,8 @@ class ShowAction extends BaseAction
 
         $discussion = $this->discussions->findOrFail($params->get('id'), $this->actor->getUser());
 
+        $discussion->posts_ids = $discussion->posts()->get(['id'])->fetch('id')->all();
+
         if (in_array('posts', $include)) {
             $relations = ['user', 'user.groups', 'editUser', 'hideUser'];
             $discussion->posts = $this->getPosts($params, ['discussion_id' => $discussion->id])->load($relations);
@@ -63,7 +65,7 @@ class ShowAction extends BaseAction
         // relations, we will specify that we want the 'posts' relation to be
         // linked so that a list of post IDs will show up in the response.
         $serializer = new DiscussionSerializer($include, ['posts']);
-        $document = $this->document()->setPrimaryElement($serializer->resource($discussion));
+        $document = $this->document()->setData($serializer->resource($discussion));
 
         return $this->respondWithDocument($document);
     }

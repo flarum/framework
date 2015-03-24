@@ -34,7 +34,7 @@
     "ember-data": "1.0.0-beta.15",
     "ember-dynamic-component": "0.0.4",
     "ember-export-application-global": "^1.0.2",
-    "ember-json-api": "^0.3.0",
+    "ember-json-api": "eneuhauser/ember-json-api",
     "express": "^4.8.5",
     "glob": "^4.0.5"
   }

@@ -1,11 +1,10 @@
 <?php namespace Flarum\Api\Serializers;
 
-use Flarum\Core\Models\Discussion;
-
 class DiscussionBasicSerializer extends BaseSerializer
 {
     /**
      * The resource type.
+     *
      * @var string
      */
     protected $type = 'discussions';
@@ -16,29 +15,47 @@ class DiscussionBasicSerializer extends BaseSerializer
      * @param Discussion $discussion The Discussion model to serialize.
      * @return array
      */
-    protected function attributes(Discussion $discussion)
+    protected function attributes($discussion)
     {
         $attributes = [
-            'id'    => (int) $discussion->id,
-            'title' => $discussion->title,
+            'title' => $discussion->title
         ];
 
-        return $this->attributesEvent($discussion, $attributes);
+        return $this->extendAttributes($discussion, $attributes);
     }
 
-    /**
-     * Get the URL templates where this resource and its related resources can
-     * be accessed.
-     *
-     * @return array
-     */
-    protected function href()
+    public function startUser()
     {
-        $href = [
-            'discussions' => $this->action('DiscussionsController@show', ['id' => '{discussions.id}']),
-            'posts'       => $this->action('PostsController@indexForDiscussion', ['id' => '{discussions.id}'])
-        ];
+        return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
+    }
 
-        return $this->hrefEvent($href);
+    public function startPost()
+    {
+        return $this->hasOne('Flarum\Api\Serializers\PostBasicSerializer');
+    }
+
+    public function lastUser()
+    {
+        return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
+    }
+
+    public function lastPost()
+    {
+        return $this->hasOne('Flarum\Api\Serializers\PostBasicSerializer');
+    }
+
+    public function posts()
+    {
+        return $this->hasMany('Flarum\Api\Serializers\PostSerializer');
+    }
+
+    public function relevantPosts()
+    {
+        return $this->hasMany('Flarum\Api\Serializers\PostBasicSerializer');
+    }
+
+    public function addedPosts()
+    {
+        return $this->hasMany('Flarum\Api\Serializers\PostBasicSerializer');
     }
 }

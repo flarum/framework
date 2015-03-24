@@ -4,6 +4,7 @@ use Tobscure\JsonApi\SerializerAbstract;
 use Flarum\Api\Events\SerializeAttributes;
 use Flarum\Api\Events\SerializeRelationship;
 use Flarum\Core\Support\Actor;
+use Closure;
 
 /**
  * A base serializer to call Flarum events at common serialization points.
@@ -35,11 +36,53 @@ abstract class BaseSerializer extends SerializerAbstract
      * @param  array $attributes Attributes that have already been serialized.
      * @return array
      */
-    protected function attributesEvent($model, $attributes = [])
+    protected function extendAttributes($model, &$attributes = [])
     {
         event(new SerializeAttributes($this, $model, $attributes));
 
         return $attributes;
+    }
+
+    protected function relationship($serializer, Closure $callback = null, $many = false)
+    {
+        // Get the relationship name from the stack trace.
+        if (is_null($callback)) {
+            list(, , $caller) = debug_backtrace(false, 3);
+            $relation = $caller['function'];
+        }
+
+        return function ($model, $include, $links) use ($serializer, $callback, $many, $relation) {
+            if ($callback) {
+                $data = $callback($model, $include);
+            } else {
+                if ($include) {
+                    $data = $model->$relation;
+                } elseif ($many) {
+                    $relationIds = $relation.'_ids';
+                    $data = $model->$relationIds ?: $model->relation()->get(['id'])->fetch('id')->all();
+                } else {
+                    $relationId = $relation.'_id';
+                    $data = $model->$relationId;
+                }
+            }
+
+            if (is_array($serializer)) {
+                $class = get_class(is_object($data) ? $data : $model->$relation()->getRelated());
+                $serializer = $serializer[$class];
+            }
+            $serializer = new $serializer($links);
+            return $many ? $serializer->collection($data) : $serializer->resource($data);
+        };
+    }
+
+    public function hasOne($serializer, Closure $callback = null)
+    {
+        return $this->relationship($serializer, $callback);
+    }
+
+    public function hasMany($serializer, Closure $callback = null)
+    {
+        return $this->relationship($serializer, $callback, true);
     }
 
     /**
@@ -51,12 +94,6 @@ abstract class BaseSerializer extends SerializerAbstract
      */
     public function __call($name, $arguments)
     {
-        if ($link = starts_with($name, 'link') || starts_with($name, 'include')) {
-            $model = isset($arguments[0]) ? $arguments[0] : null;
-            $relations = isset($arguments[1]) ? $arguments[1] : null;
-            $type = $link ? 'link' : 'include';
-            $name = substr($name, strlen($type));
-            return event(new SerializeRelationship($this, $model, $type, $name, $relations), null, true);
-        }
+            return event(new SerializeRelationship($this, $name), null, true);
     }
 }

@@ -47,10 +47,14 @@ export default DS.Model.extend(HasItemLists, {
   // post-stream object, we're only interested in obtaining a list of IDs, so
   // we make it a string and then split it by comma. Instead, we'll put a
   // relationship on `loadedPosts`.
-  posts: DS.attr('string'),
-  postIds: Ember.computed('posts', function() {
-    var posts = this.get('posts') || '';
-    return posts.split(',');
+  // posts: DS.attr('string'),
+  posts: DS.hasMany('post', {async: true}),
+  postIds: Ember.computed(function() {
+    var ids = [];
+    this.get('data.posts').forEach(function(post) {
+      ids.push(post.id);
+    });
+    return ids;
   }),
   loadedPosts: DS.hasMany('post'),
   relevantPosts: DS.hasMany('post'),

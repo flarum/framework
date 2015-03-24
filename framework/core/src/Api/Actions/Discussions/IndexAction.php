@@ -36,16 +36,14 @@ class IndexAction extends BaseAction
     {
         $query   = $params->get('q');
         $start   = $params->start();
-        $include = $params->included(['startPost', 'lastPost', 'relevantPosts']);
+        $include = $params->included(['startUser', 'lastUser', 'startPost', 'lastPost', 'relevantPosts']);
         $count   = $params->count(20, 50);
         $sort    = $params->sort(['', 'lastPost', 'replies', 'created']);
-
-        $relations = array_merge(['startUser', 'lastUser'], $include);
 
         // Set up the discussion searcher with our search criteria, and get the
         // requested range of results with the necessary relations loaded.
         $criteria = new DiscussionSearchCriteria($this->actor->getUser(), $query, $sort['field'], $sort['order']);
-        $load = array_merge($relations, ['state']);
+        $load = array_merge($include, ['state']);
 
         $results = $this->searcher->search($criteria, $count, $start, $load);
 
@@ -61,9 +59,8 @@ class IndexAction extends BaseAction
         // specified.
         if ($results->areMoreResults()) {
             $start += $count;
-            $include = implode(',', $include);
             $sort = $sort['string'];
-            $input = array_filter(compact('query', 'sort', 'start', 'count', 'include'));
+            $input = array_filter(compact('query', 'sort', 'start', 'count')) + ['include' => implode(',', $include)];
             $moreUrl = $this->buildUrl('discussions.index', [], $input);
         } else {
             $moreUrl = '';
@@ -72,8 +69,8 @@ class IndexAction extends BaseAction
 
         // Finally, we can set up the discussion serializer and use it to create
         // a collection of discussion results.
-        $serializer = new DiscussionSerializer($relations);
-        $document->setPrimaryElement($serializer->collection($results->getDiscussions()));
+        $serializer = new DiscussionSerializer($include);
+        $document->setData($serializer->collection($results->getDiscussions()));
 
         return $this->respondWithDocument($document);
     }

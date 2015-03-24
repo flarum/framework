@@ -22,8 +22,8 @@ class CreateAction extends BaseAction
         // the post content, and the author's user account. Let's set up a
         // command with this information. We also fire an event to allow plugins
         // to add data to the command.
-        $discussionId = $params->get('posts.links.discussion');
-        $content = $params->get('posts.content');
+        $discussionId = $params->get('data.links.discussion.linkage.id');
+        $content = $params->get('data.content');
 
         $command = new PostReplyCommand($discussionId, $content, $user);
         $post = $this->dispatch($command, $params);
@@ -40,7 +40,7 @@ class CreateAction extends BaseAction
         // would have thrown an exception if not.) We set this post as our
         // document's primary element.
         $serializer = new PostSerializer;
-        $document = $this->document()->setPrimaryElement($serializer->resource($post));
+        $document = $this->document()->setData($serializer->resource($post));
 
         return $this->respondWithDocument($document, 201);
     }

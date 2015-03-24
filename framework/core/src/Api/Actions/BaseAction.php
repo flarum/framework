@@ -23,7 +23,12 @@ abstract class BaseAction extends Action
 
     public function handle(Request $request, $routeParams = [])
     {
-        $params = array_merge($request->all(), $routeParams);
+        if (str_contains($request->header('CONTENT_TYPE'), 'application/vnd.api+json')) {
+            $input = $request->json();
+        } else {
+            $input = $request;
+        }
+        $params = array_merge($input->all(), $routeParams);
 
         return $this->call($params);
     }
