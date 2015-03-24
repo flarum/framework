@@ -78,7 +78,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
     },
 
     markAsRead: function() {
-      var discussion = this.get('discussion.content');
+      var discussion = this.get('discussion');
       if (discussion.get('isUnread')) {
         discussion.set('readNumber', discussion.get('lastPostNumber'));
         discussion.save();
@@ -87,7 +87,7 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
 
     delete: function() {
       if (confirm('Are you sure you want to delete this discussion?')) {
-        var discussion = this.get('discussion.content');
+        var discussion = this.get('discussion');
         discussion.destroyRecord();
         this.sendAction('discussionRemoved', discussion);
       }
