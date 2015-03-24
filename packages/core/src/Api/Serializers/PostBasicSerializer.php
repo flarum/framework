@@ -41,7 +41,7 @@ class PostBasicSerializer extends BaseSerializer
         if ($post->type === 'comment') {
             $attributes['content'] = str_limit($post->content, 200);
         } else {
-            $attributes['content'] = json_encode($post->content);
+            $attributes['content'] = $post->content;
         }
 
         return $this->extendAttributes($post, $attributes);
