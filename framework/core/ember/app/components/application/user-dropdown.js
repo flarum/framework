@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 import HasItemLists from 'flarum/mixins/has-item-lists';
 import DropdownButton from 'flarum/components/ui/dropdown-button';
-import NavItem from 'flarum/components/ui/nav-item';
+import config from 'flarum/config/environment';
 
 var precompileTemplate = Ember.Handlebars.compile;
 
@@ -20,13 +20,20 @@ export default DropdownButton.extend(HasItemLists, {
     items.pushObjectWithTag(Ember.Component.extend({
       tagName: 'li',
       layout: precompileTemplate('{{#link-to "user" user}}{{fa-icon "user"}} Profile{{/link-to}}'),
-      user: this.get('parentController.session.user')
+      user: this.get('user')
     }));
 
     items.pushObjectWithTag(Ember.Component.extend({
       tagName: 'li',
       layout: precompileTemplate('{{#link-to "settings"}}{{fa-icon "cog"}} Settings{{/link-to}}')
     }));
+
+    if (this.get('user.groups').findBy('id', '1')) {
+      items.pushObjectWithTag(Ember.Component.extend({
+        tagName: 'li',
+        layout: precompileTemplate('<a href="'+config.baseURL+'admin" target="_blank">{{fa-icon "wrench"}} Administration</a>')
+      }));
+    }
 
     this.addSeparatorItem(items);
 
