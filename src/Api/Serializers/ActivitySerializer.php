@@ -1,11 +1,10 @@
 <?php namespace Flarum\Api\Serializers;
 
-use Flarum\Core\Models\Activity;
-
 class ActivitySerializer extends BaseSerializer
 {
     /**
      * The resource type.
+     *
      * @var string
      */
     protected $type = 'activity';
@@ -16,50 +15,30 @@ class ActivitySerializer extends BaseSerializer
      * @param Activity $activity The Activity model to serialize.
      * @return array
      */
-    protected function attributes(Activity $activity)
+    protected function attributes($activity)
     {
         $attributes = [
             'id'   => ((int) $activity->id) ?: str_random(5),
-            'type' => $activity->type,
+            'contentType' => $activity->type,
             'content' => json_encode($activity->data),
             'time' => $activity->time->toRFC3339String()
         ];
 
-        return $this->attributesEvent($activity, $attributes);
+        return $this->extendAttributes($activity, $attributes);
     }
 
-    /**
-     * Get a resource containing an activity's sender.
-     *
-     * @param Activity $activity
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function linkUser(Activity $activity)
+    public function user()
     {
-        return (new UserBasicSerializer)->resource($activity->user_id);
+        return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
-    /**
-     * Get a resource containing an activity's sender.
-     *
-     * @param Activity $activity
-     * @param array $relations
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function includeSender(Activity $activity, $relations)
+    public function sender()
     {
-        return (new UserBasicSerializer($relations))->resource($activity->sender);
+        return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
-    /**
-     * Get a resource containing an activity's sender.
-     *
-     * @param Activity $activity
-     * @param array $relations
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function includePost(Activity $activity, $relations)
+    public function post()
     {
-        return (new PostSerializer($relations))->resource($activity->post);
+        return $this->hasOne('Flarum\Api\Serializers\PostSerializer');
     }
 }

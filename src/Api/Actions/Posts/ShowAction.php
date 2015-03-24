@@ -35,7 +35,7 @@ class ShowAction extends BaseAction
         // a post resource or collection, depending on how many posts were
         // requested.
         $serializer = new PostSerializer($relations);
-        $document = $this->document()->setPrimaryElement($serializer->resource($posts->first()));
+        $document = $this->document()->setData($serializer->resource($posts->first()));
 
         return $this->respondWithDocument($document);
     }

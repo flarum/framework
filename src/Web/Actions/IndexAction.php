@@ -34,8 +34,7 @@ class IndexAction extends Action
 
             $response = $this->callAction('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
 
-            $data['users'] = [$response->getData()->users];
-            $data['groups'] = $response->getData()->linked->groups;
+            $data = array_merge([$response->getData()->data], $response->getData()->included);
         }
 
 

@@ -1,8 +1,8 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  type: DS.attr('string'),
-  content: DS.attr('string'),
+  contentType: DS.attr('string'),
+  content: DS.attr(),
   time: DS.attr('date'),
 
   user: DS.belongsTo('user'),

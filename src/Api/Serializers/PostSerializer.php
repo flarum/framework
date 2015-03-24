@@ -1,18 +1,10 @@
 <?php namespace Flarum\Api\Serializers;
 
-use Flarum\Core\Models\Post;
-use Flarum\Core\Models\User;
-
 class PostSerializer extends PostBasicSerializer
 {
     /**
-     * Default relations to link.
-     * @var array
-     */
-    protected $link = ['discussion'];
-
-    /**
      * Default relations to include.
+     *
      * @var array
      */
     protected $include = ['user', 'editUser', 'hideUser'];
@@ -23,7 +15,7 @@ class PostSerializer extends PostBasicSerializer
      * @param  Post  $post The Post model to serialize.
      * @return array
      */
-    protected function attributes(Post $post)
+    protected function attributes($post)
     {
         $attributes = parent::attributes($post);
         $user = static::$actor->getUser();
@@ -38,7 +30,7 @@ class PostSerializer extends PostBasicSerializer
                 $attributes['content'] = $post->content;
             }
         } else {
-            $attributes['content'] = json_encode($post->content);
+            $attributes['content'] = $post->content;
         }
 
         if ($post->edit_time) {
@@ -55,54 +47,26 @@ class PostSerializer extends PostBasicSerializer
             'canDelete' => $post->can($user, 'delete')
         ];
 
-        return $this->attributesEvent($post, $attributes);
+        return $this->extendAttributes($post, $attributes);
     }
 
-    /**
-     * Get a resource containing a post's user.
-     *
-     * @param Post $post
-     * @param array $relations
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function includeUser(Post $post, $relations = [])
+    public function user()
     {
-        return (new UserSerializer($relations))->resource($post->user);
+        return $this->hasOne('Flarum\Api\Serializers\UserSerializer');
     }
 
-    /**
-     * Get a resource containing a post's discussion.
-     *
-     * @param Post $post
-     * @param array $relations
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function includeDiscussion(Post $post, $relations = [])
+    public function discussion()
     {
-        return (new DiscussionSerializer($relations))->resource($post->discussion);
+        return $this->hasOne('Flarum\Api\Serializers\DiscussionSerializer');
     }
 
-    /**
-     * Get a resource containing a post's edit user.
-     *
-     * @param Post $post
-     * @param array $relations
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function includeEditUser(Post $post, $relations = [])
+    public function editUser()
     {
-        return (new UserBasicSerializer($relations))->resource($post->editUser);
+        return $this->hasOne('Flarum\Api\Serializers\UserSerializer');
     }
 
-    /**
-     * Get a resource containing a post's hide user.
-     *
-     * @param Post $post
-     * @param array $relations
-     * @return Tobscure\JsonApi\Resource
-     */
-    public function includeHideUser(Post $post, $relations = [])
+    public function hideUser()
     {
-        return (new UserBasicSerializer($relations))->resource($post->hideUser);
+        return $this->hasOne('Flarum\Api\Serializers\UserSerializer');
     }
 }

@@ -7,8 +7,8 @@ export default DS.Model.extend({
 
   time: DS.attr('date'),
   user: DS.belongsTo('user'),
-  type: DS.attr('string'),
-  content: DS.attr('string'),
+  contentType: DS.attr('string'),
+  content: DS.attr(),
   contentHtml: DS.attr('string'),
 
   editTime: DS.attr('date'),

@@ -18,12 +18,8 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
   // `content` property to the content of the item in the post-stream object.
   // This happens to be our post model!
   post: Ember.computed.alias('content'),
-
-  decodedContent: Ember.computed('post.content', function() {
-    return JSON.parse(this.get('post.content'));
-  }),
-  oldTitle: Ember.computed.alias('decodedContent.0'),
-  newTitle: Ember.computed.alias('decodedContent.1'),
+  oldTitle: Ember.computed.alias('post.content.0'),
+  newTitle: Ember.computed.alias('post.content.1'),
 
   populateControls: function(items) {
     this.addActionItem(items, 'delete', 'Delete', 'times', 'post.canDelete');

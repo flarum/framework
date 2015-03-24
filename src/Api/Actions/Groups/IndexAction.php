@@ -11,7 +11,7 @@ class Index extends Base
         $groups = Group::get();
 
         $serializer = new GroupSerializer;
-        $this->document->setPrimaryElement($serializer->collection($groups));
+        $this->document->setData($serializer->collection($groups));
 
         return $this->respondWithDocument();
     }

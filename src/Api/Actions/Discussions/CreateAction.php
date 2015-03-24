@@ -18,8 +18,8 @@ class CreateAction extends BaseAction
         // By default, the only required attributes of a discussion are the
         // title and the content. We'll extract these from the rbaseequest data
         // and pass them through to the StartDiscussionCommand.
-        $title = $params->get('discussions.title');
-        $content = $params->get('discussions.content');
+        $title = $params->get('data.title');
+        $content = $params->get('data.content');
         $user = $this->actor->getUser();
 
         $command = new StartDiscussionCommand($title, $content, $user, app('flarum.forum'));
@@ -34,7 +34,7 @@ class CreateAction extends BaseAction
         }
 
         $serializer = new DiscussionSerializer(['posts']);
-        $document = $this->document()->setPrimaryElement($serializer->resource($discussion));
+        $document = $this->document()->setData($serializer->resource($discussion));
 
         return $this->respondWithDocument($document);
     }
