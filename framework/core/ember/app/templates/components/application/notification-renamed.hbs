@@ -1,0 +1,14 @@
+{{#link-to "discussion" notification.subject (query-params start=notification.content.number)}}
+  {{user-avatar notification.sender}}
+
+  <h3 class="notification-title">{{notification.content.oldTitle}}</h3>
+
+  <div class="notification-info">
+    {{fa-icon "pencil"}}
+    Renamed by {{user-name notification.sender}}
+    {{#if notification.additionalUnreadCount}}
+      and {{notification.additionalUnreadCount}} others
+    {{/if}}
+    {{human-time notification.time}}
+  </div>
+{{/link-to}}

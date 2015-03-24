@@ -51,7 +51,7 @@ class User extends Model
      *
      * @var array
      */
-    protected $dates = ['join_time', 'last_seen_time', 'read_time'];
+    protected $dates = ['join_time', 'last_seen_time', 'read_time', 'notification_read_time'];
 
     /**
      * The hasher with which to hash passwords.
@@ -199,6 +199,18 @@ class User extends Model
     }
 
     /**
+     * Mark all notifications as read by setting the user's notification_read_time.
+     *
+     * @return $this
+     */
+    public function markNotificationsAsRead()
+    {
+        $this->notification_read_time = time();
+
+        return $this;
+    }
+
+    /**
      * Check if a given password matches the user's password.
      *
      * @param  string  $password
@@ -303,6 +315,11 @@ class User extends Model
         return (bool) $count;
     }
 
+    public function getUnreadNotificationsCount()
+    {
+        return $this->notifications()->where('time', '>', $this->notification_read_time ?: 0)->where('is_read', 0)->count(\DB::raw('DISTINCT type, subject_id'));
+    }
+
     /**
      * Check whether or not the user is an administrator.
      *
@@ -341,6 +358,16 @@ class User extends Model
     public function groups()
     {
         return $this->belongsToMany('Flarum\Core\Models\Group', 'users_groups');
+    }
+
+    /**
+     * Define the relationship with the user's notifications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function notifications()
+    {
+        return $this->hasMany('Flarum\Core\Models\Notification');
     }
 
     /**
