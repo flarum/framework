@@ -25,9 +25,11 @@
 .user-card-popover {
   width: 500px;
   padding: 20px;
-  border-radius: @border-radius-base;
   .box-shadow(0 2px 6px @fl-shadow-color);
 
+  &, & .darken-overlay {
+    border-radius: @border-radius-base;
+  }
   & .container {
     width: auto !important;
     padding: 0 !important;
