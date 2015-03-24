@@ -11,6 +11,13 @@ $action = function ($class) {
 
 Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWithHeader'], function () use ($action) {
 
+    // Get forum information
+    Route::get('forum', [
+        'as' => 'flarum.api.forum.show',
+        'uses' => $action('Flarum\Api\Actions\Forum\ShowAction')
+    ]);
+
+    // Retrieve authentication token
     Route::post('token', [
         'as' => 'flarum.api.token',
         'uses' => $action('Flarum\Api\Actions\TokenAction')
@@ -68,6 +75,12 @@ Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWit
     Route::get('notifications', [
         'as' => 'flarum.api.notifications.index',
         'uses' => $action('Flarum\Api\Actions\Notifications\IndexAction')
+    ]);
+
+    // Mark a single notification as read
+    Route::put('notifications/{id}', [
+        'as' => 'flarum.api.notifications.update',
+        'uses' => $action('Flarum\Api\Actions\Notifications\UpdateAction')
     ]);
 
     /*

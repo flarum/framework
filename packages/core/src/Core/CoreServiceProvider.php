@@ -10,6 +10,7 @@ use Flarum\Core\Models\Model;
 use Flarum\Core\Models\Forum;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Discussion;
+use Flarum\Core\Models\Notification;
 use Flarum\Core\Search\GambitManager;
 
 class CoreServiceProvider extends ServiceProvider
@@ -25,6 +26,7 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->registerEventHandlers($events);
         $this->registerPostTypes();
+        $this->registerNotificationTypes();
         $this->registerPermissions();
         $this->registerGambits();
         $this->setupModels();
@@ -112,11 +114,16 @@ class CoreServiceProvider extends ServiceProvider
         CommentPost::setFormatter($this->app['flarum.formatter']);
     }
 
+    public function registerNotificationTypes()
+    {
+        Notification::addType('renamed', 'Flarum\Core\Models\Discussion');
+    }
+
     public function registerEventHandlers($events)
     {
         $events->subscribe('Flarum\Core\Handlers\Events\DiscussionMetadataUpdater');
         $events->subscribe('Flarum\Core\Handlers\Events\UserMetadataUpdater');
-        $events->subscribe('Flarum\Core\Handlers\Events\RenamedPostCreator');
+        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
         $events->subscribe('Flarum\Core\Handlers\Events\EmailConfirmationMailer');
     }
 

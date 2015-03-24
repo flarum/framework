@@ -1,0 +1,26 @@
+<a href="#" {{bind-attr class=":dropdown-toggle buttonClass"}} data-toggle="dropdown" {{action "buttonClick"}}>
+  <span class="notifications-icon">
+    {{#if unread}}
+      {{user.unreadNotificationsCount}}
+    {{else}}
+      {{fa-icon "bell" class="icon-glyph"}}
+    {{/if}}
+  </span>
+  <span class="label">Notifications</span>
+</a>
+<div class="{{dropdownMenuClass}}">
+  <div class="notifications-header">
+    {{ui/action-button class="btn btn-icon btn-link btn-sm" icon="check" title="Mark All as Read" action="markAllAsRead"}}
+    <h4>Notifications</h4>
+  </div>
+  <ul class="notifications-list">
+    {{#each notifications as |notification|}}
+      {{application/notification-item notification=notification}}
+    {{else unless notificationsLoading}}
+      <li class="no-notifications">No Notifications</li>
+    {{/each}}
+  </ul>
+  {{#if notificationsLoading}}
+    {{ui/loading-indicator}}
+  {{/if}}
+</div>

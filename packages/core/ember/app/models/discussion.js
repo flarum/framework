@@ -2,8 +2,9 @@ import Ember from 'ember';
 import DS from 'ember-data';
 
 import HasItemLists from 'flarum/mixins/has-item-lists';
+import Subject from './subject';
 
-export default DS.Model.extend(HasItemLists, {
+export default Subject.extend(HasItemLists, {
   /**
     Define a "badges" item list. Example usage:
     ```
