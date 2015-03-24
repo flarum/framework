@@ -40,7 +40,7 @@ class IndexAction extends BaseAction
         // Finally, we can set up the activity serializer and use it to create
         // a collection of activity results.
         $serializer = new ActivitySerializer(['sender', 'post', 'post.discussion', 'post.user', 'post.discussion.startUser', 'post.discussion.lastUser'], ['user']);
-        $document = $this->document()->setPrimaryElement($serializer->collection($activity));
+        $document = $this->document()->setData($serializer->collection($activity));
 
         return $this->respondWithDocument($document);
     }

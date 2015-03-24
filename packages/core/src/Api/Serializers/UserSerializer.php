@@ -1,17 +1,10 @@
 <?php namespace Flarum\Api\Serializers;
 
-use Flarum\Core\Models\User;
-
 class UserSerializer extends UserBasicSerializer
 {
     /**
-     * The name to use for Flarum events.
-     * @var string
-     */
-    protected static $eventName = 'User';
-
-    /**
      * Default relations to include.
+     *
      * @var array
      */
     protected $include = ['groups'];
@@ -22,7 +15,7 @@ class UserSerializer extends UserBasicSerializer
      * @param User $user The User model to serialize.
      * @return array
      */
-    protected function attributes(User $user)
+    protected function attributes($user)
     {
         $attributes = parent::attributes($user);
 
@@ -51,21 +44,15 @@ class UserSerializer extends UserBasicSerializer
         if ($user->id === $actorUser->id) {
             $attributes += [
                 'readTime' => $user->read_time ? $user->read_time->toRFC3339String() : null,
+                'unreadNotificationsCount' => $user->getUnreadNotificationsCount()
             ];
         }
 
-        return $this->attributesEvent($user, $attributes);
+        return $this->extendAttributes($user, $attributes);
     }
 
-    /**
-     * Get a collection containing a user's groups.
-     *
-     * @param User $user
-     * @param array $relations
-     * @return Tobscure\JsonApi\Collection
-     */
-    protected function includeGroups(User $user, $relations)
+    protected function groups()
     {
-        return (new GroupSerializer($relations))->collection($user->groups);
+        return $this->hasMany('Flarum\Api\Serializers\GroupSerializer');
     }
 }

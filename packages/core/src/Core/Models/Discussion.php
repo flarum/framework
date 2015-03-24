@@ -47,7 +47,7 @@ class Discussion extends Model
      *
      * @var \Flarum\Core\Models\Post[]
      */
-    protected $addedPosts = [];
+    public $addedPosts = [];
 
     /**
      * The user for which the state relationship should be loaded.
@@ -152,17 +152,6 @@ class Discussion extends Model
         $this->comments_count = $this->comments()->count();
 
         return $this;
-    }
-
-    /**
-     * Get a list of the posts that have been added to this discussion during
-     * this request.
-     *
-     * @return \Flarum\Core\Models\Post[]
-     */
-    public function getAddedPosts()
-    {
-        return $this->addedPosts;
     }
 
     /**

@@ -72,7 +72,7 @@ class IndexAction extends BaseAction
         // Finally, we can set up the discussion serializer and use it to create
         // a collection of discussion results.
         $serializer = new UserSerializer($relations);
-        $document->setPrimaryElement($serializer->collection($results->getUsers()));
+        $document->setData($serializer->collection($results->getUsers()));
 
         return $this->respondWithDocument($document);
     }

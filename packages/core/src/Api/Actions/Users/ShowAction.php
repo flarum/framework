@@ -37,7 +37,7 @@ class ShowAction extends BaseAction
         // document's primary resource. We will specify that we want the
         // 'groups' relation to be included by default.
         $serializer = new UserSerializer(['groups']);
-        $document = $this->document()->setPrimaryElement($serializer->resource($user));
+        $document = $this->document()->setData($serializer->resource($user));
 
         return $this->respondWithDocument($document);
     }

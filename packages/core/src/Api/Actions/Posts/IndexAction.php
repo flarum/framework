@@ -60,7 +60,7 @@ class IndexAction extends BaseAction
         // a post resource or collection, depending on how many posts were
         // requested.
         $serializer = new PostSerializer($include);
-        $document = $this->document()->setPrimaryElement($serializer->collection($posts->load($include)));
+        $document = $this->document()->setData($serializer->collection($posts->load($include)));
 
         return $this->respondWithDocument($document);
     }

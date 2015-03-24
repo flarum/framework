@@ -24,10 +24,10 @@ class UpdateAction extends BaseAction
         // discussion's direct properties; by default, this is just the title.
         // As usual, however, we will fire an event to allow plugins to update
         // additional properties.
-        if ($data = array_except($params->get('discussions'), ['readNumber'])) {
+        if ($data = array_except($params->get('data'), ['readNumber'])) {
             try {
                 $command = new EditDiscussionCommand($discussionId, $user);
-                $this->hydrate($command, $params->get('discussions'));
+                $this->hydrate($command, $params->get('data'));
                 $discussion = $this->dispatch($command, $params);
             } catch (PermissionDeniedException $e) {
                 // Temporary fix. See @todo below
@@ -43,7 +43,7 @@ class UpdateAction extends BaseAction
         //     PermissionDeniedException is thrown by the
         //     EditDiscussionCommand above. So this needs to be extracted into
         //     its own endpoint.
-        if ($readNumber = $params->get('discussions.readNumber')) {
+        if ($readNumber = $params->get('data.readNumber')) {
             $command = new ReadDiscussionCommand($discussionId, $user, $readNumber);
             $this->dispatch($command, $params);
         }
@@ -52,7 +52,7 @@ class UpdateAction extends BaseAction
         // handlers would have thrown an exception if not.) We set this
         // discussion as our document's primary element.
         $serializer = new DiscussionSerializer(['addedPosts', 'addedPosts.user']);
-        $document = $this->document()->setPrimaryElement($serializer->resource($discussion));
+        $document = $this->document()->setData($serializer->resource($discussion));
 
         return $this->respondWithDocument($document);
     }

@@ -18,9 +18,9 @@ class CreateAction extends BaseAction
         // required attributes of a user is the username, email, and password.
         // Let's set up a command with this information. We also fire an event
         // to allow plugins to add data to the command.
-        $username = $params->get('users.username');
-        $email    = $params->get('users.email');
-        $password = $params->get('users.password');
+        $username = $params->get('data.username');
+        $email    = $params->get('data.email');
+        $password = $params->get('data.password');
 
         $command = new RegisterUserCommand($username, $email, $password, $this->actor->getUser(), app('flarum.forum'));
         $user = $this->dispatch($command, $params);
@@ -29,7 +29,7 @@ class CreateAction extends BaseAction
         // would have thrown an exception if not.) We set this post as our
         // document's primary element.
         $serializer = new UserSerializer;
-        $document = $this->document()->setPrimaryElement($serializer->resource($user));
+        $document = $this->document()->setData($serializer->resource($user));
 
         return $this->respondWithDocument($document, 201);
     }

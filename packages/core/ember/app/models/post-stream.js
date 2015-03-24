@@ -182,7 +182,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     if (post) {
       item.setProperties({
         content: post,
-        component: 'discussion/post-'+post.get('type')
+        component: 'discussion/post-'+post.get('contentType')
       });
     }
     return item;

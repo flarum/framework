@@ -21,14 +21,14 @@ class UpdateAction extends BaseAction
         // updates (i.e. if we were to run one command and then another, if the
         // second one failed, the first one would still have succeeded.)
         $command = new EditUserCommand($userId, $this->actor->getUser());
-        $this->hydrate($command, $params->get('users'));
+        $this->hydrate($command, $params->get('data'));
         $user = $this->dispatch($command, $params);
 
         // Presumably, the user was updated successfully. (The command handler
         // would have thrown an exception if not.) We set this user as our
         // document's primary element.
         $serializer = new UserSerializer;
-        $document = $this->document()->setPrimaryElement($serializer->resource($user));
+        $document = $this->document()->setData($serializer->resource($user));
 
         return $this->respondWithDocument($document);
     }
