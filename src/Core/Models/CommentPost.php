@@ -16,22 +16,6 @@ class CommentPost extends Post
     protected static $formatter;
 
     /**
-     * Add an event listener to set the post's number, and update the
-     * discussion's number index, when inserting a post.
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($post) {
-            $post->number = ++$post->discussion->number_index;
-            $post->discussion->save();
-        });
-    }
-
-    /**
      * Create a new instance in reply to a discussion.
      *
      * @param  int  $discussionId
