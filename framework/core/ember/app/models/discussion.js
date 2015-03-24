@@ -23,7 +23,7 @@ export default Subject.extend(HasItemLists, {
 
   title: DS.attr('string'),
   slug: Ember.computed('title', function() {
-    return this.get('title').toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-');
+    return this.get('title').toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '');
   }),
 
   startTime: DS.attr('date'),
