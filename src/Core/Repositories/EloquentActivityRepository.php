@@ -17,7 +17,7 @@ class EloquentActivityRepository implements ActivityRepositoryInterface
             $query->where('type', $type);
         }
 
-        $posts = Post::whereCan($viewer, 'view')->with('post', 'post.discussion', 'post.user', 'post.discussion.startUser', 'post.discussion.lastUser')->select(\DB::raw("CONCAT('post', id)"), 'user_id', $null, \DB::raw("'post'"), $null, 'time', 'id')->where('user_id', $userId)->where('type', 'comment');
+        $posts = Post::whereCan($viewer, 'view')->with('post', 'post.discussion', 'post.user', 'post.discussion.startUser', 'post.discussion.lastUser')->select(\DB::raw("CONCAT('post', id)"), 'user_id', $null, \DB::raw("'post'"), $null, 'time', 'id')->where('user_id', $userId)->where('type', 'comment')->whereNull('hide_time');
 
         if ($type === 'post') {
             $posts->where('number', '>', 1);
