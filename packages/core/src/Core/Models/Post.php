@@ -47,13 +47,20 @@ class Post extends Model
     protected static $types = [];
 
     /**
-     * Raise an event when a post is deleted.
+     * Raise an event when a post is deleted. Add an event listener to set the
+     * post's number, and update the discussion's number index, when inserting
+     * a post.
      *
      * @return void
      */
     public static function boot()
     {
         parent::boot();
+
+        static::creating(function ($post) {
+            $post->number = ++$post->discussion->number_index;
+            $post->discussion->save();
+        });
 
         static::deleted(function ($post) {
             $post->raise(new PostWasDeleted($post));
