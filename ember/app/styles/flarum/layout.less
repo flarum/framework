@@ -154,7 +154,7 @@ body {
       color: @fl-drawer-color;
     }
   }
-  &, & a, & .btn-link {
+  &:not(.dropdown-menu), & a:not(.dropdown-menu a), & .btn-link:not(.dropdown-menu .btn-link) {
     color: @fl-drawer-control-color;
   }
   & .form-control {
@@ -207,6 +207,10 @@ body {
       visibility: visible;
       transition-delay: 0s;
     }
+
+    & .dropdown-menu {
+      width: @drawer-width !important;
+    }
   }
 }
 
@@ -247,6 +251,11 @@ body {
       width: 100%;
       text-align: left;
     }
+    & .dropdown-menu {
+      & .btn-group, & .btn {
+        width: auto;
+      }
+    }
   }
 }
 
@@ -279,7 +288,7 @@ body {
   .header-controls {
     &, & > li {
       display: inline-block;
-      vertical-align: top;
+      vertical-align: middle;
     }
   }
   .header-primary {

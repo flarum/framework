@@ -15,4 +15,9 @@ class Actor
     {
         $this->user = $user;
     }
+
+    public function isAuthenticated()
+    {
+        return (bool) $this->user;
+    }
 }

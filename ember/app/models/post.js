@@ -1,7 +1,8 @@
 import Ember from 'ember';
 import DS from 'ember-data';
+import Subject from './subject';
 
-export default DS.Model.extend({
+export default Subject.extend({
   discussion: DS.belongsTo('discussion', {inverse: 'loadedPosts'}),
   number: DS.attr('number'),
 

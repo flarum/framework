@@ -18,6 +18,7 @@ export default DS.Model.extend(HasItemLists, {
   joinTime: DS.attr('date'),
   lastSeenTime: DS.attr('date'),
   readTime: DS.attr('date'),
+  unreadNotificationsCount: DS.attr('number'),
 
   discussionsCount: DS.attr('number'),
   commentsCount: DS.attr('number'),

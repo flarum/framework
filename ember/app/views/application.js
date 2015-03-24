@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 import HasItemLists from 'flarum/mixins/has-item-lists';
 import SearchInput from 'flarum/components/ui/search-input';
+import UserNotifications from 'flarum/components/application/user-notifications';
 import UserDropdown from 'flarum/components/application/user-dropdown';
 import ForumStatistic from 'flarum/components/application/forum-statistic';
 import PoweredBy from 'flarum/components/application/powered-by';
@@ -88,6 +89,11 @@ export default Ember.View.extend(HasItemLists, {
     }), 'search');
 
     if (this.get('controller.session.isAuthenticated')) {
+      items.pushObjectWithTag(UserNotifications.extend({
+        user: this.get('controller.session.user'),
+        parentController: controller
+      }), 'notifications');
+
       items.pushObjectWithTag(UserDropdown.extend({
         user: this.get('controller.session.user'),
         parentController: controller
