@@ -47,9 +47,10 @@ class ShowAction extends BaseAction
     {
         $include = $params->included(['startPost', 'lastPost', 'posts']);
 
-        $discussion = $this->discussions->findOrFail($params->get('id'), $this->actor->getUser());
+        $user = $this->actor->getUser();
 
-        $discussion->posts_ids = $discussion->posts()->get(['id'])->fetch('id')->all();
+        $discussion = $this->discussions->findOrFail($params->get('id'), $user);
+        $discussion->posts_ids = $discussion->posts()->whereCan($user, 'view')->get(['id'])->fetch('id')->all();
 
         if (in_array('posts', $include)) {
             $relations = ['user', 'user.groups', 'editUser', 'hideUser'];
