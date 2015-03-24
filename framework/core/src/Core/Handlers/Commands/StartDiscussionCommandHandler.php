@@ -34,6 +34,8 @@ class StartDiscussionCommandHandler
 
         $discussion->save();
 
+        $this->dispatchEventsFor($discussion);
+
         // Now that the discussion has been created, we can add the first post.
         // For now we will do this by running the PostReply command, but as this
         // will trigger a domain event that is slightly semantically incorrect
@@ -45,8 +47,6 @@ class StartDiscussionCommandHandler
         // The discussion may have been updated by the PostReplyCommand; we need
         // to refresh its data.
         $discussion = $post->discussion;
-
-        $this->dispatchEventsFor($discussion);
 
         return $discussion;
     }
