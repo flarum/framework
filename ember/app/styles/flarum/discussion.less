@@ -134,6 +134,7 @@
 .post {
   padding-bottom: 1px;
   transition: 0.2s box-shadow;
+  position: relative;
 
   & .contextual-controls {
     float: right;
@@ -205,20 +206,26 @@
   line-height: 1.6em;
 }
 .post.is-hidden {
-  & .post-user, & .post-header > ul, & .post-header > ul a:not(.btn) {
+  & .post-user h3, & .post-user h3 a, & .post-header, & .post-header > ul > li > a {
     color: @fl-body-muted-more-color;
   }
-  &:not(.reveal-content) {
-    & .post-body, & .post-footer, & .avatar {
-      display: none;
-    }
+  & .post-body, & .post-footer, & h3 .avatar {
+    position: absolute;
+    overflow: hidden;
+    height: 0;
+    opacity: 0;
+    margin-top: -5px;
+    .transition(~"margin-top 0.2s, opacity 0.2s");
   }
   &.reveal-content {
-    & .post-body, & .post-footer, & .avatar {
+    & .post-body, & .post-footer, & h3 .avatar {
+      position: static;
+      height: auto;
       opacity: 0.5;
+      margin-top: 0;
     }
   }
-  & .btn-more {
+  & .post-header .btn-more {
     background: #eee;
     color: @fl-body-muted-more-color;
   }
