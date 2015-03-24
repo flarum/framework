@@ -19,7 +19,8 @@ export default Ember.Component.extend({
   }),
 
   itemCountClass: Ember.computed('items.length', function() {
-    return 'item-count-'+this.get('items.length');
+    var count = this.get('items.length');
+    return count ? 'item-count-'+this.get('items.length') : '';
   }),
 
   actions: {
