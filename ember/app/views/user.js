@@ -40,16 +40,16 @@ export default Ember.View.extend(HasItemLists, {
     items.pushObjectWithTag(NavItem.extend({
       label: 'Discussions',
       icon: 'reorder',
-      badge: Ember.computed.alias('user.discussionsCount'),
-      user: this.get('controller.model'),
+      badge: Ember.computed.alias('controller.model.discussionsCount'),
+      controller: this.get('controller'),
       layout: precompileTemplate('{{#link-to "user.activity" (query-params filter="discussions")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'discussions');
 
     items.pushObjectWithTag(NavItem.extend({
       label: 'Posts',
       icon: 'comment-o',
-      badge: Ember.computed.alias('user.commentsCount'),
-      user: this.get('controller.model'),
+      badge: Ember.computed.alias('controller.model.commentsCount'),
+      controller: this.get('controller'),
       layout: precompileTemplate('{{#link-to "user.activity" (query-params filter="posts")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'posts');
   }
