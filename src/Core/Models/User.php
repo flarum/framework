@@ -10,6 +10,7 @@ use Flarum\Core\Events\UserWasRenamed;
 use Flarum\Core\Events\UserEmailWasChanged;
 use Flarum\Core\Events\UserPasswordWasChanged;
 use Flarum\Core\Events\UserBioWasChanged;
+use Flarum\Core\Events\UserAvatarWasChanged;
 use Flarum\Core\Events\UserWasActivated;
 use Flarum\Core\Events\UserEmailWasConfirmed;
 
@@ -206,6 +207,15 @@ class User extends Model
     public function markNotificationsAsRead()
     {
         $this->notification_read_time = time();
+
+        return $this;
+    }
+
+    public function changeAvatarUrl($url)
+    {
+        $this->avatar = $url;
+
+        $this->raise(new UserAvatarWasChanged($this));
 
         return $this;
     }
