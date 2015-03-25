@@ -12,6 +12,7 @@ use Flarum\Core\Models\User;
 use Flarum\Core\Models\Discussion;
 use Flarum\Core\Models\Notification;
 use Flarum\Core\Search\GambitManager;
+use League\Flysystem\Adapter\Local;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -83,6 +84,14 @@ class CoreServiceProvider extends ServiceProvider
             'Flarum\Core\Repositories\NotificationRepositoryInterface',
             'Flarum\Core\Repositories\EloquentNotificationRepository'
         );
+
+        $this->app->singleton('flarum.avatars.storage', function () {
+            return new Local(__DIR__.'/../../ember/public/avatars');
+        });
+
+        $this->app->when('Flarum\Core\Handlers\Commands\UploadAvatarCommandHandler')
+            ->needs('League\Flysystem\FilesystemInterface')
+            ->give('flarum.avatars.storage');
     }
 
     public function registerGambits()
