@@ -211,9 +211,15 @@ class User extends Model
         return $this;
     }
 
-    public function changeAvatarUrl($url)
+    /**
+     * Change the path of the user avatar.
+     *
+     * @param string $path
+     * @return $this
+     */
+    public function changeAvatarPath($path)
     {
-        $this->avatar = $url;
+        $this->avatar_path = $path;
 
         $this->raise(new UserAvatarWasChanged($this));
 

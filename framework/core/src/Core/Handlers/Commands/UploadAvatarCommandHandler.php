@@ -46,7 +46,7 @@ class UploadAvatarCommandHandler
             'target' => $this->uploadDir,
         ]);
 
-        $user->changeAvatarUrl($uploadName);
+        $user->changeAvatarPath($uploadName);
 
         event(new AvatarWillBeUploaded($user, $command));
 
