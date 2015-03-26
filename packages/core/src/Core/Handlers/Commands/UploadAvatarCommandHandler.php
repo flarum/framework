@@ -6,6 +6,7 @@ use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Support\DispatchesEvents;
 use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\MountManager;
 
@@ -42,7 +43,7 @@ class UploadAvatarCommandHandler
         $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
 
         $mount = new MountManager([
-            'source' => new Local($command->file->getPath()),
+            'source' => new Filesystem(new Local($command->file->getPath())),
             'target' => $this->uploadDir,
         ]);
 
