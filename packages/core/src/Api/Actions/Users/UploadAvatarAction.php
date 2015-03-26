@@ -12,7 +12,7 @@ class UploadAvatarAction extends BaseAction
         $file = $request->file('avatar');
 
         $this->dispatch(
-            new UploadAvatarCommand($userId, $this->actor->getUser(), $file),
+            new UploadAvatarCommand($userId, $file, $this->actor->getUser()),
             $routeParams
         );
 
