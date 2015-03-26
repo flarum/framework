@@ -13,8 +13,6 @@ use Response;
 
 abstract class BaseAction extends Action
 {
-    abstract protected function run(ApiParams $params);
-
     public function __construct(Actor $actor, Dispatcher $bus)
     {
         $this->actor = $actor;
@@ -38,6 +36,15 @@ abstract class BaseAction extends Action
         $params = new ApiParams($params);
 
         return $this->run($params);
+    }
+
+    /**
+     * @param ApiParams $params
+     * @return mixed
+     */
+    protected function run(ApiParams $params)
+    {
+        // Should be implemented by subclasses
     }
 
     public function hydrate($object, $params)
