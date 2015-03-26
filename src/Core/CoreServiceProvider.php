@@ -1,6 +1,7 @@
 <?php namespace Flarum\Core;
 
 use Illuminate\Bus\Dispatcher as Bus;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Flarum\Core\Formatter\FormatterManager;
@@ -91,7 +92,9 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->app->when('Flarum\Core\Handlers\Commands\UploadAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
-            ->give('flarum.avatars.storage');
+            ->give(function(Container $app) {
+                return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('avatars')->getDriver();
+            });
     }
 
     public function registerGambits()
