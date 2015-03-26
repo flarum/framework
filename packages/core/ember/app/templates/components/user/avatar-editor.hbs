@@ -1,0 +1,12 @@
+{{user-avatar user}}
+<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+  {{#if loading}}
+    {{ui/loading-indicator}}
+  {{else}}
+    {{fa-icon "pencil"}}
+  {{/if}}
+</a>
+<ul class="dropdown-menu">
+  <li><a href="#" {{action "upload"}}>{{fa-icon "upload"}} Upload</a></li>
+  <li><a href="#" {{action "remove"}}>{{fa-icon "times"}} Remove</a></li>
+</ul>

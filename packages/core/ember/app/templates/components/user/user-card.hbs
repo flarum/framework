@@ -6,7 +6,11 @@
 
   <div class="user-profile">
     <h2 class="user-identity">
-      {{#link-to "user" user}}{{user-avatar user}}{{user-name user}}{{/link-to}}
+      {{#if editable}}
+        {{user/avatar-editor user=user class="user-avatar"}}{{user-name user}}
+      {{else}}
+        {{#link-to "user" user}}{{user-avatar user class="user-avatar"}}{{user-name user}}{{/link-to}}
+      {{/if}}
     </h2>
 
     {{ui/item-list items=user.badges class="badges user-badges"}}
