@@ -6,7 +6,11 @@ export default Ember.Handlebars.makeBoundHelper(function(user, options) {
 
   if (user) {
     var username = user.get('username') || '?';
-    attributes += ' title="'+Ember.Handlebars.Utils.escapeExpression(username)+'"';
+
+    if (typeof options.hash.title === 'undefined') {
+      options.hash.title = Ember.Handlebars.Utils.escapeExpression(username);
+    }
+    attributes += ' title="'+options.hash.title+'"';
 
     var avatarUrl = user.get('avatarUrl');
     if (avatarUrl) {
