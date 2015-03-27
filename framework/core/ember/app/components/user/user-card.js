@@ -13,6 +13,48 @@ export default Ember.Component.extend(HasItemLists, {
     return 'background-color: '+this.get('user.color');
   }),
 
+  avatarUrlDidChange: Ember.observer('user.avatarUrl', function() {
+    this.refreshOverlay(true);
+  }),
+
+  didInsertElement: function() {
+    this.refreshOverlay();
+  },
+
+  refreshOverlay: function(animate) {
+    var component = this;
+    var $overlay = component.$('.darken-overlay');
+    var $newOverlay = $overlay.clone().removeAttr('style').insertBefore($overlay);
+    var avatarUrl = component.get('user.avatarUrl');
+    var hideOverlay = function() {
+      if (animate) {
+        $overlay.fadeOut('slow');
+      }
+      $overlay.promise().done(function() {
+        $(this).remove();
+      });
+    };
+
+    if (avatarUrl) {
+      $('<img>').attr('src', avatarUrl).on('load', function() {
+        component.$().css('background-image', 'url('+avatarUrl+')');
+        $newOverlay.blurjs({
+          source: component.$(),
+          radius: 50,
+          overlay: 'rgba(0, 0, 0, .2)',
+          useCss: false
+        });
+        component.$().css('background-image', '');
+        if (animate) {
+          $newOverlay.hide().fadeIn('slow');
+        }
+        hideOverlay();
+      });
+    } else {
+      hideOverlay();
+    }
+  },
+
   populateControls: function(items) {
     this.addActionItem(items, 'edit', 'Edit', 'pencil');
     this.addActionItem(items, 'delete', 'Delete', 'times');
