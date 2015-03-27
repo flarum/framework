@@ -6,5 +6,6 @@ export default {
     application.inject('component', 'composer', 'controller:composer')
     application.inject('model', 'session', 'simple-auth-session:main')
     application.inject('component', 'session', 'simple-auth-session:main')
+    application.inject('component', 'store', 'store:main')
   }
 };

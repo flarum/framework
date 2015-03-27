@@ -2,6 +2,7 @@
 
 use Flarum\Api\Actions\BaseAction;
 use Flarum\Core\Commands\UploadAvatarCommand;
+use Flarum\Api\Serializers\UserSerializer;
 use Illuminate\Http\Request;
 
 class UploadAvatarAction extends BaseAction
@@ -11,11 +12,14 @@ class UploadAvatarAction extends BaseAction
         $userId = array_get($routeParams, 'id');
         $file = $request->file('avatar');
 
-        $this->dispatch(
+        $user = $this->dispatch(
             new UploadAvatarCommand($userId, $file, $this->actor->getUser()),
             $routeParams
         );
 
-        return $this->respondWithoutContent(201);
+        $serializer = new UserSerializer;
+        $document = $this->document()->setData($serializer->resource($user));
+
+        return $this->respondWithDocument($document);
     }
 }
