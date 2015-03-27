@@ -227,6 +227,16 @@ class User extends Model
     }
 
     /**
+     * Get the URL of the user's avatar.
+     *
+     * @return string
+     */
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar_path ? asset('avatars/'.$this->avatar_path) : null;
+    }
+
+    /**
      * Check if a given password matches the user's password.
      *
      * @param  string  $password
