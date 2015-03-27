@@ -9,12 +9,15 @@ export default Ember.Component.extend({
   classNames: ['avatar-editor', 'dropdown'],
   classNameBindings: ['loading'],
 
-  click: function(e) {
-    if (! this.get('user.avatarUrl')) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.send('upload');
-    }
+  didInsertElement: function() {
+    var component = this;
+    this.$('.dropdown-toggle').click(function(e) {
+      if (! component.get('user.avatarUrl')) {
+        e.preventDefault();
+        e.stopPropagation();
+        component.send('upload');
+      }
+    });
   },
 
   actions: {
@@ -37,9 +40,18 @@ export default Ember.Component.extend({
           processData: false,
           complete: function() {
             component.set('loading', false);
+          },
+          success: function(data) {
+            Ember.run.next(function() {
+              component.get('store').pushPayload(data);
+            });
           }
         });
       });
+    },
+
+    remove: function() {
+      this.get('store').push('user', {id: this.get('user.id'), avatarUrl: null});
     }
   }
 });

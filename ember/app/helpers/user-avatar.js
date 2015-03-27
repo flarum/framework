@@ -18,5 +18,5 @@ export default Ember.Handlebars.makeBoundHelper(function(user, options) {
   }
 
   return new Ember.Handlebars.SafeString('<span '+attributes+'>'+content+'</span>');
-});
+}, 'avatarUrl', 'username', 'color');
 
