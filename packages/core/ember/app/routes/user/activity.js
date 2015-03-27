@@ -1,10 +1,6 @@
 import Ember from 'ember';
 
-import PushesHistory from 'flarum/mixins/pushes-history';
-
-export default Ember.Route.extend(PushesHistory, {
-  historyKey: 'user',
-
+export default Ember.Route.extend({
   model: function() {
     return Ember.RSVP.resolve(Ember.ArrayProxy.create());
   },
