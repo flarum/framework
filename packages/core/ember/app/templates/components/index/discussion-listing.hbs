@@ -7,11 +7,11 @@
     menuClass="pull-right"}}
 {{/if}}
 
-{{#link-to "user" discussion.startUser class="author"}}{{user-avatar discussion.startUser}}{{/link-to}}
+{{#link-to "user" discussion.startUser class="author" title=authorInfo}}{{user-avatar discussion.startUser title=""}}{{/link-to}}
 
 {{ui/item-list items=discussion.badges class="badges"}}
 
-{{#link-to "discussion" discussion (query-params start=start) current-when="discussion" class="main"}}
+{{#link-to "discussion" discussion (query-params start=jumpTo) current-when="discussion" class="main"}}
   <h3 class="title">{{highlight-words discussion.title searchQuery}}</h3>
   {{ui/item-list items=info class="info"}}
 {{/link-to}}

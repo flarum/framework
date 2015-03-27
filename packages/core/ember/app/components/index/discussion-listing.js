@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 import HasItemLists from 'flarum/mixins/has-item-lists';
 import FadeIn from 'flarum/mixins/fade-in';
+import humanTime from 'flarum/utils/human-time';
 
 /**
   Component for a discussion listing on the discussions index. It has `info`
@@ -38,8 +39,12 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
     return this.get('terminalPostType') === 'last' && this.get('discussion.repliesCount');
   }),
 
-  start: Ember.computed('discussion.lastPostNumber', 'discussion.readNumber', function() {
+  jumpTo: Ember.computed('discussion.lastPostNumber', 'discussion.readNumber', function() {
     return Math.min(this.get('discussion.lastPostNumber'), (this.get('discussion.readNumber') || 0) + 1);
+  }),
+
+  authorInfo: Ember.computed('discussion.startUser.username', 'discussion.startTime', function() {
+    return (this.get('discussion.startUser.username') || '[deleted]')+' started '+humanTime(this.get('discussion.startTime'));
   }),
 
   relevantPosts: Ember.computed('discussion.relevantPosts', 'discussion.startPost', 'discussion.lastPost', function() {
@@ -52,6 +57,10 @@ export default Ember.Component.extend(FadeIn, HasItemLists, {
       return [this.get('discussion.lastPost')];
     }
   }),
+
+  didInsertElement: function() {
+    this.$('.author').tooltip({ placement: 'right' });
+  },
 
   populateControls: function(items) {
     this.addActionItem(items, 'delete', 'Delete', 'times', 'discussion.canDelete');
