@@ -18,7 +18,8 @@
     "pace": "~0.7.1",
     "moment": "~2.8.4",
     "ember-simple-auth": "0.7.2",
-    "jquery.hotkeys": "jeresig/jquery.hotkeys#0.2.0"
+    "jquery.hotkeys": "jeresig/jquery.hotkeys#0.2.0",
+    "blurjs": ""
   },
   "resolutions": {
     "ember-cli-test-loader": "0.1.3",
