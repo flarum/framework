@@ -70,7 +70,12 @@ export default Ember.Component.extend(HasItemLists, {
     }
 
     items.pushObjectWithTag(Ember.Component.extend({
-      layout: Ember.Handlebars.compile('{{fa-icon "circle"}} Online')
+      tagName: 'li',
+      classNames: ['user-last-seen'],
+      classNameBindings: ['hidden', 'user.online:online'],
+      layout: Ember.Handlebars.compile('{{#if user.online}}{{fa-icon "circle"}} Online{{else}}{{fa-icon "clock-o"}} {{human-time user.lastSeenTime}}{{/if}}'),
+      user: this.get('user'),
+      hidden: Ember.computed.not('user.lastSeenTime')
     }), 'lastActiveTime');
 
     items.pushObjectWithTag(Ember.Component.extend({
