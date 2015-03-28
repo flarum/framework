@@ -6,7 +6,7 @@ import AlertMessage from 'flarum/components/ui/alert-message';
 import UseComposerMixin from 'flarum/mixins/use-composer';
 
 export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
-  needs: ['application'],
+  needs: ['application', 'index'],
   composer: Ember.inject.controller('composer'),
   alerts: Ember.inject.controller('alerts'),
 
@@ -126,8 +126,9 @@ export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
 
     delete: function() {
       var controller = this;
-      this.get('model').destroyRecord().then(function() {
-        controller.transitionToRoute('index');
+      var discussion = this.get('model');
+      discussion.destroyRecord().then(function() {
+        controller.get('controllers.index').send('discussionRemoved', discussion);
       });
     }
   }
