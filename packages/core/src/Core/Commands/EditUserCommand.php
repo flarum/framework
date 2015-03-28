@@ -16,6 +16,8 @@ class EditUserCommand
 
     public $readTime;
 
+    public $preferences;
+
     public function __construct($userId, $user)
     {
         $this->userId = $userId;

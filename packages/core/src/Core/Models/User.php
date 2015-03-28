@@ -61,6 +61,8 @@ class User extends Model
      */
     protected static $hasher;
 
+    protected static $preferences = [];
+
     /**
      * Raise an event when a post is deleted.
      *
@@ -344,6 +346,52 @@ class User extends Model
     public function getUnreadNotificationsCount()
     {
         return $this->notifications()->where('time', '>', $this->notification_read_time ?: 0)->where('is_read', 0)->count(\DB::raw('DISTINCT type, subject_id'));
+    }
+
+    public function getPreferencesAttribute($value)
+    {
+        $defaults = [];
+
+        foreach (static::$preferences as $k => $v) {
+            $defaults[$k] = $v['default'];
+        }
+
+        return array_merge($defaults, (array) json_decode($value, true));
+    }
+
+    public function setPreferencesAttribute($value)
+    {
+        $this->attributes['preferences'] = json_encode($value);
+    }
+
+    public static function registerPreference($key, $transformer = null, $default = null)
+    {
+        static::$preferences[$key] = [
+            'transformer' => $transformer,
+            'default' => $default
+        ];
+    }
+
+    public function preference($key, $default = null)
+    {
+        return array_get($this->preferences, $key, $default);
+    }
+
+    public function setPreference($key, $value)
+    {
+        if (isset(static::$preferences[$key])) {
+            $preferences = $this->preferences;
+
+            if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
+                $preferences[$key] = call_user_func($transformer, $value);
+            } else {
+                $preferences[$key] = $value;
+            }
+
+            $this->preferences = $preferences;
+        }
+
+        return $this;
     }
 
     /**

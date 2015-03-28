@@ -37,6 +37,11 @@ class EditUserCommandHandler
         if (! empty($command->readTime)) {
             $userToEdit->markAllAsRead();
         }
+        if (! empty($command->preferences)) {
+            foreach ($command->preferences as $k => $v) {
+                $userToEdit->setPreference($k, $v);
+            }
+        }
 
         event(new UserWillBeSaved($userToEdit, $command));
 
