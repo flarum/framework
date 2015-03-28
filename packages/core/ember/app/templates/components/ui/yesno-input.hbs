@@ -1,0 +1,10 @@
+{{input type="checkbox" checked=toggleState disabled=disabled}}
+<div class="yesno {{if loading "loading"}} {{if disabled "disabled"}} {{if toggleState "yes" "no"}}">
+  {{#if loading}}
+    {{ui/loading-indicator size="tiny"}}
+  {{else if toggleState}}
+    {{fa-icon "check"}}
+  {{else}}
+    {{fa-icon "times"}}
+  {{/if}}
+</div>
