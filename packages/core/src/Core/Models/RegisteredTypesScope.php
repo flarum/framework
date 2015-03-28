@@ -7,6 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 class RegisteredTypesScope implements ScopeInterface
 {
     /**
+     * The index at which we added a where clause.
+     *
+     * @var int
+     */
+    protected $whereIndex;
+
+    /**
+     * The index at which we added where bindings.
+     *
+     * @var int
+     */
+    protected $bindingIndex;
+
+    /**
+     * The number of where bindings we added.
+     *
+     * @var int
+     */
+    protected $bindingCount;
+
+    /**
      * Apply the scope to a given Eloquent query builder.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
@@ -15,7 +36,14 @@ class RegisteredTypesScope implements ScopeInterface
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->whereIn('type', array_keys($model::getTypes()));
+        $query = $builder->getQuery();
+
+        $this->whereIndex = count($query->wheres);
+        $this->bindingIndex = count($query->getRawBindings()['where']);
+
+        $types = array_keys($model::getTypes());
+        $this->bindingCount = count($types);
+        $query->whereIn('type', $types);
     }
 
     /**
@@ -29,27 +57,11 @@ class RegisteredTypesScope implements ScopeInterface
     {
         $query = $builder->getQuery();
 
-        foreach ((array) $query->wheres as $key => $where)
-        {
-            if ($this->isTypeConstraint($where))
-            {
-                unset($query->wheres[$key]);
+        unset($query->wheres[$this->whereIndex]);
+        $query->wheres = array_values($query->wheres);
 
-                $query->wheres = array_values($query->wheres);
-            }
-        }
+        $whereBindings = $query->getRawBindings()['where'];
+        array_splice($whereBindings, $this->bindingIndex, $this->bindingCount);
+        $query->setBindings(array_values($whereBindings));
     }
-
-    /**
-     * Determine if the given where clause is a type constraint.
-     *
-     * @param  array   $where
-     * @param  string  $column
-     * @return bool
-     */
-    protected function isTypeConstraint(array $where)
-    {
-        return $where['type'] == 'In' && $where['column'] == 'type';
-    }
-
 }
