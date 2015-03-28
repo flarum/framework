@@ -11,7 +11,6 @@ use Flarum\Core\Models\Model;
 use Flarum\Core\Models\Forum;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Discussion;
-use Flarum\Core\Models\Notification;
 use Flarum\Core\Search\GambitManager;
 use League\Flysystem\Adapter\Local;
 
@@ -28,7 +27,6 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->registerEventHandlers($events);
         $this->registerPostTypes();
-        $this->registerNotificationTypes();
         $this->registerPermissions();
         $this->registerGambits();
         $this->setupModels();
@@ -47,6 +45,8 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->register('Flarum\Core\Notifications\NotificationServiceProvider');
+
         // Register a singleton entity that represents this forum. This entity
         // will be used to check for global forum permissions (like viewing the
         // forum, registering, and starting discussions.)
@@ -81,14 +81,6 @@ class CoreServiceProvider extends ServiceProvider
             'Flarum\Core\Repositories\ActivityRepositoryInterface',
             'Flarum\Core\Repositories\EloquentActivityRepository'
         );
-        $this->app->bind(
-            'Flarum\Core\Repositories\NotificationRepositoryInterface',
-            'Flarum\Core\Repositories\EloquentNotificationRepository'
-        );
-
-        $this->app->singleton('flarum.avatars.storage', function () {
-            return new Local(__DIR__.'/../../ember/public/avatars');
-        });
 
         $this->app->when('Flarum\Core\Handlers\Commands\UploadAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
@@ -126,16 +118,10 @@ class CoreServiceProvider extends ServiceProvider
         CommentPost::setFormatter($this->app['flarum.formatter']);
     }
 
-    public function registerNotificationTypes()
-    {
-        Notification::addType('renamed', 'Flarum\Core\Models\Discussion');
-    }
-
     public function registerEventHandlers($events)
     {
         $events->subscribe('Flarum\Core\Handlers\Events\DiscussionMetadataUpdater');
         $events->subscribe('Flarum\Core\Handlers\Events\UserMetadataUpdater');
-        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
         $events->subscribe('Flarum\Core\Handlers\Events\EmailConfirmationMailer');
     }
 

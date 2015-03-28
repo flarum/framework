@@ -19,14 +19,13 @@ class Notification extends Model
     protected $dates = ['time'];
 
     /**
-     * A map of notification types, as specified in the `type` column, to
-     * their subject classes.
+     *
      *
      * @var array
      */
-    protected static $types = [];
+    protected static $subjects = [];
 
-    public static function notify($userId, $type, $senderId, $subjectId, $data)
+    public static function alert($userId, $type, $senderId, $subjectId, $data)
     {
         $notification = new static;
 
@@ -95,41 +94,41 @@ class Notification extends Model
         // If the type value is null it is probably safe to assume we're eager loading
         // the relationship. When that is the case we will pass in a dummy query as
         // there are multiple types in the morph and we can't use single queries.
-        if (is_null($type = $this->$typeColumn))
-        {
+        if (is_null($type = $this->$typeColumn)) {
             return new MappedMorphTo(
-                $this->newQuery(), $this, $idColumn, null, $typeColumn, $name, static::$types
+                $this->newQuery(), $this, $idColumn, null, $typeColumn, $name, static::$subjects
             );
         }
 
         // If we are not eager loading the relationship we will essentially treat this
         // as a belongs-to style relationship since morph-to extends that class and
         // we will pass in the appropriate values so that it behaves as expected.
-        else
-        {
-            $class = static::$types[$type];
+        else {
+            $class = static::$subjects[$type];
             $instance = new $class;
 
             return new MappedMorphTo(
-                $instance->newQuery(), $this, $idColumn, $instance->getKeyName(), $typeColumn, $name, static::$types
+                $instance->newQuery(), $this, $idColumn, $instance->getKeyName(), $typeColumn, $name, static::$subjects
             );
         }
     }
 
     public static function getTypes()
     {
-        return static::$types;
+        return static::$subjects;
     }
 
     /**
-     * Register a notification type and its subject class.
+     * Register a notification type.
      *
      * @param  string $type
      * @param  string $class
      * @return void
      */
-    public static function addType($type, $class)
+    public static function registerType($class)
     {
-        static::$types[$type] = $class;
+        if ($subject = $class::getSubjectModel()) {
+            static::$subjects[$class::getType()] = $subject;
+        }
     }
 }
