@@ -10,7 +10,7 @@ class MappedMorphTo extends MorphTo {
 	 *
 	 * @var string
 	 */
-	protected $types;
+	protected $map;
 
 	/**
 	 * Create a new morph to relationship instance.
@@ -23,9 +23,9 @@ class MappedMorphTo extends MorphTo {
 	 * @param  string  $relation
 	 * @return void
 	 */
-	public function __construct(Builder $query, Model $parent, $foreignKey, $otherKey, $type, $relation, $types)
+	public function __construct(Builder $query, Model $parent, $foreignKey, $otherKey, $type, $relation, $map)
 	{
-		$this->types = $types;
+		$this->map = $map;
 
 		parent::__construct($query, $parent, $foreignKey, $otherKey, $type, $relation);
 	}
@@ -38,6 +38,6 @@ class MappedMorphTo extends MorphTo {
 	 */
 	public function createModelByType($type)
 	{
-		return new $this->types[$type];
+		return new $this->map[$type];
 	}
 }
