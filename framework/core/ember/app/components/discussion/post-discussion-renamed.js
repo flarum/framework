@@ -6,12 +6,12 @@ import HasItemLists from 'flarum/mixins/has-item-lists';
 var precompileTemplate = Ember.Handlebars.compile;
 
 /**
-  Component for a `renamed`-typed post.
+  Component for a `discussionRenamed`-typed post.
  */
 export default Ember.Component.extend(FadeIn, HasItemLists, {
-  layoutName: 'components/discussion/post-renamed',
+  layoutName: 'components/discussion/post-discussion-renamed',
   tagName: 'article',
-  classNames: ['post', 'post-renamed', 'post-activity'],
+  classNames: ['post', 'post-discussion-renamed', 'post-activity'],
   itemLists: ['controls'],
 
   // The stream-content component instansiates this component and sets the

@@ -121,7 +121,7 @@ class CoreServiceProvider extends ServiceProvider
     public function registerPostTypes()
     {
         Post::addType('comment', 'Flarum\Core\Models\CommentPost');
-        Post::addType('renamed', 'Flarum\Core\Models\RenamedPost');
+        Post::addType('discussionRenamed', 'Flarum\Core\Models\DiscussionRenamedPost');
 
         CommentPost::setFormatter($this->app['flarum.formatter']);
     }

@@ -1,8 +1,8 @@
 <?php namespace Flarum\Core\Handlers\Events;
 
 use Flarum\Core\Events\DiscussionWasRenamed;
-use Flarum\Core\Models\RenamedPost;
 use Flarum\Core\Models\Notification;
+use Flarum\Core\Models\DiscussionRenamedPost;
 
 class DiscussionRenamedNotifier
 {
@@ -19,16 +19,18 @@ class DiscussionRenamedNotifier
 
     public function whenDiscussionWasRenamed(DiscussionWasRenamed $event)
     {
-        $post = $this->createRenamedPost($event);
+        $post = $this->createPost($event);
 
         $event->discussion->postWasAdded($post);
 
-        $this->createRenamedNotification($event, $post);
+        if ($event->discussion->start_user_id !== $event->user->id) {
+            $this->sendNotification($event, $post);
+        }
     }
 
-    protected function createRenamedPost(DiscussionWasRenamed $event)
+    protected function createPost(DiscussionWasRenamed $event)
     {
-        $post = RenamedPost::reply(
+        $post = DiscussionRenamedPost::reply(
             $event->discussion->id,
             $event->user->id,
             $event->oldTitle,
@@ -40,11 +42,8 @@ class DiscussionRenamedNotifier
         return $post;
     }
 
-    protected function createRenamedNotification(DiscussionWasRenamed $event, RenamedPost $post)
+    protected function sendNotification(DiscussionWasRenamed $event, DiscussionRenamedPost $post)
     {
-        if ($event->discussion->start_user_id === $event->user->id) {
-            return false;
-        }
 
         $notification = Notification::notify(
             $event->discussion->start_user_id,
