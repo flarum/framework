@@ -68,7 +68,7 @@ class Discussion extends Model
         static::deleted(function ($discussion) {
             $discussion->raise(new DiscussionWasDeleted($discussion));
 
-            $discussion->posts()->delete();
+            $discussion->posts()->allTypes()->delete();
             $discussion->readers()->detach();
         });
     }
