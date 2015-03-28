@@ -25,7 +25,8 @@ export default DropdownButton.extend(HasItemLists, {
 
     items.pushObjectWithTag(Ember.Component.extend({
       tagName: 'li',
-      layout: precompileTemplate('{{#link-to "settings"}}{{fa-icon "cog"}} Settings{{/link-to}}')
+      layout: precompileTemplate('{{#link-to "user.settings" user}}{{fa-icon "cog"}} Settings{{/link-to}}'),
+      user: this.get('user')
     }));
 
     if (this.get('user.groups').findBy('id', '1')) {

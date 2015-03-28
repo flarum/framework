@@ -39,8 +39,11 @@
   border-radius: 2px;
   line-height: 1;
 }
+.btn-danger {
+  .button-variant(#d66, #fdd, #fdd);
+}
 
-// Redefine Bootstrap's mixin to make some general changes
+// Add to Bootstrap's mixin to make some general changes
 .button-variant(@color; @background; @border) {
   &:hover,
   &:focus,

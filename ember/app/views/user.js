@@ -52,5 +52,15 @@ export default Ember.View.extend(HasItemLists, {
       controller: this.get('controller'),
       layout: precompileTemplate('{{#link-to "user.activity" (query-params filter="posts")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'posts');
+
+    this.addSeparatorItem(items);
+
+    if (this.get('controller.model') === this.get('controller.session.user')) {
+      items.pushObjectWithTag(NavItem.extend({
+        label: 'Settings',
+        icon: 'cog',
+        layout: precompileTemplate('{{#link-to "user.settings"}}{{fa-icon icon}} {{label}}{{/link-to}}')
+      }), 'settings');
+    }
   }
 });

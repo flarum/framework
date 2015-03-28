@@ -12,6 +12,7 @@ export default DS.Model.extend(HasItemLists, {
   avatarUrl: DS.attr('string'),
   bio: DS.attr('string'),
   bioHtml: DS.attr('string'),
+  preferences: DS.attr(),
 
   groups: DS.hasMany('group'),
 
