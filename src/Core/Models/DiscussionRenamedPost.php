@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Models;
 
-class RenamedPost extends Post
+class DiscussionRenamedPost extends Post
 {
     /**
      * Create a new instance in reply to a discussion.
@@ -19,7 +19,7 @@ class RenamedPost extends Post
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
-        $post->type          = 'renamed';
+        $post->type          = 'discussionRenamed';
 
         return $post;
     }
