@@ -146,6 +146,9 @@ class CoreServiceProvider extends ServiceProvider
 
         User::setHasher($this->app['hash']);
         User::setFormatter($this->app['flarum.formatter']);
+
+        User::registerPreference('discloseOnline', 'boolval', true);
+        User::registerPreference('indexProfile', 'boolval', true);
     }
 
     public function registerPermissions()

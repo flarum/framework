@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration {
             $table->text('bio')->nullable();
             $table->text('bio_html')->nullable();
             $table->string('avatar_path')->nullable();
+            $table->binary('preferences')->nullable();
             $table->dateTime('join_time')->nullable();
             $table->dateTime('last_seen_time')->nullable();
             $table->dateTime('read_time')->nullable();
