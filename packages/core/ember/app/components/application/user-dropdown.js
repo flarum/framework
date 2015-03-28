@@ -32,7 +32,8 @@ export default DropdownButton.extend(HasItemLists, {
     if (this.get('user.groups').findBy('id', '1')) {
       items.pushObjectWithTag(Ember.Component.extend({
         tagName: 'li',
-        layout: precompileTemplate('<a href="'+config.baseURL+'admin" target="_blank">{{fa-icon "wrench"}} Administration</a>')
+        baseURL: config.baseURL,
+        layout: precompileTemplate('<a href="{{baseURL}}admin" target="_blank">{{fa-icon "wrench"}} Administration</a>')
       }));
     }
 

@@ -3,6 +3,8 @@ import Ember from 'ember';
 import HasItemLists from 'flarum/mixins/has-item-lists';
 import UserBio from 'flarum/components/user/user-bio';
 
+var precompileTemplate = Ember.Handlebars.compile;
+
 export default Ember.Component.extend(HasItemLists, {
   layoutName: 'components/user/user-card',
   classNames: ['user-card'],
@@ -73,13 +75,13 @@ export default Ember.Component.extend(HasItemLists, {
       tagName: 'li',
       classNames: ['user-last-seen'],
       classNameBindings: ['hidden', 'user.online:online'],
-      layout: Ember.Handlebars.compile('{{#if user.online}}{{fa-icon "circle"}} Online{{else}}{{fa-icon "clock-o"}} {{human-time user.lastSeenTime}}{{/if}}'),
+      layout: precompileTemplate('{{#if user.online}}{{fa-icon "circle"}} Online{{else}}{{fa-icon "clock-o"}} {{human-time user.lastSeenTime}}{{/if}}'),
       user: this.get('user'),
       hidden: Ember.computed.not('user.lastSeenTime')
     }), 'lastActiveTime');
 
     items.pushObjectWithTag(Ember.Component.extend({
-      layout: Ember.Handlebars.compile('Joined {{human-time user.joinTime}}'),
+      layout: precompileTemplate('Joined {{human-time user.joinTime}}'),
       user: this.get('user')
     }), 'joinTime');
   }

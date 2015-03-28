@@ -34,6 +34,7 @@
     "ember-dynamic-component": "0.0.4",
     "ember-export-application-global": "^1.0.2",
     "ember-json-api": "eneuhauser/ember-json-api",
+    "broccoli-ember-inline-template-compiler": "tobscure/broccoli-ember-inline-template-compiler#f884d11",
     "express": "^4.8.5",
     "glob": "^4.0.5"
   }
