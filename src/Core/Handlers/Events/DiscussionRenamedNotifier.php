@@ -1,11 +1,17 @@
 <?php namespace Flarum\Core\Handlers\Events;
 
 use Flarum\Core\Events\DiscussionWasRenamed;
-use Flarum\Core\Models\Notification;
 use Flarum\Core\Models\DiscussionRenamedPost;
+use Flarum\Core\Notifications\Types\DiscussionRenamedNotification;
+use Flarum\Core\Notifications\Notifier;
 
 class DiscussionRenamedNotifier
 {
+    public function __construct(Notifier $notifier)
+    {
+        $this->notifier = $notifier;
+    }
+
     /**
      * Register the listeners for the subscriber.
      *
@@ -44,17 +50,13 @@ class DiscussionRenamedNotifier
 
     protected function sendNotification(DiscussionWasRenamed $event, DiscussionRenamedPost $post)
     {
-
-        $notification = Notification::notify(
-            $event->discussion->start_user_id,
-            'renamed',
-            $event->user->id,
-            $event->discussion->id,
-            ['number' => $post->number, 'oldTitle' => $event->oldTitle]
+        $notification = new DiscussionRenamedNotification(
+            $event->discussion->startUser,
+            $event->user,
+            $post,
+            $event->oldTitle
         );
 
-        $notification->save();
-
-        return $notification;
+        $this->notifier->send($notification);
     }
 }
