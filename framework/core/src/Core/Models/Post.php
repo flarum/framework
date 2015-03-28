@@ -65,6 +65,8 @@ class Post extends Model
         static::deleted(function ($post) {
             $post->raise(new PostWasDeleted($post));
         });
+
+        static::addGlobalScope(new RegisteredTypesScope);
     }
 
     /**
@@ -120,6 +122,18 @@ class Post extends Model
     }
 
     /**
+     * Get all posts, regardless of their type, by removing the
+     * `RegisteredTypesScope` global scope constraints applied on this model.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeAllTypes($query)
+    {
+        return $this->removeGlobalScopes($query);
+    }
+
+    /**
      * Create a new model instance according to the post's type.
      *
      * @param  array  $attributes
@@ -154,5 +168,10 @@ class Post extends Model
     public static function addType($type, $class)
     {
         static::$types[$type] = $class;
+    }
+
+    public static function getTypes()
+    {
+        return static::$types;
     }
 }
