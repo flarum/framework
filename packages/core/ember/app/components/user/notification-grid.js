@@ -65,9 +65,11 @@ export default Ember.Component.extend({
     var user = this.get('user');
     var component = this;
     cells.forEach(function(cell) {
-      cell.set('loading', true);
-      cell.set('enabled', enabled);
-      user.set('preferences.'+component.preferenceKey(cell.get('type.name'), cell.get('method.name')), enabled);
+      if (!cell.get('disabled')) {
+        cell.set('loading', true);
+        cell.set('enabled', enabled);
+        user.set('preferences.'+component.preferenceKey(cell.get('type.name'), cell.get('method.name')), enabled);
+      }
     });
     user.save().then(function() {
       cells.forEach(function(cell) {
