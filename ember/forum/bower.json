@@ -15,7 +15,6 @@
     "bootstrap": "~3.3.2",
     "font-awesome": "~4",
     "spin.js": "~2.0.1",
-    "pace": "~0.7.1",
     "moment": "~2.8.4",
     "ember-simple-auth": "0.7.2",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#0.2.0",

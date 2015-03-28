@@ -17,15 +17,15 @@ class WebServiceProvider extends ServiceProvider
         $assetManager = $this->app['flarum.web.assetManager'];
 
         $assetManager->add([
-            __DIR__.'/../../public/assets/flarum.css',
-            __DIR__.'/../../public/assets/vendor.js',
-            __DIR__.'/../../public/assets/flarum.js'
+            __DIR__.'/../../ember/forum/dist/assets/flarum.css',
+            __DIR__.'/../../ember/forum/dist/assets/vendor.js',
+            __DIR__.'/../../ember/forum/dist/assets/flarum.js'
         ]);
 
         include __DIR__.'/routes.php';
 
         $this->publishes([
-            __DIR__.'/../../public/font-awesome' => public_path('font-awesome')
+            __DIR__.'/../../ember/forum/dist/font-awesome' => public_path('font-awesome')
         ]);
     }
 
