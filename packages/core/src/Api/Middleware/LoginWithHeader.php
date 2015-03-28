@@ -21,7 +21,10 @@ class LoginWithHeader
         if (starts_with($header, $this->prefix) &&
             ($token = substr($header, strlen($this->prefix))) &&
             ($accessToken = AccessToken::where('id', $token)->first())) {
-            $this->actor->setUser($accessToken->user);
+            $this->actor->setUser($user = $accessToken->user);
+
+            $user->last_seen_time = time();
+            $user->save();
         }
 
         return $next($request);

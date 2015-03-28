@@ -18,6 +18,9 @@ export default DS.Model.extend(HasItemLists, {
 
   joinTime: DS.attr('date'),
   lastSeenTime: DS.attr('date'),
+  online: Ember.computed('lastSeenTime', function() {
+    return this.get('lastSeenTime') > moment().subtract(5, 'minutes').toDate();
+  }),
   readTime: DS.attr('date'),
   unreadNotificationsCount: DS.attr('number'),
 
