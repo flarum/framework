@@ -356,7 +356,7 @@ class User extends Model
             $defaults[$k] = $v['default'];
         }
 
-        return array_merge($defaults, (array) json_decode($value, true));
+        return array_merge($defaults, array_only((array) json_decode($value, true), array_keys(static::$preferences)));
     }
 
     public function setPreferencesAttribute($value)
@@ -370,6 +370,16 @@ class User extends Model
             'transformer' => $transformer,
             'default' => $default
         ];
+    }
+
+    public static function notificationPreferenceKey($type, $sender)
+    {
+        return 'notify_'.$type.'_'.$sender;
+    }
+
+    public function shouldNotify($type, $method)
+    {
+        return $this->preference(static::notificationPreferenceKey($type, $method));
     }
 
     public function preference($key, $default = null)
