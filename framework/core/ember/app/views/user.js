@@ -31,25 +31,28 @@ export default Ember.View.extend(HasItemLists, {
   },
 
   populateNav: function(items) {
-    items.pushObjectWithTag(NavItem.extend({
+    var HasUser = Ember.Mixin.create({
+      parentController: this.get('controller'),
+      user: Ember.computed.alias('parentController.model')
+    });
+
+    items.pushObjectWithTag(NavItem.extend(HasUser, {
       label: 'Activity',
       icon: 'user',
       layout: precompileTemplate('{{#link-to "user.activity" (query-params filter="")}}{{fa-icon icon}} {{label}}{{/link-to}}')
     }), 'activity');
 
-    items.pushObjectWithTag(NavItem.extend({
+    items.pushObjectWithTag(NavItem.extend(HasUser, {
       label: 'Discussions',
       icon: 'reorder',
-      badge: Ember.computed.alias('controller.model.discussionsCount'),
-      controller: this.get('controller'),
+      badge: Ember.computed.alias('user.discussionsCount'),
       layout: precompileTemplate('{{#link-to "user.activity" (query-params filter="discussions")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'discussions');
 
-    items.pushObjectWithTag(NavItem.extend({
+    items.pushObjectWithTag(NavItem.extend(HasUser, {
       label: 'Posts',
       icon: 'comment-o',
-      badge: Ember.computed.alias('controller.model.commentsCount'),
-      controller: this.get('controller'),
+      badge: Ember.computed.alias('parentController.model.commentsCount'),
       layout: precompileTemplate('{{#link-to "user.activity" (query-params filter="posts")}}{{fa-icon icon}} {{label}} <span class="count">{{badge}}</span>{{/link-to}}')
     }), 'posts');
 
