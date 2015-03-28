@@ -43,7 +43,8 @@ export default Ember.Component.extend({
           type: type,
           method: method,
           enabled: !!user.get(preferenceKey),
-          loading: false
+          loading: false,
+          disabled: typeof user.get(preferenceKey) == 'undefined'
         });
         cell.set('save', function(value, component) {
           cell.set('loading', true);

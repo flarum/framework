@@ -12,7 +12,7 @@
       <tr>
         <td class="toggle-group" {{action "toggleType" row.type}}>{{row.label}}</td>
         {{#each row.cells as |cell|}}
-          <td class="yesno-cell">{{ui/yesno-input toggleState=cell.enabled changed=cell.save loading=cell.loading}}</td>
+          <td class="yesno-cell">{{ui/yesno-input toggleState=cell.enabled changed=cell.save loading=cell.loading disabled=cell.disabled}}</td>
         {{/each}}
       </tr>
     {{/each}}
