@@ -55,11 +55,10 @@
   & .yesno {
     text-align: center;
     cursor: pointer;
-
+  }
+  & .yesno-cell.highlighted .yesno, & .yesno:hover {
     &:not(.disabled) {
-      &:hover, &.highlighted {
-        background: darken(@fl-body-control-bg, 4%);
-      }
+      background: darken(@fl-body-control-bg, 4%);
     }
   }
   & .toggle-group {
