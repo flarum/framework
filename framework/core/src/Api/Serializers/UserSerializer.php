@@ -44,7 +44,8 @@ class UserSerializer extends UserBasicSerializer
         if ($user->id === $actorUser->id) {
             $attributes += [
                 'readTime' => $user->read_time ? $user->read_time->toRFC3339String() : null,
-                'unreadNotificationsCount' => $user->getUnreadNotificationsCount()
+                'unreadNotificationsCount' => $user->getUnreadNotificationsCount(),
+                'preferences' => $user->preferences
             ];
         }
 
