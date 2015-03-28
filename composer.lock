@@ -178,12 +178,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "bd6f39e211d9fecd0d7b9a4e6826c10dd3a6c769"
+                "reference": "5cda7e58df704a224828491b90f6d86bb49c6b97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/bd6f39e211d9fecd0d7b9a4e6826c10dd3a6c769",
-                "reference": "bd6f39e211d9fecd0d7b9a4e6826c10dd3a6c769",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/5cda7e58df704a224828491b90f6d86bb49c6b97",
+                "reference": "5cda7e58df704a224828491b90f6d86bb49c6b97",
                 "shasum": ""
             },
             "require": {
@@ -212,7 +212,7 @@
             ],
             "description": "The Illuminate Contracts package.",
             "homepage": "http://laravel.com",
-            "time": "2015-03-07 15:07:05"
+            "time": "2015-03-24 23:11:34"
         },
         {
             "name": "illuminate/database",
@@ -220,12 +220,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/database.git",
-                "reference": "2915bd599829eeb5ecb92cb4a437ee3859bec568"
+                "reference": "6259d30616653261dad501a9915dc5e19dd3f752"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/database/zipball/2915bd599829eeb5ecb92cb4a437ee3859bec568",
-                "reference": "2915bd599829eeb5ecb92cb4a437ee3859bec568",
+                "url": "https://api.github.com/repos/illuminate/database/zipball/6259d30616653261dad501a9915dc5e19dd3f752",
+                "reference": "6259d30616653261dad501a9915dc5e19dd3f752",
                 "shasum": ""
             },
             "require": {
@@ -270,7 +270,7 @@
                 "orm",
                 "sql"
             ],
-            "time": "2015-03-22 19:07:50"
+            "time": "2015-03-25 13:17:34"
         },
         {
             "name": "illuminate/support",
@@ -278,12 +278,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "f15c8ed68d344d4fd514cd4b30169cb86d14b0eb"
+                "reference": "c29ac982d9710dc1b841f91be230b5eff57e5698"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/f15c8ed68d344d4fd514cd4b30169cb86d14b0eb",
-                "reference": "f15c8ed68d344d4fd514cd4b30169cb86d14b0eb",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/c29ac982d9710dc1b841f91be230b5eff57e5698",
+                "reference": "c29ac982d9710dc1b841f91be230b5eff57e5698",
                 "shasum": ""
             },
             "require": {
@@ -322,7 +322,7 @@
             ],
             "description": "The Illuminate Support package.",
             "homepage": "http://laravel.com",
-            "time": "2015-03-18 00:02:27"
+            "time": "2015-03-25 16:42:17"
         },
         {
             "name": "misd/linkify",
@@ -377,20 +377,21 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.17.0",
+            "version": "1.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "a1dd1ad9abfc8b3c4d8768068e6c71d293424e86"
+                "reference": "99e2f69f7bdc2cc4334b2d00f1e0ba450623ea36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/a1dd1ad9abfc8b3c4d8768068e6c71d293424e86",
-                "reference": "a1dd1ad9abfc8b3c4d8768068e6c71d293424e86",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/99e2f69f7bdc2cc4334b2d00f1e0ba450623ea36",
+                "reference": "99e2f69f7bdc2cc4334b2d00f1e0ba450623ea36",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.3.0",
+                "symfony/translation": "2.6.*"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.0"
@@ -419,7 +420,66 @@
                 "datetime",
                 "time"
             ],
-            "time": "2015-03-08 14:05:44"
+            "time": "2015-03-26 03:05:57"
+        },
+        {
+            "name": "symfony/translation",
+            "version": "2.6.x-dev",
+            "target-dir": "Symfony/Component/Translation",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Translation.git",
+                "reference": "e3cd757998a297e235afab77da30adeff2251e15"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Translation/zipball/e3cd757998a297e235afab77da30adeff2251e15",
+                "reference": "e3cd757998a297e235afab77da30adeff2251e15",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "psr/log": "~1.0",
+                "symfony/config": "~2.3,>=2.3.12",
+                "symfony/intl": "~2.3",
+                "symfony/phpunit-bridge": "~2.7",
+                "symfony/yaml": "~2.2"
+            },
+            "suggest": {
+                "psr/log": "To use logging capability in translator",
+                "symfony/config": "",
+                "symfony/yaml": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Translation\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Symfony Translation Component",
+            "homepage": "http://symfony.com",
+            "time": "2015-03-22 16:55:57"
         },
         {
             "name": "tobscure/json-api",
@@ -463,12 +523,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tobscure/permissible.git",
-                "reference": "86536bbdea2073d69dfc45e29d10bbab245977df"
+                "reference": "ac146ee44be5b2c4b99ad065e2cdcd51de1f7860"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tobscure/permissible/zipball/86536bbdea2073d69dfc45e29d10bbab245977df",
-                "reference": "86536bbdea2073d69dfc45e29d10bbab245977df",
+                "url": "https://api.github.com/repos/tobscure/permissible/zipball/ac146ee44be5b2c4b99ad065e2cdcd51de1f7860",
+                "reference": "ac146ee44be5b2c4b99ad065e2cdcd51de1f7860",
                 "shasum": ""
             },
             "require": {
@@ -492,7 +552,7 @@
                 }
             ],
             "description": "Powerful, flexible, relational permissions using Eloquent.",
-            "time": "2015-03-17 06:29:41"
+            "time": "2015-03-24 09:00:05"
         }
     ],
     "packages-dev": [
@@ -502,12 +562,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "ade835f79160658ae16eb5ce40f8761627559159"
+                "reference": "7202e73252980bf881c3ba4f26b5bf9d70c02470"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/ade835f79160658ae16eb5ce40f8761627559159",
-                "reference": "ade835f79160658ae16eb5ce40f8761627559159",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/7202e73252980bf881c3ba4f26b5bf9d70c02470",
+                "reference": "7202e73252980bf881c3ba4f26b5bf9d70c02470",
                 "shasum": ""
             },
             "require": {
@@ -574,7 +634,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2015-03-23 23:00:13"
+            "time": "2015-03-26 10:33:44"
         },
         {
             "name": "codeception/mockery-module",
@@ -2032,12 +2092,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "de303b307151adadef2bbeff2858ac53d813e186"
+                "reference": "acc66bf5f1a851285b6fa0355d65a9a464adb59d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/de303b307151adadef2bbeff2858ac53d813e186",
-                "reference": "de303b307151adadef2bbeff2858ac53d813e186",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/acc66bf5f1a851285b6fa0355d65a9a464adb59d",
+                "reference": "acc66bf5f1a851285b6fa0355d65a9a464adb59d",
                 "shasum": ""
             },
             "require": {
@@ -2081,7 +2141,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "http://symfony.com",
-            "time": "2015-03-22 16:57:18"
+            "time": "2015-03-26 16:59:57"
         },
         {
             "name": "symfony/css-selector",
@@ -2144,12 +2204,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DomCrawler.git",
-                "reference": "c6f3631d4525813ac13db45dbda0493450071020"
+                "reference": "87a59b4ff7271aa930190551b4c64d334dbd979f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/c6f3631d4525813ac13db45dbda0493450071020",
-                "reference": "c6f3631d4525813ac13db45dbda0493450071020",
+                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/87a59b4ff7271aa930190551b4c64d334dbd979f",
+                "reference": "87a59b4ff7271aa930190551b4c64d334dbd979f",
                 "shasum": ""
             },
             "require": {
@@ -2189,7 +2249,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "http://symfony.com",
-            "time": "2015-03-23 08:18:05"
+            "time": "2015-03-24 17:00:58"
         },
         {
             "name": "symfony/event-dispatcher",
