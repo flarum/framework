@@ -9,6 +9,7 @@ export default Ember.Component.extend({
   classNames: ['yesno-control'],
 
   toggleState: true,
+  disabled: false,
 
   didInsertElement: function() {
     var component = this;
