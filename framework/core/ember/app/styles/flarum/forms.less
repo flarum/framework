@@ -10,6 +10,12 @@
     .box-shadow(none);
   }
 }
+legend {
+  font-size: 14px;
+  border: 0;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
 // Search inputs
 // @todo Extract some of this into header-specific definitions
@@ -68,4 +74,80 @@
   margin-left: -@padding-base-horizontal - 16;
   pointer-events: none;
   color: @fl-body-muted-color;
+}
+
+.checkbox-switch {
+  & label {
+    padding-left: 65px;
+  }
+  & .switch-control {
+    float: left;
+    margin-left: -65px;
+    margin-top: -4px;
+  }
+  & .loading-indicator {
+    display: inline-block;
+    margin-left: 10px;
+  }
+}
+.switch-control, .yesno-control {
+  & input[type=checkbox] {
+    display: none;
+  }
+}
+.switch {
+  width: 50px;
+  height: 28px;
+  padding: 3px;
+  position: relative;
+  border-radius: 14px;
+  background: @fl-body-control-bg;
+  .transition(background-color 0.2s);
+
+  input:checked + & {
+    background: @fl-body-primary-color;
+  }
+
+  & .loading-indicator {
+    opacity: 0;
+
+    .loading& {
+      opacity: 1;
+    }
+  }
+  &:before, & .loading-indicator {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    left: 3px;
+    .transition(~"opacity 0.2s, left 0.2s");
+
+    input:checked + & {
+      left: 25px;
+    }
+  }
+  &:before {
+    content: ' ';
+    background: @fl-body-bg;
+    border-radius: 11px;
+    box-shadow: 0 2px 4px @fl-shadow-color;
+  }
+}
+.yesno-control {
+  cursor: pointer;
+  margin: 0;
+}
+.yesno {
+  font-size: 14px;
+
+  &.yes {
+    color: #58A400;
+  }
+  &.no {
+    color: #D0021B;
+  }
+  &.disabled {
+    color: @fl-body-muted-more-color !important;
+  }
 }

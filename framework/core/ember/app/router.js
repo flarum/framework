@@ -15,9 +15,8 @@ Router.map(function() {
   this.resource('user', {path: '/u/:username'}, function() {
     this.route('activity', {path: '/'});
     this.route('edit');
+    this.route('settings');
   });
-
-  this.resource('settings');
 });
 
 export default Router;
