@@ -31,7 +31,7 @@
     border-bottom: 1px solid @fl-body-bg;
     color: @fl-body-control-color;
   }
-  & td, & th, & .yesno-cell .yesno {
+  & td, & th, & .yesno {
     padding: 10px 15px;
   }
   & thead {
@@ -47,12 +47,19 @@
     }
   }
   & .yesno-cell {
+    padding: 0;
+  }
+  & .yesno-control {
+    display: block;
+  }
+  & .yesno {
     text-align: center;
     cursor: pointer;
-    padding: 0;
 
-    &:hover, &.highlighted {
-      background: darken(@fl-body-control-bg, 4%);
+    &:not(.disabled) {
+      &:hover, &.highlighted {
+        background: darken(@fl-body-control-bg, 4%);
+      }
     }
   }
   & .toggle-group {
