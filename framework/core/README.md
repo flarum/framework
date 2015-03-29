@@ -39,15 +39,7 @@ Take a look at the [live demo](http://demo.flarum.org#/1/welcome-to-the-first-pu
 
 For a general overview of where Flarum is headed, read [this blog post](http://tobyzerner.com/flarum).
 
-In short, the priority at the moment is to build out a lightweight core, and only start building [Extensions](https://github.com/flarum/core/wiki/Extensions) when it is relatively stable. Below is a list of the things to work on, with links to the relevant discussion.
-
-- [ ] Write tests in both Laravel ([#3](https://github.com/flarum/core/issues/3)) and Ember ([#4](https://github.com/flarum/core/issues/4))
-- [ ] Further consolidation of Extension interfaces (see [Extensions](https://github.com/flarum/core/wiki/Extensions))
-- [ ] Build Notifications system ([#12](https://github.com/flarum/core/issues/12))
-- [ ] Make design responsive
-- [ ] Discussion and user badges
-- [ ] User profiles/cards/preferences
-- [ ] Build admin infrastructure
+In short, the priority at the moment is to build out a lightweight core, and only start building [Extensions](https://github.com/flarum/core/wiki/Extensions) when it is relatively stable.
 
 For a full list of planned features, see [Features](https://github.com/flarum/core/wiki/Features).
 
@@ -68,10 +60,8 @@ Currently Flarum is in its very early stages, and it isn’t pretty. **It is far
 
 	```sh
 	vagrant ssh
-	cd /vagrant/flarum/core/ember && ember serve --output-path="../public"
+	cd /vagrant/flarum/core/ember && ember build
 	```
-
-	> You can also use the `esv` alias to run the above command.
 
 4. Add the following to your /etc/hosts file:
 
