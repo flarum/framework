@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import DiscussionResult from 'flarum/models/discussion-result';
-import PostResult from 'flarum/models/post-result';
+import DiscussionResult from 'flarum-forum/models/discussion-result';
+import PostResult from 'flarum-forum/models/post-result';
 
 export default Ember.Controller.extend({
   needs: ['application'],

@@ -1,8 +1,8 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import FadeIn from 'flarum/mixins/fade-in';
-import humanTime from 'flarum/utils/human-time';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import FadeIn from 'flarum-forum/mixins/fade-in';
+import humanTime from 'flarum-forum/utils/human-time';
 
 /**
   Component for a discussion listing on the discussions index. It has `info`

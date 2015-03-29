@@ -1,11 +1,11 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import SearchInput from 'flarum/components/ui/search-input';
-import UserNotifications from 'flarum/components/application/user-notifications';
-import UserDropdown from 'flarum/components/application/user-dropdown';
-import ForumStatistic from 'flarum/components/application/forum-statistic';
-import PoweredBy from 'flarum/components/application/powered-by';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import SearchInput from 'flarum-forum/components/ui/search-input';
+import UserNotifications from 'flarum-forum/components/application/user-notifications';
+import UserDropdown from 'flarum-forum/components/application/user-dropdown';
+import ForumStatistic from 'flarum-forum/components/application/forum-statistic';
+import PoweredBy from 'flarum-forum/components/application/powered-by';
 
 var $ = Ember.$;
 

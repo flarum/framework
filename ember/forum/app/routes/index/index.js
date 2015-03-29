@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import AddCssClassToBody from 'flarum/mixins/add-css-class-to-body';
-import PushesHistory from 'flarum/mixins/pushes-history';
+import AddCssClassToBody from 'flarum-forum/mixins/add-css-class-to-body';
+import PushesHistory from 'flarum-forum/mixins/pushes-history';
 
 export default Ember.Route.extend(AddCssClassToBody, PushesHistory, {
   historyKey: 'index',

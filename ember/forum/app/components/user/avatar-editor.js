@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import config from 'flarum/config/environment';
+import config from 'flarum-forum/config/environment';
 
 var $ = Ember.$;
 

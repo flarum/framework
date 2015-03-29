@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
 
 /**
   This component is a base class for a composer body. It provides a template

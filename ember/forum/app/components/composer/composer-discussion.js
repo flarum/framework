@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import ComposerBody from 'flarum/components/composer/composer-body';
+import ComposerBody from 'flarum-forum/components/composer/composer-body';
 
 var precompileTemplate = Ember.Handlebars.compile;
 

@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import FadeIn from 'flarum/mixins/fade-in';
-import HasItemLists from 'flarum/mixins/has-item-lists';
+import FadeIn from 'flarum-forum/mixins/fade-in';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
 
 var precompileTemplate = Ember.Handlebars.compile;
 

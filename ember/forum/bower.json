@@ -1,5 +1,5 @@
 {
-  "name": "flarum",
+  "name": "flarum-forum",
   "dependencies": {
     "jquery": "2.1.3",
     "ember": "1.11.0-beta.3",

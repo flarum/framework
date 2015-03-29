@@ -1,0 +1,34 @@
+@import "@{common-path}/config.less";
+
+@common-path: "../common";
+
+@import "@{common-path}/bootstrap.less";
+
+// We want to specify the @fa-font-path variable AFTER we import font awesome
+// so that it overrides the default definition.
+@import "@{common-path}/font-awesome/font-awesome.less";
+@fa-font-path: "/flarum/fonts";
+
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,300);
+
+// Finally, with our vendor CSS loaded, we can import Flarum-specific stuff.
+@import "@{common-path}/components.less";
+@import "@{common-path}/buttons.less";
+@import "@{common-path}/badges.less";
+@import "@{common-path}/dropdowns.less";
+@import "@{common-path}/avatars.less";
+@import "@{common-path}/forms.less";
+@import "@{common-path}/alerts.less";
+@import "@{common-path}/modals.less";
+@import "@{common-path}/layout.less";
+
+@import "composer.less";
+@import "notifications.less";
+@import "hero.less";
+
+@import "index.less";
+@import "discussion.less";
+@import "user.less";
+@import "settings.less";
+@import "login.less";
+@import "signup.less";

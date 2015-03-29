@@ -12,7 +12,7 @@ class IndexAction extends Action
     public function handle(Request $request, $params = [])
     {
         $config = [
-            'modulePrefix' => 'flarum',
+            'modulePrefix' => 'flarum-forum',
             'environment' => 'production',
             'baseURL' => '/',
             'apiURL' => '/api',
@@ -42,10 +42,11 @@ class IndexAction extends Action
         }
 
 
-        return View::make('flarum.web::ember')
+
+        return View::make('flarum.web::index')
             ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
-            ->with('styles', app('flarum.web.assetManager')->styles())
-            ->with('scripts', app('flarum.web.assetManager')->scripts())
+            ->with('styles', app('flarum.web.assetManager')->getCSSFiles())
+            ->with('scripts', app('flarum.web.assetManager')->getJSFiles())
             ->with('config', $config)
             ->with('content', '')
             ->with('data', $data)

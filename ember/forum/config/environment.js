@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'flarum',
+    modulePrefix: 'flarum-forum',
     environment: environment,
     baseURL: '/',
     apiURL: '/api',

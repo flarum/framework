@@ -1,8 +1,8 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import DropdownButton from 'flarum/components/ui/dropdown-button';
-import config from 'flarum/config/environment';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import DropdownButton from 'flarum-forum/components/ui/dropdown-button';
+import config from 'flarum-forum/config/environment';
 
 var precompileTemplate = Ember.Handlebars.compile;
 
