@@ -1,9 +1,9 @@
 import Ember from 'ember';
 
-import ComposerReply from 'flarum/components/composer/composer-reply';
-import ActionButton from 'flarum/components/ui/action-button';
-import AlertMessage from 'flarum/components/ui/alert-message';
-import UseComposerMixin from 'flarum/mixins/use-composer';
+import ComposerReply from 'flarum-forum/components/composer/composer-reply';
+import ActionButton from 'flarum-forum/components/ui/action-button';
+import AlertMessage from 'flarum-forum/components/ui/alert-message';
+import UseComposerMixin from 'flarum-forum/mixins/use-composer';
 
 export default Ember.Controller.extend(Ember.Evented, UseComposerMixin, {
   needs: ['application', 'index'],

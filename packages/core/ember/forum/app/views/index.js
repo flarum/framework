@@ -1,11 +1,11 @@
 import Ember from 'ember';
 
-import DropdownSelect from 'flarum/components/ui/dropdown-select';
-import ActionButton from 'flarum/components/ui/action-button';
-import NavItem from 'flarum/components/ui/nav-item';
-import WelcomeHero from 'flarum/components/index/welcome-hero';
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import config from 'flarum/config/environment';
+import DropdownSelect from 'flarum-forum/components/ui/dropdown-select';
+import ActionButton from 'flarum-forum/components/ui/action-button';
+import NavItem from 'flarum-forum/components/ui/nav-item';
+import WelcomeHero from 'flarum-forum/components/index/welcome-hero';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import config from 'flarum-forum/config/environment';
 
 var precompileTemplate = Ember.Handlebars.compile;
 var $ = Ember.$;

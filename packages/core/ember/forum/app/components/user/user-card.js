@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import UserBio from 'flarum/components/user/user-bio';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import UserBio from 'flarum-forum/components/user/user-bio';
 
 var precompileTemplate = Ember.Handlebars.compile;
 

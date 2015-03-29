@@ -1,13 +1,13 @@
 import Ember from 'ember';
 
-import UseComposer from 'flarum/mixins/use-composer';
-import FadeIn from 'flarum/mixins/fade-in';
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import ComposerEdit from 'flarum/components/composer/composer-edit';
-import PostHeaderUser from 'flarum/components/discussion/post-header/user';
-import PostHeaderMeta from 'flarum/components/discussion/post-header/meta';
-import PostHeaderEdited from 'flarum/components/discussion/post-header/edited';
-import PostHeaderToggle from 'flarum/components/discussion/post-header/toggle';
+import UseComposer from 'flarum-forum/mixins/use-composer';
+import FadeIn from 'flarum-forum/mixins/fade-in';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import ComposerEdit from 'flarum-forum/components/composer/composer-edit';
+import PostHeaderUser from 'flarum-forum/components/discussion/post-header/user';
+import PostHeaderMeta from 'flarum-forum/components/discussion/post-header/meta';
+import PostHeaderEdited from 'flarum-forum/components/discussion/post-header/edited';
+import PostHeaderToggle from 'flarum-forum/components/discussion/post-header/toggle';
 
 /**
   Component for a `comment`-typed post. Displays a number of item lists

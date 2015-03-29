@@ -1,11 +1,11 @@
 import Ember from 'ember';
 
-import DiscussionResult from 'flarum/models/discussion-result';
-import PostResult from 'flarum/models/post-result';
-import Paneable from 'flarum/mixins/paneable';
-import ComposerDiscussion from 'flarum/components/composer/composer-discussion';
-import AlertMessage from 'flarum/components/ui/alert-message';
-import UseComposer from 'flarum/mixins/use-composer';
+import DiscussionResult from 'flarum-forum/models/discussion-result';
+import PostResult from 'flarum-forum/models/post-result';
+import Paneable from 'flarum-forum/mixins/paneable';
+import ComposerDiscussion from 'flarum-forum/components/composer/composer-discussion';
+import AlertMessage from 'flarum-forum/components/ui/alert-message';
+import UseComposer from 'flarum-forum/mixins/use-composer';
 
 export default Ember.Controller.extend(UseComposer, Paneable, {
   needs: ['application', 'index/index', 'discussion'],

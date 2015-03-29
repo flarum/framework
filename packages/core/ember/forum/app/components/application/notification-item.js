@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import FadeIn from 'flarum/mixins/fade-in';
+import FadeIn from 'flarum-forum/mixins/fade-in';
 
 export default Ember.Component.extend(FadeIn, {
   layoutName: 'components/application/notification-item',

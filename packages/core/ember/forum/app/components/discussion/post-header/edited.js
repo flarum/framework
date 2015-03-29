@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import humanTime from 'flarum/utils/human-time';
+import humanTime from 'flarum-forum/utils/human-time';
 
 var precompileTemplate = Ember.Handlebars.compile;
 

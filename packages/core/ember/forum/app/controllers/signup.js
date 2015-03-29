@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import ModalController from 'flarum/mixins/modal-controller';
+import ModalController from 'flarum-forum/mixins/modal-controller';
 
 export default Ember.Controller.extend(ModalController, {
   emailProviderName: Ember.computed('welcomeUser.email', function() {

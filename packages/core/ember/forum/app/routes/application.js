@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import ApplicationRouteMixin from 'simple-auth/mixins/application-route-mixin';
 
-import AlertMessage from 'flarum/components/ui/alert-message';
+import AlertMessage from 'flarum-forum/components/ui/alert-message';
 
 export default Ember.Route.extend(ApplicationRouteMixin, {
   activate: function() {

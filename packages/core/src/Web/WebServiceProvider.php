@@ -11,22 +11,23 @@ class WebServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.web');
+        $root = __DIR__.'/../..';
 
-        // Shouldn't do all this asset stuff in boot, because then it gets called on API requests
+        $this->loadViewsFrom($root.'/views', 'flarum.web');
+
         $assetManager = $this->app['flarum.web.assetManager'];
 
-        $assetManager->add([
-            __DIR__.'/../../ember/forum/dist/assets/flarum.css',
-            __DIR__.'/../../ember/forum/dist/assets/vendor.js',
-            __DIR__.'/../../ember/forum/dist/assets/flarum.js'
+        $assetManager->addFile([
+            $root.'/ember/forum/dist/assets/vendor.js',
+            $root.'/ember/forum/dist/assets/flarum-forum.js',
+            $root.'/less/forum/app.less'
+        ]);
+
+        $this->publishes([
+            $root.'/public/fonts' => public_path('flarum/fonts')
         ]);
 
         include __DIR__.'/routes.php';
-
-        $this->publishes([
-            __DIR__.'/../../ember/forum/dist/font-awesome' => public_path('font-awesome')
-        ]);
     }
 
     /**
@@ -36,9 +37,8 @@ class WebServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['flarum.web.assetManager'] = $this->app->share(function($app)
-        {
-            return new AssetManager($app['files'], $app['path.public']);
+        $this->app['flarum.web.assetManager'] = $this->app->share(function ($app) {
+            return new AssetManager($app['files'], $app['path.public'].'/flarum', 'forum');
         });
     }
 }

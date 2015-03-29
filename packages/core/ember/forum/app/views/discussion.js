@@ -1,8 +1,8 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import DropdownSplit from 'flarum/components/ui/dropdown-split';
-import StreamScrubber from 'flarum/components/discussion/stream-scrubber';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import DropdownSplit from 'flarum-forum/components/ui/dropdown-split';
+import StreamScrubber from 'flarum-forum/components/discussion/stream-scrubber';
 
 var $ = Ember.$;
 
