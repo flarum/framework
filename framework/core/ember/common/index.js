@@ -2,5 +2,8 @@
 'use strict';
 
 module.exports = {
-  name: 'flarum-common'
+  name: 'flarum-common',
+  isDevelopingAddon: function() {
+    return true;
+  }
 };

@@ -9,7 +9,8 @@
   "scripts": {
     "start": "ember server",
     "build": "ember build",
-    "test": "ember test"
+    "test": "ember test",
+    "preinstall": "sudo npm link ../common"
   },
   "repository": "",
   "engines": {
@@ -36,6 +37,6 @@
     "broccoli-ember-inline-template-compiler": "tobscure/broccoli-ember-inline-template-compiler#f884d11",
     "express": "^4.8.5",
     "glob": "^4.0.5",
-    "flarum-common": "file:../common"
+    "flarum-common": "*"
   }
 }
