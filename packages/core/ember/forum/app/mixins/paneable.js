@@ -19,7 +19,7 @@ export default Ember.Mixin.create({
 
   // Whether or not the pane is always visible on screen, even when the
   // mouse is taken away.
-  panePinned: localStorage.getItem('panePinned'),
+  panePinned: localStorage.getItem('panePinned') !== 'false',
 
   // Disable the paneable behaviour completely, regardless of if it is
   // paned, showing, or pinned.
@@ -51,7 +51,7 @@ export default Ember.Mixin.create({
     },
 
     togglePinned: function() {
-      localStorage.setItem('panePinned', this.toggleProperty('panePinned') || '');
+      localStorage.setItem('panePinned', this.toggleProperty('panePinned') ? 'true' : 'false');
     }
   }
 });
