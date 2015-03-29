@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import PostStream from 'flarum/models/post-stream';
-import PushesHistory from 'flarum/mixins/pushes-history';
+import PostStream from 'flarum-forum/models/post-stream';
+import PushesHistory from 'flarum-forum/mixins/pushes-history';
 
 export default Ember.Route.extend(PushesHistory, {
   historyKey: 'discussion',

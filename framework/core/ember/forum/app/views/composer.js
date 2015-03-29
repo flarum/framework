@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-import { PositionEnum } from 'flarum/controllers/composer';
-import HasItemLists from 'flarum/mixins/has-item-lists';
+import { PositionEnum } from 'flarum-forum/controllers/composer';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
 
 var $ = Ember.$;
 

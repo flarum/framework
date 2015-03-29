@@ -1,10 +1,10 @@
 import Ember from 'ember';
 
-import HasItemLists from 'flarum/mixins/has-item-lists';
-import NotificationGrid from 'flarum/components/user/notification-grid';
-import FieldSet from 'flarum/components/ui/field-set';
-import ActionButton from 'flarum/components/ui/action-button';
-import SwitchInput from 'flarum/components/ui/switch-input';
+import HasItemLists from 'flarum-forum/mixins/has-item-lists';
+import NotificationGrid from 'flarum-forum/components/user/notification-grid';
+import FieldSet from 'flarum-forum/components/ui/field-set';
+import ActionButton from 'flarum-forum/components/ui/action-button';
+import SwitchInput from 'flarum-forum/components/ui/switch-input';
 
 export default Ember.View.extend(HasItemLists, {
   itemLists: ['settings'],

@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import PushesHistory from 'flarum/mixins/pushes-history';
+import PushesHistory from 'flarum-forum/mixins/pushes-history';
 
 export default Ember.Route.extend(PushesHistory, {
   historyKey: 'user',

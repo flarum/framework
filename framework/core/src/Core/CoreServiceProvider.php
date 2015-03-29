@@ -85,7 +85,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->when('Flarum\Core\Handlers\Commands\UploadAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
             ->give(function(Container $app) {
-                return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('avatars')->getDriver();
+                return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum.avatars')->getDriver();
             });
     }
 

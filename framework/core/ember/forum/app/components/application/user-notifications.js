@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import DropdownButton from 'flarum/components/ui/dropdown-button';
+import DropdownButton from 'flarum-forum/components/ui/dropdown-button';
 
 var precompileTemplate = Ember.Handlebars.compile;
 

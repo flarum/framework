@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 import AuthenticationControllerMixin from 'simple-auth/mixins/authentication-controller-mixin';
-import ModalController from 'flarum/mixins/modal-controller';
+import ModalController from 'flarum-forum/mixins/modal-controller';
 
 export default Ember.Controller.extend(ModalController, AuthenticationControllerMixin, {
   authenticator: 'authenticator:flarum',
