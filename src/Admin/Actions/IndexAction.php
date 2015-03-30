@@ -42,7 +42,7 @@ class IndexAction extends Action
         }
 
         return View::make('flarum.admin::index')
-            ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
+            ->with('title', 'Administration - '.Config::get('flarum::forum_title', 'Flarum Demo Forum'))
             ->with('styles', app('flarum.admin.assetManager')->getCSSFiles())
             ->with('scripts', app('flarum.admin.assetManager')->getJSFiles())
             ->with('config', $config)
