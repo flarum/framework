@@ -1,1 +1,43 @@
-hey there
+<div id="page" class="global-page with-pane">
+
+  {{application/back-button className="back-control" toggleDrawer="toggleDrawer" goBack="goBack" canGoBack=false}}
+
+  <div id="drawer" class="global-drawer">
+    <header id="header" class="global-header">
+      {{application/back-button goBack="goBack" canGoBack=true}}
+
+      <div class="container">
+
+        <div class="header-primary">
+          <h1 class="header-title">
+            Administration
+          </h1>
+          {{ui/item-list items=view.headerPrimary class="header-controls"}}
+        </div>
+
+        <div class="header-secondary">
+          {{ui/item-list items=view.headerSecondary class="header-controls"}}
+        </div>
+
+      </div>
+    </header>
+  </div>
+
+  <main id="content" class="global-content">
+    <div class="container">
+      <div class="side-nav admin-nav title-control">
+        {{ui/dropdown-select items=view.adminNav}}
+      </div>
+      <div class="admin-content">
+        {{outlet}}
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<div id="modal" class="modal fade">
+  {{outlet "modal"}}
+</div>
+
+{{render "alerts"}}
