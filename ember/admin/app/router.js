@@ -6,7 +6,11 @@ var Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-  // this.resource('index', {path: '/'}
+  this.resource('dashboard', {path: '/'});
+  this.resource('basics');
+  this.resource('permissions');
+  this.resource('appearance');
+  this.resource('extensions');
 });
 
 export default Router;

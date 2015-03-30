@@ -1,0 +1,76 @@
+@admin-pane-width: 300px;
+
+.admin-nav {
+  & .description {
+    display: none;
+  }
+}
+.admin-content {
+  padding: 20px 0;
+}
+@media @desktop, @desktop-hd {
+  .admin-nav {
+    position: fixed;
+    top: @header-height;
+    bottom: 0;
+    width: @admin-pane-width;
+    box-shadow: 0 2px 6px @fl-shadow-color;
+    background: @fl-body-bg;
+    border-top: 1px solid @fl-body-control-bg;
+
+    & .dropdown-select .dropdown-menu > li {
+      & > a {
+        padding: 15px 15px 15px 45px;
+        display: block;
+        text-decoration: none;
+        white-space: normal;
+      }
+      & > a, & > a:hover, &.active > a {
+        color: @fl-body-muted-color;
+      }
+      &.active > a {
+        background: @fl-body-secondary-color;
+        font-weight: normal;
+
+        & .label, & .icon {
+          color: @fl-body-color;
+        }
+        & .label {
+          font-weight: bold;
+        }
+      }
+      &:hover:not(.active) {
+        & .label {
+          text-decoration: underline;
+        }
+      }
+    }
+    & .icon {
+      float: left;
+      margin-left: -30px;
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    & .label {
+      display: block;
+      font-size: 15px;
+      font-weight: normal;
+      margin: 0 0 5px;
+    }
+    & .description {
+      display: block;
+      font-size: 12px;
+    }
+  }
+  .admin-content {
+    margin-left: @admin-pane-width;
+    padding: 20px;
+  }
+  .container {
+    width: 100%;
+
+    .global-content & {
+      padding: 0;
+    }
+  }
+}
