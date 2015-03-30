@@ -1,8 +1,9 @@
-<?php namespace Flarum\Web;
+<?php namespace Flarum\Forum;
 
 use Illuminate\Support\ServiceProvider;
+use Flarum\Support\AssetManager;
 
-class WebServiceProvider extends ServiceProvider
+class ForumServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application events.
@@ -13,9 +14,9 @@ class WebServiceProvider extends ServiceProvider
     {
         $root = __DIR__.'/../..';
 
-        $this->loadViewsFrom($root.'/views', 'flarum.web');
+        $this->loadViewsFrom($root.'/views', 'flarum.forum');
 
-        $assetManager = $this->app['flarum.web.assetManager'];
+        $assetManager = $this->app['flarum.forum.assetManager'];
 
         $assetManager->addFile([
             $root.'/ember/forum/dist/assets/vendor.js',
@@ -37,7 +38,7 @@ class WebServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['flarum.web.assetManager'] = $this->app->share(function ($app) {
+        $this->app['flarum.forum.assetManager'] = $this->app->share(function ($app) {
             return new AssetManager($app['files'], $app['path.public'].'/flarum', 'forum');
         });
     }

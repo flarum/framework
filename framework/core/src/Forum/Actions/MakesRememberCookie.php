@@ -1,4 +1,4 @@
-<?php namespace Flarum\Web\Actions;
+<?php namespace Flarum\Forum\Actions;
 
 use Cookie;
 

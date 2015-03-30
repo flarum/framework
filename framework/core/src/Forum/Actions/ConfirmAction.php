@@ -1,11 +1,11 @@
-<?php namespace Flarum\Web\Actions;
+<?php namespace Flarum\Forum\Actions;
 
 use Illuminate\Http\Request;
 use Flarum\Core\Commands\ConfirmEmailCommand;
 use Flarum\Core\Commands\GenerateAccessTokenCommand;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 
-class ConfirmAction extends Action
+class ConfirmAction extends BaseAction
 {
     use MakesRememberCookie;
 

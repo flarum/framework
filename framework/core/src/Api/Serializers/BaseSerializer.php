@@ -3,7 +3,7 @@
 use Tobscure\JsonApi\SerializerAbstract;
 use Flarum\Api\Events\SerializeAttributes;
 use Flarum\Api\Events\SerializeRelationship;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Closure;
 
 /**
@@ -14,14 +14,14 @@ abstract class BaseSerializer extends SerializerAbstract
     /**
      * The actor who is requesting the serialized objects.
      *
-     * @var \Flarum\Core\Support\Actor
+     * @var \Flarum\Support\Actor
      */
     protected static $actor;
 
     /**
      * Set the actor who is requesting the serialized objects.
      *
-     * @param  \Flarum\Core\Support\Actor  $actor
+     * @param  \Flarum\Support\Actor  $actor
      * @return void
      */
     public static function setActor(Actor $actor)

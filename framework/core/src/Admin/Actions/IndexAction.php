@@ -1,6 +1,6 @@
 <?php namespace Flarum\Admin\Actions;
 
-use Flarum\Web\Actions\Action;
+use Flarum\Support\Action;
 use Illuminate\Http\Request;
 use Session;
 use Auth;

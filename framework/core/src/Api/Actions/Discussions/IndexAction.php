@@ -2,7 +2,7 @@
 
 use Flarum\Core\Search\Discussions\DiscussionSearchCriteria;
 use Flarum\Core\Search\Discussions\DiscussionSearcher;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Api\Actions\BaseAction;
 use Flarum\Api\Actions\ApiParams;
 use Flarum\Api\Serializers\DiscussionSerializer;

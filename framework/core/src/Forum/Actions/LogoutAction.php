@@ -1,10 +1,10 @@
-<?php namespace Flarum\Web\Actions;
+<?php namespace Flarum\Forum\Actions;
 
 use Illuminate\Http\Request;
-use Flarum\Web\Events\UserLoggedOut;
+use Flarum\Forum\Events\UserLoggedOut;
 use Cookie;
 
-class LogoutAction extends Action
+class LogoutAction extends BaseAction
 {
     public function handle(Request $request, $params = [])
     {

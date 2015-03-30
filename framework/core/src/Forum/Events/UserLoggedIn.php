@@ -1,4 +1,4 @@
-<?php namespace Flarum\Web\Events;
+<?php namespace Flarum\Forum\Events;
 
 use Flarum\Core\Models\User;
 
