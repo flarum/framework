@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Middleware;
 
 use Flarum\Core\Models\AccessToken;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Closure;
 
 class LoginWithHeader

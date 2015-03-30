@@ -1,9 +1,7 @@
-<?php namespace Flarum\Web\Actions;
+<?php namespace Flarum\Support;
 
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Flarum\Web\Events\CommandWillBeDispatched;
-use Flarum\Core\Support\Actor;
 
 abstract class Action
 {
@@ -19,11 +17,5 @@ abstract class Action
     {
         $action = app($class);
         return $action->call($params);
-    }
-
-    protected function dispatch($command, $params = [])
-    {
-        event(new CommandWillBeDispatched($command, $params));
-        return $this->bus->dispatch($command);
     }
 }

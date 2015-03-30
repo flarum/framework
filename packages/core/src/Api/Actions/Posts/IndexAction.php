@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Repositories\PostRepositoryInterface;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Api\Actions\BaseAction;
 use Flarum\Api\Actions\ApiParams;
 use Flarum\Api\Serializers\PostSerializer;

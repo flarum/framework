@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Users;
 
 use Flarum\Core\Repositories\UserRepositoryInterface;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Api\Actions\ApiParams;
 use Flarum\Api\Actions\BaseAction;
 use Flarum\Api\Serializers\UserSerializer;

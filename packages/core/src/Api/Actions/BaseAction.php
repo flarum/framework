@@ -3,10 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Tobscure\JsonApi\Document;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Api\Events\CommandWillBeDispatched;
 use Flarum\Api\Events\WillRespondWithDocument;
-use Flarum\Web\Actions\Action;
+use Flarum\Support\Action;
 use Config;
 use App;
 use Response;

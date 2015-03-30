@@ -1,7 +1,7 @@
 <?php namespace Flarum\Admin;
 
 use Illuminate\Support\ServiceProvider;
-use Flarum\Web\AssetManager;
+use Flarum\Support\AssetManager;
 
 class AdminServiceProvider extends ServiceProvider
 {

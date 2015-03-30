@@ -1,4 +1,4 @@
-<?php namespace Flarum\Web;
+<?php namespace Flarum\Support;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;

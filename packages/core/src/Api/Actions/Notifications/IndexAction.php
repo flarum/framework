@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Notifications;
 
 use Flarum\Core\Repositories\NotificationRepositoryInterface;
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Api\Actions\BaseAction;
 use Flarum\Api\Actions\ApiParams;

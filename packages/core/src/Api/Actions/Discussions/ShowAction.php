@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Core\Repositories\DiscussionRepositoryInterface as DiscussionRepository;
 use Flarum\Core\Repositories\PostRepositoryInterface as PostRepository;
 use Flarum\Api\Actions\BaseAction;
