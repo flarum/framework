@@ -19,7 +19,7 @@ class ApiServiceProvider extends ServiceProvider
 
         include __DIR__.'/routes.php';
 
-        BaseSerializer::setActor($this->app['Flarum\Core\Support\Actor']);
+        BaseSerializer::setActor($this->app['Flarum\Support\Actor']);
     }
 
     /**
@@ -29,6 +29,6 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Core\Support\Actor');
+        $this->app->singleton('Flarum\Support\Actor');
     }
 }

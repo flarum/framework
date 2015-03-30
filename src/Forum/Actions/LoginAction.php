@@ -1,10 +1,10 @@
-<?php namespace Flarum\Web\Actions;
+<?php namespace Flarum\Forum\Actions;
 
 use Illuminate\Http\Request;
-use Flarum\Web\Events\UserLoggedIn;
+use Flarum\Forum\Events\UserLoggedIn;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 
-class LoginAction extends Action
+class LoginAction extends BaseAction
 {
     use MakesRememberCookie;
 

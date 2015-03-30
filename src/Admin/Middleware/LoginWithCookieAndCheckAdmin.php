@@ -1,6 +1,6 @@
 <?php namespace Flarum\Admin\Middleware;
 
-use Flarum\Core\Support\Actor;
+use Flarum\Support\Actor;
 use Flarum\Core\Models\AccessToken;
 use Closure;
 

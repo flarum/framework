@@ -1,4 +1,4 @@
-<?php namespace Flarum\Web\Actions;
+<?php namespace Flarum\Forum\Actions;
 
 use Illuminate\Http\Request;
 use Session;
@@ -7,7 +7,7 @@ use Cookie;
 use Config;
 use View;
 
-class IndexAction extends Action
+class IndexAction extends BaseAction
 {
     public function handle(Request $request, $params = [])
     {
@@ -43,10 +43,10 @@ class IndexAction extends Action
 
 
 
-        return View::make('flarum.web::index')
+        return View::make('flarum.forum::index')
             ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
-            ->with('styles', app('flarum.web.assetManager')->getCSSFiles())
-            ->with('scripts', app('flarum.web.assetManager')->getJSFiles())
+            ->with('styles', app('flarum.forum.assetManager')->getCSSFiles())
+            ->with('scripts', app('flarum.forum.assetManager')->getJSFiles())
             ->with('config', $config)
             ->with('content', '')
             ->with('data', $data)
