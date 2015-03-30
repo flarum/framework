@@ -23,8 +23,7 @@ class LoginWithHeader
             ($accessToken = AccessToken::where('id', $token)->first())) {
             $this->actor->setUser($user = $accessToken->user);
 
-            $user->last_seen_time = time();
-            $user->save();
+            $user->updateLastSeen()->save();
         }
 
         return $next($request);

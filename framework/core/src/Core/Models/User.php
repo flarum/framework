@@ -404,6 +404,13 @@ class User extends Model
         return $this;
     }
 
+    public function updateLastSeen()
+    {
+        $this->last_seen_time = time();
+
+        return $this;
+    }
+
     /**
      * Check whether or not the user is an administrator.
      *
