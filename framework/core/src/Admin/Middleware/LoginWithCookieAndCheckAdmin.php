@@ -16,12 +16,11 @@ class LoginWithCookieAndCheckAdmin
     public function handle($request, Closure $next)
     {
         if (($token = $request->cookie('flarum_remember')) &&
-            ($accessToken = AccessToken::where('id', $token)->first())) {
-            $user = $accessToken->user;
-            if (! $user->isAdmin()) {
-                die('ur not an admin');
-            }
-            $this->actor->setUser($user);
+            ($accessToken = AccessToken::where('id', $token)->first()) &&
+            $accessToken->user->isAdmin()) {
+            $this->actor->setUser($accessToken->user);
+        } else {
+            die('ur not an admin');
         }
 
         return $next($request);
