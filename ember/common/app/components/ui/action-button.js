@@ -23,7 +23,7 @@ export default Ember.Component.extend({
     if (typeof action === 'string') {
       this.sendAction('action');
     } else if (typeof action === 'function') {
-      action();
+      action.call(this);
     }
   }
 });
