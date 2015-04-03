@@ -34,7 +34,7 @@ class UserSearcher implements SearcherInterface
 
     public function query()
     {
-        return $this->query;
+        return $this->query->getQuery();
     }
 
     public function search(UserSearchCriteria $criteria, $count = null, $start = 0, $load = [])
