@@ -12,6 +12,6 @@ class SerializeAttributes
     {
         $this->serializer = $serializer;
         $this->model = $model;
-        $this->attributes = $attributes;
+        $this->attributes = &$attributes;
     }
 }
