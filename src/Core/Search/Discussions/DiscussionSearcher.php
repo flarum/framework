@@ -5,6 +5,7 @@ use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repositories\DiscussionRepositoryInterface;
 use Flarum\Core\Repositories\PostRepositoryInterface;
+use Flarum\Core\Events\SearchWillBePerformed;
 
 class DiscussionSearcher implements SearcherInterface
 {
@@ -46,7 +47,7 @@ class DiscussionSearcher implements SearcherInterface
 
     public function query()
     {
-        return $this->query;
+        return $this->query->getQuery();
     }
 
     public function search(DiscussionSearchCriteria $criteria, $count = null, $start = 0, $load = [])
@@ -58,10 +59,10 @@ class DiscussionSearcher implements SearcherInterface
 
         $total = $this->query->count();
 
-        $sort = $criteria->sort;
-        if (empty($sort)) {
-            $sort = $this->defaultSort;
+        if (empty($criteria->sort)) {
+            $criteria->sort = $this->defaultSort;
         }
+        $sort = $criteria->sort;
         if (is_array($sort)) {
             foreach ($sort as $id) {
                 $this->query->orderByRaw('id != '.(int) $id);
@@ -77,6 +78,8 @@ class DiscussionSearcher implements SearcherInterface
         if ($count > 0) {
             $this->query->take($count + 1);
         }
+
+        event(new SearchWillBePerformed($this, $criteria));
 
         $discussions = $this->query->get();
 
