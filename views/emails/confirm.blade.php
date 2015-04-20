@@ -5,4 +5,5 @@ Someone (hopefully you!) has signed up to the forum '{{ $forumTitle }}' with thi
 If this was you, simply visit the following link and your account will be activated:
 {{ $url }}
 
-If you did not sign up, just simply ignore this email.
+If you did not sign up, please ignore this email.
+
