@@ -98,12 +98,12 @@
     margin-left: -36px !important;
     .transition(~"opacity 0.2s, margin-left 0.2s");
 
-    &:not(.active) .fa {
+    & .fa {
       .rotate(45deg);
     }
   }
   @media @desktop-hd {
-    &.active {
+    .has-pane.pane-pinned &, .has-pane.pane-showing & {
       & .back {
         border-radius: @border-radius-base 0 0 @border-radius-base !important;
       }
@@ -111,6 +111,9 @@
         opacity: 1;
         margin-left: 1px !important;
       }
+    }
+    .has-pane.pane-pinned & .pin .fa {
+      .rotate(0deg);
     }
   }
 }
