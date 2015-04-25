@@ -19,8 +19,7 @@ class ForumServiceProvider extends ServiceProvider
         $assetManager = $this->app['flarum.forum.assetManager'];
 
         $assetManager->addFile([
-            $root.'/ember/forum/dist/assets/vendor.js',
-            $root.'/ember/forum/dist/assets/flarum-forum.js',
+            $root.'/js/forum/dist/app.js',
             $root.'/less/forum/app.less'
         ]);
 

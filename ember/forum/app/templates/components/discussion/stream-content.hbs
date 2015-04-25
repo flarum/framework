@@ -1,7 +1,0 @@
-{{#each item in stream}}
-  {{#discussion/stream-item item=item stream=stream loadRange="loadRange"}}
-    {{#if item.content}}
-      {{component item.component content=item.content postRemoved="postRemoved"}}
-    {{/if}}
-  {{/discussion/stream-item}}
-{{/each}}

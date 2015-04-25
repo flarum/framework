@@ -13,13 +13,8 @@ class IndexAction extends Action
     public function handle(Request $request, $params = [])
     {
         $config = [
-            'modulePrefix' => 'flarum-admin',
-            'environment' => 'production',
-            'baseURL' => '/admin',
-            'apiURL' => '/api',
-            'locationType' => 'hash',
-            'EmberENV' => [],
-            'APP' => [],
+            'baseURL' => 'http://flarum.dev/admin',
+            'apiURL' => 'http://flarum.dev/api',
             'forumTitle' => Config::get('flarum::forum_title', 'Flarum Demo Forum')
         ];
         $data = [];
@@ -46,7 +41,7 @@ class IndexAction extends Action
             ->with('styles', app('flarum.admin.assetManager')->getCSSFiles())
             ->with('scripts', app('flarum.admin.assetManager')->getJSFiles())
             ->with('config', $config)
-            ->with('content', '')
+            ->with('layout', View::make('flarum.admin::admin'))
             ->with('data', $data)
             ->with('session', $session)
             ->with('alert', $alert);

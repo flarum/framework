@@ -1,7 +1,0 @@
-{{#if items}}
-  <a href="#" {{bind-attr class=":dropdown-toggle buttonClass"}} data-toggle="dropdown">
-    <span class="label">{{activeItem.label}}</span>
-    {{fa-icon "sort" class="icon-caret"}}
-  </a>
-  {{ui/item-list items=items class=dropdownMenuClass viewName="menu"}}
-{{/if}}

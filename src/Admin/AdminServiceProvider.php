@@ -19,8 +19,7 @@ class AdminServiceProvider extends ServiceProvider
         $assetManager = $this->app['flarum.admin.assetManager'];
 
         $assetManager->addFile([
-            $root.'/ember/admin/dist/assets/vendor.js',
-            $root.'/ember/admin/dist/assets/flarum-admin.js',
+            $root.'/js/admin/dist/app.js',
             $root.'/less/admin/app.less'
         ]);
 
