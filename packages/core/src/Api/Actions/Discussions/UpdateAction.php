@@ -45,7 +45,7 @@ class UpdateAction extends BaseAction
         //     its own endpoint.
         if ($readNumber = $params->get('data.readNumber')) {
             $command = new ReadDiscussionCommand($discussionId, $user, $readNumber);
-            $this->dispatch($command, $params);
+            $discussion = $this->dispatch($command, $params)->discussion;
         }
 
         // Presumably, the discussion was updated successfully. (One of the command
