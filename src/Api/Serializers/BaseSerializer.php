@@ -43,17 +43,17 @@ abstract class BaseSerializer extends SerializerAbstract
         return $attributes;
     }
 
-    protected function relationship($serializer, Closure $callback = null, $many = false)
+    protected function relationship($serializer, $relation = null, $many = false)
     {
         // Get the relationship name from the stack trace.
-        if (is_null($callback)) {
+        if (is_null($relation)) {
             list(, , $caller) = debug_backtrace(false, 3);
             $relation = $caller['function'];
         }
 
-        return function ($model, $include, $links) use ($serializer, $callback, $many, $relation) {
-            if ($callback) {
-                $data = $callback($model, $include);
+        return function ($model, $include, $links) use ($serializer, $many, $relation) {
+            if ($relation instanceof Closure) {
+                $data = $relation($model, $include);
             } else {
                 if ($include) {
                     $data = $model->$relation;
@@ -75,14 +75,14 @@ abstract class BaseSerializer extends SerializerAbstract
         };
     }
 
-    public function hasOne($serializer, Closure $callback = null)
+    public function hasOne($serializer, $relation = null)
     {
-        return $this->relationship($serializer, $callback);
+        return $this->relationship($serializer, $relation);
     }
 
-    public function hasMany($serializer, Closure $callback = null)
+    public function hasMany($serializer, $relation = null)
     {
-        return $this->relationship($serializer, $callback, true);
+        return $this->relationship($serializer, $relation, true);
     }
 
     /**
@@ -94,6 +94,6 @@ abstract class BaseSerializer extends SerializerAbstract
      */
     public function __call($name, $arguments)
     {
-            return event(new SerializeRelationship($this, $name), null, true);
+        return event(new SerializeRelationship($this, $name), null, true);
     }
 }
