@@ -2,6 +2,7 @@
 
 use Illuminate\Support\ServiceProvider;
 use Flarum\Support\AssetManager;
+use Flarum\Forum\Events\BootForum;
 
 class ForumServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,8 @@ class ForumServiceProvider extends ServiceProvider
             $root.'/js/forum/dist/app.js',
             $root.'/less/forum/app.less'
         ]);
+
+        event(new BootForum($this->app));
 
         $this->publishes([
             $root.'/public/fonts' => public_path('flarum/fonts')
