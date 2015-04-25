@@ -12,13 +12,8 @@ class IndexAction extends BaseAction
     public function handle(Request $request, $params = [])
     {
         $config = [
-            'modulePrefix' => 'flarum-forum',
-            'environment' => 'production',
-            'baseURL' => '/',
-            'apiURL' => '/api',
-            'locationType' => 'hash',
-            'EmberENV' => [],
-            'APP' => [],
+            'baseURL' => 'http://flarum.dev',
+            'apiURL' => 'http://flarum.dev/api',
             'forumTitle' => Config::get('flarum::forum_title', 'Flarum Demo Forum'),
             'welcomeDescription' => 'Flarum is now at a point where you can have basic conversations, so here is a little demo for you to break. <a href="http://demo.flarum.org/#/1/welcome-to-the-first-public-demo-of-flarum">Learn more &raquo;</a>'
         ];
@@ -41,14 +36,12 @@ class IndexAction extends BaseAction
             }
         }
 
-
-
         return View::make('flarum.forum::index')
             ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
             ->with('styles', app('flarum.forum.assetManager')->getCSSFiles())
             ->with('scripts', app('flarum.forum.assetManager')->getJSFiles())
             ->with('config', $config)
-            ->with('content', '')
+            ->with('layout', View::make('flarum.forum::forum'))
             ->with('data', $data)
             ->with('session', $session)
             ->with('alert', $alert);
