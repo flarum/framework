@@ -79,7 +79,15 @@ class AssetManager
             $this->putRevision($revision);
         }
 
-        if (! file_exists($file = $dir.'/'.$this->name.'-'.$revision.'.'.$type)) {
+        $lastModTime = 0;
+        foreach ($this->files[$type] as $file) {
+            $lastModTime = max($lastModTime, filemtime($file));
+        }
+        $debug = 0;
+
+        if (! file_exists($file = $dir.'/'.$this->name.'-'.$revision.'.'.$type)
+            || filemtime($file) < $lastModTime
+            || $debug) {
             $this->storage->put($file, $callback());
         }
 
@@ -147,7 +155,7 @@ class AssetManager
         $js = '';
 
         foreach ($this->files['js'] as $file) {
-            $js .= $this->storage->get($file);
+            $js .= $this->storage->get($file).';';
         }
 
         // minify
