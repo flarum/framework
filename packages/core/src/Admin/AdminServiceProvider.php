@@ -38,7 +38,7 @@ class AdminServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app['flarum.admin.assetManager'] = $this->app->share(function ($app) {
-            return new AssetManager($app['files'], $app['path.public'].'/flarum', 'admin');
+            return new AssetManager($app['files'], $app['path.public'].'/assets', 'admin');
         });
     }
 }

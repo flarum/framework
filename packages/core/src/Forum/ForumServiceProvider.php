@@ -38,7 +38,7 @@ class ForumServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app['flarum.forum.assetManager'] = $this->app->share(function ($app) {
-            return new AssetManager($app['files'], $app['path.public'].'/flarum', 'forum');
+            return new AssetManager($app['files'], $app['path.public'].'/assets', 'forum');
         });
     }
 }
