@@ -114,7 +114,7 @@ class AssetManager
     {
         ini_set('xdebug.max_nesting_level', 200);
 
-        $parser = new Less_Parser(['compress' => true]);
+        $parser = new Less_Parser(['compress' => true, 'cache_dir' => storage_path().'/less']);
 
         $css = [];
         $dir = $this->getAssetDirectory();
