@@ -108,7 +108,7 @@
     pointer-events: none;
     .transition(left 0.2s);
 
-    .with-pane & {
+    .has-pane.pane-pinned & {
       left: @index-pane-width;
     }
   }
@@ -122,18 +122,18 @@
     height: 300px;
     .transition(~"background 0.2s");
 
-    .index-index & {
+    .index-page & {
       margin-left: 205px;
       margin-right: -20px;
     }
-    &.active, &.fullscreen {
+    &.active, &.full-screen {
       background: @fl-body-bg;
     }
     &.minimized {
       height: 50px;
       cursor: pointer;
     }
-    &.fullscreen {
+    &.full-screen {
       position: fixed;
       left: 0;
       top: 0;
@@ -149,7 +149,7 @@
     .minimized & {
       padding: 10px 20px;
     }
-    .fullscreen & {
+    .full-screen & {
       max-width: 900px;
       margin: 0 auto;
       padding: 30px;
@@ -160,7 +160,7 @@
     margin-bottom: -20px;
     position: relative;
 
-    .minimized &, .fullscreen & {
+    .minimized &, .full-screen & {
       display: none;
     }
   }
