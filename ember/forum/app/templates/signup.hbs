@@ -34,7 +34,7 @@
 
     {{#unless welcomeUser.isConfirmed}}
       <p>We've sent a confirmation email to <strong>{{welcomeUser.email}}</strong>. If it doesn't arrive soon, check your spam folder.</p>
-      <p><a {{bind-attr href=emailProviderUrl}} class="btn btn-default">Go to {{emailProviderName}}</a></p>
+      <p><a {{bind-attr href=emailProviderUrl}} class="btn btn-default" target="_blank">Go to {{emailProviderName}}</a></p>
     {{/unless}}
   </div>
 {{/if}}
