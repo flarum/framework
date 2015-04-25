@@ -33,7 +33,7 @@ class CreateAction extends BaseAction
             $this->dispatch($command, $params);
         }
 
-        $serializer = new DiscussionSerializer(['posts']);
+        $serializer = new DiscussionSerializer(['posts', 'startUser', 'lastUser', 'startPost', 'lastPost']);
         $document = $this->document()->setData($serializer->resource($discussion));
 
         return $this->respondWithDocument($document);
