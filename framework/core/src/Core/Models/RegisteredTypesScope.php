@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\ScopeInterface;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class RegisteredTypesScope implements ScopeInterface
 {
@@ -34,7 +34,7 @@ class RegisteredTypesScope implements ScopeInterface
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
-    public function apply(Builder $builder, Model $model)
+    public function apply(Builder $builder, Eloquent $model)
     {
         $query = $builder->getQuery();
 
@@ -53,7 +53,7 @@ class RegisteredTypesScope implements ScopeInterface
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
-    public function remove(Builder $builder, Model $model)
+    public function remove(Builder $builder, Eloquent $model)
     {
         $query = $builder->getQuery();
 
