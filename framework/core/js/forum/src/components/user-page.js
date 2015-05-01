@@ -86,7 +86,7 @@ export default class UserPage extends Component {
 
     items.add('activity',
       NavItem.component({
-        href: app.route('user.activity', user),
+        href: app.route('user.activity', {username: user.username()}),
         label: 'Activity',
         icon: 'user'
       })
@@ -94,7 +94,7 @@ export default class UserPage extends Component {
 
     items.add('discussions',
       NavItem.component({
-        href: app.route('user.discussions', user),
+        href: app.route('user.discussions', {username: user.username()}),
         label: 'Discussions',
         icon: 'reorder',
         badge: user.discussionsCount()
@@ -103,7 +103,7 @@ export default class UserPage extends Component {
 
     items.add('posts',
       NavItem.component({
-        href: app.route('user.posts', user),
+        href: app.route('user.posts', {username: user.username()}),
         label: 'Posts',
         icon: 'comment-o',
         badge: user.commentsCount()

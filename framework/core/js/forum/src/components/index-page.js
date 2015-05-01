@@ -143,7 +143,7 @@ export default class IndexPage extends Component {
 
     items.add('allDiscussions',
       NavItem.component({
-        href: app.route('index', {}, params),
+        href: app.route('index', params),
         label: 'All Discussions',
         icon: 'comments-o'
       })

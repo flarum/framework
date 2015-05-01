@@ -10,11 +10,14 @@ class App {
     this.initializers.toArray().forEach((initializer) => initializer(this));
   }
 
-  route(name, args, queryParams) {
-    var queryString = m.route.buildQueryString(queryParams);
-    return this.routes[name][0].replace(/:([^\/]+)/g, function(m, t) {
-      return typeof args[t] === 'function' ? args[t]() : args[t];
-    }) + (queryString ? '?'+queryString : '');
+  route(name, params) {
+    var url = this.routes[name][0].replace(/:([^\/]+)/g, function(m, t) {
+      var value = params[t];
+      delete params[t];
+      return value;
+    });
+    var queryString = m.route.buildQueryString(params);
+    return url+(queryString ? '?'+queryString : '');
   }
 }
 
