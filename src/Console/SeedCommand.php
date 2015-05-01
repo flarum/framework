@@ -40,8 +40,11 @@ class SeedCommand extends Command {
 	 */
 	public function fire()
 	{
+        $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\GroupsTableSeeder']);
+        $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\PermissionsTableSeeder']);
         $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\UsersTableSeeder']);
         $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\DiscussionsTableSeeder']);
+        $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\ConfigTableSeeder']);
 	}
 
 	/**
