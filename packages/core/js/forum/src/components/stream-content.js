@@ -57,7 +57,7 @@ export default class StreamContent extends mixin(Component, evented) {
   }
 
   ondelete(post) {
-    this.props.stream.removePost(post);
+    this.props.stream.removePost(post.id());
   }
 
   /**
