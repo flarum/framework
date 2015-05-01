@@ -1,6 +1,8 @@
 import Component from 'flarum/component';
 import humanTime from 'flarum/helpers/human-time';
 import avatar from 'flarum/helpers/avatar';
+import listItems from 'flarum/helpers/list-items';
+import ItemList from 'flarum/utils/item-list';
 
 export default class ActivityPost extends Component {
   view() {
@@ -20,9 +22,17 @@ export default class ActivityPost extends Component {
         slug: discussion.slug(),
         near: post.number()
       }), config: m.route}, [
-        m('h3.title', discussion.title()),
+        m('ul.list-inline', listItems(this.headerItems().toArray())),
         m('div.body', m.trust(post.contentHtml()))
       ])
     ]);
+  }
+
+  headerItems() {
+    var items = new ItemList();
+
+    items.add('title', m('h3.title', this.props.activity.post().discussion().title()));
+
+    return items;
   }
 }
