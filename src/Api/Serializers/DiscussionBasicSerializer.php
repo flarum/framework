@@ -21,6 +21,10 @@ class DiscussionBasicSerializer extends BaseSerializer
             'title' => $discussion->title
         ];
 
+        if (count($discussion->removedPosts)) {
+            $attributes['removedPosts'] = $discussion->removedPosts;
+        }
+
         return $this->extendAttributes($discussion, $attributes);
     }
 
