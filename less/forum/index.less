@@ -210,9 +210,12 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     & > li {
-      display: inline-block;
+      display: inline;
     }
   }
   & .username {
