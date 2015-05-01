@@ -14,7 +14,7 @@ export default class ActionButton extends Component {
 
     attrs.href = attrs.href || 'javascript:;';
     return m('a', attrs, [
-      iconName ? icon(iconName+' icon-glyph') : '',
+      iconName ? icon(iconName+' icon') : '',
       m('span.label', label)
     ]);
   }

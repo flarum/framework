@@ -5,7 +5,7 @@ export default class NavItem extends Component {
   view() {
     var active = NavItem.active(this.props);
     return m('li'+(active ? '.active' : ''), m('a', {href: this.props.href, config: m.route}, [
-      icon(this.props.icon),
+      icon(this.props.icon+' icon'),
       this.props.label, ' ',
       m('span.count', this.props.badge)
     ]))
