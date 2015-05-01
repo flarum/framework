@@ -16,17 +16,28 @@ export default class DiscussionList extends Component {
     this.loading = m.prop(true);
     this.moreResults = m.prop(false);
     this.discussions = m.prop([]);
-    this.sort = m.prop(this.props.sort || 'recent');
-    this.sortOptions = m.prop([
-      {key: 'recent', value: 'Recent', sort: 'recent'},
-      {key: 'replies', value: 'Replies', sort: '-replies'},
-      {key: 'newest', value: 'Newest', sort: '-created'},
-      {key: 'oldest', value: 'Oldest', sort: 'created'}
-    ]);
 
     this.refresh();
 
     app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this))
+  }
+
+  params() {
+    var params = {};
+    for (var i in this.props.params) {
+      params[i] = this.props.params[i];
+    }
+    params.sort = this.sortMap()[params.sort];
+    return params;
+  }
+
+  sortMap() {
+    return {
+      recent: 'recent',
+      replies: '-replies',
+      newest: '-created',
+      oldest: 'created'
+    };
   }
 
   refresh() {
@@ -42,26 +53,16 @@ export default class DiscussionList extends Component {
   }
 
   terminalPostType() {
-    return ['newest', 'oldest'].indexOf(this.sort()) !== -1 ? 'start' : 'last'
+    return ['newest', 'oldest'].indexOf(this.props.sort) !== -1 ? 'start' : 'last'
   }
 
   countType() {
-    return this.sort() === 'replies' ? 'replies' : 'unread';
+    return this.props.sort === 'replies' ? 'replies' : 'unread';
   }
 
   loadResults(start) {
-    var self = this;
-
-    var sort = this.sortOptions()[0].sort;
-    this.sortOptions().some(function(option) {
-      if (option.key === self.sort()) {
-        sort = option.sort;
-        return true;
-      }
-    });
-
-    var params = {sort, start};
-
+    var params = this.params();
+    params.start = start;
     return app.store.find('discussions', params);
   }
 
@@ -97,10 +98,10 @@ export default class DiscussionList extends Component {
   view() {
     return m('div', [
       m('ul.discussions-list', [
-        this.discussions().map(function(discussion) {
+        this.discussions().map(discussion => {
           var startUser = discussion.startUser()
           var isUnread = discussion.isUnread()
-          var displayUnread = this.props.countType !== 'replies' && isUnread
+          var displayUnread = this.countType() !== 'replies' && isUnread
           var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1)
 
           var controls = discussion.controls(this).toArray();
@@ -135,7 +136,7 @@ export default class DiscussionList extends Component {
               m('span.label', displayUnread ? 'unread' : 'replies')
             ])
           ])
-        }.bind(this))
+        })
       ]),
       this.loading()
         ? LoadingIndicator.component()
@@ -159,7 +160,7 @@ export default class DiscussionList extends Component {
     items.add('terminalPost',
       TerminalPost.component({
         discussion,
-        lastPost: this.props.terminalPostType !== 'start'
+        lastPost: this.terminalPostType() !== 'start'
       })
     );
 

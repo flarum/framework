@@ -18,15 +18,17 @@ export default class IndexPage extends Component {
   constructor(props) {
     super(props);
 
+    var params = this.params();
     if (app.cache.discussionList) {
-      if (app.cache.discussionList.props.sort !== m.route.param('sort')) {
-        app.cache.discussionList = null;
-      }
+      Object.keys(params).some(key => {
+        if (app.cache.discussionList.props.params[key] !== params[key]) {
+          app.cache.discussionList = null;
+          return true;
+        }
+      });
     }
     if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionList({
-        sort: m.route.param('sort')
-      });
+      app.cache.discussionList = new DiscussionList({params});
     }
 
     app.history.push('index');
@@ -34,10 +36,34 @@ export default class IndexPage extends Component {
     app.composer.minimize();
   }
 
+  /**
+    Params that stick between filter changes
+   */
+  stickyParams() {
+    return {
+      sort: m.route.param('sort'),
+      show: m.route.param('show'),
+      q: m.route.param('q')
+    }
+  }
+
+  /**
+    Params which are passed to the DiscussionList
+   */
+  params() {
+    var params = this.stickyParams();
+    params.filter = m.route.param('filter');
+    return params;
+  }
+
   reorder(sort) {
-    var filter = m.route.param('filter') || '';
-    var params = sort !== 'recent' ? {sort} : {};
-    m.route(app.route('index.filter', {filter}, params));
+    var params = this.params();
+    if (sort === 'recent') {
+      delete params.sort;
+    } else {
+      params.sort = sort;
+    }
+    m.route(app.route(this.props.routeName, params));
   }
 
   /**
@@ -47,6 +73,11 @@ export default class IndexPage extends Component {
     @return void
    */
   view() {
+    var sortOptions = {};
+    for (var i in app.cache.discussionList.sortMap()) {
+      sortOptions[i] = i.substr(0, 1).toUpperCase()+i.substr(1);
+    }
+
     return m('div.index-area', {config: this.onload.bind(this)}, [
       WelcomeHero.component(),
       m('div.container', [
@@ -57,8 +88,8 @@ export default class IndexPage extends Component {
           m('div.index-toolbar', [
             m('div.index-toolbar-view', [
               SelectInput.component({
-                options: app.cache.discussionList.sortOptions(),
-                value: app.cache.discussionList.sort(),
+                options: sortOptions,
+                value: m.route.param('sort'),
                 onchange: this.reorder.bind(this)
               }),
             ]),
