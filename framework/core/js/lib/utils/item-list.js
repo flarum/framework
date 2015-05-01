@@ -10,6 +10,14 @@ export default class ItemList {
     this[key] = new Item(content, position);
   }
 
+  merge(items) {
+    for (var i in items) {
+      if (items.hasOwnProperty(i) && items[i] instanceof Item) {
+        this[i] = items[i];
+      }
+    }
+  }
+
   toArray() {
     var items = [];
     for (var i in this) {
