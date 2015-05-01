@@ -18,7 +18,7 @@ class PostSerializer extends PostBasicSerializer
     protected function attributes($post)
     {
         $attributes = parent::attributes($post);
-        $user = static::$actor->getUser();
+        $user = $this->actor->getUser();
 
         unset($attributes['content']);
 

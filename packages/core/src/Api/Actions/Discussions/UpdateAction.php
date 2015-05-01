@@ -3,57 +3,77 @@
 use Flarum\Core\Commands\EditDiscussionCommand;
 use Flarum\Core\Commands\ReadDiscussionCommand;
 use Flarum\Core\Exceptions\PermissionDeniedException;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\DiscussionSerializer;
+use Flarum\Api\Actions\SerializeResourceAction;
+use Flarum\Api\Actions\Posts\GetsPosts;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class UpdateAction extends BaseAction
+class UpdateAction extends SerializeResourceAction
 {
     /**
-     * Edit a discussion. Allows renaming the discussion, and updating its read
-     * state with regards to the current user.
+     * The command bus.
      *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
+    protected $bus;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
+
+    /**
+     * The relations that are included by default.
+     *
+     * @var array
+     */
+    public static $include = ['addedPosts', 'addedPosts.user'];
+
+    /**
+     * Initialize the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
     {
-        $discussionId = $params->get('id');
-        $user = $this->actor->getUser();
+        $this->bus = $bus;
+    }
+
+    /**
+     * Update a discussion according to input from the API request, and return
+     * it ready to be serialized and assigned to the JsonApi response.
+     *
+     * @param \Flarum\Api\Request $request
+     * @return \Flarum\Core\Models\Discussion
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        $user = $request->actor->getUser();
+        $discussionId = $request->get('id');
 
         // First, we will run the EditDiscussionCommand. This will update the
         // discussion's direct properties; by default, this is just the title.
         // As usual, however, we will fire an event to allow plugins to update
         // additional properties.
-        if ($data = array_except($params->get('data'), ['readNumber'])) {
-            try {
-                $command = new EditDiscussionCommand($discussionId, $user);
-                $this->hydrate($command, $params->get('data'));
-                $discussion = $this->dispatch($command, $params);
-            } catch (PermissionDeniedException $e) {
-                // Temporary fix. See @todo below
-                $discussion = \Flarum\Core\Models\Discussion::find($discussionId);
-            }
+        if ($data = array_except($request->get('data'), ['readNumber'])) {
+            $discussion = $this->bus->dispatch(
+                new EditDiscussionCommand($discussionId, $user, $data)
+            );
         }
 
         // Next, if a read number was specified in the request, we will run the
         // ReadDiscussionCommand.
-        //
-        // @todo Currently, if the user doesn't have permission to edit a
-        //     discussion, they're unable to update their readNumber because a
-        //     PermissionDeniedException is thrown by the
-        //     EditDiscussionCommand above. So this needs to be extracted into
-        //     its own endpoint.
-        if ($readNumber = $params->get('data.readNumber')) {
-            $command = new ReadDiscussionCommand($discussionId, $user, $readNumber);
-            $discussion = $this->dispatch($command, $params)->discussion;
+        if ($readNumber = $request->get('data.readNumber')) {
+            $state = $this->bus->dispatch(
+                new ReadDiscussionCommand($discussionId, $user, $readNumber)
+            );
+
+            $discussion = $state->discussion;
         }
 
-        // Presumably, the discussion was updated successfully. (One of the command
-        // handlers would have thrown an exception if not.) We set this
-        // discussion as our document's primary element.
-        $serializer = new DiscussionSerializer(['addedPosts', 'addedPosts.user']);
-        $document = $this->document()->setData($serializer->resource($discussion));
-
-        return $this->respondWithDocument($document);
+        return $discussion;
     }
 }
