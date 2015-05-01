@@ -50,6 +50,13 @@ class Discussion extends Model
     public $addedPosts = [];
 
     /**
+     * An array of posts that have been removed during this request.
+     *
+     * @var \Flarum\Core\Models\Post[]
+     */
+    public $removedPosts = [];
+
+    /**
      * The user for which the state relationship should be loaded.
      *
      * @var \Flarum\Core\Models\User
@@ -164,6 +171,18 @@ class Discussion extends Model
     public function postWasAdded(Post $post)
     {
         $this->addedPosts[] = $post;
+    }
+
+    /**
+     * Specify that a post was removed from this discussion during this
+     * request for later retrieval.
+     *
+     * @param  \Flarum\Core\Models\Post  $post
+     * @return void
+     */
+    public function postWasRemoved(Post $post)
+    {
+        $this->removedPosts[] = $post->id;
     }
 
     /**
