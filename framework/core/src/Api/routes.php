@@ -1,11 +1,25 @@
 <?php
 
+use Flarum\Api\Request;
+
 $action = function ($class) {
     return function () use ($class) {
         $action = $this->app->make($class);
-        $request = $this->app['request']->instance();
-        $parameters = $this->app['router']->current()->parameters();
-        return $action->handle($request, $parameters);
+
+        $httpRequest = $this->app['request']->instance();
+        $routeParams = $this->app['router']->current()->parameters();
+        $actor = $this->app['Flarum\Support\Actor'];
+
+        if (str_contains($httpRequest->header('CONTENT_TYPE'), 'application/vnd.api+json')) {
+            $input = $httpRequest->json();
+        } else {
+            $input = $httpRequest->all();
+        }
+        $input = array_merge($input, $routeParams);
+
+        $request = new Request($input, $actor, $httpRequest);
+
+        return $action->handle($request);
     };
 };
 

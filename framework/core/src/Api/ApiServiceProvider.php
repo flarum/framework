@@ -18,8 +18,6 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         include __DIR__.'/routes.php';
-
-        BaseSerializer::setActor($this->app['Flarum\Support\Actor']);
     }
 
     /**

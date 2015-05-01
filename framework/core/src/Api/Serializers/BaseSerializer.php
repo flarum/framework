@@ -11,22 +11,13 @@ use Closure;
  */
 abstract class BaseSerializer extends SerializerAbstract
 {
-    /**
-     * The actor who is requesting the serialized objects.
-     *
-     * @var \Flarum\Support\Actor
-     */
-    protected static $actor;
+    protected $actor;
 
-    /**
-     * Set the actor who is requesting the serialized objects.
-     *
-     * @param  \Flarum\Support\Actor  $actor
-     * @return void
-     */
-    public static function setActor(Actor $actor)
+    public function __construct(Actor $actor, $include = null, $link = null)
     {
-        static::$actor = $actor;
+        parent::__construct($include, $link);
+
+        $this->actor = $actor;
     }
 
     /**
@@ -70,7 +61,7 @@ abstract class BaseSerializer extends SerializerAbstract
                 $class = get_class(is_object($data) ? $data : $model->$relation()->getRelated());
                 $serializer = $serializer[$class];
             }
-            $serializer = new $serializer($links);
+            $serializer = new $serializer($this->actor, $links);
             return $many ? $serializer->collection($data) : $serializer->resource($data);
         };
     }
