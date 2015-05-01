@@ -62,7 +62,7 @@ export default class ComposerDiscussion extends ComposerBody {
     app.store.createRecord('discussions').save(data).then(discussion => {
       app.composer.hide();
       app.cache.discussionList.discussions().unshift(discussion);
-      m.route(app.route('discussion', discussion));
+      m.route(app.route('discussion', { id: discussion.id(), slug: discussion.slug() }));
     }, response => {
       this.loading(false);
       m.redraw();

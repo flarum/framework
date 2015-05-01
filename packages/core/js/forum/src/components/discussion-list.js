@@ -115,7 +115,7 @@ export default class DiscussionList extends Component {
 
           var controls = this.controlItems(discussion).toArray();
 
-          var discussionRoute = app.route('discussion', discussion);
+          var discussionRoute = app.route('discussion', { id: discussion.id(), slug: discussion.slug() });
           var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
 
           return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {key: discussion.id()}, [
@@ -126,7 +126,7 @@ export default class DiscussionList extends Component {
               menuClass: 'pull-right'
             }) : '',
             m('a.author', {
-              href: app.route('user', startUser),
+              href: app.route('user', { username: startUser.username() }),
               config: function(element, isInitialized, context) {
                 $(element).tooltip({ placement: 'right' })
                 m.route.call(this, element)

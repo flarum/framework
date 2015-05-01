@@ -27,7 +27,7 @@ export default class UserCard extends Component {
         m('div.user-profile', [
           m('h2.user-identity', this.props.editable
             ? [AvatarEditor.component({user, className: 'user-avatar'}), username(user)]
-            : m('a', {href: app.route('user', user), config: m.route}, [
+            : m('a', {href: app.route('user', {username: user.username()}), config: m.route}, [
               avatar(user, {className: 'user-avatar'}),
               username(user)
             ])
