@@ -27,6 +27,7 @@ export default class Modal extends Component {
 
   destroy() {
     this.component = null;
+    m.redraw();
   }
 
   ready() {
