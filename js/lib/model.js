@@ -38,7 +38,7 @@ export default class Model {
 
     return m.request({
       method: this.exists ? 'PUT' : 'POST',
-      url: app.config.apiURL+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
+      url: app.config['api_url']+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
       data: {data},
       background: true,
       config: app.session.authorize.bind(app.session)
@@ -53,7 +53,7 @@ export default class Model {
 
     return m.request({
       method: 'DELETE',
-      url: app.config.apiURL+'/'+this.data().type+'/'+this.data().id,
+      url: app.config['api_url']+'/'+this.data().type+'/'+this.data().id,
       background: true,
       config: app.session.authorize.bind(app.session)
     }).then(() => this.exists = false);
