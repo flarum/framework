@@ -7,6 +7,7 @@ use Cookie;
 use Config;
 use View;
 use DB;
+use Flarum\Forum\Events\RenderView;
 
 class IndexAction extends BaseAction
 {
@@ -32,14 +33,25 @@ class IndexAction extends BaseAction
             }
         }
 
-        return View::make('flarum.forum::index')
+        $view = View::make('flarum.forum::index')
             ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
-            ->with('styles', app('flarum.forum.assetManager')->getCSSFiles())
-            ->with('scripts', app('flarum.forum.assetManager')->getJSFiles())
             ->with('config', $config)
-            ->with('layout', View::make('flarum.forum::forum'))
+            ->with('layout', 'flarum.forum::forum')
             ->with('data', $data)
             ->with('session', $session)
             ->with('alert', $alert);
+
+        $assetManager = app('flarum.forum.assetManager');
+        $root = __DIR__.'/../../..';
+        $assetManager->addFile([
+            $root.'/js/forum/dist/app.js',
+            $root.'/less/forum/app.less'
+        ]);
+
+        event(new RenderView($view, $assetManager));
+
+        return $view
+            ->with('styles', $assetManager->getCSSFiles())
+            ->with('scripts', $assetManager->getJSFiles());
     }
 }
