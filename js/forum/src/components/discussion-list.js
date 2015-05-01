@@ -87,16 +87,6 @@ export default class DiscussionList extends Component {
     }
   }
 
-  delete(discussion) {
-    if (confirm('Are you sure you want to delete this discussion?')) {
-      discussion.delete();
-      this.removeDiscussion(discussion);
-      if (app.current.discussion && app.current.discussion().id() === discussion.id()) {
-        app.history.back();
-      }
-    }
-  }
-
   removeDiscussion(discussion) {
     var index = this.discussions().indexOf(discussion);
     if (index !== -1) {
@@ -113,7 +103,7 @@ export default class DiscussionList extends Component {
           var displayUnread = this.props.countType !== 'replies' && isUnread
           var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1)
 
-          var controls = this.controlItems(discussion).toArray();
+          var controls = discussion.controls(this).toArray();
 
           var discussionRoute = app.route('discussion', { id: discussion.id(), slug: discussion.slug() });
           var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
@@ -172,25 +162,6 @@ export default class DiscussionList extends Component {
         lastPost: this.props.terminalPostType !== 'start'
       })
     );
-
-    return items;
-  }
-
-  /**
-    Build an item list of controls for a discussion listing.
-
-    @return {ItemList}
-   */
-  controlItems(discussion) {
-    var items = new ItemList();
-
-    if (discussion.canDelete()) {
-      items.add('delete', ActionButton.component({
-        icon: 'times',
-        label: 'Delete',
-        onclick: this.delete.bind(this, discussion)
-      }));
-    }
 
     return items;
   }
