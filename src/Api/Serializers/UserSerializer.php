@@ -19,7 +19,7 @@ class UserSerializer extends UserBasicSerializer
     {
         $attributes = parent::attributes($user);
 
-        $actorUser = static::$actor->getUser();
+        $actorUser = $this->actor->getUser();
         $canEdit = $user->can($actorUser, 'edit');
 
         $attributes += [

@@ -2,12 +2,11 @@
 
 use Flarum\Core\Search\Discussions\DiscussionSearchCriteria;
 use Flarum\Core\Search\Discussions\DiscussionSearcher;
-use Flarum\Support\Actor;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\DiscussionSerializer;
+use Flarum\Api\Actions\SerializeCollectionAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class IndexAction extends BaseAction
+class IndexAction extends SerializeCollectionAction
 {
     /**
      * The discussion searcher.
@@ -17,61 +16,89 @@ class IndexAction extends BaseAction
     protected $searcher;
 
     /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
+
+    /**
+     * The relations that are available to be included.
+     *
+     * @var array
+     */
+    public static $includeAvailable = ['startUser', 'lastUser', 'startPost', 'lastPost', 'relevantPosts'];
+
+    /**
+     * The relations that are included by default.
+     *
+     * @var array
+     */
+    public static $include = ['startUser', 'lastUser'];
+
+    /**
+     * The maximum number of records that can be requested.
+     *
+     * @var integer
+     */
+    public static $limitMax = 50;
+
+    /**
+     * The number of records included by default.
+     *
+     * @var integer
+     */
+    public static $limit = 20;
+
+    /**
+     * The fields that are available to be sorted by.
+     *
+     * @var array
+     */
+    public static $sortAvailable = ['lastTime', 'commentsCount', 'startTime'];
+
+    /**
+     * The default field to sort by.
+     *
+     * @var string
+     */
+    public static $sort = ['lastTime' => 'desc'];
+
+    /**
      * Instantiate the action.
      *
      * @param \Flarum\Core\Search\Discussions\DiscussionSearcher $searcher
      */
-    public function __construct(Actor $actor, DiscussionSearcher $searcher)
+    public function __construct(DiscussionSearcher $searcher)
     {
-        $this->actor = $actor;
         $this->searcher = $searcher;
     }
 
     /**
-     * Show a list of discussions.
+     * Get the discussion results, ready to be serialized and assigned to the
+     * document response.
      *
-     * @return \Illuminate\Http\Response
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function run(ApiParams $params)
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $query   = $params->get('q');
-        $start   = $params->start();
-        $include = $params->included(['startUser', 'lastUser', 'startPost', 'lastPost', 'relevantPosts']);
-        $count   = $params->count(20, 50);
-        $sort    = $params->sort(['', 'lastPost', 'replies', 'created']);
+        $criteria = new DiscussionSearchCriteria(
+            $request->actor->getUser(),
+            $request->get('q'),
+            $request->sort
+        );
 
-        // Set up the discussion searcher with our search criteria, and get the
-        // requested range of results with the necessary relations loaded.
-        $criteria = new DiscussionSearchCriteria($this->actor->getUser(), $query, $sort['field'], $sort['order']);
-        $load = array_merge($include, ['state']);
-
-        $results = $this->searcher->search($criteria, $count, $start, $load);
-
-        $document = $this->document();
+        $load = array_merge($request->include, ['state']);
+        $results = $this->searcher->search($criteria, $request->limit, $request->offset, $load);
 
         if (($total = $results->getTotal()) !== null) {
-            $document->addMeta('total', $total);
+            $response->content->addMeta('total', $total);
         }
 
-        // If there are more results, then we need to construct a URL to the
-        // next results page and add that to the metadata. We do this by
-        // compacting all of the valid query parameters which have been
-        // specified.
-        if ($results->areMoreResults()) {
-            $start += $count;
-            $sort = $sort['string'];
-            $input = array_filter(compact('query', 'sort', 'start', 'count')) + ['include' => implode(',', $include)];
-            $moreUrl = $this->buildUrl('discussions.index', [], $input);
-        } else {
-            $moreUrl = '';
-        }
-        $document->addMeta('moreUrl', $moreUrl);
+        // $response->content->addMeta('moreUrl', $moreUrl);
 
-        // Finally, we can set up the discussion serializer and use it to create
-        // a collection of discussion results.
-        $serializer = new DiscussionSerializer($include);
-        $document->setData($serializer->collection($results->getDiscussions()));
-
-        return $this->respondWithDocument($document);
+        return $results->getDiscussions();
     }
 }

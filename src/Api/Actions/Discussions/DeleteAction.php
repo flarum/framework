@@ -1,23 +1,40 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
 use Flarum\Core\Commands\DeleteDiscussionCommand;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
+use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
+use Flarum\Api\Request;
+use Illuminate\Http\Response;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class DeleteAction extends BaseAction
+class DeleteAction extends BaseDeleteAction
 {
     /**
-     * Delete a discussion.
+     * The command bus.
      *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
+    protected $bus;
+
+    /**
+     * Initialize the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
     {
-        $discussionId = $params->get('id');
+        $this->bus = $bus;
+    }
 
-        $command = new DeleteDiscussionCommand($discussionId, $this->actor->getUser());
-        $this->dispatch($command, $params);
-
-        return $this->respondWithoutContent();
+    /**
+     * Delete a discussion according to input from the API request.
+     *
+     * @param \Flarum\Api\Request $request
+     * @return void
+     */
+    protected function delete(Request $request, Response $response)
+    {
+        $this->bus->dispatch(
+            new DeleteDiscussionCommand($request->get('id'), $request->actor->getUser())
+        );
     }
 }

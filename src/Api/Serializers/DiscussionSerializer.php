@@ -19,7 +19,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
     {
         $attributes = parent::attributes($discussion);
 
-        $user = static::$actor->getUser();
+        $user = $this->actor->getUser();
         $state = $discussion->stateFor($user);
 
         $attributes += [

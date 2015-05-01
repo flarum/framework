@@ -2,40 +2,78 @@
 
 use Flarum\Core\Commands\StartDiscussionCommand;
 use Flarum\Core\Commands\ReadDiscussionCommand;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\DiscussionSerializer;
+use Flarum\Core\Models\Forum;
+use Flarum\Api\Actions\CreateAction as BaseCreateAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class CreateAction extends BaseAction
+class CreateAction extends BaseCreateAction
 {
     /**
-     * Start a new discussion.
+     * The command bus.
      *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
-    {
-        // By default, the only required attributes of a discussion are the
-        // title and the content. We'll extract these from the rbaseequest data
-        // and pass them through to the StartDiscussionCommand.
-        $title = $params->get('data.title');
-        $content = $params->get('data.content');
-        $user = $this->actor->getUser();
+    protected $bus;
 
-        $command = new StartDiscussionCommand($title, $content, $user, app('flarum.forum'));
-        $discussion = $this->dispatch($command, $params);
+    /**
+     * The default forum instance.
+     *
+     * @var \Flarum\Core\Models\Forum
+     */
+    protected $forum;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
+
+    /**
+     * The relations that are included by default.
+     *
+     * @var array
+     */
+    public static $include = ['posts', 'startUser', 'lastUser', 'startPost', 'lastPost'];
+
+    /**
+     * Initialize the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param \Flarum\Core\Models\Forum $forum
+     */
+    public function __construct(Dispatcher $bus, Forum $forum)
+    {
+        $this->bus = $bus;
+        $this->forum = $forum;
+    }
+
+    /**
+     * Create a discussion according to input from the API request.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\Discussion
+     */
+    protected function create(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        $user = $request->actor->getUser();
+
+        $discussion = $this->bus->dispatch(
+            new StartDiscussionCommand($user, $this->forum, $request->get('data'))
+        );
 
         // After creating the discussion, we assume that the user has seen all
         // of the posts in the discussion; thus, we will mark the discussion
         // as read if they are logged in.
         if ($user->exists) {
-            $command = new ReadDiscussionCommand($discussion->id, $user, 1);
-            $this->dispatch($command, $params);
+            $this->bus->dispatch(
+                new ReadDiscussionCommand($discussion->id, $user, 1)
+            );
         }
 
-        $serializer = new DiscussionSerializer(['posts', 'startUser', 'lastUser', 'startPost', 'lastPost']);
-        $document = $this->document()->setData($serializer->resource($discussion));
-
-        return $this->respondWithDocument($document);
+        return $discussion;
     }
 }
