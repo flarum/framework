@@ -23,12 +23,12 @@
 }
 .define-body-variables(true) {
   @fl-body-primary-color:             mix(@fl-primary-color, #000);
-  @fl-body-secondary-color:           hsl(@fl-secondary-hue, min(30%, @fl-secondary-sat), 13%);
+  @fl-body-secondary-color:           hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 13%);
 
-  @fl-body-bg:                        hsl(@fl-secondary-hue, min(30%, @fl-secondary-sat), 10%);
+  @fl-body-bg:                        hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 10%);
   @fl-body-color:                     #ccc;
-  @fl-body-muted-color:               hsl(@fl-secondary-hue, min(30%, @fl-secondary-sat), 35%);
-  @fl-body-muted-more-color:          hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 25%);
+  @fl-body-muted-color:               hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 35%);
+  @fl-body-muted-more-color:          hsl(@fl-secondary-hue, min(10%, @fl-secondary-sat), 25%);
   @fl-shadow-color:                   rgba(0, 0, 0, 0.5);
 }
 @fl-body-heading-color:             @fl-body-color;
@@ -57,6 +57,7 @@
 
   @fl-body-hero-bg:             @fl-body-primary-color;
   @fl-body-hero-color:          #fff;
+  @fl-body-hero-muted-color:    rgba(255, 255, 255, 0.6);
 }
 .define-hdr-variables(true) {
   @fl-hdr-bg:                   @fl-drawer-bg;
@@ -66,7 +67,8 @@
   @fl-hdr-control-color:        @fl-drawer-control-color;
 
   @fl-body-hero-bg:             @fl-body-control-bg;
-  @fl-body-hero-color:          @fl-body-control-color;
+  @fl-body-hero-color:          @fl-body-primary-color;
+  @fl-body-hero-muted-color:    @fl-body-control-color;
 }
 
 // ---------------------------------

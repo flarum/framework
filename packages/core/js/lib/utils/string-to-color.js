@@ -29,6 +29,6 @@ export default function stringToColor(string) {
     num += string.charCodeAt(i);
   }
   var hue = num % 360;
-  var rgb = hsvToRgb(hue / 360, 0.4, 0.9);
+  var rgb = hsvToRgb(hue / 360, 0.3, 0.9);
   return ''+rgb.r.toString(16)+rgb.g.toString(16)+rgb.b.toString(16);
 };
