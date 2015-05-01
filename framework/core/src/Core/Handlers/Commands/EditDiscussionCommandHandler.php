@@ -22,8 +22,8 @@ class EditDiscussionCommandHandler
 
         $discussion->assertCan($user, 'edit');
 
-        if (isset($command->title)) {
-            $discussion->rename($command->title, $user);
+        if (isset($command->data['title'])) {
+            $discussion->rename($command->data['title'], $user);
         }
 
         event(new DiscussionWillBeSaved($discussion, $command));
