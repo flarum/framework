@@ -50,14 +50,18 @@ export default class ComposerDiscussion extends ComposerBody {
     return (this.title() || this.content()) && !confirm(this.props.confirmExit);
   }
 
-  onsubmit(content) {
+  data() {
+    return {
+      title: this.title(),
+      content: this.content()
+    };
+  }
+
+  onsubmit() {
     this.loading(true);
     m.redraw();
 
-    var data = {
-      title: this.title(),
-      content: content
-    };
+    var data = this.data();
 
     app.store.createRecord('discussions').save(data).then(discussion => {
       app.composer.hide();
