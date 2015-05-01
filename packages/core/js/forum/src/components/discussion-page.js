@@ -171,7 +171,7 @@ export default class DiscussionPage extends Component {
 
     items.add('controls',
       DropdownSplit.component({
-        items: this.controlItems().toArray(),
+        items: this.discussion().controls(this).toArray(),
         icon: 'reply',
         buttonClass: 'btn btn-primary',
         wrapperClass: 'primary-control'
@@ -186,68 +186,6 @@ export default class DiscussionPage extends Component {
     );
 
     return items;
-  }
-
-  /**
-
-   */
-  controlItems() {
-    var items = new ItemList();
-    var discussion = this.discussion();
-
-    items.add('reply', ActionButton.component({ icon: 'reply', label: 'Reply', onclick: this.reply.bind(this) }));
-
-    items.add('separator', Separator.component());
-
-    if (discussion.canEdit()) {
-      items.add('rename', ActionButton.component({ icon: 'pencil', label: 'Rename', onclick: this.rename.bind(this) }));
-    }
-
-    if (discussion.canDelete()) {
-      items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: this.delete.bind(this) }));
-    }
-
-    return items;
-  }
-
-  reply() {
-    if (app.session.user()) {
-      this.streamContent.goToLast();
-
-      if (!this.composer || app.composer.component !== this.composer) {
-        this.composer = new ComposerReply({
-          user: app.session.user(),
-          discussion: this.discussion()
-        });
-        app.composer.load(this.composer);
-      }
-      app.composer.show();
-    } else {
-      // signup
-    }
-  }
-
-  delete() {
-    if (confirm('Are you sure you want to delete this discussion?')) {
-      var discussion = this.discussion();
-      discussion.delete();
-      if (app.cache.discussionList) {
-        app.cache.discussionList.removeDiscussion(discussion);
-      }
-      app.history.back();
-    }
-  }
-
-  rename() {
-    var discussion = this.discussion();
-    var currentTitle = discussion.title();
-    var title = prompt('Enter a new title for this discussion:', currentTitle);
-    if (title && title !== currentTitle) {
-      discussion.save({title}).then(discussion => {
-        discussion.addedPosts().forEach(post => this.stream().addPostToEnd(post));
-        m.redraw();
-      });
-    }
   }
 
   /**

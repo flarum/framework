@@ -1,8 +1,84 @@
 import Model from 'flarum/model';
 import computed from 'flarum/utils/computed';
 import ItemList from 'flarum/utils/item-list';
+import DiscussionPage from 'flarum/components/discussion-page';
+import ActionButton from 'flarum/components/action-button';
+import Separator from 'flarum/components/separator';
+import ComposerReply from 'flarum/components/composer-reply';
 
-class Discussion extends Model {}
+class Discussion extends Model {
+  unreadCount() {
+    var user = app.session.user();
+    if (user && user.readTime() < this.lastTime()) {
+      return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0))
+    }
+    return 0;
+  }
+
+  badges() {
+    return new ItemList();
+  }
+
+  controls(context) {
+    var items = new ItemList();
+
+    if (context instanceof DiscussionPage) {
+      items.add('reply', ActionButton.component({ icon: 'reply', label: 'Reply', onclick: this.replyAction.bind(this) }));
+
+      items.add('separator', Separator.component());
+    }
+
+    if (this.canEdit()) {
+      items.add('rename', ActionButton.component({ icon: 'pencil', label: 'Rename', onclick: this.renameAction.bind(this) }));
+    }
+
+    if (this.canDelete()) {
+      items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: this.deleteAction.bind(this) }));
+    }
+
+    return items;
+  }
+
+  replyAction() {
+    if (app.session.user()) {
+      if (app.current.discussion && app.current.discussion().id() === this.id()) {
+        app.current.streamContent.goToLast();
+      }
+      app.composer.load(new ComposerReply({
+        user: app.session.user(),
+        discussion: this
+      }));
+      app.composer.show();
+    } else {
+      // signup
+    }
+  }
+
+  deleteAction() {
+    if (confirm('Are you sure you want to delete this discussion?')) {
+      this.delete();
+      if (app.cache.discussionList) {
+        app.cache.discussionList.removeDiscussion(this);
+      }
+      if (app.current.discussion && app.current.discussion().id() === this.id()) {
+        app.history.back();
+      }
+    }
+  }
+
+  renameAction() {
+    var currentTitle = this.title();
+    var title = prompt('Enter a new title for this discussion:', currentTitle);
+    if (title && title !== currentTitle) {
+      this.save({title}).then(discussion => {
+        if (app.current.discussion && app.current.discussion().id() === discussion.id()) {
+          discussion.addedPosts().forEach(post => app.current.stream().addPostToEnd(post));
+        }
+        m.redraw();
+      });
+    }
+  }
+}
 
 Discussion.prototype.id = Model.prop('id');
 Discussion.prototype.title = Model.prop('title');
@@ -27,19 +103,11 @@ Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => c
 Discussion.prototype.posts = Model.many('posts');
 Discussion.prototype.relevantPosts = Model.many('relevantPosts');
 Discussion.prototype.addedPosts = Model.many('addedPosts');
+Discussion.prototype.removedPosts = Model.prop('removedPosts');
 
 Discussion.prototype.readTime = Model.prop('readTime', Model.date);
 Discussion.prototype.readNumber = Model.prop('readNumber');
 
-Discussion.prototype.unreadCount = function() {
-  var user = app.session.user();
-  if (user && user.readTime() < this.lastTime()) {
-    return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0))
-  }
-  return 0
-};
 Discussion.prototype.isUnread = computed('unreadCount', unreadCount => !!unreadCount);
-
-Discussion.prototype.badges = () => new ItemList();
 
 export default Discussion;
