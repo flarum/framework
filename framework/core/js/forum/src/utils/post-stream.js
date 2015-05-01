@@ -118,10 +118,10 @@ export default class PostStream {
     this.content.push(this.makeItem(index, index, post))
   }
 
-  removePost(post) {
-    this.ids.splice(this.ids.indexOf(post.id()), 1);
+  removePost(id) {
+    this.ids.splice(this.ids.indexOf(id), 1);
     this.content.some((item, i) => {
-      if (item.post === post) {
+      if (item.post && item.post.id() === id) {
         this.content.splice(i, 1);
         return true;
       }
