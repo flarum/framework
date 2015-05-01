@@ -6,11 +6,12 @@ class EditDiscussionCommand
 
     public $user;
 
-    public $title;
+    public $data;
 
-    public function __construct($discussionId, $user)
+    public function __construct($discussionId, $user, $data)
     {
         $this->discussionId = $discussionId;
         $this->user = $user;
+        $this->data = $data;
     }
 }
