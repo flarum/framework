@@ -11,19 +11,13 @@ class DiscussionSearcher implements SearcherInterface
 {
     public $query;
 
-    protected $sortMap = [
-        'lastPost' => ['last_time', 'desc'],
-        'replies'  => ['comments_count', 'desc'],
-        'created'  => ['start_time', 'asc']
-    ];
-
-    protected $defaultSort = 'lastPost';
-
     protected $relevantPosts = [];
 
     protected $gambits;
 
     protected $discussions;
+
+    protected $defaultSort = ['lastTime' => 'desc'];
 
     public function __construct(GambitManager $gambits, DiscussionRepositoryInterface $discussions, PostRepositoryInterface $posts)
     {
@@ -50,7 +44,7 @@ class DiscussionSearcher implements SearcherInterface
         return $this->query->getQuery();
     }
 
-    public function search(DiscussionSearchCriteria $criteria, $count = null, $start = 0, $load = [])
+    public function search(DiscussionSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])
     {
         $this->user = $criteria->user;
         $this->query = $this->discussions->query()->whereCan($criteria->user, 'view');
@@ -59,31 +53,30 @@ class DiscussionSearcher implements SearcherInterface
 
         $total = $this->query->count();
 
-        if (empty($criteria->sort)) {
-            $criteria->sort = $this->defaultSort;
-        }
-        $sort = $criteria->sort;
-        if (is_array($sort)) {
-            foreach ($sort as $id) {
-                $this->query->orderByRaw('id != '.(int) $id);
+        $sort = $criteria->sort ?: $this->defaultSort;
+
+        foreach ($sort as $field => $order) {
+            if (is_array($order)) {
+                foreach ($order as $value) {
+                    $this->query->orderByRaw(snake_case($field).' != ?', [$value]);
+                }
+            } else {
+                $this->query->orderBy(snake_case($field), $order);
             }
-        } else {
-            list($column, $order) = $this->sortMap[$sort];
-            $this->query->orderBy($column, $criteria->order ?: $order);
         }
 
-        if ($start > 0) {
-            $this->query->skip($start);
+        if ($offset > 0) {
+            $this->query->skip($offset);
         }
-        if ($count > 0) {
-            $this->query->take($count + 1);
+        if ($limit > 0) {
+            $this->query->take($limit + 1);
         }
 
         event(new SearchWillBePerformed($this, $criteria));
 
         $discussions = $this->query->get();
 
-        if ($count > 0 && $areMoreResults = $discussions->count() > $count) {
+        if ($limit > 0 && $areMoreResults = $discussions->count() > $limit) {
             $discussions->pop();
         }
 
@@ -109,6 +102,7 @@ class DiscussionSearcher implements SearcherInterface
             }
         }
 
+        // @todo make instance rather than static and set on all discussions
         Discussion::setStateUser($this->user);
         $discussions->load($load);
 

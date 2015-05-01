@@ -26,6 +26,6 @@ class FulltextGambit extends GambitAbstract
 
         $searcher->query()->whereIn('id', $discussions);
 
-        $searcher->setDefaultSort($discussions);
+        $searcher->setDefaultSort(['id' => $discussions]);
     }
 }

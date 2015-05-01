@@ -29,18 +29,20 @@ class EloquentPostRepository implements PostRepositoryInterface
      *
      * @param  array  $where
      * @param  \Flarum\Core\Models\User|null  $user
-     * @param  string  $sort
-     * @param  string  $order
+     * @param  array  $sort
      * @param  integer  $count
      * @param  integer  $start
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function findWhere($where = [], User $user = null, $sort = 'time', $order = 'asc', $count = null, $start = 0)
+    public function findWhere($where = [], User $user = null, $sort = [], $count = null, $start = 0)
     {
         $query = Post::where($where)
-            ->orderBy($sort, $order)
             ->skip($start)
             ->take($count);
+
+        foreach ((array) $sort as $field => $order) {
+            $query->orderBy($field, $order);
+        }
 
         return $this->scopeVisibleForUser($query, $user)->get();
     }
