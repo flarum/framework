@@ -33,7 +33,7 @@ export default class PostDiscussionRenamed extends Component {
       }) : '',
       icon('pencil post-icon'),
       m('div.post-activity-info', [
-        m('a.post-user', {href: app.route('user', post.user()), config: m.route}, username(post.user())),
+        m('a.post-user', {href: app.route('user', { username: post.user().username() }), config: m.route}, username(post.user())),
         ' changed the title from ', m('strong.old-title', oldTitle), ' to ', m('strong.new-title', newTitle), '.'
       ]),
       m('div.post-activity-time', humanTime(post.time()))

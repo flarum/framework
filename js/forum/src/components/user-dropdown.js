@@ -26,7 +26,7 @@ export default class UserDropdown extends Component {
       ActionButton.component({
         icon: 'user',
         label: 'Profile',
-        href: app.route('user', user),
+        href: app.route('user', {username: user.username()}),
         config: m.route
       })
     );

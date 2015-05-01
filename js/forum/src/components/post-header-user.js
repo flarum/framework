@@ -21,7 +21,7 @@ export default class PostHeaderUser extends Component {
     return m('div.post-user', {config: this.onload.bind(this)}, [
       m('h3',
         user ? [
-          m('a', {href: app.route('user', user), config: m.route}, [
+          m('a', {href: app.route('user', {username: user.username()}), config: m.route}, [
             avatar(user),
             username(user)
           ]),
