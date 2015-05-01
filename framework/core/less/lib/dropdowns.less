@@ -7,14 +7,17 @@
   .box-shadow(0 2px 6px @fl-shadow-color);
 
   & > li > a {
-    padding: 8px 15px;
+    padding: 8px 15px 8px 40px;
     color: @fl-body-color;
+
     &:hover, &:focus {
       color: @fl-body-color;
       background-color: @fl-body-control-bg;
     }
-    & .fa {
-      margin-right: 5px;
+    & .icon {
+      float: left;
+      margin-left: -25px;
+      margin-top: 2px;
       font-size: 14px;
     }
     & .count {
@@ -63,15 +66,18 @@
     & > li > a {
       background: #fff;
       font-size: 16px;
-      padding: 15px 20px;
+      padding: 15px 20px 15px 50px;
 
-      & .fa {
+      & .icon {
         font-size: 16px;
-        margin-right: 10px;
+        margin-left: -30px;
       }
     }
     & .divider {
       margin: 0;
+    }
+    & > .active > a {
+      color: #fff !important;
     }
 
     .open & {
@@ -114,7 +120,7 @@
 
 .nav-list() {
   & > li > a {
-    padding: 8px 0;
+    padding: 8px 0 8px 30px;
     color: @fl-body-muted-color;
 
     &:hover {
@@ -122,8 +128,10 @@
       color: @link-hover-color;
     }
 
-    & .fa {
-      margin-right: 8px;
+    & .icon {
+      float: left;
+      margin-left: -30px;
+      margin-top: 1px;
       font-size: 15px;
     }
   }

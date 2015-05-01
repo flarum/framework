@@ -22,7 +22,7 @@ export default class DropdownSplit extends Component {
       ActionButton.component(buttonProps),
       m('a[href=javascript:;]', {className: 'dropdown-toggle '+this.props.buttonClass, 'data-toggle': 'dropdown'}, [
         icon('caret-down icon-caret'),
-        icon((this.props.icon || 'ellipsis-v')+' icon-glyph'),
+        icon((this.props.icon || 'ellipsis-v')+' icon'),
       ]),
       m('ul', {className: 'dropdown-menu '+(this.props.menuClass || 'pull-right')}, items)
     ])
