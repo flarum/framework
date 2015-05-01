@@ -13,6 +13,7 @@ use Flarum\Core\Models\User;
 use Flarum\Core\Models\Discussion;
 use Flarum\Core\Search\GambitManager;
 use League\Flysystem\Adapter\Local;
+use Flarum\Core\Events\RegisterDiscussionGambits;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -98,6 +99,9 @@ class CoreServiceProvider extends ServiceProvider
                 $gambits->add('Flarum\Core\Search\Discussions\Gambits\AuthorGambit');
                 $gambits->add('Flarum\Core\Search\Discussions\Gambits\UnreadGambit');
                 $gambits->setFulltextGambit('Flarum\Core\Search\Discussions\Gambits\FulltextGambit');
+
+                event(new RegisterDiscussionGambits($gambits));
+
                 return $gambits;
             });
 
