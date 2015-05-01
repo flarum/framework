@@ -112,10 +112,13 @@ export default class PostStream {
     })
   }
 
+  // @todo rename to pushPost
   addPostToEnd(post) {
-    var index = this.ids.length
-    this.ids.push(post.id())
-    this.content.push(this.makeItem(index, index, post))
+    if (this.ids.indexOf(post.id()) === -1) {
+      var index = this.ids.length;
+      this.ids.push(post.id());
+      this.content.push(this.makeItem(index, index, post));
+    }
   }
 
   removePost(id) {
