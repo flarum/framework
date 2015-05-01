@@ -13,7 +13,7 @@
   </head>
 
   <body>
-    {!! $layout !!}
+    @include($layout)
 
     <div id="modal"></div>
     <div id="alerts"></div>
