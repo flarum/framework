@@ -8,13 +8,10 @@ class DiscussionSearchCriteria
 
     public $sort;
 
-    public $order;
-
-    public function __construct($user, $query, $sort, $order)
+    public function __construct($user, $query, $sort)
     {
         $this->user = $user;
         $this->query = $query;
         $this->sort = $sort;
-        $this->order = $order;
     }
 }
