@@ -10,6 +10,8 @@ class LoginWithHeader
 
     protected $prefix = 'Token ';
 
+    // @todo rather than using a singleton, we should have our own HTTP
+    //     Request class and store the actor on that? somehow?
     public function __construct(Actor $actor)
     {
         $this->actor = $actor;
