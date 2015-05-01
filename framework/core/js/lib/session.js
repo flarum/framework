@@ -13,7 +13,7 @@ export default class Session extends mixin(class {}, evented) {
     var self = this;
     m.request({
       method: 'POST',
-      url: app.config.baseURL+'/login',
+      url: app.config['base_url']+'/login',
       data: {identification, password},
       background: true
     }).then(function(response) {

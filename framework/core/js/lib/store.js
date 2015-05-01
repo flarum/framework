@@ -39,7 +39,7 @@ export default class Store {
     }
     return m.request({
       method: 'GET',
-      url: app.config.apiURL+'/'+endpoint,
+      url: app.config['api_url']+'/'+endpoint,
       data: params,
       background: true,
       config: app.session.authorize.bind(app.session)
