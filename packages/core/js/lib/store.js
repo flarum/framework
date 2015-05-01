@@ -51,7 +51,8 @@ export default class Store {
   }
 
   all(type) {
-    return this.data[type] || {};
+    var data = this.data[type];
+    return data ? Object.keys(data).map(id => data[id]) : [];
   }
 
   model(type, Model) {
