@@ -118,6 +118,7 @@ body {
     left: 50%;
     margin-left: -100px;
     text-align: center;
+    line-height: 33px;
     .transition(margin-left 0.2s);
 
     .drawer-open .global-page & {
@@ -296,7 +297,7 @@ body {
     float: left;
   }
   .header-title {
-    display: inline-block;
+    float: left;
     vertical-align: top;
     font-size: 18px;
     font-weight: normal;
@@ -356,7 +357,7 @@ body {
 // ------------------------------------
 // Footer
 
-.footer-primary, .footer-secondary {
+.footer-controls {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -368,7 +369,7 @@ body {
 }
 
 // On phones, the footer is displayed at the bottom of the drawer. The
-// footer's primary controls  don't display, but the secondary ones do.
+// footer's primary controls don't display, but the secondary ones do.
 // @todo Maybe we should reverse the naming of primary/secondary then?
 @media @phone {
   .global-footer {
