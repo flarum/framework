@@ -3,6 +3,7 @@ import ItemList from 'flarum/utils/item-list';
 import IndexPage from 'flarum/components/index-page';
 import PostStream from 'flarum/utils/post-stream';
 import DiscussionList from 'flarum/components/discussion-list';
+import DiscussionHero from 'flarum/components/discussion-hero';
 import StreamContent from 'flarum/components/stream-content';
 import StreamScrubber from 'flarum/components/stream-scrubber';
 import ComposerReply from 'flarum/components/composer-reply';
@@ -125,12 +126,7 @@ export default class DiscussionPage extends Component {
     return m('div', {config: this.onload.bind(this)}, [
       app.cache.discussionList ? m('div.index-area.paned', {config: this.configIndex.bind(this)}, app.cache.discussionList.view()) : '',
       m('div.discussion-area', discussion ? [
-        m('header.hero.discussion-hero', [
-          m('div.container', [
-            m('ul.badges', listItems(discussion.badges().toArray())), ' ',
-            m('h2.discussion-title', discussion.title())
-          ])
-        ]),
+        DiscussionHero.component({discussion}),
         m('div.container', [
           m('nav.discussion-nav', [
             m('ul', listItems(this.sidebarItems().toArray()))
