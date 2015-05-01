@@ -17,5 +17,5 @@ export default function listItems(array, noWrap) {
     }
   });
 
-  return newArray.map(item => [(noWrap && !isSeparator(item)) ? item : m('li', {className: (item.props && item.props.wrapperClass) || (item.component && item.component.wrapperClass) || ''}, item), ' ']);
+  return newArray.map(item => [(noWrap && !isSeparator(item)) ? item : m('li', {className: item.wrapperClass || (item.props && item.props.wrapperClass) || (item.component && item.component.wrapperClass) || ''}, item), ' ']);
 };
