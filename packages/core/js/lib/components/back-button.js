@@ -15,10 +15,10 @@ export default class BackButton extends Component {
       onmouseleave: pane && pane.onmouseleave.bind(pane),
       config: this.onload.bind(this)
     }, history.canGoBack() ? m('div.btn-group', [
-      m('button.btn.btn-default.btn-icon.back', {onclick: history.back.bind(history)}, icon('chevron-left icon-glyph')),
-      pane && pane.active ? m('button.btn.btn-default.btn-icon.pin'+(pane.pinned ? '.active' : ''), {onclick: pane.togglePinned.bind(pane)}, icon('thumb-tack icon-glyph')) : '',
+      m('button.btn.btn-default.btn-icon.back', {onclick: history.back.bind(history)}, icon('chevron-left icon')),
+      pane && pane.active ? m('button.btn.btn-default.btn-icon.pin'+(pane.pinned ? '.active' : ''), {onclick: pane.togglePinned.bind(pane)}, icon('thumb-tack icon')) : '',
     ]) : (this.props.drawer ? [
-      m('button.btn.btn-default.btn-icon.drawer-toggle', {onclick: this.toggleDrawer.bind(this)}, icon('reorder icon-glyph'))
+      m('button.btn.btn-default.btn-icon.drawer-toggle', {onclick: this.toggleDrawer.bind(this)}, icon('reorder icon'))
     ] : ''));
   }
 

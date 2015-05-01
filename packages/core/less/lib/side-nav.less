@@ -42,11 +42,18 @@
 
     & > ul > li, & .dropdown-menu > li {
       display: inline-block;
-      margin-right: 25px;
+      margin-right: 20px;
+    }
+    & .dropdown-menu > li.divider {
+      display: none;
     }
 
-    & .dropdown-select .dropdown-menu > li > a .fa {
-      margin-right: 3px;
+    & .dropdown-select .dropdown-menu > li > a {
+      padding-left: 25px;
+
+      & .icon {
+        margin-left: -25px;
+      }
     }
 
     & .affix {
