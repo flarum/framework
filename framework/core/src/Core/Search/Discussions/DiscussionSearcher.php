@@ -5,11 +5,11 @@ use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repositories\DiscussionRepositoryInterface;
 use Flarum\Core\Repositories\PostRepositoryInterface;
-use Flarum\Core\Events\SearchWillBePerformed;
+use Flarum\Core\Events\DiscussionSearchWillBePerformed;
 
 class DiscussionSearcher implements SearcherInterface
 {
-    public $query;
+    protected $query;
 
     protected $relevantPosts = [];
 
@@ -72,7 +72,7 @@ class DiscussionSearcher implements SearcherInterface
             $this->query->take($limit + 1);
         }
 
-        event(new SearchWillBePerformed($this, $criteria));
+        event(new DiscussionSearchWillBePerformed($this, $criteria));
 
         $discussions = $this->query->get();
 
