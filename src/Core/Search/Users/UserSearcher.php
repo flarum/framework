@@ -60,6 +60,8 @@ class UserSearcher implements SearcherInterface
             $this->query->take($limit + 1);
         }
 
+        event(new UserSearchWillBePerformed($this, $criteria));
+
         $users = $this->query->get();
 
         if ($count > 0 && $areMoreResults = $users->count() > $count) {
