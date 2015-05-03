@@ -48,7 +48,7 @@ export default class AvatarEditor extends Component {
       m.redraw();
       m.request({
         method: 'POST',
-        url: app.config.apiURL+'/users/'+user.id()+'/avatar',
+        url: app.config['api_url']+'/users/'+user.id()+'/avatar',
         data: data,
         serialize: data => data,
         background: true,
