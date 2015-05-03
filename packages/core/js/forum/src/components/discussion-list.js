@@ -99,10 +99,10 @@ export default class DiscussionList extends Component {
     return m('div', [
       m('ul.discussions-list', [
         this.discussions().map(discussion => {
-          var startUser = discussion.startUser()
-          var isUnread = discussion.isUnread()
-          var displayUnread = this.countType() !== 'replies' && isUnread
-          var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1)
+          var startUser = discussion.startUser();
+          var isUnread = discussion.isUnread();
+          var displayUnread = this.countType() !== 'replies' && isUnread;
+          var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
 
           var controls = discussion.controls(this).toArray();
 
@@ -116,13 +116,13 @@ export default class DiscussionList extends Component {
               buttonClass: 'btn btn-default btn-icon btn-sm btn-naked',
               menuClass: 'pull-right'
             }) : '',
-            m('a.author', {
-              href: app.route('user', { username: startUser.username() }),
+            m((startUser ? 'a' : 'span')+'.author', {
+              href: startUser ? app.route('user', { username: startUser.username() }) : undefined,
               config: function(element, isInitialized, context) {
                 $(element).tooltip({ placement: 'right' })
                 m.route.call(this, element)
               },
-              title: 'Started by '+startUser.username()+' '+humanTime(discussion.startTime())
+              title: 'Started by '+(startUser ? startUser.username() : '[deleted]')+' '+humanTime(discussion.startTime())
             }, [
               avatar(startUser, {title: ''})
             ]),
