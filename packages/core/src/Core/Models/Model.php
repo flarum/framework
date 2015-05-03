@@ -25,6 +25,13 @@ class Model extends Eloquent
     protected static $rules = [];
 
     /**
+     * The custom relations on this model, registered by extensions.
+     *
+     * @var array
+     */
+    protected static $relationships = [];
+
+    /**
      * The forum model instance.
      *
      * @var \Flarum\Core\Models\Forum
@@ -184,5 +191,35 @@ class Model extends Eloquent
         if (! $this->can($user, $permission)) {
             throw new PermissionDeniedException;
         }
+    }
+
+    /**
+     * Add a custom relationship to the model.
+     *
+     * @param string $name The name of the relationship.
+     * @param Closure $callback The callback to execute. This should return an
+     *     Eloquent relationship object.
+     * @return void
+     */
+    public static function addRelationship($name, $callback)
+    {
+        static::$relationships[$name] = $callback;
+    }
+
+    /**
+     * Check for and execute custom relationships.
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (isset(static::$relationships[$name])) {
+            array_unshift($arguments, $this);
+            return call_user_func_array(static::$relationships[$name], $arguments);
+        }
+
+        return parent::__call($name, $arguments);
     }
 }
