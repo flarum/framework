@@ -1,44 +1,60 @@
 <?php namespace Flarum\Api\Actions\Users;
 
 use Flarum\Core\Repositories\UserRepositoryInterface;
-use Flarum\Support\Actor;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Serializers\UserSerializer;
+use Flarum\Api\Actions\SerializeResourceAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class ShowAction extends BaseAction
+class ShowAction extends SerializeResourceAction
 {
-    protected $actor;
-
+    /**
+     * @var \Flarum\Core\Repositories\UserRepositoryInterface
+     */
     protected $users;
 
-    public function __construct(Actor $actor, UserRepositoryInterface $users)
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+
+    /**
+     * The relationships that are available to be included, and which ones are
+     * included by default.
+     *
+     * @var array
+     */
+    public static $include = [
+        'groups' => true
+    ];
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Flarum\Core\Repositories\UserRepositoryInterface $users
+     */
+    public function __construct(UserRepositoryInterface $users)
     {
-        $this->actor = $actor;
         $this->users = $users;
     }
 
     /**
-     * Show a single user.
+     * Get a single user, ready to be serialized and assigned to the JsonApi
+     * response.
      *
-     * @return Response
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\Discussion
      */
-    public function run(ApiParams $params)
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $id = $params->get('id');
+        $id = $request->get('id');
 
         if (! is_numeric($id)) {
             $id = $this->users->getIdForUsername($id);
         }
 
-        $user = $this->users->findOrFail($id, $this->actor->getUser());
-
-        // Set up the user serializer, which we will use to create the
-        // document's primary resource. We will specify that we want the
-        // 'groups' relation to be included by default.
-        $serializer = new UserSerializer(['groups']);
-        $document = $this->document()->setData($serializer->resource($user));
-
-        return $this->respondWithDocument($document);
+        return $this->users->findOrFail($id, $request->actor->getUser());
     }
 }

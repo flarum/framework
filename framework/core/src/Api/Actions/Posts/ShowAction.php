@@ -2,41 +2,57 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Repositories\PostRepositoryInterface;
-use Flarum\Support\Actor;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\PostSerializer;
+use Flarum\Api\Actions\SerializeResourceAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class ShowAction extends BaseAction
+class ShowAction extends SerializeResourceAction
 {
+    /**
+     * @var \Flarum\Core\Repositories\PostRepositoryInterface
+     */
     protected $posts;
 
-    public function __construct(Actor $actor, PostRepositoryInterface $posts)
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\PostSerializer';
+
+    /**
+     * The relationships that are available to be included, and which ones are
+     * included by default.
+     *
+     * @var array
+     */
+    public static $include = [
+        'user' => true,
+        'editUser' => true,
+        'hideUser' => true,
+        'discussion' => false
+    ];
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Flarum\Core\Repositories\PostRepositoryInterface $posts
+     */
+    public function __construct(PostRepositoryInterface $posts)
     {
-        $this->actor = $actor;
         $this->posts = $posts;
     }
 
     /**
-	 * Show a single post by ID.
-	 *
-	 * @return Response
-	 */
-    protected function run(ApiParams $params)
+     * Get a single post, ready to be serialized and assigned to the JsonApi
+     * response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\Discussion
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $id = $params->get('id');
-        $posts = $this->posts->findOrFail($id, $this->actor->getUser());
-
-        $include = $params->included(['discussion', 'replyTo']);
-        $relations = array_merge(['user', 'editUser', 'hideUser'], $include);
-        $posts->load($relations);
-
-        // Finally, we can set up the post serializer and use it to create
-        // a post resource or collection, depending on how many posts were
-        // requested.
-        $serializer = new PostSerializer($relations);
-        $document = $this->document()->setData($serializer->resource($posts->first()));
-
-        return $this->respondWithDocument($document);
+        return $this->posts->findOrFail($request->get('id'), $request->actor->getUser());
     }
 }

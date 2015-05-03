@@ -22,14 +22,16 @@ class EditPostCommandHandler
 
         $post->assertCan($user, 'edit');
 
-        if (isset($command->content)) {
-            $post->revise($command->content, $user);
+        if (isset($command->data['content'])) {
+            $post->revise($command->data['content'], $user);
         }
 
-        if ($command->isHidden === true) {
-            $post->hide($user);
-        } elseif ($command->isHidden === false) {
-            $post->restore($user);
+        if (isset($command->data['isHidden'])) {
+            if ($command->data['isHidden']) {
+                $post->hide($user);
+            } else {
+                $post->restore($user);
+            }
         }
 
         event(new PostWillBeSaved($post, $command));

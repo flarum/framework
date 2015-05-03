@@ -32,14 +32,21 @@ class CreateAction extends BaseCreateAction
     public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
-     * The relations that are included by default.
+     * The relationships that are available to be included, and which ones are
+     * included by default.
      *
      * @var array
      */
-    public static $include = ['posts', 'startUser', 'lastUser', 'startPost', 'lastPost'];
+    public static $include = [
+        'posts' => true,
+        'startUser' => true,
+        'lastUser' => true,
+        'startPost' => true,
+        'lastPost' => true
+    ];
 
     /**
-     * Initialize the action.
+     * Instantiate the action.
      *
      * @param \Illuminate\Contracts\Bus\Dispatcher $bus
      * @param \Flarum\Core\Models\Forum $forum

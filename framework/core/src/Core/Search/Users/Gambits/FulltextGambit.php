@@ -19,6 +19,6 @@ class FulltextGambit extends GambitAbstract
 
         $searcher->query()->whereIn('id', $users);
 
-        $searcher->setDefaultSort($users);
+        $searcher->setDefaultSort(['id' => $users]);
     }
 }

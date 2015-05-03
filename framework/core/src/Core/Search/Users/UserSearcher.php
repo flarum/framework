@@ -4,22 +4,17 @@ use Flarum\Core\Models\User;
 use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repositories\UserRepositoryInterface;
+use Flarum\Core\Events\UserSearchWillBePerformed;
 
 class UserSearcher implements SearcherInterface
 {
-    public $query;
+    protected $query;
 
-    protected $sortMap = [
-        'username'    => ['username', 'asc'],
-        'posts'       => ['comments_count', 'desc'],
-        'discussions' => ['discussions_count', 'desc'],
-        'lastActive'  => ['last_seen_time', 'desc'],
-        'created'     => ['join_time', 'asc']
-    ];
-
-    protected $defaultSort = 'username';
+    protected $gambits;
 
     protected $users;
+
+    protected $defaultSort = ['username' => 'asc'];
 
     public function __construct(GambitManager $gambits, UserRepositoryInterface $users)
     {
@@ -37,7 +32,7 @@ class UserSearcher implements SearcherInterface
         return $this->query->getQuery();
     }
 
-    public function search(UserSearchCriteria $criteria, $count = null, $start = 0, $load = [])
+    public function search(UserSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])
     {
         $this->user = $criteria->user;
         $this->query = $this->users->query()->whereCan($criteria->user, 'view');
@@ -46,24 +41,23 @@ class UserSearcher implements SearcherInterface
 
         $total = $this->query->count();
 
-        $sort = $criteria->sort;
-        if (empty($sort)) {
-            $sort = $this->defaultSort;
-        }
-        if (is_array($sort)) {
-            foreach ($sort as $id) {
-                $this->query->orderByRaw('id != '.(int) $id);
+        $sort = $criteria->sort ?: $this->defaultSort;
+
+        foreach ($sort as $field => $order) {
+            if (is_array($order)) {
+                foreach ($order as $value) {
+                    $this->query->orderByRaw(snake_case($field).' != ?', [$value]);
+                }
+            } else {
+                $this->query->orderBy(snake_case($field), $order);
             }
-        } else {
-            list($column, $order) = $this->sortMap[$sort];
-            $this->query->orderBy($column, $criteria->order ?: $order);
         }
 
-        if ($start > 0) {
-            $this->query->skip($start);
+        if ($offset > 0) {
+            $this->query->skip($offset);
         }
-        if ($count > 0) {
-            $this->query->take($count + 1);
+        if ($limit > 0) {
+            $this->query->take($limit + 1);
         }
 
         $users = $this->query->get();

@@ -20,9 +20,9 @@ class RegisterUserCommandHandler
         // Before persistance, though, fire an event to give plugins an
         // opportunity to alter the post entity based on data in the command.
         $user = User::register(
-            $command->username,
-            $command->email,
-            $command->password
+            array_get($command->data, 'username'),
+            array_get($command->data, 'email'),
+            array_get($command->data, 'password')
         );
 
         event(new UserWillBeSaved($user, $command));

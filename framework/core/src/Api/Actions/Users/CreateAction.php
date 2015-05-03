@@ -1,36 +1,57 @@
 <?php namespace Flarum\Api\Actions\Users;
 
 use Flarum\Core\Commands\RegisterUserCommand;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Serializers\UserSerializer;
+use Flarum\Api\Actions\CreateAction as BaseCreateAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class CreateAction extends BaseAction
+class CreateAction extends BaseCreateAction
 {
     /**
-     * Register a user.
+     * The command bus.
      *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
+    protected $bus;
+
+    /**
+     * The default forum instance.
+     *
+     * @var \Flarum\Core\Models\Forum
+     */
+    protected $forum;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param \Flarum\Core\Models\Forum $forum
+     */
+    public function __construct(Dispatcher $bus, Forum $forum)
     {
-        // We've received a request to register a user. By default, the only
-        // required attributes of a user is the username, email, and password.
-        // Let's set up a command with this information. We also fire an event
-        // to allow plugins to add data to the command.
-        $username = $params->get('data.username');
-        $email    = $params->get('data.email');
-        $password = $params->get('data.password');
+        $this->bus = $bus;
+        $this->forum = $forum;
+    }
 
-        $command = new RegisterUserCommand($username, $email, $password, $this->actor->getUser(), app('flarum.forum'));
-        $user = $this->dispatch($command, $params);
-
-        // Presumably, the user was created successfully. (The command handler
-        // would have thrown an exception if not.) We set this post as our
-        // document's primary element.
-        $serializer = new UserSerializer;
-        $document = $this->document()->setData($serializer->resource($user));
-
-        return $this->respondWithDocument($document, 201);
+    /**
+     * Register a user according to input from the API request.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\User
+     */
+    protected function create(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        return $this->bus->dispatch(
+            new RegisterUserCommand($request->actor->getUser(), $this->forum, $request->get('data'))
+        );
     }
 }

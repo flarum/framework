@@ -1,34 +1,47 @@
 <?php namespace Flarum\Api\Actions\Notifications;
 
 use Flarum\Core\Commands\ReadNotificationCommand;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\NotificationSerializer;
+use Flarum\Api\Actions\SerializeResourceAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class UpdateAction extends BaseAction
+class UpdateAction extends SerializeResourceAction
 {
     /**
-     * Edit a discussion. Allows renaming the discussion, and updating its read
-     * state with regards to the current user.
-     *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
+    protected $bus;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\NotificationSerializer';
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
     {
-        $notificationId = $params->get('id');
-        $user = $this->actor->getUser();
+        $this->bus = $bus;
+    }
 
-        // if ($params->get('notifications.isRead')) {
-            $command = new ReadNotificationCommand($notificationId, $user);
-            $notification = $this->dispatch($command, $params);
-        // }
-
-        // Presumably, the discussion was updated successfully. (One of the command
-        // handlers would have thrown an exception if not.) We set this
-        // discussion as our document's primary element.
-        $serializer = new NotificationSerializer;
-        $document = $this->document()->setData($serializer->resource($notification));
-
-        return $this->respondWithDocument($document);
+    /**
+     * Mark a notification as read, and return it ready to be serialized and
+     * assigned to the JsonApi response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\Notification
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        return $this->bus->dispatch(
+            new ReadNotificationCommand($request->get('id'), $request->actor->getUser())
+        );
     }
 }

@@ -6,13 +6,12 @@ class EditPostCommand
 
     public $user;
 
-    public $content;
+    public $data;
 
-    public $isHidden;
-
-    public function __construct($postId, $user)
+    public function __construct($postId, $user, $data)
     {
         $this->postId = $postId;
         $this->user = $user;
+        $this->data = $data;
     }
 }
