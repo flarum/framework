@@ -33,10 +33,10 @@ export default class DiscussionList extends Component {
 
   sortMap() {
     return {
-      recent: 'recent',
-      replies: '-replies',
-      newest: '-created',
-      oldest: 'created'
+      recent: '-lastTime',
+      replies: '-commentsCount',
+      newest: '-startTime',
+      oldest: '+startTime'
     };
   }
 
@@ -53,11 +53,11 @@ export default class DiscussionList extends Component {
   }
 
   terminalPostType() {
-    return ['newest', 'oldest'].indexOf(this.props.sort) !== -1 ? 'start' : 'last'
+    return ['newest', 'oldest'].indexOf(this.props.params.sort) !== -1 ? 'start' : 'last'
   }
 
   countType() {
-    return this.props.sort === 'replies' ? 'replies' : 'unread';
+    return this.props.params.sort === 'replies' ? 'replies' : 'unread';
   }
 
   loadResults(start) {
