@@ -1,35 +1,47 @@
 <?php namespace Flarum\Api\Actions\Users;
 
 use Flarum\Core\Commands\EditUserCommand;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Serializers\UserSerializer;
+use Flarum\Api\Actions\SerializeResourceAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class UpdateAction extends BaseAction
+class UpdateAction extends SerializeResourceAction
 {
     /**
-     * Edit a user. Allows renaming the user, changing their email, and setting
-     * their password.
-     *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
+    protected $bus;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
     {
-        $userId = $params->get('id');
+        $this->bus = $bus;
+    }
 
-        // EditUser is a single command because we don't want to allow partial
-        // updates (i.e. if we were to run one command and then another, if the
-        // second one failed, the first one would still have succeeded.)
-        $command = new EditUserCommand($userId, $this->actor->getUser());
-        $this->hydrate($command, $params->get('data'));
-        $user = $this->dispatch($command, $params);
-
-        // Presumably, the user was updated successfully. (The command handler
-        // would have thrown an exception if not.) We set this user as our
-        // document's primary element.
-        $serializer = new UserSerializer;
-        $document = $this->document()->setData($serializer->resource($user));
-
-        return $this->respondWithDocument($document);
+    /**
+     * Update a user according to input from the API request, and return it
+     * ready to be serialized and assigned to the JsonApi response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\Post
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        return $this->bus->dispatch(
+            new EditUserCommand($request->get('id'), $request->actor->getUser(), $request->get('data'))
+        );
     }
 }

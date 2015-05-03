@@ -1,25 +1,47 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Api\Actions\BaseAction;
 use Flarum\Core\Commands\UploadAvatarCommand;
-use Flarum\Api\Serializers\UserSerializer;
-use Illuminate\Http\Request;
+use Flarum\Api\Actions\SerializeResourceAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class UploadAvatarAction extends BaseAction
+class UploadAvatarAction extends SerializeResourceAction
 {
-    public function handle(Request $request, $routeParams = [])
+    /**
+     * @var \Illuminate\Contracts\Bus\Dispatcher
+     */
+    protected $bus;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
     {
-        $userId = array_get($routeParams, 'id');
-        $file = $request->file('avatar');
+        $this->bus = $bus;
+    }
 
-        $user = $this->dispatch(
-            new UploadAvatarCommand($userId, $file, $this->actor->getUser()),
-            $routeParams
+    /**
+     * Upload an avatar for a user, and return the user ready to be serialized
+     * and assigned to the JsonApi response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\User
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        return $this->bus->dispatch(
+            new UploadAvatarCommand($request->get('id'), $request->http->file('avatar'), $request->actor->getUser())
         );
-
-        $serializer = new UserSerializer;
-        $document = $this->document()->setData($serializer->resource($user));
-
-        return $this->respondWithDocument($document);
     }
 }

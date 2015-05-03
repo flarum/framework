@@ -12,16 +12,12 @@ class ShowAction extends SerializeResourceAction
     use GetsPosts;
 
     /**
-     * The discussion repository.
-     *
-     * @var DiscussionRepository
+     * @var \Flarum\Core\Repositories\DiscussionRepositoryInterface
      */
     protected $discussions;
 
     /**
-     * The post repository.
-     *
-     * @var PostRepository
+     * @var \Flarum\Core\Repositories\PostRepositoryInterface
      */
     protected $posts;
 
@@ -33,23 +29,21 @@ class ShowAction extends SerializeResourceAction
     public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
-     * The relations that are available to be included.
-     *
-     * @var array
-     */
-    public static $includeAvailable = [
-        'startUser', 'lastUser', 'startPost', 'lastPost', 'posts',
-        'posts.user', 'posts.user.groups', 'posts.editUser', 'posts.hideUser'
-    ];
-
-    /**
-     * The relations that are included by default.
+     * The relationships that are available to be included, and which ones are
+     * included by default.
      *
      * @var array
      */
     public static $include = [
-        'startPost', 'lastPost', 'posts',
-        'posts.user', 'posts.user.groups', 'posts.editUser', 'posts.hideUser'
+        'startUser' => false,
+        'lastUser' => false,
+        'startPost' => true,
+        'lastPost' => true,
+        'posts' => true,
+        'posts.user' => true,
+        'posts.user.groups' => true,
+        'posts.editUser' => true,
+        'posts.hideUser' => true
     ];
 
     /**
@@ -64,33 +58,20 @@ class ShowAction extends SerializeResourceAction
      *
      * @var array
      */
-    public static $sortAvailable = ['time'];
+    public static $sortFields = ['time'];
 
     /**
-     * The default field to sort by.
+     * The default sort field and order to user.
      *
      * @var string
      */
     public static $sort = ['time' => 'asc'];
 
     /**
-     * The maximum number of records that can be requested.
-     *
-     * @var integer
-     */
-    public static $limitMax = 50;
-
-    /**
-     * The number of records included by default.
-     *
-     * @var integer
-     */
-    public static $limit = 20;
-
-    /**
      * Instantiate the action.
      *
-     * @param PostRepository $posts
+     * @param \Flarum\Core\Repositories\DiscussionRepositoryInterface $discussions
+     * @param \Flarum\Core\Repositories\PostRepositoryInterface $posts
      */
     public function __construct(DiscussionRepositoryInterface $discussions, PostRepositoryInterface $posts)
     {

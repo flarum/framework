@@ -4,14 +4,14 @@ class PostReplyCommand
 {
     public $discussionId;
 
-    public $content;
-
     public $user;
 
-    public function __construct($discussionId, $content, $user)
+    public $data;
+
+    public function __construct($discussionId, $user, $data)
     {
         $this->discussionId = $discussionId;
-        $this->content = $content;
         $this->user = $user;
+        $this->data = $data;
     }
 }

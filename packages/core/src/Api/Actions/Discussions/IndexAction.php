@@ -23,46 +23,25 @@ class IndexAction extends SerializeCollectionAction
     public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
-     * The relations that are available to be included.
+     * The relationships that are available to be included, and which ones are
+     * included by default.
      *
      * @var array
      */
-    public static $includeAvailable = ['startUser', 'lastUser', 'startPost', 'lastPost', 'relevantPosts'];
-
-    /**
-     * The relations that are included by default.
-     *
-     * @var array
-     */
-    public static $include = ['startUser', 'lastUser'];
-
-    /**
-     * The maximum number of records that can be requested.
-     *
-     * @var integer
-     */
-    public static $limitMax = 50;
-
-    /**
-     * The number of records included by default.
-     *
-     * @var integer
-     */
-    public static $limit = 20;
+    public static $include = [
+        'startUser' => true,
+        'lastUser' => true,
+        'startPost' => false,
+        'lastPost' => false,
+        'relevantPosts' => false
+    ];
 
     /**
      * The fields that are available to be sorted by.
      *
      * @var array
      */
-    public static $sortAvailable = ['lastTime', 'commentsCount', 'startTime'];
-
-    /**
-     * The default field to sort by.
-     *
-     * @var string
-     */
-    public static $sort = ['lastTime' => 'desc'];
+    public static $sortFields = ['lastTime', 'commentsCount', 'startTime'];
 
     /**
      * Instantiate the action.

@@ -1,67 +1,75 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Repositories\PostRepositoryInterface;
-use Flarum\Support\Actor;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\PostSerializer;
+use Flarum\Api\Actions\SerializeCollectionAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class IndexAction extends BaseAction
+class IndexAction extends SerializeCollectionAction
 {
     use GetsPosts;
 
     /**
-     * The post repository.
-     *
-     * @var Post
+     * @var \Flarum\Core\Repositories\PostRepositoryInterface
      */
     protected $posts;
 
     /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\PostSerializer';
+
+    /**
+     * The relationships that are available to be included, and which ones are
+     * included by default.
+     *
+     * @var array
+     */
+    public static $include = [
+        'user' => true,
+        'user.groups' => true,
+        'editUser' => true,
+        'hideUser' => true,
+        'discussion' => true
+    ];
+
+    /**
      * Instantiate the action.
      *
-     * @param Post $posts
+     * @param \Flarum\Core\Repositories\PostRepositoryInterface $posts
      */
-    public function __construct(Actor $actor, PostRepositoryInterface $posts)
+    public function __construct(PostRepositoryInterface $posts)
     {
-        $this->actor = $actor;
         $this->posts = $posts;
     }
 
     /**
-     * Show posts from a discussion, or by providing an array of IDs.
-	 *
-	 * @return Response
-	 */
-    protected function run(ApiParams $params)
+     * Get the post results, ready to be serialized and assigned to the
+     * document response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $postIds = (array) $params->get('ids');
-        $include = ['user', 'user.groups', 'editUser', 'hideUser', 'discussion'];
-        $user = $this->actor->getUser();
+        $postIds = (array) $request->get('ids');
+        $user = $request->actor->getUser();
 
         if (count($postIds)) {
             $posts = $this->posts->findByIds($postIds, $user);
         } else {
-            if ($discussionId = $params->get('discussions')) {
+            if ($discussionId = $request->get('discussions')) {
                 $where['discussion_id'] = $discussionId;
             }
-            if ($userId = $params->get('users')) {
+            if ($userId = $request->get('users')) {
                 $where['user_id'] = $userId;
             }
-            $posts = $this->getPosts($params, $where, $user);
+            $posts = $this->getPosts($request, $where);
         }
 
-        if (! count($posts)) {
-            throw new ModelNotFoundException;
-        }
-
-        // Finally, we can set up the post serializer and use it to create
-        // a post resource or collection, depending on how many posts were
-        // requested.
-        $serializer = new PostSerializer($include);
-        $document = $this->document()->setData($serializer->collection($posts->load($include)));
-
-        return $this->respondWithDocument($document);
+        return $posts;
     }
 }

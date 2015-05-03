@@ -2,12 +2,11 @@
 
 use Flarum\Core\Search\Users\UserSearchCriteria;
 use Flarum\Core\Search\Users\UserSearcher;
-use Flarum\Support\Actor;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\UserSerializer;
+use Flarum\Api\Actions\SerializeCollectionAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class IndexAction extends BaseAction
+class IndexAction extends SerializeCollectionAction
 {
     /**
      * The user searcher.
@@ -21,59 +20,59 @@ class IndexAction extends BaseAction
      *
      * @param  \Flarum\Core\Search\Discussions\UserSearcher  $searcher
      */
-    public function __construct(Actor $actor, UserSearcher $searcher)
+    public function __construct(UserSearcher $searcher)
     {
-        $this->actor = $actor;
         $this->searcher = $searcher;
     }
 
     /**
-     * Show a list of users.
+     * The name of the serializer class to output results with.
      *
-     * @return \Illuminate\Http\Response
+     * @var string
      */
-    protected function run(ApiParams $params)
+    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+
+    /**
+     * The relationships that are available to be included, and which ones are
+     * included by default.
+     *
+     * @var array
+     */
+    public static $include = [
+        'groups' => true
+    ];
+
+    /**
+     * The fields that are available to be sorted by.
+     *
+     * @var array
+     */
+    public static $sortFields = ['username', 'postsCount', 'discussionsCount', 'lastSeenTime', 'joinTime'];
+
+    /**
+     * Get the user results, ready to be serialized and assigned to the
+     * document response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $query   = $params->get('q');
-        $start   = $params->start();
-        $include = $params->included(['groups']);
-        $count   = $params->count(20, 50);
-        $sort    = $params->sort(['', 'username', 'posts', 'discussions', 'lastActive', 'created']);
+        $criteria = new UserSearchCriteria(
+            $request->actor->getUser(),
+            $request->get('q'),
+            $request->sort
+        );
 
-        $relations = array_merge(['groups'], $include);
-
-        // Set up the user searcher with our search criteria, and get the
-        // requested range of results with the necessary relations loaded.
-        $criteria = new UserSearchCriteria($this->actor->getUser(), $query, $sort['field'], $sort['order']);
-
-        $results = $this->searcher->search($criteria, $count, $start, $relations);
-
-        $document = $this->document();
+        $results = $this->searcher->search($criteria, $request->limit, $request->offset, $request->include);
 
         if (($total = $results->getTotal()) !== null) {
-            $document->addMeta('total', $total);
+            $response->content->addMeta('total', $total);
         }
 
-        // If there are more results, then we need to construct a URL to the
-        // next results page and add that to the metadata. We do this by
-        // compacting all of the valid query parameters which have been
-        // specified.
-        if ($results->areMoreResults()) {
-            $start += $count;
-            $include = implode(',', $include);
-            $sort = $sort['string'];
-            $input = array_filter(compact('query', 'sort', 'start', 'count', 'include'));
-            $moreUrl = $this->buildUrl('users.index', [], $input);
-        } else {
-            $moreUrl = '';
-        }
-        $document->addMeta('moreUrl', $moreUrl);
+        // $response->content->addMeta('moreUrl', $moreUrl);
 
-        // Finally, we can set up the discussion serializer and use it to create
-        // a collection of discussion results.
-        $serializer = new UserSerializer($relations);
-        $document->setData($serializer->collection($results->getUsers()));
-
-        return $this->respondWithDocument($document);
+        return $results->getUsers();
     }
 }

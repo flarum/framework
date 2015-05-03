@@ -1,23 +1,41 @@
 <?php namespace Flarum\Api\Actions\Users;
 
 use Flarum\Core\Commands\DeleteUserCommand;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Actions\BaseAction;
+use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
+use Flarum\Api\Request;
+use Illuminate\Http\Response;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class DeleteAction extends BaseAction
+class DeleteAction extends BaseDeleteAction
 {
+    /**
+     * The command bus.
+     *
+     * @var \Illuminate\Contracts\Bus\Dispatcher
+     */
+    protected $bus;
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
+    {
+        $this->bus = $bus;
+    }
+
     /**
      * Delete a user.
      *
-     * @return Response
+     * @param \Flarum\Api\Request $request
+     * @param \Illuminate\Http\Response $response
+     * @return void
      */
-    protected function run(ApiParams $params)
+    protected function delete(Request $request, Response $response)
     {
-        $userId = $params->get('id');
-
-        $command = new DeleteUserCommand($userId, $this->actor->getUser());
-        $this->dispatch($command, $params);
-
-        return $this->respondWithoutContent();
+        $this->bus->dispatch(
+            new DeleteUserCommand($request->get('id'), $request->actor->getUser())
+        );
     }
 }

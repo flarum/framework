@@ -1,18 +1,29 @@
 <?php namespace Flarum\Api\Actions\Groups;
 
 use Flarum\Core\Models\Group;
-use Flarum\Api\Actions\Base;
-use Flarum\Api\Serializers\GroupSerializer;
+use Flarum\Api\Actions\SerializeCollectionAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class Index extends Base
+class IndexAction extends SerializeCollectionAction
 {
-    protected function run()
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\GroupSerializer';
+
+    /**
+     * Get the groups, ready to be serialized and assigned to the document
+     * response.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $groups = Group::get();
-
-        $serializer = new GroupSerializer;
-        $this->document->setData($serializer->collection($groups));
-
-        return $this->respondWithDocument();
+        return Group::get();
     }
 }
