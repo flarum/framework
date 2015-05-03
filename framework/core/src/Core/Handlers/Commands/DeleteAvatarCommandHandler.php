@@ -1,16 +1,15 @@
 <?php namespace Flarum\Core\Handlers\Commands;
 
-use Flarum\Core\Commands\UploadAvatarCommand;
-use Flarum\Core\Events\AvatarWillBeUploaded;
+use Flarum\Core\Commands\DeleteAvatarCommand;
+use Flarum\Core\Events\AvatarWillBeDeleted;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Support\DispatchesEvents;
-use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\MountManager;
 
-class UploadAvatarCommandHandler
+class DeleteAvatarCommandHandler
 {
     use DispatchesEvents;
 
@@ -30,7 +29,7 @@ class UploadAvatarCommandHandler
         $this->uploadDir = $uploadDir;
     }
 
-    public function handle(UploadAvatarCommand $command)
+    public function handle(DeleteAvatarCommand $command)
     {
         $user = $this->users->findOrFail($command->userId);
 
@@ -39,21 +38,13 @@ class UploadAvatarCommandHandler
         // throw an exception otherwise.
         $user->assertCan($command->actor, 'edit');
 
-        $filename = $command->file->getFilename();
-        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+        $avatarPath = $user->avatar_path;
+        $user->changeAvatarPath(null);
 
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local($command->file->getPath())),
-            'target' => $this->uploadDir,
-        ]);
+        event(new AvatarWillBeDeleted($user, $command));
 
-        // @todo delete old avatar
+        $this->uploadDir->delete($avatarPath);
 
-        $user->changeAvatarPath($uploadName);
-
-        event(new AvatarWillBeUploaded($user, $command));
-
-        $mount->move("source://$filename", "target://$uploadName");
         $user->save();
         $this->dispatchEventsFor($user);
 

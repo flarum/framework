@@ -78,6 +78,11 @@ Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWit
         'uses' => $action('Flarum\Api\Actions\Users\UploadAvatarAction')
     ]);
 
+    Route::delete('users/{id}/avatar', [
+        'as' => 'flarum.api.users.avatar.delete',
+        'uses' => $action('Flarum\Api\Actions\Users\DeleteAvatarAction')
+    ]);
+
     /*
     |--------------------------------------------------------------------------
     | Activity
