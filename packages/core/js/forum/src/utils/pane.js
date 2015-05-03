@@ -4,7 +4,7 @@ export default class Pane {
 
     this.$element = $(element);
 
-    this.pinned = localStorage.getItem(this.pinnedKey) !== 'false';
+    this.pinned = localStorage.getItem(this.pinnedKey) === 'true';
     this.active = false;
     this.showing = false;
     this.render();
