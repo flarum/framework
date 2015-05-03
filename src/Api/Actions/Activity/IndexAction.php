@@ -2,46 +2,77 @@
 
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Repositories\ActivityRepositoryInterface;
-use Flarum\Support\Actor;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\ActivitySerializer;
+use Flarum\Api\Actions\SerializeCollectionAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class IndexAction extends BaseAction
+class IndexAction extends SerializeCollectionAction
 {
+    /**
+     * @var \Flarum\Core\Repositories\UserRepositoryInterface
+     */
+    protected $users;
+
+    /**
+     * @var \Flarum\Core\Repositories\ActivityRepositoryInterface
+     */
+    protected $activity;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\ActivitySerializer';
+
+    /**
+     * The relationships that are available to be included, and which ones are
+     * included by default.
+     *
+     * @var array
+     */
+    public static $include = [
+        'sender' => true,
+        'post' => true,
+        'post.user' => true,
+        'post.discussion' => true,
+        'post.discussion.startUser' => true,
+        'post.discussion.lastUser' => true
+    ];
+
+    /**
+     * The relations that are linked by default.
+     *
+     * @var array
+     */
+    public static $link = ['user'];
+
     /**
      * Instantiate the action.
      *
-     * @param  \Flarum\Core\Search\Discussions\UserSearcher  $searcher
+     * @param \Flarum\Core\Repositories\UserRepositoryInterface $users
+     * @param \Flarum\Core\Repositories\ActivityRepositoryInterface $activity
      */
-    public function __construct(Actor $actor, UserRepositoryInterface $users, ActivityRepositoryInterface $activity)
+    public function __construct(UserRepositoryInterface $users, ActivityRepositoryInterface $activity)
     {
-        $this->actor = $actor;
         $this->users = $users;
         $this->activity = $activity;
     }
 
     /**
-     * Show a user's activity feed.
+     * Get the activity results, ready to be serialized and assigned to the
+     * document response.
      *
-     * @return \Illuminate\Http\Response
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function run(ApiParams $params)
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $start = $params->start();
-        $count = $params->count(20, 50);
-        $type  = $params->get('type');
-        $id    = $params->get('users');
+        $actor = $request->actor->getUser();
 
-        $user = $this->users->findOrFail($id, $this->actor->getUser());
+        $user = $this->users->findOrFail($request->get('users'), $actor);
 
-        $activity = $this->activity->findByUser($user->id, $this->actor->getUser(), $count, $start, $type);
-
-        // Finally, we can set up the activity serializer and use it to create
-        // a collection of activity results.
-        $serializer = new ActivitySerializer(['sender', 'post', 'post.discussion', 'post.user', 'post.discussion.startUser', 'post.discussion.lastUser'], ['user']);
-        $document = $this->document()->setData($serializer->collection($activity));
-
-        return $this->respondWithDocument($document);
+        return $this->activity->findByUser($user->id, $actor, $request->limit, $request->offset, $request->get('type'));
     }
 }

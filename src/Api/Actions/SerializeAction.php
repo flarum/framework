@@ -16,21 +16,15 @@ abstract class SerializeAction implements ActionInterface
     public static $serializer;
 
     /**
-     * The relations that are available to be included.
-     *
-     * @var array
-     */
-    public static $includeAvailable = [];
-
-    /**
-     * The relations that are included by default.
+     * The relationships that are available to be included (keys), and which
+     * ones are included by default (boolean values).
      *
      * @var array
      */
     public static $include = [];
 
     /**
-     * The relations that are linked by default.
+     * The relationships that are linked by default.
      *
      * @var array
      */
@@ -41,24 +35,24 @@ abstract class SerializeAction implements ActionInterface
      *
      * @var integer
      */
-    public static $limitMax;
+    public static $limitMax = 50;
 
     /**
      * The number of records included by default.
      *
      * @var integer
      */
-    public static $limit;
+    public static $limit = 20;
 
     /**
      * The fields that are available to be sorted by.
      *
      * @var array
      */
-    public static $sortAvailable = [];
+    public static $sortFields = [];
 
     /**
-     * The default field to sort by.
+     * The default sort field and order to user.
      *
      * @var string
      */
@@ -110,7 +104,7 @@ abstract class SerializeAction implements ActionInterface
      */
     protected static function buildJsonApiRequest(Request $request)
     {
-        $request = new JsonApiRequest($request->input, $request->actor, $request->httpRequest);
+        $request = new JsonApiRequest($request->input, $request->actor, $request->http);
 
         $criteria = new Criteria($request->input);
 
@@ -132,7 +126,7 @@ abstract class SerializeAction implements ActionInterface
      */
     protected static function sanitizeInclude(array $include)
     {
-        return array_intersect($include, static::$includeAvailable) ?: static::$include;
+        return array_intersect($include, array_keys(static::$include)) ?: array_keys(array_filter(static::$include));
     }
 
     /**
@@ -144,7 +138,7 @@ abstract class SerializeAction implements ActionInterface
      */
     protected static function sanitizeSort(array $sort)
     {
-        return array_intersect_key($sort, array_flip(static::$sortAvailable)) ?: static::$sort;
+        return array_intersect_key($sort, array_flip(static::$sortFields)) ?: static::$sort;
     }
 
     /**

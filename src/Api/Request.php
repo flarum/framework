@@ -9,17 +9,17 @@ class Request
 
     public $actor;
 
-    public $httpRequest;
+    public $http;
 
-    public function __construct(array $input, Actor $actor, IlluminateRequest $httpRequest = null)
+    public function __construct(array $input, Actor $actor, IlluminateRequest $http = null)
     {
         $this->input = $input;
         $this->actor = $actor;
-        $this->httpRequest = $httpRequest;
+        $this->http = $http;
     }
 
     public function get($key, $default = null)
     {
-        return isset($this->input[$key]) ? $this->input[$key] : $default;
+        return array_get($this->input, $key, $default);
     }
 }

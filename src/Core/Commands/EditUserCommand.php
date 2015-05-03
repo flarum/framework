@@ -6,21 +6,12 @@ class EditUserCommand
 
     public $user;
 
-    public $username;
+    public $data;
 
-    public $email;
-
-    public $password;
-
-    public $bio;
-
-    public $readTime;
-
-    public $preferences;
-
-    public function __construct($userId, $user)
+    public function __construct($userId, $user, $data)
     {
         $this->userId = $userId;
         $this->user = $user;
+        $this->data = $data;
     }
 }

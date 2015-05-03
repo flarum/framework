@@ -41,7 +41,7 @@ class StartDiscussionCommandHandler
         // will trigger a domain event that is slightly semantically incorrect
         // in this situation (PostWasPosted), we may need to reconsider someday.
         $post = $this->bus->dispatch(
-            new PostReplyCommand($discussion->id, array_get($command->data, 'content'), $command->user)
+            new PostReplyCommand($discussion->id, $command->user, $command->data)
         );
 
         return $post->discussion;

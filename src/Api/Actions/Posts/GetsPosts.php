@@ -1,6 +1,5 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Flarum\Core\Models\User;
 use Flarum\Api\JsonApiRequest;
 
 trait GetsPosts

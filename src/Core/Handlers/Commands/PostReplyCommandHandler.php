@@ -34,7 +34,7 @@ class PostReplyCommandHandler
         // opportunity to alter the post entity based on data in the command.
         $post = CommentPost::reply(
             $command->discussionId,
-            $command->content,
+            array_get($command->data, 'content'),
             $user->id
         );
 

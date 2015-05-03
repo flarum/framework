@@ -8,6 +8,7 @@ use Config;
 use View;
 use DB;
 use Flarum\Forum\Events\RenderView;
+use Flarum\Api\Request as ApiRequest;
 
 class IndexAction extends BaseAction
 {
@@ -24,12 +25,13 @@ class IndexAction extends BaseAction
                 'token' => Cookie::get('flarum_remember')
             ];
 
-            $response = $this->callAction('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
-            $response = $response->getData();
+            $response = app('Flarum\Api\Actions\Users\ShowAction')
+                ->handle(new ApiRequest(['id' => $user->id], $this->actor))
+                ->content->toArray();
 
-            $data = [$response->data];
-            if (isset($response->included)) {
-                $data = array_merge($data, $response->included);
+            $data = [$response['data']];
+            if (isset($response['included'])) {
+                $data = array_merge($data, $response['included']);
             }
         }
 

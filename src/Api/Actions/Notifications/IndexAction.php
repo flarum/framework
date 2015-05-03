@@ -1,50 +1,78 @@
 <?php namespace Flarum\Api\Actions\Notifications;
 
 use Flarum\Core\Repositories\NotificationRepositoryInterface;
-use Flarum\Support\Actor;
 use Flarum\Core\Exceptions\PermissionDeniedException;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Serializers\NotificationSerializer;
+use Flarum\Api\Actions\SerializeCollectionAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
 
-class IndexAction extends BaseAction
+class IndexAction extends SerializeCollectionAction
 {
+    /**
+     * @var \Flarum\Core\Repositories\NotificationRepositoryInterface
+     */
+    protected $notifications;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\NotificationSerializer';
+
+    /**
+     * The relations that are included by default.
+     *
+     * @var array
+     */
+    public static $include = [
+        'sender' => true,
+        'subject' => true,
+        'subject.discussion' => true
+    ];
+
+    /**
+     * The maximum number of records that can be requested.
+     *
+     * @var integer
+     */
+    public static $limitMax = 50;
+
+    /**
+     * The number of records included by default.
+     *
+     * @var integer
+     */
+    public static $limit = 10;
+
     /**
      * Instantiate the action.
      *
-     * @param  \Flarum\Core\Search\Discussions\UserSearcher  $searcher
+     * @param \Flarum\Core\Repositories\NotificationRepositoryInterface $notifications
      */
-    public function __construct(Actor $actor, NotificationRepositoryInterface $notifications)
+    public function __construct(NotificationRepositoryInterface $notifications)
     {
-        $this->actor = $actor;
         $this->notifications = $notifications;
     }
 
     /**
-     * Show a user's notifications feed.
+     * Get the notification results, ready to be serialized and assigned to the
+     * document response.
      *
-     * @return \Illuminate\Http\Response
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function run(ApiParams $params)
+    protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
-        $start = $params->start();
-        $count = $params->count(10, 50);
-
-        if (! $this->actor->isAuthenticated()) {
+        if (! $request->actor->isAuthenticated()) {
             throw new PermissionDeniedException;
         }
 
-        $user = $this->actor->getUser();
-
-        $notifications = $this->notifications->findByUser($user->id, $count, $start);
+        $user = $request->actor->getUser();
 
         $user->markNotificationsAsRead()->save();
 
-        // Finally, we can set up the notification serializer and use it to create
-        // a collection of notification results.
-        $serializer = new NotificationSerializer(['sender', 'subject', 'subject.discussion']);
-        $document = $this->document()->setData($serializer->collection($notifications));
-
-        return $this->respondWithDocument($document);
+        return $this->notifications->findByUser($user->id, $request->limit, $request->offset);
     }
 }

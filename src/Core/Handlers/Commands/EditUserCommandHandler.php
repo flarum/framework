@@ -22,23 +22,28 @@ class EditUserCommandHandler
 
         $userToEdit->assertCan($user, 'edit');
 
-        if (isset($command->username)) {
-            $userToEdit->rename($command->username);
+        if (isset($command->data['username'])) {
+            $userToEdit->rename($command->data['username']);
         }
-        if (isset($command->email)) {
-            $userToEdit->changeEmail($command->email);
+
+        if (isset($command->data['email'])) {
+            $userToEdit->changeEmail($command->data['email']);
         }
-        if (isset($command->password)) {
-            $userToEdit->changePassword($command->password);
+
+        if (isset($command->data['password'])) {
+            $userToEdit->changePassword($command->data['password']);
         }
-        if (isset($command->bio)) {
-            $userToEdit->changeBio($command->bio);
+
+        if (isset($command->data['bio'])) {
+            $userToEdit->changeBio($command->data['bio']);
         }
-        if (! empty($command->readTime)) {
+
+        if (! empty($command->data['readTime'])) {
             $userToEdit->markAllAsRead();
         }
-        if (! empty($command->preferences)) {
-            foreach ($command->preferences as $k => $v) {
+
+        if (! empty($command->data['preferences'])) {
+            foreach ($command->data['preferences'] as $k => $v) {
                 $userToEdit->setPreference($k, $v);
             }
         }

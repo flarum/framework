@@ -2,46 +2,61 @@
 
 use Flarum\Core\Commands\PostReplyCommand;
 use Flarum\Core\Commands\ReadDiscussionCommand;
-use Flarum\Api\Actions\ApiParams;
-use Flarum\Api\Actions\BaseAction;
-use Flarum\Api\Serializers\PostSerializer;
+use Flarum\Api\Actions\CreateAction as BaseCreateAction;
+use Flarum\Api\JsonApiRequest;
+use Flarum\Api\JsonApiResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class CreateAction extends BaseAction
+class CreateAction extends BaseCreateAction
 {
     /**
-     * Reply to a discussion.
-     *
-     * @return Response
+     * @var \Illuminate\Contracts\Bus\Dispatcher
      */
-    protected function run(ApiParams $params)
+    protected $bus;
+
+    /**
+     * The name of the serializer class to output results with.
+     *
+     * @var string
+     */
+    public static $serializer = 'Flarum\Api\Serializers\PostSerializer';
+
+    /**
+     * Instantiate the action.
+     *
+     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
     {
-        $user = $this->actor->getUser();
+        $this->bus = $bus;
+    }
 
-        // We've received a request to post a reply. By default, the only
-        // required attributes of a post is the ID of the discussion to post in,
-        // the post content, and the author's user account. Let's set up a
-        // command with this information. We also fire an event to allow plugins
-        // to add data to the command.
-        $discussionId = $params->get('data.links.discussion.linkage.id');
-        $content = $params->get('data.content');
+    /**
+     * Reply to a discussion according to input from the API request.
+     *
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @return \Flarum\Core\Models\Post
+     */
+    protected function create(JsonApiRequest $request, JsonApiResponse $response)
+    {
+        $user = $request->actor->getUser();
 
-        $command = new PostReplyCommand($discussionId, $content, $user);
-        $post = $this->dispatch($command, $params);
+        $discussionId = $request->get('data.links.discussion.linkage.id');
+
+        $post = $this->bus->dispatch(
+            new PostReplyCommand($discussionId, $user, $request->get('data'))
+        );
 
         // After replying, we assume that the user has seen all of the posts
         // in the discussion; thus, we will mark the discussion as read if
         // they are logged in.
         if ($user->exists) {
-            $command = new ReadDiscussionCommand($discussionId, $user, $post->number);
-            $this->dispatch($command, $params);
+            $this->bus->dispatch(
+                new ReadDiscussionCommand($discussionId, $user, $post->number)
+            );
         }
 
-        // Presumably, the post was created successfully. (The command handler
-        // would have thrown an exception if not.) We set this post as our
-        // document's primary element.
-        $serializer = new PostSerializer;
-        $document = $this->document()->setData($serializer->resource($post));
-
-        return $this->respondWithDocument($document, 201);
+        return $post;
     }
 }

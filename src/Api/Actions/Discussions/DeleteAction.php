@@ -16,7 +16,7 @@ class DeleteAction extends BaseDeleteAction
     protected $bus;
 
     /**
-     * Initialize the action.
+     * Instantiate the action.
      *
      * @param \Illuminate\Contracts\Bus\Dispatcher $bus
      */
@@ -26,9 +26,10 @@ class DeleteAction extends BaseDeleteAction
     }
 
     /**
-     * Delete a discussion according to input from the API request.
+     * Delete a discussion.
      *
      * @param \Flarum\Api\Request $request
+     * @param \Illuminate\Http\Response $response
      * @return void
      */
     protected function delete(Request $request, Response $response)

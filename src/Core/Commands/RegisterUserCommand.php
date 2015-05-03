@@ -6,18 +6,12 @@ class RegisterUserCommand
 
     public $user;
 
-    public $username;
+    public $data;
 
-    public $email;
-
-    public $password;
-
-    public function __construct($username, $email, $password, $user, $forum)
+    public function __construct($user, $forum, $data)
     {
-        $this->username = $username;
-        $this->email = $email;
-        $this->password = $password;
         $this->user = $user;
         $this->forum = $forum;
+        $this->data = $data;
     }
 }
