@@ -60,7 +60,7 @@ export default class DiscussionPage extends Component {
     this.discussion(discussion);
 
     var includedPosts = [];
-    discussion.payload.included.forEach(record => {
+    discussion.payload.included && discussion.payload.included.forEach(record => {
       if (record.type === 'posts') {
         includedPosts.push(record.id);
       }
