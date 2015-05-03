@@ -31,7 +31,9 @@ export default class PostHeaderUser extends Component {
           username()
         ]
       ),
-      this.showCard() ? UserCard.component({user, className: 'user-card-popover fade', controlsButtonClass: 'btn btn-default btn-icon btn-sm btn-naked'}) : ''
+      user && this.showCard()
+        ? UserCard.component({user, className: 'user-card-popover fade', controlsButtonClass: 'btn btn-default btn-icon btn-sm btn-naked'})
+        : ''
     ]);
   }
 

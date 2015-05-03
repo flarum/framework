@@ -1,5 +1,6 @@
 import Component from 'flarum/component';
 import humanTime from 'flarum/utils/human-time';
+import username from 'flarum/helpers/username';
 
 /**
   Displays information about a the first or last post in a discussion.
@@ -16,7 +17,7 @@ export default class TerminalPost extends Component {
     var lastPost = this.props.lastPost && discussion.repliesCount();
 
     return m('span', [
-      m('span.username', discussion[lastPost ? 'lastUser' : 'startUser']().username()),
+      username(discussion[lastPost ? 'lastUser' : 'startUser']()),
       lastPost ? ' replied ' : ' started ',
       m('time', humanTime(discussion[lastPost ? 'lastTime' : 'startTime']()))
     ])

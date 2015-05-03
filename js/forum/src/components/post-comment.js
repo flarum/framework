@@ -24,7 +24,7 @@ export default class PostComment extends Component {
 
     this.subtree = new SubtreeRetainer(
       () => this.props.post.freshness,
-      () => this.props.post.user().freshness,
+      () => this.props.post.user() && this.props.post.user().freshness,
       this.postHeaderUser.showCard
     );
   }
