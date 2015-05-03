@@ -50,7 +50,7 @@ class IndexAction extends BaseAction
             $root.'/less/forum/app.less'
         ]);
 
-        event(new RenderView($view, $assetManager));
+        event(new RenderView($view, $assetManager, $this));
 
         return $view
             ->with('styles', $assetManager->getCSSFiles())
