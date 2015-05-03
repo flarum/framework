@@ -6,9 +6,12 @@ class RenderView
 
     public $assets;
 
-    public function __construct(&$view, $assets)
+    public $action;
+
+    public function __construct(&$view, $assets, $action)
     {
         $this->view = &$view;
         $this->assets = $assets;
+        $this->action = $action;
     }
 }
