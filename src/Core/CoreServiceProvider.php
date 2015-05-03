@@ -14,6 +14,7 @@ use Flarum\Core\Models\Discussion;
 use Flarum\Core\Search\GambitManager;
 use League\Flysystem\Adapter\Local;
 use Flarum\Core\Events\RegisterDiscussionGambits;
+use Flarum\Core\Events\RegisterUserGambits;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -110,6 +111,9 @@ class CoreServiceProvider extends ServiceProvider
             ->give(function () {
                 $gambits = new GambitManager($this->app);
                 $gambits->setFulltextGambit('Flarum\Core\Search\Users\Gambits\FulltextGambit');
+
+                event(new RegisterUserGambits($gambits));
+
                 return $gambits;
             });
     }
