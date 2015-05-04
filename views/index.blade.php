@@ -6,7 +6,6 @@
     <title>{{ $title }}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
-    <base href="/">
     @foreach ($styles as $file)
       <link rel="stylesheet" href="{{ str_replace(public_path(), '', $file) }}">
     @endforeach

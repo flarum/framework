@@ -9,10 +9,10 @@ import boot from 'flarum/initializers/boot';
 var app = new App();
 
 app.initializers.add('store', store);
-app.initializers.add('preload', preload);
 app.initializers.add('session', session);
 app.initializers.add('routes', routes);
 app.initializers.add('timestamps', timestamps);
+app.initializers.add('preload', preload, {last: true});
 app.initializers.add('boot', boot, {last: true});
 
 export default app;

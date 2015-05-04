@@ -16,13 +16,6 @@ class AdminServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom($root.'/views', 'flarum.admin');
 
-        $assetManager = $this->app['flarum.admin.assetManager'];
-
-        $assetManager->addFile([
-            $root.'/js/admin/dist/app.js',
-            $root.'/less/admin/app.less'
-        ]);
-
         $this->publishes([
             $root.'/public/fonts' => public_path('flarum/fonts')
         ]);
