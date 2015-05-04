@@ -10,15 +10,15 @@ var cached = require('gulp-cached');
 var remember = require('gulp-remember');
 
 var vendorFiles = [
-  './bower_components/loader.js/loader.js',
-  './bower_components/mithril/mithril.js',
-  './bower_components/jquery/dist/jquery.js',
-  './bower_components/jquery.hotkeys/jquery.hotkeys.js',
-  './bower_components/color-thief/js/color-thief.js',
-  './bower_components/moment/moment.js',
-  './bower_components/bootstrap/dist/js/bootstrap.js',
-  './bower_components/spin.js/spin.js',
-  './bower_components/spin.js/jquery.spin.js'
+  '../bower_components/loader.js/loader.js',
+  '../bower_components/mithril/mithril.js',
+  '../bower_components/jquery/dist/jquery.js',
+  '../bower_components/jquery.hotkeys/jquery.hotkeys.js',
+  '../bower_components/color-thief/js/color-thief.js',
+  '../bower_components/moment/moment.js',
+  '../bower_components/bootstrap/dist/js/bootstrap.js',
+  '../bower_components/spin.js/spin.js',
+  '../bower_components/spin.js/jquery.spin.js'
 ];
 
 var moduleFiles = [

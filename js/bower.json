@@ -1,5 +1,4 @@
 {
-  "name": "flarum-forum",
   "dependencies": {
     "jquery": "2.1.3",
     "jquery.hotkeys": "jeresig/jquery.hotkeys#0.2.0",
@@ -7,7 +6,7 @@
     "spin.js": "~2.0.1",
     "moment": "~2.8.4",
     "color-thief": "v2.0",
-    "mithril": "lhorie/mithril.js#components",
+    "mithril": "0.2.0",
     "loader.js": "~3.2.1"
   }
 }
