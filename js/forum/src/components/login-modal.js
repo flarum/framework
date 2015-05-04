@@ -17,6 +17,7 @@ export default class LoginModal extends Component {
         m('button.btn.btn-icon.btn-link.close.back-control', {onclick: app.modal.close.bind(app.modal)}, icon('times')),
         m('form', {onsubmit: this.login.bind(this)}, [
           m('div.modal-header', m('h3.title-control', 'Log In')),
+          this.props.message ? m('div.modal-alert.alert', this.props.message) : '',
           m('div.modal-body', [
             m('div.form-centered', [
               m('div.form-group', [
@@ -47,8 +48,9 @@ export default class LoginModal extends Component {
   login(e) {
     e.preventDefault();
     this.loading(true);
-    app.session.login(this.email(), this.password()).then(function() {
+    app.session.login(this.email(), this.password()).then(() => {
       app.modal.close();
+      this.props.callback && this.props.callback();
     }, (response) => {
       this.loading(false);
       m.redraw();
