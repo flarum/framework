@@ -131,6 +131,18 @@ export default class PostStream {
     });
   }
 
+  sync() {
+    var discussion = this.discussion;
+
+    var addedPosts = discussion.addedPosts();
+    addedPosts && addedPosts.forEach(this.addPostToEnd.bind(this));
+    discussion.pushData({links: {addedPosts: null}});
+
+    var removedPosts = discussion.removedPosts();
+    removedPosts && removedPosts.forEach(this.removePost.bind(this));
+    discussion.pushData({removedPosts: null});
+  }
+
   makeItem(start, end, post) {
     var item = {start, end}
     if (post) {
