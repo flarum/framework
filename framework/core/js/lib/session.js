@@ -32,7 +32,7 @@ export default class Session extends mixin(class {}, evented) {
   }
 
   logout() {
-    window.location = app.config.baseURL+'/logout';
+    window.location = app.config['base_url']+'/logout';
   }
 
   authorize(xhr) {
