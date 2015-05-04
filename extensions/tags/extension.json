@@ -1,0 +1,15 @@
+{
+    "name": "categories",
+    "description": "Organise discussions into a heirarchy of categories.",
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org",
+        "website": "http://tobyzerner.com"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">1.0.0"
+    }
+}
