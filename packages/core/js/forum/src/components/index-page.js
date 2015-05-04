@@ -7,6 +7,7 @@ import mixin from 'flarum/utils/mixin';
 import DiscussionList from 'flarum/components/discussion-list';
 import WelcomeHero from 'flarum/components/welcome-hero';
 import ComposerDiscussion from 'flarum/components/composer-discussion';
+import LoginModal from 'flarum/components/login-modal';
 
 import SelectInput from 'flarum/components/select-input';
 import ActionButton from 'flarum/components/action-button';
@@ -124,7 +125,10 @@ export default class IndexPage extends Component {
       app.composer.load(new ComposerDiscussion({ user: app.session.user() }));
       app.composer.show();
     } else {
-      // signup
+      app.modal.show(new LoginModal({
+        message: 'You must be logged in to do that.',
+        callback: this.newDiscussion.bind(this)
+      }));
     }
   }
 

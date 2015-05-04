@@ -16,13 +16,14 @@ export default class Modal extends Component {
   }
 
   show(component) {
+    clearTimeout(this.hideTimeout);
     this.component = component;
     m.redraw(true);
     this.$().modal('show');
   }
 
   close() {
-    this.$().modal('hide');
+    this.hideTimeout = setTimeout(() => this.$().modal('hide'));
   }
 
   destroy() {
