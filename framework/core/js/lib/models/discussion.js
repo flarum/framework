@@ -78,8 +78,8 @@ class Discussion extends Model {
     var title = prompt('Enter a new title for this discussion:', currentTitle);
     if (title && title !== currentTitle) {
       this.save({title}).then(discussion => {
-        if (app.current.discussion && app.current.discussion().id() === discussion.id()) {
-          discussion.addedPosts().forEach(post => app.current.stream().addPostToEnd(post));
+        if (app.current instanceof DiscussionPage) {
+          app.current.stream().sync();
         }
         m.redraw();
       });
