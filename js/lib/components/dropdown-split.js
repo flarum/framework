@@ -13,10 +13,11 @@ export default class DropdownSplit extends Component {
     var firstItem = this.props.items[0];
     var items = listItems(this.props.items);
 
-    var buttonProps = { className: this.props.buttonClass || 'btn btn-default' };
+    var buttonProps = {};
     for (var i in firstItem.props) {
       buttonProps[i] = firstItem.props[i];
     }
+    buttonProps.className = (buttonProps.className || '')+' '+(this.props.buttonClass || 'btn btn-default');
 
     return m('div', {className: 'dropdown dropdown-split btn-group item-count-'+(items.length)+' '+this.props.className}, [
       ActionButton.component(buttonProps),

@@ -5,6 +5,7 @@ import DiscussionPage from 'flarum/components/discussion-page';
 import ActionButton from 'flarum/components/action-button';
 import Separator from 'flarum/components/separator';
 import ComposerReply from 'flarum/components/composer-reply';
+import LoginModal from 'flarum/components/login-modal';
 
 class Discussion extends Model {
   unreadCount() {
@@ -23,7 +24,10 @@ class Discussion extends Model {
     var items = new ItemList();
 
     if (context instanceof DiscussionPage) {
-      items.add('reply', ActionButton.component({ icon: 'reply', label: 'Reply', onclick: this.replyAction.bind(this) }));
+      items.add('reply', !app.session.user() || this.canReply()
+        ? ActionButton.component({ icon: 'reply', label: app.session.user() ? 'Reply' : 'Log In to Reply', onclick: this.replyAction.bind(this) })
+        : ActionButton.component({ icon: 'reply', label: 'Can\'t Reply', className: 'disabled', title: 'You don\'t have permission to reply to this discussion.' })
+      );
 
       items.add('separator', Separator.component());
     }
@@ -40,7 +44,7 @@ class Discussion extends Model {
   }
 
   replyAction() {
-    if (app.session.user()) {
+    if (app.session.user() && this.canReply()) {
       if (app.current.discussion && app.current.discussion().id() === this.id()) {
         app.current.streamContent.goToLast();
       }
@@ -49,8 +53,11 @@ class Discussion extends Model {
         discussion: this
       }));
       app.composer.show();
-    } else {
-      // signup
+    } else if (!app.session.user()) {
+      app.modal.show(new LoginModal({
+        message: 'You must be logged in to do that.',
+        callback: this.replyAction.bind(this)
+      }));
     }
   }
 
