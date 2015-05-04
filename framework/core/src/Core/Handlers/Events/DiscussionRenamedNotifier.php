@@ -27,7 +27,7 @@ class DiscussionRenamedNotifier
     {
         $post = $this->createPost($event);
 
-        $event->discussion->postWasAdded($post);
+        $event->discussion->addPost($post);
 
         if ($event->discussion->start_user_id !== $event->user->id) {
             $this->sendNotification($event, $post);
@@ -36,16 +36,12 @@ class DiscussionRenamedNotifier
 
     protected function createPost(DiscussionWasRenamed $event)
     {
-        $post = DiscussionRenamedPost::reply(
+        return DiscussionRenamedPost::reply(
             $event->discussion->id,
             $event->user->id,
             $event->oldTitle,
             $event->discussion->title
         );
-
-        $post->save();
-
-        return $post;
     }
 
     protected function sendNotification(DiscussionWasRenamed $event, DiscussionRenamedPost $post)
