@@ -7,7 +7,7 @@
     "spin.js": "~2.0.1",
     "moment": "~2.8.4",
     "color-thief": "v2.0",
-    "mithril": "lhorie/mithril.js#components",
+    "mithril": "0.2.0",
     "loader.js": "~3.2.1"
   }
 }
