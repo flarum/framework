@@ -14,6 +14,15 @@
       color: @fl-body-color;
       background-color: @fl-body-control-bg;
     }
+    &.disabled {
+      color: #aaa;
+      cursor: default;
+
+      &:hover, &:focus {
+        color: #aaa;
+        background: none;
+      }
+    }
     & .icon {
       float: left;
       margin-left: -25px;
@@ -31,12 +40,22 @@
     background-color: @fl-body-control-bg;
   }
 }
-.dropdown-split.item-count-1 {
-  & .btn {
-    border-radius: @border-radius-base !important;
-  }
-  & .dropdown-toggle {
-    display: none;
+@media @tablet, @desktop, @desktop-hd {
+  .dropdown-split {
+    &.item-count-1 {
+      & .btn {
+        border-radius: @border-radius-base !important;
+      }
+      & .dropdown-toggle {
+        display: none;
+      }
+    }
+
+    & .dropdown-menu li:first-child {
+      &, & + li.divider {
+        display: none;
+      }
+    }
   }
 }
 
