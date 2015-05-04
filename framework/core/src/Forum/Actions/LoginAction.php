@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Flarum\Forum\Events\UserLoggedIn;
 use Flarum\Core\Repositories\UserRepositoryInterface;
+use Flarum\Api\Request as ApiRequest;
 
 class LoginAction extends BaseAction
 {
@@ -17,7 +18,8 @@ class LoginAction extends BaseAction
 
     public function handle(Request $request, $routeParams = [])
     {
-        $response = $this->callAction('Flarum\Api\Actions\TokenAction', $request->only('identification', 'password'));
+        $response = app('Flarum\Api\Actions\TokenAction')
+            ->handle(new ApiRequest($request->only('identification', 'password')));
 
         $data = $response->getData();
         if (! empty($data->token)) {

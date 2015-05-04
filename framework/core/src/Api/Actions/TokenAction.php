@@ -1,14 +1,16 @@
 <?php namespace Flarum\Api\Actions;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\Bus\Dispatcher;
+use Flarum\Api\Request;
 use Flarum\Core\Commands\GenerateAccessTokenCommand;
 use Flarum\Core\Repositories\UserRepositoryInterface;
-use Flarum\Api\Actions\BaseAction;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Bus\Dispatcher;
 
-class TokenAction extends BaseAction
+class TokenAction implements ActionInterface
 {
     protected $users;
+
+    protected $bus;
 
     public function __construct(UserRepositoryInterface $users, Dispatcher $bus)
     {
@@ -19,21 +21,25 @@ class TokenAction extends BaseAction
     /**
      * Log in and return a token.
      *
-     * @return Response
+     * @param \Flarum\Api\Request $request
+     * @return \Flarum\Api\Response
      */
-    public function run(ApiParams $params)
+    public function handle(Request $request)
     {
-        $identification = $params->get('identification');
-        $password = $params->get('password');
+        $identification = $request->get('identification');
+        $password = $request->get('password');
 
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            return $this->respondWithError('invalidCredentials', 401);
+            return;
+            // throw an exception
+            // return $this->respondWithError('invalidCredentials', 401);
         }
 
-        $command = new GenerateAccessTokenCommand($user->id);
-        $token = $this->dispatch($command, $params);
+        $token = $this->bus->dispatch(
+            new GenerateAccessTokenCommand($user->id)
+        );
 
         return new JsonResponse([
             'token' => $token->id,

@@ -11,7 +11,7 @@ class Request
 
     public $http;
 
-    public function __construct(array $input, Actor $actor, IlluminateRequest $http = null)
+    public function __construct(array $input, Actor $actor = null, IlluminateRequest $http = null)
     {
         $this->input = $input;
         $this->actor = $actor;
