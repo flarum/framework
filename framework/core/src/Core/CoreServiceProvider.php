@@ -54,13 +54,6 @@ class CoreServiceProvider extends ServiceProvider
         // forum, registering, and starting discussions.)
         $this->app->singleton('flarum.forum', 'Flarum\Core\Models\Forum');
 
-        // Register the extensions manager object. This manages a list of
-        // available extensions, and provides functionality to enable/disable
-        // them.
-        $this->app->singleton('flarum.extensions', 'Flarum\Core\Support\Extensions\Manager');
-
-        $this->app->bind('flarum.discussionFinder', 'Flarum\Core\Discussions\DiscussionFinder');
-
         $this->app->singleton('flarum.formatter', function () {
             $formatter = new FormatterManager($this->app);
             $formatter->add('basic', 'Flarum\Core\Formatter\BasicFormatter');
