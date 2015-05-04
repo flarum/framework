@@ -11,7 +11,7 @@
  */
 export default class SubtreeRetainer {
   constructor() {
-    this.old = [];
+    this.clear();
     this.callbacks = [].slice.call(arguments);
   }
 
@@ -29,5 +29,9 @@ export default class SubtreeRetainer {
 
   add() {
     this.callbacks = this.callbacks.concat([].slice.call(arguments));
+  }
+
+  clear() {
+    this.old = [];
   }
 }
