@@ -185,6 +185,24 @@ class Discussion extends Model
         $this->removedPosts[] = $post->id;
     }
 
+    public function addPost(Post $post)
+    {
+        if ($post instanceof MergeableInterface) {
+            $lastPost = $this->posts()->orderBy('time', 'desc')->first();
+            $post = $post->saveAfter($lastPost);
+        } else {
+            $post->save();
+        }
+
+        if ($post->exists) {
+            $this->postWasAdded($post);
+        } else {
+            $this->postWasRemoved($post);
+        }
+
+        return $post->exists;
+    }
+
     /**
      * Define the relationship with the discussion's posts.
      *

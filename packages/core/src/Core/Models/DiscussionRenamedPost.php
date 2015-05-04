@@ -1,7 +1,23 @@
 <?php namespace Flarum\Core\Models;
 
-class DiscussionRenamedPost extends Post
+class DiscussionRenamedPost extends ActivityPost
 {
+    /**
+     * Merge the post into another post of the same type.
+     *
+     * @param \Flarum\Core\Models\DiscussionRenamedPost $previous
+     * @return boolean true if the post was merged, false if it was deleted.
+     */
+    protected function mergeInto(Model $previous)
+    {
+        if ($previous->content[0] == $this->content[1]) {
+            return false;
+        }
+
+        $previous->content = static::buildContent($previous->content[0], $this->content[1]);
+        return true;
+    }
+
     /**
      * Create a new instance in reply to a discussion.
      *
@@ -15,7 +31,7 @@ class DiscussionRenamedPost extends Post
     {
         $post = new static;
 
-        $post->content       = [$oldTitle, $newTitle];
+        $post->content       = static::buildContent($oldTitle, $newTitle);
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
@@ -25,23 +41,14 @@ class DiscussionRenamedPost extends Post
     }
 
     /**
-     * Unserialize the content attribute.
+     * Build the content attribute.
      *
-     * @param  string  $value
-     * @return string
+     * @param boolean $oldTitle The old title of the discussion.
+     * @param boolean $newTitle The new title of the discussion.
+     * @return array
      */
-    public function getContentAttribute($value)
+    public static function buildContent($oldTitle, $newTitle)
     {
-        return json_decode($value);
-    }
-
-    /**
-     * Serialize the content attribute.
-     *
-     * @param  string  $value
-     */
-    public function setContentAttribute($value)
-    {
-        $this->attributes['content'] = json_encode($value);
+        return [$oldTitle, $newTitle];
     }
 }
