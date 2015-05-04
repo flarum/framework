@@ -120,7 +120,7 @@ export default class DiscussionList extends Component {
               href: startUser ? app.route('user', { username: startUser.username() }) : undefined,
               config: function(element, isInitialized, context) {
                 $(element).tooltip({ placement: 'right' })
-                m.route.call(this, element)
+                m.route.apply(this, arguments)
               },
               title: 'Started by '+(startUser ? startUser.username() : '[deleted]')+' '+humanTime(discussion.startTime())
             }, [
