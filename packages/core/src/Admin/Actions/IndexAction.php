@@ -7,16 +7,14 @@ use Auth;
 use Cookie;
 use Config;
 use View;
+use DB;
+use Flarum\Api\Request as ApiRequest;
 
 class IndexAction extends Action
 {
     public function handle(Request $request, $params = [])
     {
-        $config = [
-            'baseURL' => 'http://flarum.dev/admin',
-            'apiURL' => 'http://flarum.dev/api',
-            'forumTitle' => Config::get('flarum::forum_title', 'Flarum Demo Forum')
-        ];
+        $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
         $data = [];
         $session = [];
         $alert = Session::get('alert');
@@ -27,23 +25,35 @@ class IndexAction extends Action
                 'token' => Cookie::get('flarum_remember')
             ];
 
-            $response = $this->callAction('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
-            $response = $response->getData();
+            $response = app('Flarum\Api\Actions\Users\ShowAction')
+                ->handle(new ApiRequest(['id' => $user->id], $this->actor))
+                ->content->toArray();
 
-            $data = [$response->data];
-            if (isset($response->included)) {
-                $data = array_merge($data, $response->included);
+            $data = [$response['data']];
+            if (isset($response['included'])) {
+                $data = array_merge($data, $response['included']);
             }
         }
 
-        return View::make('flarum.admin::index')
+        $view = View::make('flarum.admin::index')
             ->with('title', 'Administration - '.Config::get('flarum::forum_title', 'Flarum Demo Forum'))
-            ->with('styles', app('flarum.admin.assetManager')->getCSSFiles())
-            ->with('scripts', app('flarum.admin.assetManager')->getJSFiles())
             ->with('config', $config)
-            ->with('layout', View::make('flarum.admin::admin'))
+            ->with('layout', 'flarum.admin::admin')
             ->with('data', $data)
             ->with('session', $session)
             ->with('alert', $alert);
+
+        $assetManager = app('flarum.admin.assetManager');
+        $root = __DIR__.'/../../..';
+        $assetManager->addFile([
+            $root.'/js/admin/dist/app.js',
+            $root.'/less/admin/app.less'
+        ]);
+
+        // event(new RenderView($view, $assetManager, $this));
+
+        return $view
+            ->with('styles', $assetManager->getCSSFiles())
+            ->with('scripts', $assetManager->getJSFiles());
     }
 }
