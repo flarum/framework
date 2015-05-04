@@ -1,5 +1,4 @@
 {
-  "name": "flarum-forum",
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-babel": "^5.1.0",
