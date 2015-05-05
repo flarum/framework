@@ -2,13 +2,14 @@ import Post from 'flarum/components/post';
 import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/utils/human-time';
+import { dasherize } from 'flarum/utils/string';
 
 export default class PostActivity extends Post {
   view(iconName, content, attrs) {
     var post = this.props.post;
 
     attrs = attrs || {};
-    attrs.className = 'post-activity post-'+post.contentType()+' '+(attrs.className || '');
+    attrs.className = 'post-activity post-'+dasherize(post.contentType())+' '+(attrs.className || '');
 
     return super.view([
       icon(iconName+' post-icon'),

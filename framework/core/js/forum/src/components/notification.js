@@ -2,12 +2,13 @@ import Component from 'flarum/component';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/human-time';
+import { dasherize } from 'flarum/utils/string';
 
 export default class Notification extends Component {
   view(args) {
     var notification = this.props.notification;
 
-    return m('div.notification.notification-'+notification.contentType(), {
+    return m('div.notification.notification-'+dasherize(notification.contentType()), {
       classNames: !notification.isRead() ? 'unread' : '',
       onclick: this.read.bind(this)
     }, m('a', {href: args.href, config: args.config}, [
