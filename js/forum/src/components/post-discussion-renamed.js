@@ -6,9 +6,6 @@ export default class PostDiscussionRenamed extends PostActivity {
     var oldTitle = post.content()[0];
     var newTitle = post.content()[1];
 
-    return super.view(['changed the title from ', m('strong.old-title', oldTitle), ' to ', m('strong.new-title', newTitle), '.'], {
-      className: 'post-discussion-renamed',
-      icon: 'pencil'
-    });
+    return super.view('pencil', ['changed the title from ', m('strong.old-title', oldTitle), ' to ', m('strong.new-title', newTitle), '.']);
   }
 }
