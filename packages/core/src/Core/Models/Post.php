@@ -58,6 +58,7 @@ class Post extends Model
         parent::boot();
 
         static::creating(function ($post) {
+            $post->type = $post::$type;
             $post->number = ++$post->discussion->number_index;
             $post->discussion->save();
         });
@@ -161,13 +162,12 @@ class Post extends Model
     /**
      * Register a post type and its model class.
      *
-     * @param  string $type
-     * @param  string $class
+     * @param string $class
      * @return void
      */
-    public static function addType($type, $class)
+    public static function addType($class)
     {
-        static::$types[$type] = $class;
+        static::$types[$class::$type] = $class;
     }
 
     public static function getTypes()

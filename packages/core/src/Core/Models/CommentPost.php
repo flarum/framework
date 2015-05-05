@@ -9,6 +9,13 @@ use Flarum\Core\Events\PostWasRestored;
 class CommentPost extends Post
 {
     /**
+     * The type of post this is, to be stored in the posts table.
+     *
+     * @var string
+     */
+    public static $type = 'comment';
+
+    /**
      * The text formatter instance.
      *
      * @var \Flarum\Core\Formatter\Formatter
