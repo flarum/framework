@@ -1,12 +1,9 @@
 <?php namespace Flarum\Categories;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\Core\Models\Post;
-use Flarum\Core\Models\Discussion;
-use Flarum\Core\Notifications\Notifier;
+use Flarum\Support\ServiceProvider;
 use Flarum\Api\Actions\Discussions\IndexAction as DiscussionsIndexAction;
 use Flarum\Api\Actions\Discussions\ShowAction as DiscussionsShowAction;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class CategoriesServiceProvider extends ServiceProvider
 {
@@ -15,26 +12,36 @@ class CategoriesServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Dispatcher $events, Notifier $notifier)
+    public function boot(Dispatcher $events)
     {
-        $events->subscribe('Flarum\Categories\CategoriesHandler');
-        $events->subscribe('Flarum\Categories\DiscussionMovedNotifier');
+        $events->subscribe('Flarum\Categories\Handlers\DiscussionMovedNotifier');
+        $events->subscribe('Flarum\Categories\Handlers\CategoryPreloader');
+        $events->subscribe('Flarum\Categories\Handlers\CategorySaver');
 
-        // Add the category relationship to the Discussion model, and include
-        // it in discussion-related API actions by default.
-        Discussion::addRelationship('category', function ($model) {
-            return $model->belongsTo('Flarum\Categories\Category', null, null, 'category');
-        });
+        $this->forumAssets([
+            __DIR__.'/../js/dist/extension.js',
+            __DIR__.'/../less/categories.less'
+        ]);
+
+        $this->postType('Flarum\Categories\DiscussionMovedPost');
+
+        $this->discussionGambit('Flarum\Categories\CategoryGambit');
+
+        $this->notificationType('Flarum\Categories\DiscussionMovedNotification', ['alert' => true]);
+
+        $this->relationship('Flarum\Core\Models\Discussion', 'belongsTo', 'category', 'Flarum\Categories\Category');
+
+        $this->serializeRelationship('Flarum\Api\Serializers\DiscussionSerializer', 'hasOne', 'category', 'Flarum\Categories\CategorySerializer');
+
         DiscussionsIndexAction::$include['category'] = true;
         DiscussionsShowAction::$include['category'] = true;
-
-        // Add a new post and notification type to represent a discussion
-        // being moved from one category to another.
-        Post::addType('Flarum\Categories\DiscussionMovedPost');
-
-        $notifier->registerType('Flarum\Categories\DiscussionMovedNotification', ['alert' => true]);
     }
 
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
     public function register()
     {
         $this->app->bind(

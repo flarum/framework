@@ -1,5 +1,7 @@
-<?php namespace Flarum\Categories;
+<?php namespace Flarum\Categories\Handlers;
 
+use Flarum\Categories\DiscussionMovedPost;
+use Flarum\Categories\DiscussionMovedNotification;
 use Flarum\Categories\Events\DiscussionWasMoved;
 use Flarum\Core\Notifications\Notifier;
 use Illuminate\Contracts\Events\Dispatcher;
