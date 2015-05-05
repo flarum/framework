@@ -7,16 +7,16 @@ use Flarum\Core\Events\PostWasHidden;
 use Flarum\Core\Events\PostWasRestored;
 use Flarum\Core\Events\DiscussionWasStarted;
 use Flarum\Core\Events\DiscussionWasDeleted;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class UserMetadataUpdater
 {
     /**
      * Register the listeners for the subscriber.
      *
-     * @param  Illuminate\Events\Dispatcher  $events
-     * @return array
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events)
     {
         $events->listen('Flarum\Core\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
         $events->listen('Flarum\Core\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
@@ -28,22 +28,22 @@ class UserMetadataUpdater
 
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $this->updateRepliesCount($event->post->user, 1);
+        $this->updateCommentsCount($event->post->user, 1);
     }
 
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
-        $this->updateRepliesCount($event->post->user, -1);
+        $this->updateCommentsCount($event->post->user, -1);
     }
 
     public function whenPostWasHidden(PostWasHidden $event)
     {
-        $this->updateRepliesCount($event->post->user, -1);
+        $this->updateCommentsCount($event->post->user, -1);
     }
 
     public function whenPostWasRestored(PostWasRestored $event)
     {
-        $this->updateRepliesCount($event->post->user, 1);
+        $this->updateCommentsCount($event->post->user, 1);
     }
 
     public function whenDiscussionWasStarted(DiscussionWasStarted $event)
@@ -56,7 +56,7 @@ class UserMetadataUpdater
         $this->updateDiscussionsCount($event->discussion->startUser, -1);
     }
 
-    protected function updateRepliesCount(User $user, $amount)
+    protected function updateCommentsCount(User $user, $amount)
     {
         $user->comments_count += $amount;
         $user->save();

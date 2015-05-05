@@ -4,6 +4,7 @@ use Flarum\Core\Events\DiscussionWasRenamed;
 use Flarum\Core\Models\DiscussionRenamedPost;
 use Flarum\Core\Notifications\Types\DiscussionRenamedNotification;
 use Flarum\Core\Notifications\Notifier;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionRenamedNotifier
 {
@@ -15,10 +16,9 @@ class DiscussionRenamedNotifier
     /**
      * Register the listeners for the subscriber.
      *
-     * @param  Illuminate\Events\Dispatcher  $events
-     * @return array
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events)
     {
         $events->listen('Flarum\Core\Events\DiscussionWasRenamed', __CLASS__.'@whenDiscussionWasRenamed');
     }
