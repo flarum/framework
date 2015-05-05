@@ -16,6 +16,7 @@ import icon from 'flarum/helpers/icon';
 import CategoriesPage from 'categories/components/categories-page';
 import Category from 'categories/category';
 import PostDiscussionMoved from 'categories/components/post-discussion-moved';
+import NotificationDiscussionMoved from 'categories/components/notification-discussion-moved';
 
 import app from 'flarum/app';
 
@@ -31,6 +32,7 @@ app.initializers.add('categories', function() {
   // app.routes['category.filter'] = ['/c/:slug/:filter', IndexPage.component({category: true})];
 
   app.postComponentRegistry['discussionMoved'] = PostDiscussionMoved;
+  app.notificationComponentRegistry['discussionMoved'] = NotificationDiscussionMoved;
   app.store.model('categories', Category);
 
   extend(DiscussionList.prototype, 'infoItems', function(items, discussion) {
