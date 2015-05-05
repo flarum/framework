@@ -84,6 +84,7 @@ class AssetManager
             $lastModTime = max($lastModTime, filemtime($file));
         }
         $debug = 0;
+        // $debug = 1;
 
         if (! file_exists($file = $dir.'/'.$this->name.'-'.$revision.'.'.$type)
             || filemtime($file) < $lastModTime
