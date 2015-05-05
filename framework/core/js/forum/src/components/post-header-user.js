@@ -31,7 +31,7 @@ export default class PostHeaderUser extends Component {
           username()
         ]
       ),
-      user && this.showCard()
+      user && !post.isHidden() && this.showCard()
         ? UserCard.component({user, className: 'user-card-popover fade', controlsButtonClass: 'btn btn-default btn-icon btn-sm btn-naked'})
         : ''
     ]);
