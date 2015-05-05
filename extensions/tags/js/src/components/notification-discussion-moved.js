@@ -3,6 +3,7 @@ import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import username from 'flarum/helpers/username';
 import humanTime from 'flarum/helpers/human-time';
+import categoryLabel from 'categories/helpers/category-label';
 
 export default class NotificationDiscussionMoved extends Notification {
   content() {
@@ -19,7 +20,7 @@ export default class NotificationDiscussionMoved extends Notification {
       m('h3.notification-title', discussion.title()),
       m('div.notification-info', [
         icon('arrow-right'),
-        ' Moved to ', m('span.category', {style: 'color: '+category.color()}, category.title()), ' by ', username(notification.sender()),
+        ' Moved to ', categoryLabel(category), ' by ', username(notification.sender()),
         ' ', humanTime(notification.time())
       ])
     ]);
