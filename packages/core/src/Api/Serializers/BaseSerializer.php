@@ -13,6 +13,13 @@ abstract class BaseSerializer extends SerializerAbstract
 {
     protected $actor;
 
+    /**
+     * The custom relationships on this serializer.
+     *
+     * @var array
+     */
+    protected static $relationships = [];
+
     public function __construct(Actor $actor, $include = null, $link = null)
     {
         parent::__construct($include, $link);
@@ -77,14 +84,31 @@ abstract class BaseSerializer extends SerializerAbstract
     }
 
     /**
-     * Fire an event to allow for custom links and includes.
+     * Add a custom relationship to the serializer.
+     *
+     * @param string $name The name of the relationship.
+     * @param Closure $callback The callback to execute.
+     * @return void
+     */
+    public static function addRelationship($name, $callback)
+    {
+        static::$relationships[$name] = $callback;
+    }
+
+    /**
+     * Check for and execute custom relationships.
      *
      * @param string $name
      * @param array $arguments
-     * @return void
+     * @return mixed
      */
     public function __call($name, $arguments)
     {
-        return event(new SerializeRelationship($this, $name), null, true);
+        if (isset(static::$relationships[$name])) {
+            array_unshift($arguments, $this);
+            return call_user_func_array(static::$relationships[$name], $arguments);
+        }
+
+        return parent::__call($name, $arguments);
     }
 }
