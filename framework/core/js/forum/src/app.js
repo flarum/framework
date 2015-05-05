@@ -1,6 +1,7 @@
 import App from 'flarum/utils/app';
 import store from 'flarum/initializers/store';
 import discussionControls from 'flarum/initializers/discussion-controls';
+import postControls from 'flarum/initializers/post-controls';
 import preload from 'flarum/initializers/preload';
 import session from 'flarum/initializers/session';
 import routes from 'flarum/initializers/routes';
@@ -12,6 +13,7 @@ var app = new App();
 
 app.initializers.add('store', store);
 app.initializers.add('discussion-controls', discussionControls);
+app.initializers.add('post-controls', postControls);
 app.initializers.add('session', session);
 app.initializers.add('routes', routes);
 app.initializers.add('components', components);
