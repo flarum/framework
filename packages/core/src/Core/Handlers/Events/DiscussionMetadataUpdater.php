@@ -5,16 +5,16 @@ use Flarum\Core\Events\PostWasPosted;
 use Flarum\Core\Events\PostWasDeleted;
 use Flarum\Core\Events\PostWasHidden;
 use Flarum\Core\Events\PostWasRestored;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionMetadataUpdater
 {
     /**
      * Register the listeners for the subscriber.
      *
-     * @param  Illuminate\Events\Dispatcher  $events
-     * @return array
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events)
     {
         $events->listen('Flarum\Core\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
         $events->listen('Flarum\Core\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
