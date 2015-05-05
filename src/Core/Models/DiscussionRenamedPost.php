@@ -3,6 +3,13 @@
 class DiscussionRenamedPost extends ActivityPost
 {
     /**
+     * The type of post this is, to be stored in the posts table.
+     *
+     * @var string
+     */
+    public static $type = 'discussionRenamed';
+
+    /**
      * Merge the post into another post of the same type.
      *
      * @param \Flarum\Core\Models\DiscussionRenamedPost $previous
@@ -35,7 +42,6 @@ class DiscussionRenamedPost extends ActivityPost
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
-        $post->type          = 'discussionRenamed';
 
         return $post;
     }
