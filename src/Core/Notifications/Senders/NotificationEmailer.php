@@ -22,7 +22,7 @@ class NotificationEmailer implements NotificationSender
         });
     }
 
-    public function compatibleWith($class)
+    public static function compatibleWith($class)
     {
         return (new ReflectionClass($class))->implementsInterface('Flarum\Core\Notifications\Types\EmailableNotification');
     }

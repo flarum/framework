@@ -22,7 +22,7 @@ class Notifier
     {
         foreach ($this->methods as $method => $sender) {
             $sender = $this->container->make($sender);
-            if ($notification->getRecipient()->shouldNotify($notification::getType(), $method) && $sender->compatibleWith($notification)) {
+            if ($notification->getRecipient()->shouldNotify($notification::getType(), $method) && $sender::compatibleWith($notification)) {
                 $sender->send($notification);
             }
         }

@@ -18,7 +18,7 @@ class NotificationAlerter implements NotificationSender
         $model->save();
     }
 
-    public function compatibleWith($className)
+    public static function compatibleWith($className)
     {
         return (new ReflectionClass($className))->implementsInterface('Flarum\Core\Notifications\Types\AlertableNotification');
     }
