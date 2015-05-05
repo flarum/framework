@@ -7,9 +7,6 @@ export default class PostDiscussionMoved extends PostActivity {
     var oldCategory = app.store.getById('categories', post.content()[0]);
     var newCategory = app.store.getById('categories', post.content()[1]);
 
-    return super.view(['moved the discussion from ', categoryLabel(oldCategory), ' to ', categoryLabel(newCategory), '.'], {
-      className: 'post-discussion-moved',
-      icon: 'arrow-right'
-    });
+    return super.view('arrow-right', ['moved the discussion from ', categoryLabel(oldCategory), ' to ', categoryLabel(newCategory), '.']);
   }
 }
