@@ -9,6 +9,7 @@ import Separator from 'flarum/components/separator';
 import ActionButton from 'flarum/components/action-button';
 import NavItem from 'flarum/components/nav-item';
 import ComposerDiscussion from 'flarum/components/composer-discussion';
+import SettingsPage from 'flarum/components/settings-page';
 import ActivityPost from 'flarum/components/activity-post';
 import icon from 'flarum/helpers/icon';
 import app from 'flarum/app';
@@ -208,7 +209,7 @@ app.initializers.add('categories', function() {
   });
 
   // ---------------------------------------------------------------------------
-  // ACTIVITY PAGE
+  // USER PROFILE
   // ---------------------------------------------------------------------------
 
   // Add a category label next to the discussion title in post activity items.
@@ -219,4 +220,10 @@ app.initializers.add('categories', function() {
     }
   });
 
+  extend(SettingsPage.prototype, 'notificationTypes', function(items) {
+    items.add('discussionMoved', {
+      name: 'discussionMoved',
+      label: [icon('arrow-right'), ' Someone moves a discussion I started']
+    });
+  });
 });
