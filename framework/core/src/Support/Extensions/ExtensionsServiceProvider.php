@@ -6,16 +6,6 @@ use DB;
 class ExtensionsServiceProvider extends ServiceProvider
 {
     /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        //
-    }
-
-    /**
      * Register the service provider.
      *
      * @return void
@@ -24,11 +14,14 @@ class ExtensionsServiceProvider extends ServiceProvider
     {
         $app = $this->app;
         $extensions = json_decode(DB::table('config')->where('key', 'extensions_enabled')->pluck('value'), true);
+        $providers = [];
 
         foreach ($extensions as $extension) {
             if (file_exists($file = base_path().'/extensions/'.$extension.'/bootstrap.php')) {
-                require $file;
+                $providers[$extension] = require $file;
             }
         }
+
+        // @todo store $providers somewhere so that extensions can talk to each other
     }
 }
