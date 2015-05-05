@@ -6,5 +6,5 @@ interface NotificationSender
 {
     public function send(Notification $notification);
 
-    public function compatibleWith($class);
+    public static function compatibleWith($class);
 }
