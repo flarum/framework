@@ -9,10 +9,10 @@ import Notification from 'flarum/models/notification';
 export default function(app) {
   app.store = new Store();
 
-  app.store.model('users', User);
-  app.store.model('discussions', Discussion);
-  app.store.model('posts', Post);
-  app.store.model('groups', Group);
-  app.store.model('activity', Activity);
-  app.store.model('notifications', Notification);
+  app.store.models['users'] = User;
+  app.store.models['discussions'] = Discussion;
+  app.store.models['posts'] = Post;
+  app.store.models['groups'] = Group;
+  app.store.models['activity'] = Activity;
+  app.store.models['notifications'] = Notification;
 };
