@@ -5,6 +5,7 @@ import ActionButton from 'flarum/components/action-button';
 import FieldSet from 'flarum/components/field-set';
 import NotificationGrid from 'flarum/components/notification-grid';
 import listItems from 'flarum/helpers/list-items';
+import icon from 'flarum/helpers/icon';
 
 export default class SettingsPage extends UserPage {
   /**
@@ -118,7 +119,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
-      label: 'Someone renames a discussion I started'
+      label: [icon('pencil'), ' Someone renames a discussion I started']
     });
 
     return items;
