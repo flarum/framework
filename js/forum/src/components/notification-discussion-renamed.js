@@ -19,13 +19,8 @@ export default class NotificationDiscussionRenamed extends Notification {
       m('div.notification-info', [
         icon('pencil'),
         ' Renamed by ', username(notification.sender()),
-        notification.additionalUnreadCount() ? ' and '+notification.additionalUnreadCount()+' others' : '',
         ' ', humanTime(notification.time())
       ])
     ]);
-  }
-
-  read() {
-    this.props.notification.save({isRead: true});
   }
 }
