@@ -124,6 +124,7 @@ export default class IndexPage extends Component {
     if (app.session.user()) {
       app.composer.load(new ComposerDiscussion({ user: app.session.user() }));
       app.composer.show();
+      return true;
     } else {
       app.modal.show(new LoginModal({
         message: 'You must be logged in to do that.',
