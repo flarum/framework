@@ -50,6 +50,10 @@ export default class Store {
     return this.data[type] && this.data[type][id];
   }
 
+  getBy(type, key, value) {
+    return this.all(type).filter(model => model[key]() == value)[0];
+  }
+
   all(type) {
     var data = this.data[type];
     return data ? Object.keys(data).map(id => data[id]) : [];
