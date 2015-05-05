@@ -6,4 +6,4 @@ require 'vendor/autoload.php';
 
 // Register our service provider with the Flarum application. In here we can
 // register bindings and execute code when the application boots.
-$app->register('Flarum\Categories\CategoriesServiceProvider');
+return $app->register('Flarum\Categories\CategoriesServiceProvider');
