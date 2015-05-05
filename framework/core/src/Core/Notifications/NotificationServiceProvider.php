@@ -1,8 +1,9 @@
 <?php namespace Flarum\Core\Notifications;
 
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\ServiceProvider;
+use Flarum\Support\ServiceProvider;
 use Flarum\Core\Models\User;
+use Flarum\Core\Notifications\Notifier;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class NotificationServiceProvider extends ServiceProvider
 {
@@ -11,16 +12,14 @@ class NotificationServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Dispatcher $events)
+    public function boot(Dispatcher $events, Notifier $notifier)
     {
-        $notifier = app('Flarum\Core\Notifications\Notifier');
+        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
 
         $notifier->registerMethod('alert', 'Flarum\Core\Notifications\Senders\NotificationAlerter');
         $notifier->registerMethod('email', 'Flarum\Core\Notifications\Senders\NotificationEmailer');
 
-        $notifier->registerType('Flarum\Core\Notifications\Types\DiscussionRenamedNotification', ['alert' => true]);
-
-        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
+        $this->notificationType('Flarum\Core\Notifications\Types\DiscussionRenamedNotification', ['alert' => true]);
     }
 
     public function register()
@@ -31,5 +30,6 @@ class NotificationServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton('Flarum\Core\Notifications\Notifier');
+        $this->app->alias('Flarum\Core\Notifications\Notifier', 'flarum.notifier');
     }
 }

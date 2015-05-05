@@ -22,6 +22,7 @@ class ExtensionsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $app = $this->app;
         $extensions = json_decode(DB::table('config')->where('key', 'extensions_enabled')->pluck('value'), true);
 
         foreach ($extensions as $extension) {
