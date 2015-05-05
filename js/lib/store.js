@@ -55,10 +55,6 @@ export default class Store {
     return data ? Object.keys(data).map(id => data[id]) : [];
   }
 
-  model(type, Model) {
-    this.models[type] = Model;
-  }
-
   createRecord(type, data) {
     data = data || {};
     data.type = data.type || type;
