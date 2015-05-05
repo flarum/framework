@@ -200,7 +200,7 @@ class Discussion extends Model
             $this->postWasRemoved($post);
         }
 
-        return $post->exists;
+        return $post;
     }
 
     /**
