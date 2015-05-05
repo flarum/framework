@@ -8,17 +8,39 @@ class CategoryGambit extends GambitAbstract
 {
     /**
      * The gambit's regex pattern.
+     *
      * @var string
      */
     protected $pattern = 'category:(.+)';
 
+    /**
+     * @var \Flarum\Categories\CategoryRepositoryInterface
+     */
+    protected $categories;
+
+    /**
+     * Instantiate the gambit.
+     *
+     * @param \Flarum\Categories\CategoryRepositoryInterface $categories
+     */
+    public function __construct(CategoryRepositoryInterface $categories)
+    {
+        $this->categories = $categories;
+    }
+
+    /**
+     * Apply conditions to the searcher, given matches from the gambit's
+     * regex.
+     *
+     * @param array $matches The matches from the gambit's regex.
+     * @param \Flarum\Core\Search\SearcherInterface $searcher
+     * @return void
+     */
     public function conditions($matches, SearcherInterface $searcher)
     {
         $slug = trim($matches[1], '"');
 
-        // @todo implement categories repository
-        // $id = $this->categories->getIdForSlug($slug);
-        $id = Category::whereSlug($slug)->pluck('id');
+        $id = $this->categories->getIdForSlug($slug);
 
         $searcher->query()->where('category_id', $id);
     }

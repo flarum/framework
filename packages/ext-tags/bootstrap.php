@@ -1,5 +1,9 @@
 <?php
 
+// Require the extension's composer autoload file. This will enable all of our
+// classes in the src directory to be autoloaded.
 require 'vendor/autoload.php';
 
-$this->app->register('Flarum\Categories\CategoriesServiceProvider');
+// Register our service provider with the Flarum application. In here we can
+// register bindings and execute code when the application boots.
+$app->register('Flarum\Categories\CategoriesServiceProvider');

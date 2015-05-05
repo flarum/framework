@@ -11,6 +11,12 @@ class CategorySerializer extends BaseSerializer
      */
     protected $type = 'categories';
 
+    /**
+     * Serialize category attributes to be exposed in the API.
+     *
+     * @param \Flarum\Categories\Category $category
+     * @return array
+     */
     protected function attributes($category)
     {
         $attributes = [
