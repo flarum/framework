@@ -108,7 +108,5 @@ abstract class BaseSerializer extends SerializerAbstract
             array_unshift($arguments, $this);
             return call_user_func_array(static::$relationships[$name], $arguments);
         }
-
-        return parent::__call($name, $arguments);
     }
 }
