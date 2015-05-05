@@ -26,7 +26,10 @@ class CategorySaver
             }
 
             $discussion->category_id = $categoryId;
-            $discussion->raise(new DiscussionWasMoved($discussion, $user, $oldCategoryId));
+
+            if ($discussion->exists) {
+                $discussion->raise(new DiscussionWasMoved($discussion, $user, $oldCategoryId));
+            }
         }
     }
 }
