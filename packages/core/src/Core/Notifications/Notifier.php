@@ -33,18 +33,9 @@ class Notifier
         $this->methods[$name] = $class;
     }
 
-    public function registerType($class, $defaultPreferences = [])
+    public function registerType($class)
     {
         $this->types[] = $class;
-
-        NotificationModel::registerType($class);
-
-        foreach ($this->methods as $method => $sender) {
-            $sender = $this->container->make($sender);
-            if ($sender->compatibleWith($class)) {
-                User::registerPreference(User::notificationPreferenceKey($class::getType(), $method), 'boolval', array_get($defaultPreferences, $method, false));
-            }
-        }
     }
 
     public function getMethods()
