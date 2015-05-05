@@ -19,8 +19,8 @@ export default class UserNotifications extends Component {
     var user = this.props.user;
 
     return DropdownButton.component({
-      className: 'notifications'+(user.unreadNotificationsCount() ? ' unread' : ''),
-      buttonClass: 'btn btn-default btn-rounded btn-naked btn-icon',
+      className: 'notifications',
+      buttonClass: 'btn btn-default btn-rounded btn-naked btn-icon'+(user.unreadNotificationsCount() ? ' unread' : ''),
       menuClass: 'pull-right',
       buttonContent: [
         m('span.notifications-icon', user.unreadNotificationsCount() || icon('bell icon-glyph')),
