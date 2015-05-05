@@ -4,8 +4,8 @@ export default class Notification extends Component {
   view() {
     var notification = this.props.notification;
 
-    return m('div.notification', {
-      classNames: !notification.isRead ? 'unread' : '',
+    return m('div.notification.notification-'+notification.contentType(), {
+      classNames: !notification.isRead() ? 'unread' : '',
       onclick: this.read.bind(this)
     }, this.content());
   }
