@@ -76,7 +76,7 @@ class IndexAction extends SerializeCollectionAction
             $response->content->addMeta('total', $total);
         }
 
-        // $response->content->addMeta('moreUrl', $moreUrl);
+        static::addPaginationLinks($response, $request, route('flarum.api.discussions.index'), $total ?: $results->areMoreResults());
 
         return $results->getDiscussions();
     }
