@@ -5,13 +5,13 @@ trait MergeableTrait
     public function saveAfter(Model $previous)
     {
         if ($previous instanceof static) {
-            if ($this->mergeInto($previous)) {
-                $previous->save();
+            if ($merged = $this->mergeInto($previous)) {
+                $merged->save();
+                return $merged;
             } else {
                 $previous->delete();
+                return $previous;
             }
-
-            return $previous;
         }
 
         $this->save();
