@@ -13,6 +13,8 @@ class DiscussionSearcher implements SearcherInterface
 
     protected $relevantPosts = [];
 
+    protected $activeGambits = [];
+
     protected $gambits;
 
     protected $discussions;
@@ -42,6 +44,16 @@ class DiscussionSearcher implements SearcherInterface
     public function query()
     {
         return $this->query->getQuery();
+    }
+
+    public function addActiveGambit($gambit)
+    {
+        $this->activeGambits[] = $gambit;
+    }
+
+    public function getActiveGambits()
+    {
+        return $this->activeGambits;
     }
 
     public function search(DiscussionSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])

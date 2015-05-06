@@ -48,6 +48,7 @@ class GambitManager
         foreach ($bits as $k => $bit) {
             foreach ($gambits as $gambit) {
                 if ($gambit->apply($bit, $searcher)) {
+                    $searcher->addActiveGambit($gambit);
                     unset($bits[$k]);
                     break;
                 }
@@ -65,6 +66,7 @@ class GambitManager
 
         $gambit = $this->container->make($this->fulltextGambit);
 
+        $searcher->addActiveGambit($gambit);
         $gambit->apply($string, $searcher);
     }
 
