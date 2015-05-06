@@ -18,11 +18,11 @@ export default class AvatarEditor extends Component {
     }, [
       avatar(user),
       m('a.dropdown-toggle[href=javascript:;][data-toggle=dropdown]', {onclick: this.quickUpload.bind(this)}, [
-        this.loading() ? LoadingIndicator.component() : icon('pencil')
+        this.loading() ? LoadingIndicator.component() : icon('pencil icon')
       ]),
       m('ul.dropdown-menu', [
-        m('li', m('a[href=javascript:;]', {onclick: this.upload.bind(this)}, [icon('upload'), ' Upload'])),
-        m('li', m('a[href=javascript:;]', {onclick: this.remove.bind(this)}, [icon('times'), ' Remove']))
+        m('li', m('a[href=javascript:;]', {onclick: this.upload.bind(this)}, [icon('upload icon'), ' Upload'])),
+        m('li', m('a[href=javascript:;]', {onclick: this.remove.bind(this)}, [icon('times icon'), ' Remove']))
       ])
     ]);
   }
