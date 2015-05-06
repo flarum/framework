@@ -21,6 +21,7 @@ export default class IndexPage extends Component {
 
     var params = this.params();
     if (app.cache.discussionList) {
+      app.cache.discussionList.willRedraw();
       Object.keys(params).some(key => {
         if (app.cache.discussionList.props.params[key] !== params[key]) {
           app.cache.discussionList = null;
@@ -35,6 +36,10 @@ export default class IndexPage extends Component {
     app.history.push('index');
     app.current = this;
     app.composer.minimize();
+  }
+
+  onunload() {
+    app.cache.discussionList.willRedraw();
   }
 
   /**
