@@ -38,10 +38,17 @@ class CategoryGambit extends GambitAbstract
      */
     public function conditions($matches, SearcherInterface $searcher)
     {
-        $slug = trim($matches[1], '"');
+        $slugs = explode(',', trim($matches[1], '"'));
 
-        $id = $this->categories->getIdForSlug($slug);
-
-        $searcher->query()->where('category_id', $id);
+        $searcher->query()->where(function ($query) use ($slugs) {
+            foreach ($slugs as $slug) {
+                if ($slug === 'uncategorized') {
+                    $query->orWhereNull('category_id');
+                } else {
+                    $id = $this->categories->getIdForSlug($slug);
+                    $query->orWhere('category_id', $id);
+                }
+            }
+        });
     }
 }
