@@ -44,14 +44,14 @@ export default class PostHeaderUser extends Component {
 
     var component = this;
     var timeout;
-    this.$().bind('mouseover', '> a, .user-card', function() {
+    this.$().on('mouseover', 'h3 a, .user-card', function() {
       clearTimeout(timeout);
       timeout = setTimeout(function() {
         component.showCard(true);
         m.redraw();
         setTimeout(() => component.$('.user-card').addClass('in'));
       }, 500);
-    }).bind('mouseout', '> a, .user-card', function() {
+    }).on('mouseout', 'h3 a, .user-card', function() {
       clearTimeout(timeout);
       timeout = setTimeout(function() {
         component.$('.user-card').removeClass('in').one('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function() {
