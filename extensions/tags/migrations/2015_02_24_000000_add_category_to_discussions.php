@@ -13,7 +13,7 @@ class AddCategoryToDiscussions extends Migration
     public function up()
     {
         Schema::table('discussions', function (Blueprint $table) {
-            $table->integer('category_id')->unsigned();
+            $table->integer('category_id')->unsigned()->nullable();
         });
     }
 
