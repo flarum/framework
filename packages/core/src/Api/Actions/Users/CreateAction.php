@@ -1,5 +1,6 @@
 <?php namespace Flarum\Api\Actions\Users;
 
+use Flarum\Core\Models\Forum;
 use Flarum\Core\Commands\RegisterUserCommand;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
