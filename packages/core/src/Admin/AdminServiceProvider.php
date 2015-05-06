@@ -17,7 +17,7 @@ class AdminServiceProvider extends ServiceProvider
         $this->loadViewsFrom($root.'/views', 'flarum.admin');
 
         $this->publishes([
-            $root.'/public/fonts' => public_path('flarum/fonts')
+            $root.'/public/fonts' => public_path('assets/fonts')
         ]);
 
         include __DIR__.'/routes.php';
