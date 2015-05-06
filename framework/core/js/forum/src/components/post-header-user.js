@@ -50,12 +50,13 @@ export default class PostHeaderUser extends Component {
         component.showCard(true);
         m.redraw();
         setTimeout(() => component.$('.user-card').addClass('in'));
-      }, 250);
+      }, 500);
     }).bind('mouseout', '> a, .user-card', function() {
       clearTimeout(timeout);
       timeout = setTimeout(function() {
         component.$('.user-card').removeClass('in').one('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function() {
           component.showCard(false);
+          m.redraw();
         });
       }, 250);
     });
