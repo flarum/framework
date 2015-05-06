@@ -56,9 +56,4 @@ class UserSerializer extends UserBasicSerializer
 
         return $this->extendAttributes($user, $attributes);
     }
-
-    protected function groups()
-    {
-        return $this->hasMany('Flarum\Api\Serializers\GroupSerializer');
-    }
 }
