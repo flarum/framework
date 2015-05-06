@@ -5,6 +5,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Core\Models\Notification;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Post;
+use Closure;
 
 class ServiceProvider extends IlluminateServiceProvider
 {
@@ -72,6 +73,15 @@ class ServiceProvider extends IlluminateServiceProvider
                 return $type();
             } else {
                 return $serializer->$type($child, $name);
+            }
+        });
+    }
+
+    protected function serializeAttributes($serializer, Closure $callback)
+    {
+        $this->app['events']->listen('Flarum\Api\Events\SerializeAttributes', function ($event) use ($serializer, $callback) {
+            if ($event->serializer instanceof $serializer) {
+                $callback($event->attributes, $event->model);
             }
         });
     }
