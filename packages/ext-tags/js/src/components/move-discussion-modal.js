@@ -1,6 +1,7 @@
 import Component from 'flarum/component';
 import DiscussionPage from 'flarum/components/discussion-page';
 import icon from 'flarum/helpers/icon';
+import categoryLabel from 'categories/helpers/category-label';
 
 export default class MoveDiscussionModal extends Component {
   constructor(props) {
@@ -16,7 +17,7 @@ export default class MoveDiscussionModal extends Component {
       m('div.modal-content', [
         m('button.btn.btn-icon.btn-link.close.back-control', {onclick: app.modal.close.bind(app.modal)}, icon('times')),
         m('div.modal-header', m('h3.title-control', discussion
-          ? ['Move ', m('em', discussion.title()), ' from ', m('span.category', {style: 'color: '+discussion.category().color()}, discussion.category().title()), ' to...']
+          ? ['Move ', m('em', discussion.title()), ' from ', categoryLabel(discussion.category()), ' to...']
           : ['Start a Discussion In...'])),
         m('div', [
           m('ul.category-list', [
