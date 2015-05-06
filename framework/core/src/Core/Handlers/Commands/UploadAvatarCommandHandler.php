@@ -47,7 +47,9 @@ class UploadAvatarCommandHandler
             'target' => $this->uploadDir,
         ]);
 
-        // @todo delete old avatar
+        if ($mount->has($file = "target://$user->avatar_path")) {
+            $mount->delete($file);
+        }
 
         $user->changeAvatarPath($uploadName);
 
