@@ -17,7 +17,7 @@ class ForumServiceProvider extends ServiceProvider
         $this->loadViewsFrom($root.'/views', 'flarum.forum');
 
         $this->publishes([
-            $root.'/public/fonts' => public_path('flarum/fonts')
+            $root.'/public/fonts' => public_path('assets/fonts')
         ]);
 
         include __DIR__.'/routes.php';
