@@ -22,4 +22,9 @@ class Request
     {
         return array_get($this->input, $key, $default);
     }
+
+    public function all()
+    {
+        return $this->input;
+    }
 }
