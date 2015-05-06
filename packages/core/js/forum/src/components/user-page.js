@@ -136,7 +136,6 @@ export default class UserPage extends Component {
     if (isInitialized) { return; }
 
     var $sidebar = $(element);
-    console.log($sidebar.find('> ul'), $sidebar.find('> ul').data('bs.affix'));
     $sidebar.find('> ul').affix({
       offset: {
         top: $sidebar.offset().top - $('.global-header').outerHeight(true) - parseInt($sidebar.css('margin-top')),
