@@ -8,6 +8,7 @@ import ActionButton from 'flarum/components/action-button';
 import DropdownButton from 'flarum/components/dropdown-button';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 import TerminalPost from 'flarum/components/terminal-post';
+import SubtreeRetainer from 'flarum/utils/subtree-retainer';
 
 export default class DiscussionList extends Component {
   constructor(props) {
@@ -17,9 +18,23 @@ export default class DiscussionList extends Component {
     this.moreResults = m.prop(false);
     this.discussions = m.prop([]);
 
+    this.willRedraw();
     this.refresh();
 
     app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this))
+  }
+
+  willRedraw() {
+    this.subtrees = [];
+    this.addSubtrees(this.discussions());
+  }
+
+  addSubtrees(discussions) {
+    discussions.forEach(discussion => {
+      this.subtrees[discussion.id()] = new SubtreeRetainer(
+        () => discussion.freshness
+      )
+    });
   }
 
   params() {
@@ -75,6 +90,7 @@ export default class DiscussionList extends Component {
   parseResults(results) {
     m.startComputation();
     this.loading(false);
+    this.addSubtrees(results);
     [].push.apply(this.discussions(), results);
     this.moreResults(!!results.payload.links.next);
     m.endComputation();
@@ -109,7 +125,8 @@ export default class DiscussionList extends Component {
           var discussionRoute = app.route('discussion', { id: discussion.id(), slug: discussion.slug() });
           var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
 
-          return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {key: discussion.id()}, [
+          var subtree = this.subtrees[discussion.id()];
+          return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {key: discussion.id()}, subtree.retain() || m('div', [
             controls.length ? DropdownButton.component({
               items: controls,
               className: 'contextual-controls',
@@ -135,7 +152,7 @@ export default class DiscussionList extends Component {
               abbreviateNumber(discussion[displayUnread ? 'unreadCount' : 'repliesCount']()),
               m('span.label', displayUnread ? 'unread' : 'replies')
             ])
-          ])
+          ]))
         })
       ]),
       this.loading()
