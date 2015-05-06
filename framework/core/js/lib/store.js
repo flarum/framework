@@ -7,7 +7,6 @@ export default class Store {
   pushPayload(payload) {
     payload.included && payload.included.map(this.pushObject.bind(this))
     var result = payload.data instanceof Array ? payload.data.map(this.pushObject.bind(this)) : this.pushObject(payload.data);
-    result.meta = payload.meta;
     result.payload = payload;
     return result;
   }

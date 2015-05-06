@@ -60,23 +60,23 @@ export default class DiscussionList extends Component {
     return this.props.params.sort === 'replies' ? 'replies' : 'unread';
   }
 
-  loadResults(start) {
+  loadResults(offset) {
     var params = this.params();
-    params.start = start;
+    params.page = {offset};
     return app.store.find('discussions', params);
   }
 
   loadMore() {
     var self = this;
     this.loading(true);
-    this.loadResults(this.discussions().length).then((results) => this.parseResults(results, true));
+    this.loadResults(this.discussions().length).then((results) => this.parseResults(results));
   }
 
-  parseResults(results, append) {
+  parseResults(results) {
     m.startComputation();
     this.loading(false);
     [].push.apply(this.discussions(), results);
-    this.moreResults(!!results.meta.moreUrl);
+    this.moreResults(!!results.payload.links.next);
     m.endComputation();
     return results;
   }
