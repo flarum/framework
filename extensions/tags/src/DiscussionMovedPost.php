@@ -16,16 +16,21 @@ class DiscussionMovedPost extends ActivityPost
      * Merge the post into another post of the same type.
      *
      * @param \Flarum\Core\Models\Model $previous
-     * @return boolean true if the post was merged, false if it was deleted.
+     * @return \Flarum\Core\Models\Model|null The final model, or null if the
+     *     previous post was deleted.
      */
     protected function mergeInto(Model $previous)
     {
-        if ($previous->content[0] == $this->content[1]) {
-            return false;
+        if ($this->user_id === $previous->user_id) {
+            if ($previous->content[0] == $this->content[1]) {
+                return;
+            }
+
+            $previous->content = static::buildContent($previous->content[0], $this->content[1]);
+            return $previous;
         }
 
-        $previous->content = static::buildContent($previous->content[0], $this->content[1]);
-        return true;
+        return $this;
     }
 
     /**
