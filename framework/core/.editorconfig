@@ -4,7 +4,6 @@
 
 root = true
 
-
 [*]
 end_of_line = lf
 charset = utf-8
@@ -17,11 +16,7 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
-[*.hbs]
-indent_style = space
-indent_size = 2
-
-[*.css]
+[*.{css,less}]
 indent_style = space
 indent_size = 2
 
