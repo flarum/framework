@@ -15,9 +15,19 @@ class GroupsTableSeeder extends Seeder {
         Group::unguard();
         Group::truncate();
 
-		$groups = ['Administrator', 'Guest', 'Member', 'Moderator', 'Staff'];
+		$groups = [
+            ['Admin', 'Admins', '#B72A2A', 'wrench'],
+            ['Guest', 'Guests', null, null],
+            ['Member', 'Members', null, null],
+            ['Mod', 'Mods', '#80349E', 'bolt']
+        ];
         foreach ($groups as $group) {
-            Group::create(['name' => $group]);
+            Group::create([
+                'name_singular' => $group[0],
+                'name_plural' => $group[1],
+                'color' => $group[2],
+                'icon' => $group[3]
+            ]);
         }
 	}
 

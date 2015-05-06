@@ -2,6 +2,7 @@ import Model from 'flarum/model'
 import stringToColor from 'flarum/utils/string-to-color';
 import ItemList from 'flarum/utils/item-list';
 import computed from 'flarum/utils/computed';
+import Badge from 'flarum/components/badge';
 
 class User extends Model {}
 
@@ -48,6 +49,22 @@ User.prototype.color = computed('username', 'avatarUrl', 'avatarColor', function
   }
 });
 
-User.prototype.badges = () => new ItemList();
+User.prototype.badges = function() {
+  var items = new ItemList();
+
+  this.groups().forEach(group => {
+    if (group.id() != 3) {
+      items.add('group'+group.id(),
+        Badge.component({
+          label: group.nameSingular(),
+          icon: group.icon(),
+          style: {backgroundColor: group.color()}
+        })
+      );
+    }
+  });
+
+  return items;
+}
 
 export default User;
