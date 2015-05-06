@@ -12,7 +12,7 @@ abstract class ActivityPost extends Post implements MergeableInterface
      */
     public function getContentAttribute($value)
     {
-        return json_decode($value);
+        return json_decode($value, true);
     }
 
     /**
