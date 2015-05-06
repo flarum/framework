@@ -203,12 +203,15 @@
 
     & .user-card {
       position: absolute;
-      top: 100%;
+      top: -10px;
+      left: -100px;
       z-index: @zindex-popover;
-      .transition(~"opacity 0.2s, margin-top 0.2s");
+      .transition(~"opacity 0.2s, transform 0.2s");
+      transform: scale(0.95);
+      transform-origin: left top;
 
       &.in {
-        margin-top: 5px;
+        transform: scale(1);
       }
     }
   }
