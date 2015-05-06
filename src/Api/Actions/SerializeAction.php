@@ -61,8 +61,8 @@ abstract class SerializeAction implements ActionInterface
     /**
      * Handle an API request and return an API response.
      *
-     * @param Flarum\Api\Request $request
-     * @return Flarum\Api\Response
+     * @param \Flarum\Api\Request $request
+     * @return \Flarum\Api\Response
      */
     public function handle(Request $request)
     {
@@ -80,8 +80,8 @@ abstract class SerializeAction implements ActionInterface
     /**
      * Get the data to be serialized and assigned to the response document.
      *
-     * @param Flarum\Api\JsonApiRequest $request
-     * @param Flarum\Api\JsonApiResponse $response
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param \Flarum\Api\JsonApiResponse $response
      * @return array
      */
     abstract protected function data(JsonApiRequest $request, JsonApiResponse $response);
@@ -99,7 +99,7 @@ abstract class SerializeAction implements ActionInterface
      * Extract parameters from the request input and assign them to the
      * request, restricted by the action's specifications.
      *
-     * @param Flarum\Api\Request $request
+     * @param \Flarum\Api\Request $request
      * @return void
      */
     protected static function buildJsonApiRequest(Request $request)
@@ -150,5 +150,42 @@ abstract class SerializeAction implements ActionInterface
     protected static function sanitizeLimit($limit)
     {
         return min($limit, static::$limitMax) ?: static::$limit;
+    }
+
+    /**
+     * Add pagination links to a JSON-API response, based on input parameters
+     * and the default parameters of this action.
+     *
+     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Flarum\Api\JsonApiRequest $request
+     * @param string $url The base URL to build pagination links with.
+     * @param integer|boolean $total The total number of results (used to build
+     *     a 'last' link), or just true if there are more results but how many
+     *     is unknown ('last' link is ommitted).
+     * @return void
+     */
+    protected static function addPaginationLinks(JsonApiResponse $response, JsonApiRequest $request, $url, $total = true)
+    {
+        if ($request->limit != static::$limit) {
+            array_set($input, 'page.limit', $request->limit);
+        }
+
+        array_set($input, 'page.offset', 0);
+        $response->content->addLink('first', $url.'?'.http_build_query($input));
+
+        if ($request->offset > 0) {
+            array_set($input, 'page.offset', max(0, $request->offset - $request->limit));
+            $response->content->addLink('prev', $url.'?'.http_build_query($input));
+        }
+
+        if ($total === true || $request->offset + $request->limit < $total) {
+            array_set($input, 'page.offset', $request->offset + $request->limit);
+            $response->content->addLink('next', $url.'?'.http_build_query($input));
+        }
+
+        if ($total && $total !== true) {
+            array_set($input, 'page.offset', $total - $request->limit);
+            $response->content->addLink('last', $url.'?'.http_build_query($input));
+        }
     }
 }
