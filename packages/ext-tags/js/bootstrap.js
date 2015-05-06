@@ -222,6 +222,7 @@ app.initializers.add('categories', function() {
     }
   });
 
+  // Add a notification preference.
   extend(SettingsPage.prototype, 'notificationTypes', function(items) {
     items.add('discussionMoved', {
       name: 'discussionMoved',
