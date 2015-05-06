@@ -45,7 +45,7 @@ export default class UserDropdown extends Component {
         ActionButton.component({
           icon: 'wrench',
           label: 'Administration',
-          href: app.config.baseURL+'/admin'
+          href: app.config['base_url']+'/admin'
         })
       );
     }
