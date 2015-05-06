@@ -224,18 +224,17 @@
   & .post-header, & .post-header a, & .post-user h3, & .post-user h3 a {
     color: @fl-body-muted-more-color;
   }
-  & .post-body, & .post-footer, & h3 .avatar {
+  & .post-body, & .post-footer, & h3 .avatar, & .post-header .badges {
     position: absolute;
-    overflow: hidden;
-    height: 0;
+    visibility: hidden;
     opacity: 0;
     margin-top: -5px;
     .transition(~"margin-top 0.2s, opacity 0.2s");
   }
   &.reveal-content {
-    & .post-body, & .post-footer, & h3 .avatar {
+    & .post-body, & .post-footer, & h3 .avatar, & .post-header .badges {
       position: static;
-      height: auto;
+      visibility: visible;
       opacity: 0.5;
       margin-top: 0;
     }
