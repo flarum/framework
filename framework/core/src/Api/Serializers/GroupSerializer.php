@@ -18,8 +18,11 @@ class GroupSerializer extends BaseSerializer
     protected function attributes($group)
     {
         $attributes = [
-            'id'   => (int) $group->id,
-            'name' => $group->name
+            'id'           => (int) $group->id,
+            'nameSingular' => $group->name_singular,
+            'namePlural'   => $group->name_plural,
+            'color'        => $group->color,
+            'icon'         => $group->icon,
         ];
 
         return $this->extendAttributes($group, $attributes);

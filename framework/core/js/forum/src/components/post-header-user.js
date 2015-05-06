@@ -25,7 +25,7 @@ export default class PostHeaderUser extends Component {
             avatar(user),
             username(user)
           ]),
-          m('ul.badges', listItems(user.badges().toArray()))
+          m('ul.badges', listItems(user.badges().toArray().reverse()))
         ] : [
           avatar(),
           username()

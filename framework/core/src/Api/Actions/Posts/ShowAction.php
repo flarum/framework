@@ -28,6 +28,7 @@ class ShowAction extends SerializeResourceAction
      */
     public static $include = [
         'user' => true,
+        'user.groups' => true,
         'editUser' => true,
         'hideUser' => true,
         'discussion' => false
