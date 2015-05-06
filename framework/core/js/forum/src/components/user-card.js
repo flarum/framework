@@ -42,9 +42,6 @@ export default class UserCard extends Component {
   controlItems() {
     var items = new ItemList();
 
-    items.add('edit', ActionButton.component({ icon: 'pencil', label: 'Edit' }));
-    items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete' }));
-
     return items;
   }
 
