@@ -228,7 +228,8 @@ class Composer extends Component {
     if ([Composer.PositionEnum.MINIMIZED, Composer.PositionEnum.HIDDEN].indexOf(this.position()) !== -1) {
       this.position(Composer.PositionEnum.NORMAL);
     }
-    this.render();
+    // work around https://github.com/lhorie/mithril.js/issues/603
+    setTimeout(() => this.render());
   }
 
   hide() {
