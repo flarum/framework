@@ -8,6 +8,7 @@ import DiscussionList from 'flarum/components/discussion-list';
 import WelcomeHero from 'flarum/components/welcome-hero';
 import ComposerDiscussion from 'flarum/components/composer-discussion';
 import LoginModal from 'flarum/components/login-modal';
+import DiscussionPage from 'flarum/components/discussion-page';
 
 import SelectInput from 'flarum/components/select-input';
 import ActionButton from 'flarum/components/action-button';
@@ -33,13 +34,17 @@ export default class IndexPage extends Component {
       app.cache.discussionList = new DiscussionList({params});
     }
 
+    if (app.current instanceof DiscussionPage) {
+      this.lastDiscussion = app.current.discussion();
+    }
+
     app.history.push('index');
     app.current = this;
     app.composer.minimize();
   }
 
   onunload() {
-    app.cache.discussionList.willRedraw();
+    app.cache.scrollTop = $(window).scrollTop();
   }
 
   /**
@@ -122,6 +127,20 @@ export default class IndexPage extends Component {
     $('body').addClass('index-page');
     context.onunload = function() {
       $('body').removeClass('index-page');
+    }
+
+    var scrollTop = app.cache.scrollTop;
+    $(window).scrollTop(scrollTop);
+
+    if (this.lastDiscussion) {
+      var $discussion = this.$('.discussion-summary[data-id='+this.lastDiscussion.id()+']');
+      if ($discussion.length) {
+        var indexTop = $('#header').outerHeight();
+        var discussionTop = $discussion.offset().top;
+        if (discussionTop < scrollTop + indexTop || discussionTop + $discussion.outerHeight() > scrollTop + $(window).height()) {
+          $(window).scrollTop(discussionTop - indexTop);
+        }
+      }
     }
   }
 
