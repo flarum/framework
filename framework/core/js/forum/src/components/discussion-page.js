@@ -36,6 +36,9 @@ export default class DiscussionPage extends Component {
     app.store.find('discussions', m.route.param('id'), this.params()).then(this.setupDiscussion.bind(this));
 
     if (app.cache.discussionList) {
+      if (!(app.current instanceof DiscussionPage)) {
+        app.cache.discussionList.subtrees.map(subtree => subtree.invalidate());
+      }
       app.pane.enable();
       app.pane.hide();
       m.redraw.strategy('diff'); // otherwise pane redraws and mouseenter even is triggered so it doesn't hide

@@ -22,7 +22,7 @@ export default class IndexPage extends Component {
 
     var params = this.params();
     if (app.cache.discussionList) {
-      app.cache.discussionList.willRedraw();
+      app.cache.discussionList.subtrees.map(subtree => subtree.invalidate());
       Object.keys(params).some(key => {
         if (app.cache.discussionList.props.params[key] !== params[key]) {
           app.cache.discussionList = null;
