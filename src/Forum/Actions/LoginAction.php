@@ -21,8 +21,7 @@ class LoginAction extends BaseAction
         $response = app('Flarum\Api\Actions\TokenAction')
             ->handle(new ApiRequest($request->only('identification', 'password')));
 
-        $data = $response->getData();
-        if (! empty($data->token)) {
+        if (($data = $response->getData()) && ! empty($data->token)) {
             $response->withCookie($this->makeRememberCookie($data->token));
 
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
