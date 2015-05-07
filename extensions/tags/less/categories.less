@@ -66,7 +66,6 @@
 .modal-move-discussion {
   & .modal-header {
     padding: 20px;
-    text-align: left;
 
     & h3 {
       font-size: 16px;
@@ -75,8 +74,11 @@
   & .modal-content {
     overflow: hidden;
   }
+  & .category-list {
+    background: @fl-body-secondary-color;
+  }
   & .category-tile .title {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     font-size: 18px;
   }
   & .category-tile .description {
@@ -86,8 +88,15 @@
   & .count {
     display: none;
   }
-  & .category-tile > a {
-    padding: 20px;
+  & .category-tile {
+    float: left;
+    width: 50%;
+    height: 125px;
+
+    & > a {
+      padding: 20px;
+      height: 100%;
+    }
   }
 }
 
