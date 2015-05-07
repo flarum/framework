@@ -9,6 +9,7 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\MountManager;
+use Intervention\Image\ImageManager;
 
 class UploadAvatarCommandHandler
 {
@@ -39,6 +40,9 @@ class UploadAvatarCommandHandler
         // throw an exception otherwise.
         $user->assertCan($command->actor, 'edit');
 
+        $manager = new ImageManager(array('driver' => 'imagick'));
+        $manager->make($command->file->getRealPath())->fit(100, 100)->save();
+
         $filename = $command->file->getFilename();
         $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
 
@@ -56,6 +60,7 @@ class UploadAvatarCommandHandler
         event(new AvatarWillBeUploaded($user, $command));
 
         $mount->move("source://$filename", "target://$uploadName");
+
         $user->save();
         $this->dispatchEventsFor($user);
 
