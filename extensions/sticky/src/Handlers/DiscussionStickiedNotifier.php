@@ -1,0 +1,67 @@
+<?php namespace Flarum\Sticky\Handlers;
+
+use Flarum\Sticky\DiscussionStickiedPost;
+use Flarum\Sticky\DiscussionStickiedNotification;
+use Flarum\Sticky\Events\DiscussionWasStickied;
+use Flarum\Sticky\Events\DiscussionWasUnstickied;
+use Flarum\Core\Notifications\Notifier;
+use Illuminate\Contracts\Events\Dispatcher;
+
+class DiscussionStickiedNotifier
+{
+    protected $notifier;
+
+    public function __construct(Notifier $notifier)
+    {
+        $this->notifier = $notifier;
+    }
+
+    /**
+     * Register the listeners for the subscriber.
+     *
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
+    {
+        $events->listen('Flarum\Sticky\Events\DiscussionWasStickied', __CLASS__.'@whenDiscussionWasStickied');
+        $events->listen('Flarum\Sticky\Events\DiscussionWasUnstickied', __CLASS__.'@whenDiscussionWasUnstickied');
+    }
+
+    public function whenDiscussionWasStickied(DiscussionWasStickied $event)
+    {
+        $post = $this->createPost($event->discussion->id, $event->user->id, true);
+
+        $post = $event->discussion->addPost($post);
+
+        if ($event->discussion->start_user_id !== $event->user->id) {
+            $this->sendNotification($post);
+        }
+    }
+
+    public function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
+    {
+        $post = $this->createPost($event->discussion->id, $event->user->id, false);
+
+        $event->discussion->addPost($post);
+    }
+
+    protected function createPost($discussionId, $userId, $isSticky)
+    {
+        return DiscussionStickiedPost::reply(
+            $discussionId,
+            $userId,
+            $isSticky
+        );
+    }
+
+    protected function sendNotification(DiscussionStickiedPost $post)
+    {
+        $notification = new DiscussionStickiedNotification(
+            $post->discussion->startUser,
+            $post->user,
+            $post
+        );
+
+        $this->notifier->send($notification);
+    }
+}
