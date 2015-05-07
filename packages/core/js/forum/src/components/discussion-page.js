@@ -150,6 +150,8 @@ export default class DiscussionPage extends Component {
 
     context.retain = true;
 
+    var $index = $(element);
+
     // When viewing a discussion (for which the discussions route is the
     // parent,) the discussion list is still rendered but it becomes a
     // pane hidden on the side of the screen. When the mouse enters and
@@ -157,7 +159,7 @@ export default class DiscussionPage extends Component {
     // respectively. We also create a 10px 'hot edge' on the left of the
     // screen to activate the pane.
     var pane = app.pane;
-    $(element).hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
+    $index.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
 
     var hotEdge = function(e) {
       if (e.pageX < 10) { pane.show(); }
@@ -166,6 +168,15 @@ export default class DiscussionPage extends Component {
     context.onunload = function() {
       $(document).off('mousemove', hotEdge);
     };
+
+    var $discussion = $index.find('.discussion-summary.active');
+    if ($discussion.length) {
+      var indexTop = $index.offset().top;
+      var discussionTop = $discussion.offset().top;
+      if (discussionTop < indexTop || discussionTop + $discussion.outerHeight() > indexTop + $index.outerHeight()) {
+        $index.scrollTop($index.scrollTop() - indexTop + discussionTop);
+      }
+    }
   }
 
   /**
