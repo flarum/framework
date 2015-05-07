@@ -17,24 +17,15 @@ export default class DiscussionList extends Component {
     this.loading = m.prop(true);
     this.moreResults = m.prop(false);
     this.discussions = m.prop([]);
+    this.subtrees = [];
 
-    this.willRedraw();
     this.refresh();
 
     app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this))
   }
 
-  willRedraw() {
-    this.subtrees = [];
-    this.addSubtrees(this.discussions());
-  }
-
   addSubtrees(discussions) {
-    discussions.forEach(discussion => {
-      this.subtrees[discussion.id()] = new SubtreeRetainer(
-        () => discussion.freshness
-      )
-    });
+
   }
 
   params() {
@@ -90,7 +81,9 @@ export default class DiscussionList extends Component {
   parseResults(results) {
     m.startComputation();
     this.loading(false);
-    this.addSubtrees(results);
+
+    results.forEach(discussion => this.subtrees[discussion.id()] = new SubtreeRetainer(() => discussion.freshness));
+
     [].push.apply(this.discussions(), results);
     this.moreResults(!!results.payload.links.next);
     m.endComputation();

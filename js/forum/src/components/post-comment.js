@@ -17,7 +17,7 @@ export default class PostComment extends Post {
     super(props);
 
     this.postHeaderUser = new PostHeaderUser({post: this.props.post});
-    this.subtree.add(this.postHeaderUser.showCard);
+    this.subtree.check(this.postHeaderUser.showCard);
   }
 
   view() {
