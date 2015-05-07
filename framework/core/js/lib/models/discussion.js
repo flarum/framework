@@ -18,7 +18,7 @@ class Discussion extends Model {
 
 Discussion.prototype.id = Model.prop('id');
 Discussion.prototype.title = Model.prop('title');
-Discussion.prototype.slug = computed('title', title => title.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, ''));
+Discussion.prototype.slug = computed('title', title => title.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-');
 
 Discussion.prototype.startTime = Model.prop('startTime', Model.date);
 Discussion.prototype.startUser = Model.one('startUser');
