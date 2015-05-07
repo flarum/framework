@@ -51,7 +51,7 @@ class UploadAvatarCommandHandler
             'target' => $this->uploadDir,
         ]);
 
-        if ($mount->has($file = "target://$user->avatar_path")) {
+        if ($user->avatar_path && $mount->has($file = "target://$user->avatar_path")) {
             $mount->delete($file);
         }
 
