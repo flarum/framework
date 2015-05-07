@@ -5,8 +5,6 @@ use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Core\Exceptions\ValidationFailureException;
-use Flarum\Core\Exceptions\PermissionDeniedException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Config;
 
@@ -31,13 +29,6 @@ class ExceptionHandler extends Handler
     public function render($request, Exception $e)
     {
         if ($request->is('api/*')) {
-            if ($e instanceof ValidationFailureException) {
-                return $this->renderValidationException($e);
-            }
-            if ($e instanceof PermissionDeniedException) {
-                return new Response(null, 401);
-            }
-
             $error = [];
             if (Config::get('app.debug')) {
                 $error['code'] = (new \ReflectionClass($e))->getShortName();
@@ -59,17 +50,5 @@ class ExceptionHandler extends Handler
     protected function renderErrors($errors, $httpCode = 500)
     {
         return new JsonResponse(['errors' => $errors], $httpCode);
-    }
-
-    protected function renderValidationException(ValidationFailureException $e)
-    {
-        $errors = [];
-        foreach ($e->getErrors()->getMessages() as $field => $messages) {
-            $errors[] = [
-                'detail' => implode("\n", $messages),
-                'path' => $field
-            ];
-        }
-        return $this->renderErrors($errors, 422);
     }
 }
