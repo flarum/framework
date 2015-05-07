@@ -1,6 +1,5 @@
 import Component from 'flarum/component';
 import ItemList from 'flarum/utils/item-list';
-import IndexPage from 'flarum/components/index-page';
 import PostStream from 'flarum/utils/post-stream';
 import DiscussionList from 'flarum/components/discussion-list';
 import DiscussionHero from 'flarum/components/discussion-hero';
