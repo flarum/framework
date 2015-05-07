@@ -44,10 +44,10 @@ export default class ActivityPage extends UserPage {
     this.loadResults().then(this.parseResults.bind(this));
   }
 
-  loadResults(start) {
+  loadResults(offset) {
     return app.store.find('activity', {
       users: this.user().id(),
-      start,
+      page: {offset},
       type: this.props.filter
     })
   }
