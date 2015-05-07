@@ -3,6 +3,7 @@
 use Flarum\Api\Request;
 use Flarum\Core\Commands\GenerateAccessTokenCommand;
 use Flarum\Core\Repositories\UserRepositoryInterface;
+use Flarum\Core\Exceptions\PermissionDeniedException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
 
@@ -32,9 +33,8 @@ class TokenAction implements ActionInterface
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            return;
-            // throw an exception
-            // return $this->respondWithError('invalidCredentials', 401);
+            // throw new PermissionDeniedException;
+            return new JsonResponse(null, 401);
         }
 
         $token = $this->bus->dispatch(
