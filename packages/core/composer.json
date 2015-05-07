@@ -13,7 +13,8 @@
         "tobscure/json-api": "dev-master",
         "tobscure/permissible": "dev-master",
         "misd/linkify": "1.1.*",
-        "oyejorge/less.php": "dev-master"
+        "oyejorge/less.php": "dev-master",
+        "intervention/image": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "1.4.0",
