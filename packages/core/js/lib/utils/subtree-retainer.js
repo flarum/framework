@@ -4,14 +4,14 @@
     () => this.props.post.freshness,
     () => this.showing
   );
-  this.subtree.add(() => this.props.user.freshness);
+  this.subtree.check(() => this.props.user.freshness);
 
   // view
   this.subtree.retain() || 'expensive expression'
  */
 export default class SubtreeRetainer {
   constructor() {
-    this.clear();
+    this.invalidate();
     this.callbacks = [].slice.call(arguments);
   }
 
@@ -27,11 +27,11 @@ export default class SubtreeRetainer {
     return needsRebuild ? false : {subtree: 'retain'};
   }
 
-  add() {
+  check() {
     this.callbacks = this.callbacks.concat([].slice.call(arguments));
   }
 
-  clear() {
+  invalidate() {
     this.old = [];
   }
 }
