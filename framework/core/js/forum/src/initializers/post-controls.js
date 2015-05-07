@@ -1,4 +1,5 @@
 import Post from 'flarum/models/post';
+import DiscussionPage from 'flarum/components/discussion-page';
 import ComposerEdit from 'flarum/components/composer-edit';
 import ActionButton from 'flarum/components/action-button';
 import Separator from 'flarum/components/separator';
