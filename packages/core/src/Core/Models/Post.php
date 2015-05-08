@@ -58,7 +58,6 @@ class Post extends Model
         parent::boot();
 
         static::creating(function ($post) {
-            $post->type = $post::$type;
             $post->number = ++$post->discussion->number_index;
             $post->discussion->save();
         });
