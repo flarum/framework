@@ -2,7 +2,9 @@
 
 use Illuminate\Database\Seeder;
 use DB;
+use Flarum\Core\Models\CommentPost;
 use Flarum\Core\Models\Discussion;
+use Flarum\Core\Models\DiscussionRenamedPost;
 use Flarum\Core\Models\Post;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\DiscussionState;
@@ -33,12 +35,11 @@ class DiscussionsTableSeeder extends Seeder
             ]);
             $discussion->comments_count = $posts_count;
 
-            $post = Post::create([
+            $post = CommentPost::create([
                 'discussion_id' => $discussion->id,
                 'number'        => 1,
                 'time'          => $discussion->start_time,
                 'user_id'       => $discussion->start_user_id,
-                'type'          => 'comment',
                 'content'       => $faker->realText(rand(100, 1000))
             ]);
 
@@ -60,11 +61,10 @@ class DiscussionsTableSeeder extends Seeder
                 if (rand(1, 100) == 1) {
                     $discussion->comments_count--;
 
-                    $post = Post::create([
+                    $post = DiscussionRenamedPost::create([
                         'discussion_id' => $discussion->id,
                         'time'          => $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')),
                         'user_id'       => rand(1, $users),
-                        'type'          => 'discussionRenamed',
                         'content'       => json_encode(array($faker->realText(rand(20, 40)), $discussion->title))
                     ]);
                 } else {
@@ -75,12 +75,11 @@ class DiscussionsTableSeeder extends Seeder
                         $discussion->comments_count--;
                     }
 
-                    $post = Post::create([
+                    $post = CommentPost::create([
                         'discussion_id' => $discussion->id,
                         'number'        => $j + 2 + $numberOffset,
                         'time'          => $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')),
                         'user_id'       => rand(1, $users),
-                        'type'          => 'comment',
                         'content'       => $faker->realText(rand(50, 500)),
                         'edit_time'     => $edited ? $startTime = date_add($startTime, date_interval_create_from_date_string('1 second')) : null,
                         'edit_user_id'  => $edited ? rand(1, $users) : null,
