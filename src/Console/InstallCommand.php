@@ -47,6 +47,9 @@ class InstallCommand extends Command {
         $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\ConfigTableSeeder']);
         $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\GroupsTableSeeder']);
         $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\PermissionsTableSeeder']);
+
+        // Create config file so that we know Flarum is installed
+        copy(base_path('../config.example.php'), base_path('../config.php'));
 	}
 
 	/**
