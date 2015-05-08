@@ -1,5 +1,6 @@
 <?php namespace Flarum\Support\Extensions;
 
+use Flarum\Core;
 use Illuminate\Support\ServiceProvider;
 use DB;
 
@@ -12,7 +13,9 @@ class ExtensionsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $app = $this->app;
+        // Extensions will not be registered if Flarum is not installed yet
+        if (!Core::isInstalled()) return;
+
         $extensions = json_decode(DB::table('config')->where('key', 'extensions_enabled')->pluck('value'), true);
         $providers = [];
 
