@@ -3,7 +3,7 @@
 use Tobscure\Permissible\Permissible;
 use Flarum\Core\Events\PostWasDeleted;
 
-class Post extends Model
+abstract class Post extends Model
 {
     use Permissible;
 
@@ -47,6 +47,17 @@ class Post extends Model
     protected static $types = [];
 
     /**
+     * The type of post this is, to be stored in the posts table.
+     *
+     * Should be overwritten by subclasses with the value that is
+     * to be stored in the database, which will then be used for
+     * mapping the hydrated model instance to the proper subtype.
+     *
+     * @var string
+     */
+    public static $type = '';
+
+    /**
      * Raise an event when a post is deleted. Add an event listener to set the
      * post's number, and update the discussion's number index, when inserting
      * a post.
@@ -58,6 +69,7 @@ class Post extends Model
         parent::boot();
 
         static::creating(function ($post) {
+            $post->type = $post::$type;
             $post->number = ++$post->discussion->number_index;
             $post->discussion->save();
         });
