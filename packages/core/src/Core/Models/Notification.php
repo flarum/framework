@@ -1,9 +1,11 @@
 <?php namespace Flarum\Core\Models;
 
-use Flarum\Core\Support\MappedMorphTo;
+use Flarum\Core\Support\MappedMorphToTrait;
 
 class Notification extends Model
 {
+    use MappedMorphToTrait;
+
     /**
      * The table associated with the model.
      *
@@ -87,30 +89,7 @@ class Notification extends Model
 
     public function subject()
     {
-        $name = 'subject';
-        $typeColumn = 'type';
-        $idColumn = 'subject_id';
-
-        // If the type value is null it is probably safe to assume we're eager loading
-        // the relationship. When that is the case we will pass in a dummy query as
-        // there are multiple types in the morph and we can't use single queries.
-        if (is_null($type = $this->$typeColumn)) {
-            return new MappedMorphTo(
-                $this->newQuery(), $this, $idColumn, null, $typeColumn, $name, static::$subjects
-            );
-        }
-
-        // If we are not eager loading the relationship we will essentially treat this
-        // as a belongs-to style relationship since morph-to extends that class and
-        // we will pass in the appropriate values so that it behaves as expected.
-        else {
-            $class = static::$subjects[$type];
-            $instance = new $class;
-
-            return new MappedMorphTo(
-                $instance->newQuery(), $this, $idColumn, $instance->getKeyName(), $typeColumn, $name, static::$subjects
-            );
-        }
+        return $this->mappedMorphTo(static::$subjects, 'subject', 'type', 'subject_id');
     }
 
     public static function getTypes()
