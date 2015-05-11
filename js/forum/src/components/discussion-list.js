@@ -24,10 +24,6 @@ export default class DiscussionList extends Component {
     app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this))
   }
 
-  addSubtrees(discussions) {
-
-  }
-
   params() {
     var params = {};
     for (var i in this.props.params) {
@@ -78,11 +74,15 @@ export default class DiscussionList extends Component {
     this.loadResults(this.discussions().length).then((results) => this.parseResults(results));
   }
 
+  initSubtree(discussion) {
+    this.subtrees[discussion.id()] = new SubtreeRetainer(() => discussion.freshness);
+  }
+
   parseResults(results) {
     m.startComputation();
     this.loading(false);
 
-    results.forEach(discussion => this.subtrees[discussion.id()] = new SubtreeRetainer(() => discussion.freshness));
+    results.forEach(this.initSubtree.bind(this));
 
     [].push.apply(this.discussions(), results);
     this.moreResults(!!results.payload.links.next);
@@ -104,6 +104,11 @@ export default class DiscussionList extends Component {
     }
   }
 
+  addDiscussion(discussion) {
+    this.discussions().unshift(discussion);
+    this.initSubtree(discussion);
+  }
+
   view() {
     return m('div', [
       m('ul.discussions-list', [
@@ -119,7 +124,7 @@ export default class DiscussionList extends Component {
           var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
 
           var subtree = this.subtrees[discussion.id()];
-          return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {key: discussion.id(), 'data-id': discussion.id()}, subtree.retain() || m('div', [
+          return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {key: discussion.id(), 'data-id': discussion.id()}, (subtree && subtree.retain()) || m('div', [
             controls.length ? DropdownButton.component({
               items: controls,
               className: 'contextual-controls',
