@@ -344,6 +344,12 @@ body {
 
     .drawer-open & {
       margin-left: @drawer-width;
+
+      // Disable all interaction with the content when the drawer is open. When
+      // .global-content is touched, the drawer will be closed.
+      & * {
+        pointer-events: none;
+      }
     }
   }
 }
