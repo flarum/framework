@@ -21,11 +21,15 @@ export default function(app) {
   app.pane = new Pane(id('page'));
   app.cache = {};
 
-  app.signup = () => app.modal.show(new SignupModal());
-  app.login = () => app.modal.show(new LoginModal());
-
   m.mount(id('back-control'), BackButton.component({ className: 'back-control', drawer: true }));
   m.mount(id('back-button'), BackButton.component());
+
+  $('.global-content').click(e => {
+    if ($('body').hasClass('drawer-open')) {
+      e.preventDefault();
+      $('body').removeClass('drawer-open');
+    }
+  });
 
   m.mount(id('header-primary'), HeaderPrimary.component());
   m.mount(id('header-secondary'), HeaderSecondary.component());
