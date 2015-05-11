@@ -219,6 +219,19 @@
 .post-body {
   font-size: 14px;
   line-height: 1.6em;
+
+  & p, & ul, & ol, & blockquote {
+    margin-bottom: 1em;
+  }
+  & a {
+    border-bottom: 1px solid @fl-body-secondary-color;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: none;
+      border-color: @link-hover-color;
+    }
+  }
 }
 .post.is-hidden {
   & .post-header, & .post-header a, & .post-user h3, & .post-user h3 a {
