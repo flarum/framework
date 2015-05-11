@@ -38,6 +38,11 @@ class ServiceProvider extends IlluminateServiceProvider
         });
     }
 
+    protected function formatter($name, $class, $priority = 0)
+    {
+        $this->app['flarum.formatter']->add($name, $class, $priority);
+    }
+
     protected function notificationType($class, $defaultPreferences = [])
     {
         $notifier = $this->app['flarum.notifier'];
