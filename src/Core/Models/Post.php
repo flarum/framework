@@ -3,7 +3,7 @@
 use Tobscure\Permissible\Permissible;
 use Flarum\Core\Events\PostWasDeleted;
 
-abstract class Post extends Model
+class Post extends Model
 {
     use Permissible;
 
