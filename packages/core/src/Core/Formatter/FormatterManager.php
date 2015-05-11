@@ -29,9 +29,8 @@ class FormatterManager
 		$this->remove($name);
 
 		if (is_string($formatter)) {
-			$container = $this->container;
-			$formatter = function () use ($container, $formatter) {
-				$callable = array($container->make($formatter), 'format');
+			$formatter = function () use ($formatter) {
+				$callable = array($this->container->make($formatter), 'format');
 				$data = func_get_args();
 				return call_user_func_array($callable, $data);
 			};
