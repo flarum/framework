@@ -33,6 +33,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerGambits();
         $this->setupModels();
 
+        $this->app['flarum.formatter']->add('linkify', 'Flarum\Core\Formatter\LinkifyFormatter');
+
         $bus->mapUsing(function ($command) {
             return Bus::simpleMapping(
                 $command, 'Flarum\Core\Commands', 'Flarum\Core\Handlers\Commands'
@@ -54,11 +56,7 @@ class CoreServiceProvider extends ServiceProvider
         // forum, registering, and starting discussions.)
         $this->app->singleton('flarum.forum', 'Flarum\Core\Models\Forum');
 
-        $this->app->singleton('flarum.formatter', function () {
-            $formatter = new FormatterManager($this->app);
-            $formatter->add('basic', 'Flarum\Core\Formatter\BasicFormatter');
-            return $formatter;
-        });
+        $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\FormatterManager');
 
         $this->app->bind(
             'Flarum\Core\Repositories\DiscussionRepositoryInterface',
