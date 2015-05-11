@@ -133,7 +133,7 @@ app.initializers.add('categories', function() {
   extend(DiscussionHero.prototype, 'items', function(items) {
     var category = this.props.discussion.category();
     if (category) {
-      items.add('category', m('span.category-label', category.title()), {before: 'title'});
+      items.add('category', categoryLabel(category, {inverted: true}), {before: 'title'});
       items.title.content.wrapperClass = 'block-item';
     }
   });
