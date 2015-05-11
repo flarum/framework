@@ -15,8 +15,11 @@ class CreateCategoriesTable extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
+            $table->string('slug');
             $table->text('description');
             $table->string('color');
+            $table->integer('discussions_count')->unsigned()->default(0);
+            $table->integer('position')->nullable();
         });
     }
 
