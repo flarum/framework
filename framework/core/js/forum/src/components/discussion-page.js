@@ -82,13 +82,14 @@ export default class DiscussionPage extends Component {
 
     // Hold up there skippy! If the slug in the URL doesn't match up, we'll
     // redirect so we have the correct one.
-    if (m.route.param('id') === discussion.id() && m.route.param('slug') !== discussion.slug()) {
-      var params = m.route.param();
-      params.slug = discussion.slug();
-      params.near = params.near || '';
-      m.route(app.route('discussion.near', params), null, true);
-      return;
-    }
+    // Waiting on https://github.com/lhorie/mithril.js/issues/539
+    // if (m.route.param('id') === discussion.id() && m.route.param('slug') !== discussion.slug()) {
+    //   var params = m.route.param();
+    //   params.slug = discussion.slug();
+    //   params.near = params.near || '';
+    //   m.route(app.route('discussion.near', params), null, true);
+    //   return;
+    // }
 
     this.streamContent.goToNumber(this.currentNear, true);
   }
