@@ -12,6 +12,7 @@ Post.prototype.user = Model.one('user');
 Post.prototype.contentType = Model.prop('contentType');
 Post.prototype.content = Model.prop('content');
 Post.prototype.contentHtml = Model.prop('contentHtml');
+Post.prototype.excerpt = Model.prop('excerpt');
 
 Post.prototype.editTime = Model.prop('editTime', Model.date);
 Post.prototype.editUser = Model.one('editUser');

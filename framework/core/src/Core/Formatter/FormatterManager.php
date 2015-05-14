@@ -26,16 +26,6 @@ class FormatterManager
 
 	public function add($name, $formatter, $priority = 0)
 	{
-		$this->remove($name);
-
-		if (is_string($formatter)) {
-			$formatter = function () use ($formatter) {
-				$callable = array($this->container->make($formatter), 'format');
-				$data = func_get_args();
-				return call_user_func_array($callable, $data);
-			};
-		}
-
 		$this->formatters[$name] = [$formatter, $priority];
 	}
 
@@ -44,23 +34,44 @@ class FormatterManager
 		unset($this->formatters[$name]);
 	}
 
-	public function format($text)
+    protected function getFormatters()
+    {
+        $sorted = [];
+
+        foreach ($this->formatters as $array) {
+            list($formatter, $priority) = $array;
+            $sorted[$priority][] = $formatter;
+        }
+
+        ksort($sorted);
+
+        $result = [];
+
+        foreach ($sorted as $formatters) {
+            $result = array_merge($result, $formatters);
+        }
+
+        return $result;
+    }
+
+	public function format($text, $post = null)
 	{
-		$sorted = [];
-
-		foreach ($this->formatters as $array) {
-			list($formatter, $priority) = $array;
-			$sorted[$priority][] = $formatter;
-		}
-
-		ksort($sorted);
-
-		foreach ($sorted as $formatters) {
-			foreach ($formatters as $formatter) {
-				$text = $formatter($text);
-			}
+		foreach ($this->getFormatters() as $formatter) {
+			$text = $this->container->make($formatter)->format($text, $post);
 		}
 
 		return $text;
 	}
+
+    public function strip($text)
+    {
+        foreach ($this->getFormatters() as $formatter) {
+            $formatter = $this->container->make($formatter);
+            if (method_exists($formatter, 'strip')) {
+                $text = $formatter->strip($text);
+            }
+        }
+
+        return $text;
+    }
 }
