@@ -330,6 +330,13 @@
   &, & a {
     color: @fl-body-muted-color;
   }
+  & a {
+    display: inline-block;
+
+    & .icon {
+      display: none;
+    }
+  }
 }
 .post-footer {
   & > ul {
@@ -344,6 +351,7 @@
 }
 .post-actions {
   margin-top: 10px;
+  margin-bottom: -10px;
   opacity: 0;
   .transition(opacity 0.2s);
 
