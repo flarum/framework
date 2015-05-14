@@ -13,7 +13,7 @@ export default class ActionButton extends Component {
     delete attrs.label;
 
     attrs.href = attrs.href || 'javascript:;';
-    return m('a', attrs, [
+    return m('a'+(iconName ? '.has-icon' : ''), attrs, [
       iconName ? icon(iconName+' icon') : '',
       m('span.label', label)
     ]);
