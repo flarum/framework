@@ -34,12 +34,14 @@ class Composer extends Component {
     };
     classes.visible = this.position() === Composer.PositionEnum.NORMAL || classes.minimized || classes.fullScreen;
 
-    this.component && (this.component.props.disabled = classes.minimized);
+    if (this.component) this.component.props.disabled = classes.minimized;
 
     return m('div.composer', {config: this.onload.bind(this), className: classList(classes)}, [
       m('div.composer-handle', {config: this.configHandle.bind(this)}),
       m('ul.composer-controls', listItems(this.controlItems().toArray())),
-      m('div.composer-content', {onclick: this.show.bind(this)}, this.component ? this.component.view() : '')
+      m('div.composer-content', {onclick: () => {
+        if (this.position() === Composer.PositionEnum.MINIMIZED) this.show();
+      }}, this.component ? this.component.view() : '')
     ]);
   }
 
