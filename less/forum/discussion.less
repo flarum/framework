@@ -241,7 +241,8 @@
 }
 .post-body {
   font-size: 14px;
-  line-height: 1.6em;
+  line-height: 1.7;
+  position: relative;
 
   & p, & ul, & ol, & blockquote {
     margin-bottom: 1em;
@@ -254,6 +255,16 @@
       text-decoration: none;
       border-color: @link-hover-color;
     }
+  }
+  & blockquote {
+    font-size: inherit;
+    border: 0;
+    background: @fl-body-control-bg;
+    color: @fl-body-control-color;
+    border-radius: @border-radius-base;
+    padding: 10px 20px;
+    border-top: 2px dotted @fl-body-bg;
+    border-bottom: 2px dotted @fl-body-bg;
   }
 }
 .post.is-hidden {
