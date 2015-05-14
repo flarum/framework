@@ -10,6 +10,8 @@ class UserSearcher implements SearcherInterface
 {
     protected $query;
 
+    protected $activeGambits = [];
+
     protected $gambits;
 
     protected $users;
@@ -30,6 +32,16 @@ class UserSearcher implements SearcherInterface
     public function query()
     {
         return $this->query->getQuery();
+    }
+
+    public function addActiveGambit($gambit)
+    {
+        $this->activeGambits[] = $gambit;
+    }
+
+    public function getActiveGambits()
+    {
+        return $this->activeGambits;
     }
 
     public function search(UserSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])
@@ -64,7 +76,7 @@ class UserSearcher implements SearcherInterface
 
         $users = $this->query->get();
 
-        if ($count > 0 && $areMoreResults = $users->count() > $count) {
+        if ($limit > 0 && $areMoreResults = $users->count() > $limit) {
             $users->pop();
         }
 
