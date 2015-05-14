@@ -11,6 +11,14 @@ export default class ComposerBody extends Component {
     this.loading = m.prop(false);
     this.disabled = m.prop(false);
     this.content = m.prop(this.props.originalContent);
+    this.editor = new TextEditor({
+      submitLabel: this.props.submitLabel,
+      placeholder: this.props.placeholder,
+      disabled: this.loading(),
+      onchange: this.content,
+      onsubmit: this.onsubmit.bind(this),
+      value: this.content()
+    });
   }
 
   view() {
@@ -18,14 +26,7 @@ export default class ComposerBody extends Component {
       avatar(this.props.user, {className: 'composer-avatar'}),
       m('div.composer-body', [
         m('ul.composer-header', listItems(this.headerItems().toArray())),
-        m('div.composer-editor', TextEditor.component({
-          submitLabel: this.props.submitLabel,
-          placeholder: this.props.placeholder,
-          disabled: this.loading(),
-          onchange: this.content,
-          onsubmit: this.onsubmit.bind(this),
-          value: this.content()
-        }))
+        m('div.composer-editor', this.editor.view())
       ]),
       LoadingIndicator.component({className: 'composer-loading'+(this.loading() ? ' active' : '')})
     ]);
