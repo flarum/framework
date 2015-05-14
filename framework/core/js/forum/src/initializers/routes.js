@@ -18,4 +18,20 @@ export default function(app) {
 
     'settings':         ['/settings', SettingsPage.component()]
   };
+
+  app.route.discussion = function(discussion, near) {
+    return app.route(near ? 'discussion.near' : 'discussion', {
+      id: discussion.id(),
+      slug: discussion.slug(),
+      near: near
+    });
+  };
+
+  app.route.post = function(post) {
+    return app.route('discussion.near', {
+      id: post.discussion().id(),
+      slug: post.discussion().slug(),
+      near: post.number()
+    });
+  };
 }
