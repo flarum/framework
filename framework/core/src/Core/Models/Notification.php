@@ -1,11 +1,7 @@
 <?php namespace Flarum\Core\Models;
 
-use Flarum\Core\Support\MappedMorphToTrait;
-
 class Notification extends Model
 {
-    use MappedMorphToTrait;
-
     /**
      * The table associated with the model.
      *
