@@ -114,12 +114,12 @@ export default class DiscussionPage extends Component {
     // stream to jump to the new 'near' param.
     var discussion = this.discussion();
     if (discussion) {
-      var discussionRoute = app.route('discussion', { id: discussion.id(), slug: discussion.slug() });
-      if (m.route().substr(0, discussionRoute.length) === discussionRoute) {
+      if (m.route.param('id') == discussion.id()) {
         e.preventDefault();
         if (m.route.param('near') != this.currentNear) {
           this.streamContent.goToNumber(m.route.param('near'));
         }
+        this.currentNear = null;
         return;
       }
     }
