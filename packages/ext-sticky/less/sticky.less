@@ -7,10 +7,20 @@
   }
 }
 .discussion-excerpt {
-  display: block !important;
   margin-bottom: 10px;
   white-space: normal;
   font-size: 12px;
   line-height: 1.5em;
-  color: #aaa;
+  color: @fl-body-muted-more-color;
+
+  .discussion-summary .info > li& {
+    display: block;
+
+    .paned & {
+      display: none;
+    }
+    @media @phone {
+      display: none;
+    }
+  }
 }
