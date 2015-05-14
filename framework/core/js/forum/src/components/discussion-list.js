@@ -25,7 +25,7 @@ export default class DiscussionList extends Component {
   }
 
   params() {
-    var params = {};
+    var params = {include: ['startUser', 'lastUser']};
     for (var i in this.props.params) {
       params[i] = this.props.params[i];
     }
@@ -65,6 +65,7 @@ export default class DiscussionList extends Component {
   loadResults(offset) {
     var params = this.params();
     params.page = {offset};
+    params.include = params.include.join(',');
     return app.store.find('discussions', params);
   }
 
