@@ -7,6 +7,7 @@ import ActionButton from 'flarum/components/action-button';
 import ItemList from 'flarum/utils/item-list';
 import Separator from 'flarum/components/separator';
 import LoadingIndicator from 'flarum/components/loading-indicator';
+import Discussion from 'flarum/models/discussion';
 
 export default class UserNotifications extends Component {
   constructor(props) {
@@ -17,6 +18,21 @@ export default class UserNotifications extends Component {
 
   view() {
     var user = this.props.user;
+
+    var groups = [];
+    if (app.cache.notifications) {
+      var groupsObject = {};
+      app.cache.notifications.forEach(notification => {
+        var subject = notification.subject();
+        var discussion = subject instanceof Discussion ? subject : (subject.discussion && subject.discussion());
+        var key = discussion ? discussion.id() : 0;
+        groupsObject[key] = groupsObject[key] || {discussion: discussion, notifications: []};
+        groupsObject[key].notifications.push(notification);
+      });
+      for (var i in groupsObject) {
+        groups.push(groupsObject[i]);
+      }
+    }
 
     return DropdownButton.component({
       className: 'notifications',
@@ -37,19 +53,27 @@ export default class UserNotifications extends Component {
           }),
           m('h4', 'Notifications')
         ]),
-        m('ul.notifications-list', app.cache.notifications
-          ? app.cache.notifications.map(notification => {
-            var NotificationComponent = app.notificationComponentRegistry[notification.contentType()];
-            return NotificationComponent ? m('li', NotificationComponent.component({notification})) : '';
+        m('div.notifications-content', groups.length
+          ? groups.map(group => {
+            return m('div.notification-group', [
+              group.discussion ? m('a.notification-group-header', {
+                href: app.route.discussion(group.discussion),
+                config: m.route
+              }, group.discussion.title()) : m('div.notification-group-header', app.config['forum_title']),
+              m('ul.notifications-list', group.notifications.map(notification => {
+                var NotificationComponent = app.notificationComponentRegistry[notification.contentType()];
+                return NotificationComponent ? m('li', NotificationComponent.component({notification})) : '';
+              }))
+            ])
           })
-          : (!this.loading() ? m('li.no-notifications', 'No Notifications') : '')),
+          : (!this.loading() ? m('div.no-notifications', 'No Notifications') : '')),
         this.loading() ? LoadingIndicator.component() : ''
       ]
     });
   }
 
   load() {
-    if (!app.cache.notifications) {
+    if (!app.cache.notifications || this.props.user.unreadNotificationsCount()) {
       var component = this;
       this.loading(true);
       m.redraw();

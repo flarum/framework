@@ -9,16 +9,13 @@ export default class Notification extends Component {
     var notification = this.props.notification;
 
     return m('div.notification.notification-'+dasherize(notification.contentType()), {
-      classNames: !notification.isRead() ? 'unread' : '',
+      className: !notification.isRead() ? 'unread' : '',
       onclick: this.read.bind(this)
-    }, m('a', {href: args.href, config: args.config}, [
-      avatar(notification.sender()),
-      m('h3.notification-title', args.title),
-      m('div.notification-info', [
-        icon(args.icon), ' ',
-        args.content, ' ',
-        humanTime(notification.time())
-      ])
+    }, m('a', {href: args.href, config: args.config || m.route}, [
+      avatar(notification.sender()), ' ',
+      icon(args.icon+' icon'), ' ',
+      m('span.content', args.content), ' ',
+      humanTime(notification.time())
     ]));
   }
 
