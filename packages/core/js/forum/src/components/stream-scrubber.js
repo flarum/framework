@@ -385,7 +385,7 @@ export default class StreamScrubber extends Component {
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
     var intIndex = Math.floor(this.index());
-    if (!this.props.streamContent.props.stream.findNearestToIndex(intIndex).content) {
+    if (!this.props.streamContent.props.stream.findNearestToIndex(intIndex).post) {
       this.props.streamContent.goToIndex(intIndex);
     } else {
       this.props.streamContent.paused(false);
