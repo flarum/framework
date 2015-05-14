@@ -32,7 +32,13 @@ class DiscussionMovedNotifier
         $post = $event->discussion->addPost($post);
 
         if ($event->discussion->start_user_id !== $event->user->id) {
-            $this->sendNotification($event, $post);
+            $notification = new DiscussionMovedNotification($event->discussion, $post->user, $post);
+
+            if ($post->exists) {
+                $this->notifier->send($notification, [$post->discussion->startUser]);
+            } else {
+                $this->notifier->retract($notification);
+            }
         }
     }
 
@@ -44,17 +50,5 @@ class DiscussionMovedNotifier
             $event->oldCategoryId,
             $event->discussion->category_id
         );
-    }
-
-    protected function sendNotification(DiscussionWasMoved $event, DiscussionMovedPost $post)
-    {
-        $notification = new DiscussionMovedNotification(
-            $event->discussion->startUser,
-            $event->user,
-            $post,
-            $event->discussion->category_id
-        );
-
-        $this->notifier->send($notification);
     }
 }
