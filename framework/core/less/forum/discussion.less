@@ -155,10 +155,17 @@
   }
 }
 .item.highlight .post {
-  border: 8px solid fade(@fl-primary-color, 10%);
-  border-radius: 10px;
-  padding: 15px;
-  margin: -23px;
+  &:before {
+    content: "";
+    position: absolute;
+    left: -30px;
+    top: -5px;
+    bottom: -5px;
+    width: 5px;
+    border-radius: @border-radius-base;
+    background: @fl-primary-color;
+  }
+}
 }
 .post-header {
   margin-bottom: 10px;
@@ -405,9 +412,6 @@
     &:hover .contextual-controls, & .contextual-controls.open {
       visibility: visible;
     }
-  }
-  .item.highlight .post {
-    padding-left: 90px + 15px;
   }
   .post-header {
     & .avatar {
