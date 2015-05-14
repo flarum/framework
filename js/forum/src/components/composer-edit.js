@@ -27,13 +27,19 @@ export default class ComposerEdit extends ComposerBody {
     return items;
   }
 
-  onsubmit(content) {
+  data() {
+    return {
+      content: this.content()
+    };
+  }
+
+  onsubmit() {
     var post = this.props.post;
 
     this.loading(true);
     m.redraw();
 
-    post.save({content}).then(post => {
+    post.save(this.data()).then(post => {
       app.composer.hide();
       m.redraw();
     }, response => {
