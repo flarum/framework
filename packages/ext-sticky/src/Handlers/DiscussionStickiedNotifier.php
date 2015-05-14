@@ -34,7 +34,9 @@ class DiscussionStickiedNotifier
         $post = $event->discussion->addPost($post);
 
         if ($event->discussion->start_user_id !== $event->user->id) {
-            $this->sendNotification($post);
+            $notification = $this->createNotification($event->discussion, $post->user, $post);
+
+            $this->notifier->send($notification, [$post->discussion->startUser]);
         }
     }
 
@@ -43,6 +45,8 @@ class DiscussionStickiedNotifier
         $post = $this->createPost($event->discussion->id, $event->user->id, false);
 
         $event->discussion->addPost($post);
+
+        $this->notifier->retract($this->createNotification($event->discussion, $event->user));
     }
 
     protected function createPost($discussionId, $userId, $isSticky)
@@ -54,14 +58,8 @@ class DiscussionStickiedNotifier
         );
     }
 
-    protected function sendNotification(DiscussionStickiedPost $post)
+    protected function createNotification($discussion, $user, $post = null)
     {
-        $notification = new DiscussionStickiedNotification(
-            $post->discussion->startUser,
-            $post->user,
-            $post
-        );
-
-        $this->notifier->send($notification);
+        return new DiscussionStickiedNotification($discussion, $user, $post);
     }
 }
