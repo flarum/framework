@@ -2,6 +2,7 @@ import { extend } from 'flarum/extension-utils';
 import Model from 'flarum/model';
 import Discussion from 'flarum/models/discussion';
 import DiscussionPage from 'flarum/components/discussion-page';
+import DiscussionList from 'flarum/components/discussion-list';
 import Badge from 'flarum/components/badge';
 import ActionButton from 'flarum/components/action-button';
 import SettingsPage from 'flarum/components/settings-page';
@@ -56,5 +57,20 @@ app.initializers.add('sticky', function() {
       name: 'discussionStickied',
       label: [icon('thumb-tack'), ' Someone stickies a discussion I started']
     });
+  });
+
+  extend(DiscussionList.prototype, 'params', function(params) {
+    params.include.push('startPost');
+  });
+
+  extend(DiscussionList.prototype, 'infoItems', function(items, discussion) {
+    if (discussion.isSticky()) {
+      var startPost = discussion.startPost();
+      if (startPost) {
+        var excerpt = m('span', startPost.excerpt());
+        excerpt.wrapperClass = 'discussion-excerpt';
+        var item = items.add('excerpt', excerpt, {first: true});
+      }
+    }
   });
 });
