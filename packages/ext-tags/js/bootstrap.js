@@ -25,7 +25,6 @@ import categoryLabel from 'categories/helpers/category-label';
 import categoryIcon from 'categories/helpers/category-icon';
 
 app.initializers.add('categories', function() {
-
   // Register routes.
   app.routes['categories'] = ['/categories', CategoriesPage.component()];
   app.routes['category'] = ['/c/:categories', IndexPage.component()];
@@ -117,7 +116,7 @@ app.initializers.add('categories', function() {
 
   // Include a discussion's category when fetching it.
   extend(DiscussionPage.prototype, 'params', function(params) {
-    params.include += ',category';
+    params.include.push('category');
   });
 
   // Restyle a discussion's hero to use its category color.
