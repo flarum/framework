@@ -20,10 +20,10 @@ export default class TextEditor extends Component {
     return m('div.text-editor', {config: this.element}, [
       m('textarea.form-control.flexible-height', {
         config: this.configTextarea.bind(this),
-        onkeyup: m.withAttr('value', this.onkeyup.bind(this)),
+        oninput: m.withAttr('value', this.oninput.bind(this)),
         placeholder: this.props.placeholder || '',
         disabled: !!this.props.disabled,
-        value: this.props.value || ''
+        value: this.value()
       }),
       m('ul.text-editor-controls.fade', listItems(this.controlItems().toArray()))
     ]);
@@ -51,7 +51,29 @@ export default class TextEditor extends Component {
     return items;
   }
 
-  onkeyup(value) {
+  setContent(content) {
+    this.value(content);
+    this.$('textarea').val(content).trigger('input');
+  }
+
+  setSelectionRange(start, end) {
+    var $textarea = this.$('textarea');
+    $textarea[0].setSelectionRange(start, end);
+    $textarea.focus();
+  }
+
+  insertAtCursor(insert) {
+    var textarea = this.$('textarea')[0];
+    var content = this.value();
+    var index = textarea ? textarea.selectionStart : content.length;
+    this.setContent(content.slice(0, index)+insert+content.slice(index));
+    if (textarea) {
+      var pos = index + insert.length;
+      this.setSelectionRange(pos, pos);
+    }
+  }
+
+  oninput(value) {
     this.value(value);
     this.props.onchange(this.value());
     this.$('.text-editor-controls').toggleClass('in', !!value);
