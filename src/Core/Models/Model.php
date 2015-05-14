@@ -5,10 +5,12 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Core\Support\EventGenerator;
+use Flarum\Core\Support\MappedMorphToTrait;
 
 class Model extends Eloquent
 {
     use EventGenerator;
+    use MappedMorphToTrait;
 
     /**
      * Disable timestamps.
