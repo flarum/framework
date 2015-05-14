@@ -7,16 +7,21 @@ import Separator from 'flarum/components/separator';
 import ItemList from 'flarum/utils/item-list';
 
 export default function(app) {
-  function replyAction() {
+  Discussion.prototype.replyAction = function(goToLast, forceRefresh) {
     if (app.session.user() && this.canReply()) {
-      if (app.current.discussion && app.current.discussion().id() === this.id()) {
+      if (goToLast && app.current.discussion && app.current.discussion().id() === this.id()) {
         app.current.streamContent.goToLast();
       }
-      app.composer.load(new ComposerReply({
-        user: app.session.user(),
-        discussion: this
-      }));
-      app.composer.show();
+      var component = app.composer.component;
+      if (!(component instanceof ComposerReply) || component.props.discussion !== this || component.props.user !== app.session.user() || forceRefresh) {
+        component = new ComposerReply({
+          user: app.session.user(),
+          discussion: this
+        });
+        app.composer.load(component);
+      }
+      app.composer.show(goToLast);
+      return component;
     } else if (!app.session.user()) {
       app.modal.show(new LoginModal({
         message: 'You must be logged in to do that.',
@@ -25,7 +30,7 @@ export default function(app) {
     }
   }
 
-  function deleteAction() {
+  Discussion.prototype.deleteAction = function() {
     if (confirm('Are you sure you want to delete this discussion?')) {
       this.delete();
       if (app.cache.discussionList) {
@@ -37,7 +42,7 @@ export default function(app) {
     }
   }
 
-  function renameAction() {
+  Discussion.prototype.renameAction = function() {
     var currentTitle = this.title();
     var title = prompt('Enter a new title for this discussion:', currentTitle);
     if (title && title !== currentTitle) {
@@ -55,7 +60,7 @@ export default function(app) {
 
     if (context instanceof DiscussionPage) {
       items.add('reply', !app.session.user() || this.canReply()
-        ? ActionButton.component({ icon: 'reply', label: app.session.user() ? 'Reply' : 'Log In to Reply', onclick: replyAction.bind(this) })
+        ? ActionButton.component({ icon: 'reply', label: app.session.user() ? 'Reply' : 'Log In to Reply', onclick: this.replyAction.bind(this, true) })
         : ActionButton.component({ icon: 'reply', label: 'Can\'t Reply', className: 'disabled', title: 'You don\'t have permission to reply to this discussion.' })
       );
 
@@ -63,11 +68,11 @@ export default function(app) {
     }
 
     if (this.canEdit()) {
-      items.add('rename', ActionButton.component({ icon: 'pencil', label: 'Rename', onclick: renameAction.bind(this) }));
+      items.add('rename', ActionButton.component({ icon: 'pencil', label: 'Rename', onclick: this.renameAction.bind(this) }));
     }
 
     if (this.canDelete()) {
-      items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: deleteAction.bind(this) }));
+      items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: this.deleteAction.bind(this) }));
     }
 
     return items;
