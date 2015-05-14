@@ -32,7 +32,9 @@ export default class DiscussionPage extends Component {
     // discussion before), then we can proceed with displaying it immediately.
     // If not, we'll make an API request first.
     this.currentNear = m.route.param('near');
-    app.store.find('discussions', m.route.param('id'), this.params()).then(this.setupDiscussion.bind(this));
+    var params = this.params();
+    params.include = params.include.join(',');
+    app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
 
     if (app.cache.discussionList) {
       if (!(app.current instanceof DiscussionPage)) {
@@ -51,7 +53,7 @@ export default class DiscussionPage extends Component {
   params() {
     return {
       near: this.currentNear,
-      include: 'posts'
+      include: ['posts', 'posts.user']
     };
   }
 
