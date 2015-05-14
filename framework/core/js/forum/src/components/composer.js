@@ -115,7 +115,9 @@ class Composer extends Component {
     var height = this.heightStart + deltaPixels;
     this.height(height);
     this.updateHeight();
-    this.updateBodyPadding();
+
+    var scrollTop = $(window).scrollTop();
+    this.updateBodyPadding(false, scrollTop > 0 && scrollTop + $(window).height() >= $(document).height());
 
     localStorage.setItem('composerHeight', height);
   }
@@ -130,21 +132,21 @@ class Composer extends Component {
     return this.component && this.component.preventExit();
   }
 
-  render() {
+  render(anchorToBottom) {
     // @todo this function's logic could probably use some reworking. The
     //     following line is bad because it prevents focusing on the composer
     //     input when the composer is shown when it's already being shown
     if (this.position() === this.oldPosition) { return; }
 
     var $composer = this.$();
-    var oldHeight = $composer.is(':visible') ? $composer.height() : 0;
+    var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 
     if (this.position() !== Composer.PositionEnum.HIDDEN) {
       m.redraw(true);
     }
 
     this.updateHeight();
-    var newHeight = $composer.height();
+    var newHeight = $composer.outerHeight();
 
     switch (this.position()) {
       case Composer.PositionEnum.HIDDEN:
@@ -170,7 +172,7 @@ class Composer extends Component {
     }
 
     if (this.position() !== Composer.PositionEnum.FULLSCREEN) {
-      this.updateBodyPadding(true);
+      this.updateBodyPadding(true, anchorToBottom);
     } else {
       this.component.focus();
     }
@@ -182,19 +184,12 @@ class Composer extends Component {
   // Update the amount of padding-bottom on the body so that the page's
   // content will still be visible above the composer when the page is
   // scrolled right to the bottom.
-  updateBodyPadding(animate) {
-    // Before we change anything, work out if we're currently scrolled
-    // right to the bottom of the page. If we are, we'll want to anchor
-    // the body's scroll position to the bottom after we update the
-    // padding.
-    var scrollTop = $(window).scrollTop();
-    var anchorScroll = scrollTop > 0 && scrollTop + $(window).height() >= $(document).height();
-
+  updateBodyPadding(animate, anchorToBottom) {
     var func = animate ? 'animate' : 'css';
     var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN ? this.computedHeight() - parseInt($('#page').css('padding-bottom')) : 0;
     $('#content')[func]({paddingBottom}, 'fast');
 
-    if (anchorScroll) {
+    if (anchorToBottom) {
       if (animate) {
         $('html, body').stop(true).animate({scrollTop: $(document).height()}, 'fast');
       } else {
@@ -226,12 +221,12 @@ class Composer extends Component {
     this.component = null;
   }
 
-  show() {
+  show(anchorToBottom) {
     if ([Composer.PositionEnum.MINIMIZED, Composer.PositionEnum.HIDDEN].indexOf(this.position()) !== -1) {
       this.position(Composer.PositionEnum.NORMAL);
     }
     // work around https://github.com/lhorie/mithril.js/issues/603
-    setTimeout(() => this.render());
+    setTimeout(() => this.render(anchorToBottom));
   }
 
   hide() {
