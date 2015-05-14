@@ -35,7 +35,6 @@ class CommentPost extends Post
         $post = new static;
 
         $post->content       = $content;
-        $post->content_html  = static::formatContent($post->content);
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
@@ -57,7 +56,7 @@ class CommentPost extends Post
     {
         if ($this->content !== $content) {
             $this->content = $content;
-            $this->content_html = static::formatContent($this->content);
+            $this->content_html = static::formatContent($this);
 
             $this->edit_time = time();
             $this->edit_user_id = $user->id;
@@ -113,11 +112,22 @@ class CommentPost extends Post
     public function getContentHtmlAttribute($value)
     {
         if (! $value) {
-            $this->content_html = $value = static::formatContent($this->content);
+            $this->content_html = $value = static::formatContent($this);
             $this->save();
         }
 
         return $value;
+    }
+
+    /**
+     * Get the content formatter as HTML.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getContentPlainAttribute()
+    {
+        return static::$formatter->strip($this->content);
     }
 
     /**
@@ -146,8 +156,8 @@ class CommentPost extends Post
      * @param  string  $content
      * @return string
      */
-    protected static function formatContent($content)
+    protected static function formatContent($post)
     {
-        return static::$formatter->format($content);
+        return static::$formatter->format($post->content, $post);
     }
 }
