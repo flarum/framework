@@ -33,7 +33,11 @@ export default class ComposerBody extends Component {
   }
 
   focus() {
-    this.$().find(':input:enabled:visible:first').focus();
+    var $input = this.$().find(':input:enabled:visible:first');
+    if ($input.length) {
+      $input.focus();
+      $input[0].selectionStart = $input[0].selectionEnd = $input.val().length;
+    }
   }
 
   preventExit() {
