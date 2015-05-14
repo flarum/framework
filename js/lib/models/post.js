@@ -7,7 +7,7 @@ Post.prototype.id = Model.prop('id');
 Post.prototype.number = Model.prop('number');
 Post.prototype.discussion = Model.one('discussion');
 
-Post.prototype.time = Model.prop('time');
+Post.prototype.time = Model.prop('time', Model.date);
 Post.prototype.user = Model.one('user');
 Post.prototype.contentType = Model.prop('contentType');
 Post.prototype.content = Model.prop('content');
