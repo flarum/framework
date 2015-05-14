@@ -1,33 +1,37 @@
 <?php namespace Flarum\Core\Notifications\Types;
 
 use Flarum\Core\Models\User;
+use Flarum\Core\Models\Discussion;
 use Flarum\Core\Models\DiscussionRenamedPost;
 
 class DiscussionRenamedNotification extends Notification implements AlertableNotification
 {
-    public $post;
+    protected $discussion;
 
-    public $oldTitle;
+    protected $sender;
 
-    public function __construct(User $recipient, User $sender, DiscussionRenamedPost $post, $oldTitle)
+    protected $post;
+
+    public function __construct(Discussion $discussion, User $sender, DiscussionRenamedPost $post = null)
     {
+        $this->discussion = $discussion;
+        $this->sender = $sender;
         $this->post = $post;
-        $this->oldTitle = $oldTitle;
-
-        parent::__construct($recipient, $sender);
     }
 
     public function getSubject()
     {
-        return $this->post->discussion;
+        return $this->discussion;
+    }
+
+    public function getSender()
+    {
+        return $this->sender;
     }
 
     public function getAlertData()
     {
-        return [
-            'number'   => $this->post->number,
-            'oldTitle' => $this->oldTitle
-        ];
+        return ['postNumber' => $this->post->number];
     }
 
     public static function getType()

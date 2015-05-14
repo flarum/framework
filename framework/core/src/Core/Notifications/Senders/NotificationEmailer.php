@@ -1,6 +1,7 @@
 <?php namespace Flarum\Core\Notifications\Senders;
 
 use Flarum\Core\Notifications\Types\Notification;
+use Flarum\Core\Models\User;
 use Flarum\Core\Models\Forum;
 use Illuminate\Mail\Mailer;
 use ReflectionClass;
@@ -13,10 +14,9 @@ class NotificationEmailer implements NotificationSender
         $this->forum = $forum;
     }
 
-    public function send(Notification $notification)
+    public function send(Notification $notification, User $user)
     {
-        $this->mailer->send($notification->getEmailView(), ['notification' => $notification], function ($message) use ($notification) {
-            $recipient = $notification->getRecipient();
+        $this->mailer->send($notification->getEmailView(), ['notification' => $notification], function ($message) use ($notification, $recipient) {
             $message->to($recipient->email, $recipient->username)
                     ->subject('['.$this->forum->title.'] '.$notification->getEmailSubject());
         });

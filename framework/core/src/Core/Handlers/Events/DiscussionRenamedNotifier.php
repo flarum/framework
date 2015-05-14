@@ -27,10 +27,16 @@ class DiscussionRenamedNotifier
     {
         $post = $this->createPost($event);
 
-        $event->discussion->addPost($post);
+        $post = $event->discussion->addPost($post);
 
         if ($event->discussion->start_user_id !== $event->user->id) {
-            $this->sendNotification($event, $post);
+            $notification = new DiscussionRenamedNotification($event->discussion, $post->user, $post);
+
+            if ($post->exists) {
+                $this->notifier->send($notification, [$post->discussion->startUser]);
+            } else {
+                $this->notifier->retract($notification);
+            }
         }
     }
 
@@ -42,17 +48,5 @@ class DiscussionRenamedNotifier
             $event->oldTitle,
             $event->discussion->title
         );
-    }
-
-    protected function sendNotification(DiscussionWasRenamed $event, DiscussionRenamedPost $post)
-    {
-        $notification = new DiscussionRenamedNotification(
-            $event->discussion->startUser,
-            $event->user,
-            $post,
-            $event->oldTitle
-        );
-
-        $this->notifier->send($notification);
     }
 }
