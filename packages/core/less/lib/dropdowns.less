@@ -6,13 +6,21 @@
   color: @fl-body-color;
   .box-shadow(0 2px 6px @fl-shadow-color);
 
+  & > li > a:hover,
+  & > li > a:focus,
+  & > .active > a,
+  & > .active > a:hover,
+  & > .active > a:focus {
+    color: @fl-body-color;
+    background-color: @fl-body-control-bg;
+  }
+
   & > li > a {
-    padding: 8px 15px 8px 40px;
+    padding: 8px 15px;
     color: @fl-body-color;
 
-    &:hover, &:focus {
-      color: @fl-body-color;
-      background-color: @fl-body-control-bg;
+    &.has-icon {
+      padding-left: 40px;
     }
     &.disabled {
       color: #aaa;
