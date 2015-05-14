@@ -1,6 +1,8 @@
 import humanTime from 'flarum/utils/human-time';
 
 export default function(app) {
+  // perhaps get rid of this and just m.redraw every minute?
+
   // Livestamp.js / v1.1.2 / (c) 2012 Matt Bradley / MIT License
   // @todo rewrite this to be simpler and cleaner
   (function($, moment) {
