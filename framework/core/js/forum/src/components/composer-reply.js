@@ -19,16 +19,20 @@ export default class ComposerReply extends ComposerBody {
     return items;
   }
 
-  onsubmit(value) {
+  data() {
+    return {
+      content: this.content(),
+      links: {discussion: this.props.discussion}
+    };
+  }
+
+  onsubmit() {
     var discussion = this.props.discussion;
 
     this.loading(true);
     m.redraw();
 
-    var data = {
-      content: value,
-      links: {discussion}
-    };
+    var data = this.data();
 
     app.store.createRecord('posts').save(data).then((post) => {
       app.composer.hide();
