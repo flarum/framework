@@ -166,6 +166,18 @@
     background: @fl-primary-color;
   }
 }
+@-webkit-keyframes pulsate {
+  0% {transform: scale(1)}
+  50% {transform: scale(1.02)}
+  100% {transform: scale(1)}
+}
+.item.pulsate {
+  -webkit-animation: pulsate 1s ease-in-out;
+  -webkit-animation-iteration-count: infinite;
+}
+.item.flash {
+  -webkit-animation: pulsate 0.2s ease-in-out;
+  -webkit-animation-iteration-count: 1;
 }
 .post-header {
   margin-bottom: 10px;

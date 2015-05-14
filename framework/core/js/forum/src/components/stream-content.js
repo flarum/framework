@@ -179,14 +179,31 @@ export default class StreamContent extends mixin(Component, evented) {
   scrollToItem($item, noAnimation) {
     var $container = $('html, body').stop(true);
     if ($item.length) {
-      var scrollTop = $item.is(':first-child') ? 0 : $item.offset().top - this.getMarginTop();
-      if (noAnimation) {
-        $container.scrollTop(scrollTop);
-      } else if (scrollTop !== $(document).scrollTop()) {
-        $container.animate({scrollTop: scrollTop}, 'fast');
+      var itemTop = $item.offset().top - this.getMarginTop();
+      var itemBottom = itemTop + $item.height();
+      var scrollTop = $(document).scrollTop();
+      var scrollBottom = scrollTop + $(window).height();
+
+      // If the item is already in the viewport, just flash it, we don't need to
+      // scroll anywhere.
+      if (itemTop > scrollTop && itemBottom < scrollBottom) {
+        this.flashItem($item);
+      } else {
+        var scrollTop = $item.is(':first-child') ? 0 : itemTop;
+        if (noAnimation) {
+          $container.scrollTop(scrollTop);
+        } else if (scrollTop !== $(document).scrollTop()) {
+          $container.animate({scrollTop: scrollTop}, 'fast', this.flashItem.bind(this, $item));
+        } else {
+          this.flashItem($item);
+        }
       }
     }
     return $container.promise();
+  }
+
+  flashItem($item) {
+    $item.addClass('flash').one('animationend webkitAnimationEnd', () => $item.removeClass('flash'));
   }
 
   /**
