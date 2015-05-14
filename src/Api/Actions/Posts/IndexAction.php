@@ -64,6 +64,9 @@ class IndexAction extends SerializeCollectionAction
             if ($discussionId = $request->get('discussions')) {
                 $where['discussion_id'] = $discussionId;
             }
+            if ($number = $request->get('number')) {
+                $where['number'] = $number;
+            }
             if ($userId = $request->get('users')) {
                 $where['user_id'] = $userId;
             }
