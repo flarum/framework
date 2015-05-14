@@ -21,6 +21,10 @@ class CreateAction extends BaseCreateAction
      */
     public static $serializer = 'Flarum\Api\Serializers\PostSerializer';
 
+    public static $include = [
+        'user' => true
+    ];
+
     /**
      * Instantiate the action.
      *
