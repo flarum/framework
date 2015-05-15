@@ -5,6 +5,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Core\Models\Notification;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Post;
+use Flarum\Core\Models\Permission;
 use Closure;
 
 class ServiceProvider extends IlluminateServiceProvider
@@ -89,5 +90,10 @@ class ServiceProvider extends IlluminateServiceProvider
                 $callback($event->attributes, $event->model);
             }
         });
+    }
+
+    protected function permission($permission)
+    {
+        Permission::addPermission($permission);
     }
 }
