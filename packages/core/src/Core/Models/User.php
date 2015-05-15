@@ -308,37 +308,19 @@ class User extends Model
     }
 
     /**
-     * Get a list of the user's grantees according to their ID and groups.
-     *
-     * @return array
-     */
-    public function getGrantees()
-    {
-        $grantees = ['group.'.GROUP::GUEST_ID]; // guests
-        if ($this->id) {
-            $grantees[] = 'user.'.$this->id;
-        }
-        foreach ($this->groups as $group) {
-            $grantees[] = 'group.'.$group->id;
-        }
-
-        return $grantees;
-    }
-
-    /**
      * Check whether the user has a certain permission based on their groups.
      *
      * @param  string  $permission
      * @param  string  $entity
      * @return boolean
      */
-    public function hasPermission($permission, $entity)
+    public function hasPermission($permission)
     {
         if ($this->isAdmin()) {
             return true;
         }
 
-        $count = $this->permissions()->where('entity', $entity)->where('permission', $permission)->count();
+        $count = $this->permissions()->where('permission', $permission)->count();
 
         return (bool) $count;
     }
@@ -468,7 +450,7 @@ class User extends Model
      */
     public function permissions()
     {
-        return Permission::whereIn('grantee', $this->getGrantees());
+        return Permission::whereIn('group_id', $this->groups()->lists('id'));
     }
 
     /**

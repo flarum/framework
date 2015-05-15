@@ -3,7 +3,7 @@
 use Illuminate\Bus\Dispatcher as Bus;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\ServiceProvider;
+use Flarum\Support\ServiceProvider;
 use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Core\Models\CommentPost;
 use Flarum\Core\Models\Post;
@@ -138,12 +138,20 @@ class CoreServiceProvider extends ServiceProvider
 
     public function registerPermissions()
     {
+        $this->permission('forum.view');
+        $this->permission('forum.startDiscussion');
+        $this->permission('discussion.rename');
+        $this->permission('discussion.delete');
+        $this->permission('discussion.reply');
+        $this->permission('post.edit');
+        $this->permission('post.delete');
+
         Forum::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission($permission, 'forum');
+            return $user->hasPermission('forum.'.$permission);
         });
 
         Post::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission($permission, 'post');
+            return $user->hasPermission('post'.$permission);
         });
 
         // Grant view access to a post only if the user can also view the
@@ -161,19 +169,14 @@ class CoreServiceProvider extends ServiceProvider
         // Allow a user to edit their own post, unless it has been hidden by
         // someone else.
         Post::grantPermission('edit', function ($grant, $user) {
-            $grant->whereCan('editOwn')
-                  ->where('user_id', $user->id);
-        });
-
-        Post::demandPermission('editOwn', function ($demand, $user) {
-            $demand->whereNull('hide_user_id');
-            if ($user) {
-                $demand->orWhere('hide_user_id', $user->id);
-            }
+            $grant->where('user_id', $user->id)
+                  ->whereNull('hide_user_id')
+                  ->orWhere('hide_user_id', $user->id);
+            // @todo add limitations to time etc. according to a config setting
         });
 
         User::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission($permission, 'forum');
+            return $user->hasPermission('user.'.$permission);
         });
 
         // Grant view access to a user if the user can view the forum.
@@ -187,7 +190,7 @@ class CoreServiceProvider extends ServiceProvider
         });
 
         Discussion::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission($permission, 'discussion');
+            return $user->hasPermission('discussion.'.$permission);
         });
 
         // Grant view access to a discussion if the user can view the forum.
@@ -195,11 +198,10 @@ class CoreServiceProvider extends ServiceProvider
             $grant->whereCan('view', 'forum');
         });
 
-        // Allow a user to edit their own discussion.
-        Discussion::grantPermission('edit', function ($grant, $user) {
-            if ($user->hasPermission('editOwn', 'discussion')) {
-                $grant->where('start_user_id', $user->id);
-            }
+        // Allow a user to rename their own discussion.
+        Discussion::grantPermission('rename', function ($grant, $user) {
+            $grant->where('start_user_id', $user->id);
+            // @todo add limitations to time etc. according to a config setting
         });
     }
 }
