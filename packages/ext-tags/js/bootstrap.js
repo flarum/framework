@@ -104,6 +104,7 @@ app.initializers.add('categories', function() {
 
   // Translate that parameter into a gambit appended to the search query.
   extend(DiscussionList.prototype, 'params', function(params) {
+    params.include.push('category');
     if (params.categories) {
       params.q = (params.q || '')+' category:'+params.categories;
       delete params.categories;
