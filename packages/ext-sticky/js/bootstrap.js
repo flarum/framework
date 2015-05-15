@@ -19,6 +19,7 @@ app.initializers.add('sticky', function() {
   app.notificationComponentRegistry['discussionStickied'] = NotificationDiscussionStickied;
 
   Discussion.prototype.isSticky = Model.prop('isSticky');
+  Discussion.prototype.canSticky = Model.prop('canSticky');
 
   // Add a sticky badge to discussions.
   extend(Discussion.prototype, 'badges', function(badges) {
@@ -42,7 +43,7 @@ app.initializers.add('sticky', function() {
 
   // Add a sticky control to discussions.
   extend(Discussion.prototype, 'controls', function(items) {
-    if (this.canEdit()) {
+    if (this.canSticky()) {
       items.add('sticky', ActionButton.component({
         label: this.isSticky() ? 'Unsticky' : 'Sticky',
         icon: 'thumb-tack',

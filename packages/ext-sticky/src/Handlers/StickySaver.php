@@ -18,6 +18,8 @@ class StickySaver
             $discussion = $event->discussion;
             $user = $event->command->user;
 
+            $discussion->assertCan($user, 'sticky');
+
             if ((bool) $discussion->is_sticky === $isSticky) {
                 return;
             }

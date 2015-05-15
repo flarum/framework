@@ -23,12 +23,15 @@ class StickyServiceProvider extends ServiceProvider
 
         $this->postType('Flarum\Sticky\DiscussionStickiedPost');
 
-        $this->serializeAttributes('Flarum\Api\Serializers\DiscussionSerializer', function (&$attributes, $model) {
+        $this->serializeAttributes('Flarum\Api\Serializers\DiscussionSerializer', function (&$attributes, $model, $serializer) {
             $attributes['isSticky'] = (bool) $model->is_sticky;
+            $attributes['canSticky'] = (bool) $model->can($serializer->actor->getUser(), 'sticky');
         });
 
         $this->discussionGambit('Flarum\Sticky\StickyGambit');
 
         $this->notificationType('Flarum\Sticky\DiscussionStickiedNotification', ['alert' => true]);
+
+        $this->permission('discussion.sticky');
     }
 }
