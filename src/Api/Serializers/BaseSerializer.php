@@ -11,7 +11,7 @@ use Closure;
  */
 abstract class BaseSerializer extends SerializerAbstract
 {
-    protected $actor;
+    public $actor;
 
     /**
      * The custom relationships on this serializer.

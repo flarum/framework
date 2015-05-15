@@ -87,7 +87,7 @@ class ServiceProvider extends IlluminateServiceProvider
     {
         $this->app['events']->listen('Flarum\Api\Events\SerializeAttributes', function ($event) use ($serializer, $callback) {
             if ($event->serializer instanceof $serializer) {
-                $callback($event->attributes, $event->model);
+                $callback($event->attributes, $event->model, $event->serializer);
             }
         });
     }
