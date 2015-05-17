@@ -20,80 +20,10 @@ class ServiceProvider extends IlluminateServiceProvider
         //
     }
 
-    protected function forumAssets($assets)
+    public function extend()
     {
-        $this->app['events']->listen('Flarum\Forum\Events\RenderView', function ($event) use ($assets) {
-            $event->assets->addFile($assets);
-        });
-    }
-
-    protected function postType($class)
-    {
-        Post::addType($class);
-    }
-
-    protected function discussionGambit($class)
-    {
-        $this->app['events']->listen('Flarum\Core\Events\RegisterDiscussionGambits', function ($event) use ($class) {
-            $event->gambits->add($class);
-        });
-    }
-
-    protected function formatter($name, $class, $priority = 0)
-    {
-        $this->app['flarum.formatter']->add($name, $class, $priority);
-    }
-
-    protected function notificationType($class, $defaultPreferences = [])
-    {
-        $notifier = $this->app['flarum.notifier'];
-
-        $notifier->registerType($class);
-
-        Notification::registerType($class);
-
-        foreach ($notifier->getMethods() as $method => $sender) {
-            if ($sender::compatibleWith($class)) {
-                User::registerPreference(User::notificationPreferenceKey($class::getType(), $method), 'boolval', array_get($defaultPreferences, $method, false));
-            }
+        foreach (func_get_args() as $extender) {
+            $extender->extend($this->app);
         }
-    }
-
-    protected function relationship($parent, $type, $name, $child = null)
-    {
-        $parent::addRelationship($name, function ($model) use ($type, $name, $child) {
-            if ($type instanceof Closure) {
-                return $type($model);
-            } elseif ($type === 'belongsTo') {
-                return $model->belongsTo($child, null, null, $name);
-            } else {
-                // @todo
-            }
-        });
-    }
-
-    protected function serializeRelationship($parent, $type, $name, $child = null)
-    {
-        $parent::addRelationship($name, function ($serializer) use ($type, $name, $child) {
-            if ($type instanceof Closure) {
-                return $type();
-            } else {
-                return $serializer->$type($child, $name);
-            }
-        });
-    }
-
-    protected function serializeAttributes($serializer, Closure $callback)
-    {
-        $this->app['events']->listen('Flarum\Api\Events\SerializeAttributes', function ($event) use ($serializer, $callback) {
-            if ($event->serializer instanceof $serializer) {
-                $callback($event->attributes, $event->model, $event->serializer);
-            }
-        });
-    }
-
-    protected function permission($permission)
-    {
-        Permission::addPermission($permission);
     }
 }
