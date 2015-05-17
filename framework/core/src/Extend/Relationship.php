@@ -27,7 +27,7 @@ class Relationship implements ExtenderInterface
 
         $parent::addRelationship($this->name, function ($model) {
             if ($this->type instanceof Closure) {
-                return $this->type($model);
+                return call_user_func($this->type, $model);
             } elseif ($this->type === 'belongsTo') {
                 return $model->belongsTo($this->child, null, null, $this->name);
             } else {
