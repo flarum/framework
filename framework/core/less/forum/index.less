@@ -86,7 +86,7 @@
       }
       & .discussions-list > li {
         margin: 0;
-        padding-left: 65px + 15px;
+        padding-left: 57px + 15px;
         padding-right: 65px + 15px;
         &.active {
           background: @fl-body-control-bg;
@@ -169,14 +169,14 @@
     visibility: hidden;
     position: absolute;
     right: 0;
-    top: 18px;
+    top: 13px;
   }
   &:hover .contextual-controls, & .contextual-controls.open {
     visibility: visible;
   }
   & .author {
     float: left;
-    margin-top: 19px;
+    margin-top: 18px;
   }
   & .tooltip .tooltip-inner {
     max-width: none;
@@ -197,13 +197,13 @@
   & .main {
     display: inline-block;
     width: 100%;
-    padding: 20px 0;
+    padding: 15px 0;
   }
   &:hover .title {
     text-decoration: underline;
   }
   & .title {
-    margin: 0 0 6px;
+    margin: 0 0 7px;
     line-height: 1.3;
     color: @fl-secondary-color;
   }
@@ -218,6 +218,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 12px;
 
     & > li {
       display: inline;
@@ -228,7 +229,7 @@
   }
   & .count {
     float: right;
-    margin-top: 18px;
+    margin-top: 13px;
     text-decoration: none;
 
     .unread& {
@@ -290,21 +291,24 @@
 
 @media @tablet, @desktop, @desktop-hd {
   .discussion-summary {
-    padding-left: 65px;
+    padding-left: 57px;
     padding-right: 65px;
 
     & .author {
-      margin-left: -65px;
+      margin-left: -57px;
     }
     & .badges {
-      margin-left: -65px;
-      width: 58px;
+      margin-left: -57px;
+      width: 48px;
+    }
+    & .avatar {
+      .avatar-size(40px);
     }
     & .main {
       margin-right: -65px;
     }
     & .title {
-      font-size: 15px;
+      font-size: 16px;
     }
     & .count {
       margin-right: -65px;
