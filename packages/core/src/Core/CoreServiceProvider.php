@@ -15,6 +15,7 @@ use Flarum\Core\Search\GambitManager;
 use League\Flysystem\Adapter\Local;
 use Flarum\Core\Events\RegisterDiscussionGambits;
 use Flarum\Core\Events\RegisterUserGambits;
+use Flarum\Extend\Permission;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -138,13 +139,15 @@ class CoreServiceProvider extends ServiceProvider
 
     public function registerPermissions()
     {
-        $this->permission('forum.view');
-        $this->permission('forum.startDiscussion');
-        $this->permission('discussion.rename');
-        $this->permission('discussion.delete');
-        $this->permission('discussion.reply');
-        $this->permission('post.edit');
-        $this->permission('post.delete');
+        $this->extend(
+            new Permission('forum.view'),
+            new Permission('forum.startDiscussion'),
+            new Permission('discussion.rename'),
+            new Permission('discussion.delete'),
+            new Permission('discussion.reply'),
+            new Permission('post.edit'),
+            new Permission('post.delete')
+        );
 
         Forum::grantPermission(function ($grant, $user, $permission) {
             return $user->hasPermission('forum.'.$permission);

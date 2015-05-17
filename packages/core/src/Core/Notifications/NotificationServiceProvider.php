@@ -4,6 +4,7 @@ use Flarum\Support\ServiceProvider;
 use Flarum\Core\Models\User;
 use Flarum\Core\Notifications\Notifier;
 use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Extend\NotificationType;
 
 class NotificationServiceProvider extends ServiceProvider
 {
@@ -19,7 +20,9 @@ class NotificationServiceProvider extends ServiceProvider
         $notifier->registerMethod('alert', 'Flarum\Core\Notifications\Senders\NotificationAlerter');
         $notifier->registerMethod('email', 'Flarum\Core\Notifications\Senders\NotificationEmailer');
 
-        $this->notificationType('Flarum\Core\Notifications\Types\DiscussionRenamedNotification', ['alert' => true]);
+        $this->extend(
+            (new NotificationType('Flarum\Core\Notifications\Types\DiscussionRenamedNotification'))->enableByDefault('alert')
+        );
     }
 
     public function register()
