@@ -1,37 +1,42 @@
 <?php namespace Flarum\Sticky;
 
 use Flarum\Support\ServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Extend\EventSubscribers;
+use Flarum\Extend\ForumAssets;
+use Flarum\Extend\PostType;
+use Flarum\Extend\SerializeAttributes;
+use Flarum\Extend\DiscussionGambit;
+use Flarum\Extend\NotificationType;
+use Flarum\Extend\Permission;
 
 class StickyServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot(Dispatcher $events)
+    public function boot()
     {
-        $events->subscribe('Flarum\Sticky\Handlers\StickySaver');
-        $events->subscribe('Flarum\Sticky\Handlers\StickySearchModifier');
-        $events->subscribe('Flarum\Sticky\Handlers\DiscussionStickiedNotifier');
+        $this->extend(
+            new EventSubscribers([
+                'Flarum\Sticky\Handlers\StickySaver',
+                'Flarum\Sticky\Handlers\StickySearchModifier',
+                'Flarum\Sticky\Handlers\DiscussionStickiedNotifier'
+            ]),
 
-        $this->forumAssets([
-            __DIR__.'/../js/dist/extension.js',
-            __DIR__.'/../less/sticky.less'
-        ]);
+            new ForumAssets([
+                __DIR__.'/../js/dist/extension.js',
+                __DIR__.'/../less/sticky.less'
+            ]),
 
-        $this->postType('Flarum\Sticky\DiscussionStickiedPost');
+            new PostType('Flarum\Sticky\DiscussionStickiedPost'),
 
-        $this->serializeAttributes('Flarum\Api\Serializers\DiscussionSerializer', function (&$attributes, $model, $serializer) {
-            $attributes['isSticky'] = (bool) $model->is_sticky;
-            $attributes['canSticky'] = (bool) $model->can($serializer->actor->getUser(), 'sticky');
-        });
+            new SerializeAttributes('Flarum\Api\Serializers\DiscussionSerializer', function (&$attributes, $model, $serializer) {
+                $attributes['isSticky'] = (bool) $model->is_sticky;
+                $attributes['canSticky'] = (bool) $model->can($serializer->actor->getUser(), 'sticky');
+            }),
 
-        $this->discussionGambit('Flarum\Sticky\StickyGambit');
+            new DiscussionGambit('Flarum\Sticky\StickyGambit'),
 
-        $this->notificationType('Flarum\Sticky\DiscussionStickiedNotification', ['alert' => true]);
+            (new NotificationType('Flarum\Sticky\DiscussionStickiedNotification'))->enableByDefault('alert'),
 
-        $this->permission('discussion.sticky');
+            new Permission('discussion.sticky')
+        );
     }
 }
