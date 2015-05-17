@@ -1,69 +1,60 @@
 <?php namespace Flarum\Mentions;
 
 use Flarum\Support\ServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\Api\Actions\Discussions\ShowAction as DiscussionsShowAction;
-use Flarum\Api\Actions\Posts\IndexAction as PostsIndexAction;
-use Flarum\Api\Actions\Posts\ShowAction as PostsShowAction;
-use Flarum\Api\Actions\Posts\CreateAction as PostsCreateAction;
+use Flarum\Extend\EventSubscribers;
+use Flarum\Extend\ForumAssets;
+use Flarum\Extend\Relationship;
+use Flarum\Extend\SerializeRelationship;
+use Flarum\Extend\ApiInclude;
+use Flarum\Extend\Formatter;
+use Flarum\Extend\NotificationType;
 
 class MentionsServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot(Dispatcher $events)
+    public function boot()
     {
-        $events->subscribe('Flarum\Mentions\Handlers\PostMentionsMetadataUpdater');
-        $events->subscribe('Flarum\Mentions\Handlers\UserMentionsMetadataUpdater');
+        $this->extend(
+            new EventSubscribers([
+                'Flarum\Mentions\Handlers\PostMentionsMetadataUpdater',
+                'Flarum\Mentions\Handlers\UserMentionsMetadataUpdater'
+            ]),
 
-        $this->forumAssets([
-            __DIR__.'/../js/dist/extension.js',
-            __DIR__.'/../less/mentions.less'
-        ]);
+            new ForumAssets([
+                __DIR__.'/../js/dist/extension.js',
+                __DIR__.'/../less/mentions.less'
+            ]),
 
-        $this->relationship('Flarum\Core\Models\Post', function ($model) {
-            return $model->belongsToMany('Flarum\Core\Models\Post', 'mentions_posts', 'mentions_id');
-        }, 'mentionedBy');
+            new Relationship('Flarum\Core\Models\Post', function ($model) {
+                return $model->belongsToMany('Flarum\Core\Models\Post', 'mentions_posts', 'mentions_id');
+            }, 'mentionedBy'),
 
-        $this->serializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionedBy', 'Flarum\Api\Serializers\PostBasicSerializer');
+            new Relationship('Flarum\Core\Models\Post', function ($model) {
+                return $model->belongsToMany('Flarum\Core\Models\Post', 'mentions_posts', 'post_id', 'mentions_id');
+            }, 'mentionsPosts'),
 
-        DiscussionsShowAction::$include['posts.mentionedBy'] = true;
-        DiscussionsShowAction::$include['posts.mentionedBy.user'] = true;
+            new Relationship('Flarum\Core\Models\Post', function ($model) {
+                return $model->belongsToMany('Flarum\Core\Models\User', 'mentions_users', 'post_id', 'mentions_id');
+            }, 'mentionsUsers'),
 
-        PostsShowAction::$include['mentionedBy'] = true;
-        PostsShowAction::$include['mentionedBy.user'] = true;
+            new SerializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionedBy', 'Flarum\Api\Serializers\PostBasicSerializer'),
 
-        PostsIndexAction::$include['mentionedBy'] = true;
-        PostsIndexAction::$include['mentionedBy.user'] = true;
+            new SerializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionsPosts', 'Flarum\Api\Serializers\PostBasicSerializer'),
 
+            new SerializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionsUsers', 'Flarum\Api\Serializers\UserBasicSerializer'),
 
-        $this->relationship('Flarum\Core\Models\Post', function ($model) {
-            return $model->belongsToMany('Flarum\Core\Models\Post', 'mentions_posts', 'post_id', 'mentions_id');
-        }, 'mentionsPosts');
+            new ApiInclude('discussions.show', ['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionsUsers'], true),
 
-        $this->relationship('Flarum\Core\Models\Post', function ($model) {
-            return $model->belongsToMany('Flarum\Core\Models\User', 'mentions_users', 'post_id', 'mentions_id');
-        }, 'mentionsUsers');
+            new ApiInclude(['posts.index', 'posts.show'], ['mentionedBy', 'mentionedBy.user'], true),
 
-        $this->serializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionsPosts', 'Flarum\Api\Serializers\PostBasicSerializer');
-        $this->serializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionsUsers', 'Flarum\Api\Serializers\UserBasicSerializer');
+            new ApiInclude(['posts.create'], ['mentionsPosts', 'mentionsPosts.mentionedBy'], true),
 
-        DiscussionsShowAction::$include['posts.mentionsPosts'] = true;
-        DiscussionsShowAction::$include['posts.mentionsPosts.user'] = true;
+            new Formatter('postMentions', 'Flarum\Mentions\PostMentionsFormatter'),
 
-        PostsCreateAction::$include['mentionsPosts'] = true;
-        PostsCreateAction::$include['mentionsPosts.mentionedBy'] = true;
+            new Formatter('userMentions', 'Flarum\Mentions\UserMentionsFormatter'),
 
-        DiscussionsShowAction::$include['posts.mentionsUsers'] = true;
+            (new NotificationType('Flarum\Mentions\PostMentionedNotification'))->enableByDefault('alert'),
 
-
-        $this->formatter('postMentions', 'Flarum\Mentions\PostMentionsFormatter');
-        $this->formatter('userMentions', 'Flarum\Mentions\UserMentionsFormatter');
-
-        $this->notificationType('Flarum\Mentions\PostMentionedNotification', ['alert' => true]);
-        $this->notificationType('Flarum\Mentions\UserMentionedNotification', ['alert' => true]);
+            (new NotificationType('Flarum\Mentions\UserMentionedNotification'))->enableByDefault('alert')
+        );
     }
 }
