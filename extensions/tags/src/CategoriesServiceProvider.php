@@ -1,9 +1,14 @@
 <?php namespace Flarum\Categories;
 
 use Flarum\Support\ServiceProvider;
-use Flarum\Api\Actions\Discussions\IndexAction as DiscussionsIndexAction;
-use Flarum\Api\Actions\Discussions\ShowAction as DiscussionsShowAction;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Extend\EventSubscribers;
+use Flarum\Extend\ForumAssets;
+use Flarum\Extend\PostType;
+use Flarum\Extend\DiscussionGambit;
+use Flarum\Extend\NotificationType;
+use Flarum\Extend\Relationship;
+use Flarum\Extend\SerializeRelationship;
+use Flarum\Extend\ApiInclude;
 
 class CategoriesServiceProvider extends ServiceProvider
 {
@@ -12,29 +17,32 @@ class CategoriesServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Dispatcher $events)
+    public function boot()
     {
-        $events->subscribe('Flarum\Categories\Handlers\DiscussionMovedNotifier');
-        $events->subscribe('Flarum\Categories\Handlers\CategoryPreloader');
-        $events->subscribe('Flarum\Categories\Handlers\CategorySaver');
+        $this->extend(
+            new EventSubscribers([
+                'Flarum\Categories\Handlers\DiscussionMovedNotifier',
+                'Flarum\Categories\Handlers\CategoryPreloader',
+                'Flarum\Categories\Handlers\CategorySaver'
+            ]),
 
-        $this->forumAssets([
-            __DIR__.'/../js/dist/extension.js',
-            __DIR__.'/../less/categories.less'
-        ]);
+            new ForumAssets([
+                __DIR__.'/../js/dist/extension.js',
+                __DIR__.'/../less/categories.less'
+            ]),
 
-        $this->postType('Flarum\Categories\DiscussionMovedPost');
+            new PostType('Flarum\Categories\DiscussionMovedPost'),
 
-        $this->discussionGambit('Flarum\Categories\CategoryGambit');
+            new DiscussionGambit('Flarum\Categories\CategoryGambit'),
 
-        $this->notificationType('Flarum\Categories\DiscussionMovedNotification', ['alert' => true]);
+            (new NotificationType('Flarum\Categories\DiscussionMovedNotification'))->enableByDefault('alert'),
 
-        $this->relationship('Flarum\Core\Models\Discussion', 'belongsTo', 'category', 'Flarum\Categories\Category');
+            new Relationship('Flarum\Core\Models\Discussion', 'belongsTo', 'category', 'Flarum\Categories\Category'),
 
-        $this->serializeRelationship('Flarum\Api\Serializers\DiscussionSerializer', 'hasOne', 'category', 'Flarum\Categories\CategorySerializer');
+            new SerializeRelationship('Flarum\Api\Serializers\DiscussionSerializer', 'hasOne', 'category', 'Flarum\Categories\CategorySerializer'),
 
-        DiscussionsIndexAction::$include['category'] = true;
-        DiscussionsShowAction::$include['category'] = true;
+            new ApiInclude(['discussions.index', 'discussions.show'], 'category', true)
+        );
     }
 
     /**
