@@ -17,7 +17,7 @@ class CreateActivityTable extends Migration {
 			$table->increments('id');
 			$table->integer('user_id')->unsigned();
 			$table->integer('sender_id')->unsigned()->nullable();
-			$table->string('type');
+			$table->string('type', 100);
 			$table->binary('data')->nullable();
 			$table->dateTime('time');
 		});

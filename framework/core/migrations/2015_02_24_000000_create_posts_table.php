@@ -20,7 +20,7 @@ class CreatePostsTable extends Migration {
 
 			$table->dateTime('time');
 			$table->integer('user_id')->unsigned()->nullable();
-			$table->string('type')->nullable();
+			$table->string('type', 100)->nullable();
 			$table->text('content')->nullable();
 			$table->text('content_html')->nullable();
 
