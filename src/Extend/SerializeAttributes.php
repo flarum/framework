@@ -19,7 +19,7 @@ class SerializeAttributes implements ExtenderInterface
     {
         $app['events']->listen('Flarum\Api\Events\SerializeAttributes', function ($event) {
             if ($event->serializer instanceof $this->serializer) {
-                call_user_func($this->callback, $event->attributes, $event->model, $event->serializer);
+                call_user_func_array($this->callback, [&$event->attributes, $event->model, $event->serializer]);
             }
         });
     }
