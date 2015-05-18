@@ -16,7 +16,7 @@ export default function() {
           if (component) {
             var quote = window.getSelection().toString();
             var mention = '@'+post.user().username()+'#'+post.number()+' ';
-            component.editor.insertAtCursor(quote ? '> '+mention+quote+'\n\n' : mention);
+            component.editor.insertAtCursor((component.editor.value() ? '\n\n' : '')+(quote ? '> '+mention+quote+'\n\n' : mention));
 
             // If the composer is empty, then assume we're starting a new reply.
             // In which case we don't want the user to have to confirm if they
