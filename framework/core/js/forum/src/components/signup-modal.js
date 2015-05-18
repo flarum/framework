@@ -1,5 +1,6 @@
 import Component from 'flarum/component';
 import LoadingIndicator from 'flarum/components/loading-indicator';
+import LoginModal from 'flarum/components/login-modal';
 import icon from 'flarum/helpers/icon';
 import avatar from 'flarum/helpers/avatar';
 
@@ -40,7 +41,10 @@ export default class SignupModal extends Component {
             ])
           ]),
           m('div.modal-footer', [
-            m('p.log-in-link', ['Already have an account? ', m('a[href=javascript:;]', {onclick: app.login}, 'Log In')])
+            m('p.log-in-link', [
+              'Already have an account? ',
+              m('a[href=javascript:;]', {onclick: () => app.modal.show(new LoginModal())}, 'Log In')
+            ])
           ])
         ])
       ]),
