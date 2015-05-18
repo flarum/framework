@@ -12,7 +12,7 @@ import DiscussionPage from 'flarum/components/discussion-page';
 
 import SelectInput from 'flarum/components/select-input';
 import ActionButton from 'flarum/components/action-button';
-import NavItem from 'flarum/components/nav-item';
+import IndexNavItem from 'flarum/components/index-nav-item';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 import DropdownSelect from 'flarum/components/dropdown-select';
 
@@ -204,7 +204,7 @@ export default class IndexPage extends Component {
     var params = {sort: m.route.param('sort')};
 
     items.add('allDiscussions',
-      NavItem.component({
+      IndexNavItem.component({
         href: app.route('index', params),
         label: 'All Discussions',
         icon: 'comments-o'
