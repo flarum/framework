@@ -32,7 +32,7 @@ export default class Component {
   static component(props) {
     props = props || {};
     if (this.props) {
-      props = this.props(props);
+      this.props(props);
     }
     var view = function(component) {
       component.props = props;
