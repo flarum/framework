@@ -2,7 +2,7 @@ import Notification from 'flarum/components/notification';
 import username from 'flarum/helpers/username';
 import categoryLabel from 'categories/helpers/category-label';
 
-export default class NotificationDiscussionMoved extends Notification {
+export default class DiscussionMovedNotification extends Notification {
   view() {
     var notification = this.props.notification;
     var discussion = notification.subject();

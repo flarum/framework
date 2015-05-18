@@ -1,7 +1,7 @@
-import PostActivity from 'flarum/components/post-activity';
+import EventPost from 'flarum/components/event-post';
 import categoryLabel from 'categories/helpers/category-label';
 
-export default class PostDiscussionMoved extends PostActivity {
+export default class DiscussionMovedPost extends EventPost {
   view() {
     var post = this.props.post;
     var oldCategory = app.store.getById('categories', post.content()[0]);
