@@ -11,8 +11,10 @@ import LoadingIndicator from 'flarum/components/loading-indicator';
 import DropdownSplit from 'flarum/components/dropdown-split';
 import Separator from 'flarum/components/separator';
 import listItems from 'flarum/helpers/list-items';
+import mixin from 'flarum/utils/mixin';
+import evented from 'flarum/utils/evented';
 
-export default class DiscussionPage extends Component {
+export default class DiscussionPage extends mixin(Component, evented) {
   /**
 
    */
@@ -102,6 +104,8 @@ export default class DiscussionPage extends Component {
     this.streamContent.goToNumber(this.currentNear, true);
 
     app.setTitle(discussion.title());
+
+    this.trigger('loaded');
   }
 
   onload(element, isInitialized, context) {
