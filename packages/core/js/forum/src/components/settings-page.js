@@ -14,7 +14,8 @@ export default class SettingsPage extends UserPage {
   constructor(props) {
     super(props);
 
-    this.user = app.session.user;
+    this.setupUser(app.session.user());
+    app.setTitle('Settings');
   }
 
   content() {

@@ -10,6 +10,10 @@ class App {
     this.initializers.toArray().forEach((initializer) => initializer(this));
   }
 
+  setTitle(title) {
+    document.title = (title ? title+' - ' : '')+this.config['forum_title'];
+  }
+
   route(name, params) {
     var url = this.routes[name][0].replace(/:([^\/]+)/g, function(m, t) {
       var value = params[t];
