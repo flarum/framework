@@ -148,8 +148,14 @@
 
 .post {
   padding-bottom: 1px;
-  transition: 0.2s box-shadow;
+  transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
+  top: 0;
+
+  &.editing {
+    top: 5px;
+    opacity: 0.2;
+  }
 
   & .contextual-controls {
     float: right;
