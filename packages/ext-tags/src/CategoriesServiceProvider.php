@@ -9,6 +9,7 @@ use Flarum\Extend\NotificationType;
 use Flarum\Extend\Relationship;
 use Flarum\Extend\SerializeRelationship;
 use Flarum\Extend\ApiInclude;
+use Flarum\Extend\Permission;
 
 class CategoriesServiceProvider extends ServiceProvider
 {
@@ -41,7 +42,14 @@ class CategoriesServiceProvider extends ServiceProvider
 
             new SerializeRelationship('Flarum\Api\Serializers\DiscussionSerializer', 'hasOne', 'category', 'Flarum\Categories\CategorySerializer'),
 
-            new ApiInclude(['discussions.index', 'discussions.show'], 'category', true)
+            new ApiInclude(['discussions.index', 'discussions.show'], 'category', true),
+
+            (new Permission('discussion.move'))
+                ->serialize()
+                ->grant(function ($grant, $user) {
+                    $grant->where('start_user_id', $user->id);
+                    // @todo add limitations to time etc. according to a config setting
+                })
         );
     }
 

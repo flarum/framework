@@ -35,6 +35,7 @@ app.initializers.add('categories', function() {
   // Register models.
   app.store.models['categories'] = Category;
   Discussion.prototype.category = Model.one('category');
+  Discussion.prototype.canMove = Model.prop('canMove');
 
   // Register components.
   app.postComponentRegistry['discussionMoved'] = PostDiscussionMoved;
@@ -140,7 +141,7 @@ app.initializers.add('categories', function() {
 
   // Add a control allowing the discussion to be moved to another category.
   extend(Discussion.prototype, 'controls', function(items) {
-    if (this.canEdit()) {
+    if (this.canMove()) {
       items.add('move', ActionButton.component({
         label: 'Move',
         icon: 'arrow-right',
