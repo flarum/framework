@@ -14,7 +14,7 @@ class CreateAccessTokensTable extends Migration {
 	{
 		Schema::create('access_tokens', function(Blueprint $table)
 		{
-			$table->string('id', 100);
+			$table->string('id', 100)->primary();
 			$table->integer('user_id')->unsigned();
 		});
 	}
