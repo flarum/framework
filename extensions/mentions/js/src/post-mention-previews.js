@@ -49,7 +49,14 @@ export default function postMentionPreviews() {
             if (!visible) {
               var showPost = function(post) {
                 m.render($preview[0], m('li', PostPreview.component({post})));
-              }
+                positionPreview();
+              };
+
+              // Position the preview so that it appears above the mention.
+              // (The offsetParent should be .post-body.)
+              var positionPreview = function() {
+                $preview.show().css('top', $this.offset().top - $this.offsetParent().offset().top - $preview.outerHeight(true));
+              };
 
               var post = discussion.posts().filter(post => post && post.number() == number)[0];
               if (post) {
@@ -57,11 +64,9 @@ export default function postMentionPreviews() {
               } else {
                 m.render($preview[0], LoadingIndicator.component());
                 app.store.find('posts', {discussions: discussion.id(), number}).then(posts => showPost(posts[0]));
+                positionPreview();
               }
 
-              // Position the preview so that it appears above the mention.
-              // (The offsetParent should be .post-body.)
-              $preview.show().css('top', $this.offset().top - $this.offsetParent().offset().top - $preview.outerHeight(true));
               setTimeout(() => $preview.off('transitionend').addClass('in'));
             }
           }, 500);
