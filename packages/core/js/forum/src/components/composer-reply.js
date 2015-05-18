@@ -2,19 +2,33 @@ import ItemList from 'flarum/utils/item-list';
 import ComposerBody from 'flarum/components/composer-body';
 import Alert from 'flarum/components/alert';
 import ActionButton from 'flarum/components/action-button';
+import Composer from 'flarum/components/composer';
 
 export default class ComposerReply extends ComposerBody {
   constructor(props) {
+    props.placeholder = props.placeholder || 'Write your reply...';
     props.submitLabel = props.submitLabel || 'Post Reply';
     props.confirmExit = props.confirmExit || 'You have not posted your reply. Do you wish to discard it?';
 
     super(props);
   }
 
+  view() {
+    return super.view('composer-reply');
+  }
+
   headerItems() {
     var items = new ItemList();
 
-    items.add('title', m('h3', ['Replying to ', m('em', this.props.discussion.title())]));
+    if (app.composer.position() === Composer.PositionEnum.MINIMIZED ||
+      // https://github.com/babel/babel/issues/1150
+      !app.current.discussion ||
+      app.current.discussion() !== this.props.discussion) {
+      items.add('title', m('h3', [
+        'Replying to ',
+        m('a', {href: app.route.discussion(this.props.discussion), config: m.route}, this.props.discussion.title())
+      ]));
+    }
 
     return items;
   }
