@@ -10,6 +10,7 @@ export default class ComposerBody extends Component {
 
     this.loading = m.prop(false);
     this.disabled = m.prop(false);
+    this.ready = m.prop(false);
     this.content = m.prop(this.props.originalContent);
     this.editor = new TextEditor({
       submitLabel: this.props.submitLabel,
@@ -22,6 +23,8 @@ export default class ComposerBody extends Component {
   }
 
   view(className) {
+    this.editor.props.disabled = this.loading() || !this.ready();
+
     return m('div', {className, config: this.onload.bind(this)}, [
       avatar(this.props.user, {className: 'composer-avatar'}),
       m('div.composer-body', [
@@ -37,6 +40,9 @@ export default class ComposerBody extends Component {
   }
 
   focus() {
+    this.ready(true);
+    m.redraw();
+
     var $input = this.$().find(':input:enabled:visible:first');
     if ($input.length) {
       $input.focus();
