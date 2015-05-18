@@ -14,10 +14,10 @@ class CreateGroupsTable extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name_singular');
-            $table->string('name_plural');
-            $table->string('color')->nullable();
-            $table->string('icon')->nullable();
+            $table->string('name_singular', 100);
+            $table->string('name_plural', 100);
+            $table->string('color', 20)->nullable();
+            $table->string('icon', 100)->nullable();
         });
     }
 
