@@ -4,6 +4,8 @@ import PostHeaderUser from 'flarum/components/post-header-user';
 import PostHeaderMeta from 'flarum/components/post-header-meta';
 import PostHeaderEdited from 'flarum/components/post-header-edited';
 import PostHeaderToggle from 'flarum/components/post-header-toggle';
+import ComposerEdit from 'flarum/components/composer-edit';
+import Composer from 'flarum/components/composer';
 import ItemList from 'flarum/utils/item-list';
 import listItems from 'flarum/helpers/list-items';
 
@@ -33,7 +35,10 @@ export default class PostComment extends Post {
         'post-comment': true,
         'is-hidden': post.isHidden(),
         'is-edited': post.isEdited(),
-        'reveal-content': this.revealContent
+        'reveal-content': this.revealContent,
+        'editing': app.composer.component instanceof ComposerEdit &&
+          app.composer.component.props.post === this.props.post &&
+          app.composer.position() !== Composer.PositionEnum.MINIMIZED
       })
     });
   }
