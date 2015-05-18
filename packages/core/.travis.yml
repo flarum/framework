@@ -16,7 +16,7 @@ before_script:
   - php composer.phar install
 
 script:
-  - vendor/bin/phpcs --standard=PSR2 -np src
+  - vendor/bin/phpcs --standard=PSR2 -np src migrations
 
 notifications:
   email: false
