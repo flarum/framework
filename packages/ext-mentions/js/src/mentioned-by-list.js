@@ -2,7 +2,7 @@ import { extend } from 'flarum/extension-utils';
 import Model from 'flarum/model';
 import Post from 'flarum/models/post';
 import DiscussionPage from 'flarum/components/discussion-page';
-import PostComment from 'flarum/components/post-comment';
+import CommentPost from 'flarum/components/comment-post';
 import PostPreview from 'flarum/components/post-preview';
 import punctuate from 'flarum/helpers/punctuate';
 import username from 'flarum/helpers/username';
@@ -14,7 +14,7 @@ export default function mentionedByList() {
     params.include.push('posts.mentionedBy', 'posts.mentionedBy.user');
   });
 
-  extend(PostComment.prototype, 'footerItems', function(items) {
+  extend(CommentPost.prototype, 'footerItems', function(items) {
     var replies = this.props.post.mentionedBy();
     if (replies && replies.length) {
 

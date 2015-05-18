@@ -1,7 +1,7 @@
 import { extend } from 'flarum/extension-utils';
 import ComposerBody from 'flarum/components/composer-body';
-import ComposerReply from 'flarum/components/composer-reply';
-import ComposerEdit from 'flarum/components/composer-edit';
+import ReplyComposer from 'flarum/components/reply-composer';
+import EditComposer from 'flarum/components/edit-composer';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 

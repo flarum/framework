@@ -1,9 +1,9 @@
 import { extend } from 'flarum/extension-utils';
 import ActionButton from 'flarum/components/action-button';
-import PostComment from 'flarum/components/post-comment';
+import CommentPost from 'flarum/components/comment-post';
 
 export default function() {
-  extend(PostComment.prototype, 'actionItems', function(items) {
+  extend(CommentPost.prototype, 'actionItems', function(items) {
     var post = this.props.post;
     if (post.isHidden()) return;
 
