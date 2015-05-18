@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Models;
 
-class DiscussionRenamedPost extends ActivityPost
+class DiscussionRenamedPost extends EventPost
 {
     /**
      * The type of post this is, to be stored in the posts table.
