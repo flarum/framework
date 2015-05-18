@@ -3,14 +3,11 @@
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Api\JsonApiResponse;
-use Flarum\Core\Exceptions\ValidationFailureException;
-use Flarum\Core\Exceptions\PermissionDeniedException;
 use Tobscure\JsonApi\SerializerInterface;
 use Tobscure\JsonApi\Criteria;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
 
-abstract class SerializeAction implements ActionInterface
+abstract class SerializeAction extends JsonApiAction
 {
     /**
      * The name of the serializer class to output results with.
@@ -68,24 +65,11 @@ abstract class SerializeAction implements ActionInterface
      * @param \Flarum\Api\Request $request
      * @return \Flarum\Api\Response
      */
-    public function handle(Request $request)
+    public function respond(Request $request)
     {
         $request = static::buildJsonApiRequest($request);
 
-        try {
-            $data = $this->data($request, $response = new JsonApiResponse);
-        } catch (ValidationFailureException $e) {
-            $errors = [];
-            foreach ($e->getErrors()->getMessages() as $field => $messages) {
-                $errors[] = [
-                    'detail' => implode("\n", $messages),
-                    'path' => $field
-                ];
-            }
-            return new JsonResponse(['errors' => $errors], 422);
-        } catch (PermissionDeniedException $e) {
-            return new JsonResponse(null, 401);
-        }
+        $data = $this->data($request, $response = new JsonApiResponse);
 
         $serializer = new static::$serializer($request->actor, $request->include, $request->link);
 

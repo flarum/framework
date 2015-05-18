@@ -23,8 +23,8 @@ export default class Alerts extends Component {
     var index = this.components.indexOf(component);
     if (index !== -1) {
       this.components.splice(index, 1);
+      m.redraw();
     }
-    m.redraw();
   }
 
   clear() {

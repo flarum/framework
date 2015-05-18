@@ -1,4 +1,5 @@
 import ItemList from 'flarum/utils/item-list';
+import Alert from 'flarum/components/alert';
 
 class App {
   constructor() {
@@ -12,6 +13,14 @@ class App {
 
   setTitle(title) {
     document.title = (title ? title+' - ' : '')+this.config['forum_title'];
+  }
+
+  handleApiErrors(response) {
+    this.alerts.clear();
+
+    response.errors.forEach(error =>
+      this.alerts.show(new Alert({ type: 'warning', message: error.detail }))
+    );
   }
 
   route(name, params) {
