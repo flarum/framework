@@ -52,7 +52,7 @@ export default class UserPage extends Component {
     var user = this.user();
 
     return m('div', {config: this.onload.bind(this)}, user ? [
-      UserCard.component({user, className: 'hero user-hero', editable: true, controlsButtonClass: 'btn btn-default'}),
+      UserCard.component({user, className: 'hero user-hero', editable: user.canEdit(), controlsButtonClass: 'btn btn-default'}),
       m('div.container', [
         m('nav.side-nav.user-nav', {config: this.affixSidebar}, [
           m('ul', listItems(this.sidebarItems().toArray()))
