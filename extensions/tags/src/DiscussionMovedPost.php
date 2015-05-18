@@ -1,9 +1,9 @@
 <?php namespace Flarum\Categories;
 
 use Flarum\Core\Models\Model;
-use Flarum\Core\Models\ActivityPost;
+use Flarum\Core\Models\EventPost;
 
-class DiscussionMovedPost extends ActivityPost
+class DiscussionMovedPost extends EventPost
 {
     /**
      * The type of post this is, to be stored in the posts table.
