@@ -17,8 +17,8 @@ class CreateNotificationsTable extends Migration {
 			$table->increments('id');
 			$table->integer('user_id')->unsigned();
 			$table->integer('sender_id')->unsigned()->nullable();
-            $table->string('type');
-            $table->string('subject_type')->nullable();
+            $table->string('type', 100);
+            $table->string('subject_type', 200)->nullable();
 			$table->integer('subject_id')->unsigned()->nullable();
 			$table->binary('data')->nullable();
 			$table->dateTime('time');
