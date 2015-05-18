@@ -25,7 +25,7 @@ export default function(app) {
     } else if (!app.session.user()) {
       app.modal.show(new LoginModal({
         message: 'You must be logged in to do that.',
-        callback: replyAction.bind(this)
+        callback: this.replyAction.bind(this)
       }));
     }
   }

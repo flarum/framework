@@ -21,7 +21,7 @@ export default class DiscussionList extends Component {
 
     this.refresh();
 
-    app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this))
+    app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this));
   }
 
   params() {
