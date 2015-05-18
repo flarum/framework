@@ -9,14 +9,14 @@ import SettingsPage from 'flarum/components/settings-page';
 import icon from 'flarum/helpers/icon';
 import app from 'flarum/app';
 
-import PostDiscussionStickied from 'sticky/components/post-discussion-stickied';
-import NotificationDiscussionStickied from 'sticky/components/notification-discussion-stickied';
+import DiscussionStickiedPost from 'sticky/components/discussion-stickied-post';
+import DiscussionStickiedNotification from 'sticky/components/discussion-stickied-notification';
 
 app.initializers.add('sticky', function() {
 
   // Register components.
-  app.postComponentRegistry['discussionStickied'] = PostDiscussionStickied;
-  app.notificationComponentRegistry['discussionStickied'] = NotificationDiscussionStickied;
+  app.postComponentRegistry['discussionStickied'] = DiscussionStickiedPost;
+  app.notificationComponentRegistry['discussionStickied'] = DiscussionStickiedNotification;
 
   Discussion.prototype.isSticky = Model.prop('isSticky');
   Discussion.prototype.canSticky = Model.prop('canSticky');
