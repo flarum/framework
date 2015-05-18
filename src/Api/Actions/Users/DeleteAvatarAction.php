@@ -41,7 +41,7 @@ class DeleteAvatarAction extends SerializeResourceAction
     protected function data(JsonApiRequest $request, JsonApiResponse $response)
     {
         return $this->bus->dispatch(
-            new DeleteAvatarCommand($request->get('id'), $this->actor->getUser())
+            new DeleteAvatarCommand($request->get('id'), $request->actor->getUser())
         );
     }
 }

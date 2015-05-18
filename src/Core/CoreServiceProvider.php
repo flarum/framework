@@ -78,11 +78,17 @@ class CoreServiceProvider extends ServiceProvider
             'Flarum\Core\Repositories\EloquentActivityRepository'
         );
 
+        $avatarFilesystem = function (Container $app) {
+            return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
+        };
+
         $this->app->when('Flarum\Core\Handlers\Commands\UploadAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
-            ->give(function (Container $app) {
-                return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
-            });
+            ->give($avatarFilesystem);
+
+        $this->app->when('Flarum\Core\Handlers\Commands\DeleteAvatarCommandHandler')
+            ->needs('League\Flysystem\FilesystemInterface')
+            ->give($avatarFilesystem);
     }
 
     public function registerGambits()
