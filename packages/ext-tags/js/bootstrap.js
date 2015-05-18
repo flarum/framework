@@ -8,9 +8,9 @@ import DiscussionHero from 'flarum/components/discussion-hero';
 import Separator from 'flarum/components/separator';
 import ActionButton from 'flarum/components/action-button';
 import NavItem from 'flarum/components/nav-item';
-import ComposerDiscussion from 'flarum/components/composer-discussion';
+import DiscussionComposer from 'flarum/components/discussion-composer';
 import SettingsPage from 'flarum/components/settings-page';
-import ActivityPost from 'flarum/components/activity-post';
+import PostActivity from 'flarum/components/post-activity';
 import icon from 'flarum/helpers/icon';
 import app from 'flarum/app';
 
@@ -19,8 +19,8 @@ import CategoriesPage from 'categories/components/categories-page';
 import CategoryHero from 'categories/components/category-hero';
 import CategoryNavItem from 'categories/components/category-nav-item';
 import MoveDiscussionModal from 'categories/components/move-discussion-modal';
-import NotificationDiscussionMoved from 'categories/components/notification-discussion-moved';
-import PostDiscussionMoved from 'categories/components/post-discussion-moved';
+import DiscussionMovedNotification from 'categories/components/discussion-moved-notification';
+import DiscussionMovedPost from 'categories/components/discussion-moved-post';
 import categoryLabel from 'categories/helpers/category-label';
 import categoryIcon from 'categories/helpers/category-icon';
 
@@ -38,8 +38,8 @@ app.initializers.add('categories', function() {
   Discussion.prototype.canMove = Model.prop('canMove');
 
   // Register components.
-  app.postComponentRegistry['discussionMoved'] = PostDiscussionMoved;
-  app.notificationComponentRegistry['discussionMoved'] = NotificationDiscussionMoved;
+  app.postComponentRegistry['discussionMoved'] = DiscussionMovedPost;
+  app.notificationComponentRegistry['discussionMoved'] = DiscussionMovedNotification;
 
   // ---------------------------------------------------------------------------
   // INDEX PAGE
@@ -182,8 +182,8 @@ app.initializers.add('categories', function() {
   });
 
   // Add category-selection abilities to the discussion composer.
-  ComposerDiscussion.prototype.category = m.prop();
-  ComposerDiscussion.prototype.chooseCategory = function() {
+  DiscussionComposer.prototype.category = m.prop();
+  DiscussionComposer.prototype.chooseCategory = function() {
     var modal = new MoveDiscussionModal({
       onchange: category => {
         this.category(category);
@@ -195,7 +195,7 @@ app.initializers.add('categories', function() {
 
   // Add a category-selection menu to the discussion composer's header, after
   // the title.
-  extend(ComposerDiscussion.prototype, 'headerItems', function(items) {
+  extend(DiscussionComposer.prototype, 'headerItems', function(items) {
     var category = this.category();
 
     items.add('category', m('a[href=javascript:;][tabindex=-1].btn.btn-link.control-change-category', {onclick: this.chooseCategory.bind(this)}, [
@@ -206,7 +206,7 @@ app.initializers.add('categories', function() {
   });
 
   // Add the selected category as data to submit to the server.
-  extend(ComposerDiscussion.prototype, 'data', function(data) {
+  extend(DiscussionComposer.prototype, 'data', function(data) {
     data.links = data.links || {};
     data.links.category = this.category();
   });
@@ -216,7 +216,7 @@ app.initializers.add('categories', function() {
   // ---------------------------------------------------------------------------
 
   // Add a category label next to the discussion title in post activity items.
-  extend(ActivityPost.prototype, 'headerItems', function(items) {
+  extend(PostActivity.prototype, 'headerItems', function(items) {
     var category = this.props.activity.post().discussion().category();
     if (category) {
       items.add('category', categoryLabel(category));
