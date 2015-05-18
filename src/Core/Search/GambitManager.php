@@ -20,14 +20,14 @@ class GambitManager
         $this->gambits[] = $gambit;
     }
 
-	public function apply($string, $searcher)
-	{
+    public function apply($string, $searcher)
+    {
         $string = $this->applyGambits($string, $searcher);
 
         if ($string) {
             $this->applyFulltext($string, $searcher);
         }
-	}
+    }
 
     public function setFulltextGambit($gambit)
     {
@@ -69,5 +69,4 @@ class GambitManager
         $searcher->addActiveGambit($gambit);
         $gambit->apply($string, $searcher);
     }
-
 }

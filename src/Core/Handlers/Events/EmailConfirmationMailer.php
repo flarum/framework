@@ -46,6 +46,5 @@ class EmailConfirmationMailer
 
     public function whenEmailWasChanged(EmailWasChanged $event)
     {
-
     }
 }

@@ -20,7 +20,7 @@ class DiscussionSearchResults
         return $this->discussions;
     }
 
-	public function getTotal()
+    public function getTotal()
     {
         return $this->total;
     }

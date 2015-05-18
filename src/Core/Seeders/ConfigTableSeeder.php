@@ -3,15 +3,16 @@
 use Illuminate\Database\Seeder;
 use DB;
 
-class ConfigTableSeeder extends Seeder {
+class ConfigTableSeeder extends Seeder
+{
 
-	/**
-	 * Run the database seeds.
-	 *
-	 * @return void
-	 */
-	public function run()
-	{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
         $config = [
             'api_url'         => 'http://flarum.dev/api',
             'base_url'        => 'http://flarum.dev',
@@ -20,9 +21,8 @@ class ConfigTableSeeder extends Seeder {
             'welcome_title'   => 'Welcome to Flarum Demo Forum'
         ];
 
-		DB::table('config')->insert(array_map(function($key, $value) {
+        DB::table('config')->insert(array_map(function ($key, $value) {
             return compact('key', 'value');
         }, array_keys($config), $config));
-	}
-
+    }
 }

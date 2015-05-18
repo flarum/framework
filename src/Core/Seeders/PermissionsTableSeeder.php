@@ -3,18 +3,19 @@
 use Illuminate\Database\Seeder;
 use Flarum\Core\Models\Permission;
 
-class PermissionsTableSeeder extends Seeder {
+class PermissionsTableSeeder extends Seeder
+{
 
-	/**
-	 * Run the database seeds.
-	 *
-	 * @return void
-	 */
-	public function run()
-	{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
         Permission::truncate();
 
-		$permissions = [
+        $permissions = [
 
             // Guests can view the forum
             [2, 'forum.view'],
@@ -38,6 +39,5 @@ class PermissionsTableSeeder extends Seeder {
             ];
         }
         Permission::insert($permissions);
-	}
-
+    }
 }
