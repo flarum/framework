@@ -22,7 +22,7 @@ export default class ComposerBody extends Component {
   }
 
   view(className) {
-    return m('div', {className, config: this.element}, [
+    return m('div', {className, config: this.onload.bind(this)}, [
       avatar(this.props.user, {className: 'composer-avatar'}),
       m('div.composer-body', [
         m('ul.composer-header', listItems(this.headerItems().toArray())),
@@ -30,6 +30,10 @@ export default class ComposerBody extends Component {
       ]),
       LoadingIndicator.component({className: 'composer-loading'+(this.loading() ? ' active' : '')})
     ]);
+  }
+
+  onload(element) {
+    this.element(element);
   }
 
   focus() {
