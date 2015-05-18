@@ -5,6 +5,7 @@ import DiscussionPage from 'flarum/components/discussion-page';
 import PostComment from 'flarum/components/post-comment';
 import PostPreview from 'flarum/components/post-preview';
 import punctuate from 'flarum/helpers/punctuate';
+import username from 'flarum/helpers/username';
 
 export default function mentionedByList() {
   Post.prototype.mentionedBy = Model.many('mentionedBy');
