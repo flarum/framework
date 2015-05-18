@@ -44,6 +44,7 @@ export default class IndexPage extends Component {
 
   onunload() {
     app.cache.scrollTop = $(window).scrollTop();
+    app.composer.minimize();
   }
 
   /**
@@ -141,10 +142,6 @@ export default class IndexPage extends Component {
         }
       }
     }
-  }
-
-  onunload() {
-    app.composer.minimize();
   }
 
   newDiscussion() {
