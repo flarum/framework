@@ -2,7 +2,7 @@
 
 abstract class GambitAbstract
 {
-	protected $pattern;
+    protected $pattern;
 
     public function apply($bit, SearcherInterface $searcher)
     {
@@ -12,7 +12,7 @@ abstract class GambitAbstract
         }
     }
 
-	public function match($bit)
+    public function match($bit)
     {
         if (preg_match('/^'.$this->pattern.'$/i', $bit, $matches)) {
             return $matches;

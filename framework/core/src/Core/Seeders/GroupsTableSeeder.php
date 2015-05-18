@@ -3,19 +3,20 @@
 use Illuminate\Database\Seeder;
 use Flarum\Core\Models\Group;
 
-class GroupsTableSeeder extends Seeder {
+class GroupsTableSeeder extends Seeder
+{
 
-	/**
-	 * Run the database seeds.
-	 *
-	 * @return void
-	 */
-	public function run()
-	{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
         Group::unguard();
         Group::truncate();
 
-		$groups = [
+        $groups = [
             ['Admin', 'Admins', '#B72A2A', 'wrench'],
             ['Guest', 'Guests', null, null],
             ['Member', 'Members', null, null],
@@ -29,6 +30,5 @@ class GroupsTableSeeder extends Seeder {
                 'icon' => $group[3]
             ]);
         }
-	}
-
+    }
 }
