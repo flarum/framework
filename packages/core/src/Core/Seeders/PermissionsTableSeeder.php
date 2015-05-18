@@ -17,28 +17,24 @@ class PermissionsTableSeeder extends Seeder {
 		$permissions = [
 
             // Guests can view the forum
-            ['group.2' , 'forum'          , 'view'],
-            ['group.2' , 'forum'          , 'register'],
+            [2, 'forum.view'],
 
             // Members can create and reply to discussions + edit their own stuff
-            ['group.3' , 'forum'          , 'startDiscussion'],
-            ['group.3' , 'discussion'     , 'editOwn'],
-            ['group.3' , 'discussion'     , 'reply'],
-            ['group.3' , 'post'           , 'editOwn'],
+            [3, 'forum.startDiscussion'],
+            [3, 'discussion.reply'],
 
             // Moderators can edit + delete stuff and suspend users
-            ['group.4' , 'discussion'     , 'delete'],
-            ['group.4' , 'discussion'     , 'edit'],
-            ['group.4' , 'post'           , 'delete'],
-            ['group.4' , 'post'           , 'edit'],
-            ['group.4' , 'user'           , 'suspend'],
+            [4, 'discussion.delete'],
+            [4, 'discussion.rename'],
+            [4, 'post.delete'],
+            [4, 'post.edit'],
+            [4, 'user.suspend'],
 
         ];
         foreach ($permissions as &$permission) {
             $permission = [
-                'grantee'    => $permission[0],
-                'entity'     => $permission[1],
-                'permission' => $permission[2]
+                'group_id'   => $permission[0],
+                'permission' => $permission[1]
             ];
         }
         Permission::insert($permissions);
