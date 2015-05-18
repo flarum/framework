@@ -20,19 +20,29 @@ trait MappedMorphToTrait
         // there are multiple types in the morph and we can't use single queries.
         if (is_null($typeValue = $this->$type)) {
             return new MappedMorphTo(
-                $this->newQuery(), $this, $id, null, $type, $name, $classes
+                $this->newQuery(),
+                $this,
+                $id,
+                null,
+                $type,
+                $name,
+                $classes
             );
-        }
-
-        // If we are not eager loading the relationship we will essentially treat this
-        // as a belongs-to style relationship since morph-to extends that class and
-        // we will pass in the appropriate values so that it behaves as expected.
-        else {
+        } else {
+            // If we are not eager loading the relationship we will essentially treat this
+            // as a belongs-to style relationship since morph-to extends that class and
+            // we will pass in the appropriate values so that it behaves as expected.
             $class = $classes[$typeValue];
             $instance = new $class;
 
             return new MappedMorphTo(
-                $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name, $classes
+                $instance->newQuery(),
+                $this,
+                $id,
+                $instance->getKeyName(),
+                $type,
+                $name,
+                $classes
             );
         }
     }
