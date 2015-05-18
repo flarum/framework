@@ -16,7 +16,5 @@ export default class CategoryNavItem extends NavItem {
     props.params.categories = category ? category.slug() : 'uncategorized';
     props.href = app.route('category', props.params);
     props.label = category ? category.title() : 'Uncategorized';
-
-    return props;
   }
 }
