@@ -21,6 +21,8 @@ export default class UserPage extends Component {
   constructor(props) {
     super(props);
 
+    this.user = m.prop();
+
     app.history.push('user');
     app.current = this;
   }
@@ -30,6 +32,8 @@ export default class UserPage extends Component {
    */
   setupUser(user) {
     this.user(user);
+
+    app.setTitle(user.username());
   }
 
   onload(element, isInitialized, context) {

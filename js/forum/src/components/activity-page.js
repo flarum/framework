@@ -9,7 +9,6 @@ export default class ActivityPage extends UserPage {
   constructor(props) {
     super(props);
 
-    this.user = m.prop();
     this.loading = m.prop(true);
     this.moreResults = m.prop(false);
     this.activity = m.prop([]);
@@ -30,7 +29,7 @@ export default class ActivityPage extends UserPage {
 
   setupUser(user) {
     m.startComputation();
-    this.user(user);
+    super.setupUser(user);
     m.endComputation();
 
     this.refresh();

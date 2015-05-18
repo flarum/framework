@@ -91,6 +91,8 @@ export default class DiscussionPage extends Component {
     // }
 
     this.streamContent.goToNumber(this.currentNear, true);
+
+    app.setTitle(discussion.title());
   }
 
   onload(element, isInitialized, context) {
