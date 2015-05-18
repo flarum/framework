@@ -105,10 +105,6 @@
     z-index: @zindex-composer;
     pointer-events: none;
     .transition(left 0.2s);
-
-    .has-pane.pane-pinned & {
-      left: @index-pane-width;
-    }
   }
   .composer {
     border-radius: @border-radius-base @border-radius-base 0 0;
@@ -198,6 +194,12 @@
       margin-left: 205px;
       margin-right: -20px;
     }
+  }
+}
+
+@media @desktop-hd {
+  .has-pane.pane-pinned .composer-container {
+    left: @index-pane-width;
   }
 }
 
