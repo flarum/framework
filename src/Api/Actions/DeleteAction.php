@@ -12,7 +12,7 @@ abstract class DeleteAction implements ActionInterface
      * @param \Flarum\Api\Request $request
      * @return \Flarum\Api\Response
      */
-    public function handle(Request $request)
+    public function respond(Request $request)
     {
         $this->delete($request, $response = new Response('', 204));
 

@@ -1,6 +1,7 @@
 import Component from 'flarum/component';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 import SignupModal from 'flarum/components/signup-modal';
+import Alert from 'flarum/components/alert';
 import icon from 'flarum/helpers/icon';
 
 export default class LoginModal extends Component {
@@ -15,7 +16,7 @@ export default class LoginModal extends Component {
   view() {
     return m('div.modal-dialog.modal-sm.modal-login', [
       m('div.modal-content', [
-        m('button.btn.btn-icon.btn-link.close.back-control', {onclick: app.modal.close.bind(app.modal)}, icon('times')),
+        m('button.btn.btn-icon.btn-link.close.back-control', {onclick: this.hide.bind(this)}, icon('times')),
         m('form', {onsubmit: this.login.bind(this)}, [
           m('div.modal-header', m('h3.title-control', 'Log In')),
           this.props.message ? m('div.modal-alert.alert', this.props.message) : '',
@@ -49,15 +50,22 @@ export default class LoginModal extends Component {
     $modal.find('[name=email]').focus();
   }
 
+  hide() {
+    app.modal.close();
+    app.alerts.dismiss(this.errorAlert);
+  }
+
   login(e) {
     e.preventDefault();
     this.loading(true);
     app.session.login(this.email(), this.password()).then(() => {
-      app.modal.close();
+      this.hide();
       this.props.callback && this.props.callback();
-    }, (response) => {
+    }, response => {
       this.loading(false);
       m.redraw();
+      app.alerts.dismiss(this.errorAlert);
+      app.alerts.show(this.errorAlert = new Alert({ type: 'warning', message: 'Invalid credentials.' }))
     });
   }
 }
