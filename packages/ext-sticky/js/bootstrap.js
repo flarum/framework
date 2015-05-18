@@ -70,7 +70,7 @@ app.initializers.add('sticky', function() {
       if (startPost) {
         var excerpt = m('span', startPost.excerpt());
         excerpt.wrapperClass = 'discussion-excerpt';
-        var item = items.add('excerpt', excerpt, {first: true});
+        var item = items.add('excerpt', excerpt, {last: true});
       }
     }
   });
