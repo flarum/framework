@@ -25,7 +25,7 @@ export default class TextEditor extends Component {
         disabled: !!this.props.disabled,
         value: this.value()
       }),
-      m('ul.text-editor-controls.fade', listItems(this.controlItems().toArray()))
+      m('ul.text-editor-controls', listItems(this.controlItems().toArray()))
     ]);
   }
 
@@ -43,7 +43,6 @@ export default class TextEditor extends Component {
         label: this.props.submitLabel,
         icon: 'check',
         className: 'btn btn-primary',
-        wrapperClass: 'primary-control',
         onclick: this.onsubmit.bind(this)
       })
     );
@@ -76,7 +75,6 @@ export default class TextEditor extends Component {
   oninput(value) {
     this.value(value);
     this.props.onchange(this.value());
-    this.$('.text-editor-controls').toggleClass('in', !!value);
 
     m.redraw.strategy('none');
   }

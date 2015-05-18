@@ -133,19 +133,16 @@ class Composer extends Component {
   }
 
   render(anchorToBottom) {
-    // @todo this function's logic could probably use some reworking. The
-    //     following line is bad because it prevents focusing on the composer
-    //     input when the composer is shown when it's already being shown
     if (this.position() === this.oldPosition) { return; }
 
-    var $composer = this.$();
+    var $composer = this.$().stop(true);
     var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 
     if (this.position() !== Composer.PositionEnum.HIDDEN) {
       m.redraw(true);
     }
 
-    this.updateHeight();
+    this.$().height(this.computedHeight());
     var newHeight = $composer.outerHeight();
 
     switch (this.position()) {
@@ -178,7 +175,10 @@ class Composer extends Component {
     }
     $('body').toggleClass('composer-open', this.position() !== Composer.PositionEnum.HIDDEN);
     this.oldPosition = this.position();
-    this.setContentHeight(this.computedHeight());
+
+    if (this.position() !== Composer.PositionEnum.HIDDEN) {
+      this.setContentHeight(this.computedHeight());
+    }
   }
 
   // Update the amount of padding-bottom on the body so that the page's
@@ -203,12 +203,12 @@ class Composer extends Component {
   // to fill up the height of the composer, minus the space taken up by the
   // composer's header/footer/etc.
   setContentHeight(height) {
-    var content = this.$('.composer-content');
-    this.$('.flexible-height').height(height -
-      parseInt(content.css('padding-top')) -
-      parseInt(content.css('padding-bottom')) -
-      this.$('.composer-header').outerHeight(true) -
-      this.$('.text-editor-controls').outerHeight(true));
+    var flexible = this.$('.flexible-height');
+    if (flexible.length) {
+      flexible.height(height -
+        (flexible.offset().top - this.$().offset().top) -
+        this.$('.text-editor-controls').outerHeight(true));
+    }
   }
 
   load(component) {
@@ -225,8 +225,7 @@ class Composer extends Component {
     if ([Composer.PositionEnum.MINIMIZED, Composer.PositionEnum.HIDDEN].indexOf(this.position()) !== -1) {
       this.position(Composer.PositionEnum.NORMAL);
     }
-    // work around https://github.com/lhorie/mithril.js/issues/603
-    setTimeout(() => this.render(anchorToBottom));
+    this.render(anchorToBottom);
   }
 
   hide() {
@@ -276,7 +275,7 @@ class Composer extends Component {
         items.add('minimize', this.control({ icon: 'minus minimize', title: 'Minimize', onclick: this.minimize.bind(this) }));
         items.add('fullScreen', this.control({ icon: 'expand', title: 'Full Screen', onclick: this.fullScreen.bind(this) }));
       }
-      items.add('close', this.control({ icon: 'times', title: 'Close', wrapperClass: 'back-control', onclick: this.close.bind(this) }));
+      items.add('close', this.control({ icon: 'times', title: 'Close', onclick: this.close.bind(this) }));
     }
 
     return items;

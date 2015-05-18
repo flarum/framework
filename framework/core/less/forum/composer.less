@@ -23,10 +23,15 @@
     margin: 0 0 10px;
     line-height: 1.5em;
 
-    &, & input {
+    &, & input, & a {
       color: @fl-body-muted-color;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: normal;
+      transition: color 0.2s;
+
+      .active & {
+        color: @fl-body-primary-color;
+      }
     }
     & input, & input[disabled] {
       background: none;
@@ -34,6 +39,19 @@
       padding: 0;
       height: auto;
     }
+  }
+}
+.composer-controls {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 1;
+
+  & li {
+    display: inline-block;
+  }
+  .minimized & {
+    top: 7px;
   }
 }
 .composer-loading {
@@ -58,35 +76,16 @@
 // screen. The controls are hidden (except for the 'x', which is the back-
 // control), and the avatar hidden.
 @media @phone {
-  .composer-open {
-    overflow: hidden;
-  }
   .composer {
-    position: fixed;
-    top: 0;
-    bottom: 0;
+    position: absolute;
     left: 0;
     right: 0;
-    z-index: @zindex-composer;
-    background: @fl-body-bg;
-    height: 100vh !important;
-    padding-top: @mobile-header-height;
-
-    &:before {
-      content: " ";
-      .toolbar();
-      opacity: 0;
-
-      .visible& {
-        opacity: 1;
-      }
-    }
   }
   .composer-content {
-    padding: 15px;
+    padding: 15px 15px 0;
   }
   .composer-controls {
-    & li:not(.back-control) {
+    & li:not(:last-child) {
       display: none;
     }
   }
@@ -117,10 +116,13 @@
     transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
     position: relative;
     height: 300px;
-    .transition(~"background 0.2s");
+    .transition(~"background 0.2s, box-shadow 0.2s");
 
     &.active, &.full-screen {
       background: @fl-body-bg;
+    }
+    &.active:not(.full-screen) {
+      box-shadow: 0 2px 6px @fl-shadow-color, 0 0 0 2px @fl-body-primary-color;
     }
     &.minimized {
       height: 50px;
@@ -142,10 +144,10 @@
     }
   }
   .composer-content {
-    padding: 20px 20px 15px;
+    padding: 20px 20px 0;
 
     .minimized & {
-      padding: 10px 20px;
+      padding: 12px 20px;
     }
     .full-screen & {
       max-width: 900px;
@@ -154,24 +156,12 @@
     }
   }
   .composer-handle {
-    height: 20px;
-    margin-bottom: -20px;
+    height: 15px;
+    margin-bottom: -17px;
     position: relative;
 
     .minimized &, .full-screen & {
       display: none;
-    }
-  }
-  .composer-controls {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-
-    & li {
-      display: inline-block;
-    }
-    .minimized & {
-      top: 7px;
     }
   }
   .fa-minus.minimize {
@@ -204,13 +194,12 @@
     margin-left: -20px;
     margin-right: 180px;
 
-    .index-page & {
+    .index-page &:not(.full-screen) {
       margin-left: 205px;
       margin-right: -20px;
     }
   }
 }
-
 
 // ------------------------------------
 // Text Editor
@@ -223,7 +212,7 @@
     resize: none;
     color: @fl-body-color;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.7;
 
     &, &:focus, &[disabled] {
       background: none;
@@ -231,8 +220,8 @@
   }
 }
 .text-editor-controls {
-  margin: 10px 0 0;
-  padding: 0;
+  margin: 0;
+  padding: 15px 0;
   list-style-type: none;
 
   & li {
@@ -240,10 +229,15 @@
   }
 }
 
-// On phones, since one of the text editor controls will probably be the
-// primary-control, we shouldn't hide it completely when it's "disabled".
-@media @phone {
+@media @tablet, @desktop, @desktop-hd {
   .text-editor-controls {
-    opacity: 0.5;
+    margin: 0 -20px 0 -110px;
+    padding: 15px 20px;
+    border-top: 1px solid @fl-body-secondary-color;
+
+    & .btn-primary {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
   }
 }
