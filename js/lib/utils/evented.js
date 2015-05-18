@@ -26,6 +26,17 @@ export default {
   /**
 
    */
+  one(event, handler) {
+    var wrapper = function() {
+      handler.apply(this, arguments);
+      this.off(event, wrapper);
+    };
+    this.getHandlers(event).push(wrapper);
+  },
+
+  /**
+
+   */
   off(event, handler) {
     var handlers = this.getHandlers(event);
     var index = handlers.indexOf(handler);
