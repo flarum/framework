@@ -1,6 +1,9 @@
 import Component from 'flarum/component';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
+import listItems from 'flarum/helpers/list-items';
+import ItemList from 'flarum/utils/item-list';
+import ActionButton from 'flarum/components/action-button';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 
 export default class AvatarEditor extends Component {
@@ -20,11 +23,30 @@ export default class AvatarEditor extends Component {
       m('a.dropdown-toggle[href=javascript:;][data-toggle=dropdown]', {onclick: this.quickUpload.bind(this)}, [
         this.loading() ? LoadingIndicator.component() : icon('pencil icon')
       ]),
-      m('ul.dropdown-menu', [
-        m('li', m('a[href=javascript:;]', {onclick: this.upload.bind(this)}, [icon('upload icon'), ' Upload'])),
-        m('li', m('a[href=javascript:;]', {onclick: this.remove.bind(this)}, [icon('times icon'), ' Remove']))
-      ])
+      m('ul.dropdown-menu', listItems(this.controlItems().toArray()))
     ]);
+  }
+
+  controlItems() {
+    var items = new ItemList();
+
+    items.add('upload',
+      ActionButton.component({
+        icon: 'upload',
+        label: 'Upload',
+        onclick: this.upload.bind(this)
+      })
+    );
+
+    items.add('remove',
+      ActionButton.component({
+        icon: 'times',
+        label: 'Remove',
+        onclick: this.remove.bind(this)
+      })
+    );
+
+    return items;
   }
 
   quickUpload(e) {
