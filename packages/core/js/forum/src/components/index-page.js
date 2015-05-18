@@ -225,6 +225,11 @@ export default class IndexPage extends Component {
   affixSidebar(element, isInitialized) {
     if (isInitialized) { return; }
     var $sidebar = $(element);
+
+    // Don't affix the sidebar if it is taller than the viewport (otherwise
+    // there would be no way to scroll through its content).
+    if ($sidebar.outerHeight(true) > $(window).height() - $('.global-header').outerHeight(true)) return;
+
     $sidebar.find('> ul').affix({
       offset: {
         top: () => $sidebar.offset().top - $('.global-header').outerHeight(true) - parseInt($sidebar.css('margin-top')),
