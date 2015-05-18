@@ -14,11 +14,31 @@ export default function() {
     var composer = this;
     var $container = $('<div class="mentions-dropdown-container"></div>');
     var dropdown = new AutocompleteDropdown({items: []});
+    var typed;
+    var mentionStart;
+    var $textarea = this.$('textarea');
+    var searched = [];
+    var searchTimeout;
 
-    this.$('textarea')
+    var applySuggestion = function(replacement) {
+      replacement += ' ';
+
+      var content = composer.content();
+      composer.editor.setContent(content.substring(0, mentionStart - 1)+replacement+content.substr($textarea[0].selectionStart));
+
+      var index = mentionStart - 1 + replacement.length;
+      composer.editor.setSelectionRange(index, index);
+
+      dropdown.hide();
+    };
+
+    $textarea
       .after($container)
       .on('keydown', dropdown.navigate.bind(dropdown))
-      .on('input', function() {
+      .on('click keyup', function(e) {
+        // Up, down, enter, tab, escape, left, right.
+        if ([9, 13, 27, 40, 38, 37, 39].indexOf(e.which) !== -1) return;
+
         var cursor = this.selectionStart;
 
         if (this.selectionEnd - cursor > 0) return;
@@ -27,7 +47,7 @@ export default function() {
         // intervening whitespace. If we find one, we will want to show the
         // autocomplete dropdown!
         var value = this.value;
-        var mentionStart;
+        mentionStart = 0;
         for (var i = cursor - 1; i >= 0; i--) {
           var character = value.substr(i, 1);
           if (/\s/.test(character)) break;
@@ -40,80 +60,106 @@ export default function() {
         dropdown.hide();
 
         if (mentionStart) {
-          var typed = value.substring(mentionStart, cursor).toLowerCase();
-          var suggestions = [];
+          typed = value.substring(mentionStart, cursor).toLowerCase();
 
-          var applySuggestion = function(replacement) {
-            replacement += ' ';
-
-            var content = composer.content();
-            composer.editor.setContent(content.substring(0, mentionStart - 1)+replacement+content.substr(cursor));
-
-            var index = mentionStart + replacement.length;
-            composer.editor.setSelectionRange(index, index);
-
-            dropdown.hide();
-          };
-
-          var makeSuggestion = function(user, replacement, index, content) {
+          var makeSuggestion = function(user, replacement, content, className) {
             return m('a[href=javascript:;].post-preview', {
+              className,
               onclick: () => applySuggestion(replacement),
-              onmouseover: () => dropdown.setIndex(index)
+              onmouseenter: function() { dropdown.setIndex($(this).parent().index()); }
             }, m('div.post-preview-content', [
               avatar(user),
-              username(user), ' ',
+              (function() {
+                var vdom = username(user);
+                if (typed) {
+                  var regexp = new RegExp(typed, 'gi');
+                  vdom.children[0] = m.trust(
+                    $('<div/>').text(vdom.children[0]).html().replace(regexp, '<mark>$&</mark>')
+                  );
+                }
+                return vdom;
+              })(), ' ',
               content
             ]));
           };
 
-          // If the user is replying to a discussion, or if they are editing a
-          // post, then we can suggest other posts in the discussion to mention.
-          // We will add the 5 most recent comments in the discussion which
-          // match any username characters that have been typed.
-          var composerPost = composer.props.post;
-          var discussion = (composerPost && composerPost.discussion()) || composer.props.discussion;
-          if (discussion) {
-            discussion.posts()
-              .filter(post => post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number()))
-              .sort((a, b) => b.time() - a.time())
-              .filter(post => {
-                var user = post.user();
-                return user && user.username().toLowerCase().substr(0, typed.length) === typed;
-              })
-              .splice(0, 5)
-              .forEach((post, i) => {
-                var user = post.user();
+          var buildSuggestions = () => {
+            var suggestions = [];
+
+            // If the user is replying to a discussion, or if they are editing a
+            // post, then we can suggest other posts in the discussion to mention.
+            // We will add the 5 most recent comments in the discussion which
+            // match any username characters that have been typed.
+            var composerPost = composer.props.post;
+            var discussion = (composerPost && composerPost.discussion()) || composer.props.discussion;
+            if (discussion) {
+              discussion.posts()
+                .filter(post => post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number()))
+                .sort((a, b) => b.time() - a.time())
+                .filter(post => {
+                  var user = post.user();
+                  return user && user.username().toLowerCase().substr(0, typed.length) === typed;
+                })
+                .splice(0, 5)
+                .forEach(post => {
+                  var user = post.user();
+                  suggestions.push(
+                    makeSuggestion(user, '@'+user.username()+'#'+post.number(), [
+                      'Reply to #', post.number(), ' — ',
+                      post.excerpt()
+                    ], 'suggestion-post')
+                  );
+                });
+            }
+
+            // If the user has started to type a username, then suggest users
+            // matching that username.
+            if (typed) {
+              app.store.all('users').forEach(user => {
+                if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
+
                 suggestions.push(
-                  makeSuggestion(user, '@'+user.username()+'#'+post.number(), i, [
-                    'Reply to #', post.number(), ' — ',
-                    post.excerpt()
-                  ])
+                  makeSuggestion(user, '@'+user.username(), '', 'suggestion-user')
                 );
               });
-          }
+            }
 
-          // If the user has started to type a username, then suggest users
-          // matching that username.
-          if (typed) {
-            app.store.all('users').forEach((user, i) => {
-              if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
+            if (suggestions.length) {
+              dropdown.props.items = suggestions;
+              m.render($container[0], dropdown.view());
 
-              suggestions.push(
-                makeSuggestion(user, '@'+user.username(), i, '@mention')
-              );
-            });
-          }
+              dropdown.show();
+              var coordinates = getCaretCoordinates(this, mentionStart);
+              var left = coordinates.left;
+              var top = coordinates.top + 15;
+              var width = dropdown.$().outerWidth();
+              var height = dropdown.$().outerHeight();
+              var parent = dropdown.$().offsetParent();
+              if (top + height > parent.height()) {
+                top = coordinates.top - height - 15;
+              }
+              if (left + width > parent.width()) {
+                left = parent.width() - width;
+              }
+              dropdown.show(left, top);
+            }
+          };
 
-          if (suggestions.length) {
-            dropdown.props.items = suggestions;
-            m.render($container[0], dropdown.view());
+          buildSuggestions();
 
-            var coordinates = getCaretCoordinates(this, mentionStart);
-            dropdown.show(coordinates.left, coordinates.top + 15);
+          dropdown.setIndex(0);
+          dropdown.$().scrollTop(0);
 
-            dropdown.setIndex(0);
-            dropdown.$().scrollTop(0);
-          }
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(function() {
+            var typedLower = typed.toLowerCase();
+            if (searched.indexOf(typedLower) === -1) {
+              app.store.find('users', {q: typed, page: {limit: 5}}).then(users => {
+                if (dropdown.active()) buildSuggestions();
+              });
+              searched.push(typedLower);
+            }
+          }, 250);
         }
       });
   });
