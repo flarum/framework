@@ -85,8 +85,19 @@ export default class AvatarEditor extends Component {
   }
 
   remove() {
-    this.props.user.pushData({avatarUrl: null});
-    delete this.props.user.avatarColor;
+    var self = this;
+    var user = this.props.user;
+    self.loading(true);
     m.redraw();
+    m.request({
+      method: 'DELETE',
+      url: app.config['api_url']+'/users/'+user.id()+'/avatar',
+      config: app.session.authorize.bind(app.session)
+    }).then(function(data) {
+      self.loading(false);
+      app.store.pushPayload(data);
+      delete user.avatarColor;
+      m.redraw();
+    });
   }
 }
