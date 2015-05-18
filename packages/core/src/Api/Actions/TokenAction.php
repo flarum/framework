@@ -7,7 +7,7 @@ use Flarum\Core\Exceptions\PermissionDeniedException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
 
-class TokenAction implements ActionInterface
+class TokenAction extends JsonApiAction
 {
     protected $users;
 
@@ -25,7 +25,7 @@ class TokenAction implements ActionInterface
      * @param \Flarum\Api\Request $request
      * @return \Flarum\Api\Response
      */
-    public function handle(Request $request)
+    public function respond(Request $request)
     {
         $identification = $request->get('identification');
         $password = $request->get('password');
@@ -33,8 +33,7 @@ class TokenAction implements ActionInterface
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            // throw new PermissionDeniedException;
-            return new JsonResponse(null, 401);
+            throw new PermissionDeniedException;
         }
 
         $token = $this->bus->dispatch(

@@ -93,9 +93,10 @@ export default class ComposerReply extends ComposerBody {
           })
         );
       }
-    }, (response) => {
+    }, errors => {
       this.loading(false);
       m.redraw();
+      app.handleApiErrors(errors);
     });
   }
 }

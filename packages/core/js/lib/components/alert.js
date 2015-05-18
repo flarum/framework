@@ -13,7 +13,7 @@ export default class Alert extends Component {
     var message = attrs.message;
     delete attrs.message;
 
-    var controlItems = attrs.controls.slice() || [];
+    var controlItems = attrs.controls ? attrs.controls.slice() : [];
     delete attrs.controls;
 
     if (attrs.dismissible || attrs.dismissible === undefined) {
