@@ -40,7 +40,6 @@ export default class IndexPage extends Component {
 
     app.history.push('index');
     app.current = this;
-    app.composer.minimize();
   }
 
   onunload() {
@@ -142,6 +141,10 @@ export default class IndexPage extends Component {
         }
       }
     }
+  }
+
+  onunload() {
+    app.composer.minimize();
   }
 
   newDiscussion() {
