@@ -22,12 +22,12 @@ export default class PostHeaderUser extends Component {
       m('h3',
         user ? [
           m('a', {href: app.route('user', {username: user.username()}), config: m.route}, [
-            avatar(user),
+            avatar(user), ' ',
             username(user)
           ]),
           m('ul.badges', listItems(user.badges().toArray().reverse()))
         ] : [
-          avatar(),
+          avatar(), ' ',
           username()
         ]
       ),
