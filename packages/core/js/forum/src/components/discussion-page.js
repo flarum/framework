@@ -31,7 +31,7 @@ export default class DiscussionPage extends Component {
     // its posts relationship has been loaded (i.e. we've viewed this
     // discussion before), then we can proceed with displaying it immediately.
     // If not, we'll make an API request first.
-    this.currentNear = m.route.param('near');
+    this.currentNear = m.route.param('near') || 0;
     var params = this.params();
     params.include = params.include.join(',');
     app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
