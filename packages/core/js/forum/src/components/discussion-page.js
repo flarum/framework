@@ -47,7 +47,6 @@ export default class DiscussionPage extends Component {
 
     app.history.push('discussion');
     app.current = this;
-    app.composer.minimize();
   }
 
   params() {
@@ -125,6 +124,7 @@ export default class DiscussionPage extends Component {
     }
 
     app.pane.disable();
+    app.composer.minimize();
   }
 
   /**
