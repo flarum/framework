@@ -31,10 +31,7 @@ export default class DiscussionPage extends Component {
     // its posts relationship has been loaded (i.e. we've viewed this
     // discussion before), then we can proceed with displaying it immediately.
     // If not, we'll make an API request first.
-    this.currentNear = m.route.param('near') || 0;
-    var params = this.params();
-    params.include = params.include.join(',');
-    app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
+    this.refresh();
 
     if (app.cache.discussionList) {
       if (!(app.current instanceof DiscussionPage)) {
@@ -47,6 +44,18 @@ export default class DiscussionPage extends Component {
 
     app.history.push('discussion');
     app.current = this;
+    app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this));
+  }
+
+  refresh() {
+    this.currentNear = m.route.param('near') || 0;
+    this.discussion(null);
+
+    var params = this.params();
+    params.include = params.include.join(',');
+    app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
+
+    m.redraw();
   }
 
   params() {
@@ -127,6 +136,7 @@ export default class DiscussionPage extends Component {
 
     app.pane.disable();
     app.composer.minimize();
+    app.session.off('loggedIn', this.loggedInHandler);
   }
 
   /**
