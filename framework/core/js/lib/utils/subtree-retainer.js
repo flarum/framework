@@ -13,6 +13,7 @@ export default class SubtreeRetainer {
   constructor() {
     this.invalidate();
     this.callbacks = [].slice.call(arguments);
+    this.old = {};
   }
 
   retain() {
@@ -32,6 +33,6 @@ export default class SubtreeRetainer {
   }
 
   invalidate() {
-    this.old = [];
+    this.old = {};
   }
 }
