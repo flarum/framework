@@ -6,6 +6,7 @@ export default class AutocompleteDropdown extends Component {
 
     this.active = m.prop(false);
     this.index = m.prop(0);
+    this.keyWasJustPressed = false;
   }
 
   view() {
@@ -29,13 +30,11 @@ export default class AutocompleteDropdown extends Component {
     if (!this.active()) return;
 
     switch (e.which) {
-      case 40: // Down
-        this.setIndex(this.index() + 1, true);
-        e.preventDefault();
-        break;
-
-      case 38: // Up
-        this.setIndex(this.index() - 1, true);
+      case 40: case 38: // Down/Up
+        this.keyWasJustPressed = true;
+        this.setIndex(this.index() + (e.which === 40 ? 1 : -1), true);
+        clearTimeout(this.keyWasJustPressedTimeout);
+        this.keyWasJustPressedTimeout = setTimeout(() => this.keyWasJustPressed = false, 500);
         e.preventDefault();
         break;
 
@@ -53,6 +52,8 @@ export default class AutocompleteDropdown extends Component {
   }
 
   setIndex(index, scrollToItem) {
+    if (this.keyWasJustPressed && !scrollToItem) return;
+
     var $dropdown = this.$();
     var $items = $dropdown.find('li');
 
