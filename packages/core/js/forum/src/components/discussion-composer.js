@@ -8,7 +8,7 @@ import ActionButton from 'flarum/components/action-button';
   control so the user can enter the title of their discussion. Also overrides
   the `submit` and `willExit` actions to account for the title.
  */
-export default class ComposerDiscussion extends ComposerBody {
+export default class DiscussionComposer extends ComposerBody {
   constructor(props) {
     props.placeholder = props.placeholder || 'Write a post...';
     props.submitLabel = props.submitLabel || 'Post Discussion';

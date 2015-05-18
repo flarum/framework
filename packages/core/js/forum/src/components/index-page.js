@@ -6,7 +6,7 @@ import mixin from 'flarum/utils/mixin';
 
 import DiscussionList from 'flarum/components/discussion-list';
 import WelcomeHero from 'flarum/components/welcome-hero';
-import ComposerDiscussion from 'flarum/components/composer-discussion';
+import DiscussionComposer from 'flarum/components/discussion-composer';
 import LoginModal from 'flarum/components/login-modal';
 import DiscussionPage from 'flarum/components/discussion-page';
 
@@ -148,7 +148,7 @@ export default class IndexPage extends Component {
 
   newDiscussion() {
     if (app.session.user()) {
-      app.composer.load(new ComposerDiscussion({ user: app.session.user() }));
+      app.composer.load(new DiscussionComposer({ user: app.session.user() }));
       app.composer.show();
       return true;
     } else {
