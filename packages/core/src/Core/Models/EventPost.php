@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Models;
 
-abstract class ActivityPost extends Post implements MergeableInterface
+abstract class EventPost extends Post implements MergeableInterface
 {
     use MergeableTrait;
 
