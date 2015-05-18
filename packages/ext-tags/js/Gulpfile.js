@@ -7,7 +7,6 @@ var gulpif = require('gulp-if');
 var babel = require('gulp-babel');
 var cached = require('gulp-cached');
 var remember = require('gulp-remember');
-var merge = require('merge-stream');
 var streamqueue = require('streamqueue');
 
 var staticFiles = [
