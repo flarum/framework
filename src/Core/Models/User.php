@@ -450,7 +450,7 @@ class User extends Model
      */
     public function permissions()
     {
-        return Permission::whereIn('group_id', $this->groups()->lists('id'));
+        return Permission::whereIn('group_id', $this->groups->lists('id'));
     }
 
     /**
