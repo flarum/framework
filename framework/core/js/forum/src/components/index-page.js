@@ -142,6 +142,8 @@ export default class IndexPage extends Component {
         }
       }
     }
+
+    app.setTitle('');
   }
 
   newDiscussion() {
