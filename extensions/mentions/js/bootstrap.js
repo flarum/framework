@@ -4,8 +4,8 @@ import postMentionPreviews from 'mentions/post-mention-previews';
 import mentionedByList from 'mentions/mentioned-by-list';
 import postReplyAction from 'mentions/post-reply-action';
 import composerAutocomplete from 'mentions/composer-autocomplete';
-import NotificationPostMentioned from 'mentions/components/notification-post-mentioned';
-import NotificationUserMentioned from 'mentions/components/notification-user-mentioned';
+import PostMentionedNotification from 'mentions/components/post-mentioned-notification';
+import UserMentionedNotification from 'mentions/components/user-mentioned-notification';
 
 app.initializers.add('mentions', function() {
   // For every mention of a post inside a post's content, set up a hover handler
@@ -24,6 +24,6 @@ app.initializers.add('mentions', function() {
   // posts or users that the user could mention.
   composerAutocomplete();
 
-  app.notificationComponentRegistry['postMentioned'] = NotificationPostMentioned;
-  app.notificationComponentRegistry['userMentioned'] = NotificationUserMentioned;
+  app.notificationComponentRegistry['postMentioned'] = PostMentionedNotification;
+  app.notificationComponentRegistry['userMentioned'] = UserMentionedNotification;
 });

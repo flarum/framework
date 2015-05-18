@@ -1,10 +1,10 @@
 import { extend } from 'flarum/extension-utils';
-import PostComment from 'flarum/components/post-comment';
+import CommentPost from 'flarum/components/comment-post';
 import PostPreview from 'flarum/components/post-preview';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 
 export default function postMentionPreviews() {
-  extend(PostComment.prototype, 'config', function() {
+  extend(CommentPost.prototype, 'config', function() {
     var contentHtml = this.props.post.contentHtml();
     if (contentHtml === this.oldPostContentHtml) return;
     this.oldPostContentHtml = contentHtml;

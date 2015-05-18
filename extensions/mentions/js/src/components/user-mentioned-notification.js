@@ -1,7 +1,7 @@
 import Notification from 'flarum/components/notification';
 import username from 'flarum/helpers/username';
 
-export default class NotificationUserMentioned extends Notification {
+export default class UserMentionedNotification extends Notification {
   view() {
     var notification = this.props.notification;
     var post = notification.subject();
