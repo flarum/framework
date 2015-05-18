@@ -38,7 +38,9 @@ class CoreServiceProvider extends ServiceProvider
 
         $bus->mapUsing(function ($command) {
             return Bus::simpleMapping(
-                $command, 'Flarum\Core\Commands', 'Flarum\Core\Handlers\Commands'
+                $command,
+                'Flarum\Core\Commands',
+                'Flarum\Core\Handlers\Commands'
             );
         });
     }
