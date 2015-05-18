@@ -3,7 +3,9 @@
 use Flarum\Mentions\PostMentionsParser;
 use Flarum\Mentions\PostMentionedNotification;
 use Flarum\Core\Events\PostWasPosted;
-use Flarum\Core\Models\User;
+use Flarum\Core\Events\PostWasRevised;
+use Flarum\Core\Events\PostWasDeleted;
+use Flarum\Core\Models\Post;
 use Flarum\Core\Notifications\Notifier;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -22,14 +24,27 @@ class PostMentionsMetadataUpdater
     public function subscribe(Dispatcher $events)
     {
         $events->listen('Flarum\Core\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
-
-        // @todo listen for post edit/delete events and sync mentions as appropriate
+        $events->listen('Flarum\Core\Events\PostWasRevised', __CLASS__.'@whenPostWasRevised');
+        $events->listen('Flarum\Core\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
     }
 
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $reply = $event->post;
+        $this->syncMentions($event->post);
+    }
 
+    public function whenPostWasRevised(PostWasRevised $event)
+    {
+        $this->syncMentions($event->post);
+    }
+
+    public function whenPostWasDeleted(PostWasDeleted $event)
+    {
+        $event->post->mentionsPosts()->sync([]);
+    }
+
+    protected function syncMentions(Post $reply)
+    {
         $matches = $this->parser->match($reply->content);
 
         $mentioned = $reply->discussion->posts()->with('user')->whereIn('number', array_filter($matches['number']))->get();
