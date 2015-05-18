@@ -4,7 +4,7 @@ import Alert from 'flarum/components/alert';
 import ActionButton from 'flarum/components/action-button';
 import Composer from 'flarum/components/composer';
 
-export default class ComposerReply extends ComposerBody {
+export default class ReplyComposer extends ComposerBody {
   constructor(props) {
     props.placeholder = props.placeholder || 'Write your reply...';
     props.submitLabel = props.submitLabel || 'Post Reply';
@@ -14,7 +14,7 @@ export default class ComposerReply extends ComposerBody {
   }
 
   view() {
-    return super.view('composer-reply');
+    return super.view('reply-composer');
   }
 
   headerItems() {

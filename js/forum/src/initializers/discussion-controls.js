@@ -1,6 +1,6 @@
 import Discussion from 'flarum/models/discussion';
 import DiscussionPage from 'flarum/components/discussion-page';
-import ComposerReply from 'flarum/components/composer-reply';
+import ReplyComposer from 'flarum/components/reply-composer';
 import LoginModal from 'flarum/components/login-modal';
 import ActionButton from 'flarum/components/action-button';
 import Separator from 'flarum/components/separator';
@@ -13,8 +13,8 @@ export default function(app) {
         app.current.streamContent.goToLast();
       }
       var component = app.composer.component;
-      if (!(component instanceof ComposerReply) || component.props.discussion !== this || component.props.user !== app.session.user() || forceRefresh) {
-        component = new ComposerReply({
+      if (!(component instanceof ReplyComposer) || component.props.discussion !== this || component.props.user !== app.session.user() || forceRefresh) {
+        component = new ReplyComposer({
           user: app.session.user(),
           discussion: this
         });

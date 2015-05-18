@@ -4,7 +4,7 @@ import PostHeaderUser from 'flarum/components/post-header-user';
 import PostHeaderMeta from 'flarum/components/post-header-meta';
 import PostHeaderEdited from 'flarum/components/post-header-edited';
 import PostHeaderToggle from 'flarum/components/post-header-toggle';
-import ComposerEdit from 'flarum/components/composer-edit';
+import EditComposer from 'flarum/components/edit-composer';
 import Composer from 'flarum/components/composer';
 import ItemList from 'flarum/utils/item-list';
 import listItems from 'flarum/helpers/list-items';
@@ -14,7 +14,7 @@ import listItems from 'flarum/helpers/list-items';
   (controls, header, and footer) surrounding the post's HTML content. Allows
   the post to be edited with the composer, hidden, or restored.
  */
-export default class PostComment extends Post {
+export default class CommentPost extends Post {
   constructor(props) {
     super(props);
 
@@ -32,11 +32,11 @@ export default class PostComment extends Post {
       m('aside.post-actions', m('ul', listItems(this.actionItems().toArray())))
     ], {
       className: classList({
-        'post-comment': true,
+        'comment-post': true,
         'is-hidden': post.isHidden(),
         'is-edited': post.isEdited(),
         'reveal-content': this.revealContent,
-        'editing': app.composer.component instanceof ComposerEdit &&
+        'editing': app.composer.component instanceof EditComposer &&
           app.composer.component.props.post === this.props.post &&
           app.composer.position() !== Composer.PositionEnum.MINIMIZED
       })
