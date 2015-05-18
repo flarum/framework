@@ -4,35 +4,35 @@ use Illuminate\Container\Container;
 
 class FormatterManager
 {
-	protected $formatters = [];
+    protected $formatters = [];
 
-	/**
-	 * The IoC container instance.
-	 *
-	 * @var \Illuminate\Container\Container
-	 */
-	protected $container;
+    /**
+     * The IoC container instance.
+     *
+     * @var \Illuminate\Container\Container
+     */
+    protected $container;
 
-	/**
-	 * Create a new formatter manager instance.
-	 *
-	 * @param  \Illuminate\Container\Container  $container
-	 * @return void
-	 */
-	public function __construct(Container $container = null)
-	{
-		$this->container = $container ?: new Container;
-	}
+    /**
+     * Create a new formatter manager instance.
+     *
+     * @param  \Illuminate\Container\Container  $container
+     * @return void
+     */
+    public function __construct(Container $container = null)
+    {
+        $this->container = $container ?: new Container;
+    }
 
-	public function add($name, $formatter, $priority = 0)
-	{
-		$this->formatters[$name] = [$formatter, $priority];
-	}
+    public function add($name, $formatter, $priority = 0)
+    {
+        $this->formatters[$name] = [$formatter, $priority];
+    }
 
-	public function remove($name)
-	{
-		unset($this->formatters[$name]);
-	}
+    public function remove($name)
+    {
+        unset($this->formatters[$name]);
+    }
 
     protected function getFormatters()
     {
@@ -54,14 +54,14 @@ class FormatterManager
         return $result;
     }
 
-	public function format($text, $post = null)
-	{
-		foreach ($this->getFormatters() as $formatter) {
-			$text = $this->container->make($formatter)->format($text, $post);
-		}
+    public function format($text, $post = null)
+    {
+        foreach ($this->getFormatters() as $formatter) {
+            $text = $this->container->make($formatter)->format($text, $post);
+        }
 
-		return $text;
-	}
+        return $text;
+    }
 
     public function strip($text)
     {

@@ -20,7 +20,7 @@ class UserSearchResults
         return $this->users;
     }
 
-	public function getTotal()
+    public function getTotal()
     {
         return $this->total;
     }

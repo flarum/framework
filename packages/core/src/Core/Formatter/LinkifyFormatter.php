@@ -11,8 +11,8 @@ class LinkifyFormatter
         $this->linkify = $linkify;
     }
 
-	public function format($text)
-	{
-		return $this->linkify->process($text, ['attr' => ['target' => '_blank']]);
-	}
+    public function format($text)
+    {
+        return $this->linkify->process($text, ['attr' => ['target' => '_blank']]);
+    }
 }

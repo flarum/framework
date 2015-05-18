@@ -121,7 +121,6 @@ class DiscussionsTableSeeder extends Seeder
                         'read_time'     => $faker->dateTimeBetween($discussion->start_time, 'now')
                     ]);
                 } catch (\Illuminate\Database\QueryException $e) {
-
                 }
             }
         }
