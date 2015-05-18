@@ -67,7 +67,7 @@ export default function(app) {
       items.add('separator', Separator.component());
     }
 
-    if (this.canEdit()) {
+    if (this.canRename()) {
       items.add('rename', ActionButton.component({ icon: 'pencil', label: 'Rename', onclick: this.renameAction.bind(this) }));
     }
 

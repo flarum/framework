@@ -30,7 +30,7 @@ Discussion.prototype.lastPost = Model.one('lastPost');
 Discussion.prototype.lastPostNumber = Model.prop('lastPostNumber');
 
 Discussion.prototype.canReply = Model.prop('canReply');
-Discussion.prototype.canEdit = Model.prop('canEdit');
+Discussion.prototype.canRename = Model.prop('canRename');
 Discussion.prototype.canDelete = Model.prop('canDelete');
 
 Discussion.prototype.commentsCount = Model.prop('commentsCount');

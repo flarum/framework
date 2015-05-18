@@ -28,7 +28,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
             'lastTime'       => $discussion->last_time ? $discussion->last_time->toRFC3339String() : null,
             'lastPostNumber' => $discussion->last_post_number,
             'canReply'       => $discussion->can($user, 'reply'),
-            'canEdit'        => $discussion->can($user, 'edit'),
+            'canRename'      => $discussion->can($user, 'rename'),
             'canDelete'      => $discussion->can($user, 'delete'),
 
             'readTime'       => $state && $state->read_time ? $state->read_time->toRFC3339String() : null,
