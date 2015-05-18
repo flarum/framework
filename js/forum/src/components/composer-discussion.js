@@ -10,6 +10,7 @@ import ActionButton from 'flarum/components/action-button';
  */
 export default class ComposerDiscussion extends ComposerBody {
   constructor(props) {
+    props.placeholder = props.placeholder || 'Write a post...';
     props.submitLabel = props.submitLabel || 'Post Discussion';
     props.confirmExit = props.confirmExit || 'You have not posted your discussion. Do you wish to discard it?';
     props.titlePlaceholder = props.titlePlaceholder || 'Discussion Title';
@@ -26,7 +27,7 @@ export default class ComposerDiscussion extends ComposerBody {
     items.add('title', m('h3', m('input', {
       className: 'form-control',
       value: this.title(),
-      onchange: m.withAttr('value', this.title),
+      oninput: m.withAttr('value', this.title),
       placeholder: this.props.titlePlaceholder,
       disabled: !!this.props.disabled,
       config: function(element, isInitialized) {

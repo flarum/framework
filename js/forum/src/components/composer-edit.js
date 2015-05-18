@@ -22,7 +22,11 @@ export default class ComposerEdit extends ComposerBody {
     var items = new ItemList();
     var post = this.props.post;
 
-    items.add('title', m('h3', ['Editing Post #'+post.number()+' in ', m('em', post.discussion().title())]));
+    items.add('title', m('h3', [
+      'Editing ',
+      m('a', {href: app.route.discussion(post.discussion(), post.number()), config: m.route}, 'Post #'+post.number()),
+      ' in ', post.discussion().title()
+    ]));
 
     return items;
   }

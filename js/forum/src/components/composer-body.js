@@ -21,8 +21,8 @@ export default class ComposerBody extends Component {
     });
   }
 
-  view() {
-    return m('div', {config: this.element}, [
+  view(className) {
+    return m('div', {className, config: this.element}, [
       avatar(this.props.user, {className: 'composer-avatar'}),
       m('div.composer-body', [
         m('ul.composer-header', listItems(this.headerItems().toArray())),
