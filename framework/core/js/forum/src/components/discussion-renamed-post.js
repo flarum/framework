@@ -1,6 +1,6 @@
-import PostActivity from 'flarum/components/post-activity';
+import EventPost from 'flarum/components/event-post';
 
-export default class PostDiscussionRenamed extends PostActivity {
+export default class DiscussionRenamedPost extends EventPost {
   view() {
     var post = this.props.post;
     var oldTitle = post.content()[0];

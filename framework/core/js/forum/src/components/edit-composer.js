@@ -8,7 +8,7 @@ import ActionButton from 'flarum/components/action-button';
   content of the post that is being edited, and adds a title control to
   indicate which post is being edited.
  */
-export default class ComposerEdit extends ComposerBody {
+export default class EditComposer extends ComposerBody {
   constructor(props) {
     props.submitLabel = props.submitLabel || 'Save Changes';
     props.confirmExit = props.confirmExit || 'You have not saved your changes. Do you wish to discard them?';

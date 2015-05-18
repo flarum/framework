@@ -5,7 +5,7 @@ import DiscussionList from 'flarum/components/discussion-list';
 import DiscussionHero from 'flarum/components/discussion-hero';
 import StreamContent from 'flarum/components/stream-content';
 import StreamScrubber from 'flarum/components/stream-scrubber';
-import ComposerReply from 'flarum/components/composer-reply';
+import ReplyComposer from 'flarum/components/reply-composer';
 import ActionButton from 'flarum/components/action-button';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 import DropdownSplit from 'flarum/components/dropdown-split';

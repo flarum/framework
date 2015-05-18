@@ -1,13 +1,13 @@
 import Post from 'flarum/models/post';
 import DiscussionPage from 'flarum/components/discussion-page';
-import ComposerEdit from 'flarum/components/composer-edit';
+import EditComposer from 'flarum/components/edit-composer';
 import ActionButton from 'flarum/components/action-button';
 import Separator from 'flarum/components/separator';
 import ItemList from 'flarum/utils/item-list';
 
 export default function(app) {
   function editAction() {
-    app.composer.load(new ComposerEdit({ post: this }));
+    app.composer.load(new EditComposer({ post: this }));
     app.composer.show();
   }
 
