@@ -2,5 +2,15 @@
 
 abstract class Notification
 {
-    abstract public static function getType();
+    /**
+     * Returns the serialized type of this notification.
+     *
+     * This method should be overwritten by subclasses.
+     *
+     * @return string
+     */
+    public static function getType()
+    {
+        return 'notification';
+    }
 }
