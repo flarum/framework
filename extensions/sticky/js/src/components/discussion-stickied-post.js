@@ -1,6 +1,6 @@
-import PostActivity from 'flarum/components/post-activity';
+import EventPost from 'flarum/components/event-post';
 
-export default class PostDiscussionStickied extends PostActivity {
+export default class DiscussionStickiedPost extends EventPost {
   view() {
     var post = this.props.post;
 
