@@ -16,7 +16,8 @@ script:
   - vendor/bin/phpcs --standard=PSR2 -np src
 
 notifications:
-  email: false
+  email:
+    on_failure: change
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/7b9e9827a03b44a16588
