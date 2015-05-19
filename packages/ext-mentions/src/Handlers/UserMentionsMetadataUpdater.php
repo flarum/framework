@@ -31,7 +31,9 @@ class UserMentionsMetadataUpdater
 
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $mentioned = $this->syncMentions($event->post);
+        $post = $event->post;
+
+        $mentioned = $this->syncMentions($post);
 
         // @todo convert this into a new event (UserWasMentioned) and send
         // notification as a handler?

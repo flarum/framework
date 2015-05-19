@@ -30,7 +30,9 @@ class PostMentionsMetadataUpdater
 
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $mentioned = $this->syncMentions($event->post);
+        $reply = $event->post;
+
+        $mentioned = $this->syncMentions($reply);
 
         // @todo convert this into a new event (PostWasMentioned) and send
         // notification as a handler?
