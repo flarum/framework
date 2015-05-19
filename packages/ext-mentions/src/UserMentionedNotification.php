@@ -4,12 +4,15 @@ use Flarum\Core\Models\User;
 use Flarum\Core\Models\Post;
 use Flarum\Core\Notifications\Types\Notification;
 use Flarum\Core\Notifications\Types\AlertableNotification;
+use Flarum\Core\Notifications\Types\EmailableNotification;
 
-class UserMentionedNotification extends Notification implements AlertableNotification
+class UserMentionedNotification extends Notification implements
+    AlertableNotification,
+    EmailableNotification
 {
-    protected $sender;
+    public $sender;
 
-    protected $post;
+    public $post;
 
     public function __construct(User $sender, Post $post)
     {
@@ -30,6 +33,16 @@ class UserMentionedNotification extends Notification implements AlertableNotific
     public function getAlertData()
     {
         return null;
+    }
+
+    public function getEmailView()
+    {
+        return ['text' => 'mentions::emails.userMentioned'];
+    }
+
+    public function getEmailSubject()
+    {
+        return "{$this->sender->username} mentioned you in {$this->post->discussion->title}";
     }
 
     public static function getType()

@@ -4,14 +4,17 @@ use Flarum\Core\Models\User;
 use Flarum\Core\Models\Post;
 use Flarum\Core\Notifications\Types\Notification;
 use Flarum\Core\Notifications\Types\AlertableNotification;
+use Flarum\Core\Notifications\Types\EmailableNotification;
 
-class PostMentionedNotification extends Notification implements AlertableNotification
+class PostMentionedNotification extends Notification implements
+    AlertableNotification,
+    EmailableNotification
 {
-    protected $post;
+    public $post;
 
-    protected $sender;
+    public $sender;
 
-    protected $reply;
+    public $reply;
 
     public function __construct(Post $post, User $sender, Post $reply)
     {
@@ -33,6 +36,16 @@ class PostMentionedNotification extends Notification implements AlertableNotific
     public function getAlertData()
     {
         return ['replyNumber' => $this->reply->number];
+    }
+
+    public function getEmailView()
+    {
+        return ['text' => 'mentions::emails.postMentioned'];
+    }
+
+    public function getEmailSubject()
+    {
+        return "{$this->sender->username} replied to your post in {$this->post->discussion->title}";
     }
 
     public static function getType()
