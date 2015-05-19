@@ -1,4 +1,7 @@
 import app from 'flarum/app';
+import SettingsPage from 'flarum/components/settings-page';
+import { extend } from 'flarum/extension-utils';
+import icon from 'flarum/helpers/icon';
 
 import postMentionPreviews from 'mentions/post-mention-previews';
 import mentionedByList from 'mentions/mentioned-by-list';
@@ -26,4 +29,16 @@ app.initializers.add('mentions', function() {
 
   app.notificationComponentRegistry['postMentioned'] = PostMentionedNotification;
   app.notificationComponentRegistry['userMentioned'] = UserMentionedNotification;
+
+  // Add notification preferences.
+  extend(SettingsPage.prototype, 'notificationTypes', function(items) {
+    items.add('postMentioned', {
+      name: 'postMentioned',
+      label: [icon('reply'), ' Someone replies to my post']
+    });
+    items.add('userMentioned', {
+      name: 'userMentioned',
+      label: [icon('at'), ' Someone mentions me in a post']
+    });
+  });
 });
