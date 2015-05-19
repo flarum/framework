@@ -18,7 +18,7 @@ class ExtensionsServiceProvider extends ServiceProvider
             return;
         }
 
-        $extensions = json_decode(DB::table('config')->where('key', 'extensions_enabled')->pluck('value'), true);
+        $extensions = json_decode(Core::config('extensions_enabled'), true);
         $providers = [];
 
         foreach ($extensions as $extension) {
