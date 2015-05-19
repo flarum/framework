@@ -32,7 +32,7 @@ export default class StreamItem extends Component {
       'data-end': item.end
     };
     if (!gap) {
-      attributes['data-time'] = item.post.time();
+      attributes['data-time'] = item.post.time().toISOString();
       attributes['data-number'] = item.post.number();
     } else {
       attributes['config'] = (element) => {
