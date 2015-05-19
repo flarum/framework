@@ -4,6 +4,7 @@ use Flarum\Core\Events\PostWillBeSaved;
 use Flarum\Core\Repositories\DiscussionRepositoryInterface as DiscussionRepository;
 use Flarum\Core\Models\CommentPost;
 use Flarum\Core\Support\DispatchesEvents;
+use Flarum\Core\Notifications\Notifier;
 
 class PostReplyCommandHandler
 {
@@ -11,9 +12,12 @@ class PostReplyCommandHandler
 
     protected $discussions;
 
-    public function __construct(DiscussionRepository $discussions)
+    protected $notifier;
+
+    public function __construct(DiscussionRepository $discussions, Notifier $notifier)
     {
         $this->discussions = $discussions;
+        $this->notifier = $notifier;
     }
 
     public function handle($command)
@@ -41,7 +45,10 @@ class PostReplyCommandHandler
         event(new PostWillBeSaved($post, $command));
 
         $post->save();
-        $this->dispatchEventsFor($post);
+
+        $this->notifier->onePerUser(function () use ($post) {
+            $this->dispatchEventsFor($post);
+        });
 
         return $post;
     }
