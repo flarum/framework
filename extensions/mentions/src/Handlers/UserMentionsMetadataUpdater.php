@@ -31,7 +31,15 @@ class UserMentionsMetadataUpdater
 
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $this->syncMentions($event->post);
+        $mentioned = $this->syncMentions($event->post);
+
+        // @todo convert this into a new event (UserWasMentioned) and send
+        // notification as a handler?
+        foreach ($mentioned as $user) {
+            if ($user->id !== $post->user->id) {
+                $this->notifier->send(new UserMentionedNotification($post->user, $post), [$user]);
+            }
+        }
     }
 
     public function whenPostWasRevised(PostWasRevised $event)
@@ -51,12 +59,6 @@ class UserMentionsMetadataUpdater
         $mentioned = User::whereIn('username', array_filter($matches['username']))->get();
         $post->mentionsUsers()->sync($mentioned);
 
-        // @todo convert this into a new event (UserWasMentioned) and send
-        // notification as a handler?
-        foreach ($mentioned as $user) {
-            if ($user->id !== $post->user->id) {
-                $this->notifier->send(new UserMentionedNotification($post->user, $post), [$user]);
-            }
-        }
+        return $mentioned;
     }
 }

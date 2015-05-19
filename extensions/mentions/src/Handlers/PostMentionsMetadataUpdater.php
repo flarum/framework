@@ -30,7 +30,15 @@ class PostMentionsMetadataUpdater
 
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $this->syncMentions($event->post);
+        $mentioned = $this->syncMentions($event->post);
+
+        // @todo convert this into a new event (PostWasMentioned) and send
+        // notification as a handler?
+        foreach ($mentioned as $post) {
+            if ($post->user->id !== $reply->user->id) {
+                $this->notifier->send(new PostMentionedNotification($post, $reply->user, $reply), [$post->user]);
+            }
+        }
     }
 
     public function whenPostWasRevised(PostWasRevised $event)
@@ -50,12 +58,6 @@ class PostMentionsMetadataUpdater
         $mentioned = $reply->discussion->posts()->with('user')->whereIn('number', array_filter($matches['number']))->get();
         $reply->mentionsPosts()->sync($mentioned->lists('id'));
 
-        // @todo convert this into a new event (PostWasMentioned) and send
-        // notification as a handler?
-        foreach ($mentioned as $post) {
-            if ($post->user->id !== $reply->user->id) {
-                $this->notifier->send(new PostMentionedNotification($post, $reply->user, $reply), [$post->user]);
-            }
-        }
+        return $mentioned;
     }
 }
