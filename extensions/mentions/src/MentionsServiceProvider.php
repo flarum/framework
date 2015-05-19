@@ -13,6 +13,8 @@ class MentionsServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        $this->loadViewsFrom(__DIR__.'/../views', 'mentions');
+
         $this->extend(
             new EventSubscribers([
                 'Flarum\Mentions\Handlers\PostMentionsMetadataUpdater',
