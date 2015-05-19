@@ -16,10 +16,14 @@ class NotificationEmailer implements NotificationSender
 
     public function send(Notification $notification, User $user)
     {
-        $this->mailer->send($notification->getEmailView(), ['notification' => $notification], function ($message) use ($notification, $recipient) {
-            $message->to($recipient->email, $recipient->username)
-                    ->subject('['.$this->forum->title.'] '.$notification->getEmailSubject());
-        });
+        $this->mailer->send(
+            $notification->getEmailView(),
+            compact('notification', 'user'),
+            function ($message) use ($notification, $user) {
+                $message->to($user->email, $user->username)
+                        ->subject('['.$this->forum->title.'] '.$notification->getEmailSubject());
+            }
+        );
     }
 
     public static function compatibleWith($class)
