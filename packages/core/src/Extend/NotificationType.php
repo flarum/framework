@@ -33,7 +33,7 @@ class NotificationType implements ExtenderInterface
 
         foreach ($notifier->getMethods() as $method => $sender) {
             if ($sender::compatibleWith($class)) {
-                User::registerPreference(User::notificationPreferenceKey($class::getType(), $method), 'boolval', isset($this->enabled[$method]));
+                User::registerPreference(User::notificationPreferenceKey($class::getType(), $method), 'boolval', in_array($method, $this->enabled));
             }
         }
     }
