@@ -4,16 +4,18 @@ use Flarum\Sticky\DiscussionStickiedPost;
 use Flarum\Sticky\DiscussionStickiedNotification;
 use Flarum\Sticky\Events\DiscussionWasStickied;
 use Flarum\Sticky\Events\DiscussionWasUnstickied;
-use Flarum\Core\Notifications\Notifier;
+use Flarum\Core\Notifications\NotificationSyncer;
+use Flarum\Core\Models\Discussion;
+use Flarum\Core\Models\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionStickiedNotifier
 {
-    protected $notifier;
+    protected $notifications;
 
-    public function __construct(Notifier $notifier)
+    public function __construct(NotificationSyncer $notifications)
     {
-        $this->notifier = $notifier;
+        $this->notifications = $notifications;
     }
 
     /**
@@ -29,37 +31,28 @@ class DiscussionStickiedNotifier
 
     public function whenDiscussionWasStickied(DiscussionWasStickied $event)
     {
-        $post = $this->createPost($event->discussion->id, $event->user->id, true);
-
-        $post = $event->discussion->addPost($post);
-
-        if ($event->discussion->start_user_id !== $event->user->id) {
-            $notification = $this->createNotification($event->discussion, $post->user, $post);
-
-            $this->notifier->send($notification, [$post->discussion->startUser]);
-        }
+        $this->stickyChanged($event->discussion, $event->user, true);
     }
 
     public function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
     {
-        $post = $this->createPost($event->discussion->id, $event->user->id, false);
-
-        $event->discussion->addPost($post);
-
-        $this->notifier->retract($this->createNotification($event->discussion, $event->user));
+        $this->stickyChanged($event->discussion, $event->user, false);
     }
 
-    protected function createPost($discussionId, $userId, $isSticky)
+    protected function stickyChanged(Discussion $discussion, User $user, $isSticky)
     {
-        return DiscussionStickiedPost::reply(
-            $discussionId,
-            $userId,
+        $post = DiscussionStickiedPost::reply(
+            $discussion->id,
+            $user->id,
             $isSticky
         );
-    }
 
-    protected function createNotification($discussion, $user, $post = null)
-    {
-        return new DiscussionStickiedNotification($discussion, $user, $post);
+        $post = $discussion->addPost($post);
+
+        if ($discussion->start_user_id !== $user->id) {
+            $notification = new DiscussionStickiedNotification($post);
+
+            $this->notifications->sync($notification, $post->exists ? [$discussion->startUser] : []);
+        }
     }
 }
