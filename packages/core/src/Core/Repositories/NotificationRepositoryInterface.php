@@ -1,6 +1,8 @@
 <?php namespace Flarum\Core\Repositories;
 
+use Flarum\Core\Models\User;
+
 interface NotificationRepositoryInterface
 {
-    public function findByUser($userId, $count = null, $start = 0);
+    public function findByUser(User $user, $count = null, $start = 0);
 }

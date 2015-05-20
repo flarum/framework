@@ -4,9 +4,20 @@ class NotificationSerializer extends BaseSerializer
 {
     /**
      * The resource type.
+     *
      * @var string
      */
     protected $type = 'notifications';
+
+    /**
+     * A map of notification types (key) to the serializer that should be used
+     * to output the notification's subject (value).
+     *
+     * @var array
+     */
+    public static $subjects = [
+        'discussionRenamed' => 'Flarum\Api\Serializers\DiscussionBasicSerializer'
+    ];
 
     /**
      * Serialize attributes of an notification model for JSON output.
@@ -40,9 +51,8 @@ class NotificationSerializer extends BaseSerializer
 
     public function subject()
     {
-        return $this->hasOne([
-            'Flarum\Core\Models\Discussion' => 'Flarum\Api\Serializers\DiscussionSerializer',
-            'Flarum\Core\Models\CommentPost' => 'Flarum\Api\Serializers\PostSerializer'
-        ]);
+        return $this->hasOne(function ($notification) {
+            return static::$subjects[$notification->type];
+        });
     }
 }

@@ -3,16 +3,20 @@
 use Illuminate\Foundation\Application;
 use Flarum\Core\Models\Notification;
 use Flarum\Core\Models\User;
+use Flarum\Api\Serializers\NotificationSerializer;
 
 class NotificationType implements ExtenderInterface
 {
     protected $class;
 
+    protected $serializer;
+
     protected $enabled = [];
 
-    public function __construct($class)
+    public function __construct($class, $serializer)
     {
         $this->class = $class;
+        $this->serializer = $serializer;
     }
 
     public function enableByDefault($method)
@@ -24,17 +28,16 @@ class NotificationType implements ExtenderInterface
 
     public function extend(Application $app)
     {
-        $notifier = $app['flarum.notifier'];
         $class = $this->class;
-
-        $notifier->registerType($class);
 
         Notification::registerType($class);
 
-        foreach ($notifier->getMethods() as $method => $sender) {
-            if ($sender::compatibleWith($class)) {
-                User::registerPreference(User::notificationPreferenceKey($class::getType(), $method), 'boolval', in_array($method, $this->enabled));
-            }
+        User::registerPreference(User::notificationPreferenceKey($class::getType(), 'alert'), 'boolval', in_array('alert', $this->enabled));
+
+        if ($class::isEmailable()) {
+            User::registerPreference(User::notificationPreferenceKey($class::getType(), 'email'), 'boolval', in_array('email', $this->enabled));
         }
+
+        NotificationSerializer::$subjects[$class::getType()] = $this->serializer;
     }
 }

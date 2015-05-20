@@ -8,7 +8,7 @@ export default class DiscussionRenamedNotification extends Notification {
     return super.view({
       href: app.route.discussion(notification.subject(), notification.content().postNumber),
       icon: 'pencil',
-      content: [username(notification.sender()), ' renamed']
+      content: [username(notification.sender()), ' changed the title']
     });
   }
 }
