@@ -129,8 +129,14 @@ export default class IndexPage extends Component {
       $('body').removeClass('index-page');
     }
 
+
+    var heroHeight = this.$('.hero').css('height', '').outerHeight();
     var scrollTop = app.cache.scrollTop;
-    $(window).scrollTop(scrollTop);
+
+    $('.global-page').css('min-height', $(window).height() + heroHeight);
+    $(window).scrollTop(scrollTop - (app.cache.heroHeight - heroHeight));
+
+    app.cache.heroHeight = heroHeight;
 
     if (this.lastDiscussion) {
       var $discussion = this.$('.discussion-summary[data-id='+this.lastDiscussion.id()+']');
