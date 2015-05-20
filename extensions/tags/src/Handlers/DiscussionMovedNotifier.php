@@ -3,16 +3,16 @@
 use Flarum\Categories\DiscussionMovedPost;
 use Flarum\Categories\DiscussionMovedNotification;
 use Flarum\Categories\Events\DiscussionWasMoved;
-use Flarum\Core\Notifications\Notifier;
+use Flarum\Core\Notifications\NotificationSyncer;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionMovedNotifier
 {
-    protected $notifier;
+    protected $notifications;
 
-    public function __construct(Notifier $notifier)
+    public function __construct(NotificationSyncer $notifications)
     {
-        $this->notifier = $notifier;
+        $this->notifications = $notifications;
     }
 
     /**
@@ -27,28 +27,19 @@ class DiscussionMovedNotifier
 
     public function whenDiscussionWasMoved(DiscussionWasMoved $event)
     {
-        $post = $this->createPost($event);
-
-        $post = $event->discussion->addPost($post);
-
-        if ($event->discussion->start_user_id !== $event->user->id) {
-            $notification = new DiscussionMovedNotification($event->discussion, $post->user, $post);
-
-            if ($post->exists) {
-                $this->notifier->send($notification, [$post->discussion->startUser]);
-            } else {
-                $this->notifier->retract($notification);
-            }
-        }
-    }
-
-    protected function createPost(DiscussionWasMoved $event)
-    {
-        return DiscussionMovedPost::reply(
+        $post = DiscussionMovedPost::reply(
             $event->discussion->id,
             $event->user->id,
             $event->oldCategoryId,
             $event->discussion->category_id
         );
+
+        $post = $event->discussion->addPost($post);
+
+        if ($event->discussion->start_user_id !== $event->user->id) {
+            $notification = new DiscussionMovedNotification($post);
+
+            $this->notifications->sync($notification, $post->exists ? [$event->discussion->startUser] : []);
+        }
     }
 }
