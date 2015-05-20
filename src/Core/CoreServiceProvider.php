@@ -16,6 +16,7 @@ use League\Flysystem\Adapter\Local;
 use Flarum\Core\Events\RegisterDiscussionGambits;
 use Flarum\Core\Events\RegisterUserGambits;
 use Flarum\Extend\Permission;
+use Flarum\Extend\NotificationType;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -43,6 +44,12 @@ class CoreServiceProvider extends ServiceProvider
                 'Flarum\Core\Handlers\Commands'
             );
         });
+
+        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
+        $this->extend(
+            (new NotificationType('Flarum\Core\Notifications\DiscussionRenamedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))
+                ->enableByDefault('alert'),
+        );
     }
 
     /**
@@ -52,8 +59,6 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->register('Flarum\Core\Notifications\NotificationServiceProvider');
-
         // Register a singleton entity that represents this forum. This entity
         // will be used to check for global forum permissions (like viewing the
         // forum, registering, and starting discussions.)
@@ -89,6 +94,11 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->when('Flarum\Core\Handlers\Commands\DeleteAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarFilesystem);
+
+        $this->app->bind(
+            'Flarum\Core\Repositories\NotificationRepositoryInterface',
+            'Flarum\Core\Repositories\EloquentNotificationRepository'
+        );
     }
 
     public function registerGambits()

@@ -14,7 +14,7 @@ class CreateNotificationsTable extends Migration
     public function up()
     {
         Schema::create('notifications', function (Blueprint $table) {
-        
+
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->integer('sender_id')->unsigned()->nullable();
@@ -24,6 +24,7 @@ class CreateNotificationsTable extends Migration
             $table->binary('data')->nullable();
             $table->dateTime('time');
             $table->boolean('is_read')->default(0);
+            $table->boolean('is_deleted')->default(0);
         });
     }
 

@@ -1,12 +1,10 @@
-<?php namespace Flarum\Core\Notifications\Senders;
+<?php namespace Flarum\Core\Notifications;
 
-use Flarum\Core\Notifications\Types\Notification;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Forum;
 use Illuminate\Mail\Mailer;
-use ReflectionClass;
 
-class NotificationEmailer implements NotificationSender
+class NotificationMailer
 {
     public function __construct(Mailer $mailer, Forum $forum)
     {
@@ -14,7 +12,7 @@ class NotificationEmailer implements NotificationSender
         $this->forum = $forum;
     }
 
-    public function send(Notification $notification, User $user)
+    public function send(NotificationInterface $notification, User $user)
     {
         $this->mailer->send(
             $notification->getEmailView(),
@@ -24,10 +22,5 @@ class NotificationEmailer implements NotificationSender
                         ->subject('['.$this->forum->title.'] '.$notification->getEmailSubject());
             }
         );
-    }
-
-    public static function compatibleWith($class)
-    {
-        return (new ReflectionClass($class))->implementsInterface('Flarum\Core\Notifications\Types\EmailableNotification');
     }
 }

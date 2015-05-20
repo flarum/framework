@@ -327,7 +327,13 @@ class User extends Model
 
     public function getUnreadNotificationsCount()
     {
-        return $this->notifications()->where('time', '>', $this->notification_read_time ?: 0)->where('is_read', 0)->count(\DB::raw('DISTINCT type, subject_id'));
+        $types = array_keys(Notification::getTypes());
+
+        return $this->notifications()
+            ->whereIn('type', array_filter($types, [$this, 'shouldAlert']))
+            ->where('time', '>', $this->notification_read_time ?: 0)
+            ->where('is_read', 0)
+            ->count(\DB::raw('DISTINCT type, subject_id'));
     }
 
     public function getPreferencesAttribute($value)
@@ -354,14 +360,19 @@ class User extends Model
         ];
     }
 
-    public static function notificationPreferenceKey($type, $sender)
+    public static function notificationPreferenceKey($type, $method)
     {
-        return 'notify_'.$type.'_'.$sender;
+        return 'notify_'.$type.'_'.$method;
     }
 
-    public function shouldNotify($type, $method)
+    public function shouldAlert($type)
     {
-        return $this->preference(static::notificationPreferenceKey($type, $method));
+        return $this->preference(static::notificationPreferenceKey($type, 'alert'));
+    }
+
+    public function shouldEmail($type)
+    {
+        return $this->preference(static::notificationPreferenceKey($type, 'email'));
     }
 
     public function preference($key, $default = null)
