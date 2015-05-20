@@ -17,6 +17,13 @@ class Activity extends Model
     protected $dates = ['time'];
 
     /**
+     *
+     *
+     * @var array
+     */
+    protected static $subjects = [];
+
+    /**
      * Unserialize the data attribute.
      *
      * @param  string  $value
@@ -47,23 +54,27 @@ class Activity extends Model
         return $this->belongsTo('Flarum\Core\Models\User', 'user_id');
     }
 
-    /**
-     * Define the relationship with the activity's sender.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sender()
+    public function subject()
     {
-        return $this->belongsTo('Flarum\Core\Models\User', 'sender_id');
+        return $this->mappedMorphTo(static::$subjects, 'subject', 'type', 'subject_id');
+    }
+
+    public static function getTypes()
+    {
+        return static::$subjects;
     }
 
     /**
-     * Define the relationship with the activity's sender.
+     * Register a notification type.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @param  string $type
+     * @param  string $class
+     * @return void
      */
-    public function post()
+    public static function registerType($class)
     {
-        return $this->belongsTo('Flarum\Core\Models\Post', 'post_id');
+        if ($subject = $class::getSubjectModel()) {
+            static::$subjects[$class::getType()] = $subject;
+        }
     }
 }

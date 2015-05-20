@@ -32,12 +32,9 @@ class IndexAction extends SerializeCollectionAction
      * @var array
      */
     public static $include = [
-        'sender' => true,
-        'post' => true,
-        'post.user' => true,
-        'post.discussion' => true,
-        'post.discussion.startUser' => true,
-        'post.discussion.lastUser' => true
+        'subject' => true,
+        'subject.user' => true,
+        'subject.discussion' => true
     ];
 
     /**
@@ -73,6 +70,7 @@ class IndexAction extends SerializeCollectionAction
 
         $user = $this->users->findOrFail($request->get('users'), $actor);
 
-        return $this->activity->findByUser($user->id, $actor, $request->limit, $request->offset, $request->get('type'));
+        return $this->activity->findByUser($user->id, $actor, $request->limit, $request->offset, $request->get('type'))
+            ->load($request->include);
     }
 }

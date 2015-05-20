@@ -14,11 +14,10 @@ class CreateActivityTable extends Migration
     public function up()
     {
         Schema::create('activity', function (Blueprint $table) {
-        
             $table->increments('id');
             $table->integer('user_id')->unsigned();
-            $table->integer('sender_id')->unsigned()->nullable();
             $table->string('type', 100);
+            $table->integer('subject_id')->unsigned()->nullable();
             $table->binary('data')->nullable();
             $table->dateTime('time');
         });

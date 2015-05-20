@@ -2,7 +2,7 @@ import Component from 'flarum/component';
 import humanTime from 'flarum/helpers/human-time';
 import avatar from 'flarum/helpers/avatar';
 
-export default class JoinActivity extends Component {
+export default class JoinedActivity extends Component {
   view() {
     var activity = this.props.activity;
     var user = activity.user();
