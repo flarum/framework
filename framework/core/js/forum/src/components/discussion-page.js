@@ -38,10 +38,11 @@ export default class DiscussionPage extends mixin(Component, evented) {
     if (app.cache.discussionList) {
       if (!(app.current instanceof DiscussionPage)) {
         app.cache.discussionList.subtrees.map(subtree => subtree.invalidate());
+      } else {
+        m.redraw.strategy('diff'); // otherwise pane redraws (killing retained subtrees) and mouseenter even is triggered so it doesn't hide
       }
       app.pane.enable();
       app.pane.hide();
-      m.redraw.strategy('diff'); // otherwise pane redraws and mouseenter even is triggered so it doesn't hide
     }
 
     app.history.push('discussion');
@@ -57,7 +58,9 @@ export default class DiscussionPage extends mixin(Component, evented) {
     params.include = params.include.join(',');
     app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
 
-    m.redraw();
+    // Trigger a redraw only if we're not already in a computation (e.g. route change)
+    m.startComputation();
+    m.endComputation();
   }
 
   params() {
