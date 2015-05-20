@@ -217,7 +217,7 @@ app.initializers.add('categories', function() {
 
   // Add a category label next to the discussion title in post activity items.
   extend(PostedActivity.prototype, 'headerItems', function(items) {
-    var category = this.props.activity.post().discussion().category();
+    var category = this.props.activity.subject().discussion().category();
     if (category) {
       items.add('category', categoryLabel(category));
     }
