@@ -2,5 +2,5 @@
 
 class UserMentionsParser extends MentionsParserAbstract
 {
-    protected $pattern = '/\B@(?P<username>[a-z0-9_-]+)\b/i';
+    protected $pattern = '/\B@(?P<username>[a-z0-9_-]+)(?!#)/i';
 }
