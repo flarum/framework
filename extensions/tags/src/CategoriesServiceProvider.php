@@ -40,9 +40,11 @@ class CategoriesServiceProvider extends ServiceProvider
 
             new Relationship('Flarum\Core\Models\Discussion', 'belongsTo', 'category', 'Flarum\Categories\Category'),
 
-            new SerializeRelationship('Flarum\Api\Serializers\DiscussionSerializer', 'hasOne', 'category', 'Flarum\Categories\CategorySerializer'),
+            new SerializeRelationship('Flarum\Api\Serializers\DiscussionBasicSerializer', 'hasOne', 'category', 'Flarum\Categories\CategorySerializer'),
 
             new ApiInclude(['discussions.index', 'discussions.show'], 'category', true),
+
+            new ApiInclude(['activity.index'], 'subject.discussion.category', true),
 
             (new Permission('discussion.move'))
                 ->serialize()
