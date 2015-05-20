@@ -8,6 +8,7 @@ use Flarum\Extend\SerializeRelationship;
 use Flarum\Extend\ApiInclude;
 use Flarum\Extend\Formatter;
 use Flarum\Extend\NotificationType;
+use Flarum\Extend\ActivityType;
 
 class MentionsServiceProvider extends ServiceProvider
 {
@@ -54,9 +55,15 @@ class MentionsServiceProvider extends ServiceProvider
 
             new Formatter('userMentions', 'Flarum\Mentions\UserMentionsFormatter'),
 
-            (new NotificationType('Flarum\Mentions\PostMentionedNotification'))->enableByDefault('alert'),
+            new ActivityType('Flarum\Mentions\PostMentionedActivity', 'Flarum\Api\Serializers\PostBasicSerializer'),
 
-            (new NotificationType('Flarum\Mentions\UserMentionedNotification'))->enableByDefault('alert')
+            new ActivityType('Flarum\Mentions\UserMentionedActivity', 'Flarum\Api\Serializers\PostBasicSerializer'),
+
+            (new NotificationType('Flarum\Mentions\PostMentionedNotification', 'Flarum\Api\Serializers\PostBasicSerializer'))
+                ->enableByDefault('alert'),
+
+            (new NotificationType('Flarum\Mentions\UserMentionedNotification', 'Flarum\Api\Serializers\PostBasicSerializer'))
+                ->enableByDefault('alert')
         );
     }
 }
