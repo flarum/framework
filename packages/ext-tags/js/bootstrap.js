@@ -10,7 +10,7 @@ import ActionButton from 'flarum/components/action-button';
 import NavItem from 'flarum/components/nav-item';
 import DiscussionComposer from 'flarum/components/discussion-composer';
 import SettingsPage from 'flarum/components/settings-page';
-import PostActivity from 'flarum/components/post-activity';
+import PostedActivity from 'flarum/components/posted-activity';
 import icon from 'flarum/helpers/icon';
 import app from 'flarum/app';
 
@@ -216,7 +216,7 @@ app.initializers.add('categories', function() {
   // ---------------------------------------------------------------------------
 
   // Add a category label next to the discussion title in post activity items.
-  extend(PostActivity.prototype, 'headerItems', function(items) {
+  extend(PostedActivity.prototype, 'headerItems', function(items) {
     var category = this.props.activity.post().discussion().category();
     if (category) {
       items.add('category', categoryLabel(category));
