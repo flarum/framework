@@ -52,10 +52,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->extend(
             (new NotificationType('Flarum\Core\Notifications\DiscussionRenamedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))
                 ->enableByDefault('alert'),
-
             (new ActivityType('Flarum\Core\Activity\PostedActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
             (new ActivityType('Flarum\Core\Activity\StartedDiscussionActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
-
             (new ActivityType('Flarum\Core\Activity\JoinedActivity', 'Flarum\Api\Serializers\UserBasicSerializer'))
         );
     }
