@@ -13,8 +13,8 @@ export default function(app) {
 
     'user':             ['/u/:username', ActivityPage.component()],
     'user.activity':    ['/u/:username', ActivityPage.component()],
-    'user.discussions': ['/u/:username/discussions', ActivityPage.component({filter: 'discussion'})],
-    'user.posts':       ['/u/:username/posts', ActivityPage.component({filter: 'post'})],
+    'user.discussions': ['/u/:username/discussions', ActivityPage.component({filter: 'startedDiscussion'})],
+    'user.posts':       ['/u/:username/posts', ActivityPage.component({filter: 'posted'})],
 
     'settings':         ['/settings', SettingsPage.component()]
   };

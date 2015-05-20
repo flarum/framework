@@ -16,6 +16,7 @@ use League\Flysystem\Adapter\Local;
 use Flarum\Core\Events\RegisterDiscussionGambits;
 use Flarum\Core\Events\RegisterUserGambits;
 use Flarum\Extend\Permission;
+use Flarum\Extend\ActivityType;
 use Flarum\Extend\NotificationType;
 
 class CoreServiceProvider extends ServiceProvider
@@ -46,9 +47,16 @@ class CoreServiceProvider extends ServiceProvider
         });
 
         $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
+        $events->subscribe('Flarum\Core\Handlers\Events\UserActivitySyncer');
+
         $this->extend(
             (new NotificationType('Flarum\Core\Notifications\DiscussionRenamedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))
                 ->enableByDefault('alert'),
+
+            (new ActivityType('Flarum\Core\Activity\PostedActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
+            (new ActivityType('Flarum\Core\Activity\StartedDiscussionActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
+
+            (new ActivityType('Flarum\Core\Activity\JoinedActivity', 'Flarum\Api\Serializers\UserBasicSerializer'))
         );
     }
 

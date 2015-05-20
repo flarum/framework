@@ -4,11 +4,11 @@ import avatar from 'flarum/helpers/avatar';
 import listItems from 'flarum/helpers/list-items';
 import ItemList from 'flarum/utils/item-list';
 
-export default class PostActivity extends Component {
+export default class PostedActivity extends Component {
   view() {
     var activity = this.props.activity;
     var user = activity.user();
-    var post = activity.post();
+    var post = activity.subject();
     var discussion = post.discussion();
 
     return m('div', [
@@ -23,7 +23,7 @@ export default class PostActivity extends Component {
         near: post.number()
       }), config: m.route}, [
         m('ul.list-inline', listItems(this.headerItems().toArray())),
-        m('div.body', m.trust(post.contentHtml()))
+        m('div.body', m.trust(post.excerpt()))
       ])
     ]);
   }
@@ -31,7 +31,7 @@ export default class PostActivity extends Component {
   headerItems() {
     var items = new ItemList();
 
-    items.add('title', m('h3.title', this.props.activity.post().discussion().title()));
+    items.add('title', m('h3.title', this.props.activity.subject().discussion().title()));
 
     return items;
   }

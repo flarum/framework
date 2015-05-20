@@ -10,6 +10,17 @@ class ActivitySerializer extends BaseSerializer
     protected $type = 'activity';
 
     /**
+     * A map of activity types (key) to the serializer that should be used to
+     * output the activity's subject (value).
+     *
+     * @var array
+     */
+    public static $subjects = [
+        'posted' => 'Flarum\Api\Serializers\PostBasicSerializer',
+        'joined' => 'Flarum\Api\Serializers\UserBasicSerializer'
+    ];
+
+    /**
      * Serialize attributes of an Activity model for JSON output.
      *
      * @param Activity $activity The Activity model to serialize.
@@ -18,9 +29,7 @@ class ActivitySerializer extends BaseSerializer
     protected function attributes($activity)
     {
         $attributes = [
-            'id'   => ((int) $activity->id) ?: str_random(5),
             'contentType' => $activity->type,
-            'content' => json_encode($activity->data),
             'time' => $activity->time->toRFC3339String()
         ];
 
@@ -37,8 +46,10 @@ class ActivitySerializer extends BaseSerializer
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
-    public function post()
+    public function subject()
     {
-        return $this->hasOne('Flarum\Api\Serializers\PostSerializer');
+        return $this->hasOne(function ($activity) {
+            return static::$subjects[$activity->type];
+        });
     }
 }
