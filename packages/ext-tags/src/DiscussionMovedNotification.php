@@ -1,39 +1,29 @@
 <?php namespace Flarum\Categories;
 
-use Flarum\Core\Models\User;
-use Flarum\Core\Models\Discussion;
-use Flarum\Core\Models\Notification as NotificationModel;
-use Flarum\Core\Notifications\Types\Notification;
-use Flarum\Core\Notifications\Types\AlertableNotification;
+use Flarum\Core\Notifications\NotificationAbstract;
 
-class DiscussionMovedNotification extends Notification implements AlertableNotification
+class DiscussionMovedNotification extends NotificationAbstract
 {
-    protected $discussion;
-
-    protected $sender;
-
     protected $post;
 
-    public function __construct(Discussion $discussion, User $sender, DiscussionMovedPost $post = null)
+    public function __construct(DiscussionMovedPost $post)
     {
-        $this->discussion = $discussion;
-        $this->sender = $sender;
         $this->post = $post;
     }
 
     public function getSubject()
     {
-        return $this->discussion;
+        return $this->post->discussion;
     }
 
     public function getSender()
     {
-        return $this->sender;
+        return $this->post->user;
     }
 
-    public function getAlertData()
+    public function getData()
     {
-        return ['postNumber' => $this->post->number];
+        return ['postNumber' => (int) $this->post->number];
     }
 
     public static function getType()

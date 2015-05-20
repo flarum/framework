@@ -36,7 +36,7 @@ class CategoriesServiceProvider extends ServiceProvider
 
             new DiscussionGambit('Flarum\Categories\CategoryGambit'),
 
-            (new NotificationType('Flarum\Categories\DiscussionMovedNotification'))->enableByDefault('alert'),
+            (new NotificationType('Flarum\Categories\DiscussionMovedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))->enableByDefault('alert'),
 
             new Relationship('Flarum\Core\Models\Discussion', 'belongsTo', 'category', 'Flarum\Categories\Category'),
 
