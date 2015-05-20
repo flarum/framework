@@ -125,7 +125,10 @@ export default class DiscussionList extends Component {
           var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
 
           var subtree = this.subtrees[discussion.id()];
-          return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {key: discussion.id(), 'data-id': discussion.id()}, (subtree && subtree.retain()) || m('div', [
+          return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {
+            key: discussion.id(),
+            'data-id': discussion.id()
+          }, (subtree && subtree.retain()) || m('div', [
             controls.length ? DropdownButton.component({
               items: controls,
               className: 'contextual-controls',
