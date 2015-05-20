@@ -34,7 +34,7 @@ class StickyServiceProvider extends ServiceProvider
 
             new DiscussionGambit('Flarum\Sticky\StickyGambit'),
 
-            (new NotificationType('Flarum\Sticky\DiscussionStickiedNotification'))->enableByDefault('alert'),
+            (new NotificationType('Flarum\Sticky\DiscussionStickiedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))->enableByDefault('alert'),
 
             new Permission('discussion.sticky')
         );
