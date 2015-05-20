@@ -1,21 +1,22 @@
 import CommentPost from 'flarum/components/comment-post';
 import DiscussionRenamedPost from 'flarum/components/discussion-renamed-post';
-import PostActivity from 'flarum/components/post-activity';
-import JoinActivity from 'flarum/components/join-activity';
+import PostedActivity from 'flarum/components/posted-activity';
+import JoinedActivity from 'flarum/components/joined-activity';
 import DiscussionRenamedNotification from 'flarum/components/discussion-renamed-notification';
 
 export default function(app) {
   app.postComponentRegistry = {
-    comment: CommentPost,
-    discussionRenamed: DiscussionRenamedPost
+    'comment': CommentPost,
+    'discussionRenamed': DiscussionRenamedPost
   };
 
   app.activityComponentRegistry = {
-    post: PostActivity,
-    join: JoinActivity
+    'posted': PostedActivity,
+    'startedDiscussion': PostedActivity,
+    'joined': JoinedActivity
   };
 
   app.notificationComponentRegistry = {
-    discussionRenamed: DiscussionRenamedNotification
+    'discussionRenamed': DiscussionRenamedNotification
   };
 }

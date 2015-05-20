@@ -1,39 +1,22 @@
 <?php namespace Flarum\Core\Repositories;
 
 use Flarum\Core\Models\Activity;
-use Flarum\Core\Models\Post;
 use Flarum\Core\Models\User;
 
 class EloquentActivityRepository implements ActivityRepositoryInterface
 {
-    public function findByUser($userId, User $viewer, $count = null, $start = 0, $type = null)
+    public function findByUser($userId, User $viewer, $limit = null, $offset = 0, $type = null)
     {
-        // This is all very rough and needs to be cleaned up
+        $query = Activity::where('user_id', $userId)
+            ->whereIn('type', array_keys(Activity::getTypes()))
+            ->orderBy('time', 'desc')
+            ->skip($offset)
+            ->take($limit);
 
-        $null = \DB::raw('NULL');
-        $query = Activity::with('sender')->select('id', 'user_id', 'sender_id', 'type', 'data', 'time', \DB::raw('NULL as post_id'))->where('user_id', $userId);
-
-        if ($type) {
+        if ($type !== null) {
             $query->where('type', $type);
         }
 
-        $posts = Post::whereCan($viewer, 'view')->with('post', 'post.discussion', 'post.user', 'post.discussion.startUser', 'post.discussion.lastUser')->select(\DB::raw("CONCAT('post', id)"), 'user_id', $null, \DB::raw("'post'"), $null, 'time', 'id')->where('user_id', $userId)->where('type', 'comment')->whereNull('hide_time');
-
-        if ($type === 'post') {
-            $posts->where('number', '>', 1);
-        } elseif ($type === 'discussion') {
-            $posts->where('number', 1);
-        }
-
-        if (!$type) {
-            $join = User::select(\DB::raw("CONCAT('join', id)"), 'id', 'id', \DB::raw("'join'"), $null, 'join_time', $null)->where('id', $userId);
-            $query->union($join->getQuery());
-        }
-
-        return $query->union($posts->getQuery())
-            ->orderBy('time', 'desc')
-            ->skip($start)
-            ->take($count)
-            ->get();
+        return $query->get();
     }
 }
