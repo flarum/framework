@@ -2,15 +2,17 @@
 
 use Flarum\Core\Events\DiscussionWasRenamed;
 use Flarum\Core\Models\DiscussionRenamedPost;
-use Flarum\Core\Notifications\Types\DiscussionRenamedNotification;
-use Flarum\Core\Notifications\Notifier;
+use Flarum\Core\Notifications\DiscussionRenamedNotification;
+use Flarum\Core\Notifications\NotificationSyncer;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionRenamedNotifier
 {
-    public function __construct(Notifier $notifier)
+    protected $notifications;
+
+    public function __construct(NotificationSyncer $notifications)
     {
-        $this->notifier = $notifier;
+        $this->notifications = $notifications;
     }
 
     /**
@@ -25,28 +27,19 @@ class DiscussionRenamedNotifier
 
     public function whenDiscussionWasRenamed(DiscussionWasRenamed $event)
     {
-        $post = $this->createPost($event);
-
-        $post = $event->discussion->addPost($post);
-
-        if ($event->discussion->start_user_id !== $event->user->id) {
-            $notification = new DiscussionRenamedNotification($event->discussion, $post->user, $post);
-
-            if ($post->exists) {
-                $this->notifier->send($notification, [$post->discussion->startUser]);
-            } else {
-                $this->notifier->retract($notification);
-            }
-        }
-    }
-
-    protected function createPost(DiscussionWasRenamed $event)
-    {
-        return DiscussionRenamedPost::reply(
+        $post = DiscussionRenamedPost::reply(
             $event->discussion->id,
             $event->user->id,
             $event->oldTitle,
             $event->discussion->title
         );
+
+        $post = $event->discussion->addPost($post);
+
+        if ($event->discussion->start_user_id !== $event->user->id) {
+            $notification = new DiscussionRenamedNotification($post);
+
+            $this->notifications->sync($notification, $post->exists ? [$event->discussion->startUser] : []);
+        }
     }
 }

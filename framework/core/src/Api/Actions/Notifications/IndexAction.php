@@ -73,6 +73,6 @@ class IndexAction extends SerializeCollectionAction
 
         $user->markNotificationsAsRead()->save();
 
-        return $this->notifications->findByUser($user->id, $request->limit, $request->offset);
+        return $this->notifications->findByUser($user, $request->limit, $request->offset);
     }
 }

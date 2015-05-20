@@ -64,9 +64,8 @@ abstract class BaseSerializer extends SerializerAbstract
                 }
             }
 
-            if (is_array($serializer)) {
-                $class = get_class(is_object($data) ? $data : $model->$relation()->getRelated());
-                $serializer = $serializer[$class];
+            if ($serializer instanceof Closure) {
+                $serializer = $serializer($model, $data);
             }
             $serializer = new $serializer($this->actor, $links);
             return $many ? $serializer->collection($data) : $serializer->resource($data);
