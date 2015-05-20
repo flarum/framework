@@ -3,7 +3,7 @@
 use Flarum\Api\Request;
 use Illuminate\Http\Response;
 
-abstract class DeleteAction implements ActionInterface
+abstract class DeleteAction extends JsonApiAction
 {
     /**
      * Delegate deletion of the resource, and return a 204 No Content
