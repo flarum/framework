@@ -213,6 +213,13 @@ class Composer extends Component {
 
   load(component) {
     if (!this.preventExit()) {
+      // If we load a similar component into the composer, then Mithril will be
+      // able to diff the old/new contents and some DOM-related state from the
+      // old composer will remain. To prevent this from happening, we clear the
+      // component and force a redraw, so that the new component will be working
+      // on a blank slate.
+      this.component = null;
+      m.redraw(true);
       this.component = component;
     }
   }
