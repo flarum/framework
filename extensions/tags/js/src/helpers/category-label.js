@@ -3,10 +3,10 @@ export default function categoryLabel(category, attrs) {
 
   if (category) {
     attrs.style = attrs.style || {};
-    attrs.style[attrs.inverted ? 'color' : 'backgroundColor'] = category.color();
+    attrs.style.backgroundColor = attrs.style.color = category.color();
   } else {
     attrs.className = (attrs.className || '')+' uncategorized';
   }
 
-  return m('span.category-label', attrs, category ? category.title() : 'Uncategorized');
+  return m('span.category-label', attrs, m('span.category-label-text', category ? category.title() : 'Uncategorized'));
 }
