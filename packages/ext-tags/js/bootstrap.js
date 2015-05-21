@@ -125,7 +125,7 @@ app.initializers.add('categories', function() {
   extend(DiscussionHero.prototype, 'view', function(view) {
     var category = this.props.discussion.category();
     if (category) {
-      view.attrs.style = 'background-color: '+category.color();
+      view.attrs.style = 'color: #fff; background-color: '+category.color();
     }
   });
 
@@ -134,7 +134,7 @@ app.initializers.add('categories', function() {
   extend(DiscussionHero.prototype, 'items', function(items) {
     var category = this.props.discussion.category();
     if (category) {
-      items.add('category', categoryLabel(category, {inverted: true}), {before: 'title'});
+      items.add('category', categoryLabel(category), {before: 'title'});
       items.title.content.wrapperClass = 'block-item';
     }
   });

@@ -3,13 +3,16 @@
   font-size: 80%;
   font-weight: 600;
   display: inline-block;
-  color: #fff;
   padding: 0.1em 0.45em;
   border-radius: 4px;
 
   &.uncategorized {
     border: 1px dotted @fl-body-muted-color;
     color: @fl-body-muted-color;
+  }
+
+  & .category-label-text {
+    color: #fff !important;
   }
 
   .discussion-summary & {
@@ -19,8 +22,12 @@
 
   .discussion-hero & {
     font-size: 14px;
-    background: #fff;
+    background: #fff !important;
     padding: 2px 6px;
+
+    & .category-label-text {
+      color: inherit !important;
+    }
   }
 
   .discussion-moved-post & {
