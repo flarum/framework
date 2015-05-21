@@ -197,8 +197,10 @@ class CoreServiceProvider extends ServiceProvider
         // someone else.
         Post::grantPermission('edit', function ($grant, $user) {
             $grant->where('user_id', $user->id)
-                  ->whereNull('hide_user_id')
-                  ->orWhere('hide_user_id', $user->id);
+                  ->where(function ($query) use ($user) {
+                    $query->whereNull('hide_user_id')
+                          ->orWhere('hide_user_id', $user->id);
+                  });
             // @todo add limitations to time etc. according to a config setting
         });
 
