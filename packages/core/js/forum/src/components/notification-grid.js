@@ -72,10 +72,8 @@ export default class NotificationGrid extends Component {
     var enabled = !preferences[keys[0]];
     keys.forEach(key => {
       var control = this.inputs[key];
-      if (!control.props.disabled) {
-        control.loading(true);
-        preferences[key] = control.props.state = enabled;
-      }
+      control.loading(true);
+      preferences[key] = control.props.state = enabled;
     });
     m.redraw();
 
@@ -86,12 +84,12 @@ export default class NotificationGrid extends Component {
   }
 
   toggleMethod(method) {
-    var keys = this.props.types.map(type => this.key(type.name, method));
+    var keys = this.props.types.map(type => this.key(type.name, method)).filter(key => !this.inputs[key].props.disabled);
     this.toggle(keys);
   }
 
   toggleType(type) {
-    var keys = this.methods.map(method => this.key(type, method.name));
+    var keys = this.methods.map(method => this.key(type, method.name)).filter(key => !this.inputs[key].props.disabled);
     this.toggle(keys);
   }
 }
