@@ -60,7 +60,7 @@ export default function(app) {
 
     if (context instanceof DiscussionPage) {
       items.add('reply', !app.session.user() || this.canReply()
-        ? ActionButton.component({ icon: 'reply', label: app.session.user() ? 'Reply' : 'Log In to Reply', onclick: this.replyAction.bind(this, true) })
+        ? ActionButton.component({ icon: 'reply', label: app.session.user() ? 'Reply' : 'Log In to Reply', onclick: this.replyAction.bind(this, true, false) })
         : ActionButton.component({ icon: 'reply', label: 'Can\'t Reply', className: 'disabled', title: 'You don\'t have permission to reply to this discussion.' })
       );
 
