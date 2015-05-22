@@ -43,11 +43,7 @@ export default class ComposerBody extends Component {
     this.ready(true);
     m.redraw();
 
-    var $input = this.$().find(':input:enabled:visible:first');
-    if ($input.length) {
-      $input.focus();
-      $input[0].selectionStart = $input[0].selectionEnd = $input.val().length;
-    }
+    this.$(':input:enabled:visible:first').focus();
   }
 
   preventExit() {
