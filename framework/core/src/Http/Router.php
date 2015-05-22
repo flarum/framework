@@ -71,7 +71,7 @@ class Router
         $routeData = $this->routeParser->parse($path);
         $this->dataGenerator->addRoute($method, $routeData, $handler);
 
-        $routeDate['method'] = $method;
+        $routeData['method'] = $method;
         $this->reverse[$name] = $routeData;
 
         return $this;
