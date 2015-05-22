@@ -218,8 +218,10 @@ class Composer extends Component {
       // old composer will remain. To prevent this from happening, we clear the
       // component and force a redraw, so that the new component will be working
       // on a blank slate.
-      this.component = null;
-      m.redraw(true);
+      if (this.component) {
+        this.clear();
+        m.redraw(true);
+      }
       this.component = component;
     }
   }
