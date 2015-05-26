@@ -38,9 +38,9 @@ class EmailConfirmationMailer
             'url' => route('flarum.forum.confirm', ['id' => $user->id, 'token' => $user->confirmation_token])
         ];
 
-        $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user, $forumTitle) {
+        $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user) {
             $message->to($user->email);
-            $message->subject('['.$forumTitle.'] Email Address Confirmation');
+            $message->subject('Email Address Confirmation');
         });
     }
 

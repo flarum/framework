@@ -214,7 +214,7 @@ class CoreServiceProvider extends ServiceProvider
         });
 
         // Allow a user to edit their own account.
-        User::grantPermission('edit', function ($grant, $user) {
+        User::grantPermission(['edit', 'delete'], function ($grant, $user) {
             $grant->where('id', $user->id);
         });
 
