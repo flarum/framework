@@ -10,11 +10,7 @@ class RegisterUserCommandHandler
 
     public function handle($command)
     {
-        // Assert the the current user has permission to create a user. In the
-        // case of a guest trying to register an account, this will depend on
-        // whether or not registration is open. If the user is an admin, though,
-        // it will be allowed.
-        $command->forum->assertCan($command->user, 'register');
+        // @todo check whether or not registration is open (config)
 
         // Create a new User entity, persist it, and dispatch domain events.
         // Before persistance, though, fire an event to give plugins an
