@@ -79,7 +79,10 @@ export default class DiscussionList extends Component {
   }
 
   initSubtree(discussion) {
-    this.subtrees[discussion.id()] = new SubtreeRetainer(() => discussion.freshness);
+    this.subtrees[discussion.id()] = new SubtreeRetainer(
+      () => discussion.freshness,
+      () => app.session.user() && app.session.user().readTime()
+    );
   }
 
   parseResults(results) {
