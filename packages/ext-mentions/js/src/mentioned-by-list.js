@@ -63,8 +63,10 @@ export default function mentionedByList() {
       // replied twice, they will only be in this array once.
       var used = [];
       var repliers = replies.filter(reply => {
-        if (used.indexOf(reply.user().id()) === -1) {
-          used.push(reply.user().id());
+        var user = reply.user();
+        var id = user && user.id();
+        if (used.indexOf(id) === -1) {
+          used.push(id);
           return true;
         }
       });
@@ -79,7 +81,7 @@ export default function mentionedByList() {
                 onclick: hidePreview,
                 'data-number': reply.number()
               }, [
-                reply.user() === app.session.user() ? 'You' : username(reply.user())
+                app.session.user() && reply.user() === app.session.user() ? 'You' : username(reply.user())
               ])
             })),
             ' replied to this.'
