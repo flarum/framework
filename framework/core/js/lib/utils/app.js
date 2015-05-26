@@ -18,11 +18,12 @@ class App {
   }
 
   request(options) {
-    options.extract = options.extract || function(xhr, xhrOptions) {
+    var extract = options.extract;
+    options.extract = function(xhr, xhrOptions) {
       if (xhr.status === 500) {
         throw new ServerError;
       }
-      return xhr.responseText;
+      return extract ? extract(xhr.responseText) : (xhr.responseText.length === 0 ? null : xhr.responseText);
     };
 
     return m.request(options).then(response => {

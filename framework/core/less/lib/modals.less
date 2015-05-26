@@ -10,13 +10,33 @@
 }
 .modal-alert {
   text-align: center;
+
+  & .alert {
+    border-radius: 0;
+  }
 }
 .modal-body {
   background-color: @fl-body-secondary-color;
-  padding: 25px;
+  padding: 25px 30px;
+  color: @fl-body-muted-color;
 
   & .form-control {
     background-color: #fff;
+    color: @fl-body-color;
+
+    &:focus {
+      border: 2px solid @fl-body-primary-color;
+    }
+  }
+
+  & .help-text {
+    font-size: 14px;
+    line-height: 1.5em;
+    margin-bottom: 25px;
+  }
+
+  & :last-child {
+    margin-bottom: 0;
   }
 }
 .modal-footer {
@@ -46,9 +66,11 @@
   text-align: center;
 
   & .form-control, & .btn {
-    width: 220px;
     margin: 0 auto;
     text-align: center;
+    height: 50px;
+    padding: 15px 20px;
+    font-size: 15px;
   }
 }
 
@@ -108,8 +130,8 @@
 
     & .close {
       position: absolute;
-      right: 5px;
-      top: 5px;
+      right: 10px;
+      top: 10px;
       z-index: 1;
     }
   }
@@ -117,6 +139,7 @@
     border: 0;
     border-radius: @border-radius-base;
     .box-shadow(0 7px 15px @fl-shadow-color);
+    overflow: hidden;
   }
   .modal-sm {
     width: 375px;
@@ -127,7 +150,7 @@
     padding: 25px;
 
     & h3 {
-      font-size: 22px;
+      font-size: 20px;
       margin: 0;
     }
   }
