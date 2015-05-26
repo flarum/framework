@@ -12,6 +12,7 @@ export default class ActivityPage extends UserPage {
     this.loading = m.prop(true);
     this.moreResults = m.prop(false);
     this.activity = m.prop([]);
+    this.loadLimit = 20;
 
     var username = m.route.param('username').toLowerCase();
     var users = app.store.all('users');
@@ -46,7 +47,7 @@ export default class ActivityPage extends UserPage {
   loadResults(offset) {
     return app.store.find('activity', {
       users: this.user().id(),
-      page: {offset},
+      page: {offset, limit: this.loadLimit},
       type: this.props.filter
     })
   }
@@ -60,7 +61,7 @@ export default class ActivityPage extends UserPage {
   parseResults(results, append) {
     this.loading(false);
     [].push.apply(this.activity(), results);
-    this.moreResults(!!results.length);
+    this.moreResults(results.length >= this.loadLimit);
     m.redraw();
     return results;
   }
