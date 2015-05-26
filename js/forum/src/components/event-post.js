@@ -7,6 +7,7 @@ import { dasherize } from 'flarum/utils/string';
 export default class EventPost extends Post {
   view(iconName, content, attrs) {
     var post = this.props.post;
+    var user = post.user();
 
     attrs = attrs || {};
     attrs.className = 'event-post post-'+dasherize(post.contentType())+' '+(attrs.className || '');
@@ -14,7 +15,7 @@ export default class EventPost extends Post {
     return super.view([
       icon(iconName+' post-icon'),
       m('div.event-post-info', [
-        m('a.post-user', {href: app.route('user', { username: post.user().username() }), config: m.route}, username(post.user())), ' ',
+        user ? m('a.post-user', {href: app.route.user(user), config: m.route}, username(user)) : username(user), ' ',
         content
       ]),
       m('div.event-post-time', humanTime(post.time()))

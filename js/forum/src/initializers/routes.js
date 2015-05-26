@@ -34,4 +34,10 @@ export default function(app) {
       near: post.number()
     });
   };
+
+  app.route.user = function(user) {
+    return app.route('user', {
+      username: user.username()
+    });
+  };
 }
