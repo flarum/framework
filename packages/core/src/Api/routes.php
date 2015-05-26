@@ -1,6 +1,6 @@
 <?php
 
-use Flarum\Api\Request as ApiRequest;
+use Flarum\Api\Request;
 use Psr\Http\Message\ServerRequestInterface;
 
 $action = function ($class) {
@@ -8,14 +8,8 @@ $action = function ($class) {
         $action = $this->app->make($class);
         $actor = $this->app->make('Flarum\Support\Actor');
 
-        if (str_contains($httpRequest->getHeaderLine('content-type'), 'application/vnd.api+json')) {
-            $input = json_decode($httpRequest->getBody(), true);
-        } else {
-            $input = $httpRequest->getAttributes();
-        }
-        $input = array_merge($input, $routeParams);
-
-        $request = new ApiRequest($input, $actor, $httpRequest);
+        $input = array_merge($httpRequest->getAttributes(), $routeParams);
+        $request = new Request($input, $actor, $httpRequest);
 
         return $action->handle($request);
     };
