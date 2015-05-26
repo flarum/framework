@@ -3,6 +3,8 @@
 use Closure;
 use Flarum\Api\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 
@@ -29,7 +31,9 @@ abstract class JsonApiAction implements ActionInterface
             }
             return new JsonResponse(['errors' => $errors], 422);
         } catch (PermissionDeniedException $e) {
-            return new JsonResponse(null, 401);
+            return new Response(null, 401);
+        } catch (ModelNotFoundException $e) {
+            return new Response(null, 404);
         }
     }
 
