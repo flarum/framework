@@ -32,3 +32,13 @@ Route::get('confirm/{id}/{token}', [
     'as' => 'flarum.forum.confirm',
     'uses' => $action('Flarum\Forum\Actions\ConfirmAction')
 ]);
+
+Route::get('reset/{token}', [
+    'as' => 'flarum.forum.resetPassword',
+    'uses' => $action('Flarum\Forum\Actions\ResetPasswordAction')
+]);
+
+Route::post('reset', [
+    'as' => 'flarum.forum.savePassword',
+    'uses' => $action('Flarum\Forum\Actions\SavePasswordAction')
+]);

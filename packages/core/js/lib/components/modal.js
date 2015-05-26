@@ -20,6 +20,7 @@ export default class Modal extends Component {
     this.component = component;
     m.redraw(true);
     this.$().modal('show');
+    this.ready();
   }
 
   close() {

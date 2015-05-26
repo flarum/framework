@@ -46,6 +46,17 @@ class EloquentUserRepository implements UserRepositoryInterface
     }
 
     /**
+     * Find a user by email.
+     *
+     * @param  string  $email
+     * @return \Flarum\Core\Models\User|null
+     */
+    public function findByEmail($email)
+    {
+        return User::where('email', $email)->first();
+    }
+
+    /**
      * Get the ID of a user with the given username.
      *
      * @param  string  $username
