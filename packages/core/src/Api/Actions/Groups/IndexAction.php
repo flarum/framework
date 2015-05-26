@@ -3,7 +3,7 @@
 use Flarum\Core\Models\Group;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Document;
 
 class IndexAction extends SerializeCollectionAction
 {
@@ -19,10 +19,10 @@ class IndexAction extends SerializeCollectionAction
      * response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Tobscure\JsonApi\Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         return Group::get();
     }

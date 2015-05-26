@@ -4,7 +4,6 @@ use Flarum\Core\Commands\PostReplyCommand;
 use Flarum\Core\Commands\ReadDiscussionCommand;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
 
 class CreateAction extends BaseCreateAction
@@ -38,11 +37,10 @@ class CreateAction extends BaseCreateAction
     /**
      * Reply to a discussion according to input from the API request.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\Post
+     * @param JsonApiRequest $request
+     * @return \Flarum\Core\Models\Model
      */
-    protected function create(JsonApiRequest $request, JsonApiResponse $response)
+    protected function create(JsonApiRequest $request)
     {
         $user = $request->actor->getUser();
 

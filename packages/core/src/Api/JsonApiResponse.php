@@ -1,19 +1,14 @@
 <?php namespace Flarum\Api;
 
-use Illuminate\Http\Response;
 use Tobscure\JsonApi\Document;
+use Zend\Diactoros\Response;
 
 class JsonApiResponse extends Response
 {
-    public $content;
-
-    public function __construct($data = null, $status = 200, array $headers = [])
+    public function __construct(Document $document)
     {
-        parent::__construct('', $status, $headers);
+        parent::__construct('php://memory', 200, ['content-type' => 'application/vnd.api+json']);
 
-        $this->headers->set('Content-Type', 'application/vnd.api+json');
-
-        $this->content = new Document;
-        $this->content->setData($data);
+        $this->getBody()->write($document);
     }
 }

@@ -3,7 +3,7 @@
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Document;
 
 class ShowAction extends SerializeResourceAction
 {
@@ -44,10 +44,10 @@ class ShowAction extends SerializeResourceAction
      * response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Tobscure\JsonApi\Document $document
      * @return \Flarum\Core\Models\Discussion
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         $id = $request->get('id');
 
