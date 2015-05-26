@@ -36,7 +36,7 @@ export default class Store {
       endpoint += '/'+id
       params = query
     }
-    return m.request({
+    return app.request({
       method: 'GET',
       url: app.config['api_url']+'/'+endpoint,
       data: params,

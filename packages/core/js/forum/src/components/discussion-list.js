@@ -47,7 +47,10 @@ export default class DiscussionList extends Component {
     this.loading(true);
     this.discussions([]);
     m.endComputation();
-    this.loadResults().then(this.parseResults.bind(this));
+    this.loadResults().then(this.parseResults.bind(this), response => {
+      this.loading(false);
+      m.redraw();
+    });
   }
 
   onunload() {
