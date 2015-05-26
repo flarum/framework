@@ -35,7 +35,7 @@ abstract class JsonApiAction implements ActionInterface
         }
     }
 
-    protected function json($data, $status = 200)
+    protected function json($data = null, $status = 200)
     {
         if ($data === null) $data = new \ArrayObject();
 
