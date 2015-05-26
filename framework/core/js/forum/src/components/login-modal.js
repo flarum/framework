@@ -9,8 +9,8 @@ export default class LoginModal extends FormModal {
   constructor(props) {
     super(props);
 
-    this.email = m.prop();
-    this.password = m.prop();
+    this.email = m.prop(this.props.email || '');
+    this.password = m.prop(this.props.password || '');
   }
 
   view() {
@@ -19,10 +19,10 @@ export default class LoginModal extends FormModal {
       title: 'Log In',
       body: [
         m('div.form-group', [
-          m('input.form-control[name=email][placeholder=Username or Email]', {onchange: m.withAttr('value', this.email), disabled: this.loading()})
+          m('input.form-control[name=email][placeholder=Username or Email]', {value: this.email(), onchange: m.withAttr('value', this.email), disabled: this.loading()})
         ]),
         m('div.form-group', [
-          m('input.form-control[type=password][name=password][placeholder=Password]', {onchange: m.withAttr('value', this.password), disabled: this.loading()})
+          m('input.form-control[type=password][name=password][placeholder=Password]', {value: this.password(), onchange: m.withAttr('value', this.password), disabled: this.loading()})
         ]),
         m('div.form-group', [
           m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Log In')
@@ -32,7 +32,12 @@ export default class LoginModal extends FormModal {
         m('p.forgot-password-link', m('a[href=javascript:;]', {onclick: () => app.modal.show(new ForgotPasswordModal({email: this.email()}))}, 'Forgot password?')),
         m('p.sign-up-link', [
           'Don\'t have an account? ',
-          m('a[href=javascript:;]', {onclick: () => app.modal.show(new SignupModal())}, 'Sign Up')
+          m('a[href=javascript:;]', {onclick: () => {
+            var props = {password: this.password()};
+            var email = this.email();
+            props[email.indexOf('@') !== -1 ? 'email' : 'username'] = email;
+            app.modal.show(new SignupModal(props));
+          }}, 'Sign Up')
         ])
       ]
     });
