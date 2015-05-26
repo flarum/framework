@@ -36,7 +36,7 @@ export default class Model {
 
     this.pushData(data);
 
-    return m.request({
+    return app.request({
       method: this.exists ? 'PUT' : 'POST',
       url: app.config['api_url']+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
       data: {data},
@@ -51,7 +51,7 @@ export default class Model {
   delete() {
     if (!this.exists) { return; }
 
-    return m.request({
+    return app.request({
       method: 'DELETE',
       url: app.config['api_url']+'/'+this.data().type+'/'+this.data().id,
       background: true,
