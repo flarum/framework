@@ -37,6 +37,12 @@ Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWit
         'uses' => $action('Flarum\Api\Actions\TokenAction')
     ]);
 
+    // Send forgot password email
+    Route::post('forgot', [
+        'as' => 'flarum.api.forgot',
+        'uses' => $action('Flarum\Api\Actions\Users\ForgotAction')
+    ]);
+
     /*
     |--------------------------------------------------------------------------
     | Users
@@ -73,11 +79,13 @@ Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWit
         'uses' => $action('Flarum\Api\Actions\Users\DeleteAction')
     ]);
 
+    // Upload avatar
     Route::post('users/{id}/avatar', [
         'as' => 'flarum.api.users.avatar.upload',
         'uses' => $action('Flarum\Api\Actions\Users\UploadAvatarAction')
     ]);
 
+    // Remove avatar
     Route::delete('users/{id}/avatar', [
         'as' => 'flarum.api.users.avatar.delete',
         'uses' => $action('Flarum\Api\Actions\Users\DeleteAvatarAction')

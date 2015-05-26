@@ -1,5 +1,6 @@
 import Component from 'flarum/component';
 import LoadingIndicator from 'flarum/components/loading-indicator';
+import ForgotPasswordModal from 'flarum/components/forgot-password-modal';
 import SignupModal from 'flarum/components/signup-modal';
 import Alert from 'flarum/components/alert';
 import icon from 'flarum/helpers/icon';
@@ -34,7 +35,7 @@ export default class LoginModal extends Component {
             ])
           ]),
           m('div.modal-footer', [
-            m('p.forgot-password-link', m('a[href=javascript:;]', 'Forgot password?')),
+            m('p.forgot-password-link', m('a[href=javascript:;]', {onclick: () => app.modal.show(new ForgotPasswordModal())}, 'Forgot password?')),
             m('p.sign-up-link', [
               'Don\'t have an account? ',
               m('a[href=javascript:;]', {onclick: () => app.modal.show(new SignupModal())}, 'Sign Up')
