@@ -9,9 +9,9 @@ export default class SignupModal extends FormModal {
   constructor(props) {
     super(props);
 
-    this.username = m.prop();
-    this.email = m.prop();
-    this.password = m.prop();
+    this.username = m.prop(this.props.username || '');
+    this.email = m.prop(this.props.email || '');
+    this.password = m.prop(this.props.password || '');
     this.welcomeUser = m.prop();
   }
 
@@ -24,13 +24,13 @@ export default class SignupModal extends FormModal {
       title: 'Sign Up',
       body: [
         m('div.form-group', [
-          m('input.form-control[name=username][placeholder=Username]', {onchange: m.withAttr('value', this.username), disabled: this.loading()})
+          m('input.form-control[name=username][placeholder=Username]', {value: this.username(), onchange: m.withAttr('value', this.username), disabled: this.loading()})
         ]),
         m('div.form-group', [
-          m('input.form-control[name=email][placeholder=Email]', {onchange: m.withAttr('value', this.email), disabled: this.loading()})
+          m('input.form-control[name=email][placeholder=Email]', {value: this.email(), onchange: m.withAttr('value', this.email), disabled: this.loading()})
         ]),
         m('div.form-group', [
-          m('input.form-control[type=password][name=password][placeholder=Password]', {onchange: m.withAttr('value', this.password), disabled: this.loading()})
+          m('input.form-control[type=password][name=password][placeholder=Password]', {value: this.password(), onchange: m.withAttr('value', this.password), disabled: this.loading()})
         ]),
         m('div.form-group', [
           m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Sign Up')
@@ -39,7 +39,7 @@ export default class SignupModal extends FormModal {
       footer: [
         m('p.log-in-link', [
           'Already have an account? ',
-          m('a[href=javascript:;]', {onclick: () => app.modal.show(new LoginModal())}, 'Log In')
+          m('a[href=javascript:;]', {onclick: () => app.modal.show(new LoginModal({email: this.email() || this.username(), password: this.password()}))}, 'Log In')
         ])
       ]
     });
