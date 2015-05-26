@@ -1,29 +1,39 @@
 <?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
+use Flarum\Api\Request;
+use Tobscure\JsonApi\Document;
 
 abstract class CreateAction extends SerializeResourceAction
 {
     /**
-     * Delegate creation of the resource, and set a 201 Created status code on
-     * the response.
+     * Set a 201 Created status code on the response.
+     *
+     * @param \Flarum\Api\Request $request
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function respond(Request $request)
+    {
+        return parent::respond($request)->withStatus(201);
+    }
+
+    /**
+     * Get the newly created resource to be serialized and assigned to the response document.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\Model
+     * @param \Tobscure\JsonApi\Document $document
+     * @return array
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
-        $response->setStatusCode(201);
-
-        return $this->create($request, $response);
+        return $this->create($request);
     }
 
     /**
      * Create the resource.
      *
+     * @param JsonApiRequest $request
      * @return \Flarum\Core\Models\Model
      */
-    abstract protected function create(JsonApiRequest $request, JsonApiResponse $response);
+    abstract protected function create(JsonApiRequest $request);
 }

@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api;
 
 use Flarum\Support\Actor;
-use Illuminate\Http\Request as IlluminateRequest;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Request
 {
@@ -9,9 +9,12 @@ class Request
 
     public $actor;
 
+    /**
+     * @var ServerRequestInterface
+     */
     public $http;
 
-    public function __construct(array $input, Actor $actor = null, IlluminateRequest $http = null)
+    public function __construct(array $input, Actor $actor = null, ServerRequestInterface $http = null)
     {
         $this->input = $input;
         $this->actor = $actor;

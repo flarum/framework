@@ -5,7 +5,7 @@ use Flarum\Core\Repositories\PostRepositoryInterface;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\Actions\Posts\GetsPosts;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Document;
 
 class ShowAction extends SerializeResourceAction
 {
@@ -84,10 +84,10 @@ class ShowAction extends SerializeResourceAction
      * JsonApi response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\Discussion
+     * @param \Tobscure\JsonApi\Document $document
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         $user = $request->actor->getUser();
 

@@ -4,7 +4,6 @@ use Flarum\Api\Request;
 use Flarum\Core\Commands\GenerateAccessTokenCommand;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Exceptions\PermissionDeniedException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
 
 class TokenAction extends JsonApiAction
@@ -23,7 +22,8 @@ class TokenAction extends JsonApiAction
      * Log in and return a token.
      *
      * @param \Flarum\Api\Request $request
-     * @return \Flarum\Api\Response
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws PermissionDeniedException
      */
     public function respond(Request $request)
     {
@@ -40,7 +40,7 @@ class TokenAction extends JsonApiAction
             new GenerateAccessTokenCommand($user->id)
         );
 
-        return new JsonResponse([
+        return $this->json([
             'token' => $token->id,
             'userId' => $user->id
         ]);

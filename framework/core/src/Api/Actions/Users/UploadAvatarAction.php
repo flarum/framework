@@ -3,8 +3,8 @@
 use Flarum\Core\Commands\UploadAvatarCommand;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Tobscure\JsonApi\Document;
 
 class UploadAvatarAction extends SerializeResourceAction
 {
@@ -35,13 +35,17 @@ class UploadAvatarAction extends SerializeResourceAction
      * and assigned to the JsonApi response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\User
+     * @param \Tobscure\JsonApi\Document $document
+     * @return \Flarum\Core\Models\Discussion
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
-            new UploadAvatarCommand($request->get('id'), $request->http->file('avatar'), $request->actor->getUser())
+            new UploadAvatarCommand(
+                $request->get('id'),
+                $request->http->getUploadedFiles()['avatar'],
+                $request->actor->getUser()
+            )
         );
     }
 }

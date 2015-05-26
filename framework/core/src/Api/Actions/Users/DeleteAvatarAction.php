@@ -3,8 +3,8 @@
 use Flarum\Core\Commands\DeleteAvatarCommand;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Tobscure\JsonApi\Document;
 
 class DeleteAvatarAction extends SerializeResourceAction
 {
@@ -35,10 +35,10 @@ class DeleteAvatarAction extends SerializeResourceAction
      * assigned to the JsonApi response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\User
+     * @param \Tobscure\JsonApi\Document $document
+     * @return \Flarum\Core\Models\Discussion
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
             new DeleteAvatarCommand($request->get('id'), $request->actor->getUser())

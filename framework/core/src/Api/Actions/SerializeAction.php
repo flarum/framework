@@ -3,9 +3,9 @@
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\SerializerInterface;
 use Tobscure\JsonApi\Criteria;
-use Illuminate\Http\Response;
 
 abstract class SerializeAction extends JsonApiAction
 {
@@ -63,29 +63,30 @@ abstract class SerializeAction extends JsonApiAction
      * Handle an API request and return an API response.
      *
      * @param \Flarum\Api\Request $request
-     * @return \Flarum\Api\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function respond(Request $request)
     {
         $request = static::buildJsonApiRequest($request);
 
-        $data = $this->data($request, $response = new JsonApiResponse);
+        $document = new Document();
 
+        $data = $this->data($request, $document);
         $serializer = new static::$serializer($request->actor, $request->include, $request->link);
 
-        $response->content->setData($this->serialize($serializer, $data));
+        $document->setData($this->serialize($serializer, $data));
 
-        return $response;
+        return new JsonApiResponse($document);
     }
 
     /**
      * Get the data to be serialized and assigned to the response document.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Tobscure\JsonApi\Document $document
      * @return array
      */
-    abstract protected function data(JsonApiRequest $request, JsonApiResponse $response);
+    abstract protected function data(JsonApiRequest $request, Document $document);
 
     /**
      * Serialize the data as appropriate.
@@ -157,7 +158,7 @@ abstract class SerializeAction extends JsonApiAction
      * Add pagination links to a JSON-API response, based on input parameters
      * and the default parameters of this action.
      *
-     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Tobscure\JsonApi\Document $document
      * @param \Flarum\Api\JsonApiRequest $request
      * @param string $url The base URL to build pagination links with.
      * @param integer|boolean $total The total number of results (used to build
@@ -165,28 +166,29 @@ abstract class SerializeAction extends JsonApiAction
      *     is unknown ('last' link is ommitted).
      * @return void
      */
-    protected static function addPaginationLinks(JsonApiResponse $response, JsonApiRequest $request, $url, $total = true)
+    protected static function addPaginationLinks(Document $document, JsonApiRequest $request, $url, $total = true)
     {
+        $input = [];
         if ($request->limit != static::$limit) {
             array_set($input, 'page.limit', $request->limit);
         }
 
         array_set($input, 'page.offset', 0);
-        $response->content->addLink('first', $url.'?'.http_build_query($input));
+        $document->addLink('first', $url.'?'.http_build_query($input));
 
         if ($request->offset > 0) {
             array_set($input, 'page.offset', max(0, $request->offset - $request->limit));
-            $response->content->addLink('prev', $url.'?'.http_build_query($input));
+            $document->addLink('prev', $url.'?'.http_build_query($input));
         }
 
         if ($total === true || $request->offset + $request->limit < $total) {
             array_set($input, 'page.offset', $request->offset + $request->limit);
-            $response->content->addLink('next', $url.'?'.http_build_query($input));
+            $document->addLink('next', $url.'?'.http_build_query($input));
         }
 
         if ($total && $total !== true) {
             array_set($input, 'page.offset', $total - $request->limit);
-            $response->content->addLink('last', $url.'?'.http_build_query($input));
+            $document->addLink('last', $url.'?'.http_build_query($input));
         }
     }
 }

@@ -8,7 +8,7 @@ interface ActionInterface
      * Handle a request to the API, returning an HTTP response.
      *
      * @param \Flarum\Api\Request $request
-     * @return \Illuminate\Http\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request);
 }
