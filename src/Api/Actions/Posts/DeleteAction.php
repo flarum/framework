@@ -3,7 +3,6 @@
 use Flarum\Core\Commands\DeletePostCommand;
 use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
 use Flarum\Api\Request;
-use Illuminate\Http\Response;
 use Illuminate\Contracts\Bus\Dispatcher;
 
 class DeleteAction extends BaseDeleteAction
@@ -27,10 +26,9 @@ class DeleteAction extends BaseDeleteAction
      * Delete a post.
      *
      * @param \Flarum\Api\Request $request
-     * @param \Illuminate\Http\Response $response
      * @return void
      */
-    protected function delete(Request $request, Response $response)
+    protected function delete(Request $request)
     {
         $this->bus->dispatch(
             new DeletePostCommand($request->get('id'), $request->actor->getUser())

@@ -4,7 +4,6 @@ use Flarum\Core\Models\Forum;
 use Flarum\Core\Commands\RegisterUserCommand;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
 
 class CreateAction extends BaseCreateAction
@@ -45,11 +44,10 @@ class CreateAction extends BaseCreateAction
     /**
      * Register a user according to input from the API request.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\User
+     * @param JsonApiRequest $request
+     * @return \Flarum\Core\Models\Model
      */
-    protected function create(JsonApiRequest $request, JsonApiResponse $response)
+    protected function create(JsonApiRequest $request)
     {
         return $this->bus->dispatch(
             new RegisterUserCommand($request->actor->getUser(), $this->forum, $request->get('data'))

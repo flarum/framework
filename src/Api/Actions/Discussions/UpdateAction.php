@@ -3,10 +3,9 @@
 use Flarum\Core\Commands\EditDiscussionCommand;
 use Flarum\Core\Commands\ReadDiscussionCommand;
 use Flarum\Api\Actions\SerializeResourceAction;
-use Flarum\Api\Actions\Posts\GetsPosts;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Tobscure\JsonApi\Document;
 
 class UpdateAction extends SerializeResourceAction
 {
@@ -47,10 +46,10 @@ class UpdateAction extends SerializeResourceAction
      * it ready to be serialized and assigned to the JsonApi response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\Discussion
+     * @param \Tobscure\JsonApi\Document $document
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         $user = $request->actor->getUser();
         $discussionId = $request->get('id');

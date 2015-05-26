@@ -3,8 +3,8 @@
 use Flarum\Core\Commands\EditUserCommand;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Tobscure\JsonApi\Document;
 
 class UpdateAction extends SerializeResourceAction
 {
@@ -35,10 +35,10 @@ class UpdateAction extends SerializeResourceAction
      * ready to be serialized and assigned to the JsonApi response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
-     * @return \Flarum\Core\Models\Post
+     * @param \Tobscure\JsonApi\Document $document
+     * @return \Flarum\Core\Models\Discussion
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
             new EditUserCommand($request->get('id'), $request->actor->getUser(), $request->get('data'))

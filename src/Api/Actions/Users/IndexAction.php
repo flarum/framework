@@ -4,21 +4,21 @@ use Flarum\Core\Search\Users\UserSearchCriteria;
 use Flarum\Core\Search\Users\UserSearcher;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Document;
 
 class IndexAction extends SerializeCollectionAction
 {
     /**
      * The user searcher.
      *
-     * @var \Flarum\Core\Search\Discussions\UserSearcher
+     * @var \Flarum\Core\Search\Users\UserSearcher
      */
     protected $searcher;
 
     /**
      * Instantiate the action.
      *
-     * @param  \Flarum\Core\Search\Discussions\UserSearcher  $searcher
+     * @param  \Flarum\Core\Search\Users\UserSearcher  $searcher
      */
     public function __construct(UserSearcher $searcher)
     {
@@ -54,10 +54,10 @@ class IndexAction extends SerializeCollectionAction
      * document response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Tobscure\JsonApi\Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         $criteria = new UserSearchCriteria(
             $request->actor->getUser(),
@@ -68,10 +68,11 @@ class IndexAction extends SerializeCollectionAction
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $request->include);
 
         if (($total = $results->getTotal()) !== null) {
-            $response->content->addMeta('total', $total);
+            $document->addMeta('total', $total);
         }
 
-        static::addPaginationLinks($response, $request, route('flarum.api.users.index'), $total ?: $results->areMoreResults());
+        // TODO: Add route() method!
+        static::addPaginationLinks($document, $request, 'flarum.api.users.index', $total ?: $results->areMoreResults());
 
         return $results->getUsers();
     }

@@ -1,12 +1,10 @@
 <?php namespace Flarum\Api\Actions;
 
-use Closure;
 use Flarum\Api\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
+use Zend\Diactoros\Response;
 
 abstract class JsonApiAction implements ActionInterface
 {
@@ -15,7 +13,7 @@ abstract class JsonApiAction implements ActionInterface
      * (API-related) exceptions that are thrown.
      *
      * @param \Flarum\Api\Request $request
-     * @return \Flarum\Api\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request)
     {
@@ -29,19 +27,28 @@ abstract class JsonApiAction implements ActionInterface
                     'path' => $field
                 ];
             }
-            return new JsonResponse(['errors' => $errors], 422);
+            return $this->json(['errors' => $errors], 422);
         } catch (PermissionDeniedException $e) {
-            return new Response(null, 401);
+            return $this->json(null, 401);
         } catch (ModelNotFoundException $e) {
-            return new Response(null, 404);
+            return $this->json(null, 404);
         }
+    }
+
+    protected function json($data, $status = 200)
+    {
+        if ($data === null) $data = new \ArrayObject();
+
+        $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+
+        return new Response($data, $status);
     }
 
     /**
      * Handle an API request and return an API response.
      *
      * @param \Flarum\Api\Request $request
-     * @return \Flarum\Api\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     abstract protected function respond(Request $request);
 }
