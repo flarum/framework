@@ -17,8 +17,9 @@ class LoginWithCookie
     public function handle($request, Closure $next)
     {
         if (($token = $request->cookie('flarum_remember')) &&
-            ($accessToken = AccessToken::where('id', $token)->first())) {
-            $this->actor->setUser($user = $accessToken->user);
+            ($accessToken = AccessToken::where('id', $token)->first()) &&
+            ($user = $accessToken->user)) {
+            $this->actor->setUser($user);
 
             $user->updateLastSeen()->save();
         }
