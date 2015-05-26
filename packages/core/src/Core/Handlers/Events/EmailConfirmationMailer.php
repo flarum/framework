@@ -40,7 +40,7 @@ class EmailConfirmationMailer
 
         $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user) {
             $message->to($user->email);
-            $message->subject('Email Address Confirmation');
+            $message->subject('Confirm Your Email Address');
         });
     }
 
