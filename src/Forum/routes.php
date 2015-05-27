@@ -28,9 +28,9 @@ Route::post('login', [
     'uses' => $action('Flarum\Forum\Actions\LoginAction')
 ]);
 
-Route::get('confirm/{id}/{token}', [
-    'as' => 'flarum.forum.confirm',
-    'uses' => $action('Flarum\Forum\Actions\ConfirmAction')
+Route::get('confirm/{token}', [
+    'as' => 'flarum.forum.confirmEmail',
+    'uses' => $action('Flarum\Forum\Actions\ConfirmEmailAction')
 ]);
 
 Route::get('reset/{token}', [
