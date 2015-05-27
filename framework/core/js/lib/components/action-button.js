@@ -12,6 +12,12 @@ export default class ActionButton extends Component {
     var label = attrs.label;
     delete attrs.label;
 
+    if (attrs.disabled) {
+      attrs.className = (attrs.className || '')+' disabled';
+      delete attrs.onclick;
+      delete attrs.disabled;
+    }
+
     attrs.href = attrs.href || 'javascript:;';
     return m('a'+(iconName ? '.has-icon' : ''), attrs, [
       iconName ? icon(iconName+' icon') : '',
