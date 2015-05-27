@@ -3,6 +3,7 @@ import LoadingIndicator from 'flarum/components/loading-indicator';
 import ForgotPasswordModal from 'flarum/components/forgot-password-modal';
 import SignupModal from 'flarum/components/signup-modal';
 import Alert from 'flarum/components/alert';
+import ActionButton from 'flarum/components/action-button';
 import icon from 'flarum/helpers/icon';
 
 export default class LoginModal extends FormModal {
@@ -29,7 +30,11 @@ export default class LoginModal extends FormModal {
         ])
       ],
       footer: [
-        m('p.forgot-password-link', m('a[href=javascript:;]', {onclick: () => app.modal.show(new ForgotPasswordModal({email: this.email()}))}, 'Forgot password?')),
+        m('p.forgot-password-link', m('a[href=javascript:;]', {onclick: () => {
+          var email = this.email();
+          var props = email.indexOf('@') !== -1 ? {email} : null;
+          app.modal.show(new ForgotPasswordModal(props));
+        }}, 'Forgot password?')),
         m('p.sign-up-link', [
           'Don\'t have an account? ',
           m('a[href=javascript:;]', {onclick: () => {
@@ -50,12 +55,26 @@ export default class LoginModal extends FormModal {
   onsubmit(e) {
     e.preventDefault();
     this.loading(true);
-    app.session.login(this.email(), this.password()).then(() => {
+    var email = this.email();
+    var password = this.password();
+
+    app.session.login(email, password).then(() => {
       this.hide();
       this.props.callback && this.props.callback();
     }, response => {
       this.loading(false);
-      this.alert = new Alert({ type: 'warning', message: 'Your login details were incorrect.' });
+      if (response && response.code === 'confirm_email') {
+        var state;
+
+        this.alert(Alert.component({
+          message: ['You need to confirm your email before you can log in. We\'ve sent a confirmation email to ', m('strong', response.email), '. If it doesn\'t arrive soon, check your spam folder.']
+        }));
+      } else {
+        this.alert(Alert.component({
+          type: 'warning',
+          message: 'Your login details were incorrect.'
+        }));
+      }
       m.redraw();
       this.ready();
     });

@@ -4,6 +4,7 @@ use Flarum\Api\Request;
 use Flarum\Core\Commands\GenerateAccessTokenCommand;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Exceptions\PermissionDeniedException;
+use Flarum\Core\Events\UserEmailChangeWasRequested;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
 
@@ -34,6 +35,11 @@ class TokenAction extends JsonApiAction
 
         if (! $user || ! $user->checkPassword($password)) {
             throw new PermissionDeniedException;
+        }
+
+        if (! $user->is_activated) {
+            event(new UserEmailChangeWasRequested($user, $user->email));
+            return new JsonResponse(['code' => 'confirm_email', 'email' => $user->email], 401);
         }
 
         $token = $this->bus->dispatch(
