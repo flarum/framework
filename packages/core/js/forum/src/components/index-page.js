@@ -105,12 +105,12 @@ export default class IndexPage extends Component {
               }),
             ]),
             m('div.index-toolbar-action', [
-              ActionButton.component({
+              app.session.user() ? ActionButton.component({
                 title: 'Mark All as Read',
                 icon: 'check',
                 className: 'control-markAllAsRead btn btn-default btn-icon',
                 onclick: this.markAllAsRead.bind(this)
-              })
+              }) : ''
             ])
           ]),
           app.cache.discussionList.view()
