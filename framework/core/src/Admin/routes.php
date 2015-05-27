@@ -1,19 +1,16 @@
 <?php
 
+use Psr\Http\Message\ServerRequestInterface;
+
 $action = function ($class) {
-    return function () use ($class) {
+    return function (ServerRequestInterface $httpRequest, $routeParams) use ($class) {
         $action = $this->app->make($class);
-        $request = $this->app['request']->instance();
-        $parameters = $this->app['router']->current()->parameters();
-        return $action->handle($request, $parameters);
+
+        return $action->handle($httpRequest, $routeParams);
     };
 };
 
-Route::group(['prefix' => 'admin', 'middleware' => 'Flarum\Admin\Middleware\LoginWithCookieAndCheckAdmin'], function () use ($action) {
+/** @var Flarum\Http\Router $router */
+$router = $this->app->make('Flarum\Http\Router');
 
-    Route::get('/', [
-        'as' => 'flarum.admin.index',
-        'uses' => $action('Flarum\Admin\Actions\IndexAction')
-    ]);
-
-});
+$router->get('/admin', 'flarum.admin.index', $action('Flarum\Admin\Actions\IndexAction'));
