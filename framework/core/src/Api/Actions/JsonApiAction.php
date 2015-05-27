@@ -37,7 +37,9 @@ abstract class JsonApiAction implements ActionInterface
 
     protected function json($data = null, $status = 200)
     {
-        if ($data === null) $data = new \ArrayObject();
+        if ($data === null) {
+            $data = new \ArrayObject();
+        }
 
         $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 
