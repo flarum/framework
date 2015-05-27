@@ -67,6 +67,14 @@ export default class SignupModal extends FormModal {
     return vdom;
   }
 
+  ready() {
+    if (this.props.username) {
+      this.$('[name=email]').select();
+    } else {
+      super.ready();
+    }
+  }
+
   fadeIn(element, isInitialized) {
     if (isInitialized) { return; }
     $(element).hide().fadeIn();
@@ -86,9 +94,7 @@ export default class SignupModal extends FormModal {
       m.redraw();
     }, response => {
       this.loading(false);
-      this.alert = new Alert({ type: 'warning', message: response.errors.map((error, k) => [error.detail, k < response.errors.length - 1 ? m('br') : '']) });
-      m.redraw();
-      this.$('[name='+response.errors[0].path+']').select();
+      this.handleErrors(response.errors);
     });
   }
 }

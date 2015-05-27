@@ -8,7 +8,7 @@ export default class ChangePasswordModal extends FormModal {
       body: [
         m('p.help-text', 'Click the button below and check your email for a link to change your password.'),
         m('div.form-group', [
-          m('button.btn.btn-primary.btn-block[type=submit]', 'Send Password Reset Email')
+          m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Send Password Reset Email')
         ])
       ]
     });

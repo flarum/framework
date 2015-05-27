@@ -34,6 +34,21 @@ export default class Model {
       }
     }
 
+    // clone the relevant parts of the model's old data so that we can revert
+    // back if the save fails
+    var oldData = {};
+    var currentData = this.data();
+    for (var i in data) {
+      if (i === 'links') {
+        oldData[i] = oldData[i] || {};
+        for (var j in newData[i]) {
+          oldData[i][j] = currentData[i][j];
+        }
+      } else {
+        oldData[i] = currentData[i];
+      }
+    }
+
     this.pushData(data);
 
     return app.request({
@@ -45,6 +60,9 @@ export default class Model {
     }).then(payload => {
       this.store.data[payload.data.type][payload.data.id] = this;
       return this.store.pushPayload(payload);
+    }, response => {
+      this.pushData(oldData);
+      throw response;
     });
   }
 
