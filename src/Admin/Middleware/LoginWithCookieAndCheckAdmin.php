@@ -2,10 +2,15 @@
 
 use Flarum\Support\Actor;
 use Flarum\Core\Models\AccessToken;
-use Closure;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Zend\Stratigility\MiddlewareInterface;
 
-class LoginWithCookieAndCheckAdmin
+class LoginWithCookieAndCheckAdmin implements MiddlewareInterface
 {
+    /**
+     * @var Actor
+     */
     protected $actor;
 
     public function __construct(Actor $actor)
@@ -13,16 +18,22 @@ class LoginWithCookieAndCheckAdmin
         $this->actor = $actor;
     }
 
-    public function handle($request, Closure $next)
+    /**
+     * {@inheritdoc}
+     */
+    public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        if (($token = $request->cookie('flarum_remember')) &&
+        $cookies = $request->getCookieParams();
+
+        if (($token = $cookies['flarum_remember']) &&
             ($accessToken = AccessToken::where('id', $token)->first()) &&
-            $accessToken->user->isAdmin()) {
+            $accessToken->user->isAdmin()
+        ) {
             $this->actor->setUser($accessToken->user);
         } else {
             die('ur not an admin');
         }
 
-        return $next($request);
+        return $out ? $out($request, $response) : $response;
     }
 }

@@ -1,227 +1,134 @@
 <?php
 
 use Flarum\Api\Request;
+use Psr\Http\Message\ServerRequestInterface;
 
 $action = function ($class) {
-    return function () use ($class) {
+    return function (ServerRequestInterface $httpRequest, $routeParams) use ($class) {
         $action = $this->app->make($class);
+        $actor = $this->app->make('Flarum\Support\Actor');
 
-        $httpRequest = $this->app['request']->instance();
-        $routeParams = $this->app['router']->current()->parameters();
-        $actor = $this->app['Flarum\Support\Actor'];
-
-        if (str_contains($httpRequest->header('CONTENT_TYPE'), 'application/vnd.api+json')) {
-            $input = $httpRequest->json();
-        } else {
-            $input = $httpRequest->all();
-        }
-        $input = array_merge($input, $routeParams);
-
+        $input = array_merge($httpRequest->getAttributes(), $routeParams);
         $request = new Request($input, $actor, $httpRequest);
 
         return $action->handle($request);
     };
 };
 
-Route::group(['prefix' => 'api', 'middleware' => 'Flarum\Api\Middleware\LoginWithHeader'], function () use ($action) {
+/** @var Flarum\Http\Router $router */
+$router = $this->app->make('Flarum\Http\Router');
 
-    // Get forum information
-    Route::get('forum', [
-        'as' => 'flarum.api.forum.show',
-        'uses' => $action('Flarum\Api\Actions\Forum\ShowAction')
-    ]);
+// Get forum information
+$router->get('/api/forum', 'flarum.api.forum.show', $action('Flarum\Api\Actions\Forum\ShowAction'));
 
-    // Retrieve authentication token
-    Route::post('token', [
-        'as' => 'flarum.api.token',
-        'uses' => $action('Flarum\Api\Actions\TokenAction')
-    ]);
+// Retrieve authentication token
+$router->post('/api/token', 'flarum.api.token', $action('Flarum\Api\Actions\TokenAction'));
 
-    // Send forgot password email
-    Route::post('forgot', [
-        'as' => 'flarum.api.forgot',
-        'uses' => $action('Flarum\Api\Actions\Users\ForgotAction')
-    ]);
+// Send forgot password email
+$router->post('/forgot', 'flarum.api.forgot', $action('Flarum\Api\Actions\ForgotAction'));
 
-    /*
-    |--------------------------------------------------------------------------
-    | Users
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Users
+|--------------------------------------------------------------------------
+*/
 
-    // List users
-    Route::get('users', [
-        'as' => 'flarum.api.users.index',
-        'uses' => $action('Flarum\Api\Actions\Users\IndexAction')
-    ]);
+// List users
+$router->get('/api/users', 'flarum.api.users.index', $action('Flarum\Api\Actions\Users\IndexAction'));
 
-    // Register a user
-    Route::post('users', [
-        'as' => 'flarum.api.users.create',
-        'uses' => $action('Flarum\Api\Actions\Users\CreateAction')
-    ]);
+// Register a user
+$router->post('/api/users', 'flarum.api.users.create', $action('Flarum\Api\Actions\Users\CreateAction'));
 
-    // Get a single user
-    Route::get('users/{id}', [
-        'as' => 'flarum.api.users.show',
-        'uses' => $action('Flarum\Api\Actions\Users\ShowAction')
-    ]);
+// Get a single user
+$router->get('/api/users/{id}', 'flarum.api.users.show', $action('Flarum\Api\Actions\Users\ShowAction'));
 
-    // Edit a user
-    Route::put('users/{id}', [
-        'as' => 'flarum.api.users.update',
-        'uses' => $action('Flarum\Api\Actions\Users\UpdateAction')
-    ]);
+// Edit a user
+$router->put('/api/users/{id}', 'flarum.api.users.update', $action('Flarum\Api\Actions\Users\UpdateAction'));
 
-    // Delete a user
-    Route::delete('users/{id}', [
-        'as' => 'flarum.api.users.delete',
-        'uses' => $action('Flarum\Api\Actions\Users\DeleteAction')
-    ]);
+// Delete a user
+$router->delete('/api/users/{id}', 'flarum.api.users.delete', $action('Flarum\Api\Actions\Users\DeleteAction'));
 
-    // Upload avatar
-    Route::post('users/{id}/avatar', [
-        'as' => 'flarum.api.users.avatar.upload',
-        'uses' => $action('Flarum\Api\Actions\Users\UploadAvatarAction')
-    ]);
+// Upload avatar
+$router->post('/api/users/{id}/avatar', 'flarum.api.users.avatar.upload', $action('Flarum\Api\Actions\Users\UploadAvatarAction'));
 
-    // Remove avatar
-    Route::delete('users/{id}/avatar', [
-        'as' => 'flarum.api.users.avatar.delete',
-        'uses' => $action('Flarum\Api\Actions\Users\DeleteAvatarAction')
-    ]);
+// Remove avatar
+$router->delete('/api/users/{id}/avatar', 'flarum.api.users.avatar.delete', $action('Flarum\Api\Actions\Users\DeleteAvatarAction'));
 
-    /*
-    |--------------------------------------------------------------------------
-    | Activity
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Activity
+|--------------------------------------------------------------------------
+*/
 
-    // List activity
-    Route::get('activity', [
-        'as' => 'flarum.api.activity.index',
-        'uses' => $action('Flarum\Api\Actions\Activity\IndexAction')
-    ]);
+// List activity
+$router->get('/api/activity', 'flarum.api.activity.index', $action('Flarum\Api\Actions\Activity\IndexAction'));
 
-    // List notifications for the current user
-    Route::get('notifications', [
-        'as' => 'flarum.api.notifications.index',
-        'uses' => $action('Flarum\Api\Actions\Notifications\IndexAction')
-    ]);
+// List notifications for the current user
+$router->get('/api/notifications', 'flarum.api.notifications.index', $action('Flarum\Api\Actions\Notifications\IndexAction'));
 
-    // Mark a single notification as read
-    Route::put('notifications/{id}', [
-        'as' => 'flarum.api.notifications.update',
-        'uses' => $action('Flarum\Api\Actions\Notifications\UpdateAction')
-    ]);
+// Mark a single notification as read
+$router->put('/api/notifications/{id}', 'flarum.api.notifications.update', $action('Flarum\Api\Actions\Notifications\UpdateAction'));
 
-    /*
-    |--------------------------------------------------------------------------
-    | Discussions
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Discussions
+|--------------------------------------------------------------------------
+*/
 
-    // List discussions
-    Route::get('discussions', [
-        'as' => 'flarum.api.discussions.index',
-        'uses' => $action('Flarum\Api\Actions\Discussions\IndexAction')
-    ]);
+// List discussions
+$router->get('/api/discussions', 'flarum.api.discussions.index', $action('Flarum\Api\Actions\Discussions\IndexAction'));
 
-    // Create a discussion
-    Route::post('discussions', [
-        'as' => 'flarum.api.discussions.create',
-        'uses' => $action('Flarum\Api\Actions\Discussions\CreateAction')
-    ]);
+// Create a discussion
+$router->post('/api/discussions', 'flarum.api.discussions.create', $action('Flarum\Api\Actions\Discussions\CreateAction'));
 
-    // Show a single discussion
-    Route::get('discussions/{id}', [
-        'as' => 'flarum.api.discussions.show',
-        'uses' => $action('Flarum\Api\Actions\Discussions\ShowAction')
-    ]);
+// Show a single discussion
+$router->get('/api/discussions/{id}', 'flarum.api.discussions.show', $action('Flarum\Api\Actions\Discussions\ShowAction'));
 
-    // Edit a discussion
-    Route::put('discussions/{id}', [
-        'as' => 'flarum.api.discussions.update',
-        'uses' => $action('Flarum\Api\Actions\Discussions\UpdateAction')
-    ]);
+// Edit a discussion
+$router->put('/api/discussions/{id}', 'flarum.api.discussions.update', $action('Flarum\Api\Actions\Discussions\UpdateAction'));
 
-    // Delete a discussion
-    Route::delete('discussions/{id}', [
-        'as' => 'flarum.api.discussions.delete',
-        'uses' => $action('Flarum\Api\Actions\Discussions\DeleteAction')
-    ]);
+// Delete a discussion
+$router->delete('/api/discussions/{id}', 'flarum.api.discussions.delete', $action('Flarum\Api\Actions\Discussions\DeleteAction'));
 
-    /*
-    |--------------------------------------------------------------------------
-    | Posts
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Posts
+|--------------------------------------------------------------------------
+*/
 
-    // List posts, usually for a discussion
-    Route::get('posts', [
-        'as' => 'flarum.api.posts.index',
-        'uses' => $action('Flarum\Api\Actions\Posts\IndexAction')
-    ]);
+// List posts, usually for a discussion
+$router->get('/api/posts', 'flarum.api.posts.index', $action('Flarum\Api\Actions\Posts\IndexAction'));
 
-    // Create a post
-    // @todo consider 'discussions/{id}/links/posts'?
-    Route::post('posts', [
-        'as' => 'flarum.api.posts.create',
-        'uses' => $action('Flarum\Api\Actions\Posts\CreateAction')
-    ]);
+// Create a post
+// @todo consider 'discussions/{id}/links/posts'?
+$router->post('/api/posts', 'flarum.api.posts.create', $action('Flarum\Api\Actions\Posts\CreateAction'));
 
-    // Show a single or multiple posts by ID
-    Route::get('posts/{id}', [
-        'as' => 'flarum.api.posts.show',
-        'uses' => $action('Flarum\Api\Actions\Posts\ShowAction')
-    ]);
+// Show a single or multiple posts by ID
+$router->get('/api/posts/{id}', 'flarum.api.posts.show', $action('Flarum\Api\Actions\Posts\ShowAction'));
 
-    // Edit a post
-    Route::put('posts/{id}', [
-        'as' => 'flarum.api.posts.update',
-        'uses' => $action('Flarum\Api\Actions\Posts\UpdateAction')
-    ]);
+// Edit a post
+$router->put('/api/posts/{id}', 'flarum.api.posts.update', $action('Flarum\Api\Actions\Posts\UpdateAction'));
 
-    // Delete a post
-    Route::delete('posts/{id}', [
-        'as' => 'flarum.api.posts.delete',
-        'uses' => $action('Flarum\Api\Actions\Posts\DeleteAction')
-    ]);
+// Delete a post
+$router->delete('/api/posts/{id}', 'flarum.api.posts.delete', $action('Flarum\Api\Actions\Posts\DeleteAction'));
 
-    /*
-    |--------------------------------------------------------------------------
-    | Groups
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Groups
+|--------------------------------------------------------------------------
+*/
 
-    // List groups
-    Route::get('groups', [
-        'as' => 'flarum.api.groups.index',
-        'uses' => $action('Flarum\Api\Actions\Groups\IndexAction')
-    ]);
+// List groups
+$router->get('/api/groups', 'flarum.api.groups.index', $action('Flarum\Api\Actions\Groups\IndexAction'));
 
-    // Create a group
-    Route::post('groups', [
-        'as' => 'flarum.api.groups.create',
-        'uses' => $action('Flarum\Api\Actions\Groups\CreateAction')
-    ]);
+// Create a group
+$router->post('/api/groups', 'flarum.api.groups.create', $action('Flarum\Api\Actions\Groups\CreateAction'));
 
-    // Show a single group
-    Route::get('groups/{id}', [
-        'as' => 'flarum.api.groups.show',
-        'uses' => $action('Flarum\Api\Actions\Groups\ShowAction')
-    ]);
+// Show a single group
+$router->get('/api/groups/{id}', 'flarum.api.groups.show', $action('Flarum\Api\Actions\Groups\ShowAction'));
 
-    // Edit a group
-    Route::put('groups/{id}', [
-        'as' => 'flarum.api.groups.update',
-        'uses' => $action('Flarum\Api\Actions\Groups\UpdateAction')
-    ]);
+// Edit a group
+$router->put('/api/groups/{id}', 'flarum.api.groups.update', $action('Flarum\Api\Actions\Groups\UpdateAction'));
 
-    // Delete a group
-    Route::delete('groups/{id}', [
-        'as' => 'flarum.api.groups.delete',
-        'uses' => $action('Flarum\Api\Actions\Groups\DeleteAction')
-    ]);
-
-});
+// Delete a group
+$router->delete('/api/groups/{id}', 'flarum.api.groups.delete', $action('Flarum\Api\Actions\Groups\DeleteAction'));

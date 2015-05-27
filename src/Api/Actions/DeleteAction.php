@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
-use Illuminate\Http\Response;
+use Zend\Diactoros\Response;
 
 abstract class DeleteAction extends JsonApiAction
 {
@@ -10,21 +10,20 @@ abstract class DeleteAction extends JsonApiAction
      * response.
      *
      * @param \Flarum\Api\Request $request
-     * @return \Flarum\Api\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function respond(Request $request)
     {
-        $this->delete($request, $response = new Response('', 204));
+        $this->delete($request);
 
-        return $response;
+        return new Response('', 204);
     }
 
     /**
      * Delete the resource.
      *
      * @param \Flarum\Api\Request $request
-     * @param \Flarum\Api\Response $response
      * @return void
      */
-    abstract protected function delete(Request $request, Response $response);
+    abstract protected function delete(Request $request);
 }

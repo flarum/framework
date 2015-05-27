@@ -1,18 +1,17 @@
 <?php namespace Flarum\Admin\Actions;
 
-use Flarum\Support\Action;
-use Illuminate\Http\Request;
+use Flarum\Support\HtmlAction;
 use Session;
 use Auth;
 use Cookie;
 use Config;
-use View;
 use DB;
 use Flarum\Api\Request as ApiRequest;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
-class IndexAction extends Action
+class IndexAction extends HtmlAction
 {
-    public function handle(Request $request, $params = [])
+    protected function render(Request $request, $routeParams = [])
     {
         $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
         $data = [];
@@ -35,7 +34,7 @@ class IndexAction extends Action
             }
         }
 
-        $view = View::make('flarum.admin::index')
+        $view = view('flarum.admin::index')
             ->with('title', 'Administration - '.Config::get('flarum::forum_title', 'Flarum Demo Forum'))
             ->with('config', $config)
             ->with('layout', 'flarum.admin::admin')

@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api;
 
+use Flarum\Http\Router;
 use Illuminate\Support\ServiceProvider;
-use Flarum\Api\Serializers\BaseSerializer;
 
 class ApiServiceProvider extends ServiceProvider
 {
@@ -16,6 +16,8 @@ class ApiServiceProvider extends ServiceProvider
             'Illuminate\Contracts\Debug\ExceptionHandler',
             'Flarum\Api\ExceptionHandler'
         );
+
+        $this->app->singleton('Flarum\Http\Router');
 
         include __DIR__.'/routes.php';
     }

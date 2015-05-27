@@ -4,7 +4,7 @@ use Flarum\Core\Search\Discussions\DiscussionSearchCriteria;
 use Flarum\Core\Search\Discussions\DiscussionSearcher;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Document;
 
 class IndexAction extends SerializeCollectionAction
 {
@@ -58,10 +58,10 @@ class IndexAction extends SerializeCollectionAction
      * document response.
      *
      * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Flarum\Api\JsonApiResponse $response
+     * @param \Tobscure\JsonApi\Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    protected function data(JsonApiRequest $request, JsonApiResponse $response)
+    protected function data(JsonApiRequest $request, Document $document)
     {
         $criteria = new DiscussionSearchCriteria(
             $request->actor->getUser(),
@@ -73,10 +73,15 @@ class IndexAction extends SerializeCollectionAction
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $load);
 
         if (($total = $results->getTotal()) !== null) {
-            $response->content->addMeta('total', $total);
+            $document->addMeta('total', $total);
         }
 
-        static::addPaginationLinks($response, $request, route('flarum.api.discussions.index'), $total ?: $results->areMoreResults());
+        static::addPaginationLinks(
+            $document,
+            $request,
+            route('flarum.api.discussions.index'),
+            $total ?: $results->areMoreResults()
+        );
 
         return $results->getDiscussions();
     }
