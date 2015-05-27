@@ -17,17 +17,27 @@ class AccessToken extends Model
     public $incrementing = false;
 
     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['created_at', 'expires_at'];
+
+    /**
      * Generate an access token for the specified user.
      *
      * @param  int  $userId
+     * @param  int  $minutes
      * @return static
      */
-    public static function generate($userId)
+    public static function generate($userId, $minutes = 60)
     {
         $token = new static;
 
         $token->id = str_random(40);
         $token->user_id = $userId;
+        $token->created_at = time();
+        $token->expires_at = time() + $minutes * 60;
 
         return $token;
     }

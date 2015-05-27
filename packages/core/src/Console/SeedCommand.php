@@ -41,8 +41,8 @@ class SeedCommand extends Command
      */
     public function fire()
     {
-        $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\DiscussionsTableSeeder']);
         $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\UsersTableSeeder']);
+        $this->call('db:seed', ['--class' => 'Flarum\Core\Seeders\DiscussionsTableSeeder']);
     }
 
     /**

@@ -1,13 +1,13 @@
 <?php namespace Flarum\Core\Models;
 
-class ResetToken extends Model
+class PasswordToken extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'reset_tokens';
+    protected $table = 'password_tokens';
 
     /**
      * Use a custom primary key for this model.
@@ -28,6 +28,7 @@ class ResetToken extends Model
 
         $token->id = str_random(40);
         $token->user_id = $userId;
+        $token->created_at = time();
 
         return $token;
     }

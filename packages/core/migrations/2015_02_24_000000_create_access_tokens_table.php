@@ -5,7 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateAccessTokensTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -14,9 +13,10 @@ class CreateAccessTokensTable extends Migration
     public function up()
     {
         Schema::create('access_tokens', function (Blueprint $table) {
-        
             $table->string('id', 100)->primary();
             $table->integer('user_id')->unsigned();
+            $table->timestamp('created_at');
+            $table->timestamp('expires_at');
         });
     }
 
