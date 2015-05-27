@@ -41,6 +41,11 @@ export default class StreamScrubber extends Component {
     this.visible = m.prop(1);
     this.description = m.prop();
 
+    this.unreadCount = () => {
+      var discussion = this.props.streamContent.props.stream.discussion;
+      return discussion.lastPostNumber() - discussion.readNumber();
+    };
+
     // Define a handler to update the state of the scrollbar to reflect the
     // current scroll position of the page.
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
@@ -59,6 +64,8 @@ export default class StreamScrubber extends Component {
   view() {
     var retain = this.subtree.retain();
     var streamContent = this.props.streamContent;
+    var unreadCount = this.unreadCount();
+    var unreadPercent = unreadCount / this.count();
 
     return m('div.stream-scrubber.dropdown'+(this.disabled() ? '.disabled' : ''), {config: this.onload.bind(this)}, [
       m('a.btn.btn-default.dropdown-toggle[href=javascript:;][data-toggle=dropdown]', [
@@ -77,7 +84,18 @@ export default class StreamScrubber extends Component {
                 m('span.description', retain || this.description())
               ])
             ]),
-            m('div.scrubber-after')
+            m('div.scrubber-after'),
+            (app.session.user() && unreadPercent) ? m('div.scrubber-unread', {
+              style: {top: (100 - unreadPercent * 100)+'%', height: (unreadPercent * 100)+'%'},
+              config: function(element, isInitialized, context) {
+                var $element = $(element);
+                var newStyle = {top: $element.css('top'), height: $element.css('height')};
+                if (context.oldStyle) {
+                  $element.stop(true).css(context.oldStyle).animate(newStyle);
+                }
+                context.oldStyle = newStyle;
+              }
+            }, unreadCount+' unread') : ''
           ]),
           m('a.scrubber-last[href=javascript:;]', {onclick: streamContent.goToLast.bind(streamContent)}, [icon('angle-double-down'), ' Now'])
         ])
