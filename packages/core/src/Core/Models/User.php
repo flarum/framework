@@ -13,6 +13,7 @@ use Flarum\Core\Events\UserBioWasChanged;
 use Flarum\Core\Events\UserAvatarWasChanged;
 use Flarum\Core\Events\UserWasActivated;
 use Flarum\Core\Events\UserEmailWasConfirmed;
+use Flarum\Core\Events\UserEmailChangeWasRequested;
 
 class User extends Model
 {
@@ -94,8 +95,6 @@ class User extends Model
         $user->password  = $password;
         $user->join_time = time();
 
-        $user->refreshConfirmationToken();
-
         $user->raise(new UserWasRegistered($user));
 
         return $user;
@@ -111,6 +110,7 @@ class User extends Model
     {
         if ($username !== $this->username) {
             $this->username = $username;
+
             $this->raise(new UserWasRenamed($this));
         }
 
@@ -127,7 +127,26 @@ class User extends Model
     {
         if ($email !== $this->email) {
             $this->email = $email;
+
             $this->raise(new UserEmailWasChanged($this));
+        }
+
+        return $this;
+    }
+
+    public function requestEmailChange($email)
+    {
+        if ($email !== $this->email) {
+            $validator = static::$validator->make(
+                compact('email'),
+                $this->expandUniqueRules(array_only(static::$rules, 'email'))
+            );
+
+            if ($validator->fails()) {
+                $this->throwValidationFailureException($validator);
+            }
+
+            $this->raise(new UserEmailChangeWasRequested($this, $email));
         }
 
         return $this;
@@ -257,37 +276,8 @@ class User extends Model
     public function activate()
     {
         $this->is_activated = true;
-        $this->groups()->sync([3]);
 
         $this->raise(new UserWasActivated($this));
-
-        return $this;
-    }
-
-    /**
-     * Check if a given confirmation token is valid for this user.
-     *
-     * @param  string  $token
-     * @return boolean
-     */
-    public function assertConfirmationTokenValid($token)
-    {
-        if ($this->is_confirmed ||
-            ! $token ||
-            $this->confirmation_token !== $token) {
-            throw new InvalidConfirmationTokenException;
-        }
-    }
-
-    /**
-     * Generate a new confirmation token for the user.
-     *
-     * @return $this
-     */
-    public function refreshConfirmationToken()
-    {
-        $this->is_confirmed = false;
-        $this->confirmation_token = str_random(30);
 
         return $this;
     }
@@ -461,7 +451,13 @@ class User extends Model
      */
     public function permissions()
     {
-        return Permission::whereIn('group_id', array_merge([Group::GUEST_ID], $this->groups->lists('id')));
+        $groupIds = [Group::GUEST_ID];
+
+        if ($this->is_activated) {
+            $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->lists('id'));
+        }
+
+        return Permission::whereIn('group_id', $groupIds);
     }
 
     /**
