@@ -1,6 +1,6 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Flarum\Core\Models\ResetToken;
+use Flarum\Core\Models\PasswordToken;
 use Flarum\Core\Commands\EditUserCommand;
 use Illuminate\Http\Request;
 
@@ -8,7 +8,7 @@ class SavePasswordAction extends BaseAction
 {
     public function handle(Request $request, $routeParams = [])
     {
-        $token = ResetToken::findOrFail($request->get('token'));
+        $token = PasswordToken::findOrFail($request->get('token'));
 
         $password = $request->get('password');
         $confirmation = $request->get('password_confirmation');
