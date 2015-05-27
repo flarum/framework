@@ -17,7 +17,7 @@ class ApiServiceProvider extends ServiceProvider
             'Flarum\Api\ExceptionHandler'
         );
 
-        $this->app->singleton('Flarum\Http\Router', function() { return new Router(); });
+        $this->app->singleton('Flarum\Http\Router');
 
         include __DIR__.'/routes.php';
     }
