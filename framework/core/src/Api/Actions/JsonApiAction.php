@@ -46,14 +46,6 @@ abstract class JsonApiAction implements ActionInterface
         return new Response($data, $status);
     }
 
-    protected function route($name, array $parameters = [])
-    {
-        /** @var \Flarum\Http\UrlGeneratorInterface $generator */
-        $generator = app('Flarum\Http\UrlGeneratorInterface');
-
-        return $generator->toRoute($name, $parameters);
-    }
-
     /**
      * Handle an API request and return an API response.
      *
