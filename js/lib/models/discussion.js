@@ -37,6 +37,7 @@ Discussion.prototype.commentsCount = Model.prop('commentsCount');
 Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => commentsCount - 1);
 
 Discussion.prototype.posts = Model.many('posts');
+Discussion.prototype.postIds = function() { return this.data().links.posts.linkage.map((link) => link.id); };
 Discussion.prototype.relevantPosts = Model.many('relevantPosts');
 Discussion.prototype.addedPosts = Model.many('addedPosts');
 Discussion.prototype.removedPosts = Model.prop('removedPosts');

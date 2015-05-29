@@ -41,7 +41,7 @@ export default class Model {
     for (var i in data) {
       if (i === 'links') {
         oldData[i] = oldData[i] || {};
-        for (var j in newData[i]) {
+        for (var j in currentData[i]) {
           oldData[i][j] = currentData[i][j];
         }
       } else {

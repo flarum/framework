@@ -67,7 +67,7 @@ export default class ReplyComposer extends ComposerBody {
       // If we're currently viewing the discussion which this reply was made
       // in, then we can add the post to the end of the post stream.
       if (app.current && app.current.discussion && app.current.discussion().id() === discussion.id()) {
-        app.current.stream().addPostToEnd(post);
+        app.current.stream.pushPost(post);
         m.route(app.route('discussion.near', {
           id: discussion.id(),
           slug: discussion.slug(),
