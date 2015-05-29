@@ -117,8 +117,8 @@ export default class DiscussionList extends Component {
   }
 
   view() {
-    return m('div', [
-      m('ul.discussions-list', [
+    return m('div.discussion-list', [
+      m('ul', [
         this.discussions().map(discussion => {
           var startUser = discussion.startUser();
           var isUnread = discussion.isUnread();
