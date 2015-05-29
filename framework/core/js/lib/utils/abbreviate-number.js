@@ -4,6 +4,6 @@ export default function(number) {
   } else if (number >= 1000) {
     return Math.floor(number / 1000)+'K';
   } else {
-    return ''+number;
+    return number.toString();
   }
 }
