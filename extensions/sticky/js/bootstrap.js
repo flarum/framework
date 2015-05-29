@@ -35,7 +35,7 @@ app.initializers.add('sticky', function() {
   function toggleSticky() {
     this.save({isSticky: !this.isSticky()}).then(discussion => {
       if (app.current instanceof DiscussionPage) {
-        app.current.stream().sync();
+        app.current.stream.sync();
       }
       m.redraw();
     });
