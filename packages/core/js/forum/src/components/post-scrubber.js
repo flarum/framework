@@ -3,6 +3,7 @@ import icon from 'flarum/helpers/icon';
 import ScrollListener from 'flarum/utils/scroll-listener';
 import SubtreeRetainer from 'flarum/utils/subtree-retainer';
 import computed from 'flarum/utils/computed';
+import formatNumber from 'flarum/utils/format-number';
 
 /**
 
@@ -63,9 +64,10 @@ export default class PostScrubber extends Component {
     var unreadCount = this.props.stream.discussion.unreadCount();
     var unreadPercent = unreadCount / this.count();
 
+    // @todo clean up duplication
     return m('div.stream-scrubber.dropdown'+(this.disabled() ? '.disabled' : ''), {config: this.onload.bind(this)}, [
       m('a.btn.btn-default.dropdown-toggle[href=javascript:;][data-toggle=dropdown]', [
-        m('span.index', retain || this.visibleIndex()), ' of ', m('span.count', this.count()), ' posts ',
+        m('span.index', retain || formatNumber(this.visibleIndex())), ' of ', m('span.count', formatNumber(this.count())), ' posts ',
         icon('sort icon-glyph')
       ]),
       m('div.dropdown-menu', [
@@ -80,7 +82,7 @@ export default class PostScrubber extends Component {
             m('div.scrubber-slider', [
               m('div.scrubber-handle'),
               m('div.scrubber-info', [
-                m('strong', [m('span.index', retain || this.visibleIndex()), ' of ', m('span.count', this.count()), ' posts']),
+                m('strong', [m('span.index', retain || formatNumber(this.visibleIndex())), ' of ', m('span.count', formatNumber(this.count())), ' posts']),
                 m('span.description', retain || this.description())
               ])
             ]),
@@ -95,7 +97,7 @@ export default class PostScrubber extends Component {
                 }
                 context.oldStyle = newStyle;
               }
-            }, unreadCount+' unread') : ''
+            }, formatNumber(unreadCount)+' unread') : ''
           ]),
           m('a.scrubber-last[href=javascript:;]', {onclick: () => {
             stream.goToLast();
@@ -264,7 +266,7 @@ export default class PostScrubber extends Component {
     var visible = this.visible();
 
     var $scrubber = this.$();
-    $scrubber.find('.index').text(this.visibleIndex());
+    $scrubber.find('.index').text(formatNumber(this.visibleIndex()));
     $scrubber.find('.description').text(this.description());
     $scrubber.toggleClass('disabled', this.disabled());
 
@@ -318,7 +320,7 @@ export default class PostScrubber extends Component {
     scrollbar.css('max-height', $(window).height() - scrollbar.offset().top + $(window).scrollTop() - parseInt($('.global-page').css('padding-bottom')));
   }
 
-  onmousedown() {
+  onmousedown(e) {
     this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
     this.indexStart = this.index();
     this.dragging = true;
@@ -326,7 +328,7 @@ export default class PostScrubber extends Component {
     $('body').css('cursor', 'move');
   }
 
-  onmousemove() {
+  onmousemove(e) {
     if (! this.dragging) { return; }
 
     // Work out how much the mouse has moved by - first in pixels, then
@@ -342,7 +344,7 @@ export default class PostScrubber extends Component {
     this.renderScrollbar();
   }
 
-  onmouseup() {
+  onmouseup(e) {
     if (!this.dragging) { return; }
     this.mouseStart = 0;
     this.indexStart = 0;
