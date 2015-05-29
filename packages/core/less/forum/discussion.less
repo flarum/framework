@@ -73,67 +73,25 @@
     margin-bottom: 40px;
   }
 }
-.gap {
-  padding: 30px 0;
-  text-align: center;
-  color: #aaa;
-  cursor: pointer;
-  border: 2px dashed @fl-body-bg;
-  background: #f2f2f2;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: bold;
-  overflow: hidden;
-  position: relative;
-  .transition(padding 0.2s);
-
-  &:hover, &.loading, &.active {
-    padding: 50px 0;
-
-    &.up:before, &.down:after {
-      opacity: 1;
-    }
-  }
-  &.loading {
-    .transition(none);
-  }
-  &:before, &:after {
-    font-family: 'FontAwesome';
-    display: block;
-    opacity: 0;
-    transition: opacity 0.2s;
-    height: 15px;
-    color: #aaa;
-  }
-  &.up:before {
-    content: '\f077';
-    margin-top: -25px;
-    margin-bottom: 10px;
-  }
-  &.down:after {
-    content: '\f078';
-    margin-bottom: -25px;
-    margin-top: 10px;
-  }
-  &:only-child {
-    background: none;
-    border: 0;
-    color: @fl-primary-color;
-    &:before, &:after {
-      display: none;
-    }
-  }
-  & .loading-indicator {
-    color: #aaa;
-  }
+@keyframes blink {
+  0% {opacity: 0.5}
+  50% {opacity: 1}
+  100% {opacity: 0.5}
 }
+.loading-post {
+  animation: blink 1s linear;
+  animation-iteration-count: infinite;
+}
+.fake-text {
+  background: @fl-body-secondary-color;
+  height: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: @border-radius-base;
 
-@media @phone {
-  .gap {
-    margin-left: -15px;
-    margin-right: -15px;
-    border-left: 0;
-    border-right: 0;
+  .post-header & {
+    height: 16px;
+    width: 150px;
   }
 }
 
@@ -175,18 +133,18 @@
     background: @fl-primary-color;
   }
 }
-@-webkit-keyframes pulsate {
+@keyframes pulsate {
   0% {transform: scale(1)}
   50% {transform: scale(1.02)}
   100% {transform: scale(1)}
 }
 .item.pulsate {
-  -webkit-animation: pulsate 1s ease-in-out;
-  -webkit-animation-iteration-count: infinite;
+  animation: pulsate 1s ease-in-out;
+  animation-iteration-count: infinite;
 }
 .item.flash {
-  -webkit-animation: pulsate 0.2s ease-in-out;
-  -webkit-animation-iteration-count: 1;
+  animation: pulsate 0.2s ease-in-out;
+  animation-iteration-count: 1;
 }
 .post-header {
   margin-bottom: 10px;
