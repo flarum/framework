@@ -43,7 +43,7 @@ export default class MoveDiscussionModal extends Component {
     if (discussion) {
       discussion.save({links: {category}}).then(discussion => {
         if (app.current instanceof DiscussionPage) {
-          app.current.stream().sync();
+          app.current.stream.sync();
         }
         m.redraw();
       });
