@@ -12,7 +12,7 @@ class CreateMentionsPostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('mentionsPosts', function (Blueprint $table) {
+        Schema::create('mentions_posts', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('mentions_id')->unsigned();
             $table->primary(['post_id', 'mentions_id']);
@@ -26,6 +26,6 @@ class CreateMentionsPostsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('mentionsPosts');
+        Schema::drop('mentions_posts');
     }
 }
