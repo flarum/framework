@@ -10,7 +10,7 @@ export default function(app) {
   Discussion.prototype.replyAction = function(goToLast, forceRefresh) {
     if (app.session.user() && this.canReply()) {
       if (goToLast && app.current.discussion && app.current.discussion().id() === this.id()) {
-        app.current.streamContent.goToLast();
+        app.current.stream.goToLast();
       }
       var component = app.composer.component;
       if (!(component instanceof ReplyComposer) || component.props.discussion !== this || component.props.user !== app.session.user() || forceRefresh) {
@@ -47,7 +47,7 @@ export default function(app) {
     if (title && title !== currentTitle) {
       this.save({title}).then(discussion => {
         if (app.current instanceof DiscussionPage) {
-          app.current.stream().sync();
+          app.current.stream.sync();
         }
         m.redraw();
       });
