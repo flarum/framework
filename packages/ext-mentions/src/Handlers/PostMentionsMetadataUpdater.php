@@ -7,6 +7,8 @@ use Flarum\Core\Activity\ActivitySyncer;
 use Flarum\Core\Notifications\NotificationSyncer;
 use Flarum\Core\Events\PostWasPosted;
 use Flarum\Core\Events\PostWasRevised;
+use Flarum\Core\Events\PostWasHidden;
+use Flarum\Core\Events\PostWasRestored;
 use Flarum\Core\Events\PostWasDeleted;
 use Flarum\Core\Models\Post;
 use Flarum\Core\Notifications\Notifier;
