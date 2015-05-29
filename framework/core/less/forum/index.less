@@ -26,9 +26,6 @@
 .index-toolbar-action {
   float: right;
 }
-.index-results .loading-indicator {
-  height: 46px;
-}
 
 @media @phone, @tablet {
   .offset-content {
@@ -84,10 +81,11 @@
       & .hero, & .index-nav, & .index-toolbar {
         display: none;
       }
-      & .discussions-list > li {
+      & .discussion-list > ul > li {
         margin: 0;
         padding-left: 57px + 15px;
         padding-right: 65px + 15px;
+
         &.active {
           background: @fl-body-control-bg;
         }
@@ -132,15 +130,21 @@
 // ------------------------------------
 // Discussions List
 
-.discussions-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  position: relative;
+.discussion-list {
+  & .loading-indicator {
+    height: 46px;
+  }
+
+  & > ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    position: relative;
+  }
 }
 
 @media @phone {
-  .discussions-list > li {
+  .discussion-list > ul > li {
     padding-right: 45px;
 
     & .contextual-controls {
@@ -150,11 +154,9 @@
 }
 
 @media @tablet, @desktop, @desktop-hd {
-  .discussions-list {
-    & > li {
-      margin-right: -25px;
-      padding-right: 65px + 25px;
-    }
+  .discussion-list > ul > li {
+    margin-right: -25px;
+    padding-right: 65px + 25px;
   }
 }
 
