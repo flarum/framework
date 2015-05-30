@@ -8,5 +8,6 @@ Category.prototype.slug = Model.prop('slug');
 Category.prototype.description = Model.prop('description');
 Category.prototype.color = Model.prop('color');
 Category.prototype.discussionsCount = Model.prop('discussionsCount');
+Category.prototype.position = Model.prop('position');
 
 export default Category;
