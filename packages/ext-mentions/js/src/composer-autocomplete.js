@@ -58,6 +58,7 @@ export default function() {
         }
 
         dropdown.hide();
+        dropdown.active(false);
 
         if (mentionStart) {
           typed = value.substring(mentionStart, cursor).toLowerCase();
@@ -149,6 +150,7 @@ export default function() {
 
           dropdown.setIndex(0);
           dropdown.$().scrollTop(0);
+          dropdown.active(true);
 
           clearTimeout(searchTimeout);
           searchTimeout = setTimeout(function() {
