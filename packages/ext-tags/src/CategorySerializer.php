@@ -24,7 +24,8 @@ class CategorySerializer extends BaseSerializer
             'description'      => $category->description,
             'slug'             => $category->slug,
             'color'            => $category->color,
-            'discussionsCount' => (int) $category->discussions_count
+            'discussionsCount' => (int) $category->discussions_count,
+            'position'         => (int) $category->position
         ];
 
         return $this->extendAttributes($category, $attributes);

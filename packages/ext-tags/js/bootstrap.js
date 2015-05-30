@@ -67,7 +67,7 @@ app.initializers.add('categories', function() {
 
     items.add('uncategorized', CategoryNavItem.component({params: this.stickyParams()}), {last: true});
 
-    app.store.all('categories').forEach(category => {
+    app.store.all('categories').sort((a, b) => a.position() - b.position()).forEach(category => {
       items.add('category'+category.id(), CategoryNavItem.component({category, params: this.stickyParams()}), {last: true});
     });
   });
