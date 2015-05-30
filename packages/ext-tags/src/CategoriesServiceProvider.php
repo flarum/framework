@@ -44,7 +44,9 @@ class CategoriesServiceProvider extends ServiceProvider
 
             new ApiInclude(['discussions.index', 'discussions.show'], 'category', true),
 
-            new ApiInclude(['activity.index'], 'subject.discussion.category', true),
+            new ApiInclude('activity.index', 'subject.discussion.category', true),
+
+            new ApiInclude('notifications.index', 'subject.category', true),
 
             (new Permission('discussion.move'))
                 ->serialize()
