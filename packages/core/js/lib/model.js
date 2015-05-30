@@ -80,23 +80,29 @@ export default class Model {
   static prop(name, transform) {
     return function() {
       var data = this.data()[name];
-      return transform ? transform(data) : data
+      return transform ? transform(data) : data;
     }
   }
 
   static one(name) {
     return function() {
-      var link = this.data().links[name];
-      return link && app.store.getById(link.linkage.type, link.linkage.id)
+      var data = this.data();
+      if (data.links) {
+        var link = data.links[name];
+        return link && app.store.getById(link.linkage.type, link.linkage.id);
+      }
     }
   }
 
   static many(name) {
     return function() {
-      var link = this.data().links[name];
-      return link && link.linkage.map(function(link) {
-        return app.store.getById(link.type, link.id)
-      })
+      var data = this.data();
+      if (data.links) {
+        var link = this.data().links[name];
+        return link && link.linkage.map(function(link) {
+          return app.store.getById(link.type, link.id)
+        });
+      }
     }
   }
 
