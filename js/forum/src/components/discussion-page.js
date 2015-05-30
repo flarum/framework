@@ -87,6 +87,8 @@ export default class DiscussionPage extends mixin(Component, evented) {
     this.stream = new PostStream({ discussion, includedPosts });
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || 1, true);
+
+    this.trigger('loaded');
   }
 
   onload(element, isInitialized, context) {
