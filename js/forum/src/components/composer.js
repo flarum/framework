@@ -133,8 +133,6 @@ class Composer extends Component {
   }
 
   render(anchorToBottom) {
-    if (this.position() === this.oldPosition) { this.component.focus(); return; }
-
     var $composer = this.$().stop(true);
     var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 
