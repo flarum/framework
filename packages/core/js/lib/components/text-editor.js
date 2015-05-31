@@ -61,6 +61,11 @@ export default class TextEditor extends Component {
     $textarea.focus();
   }
 
+  getSelectionRange() {
+    var $textarea = this.$('textarea');
+    return [$textarea[0].selectionStart, $textarea[0].selectionEnd];
+  }
+
   insertAtCursor(insert) {
     var textarea = this.$('textarea')[0];
     var content = this.value();
