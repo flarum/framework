@@ -1,3 +1,8 @@
+@fl-primary-color:                  #536F90;
+@fl-secondary-color:                #536F90;
+@fl-dark-mode:                      false;
+@fl-colored-hdr:                    false;
+
 // ---------------------------------
 // HELPERS
 
@@ -22,7 +27,7 @@
   @fl-shadow-color:                   rgba(0, 0, 0, 0.35);
 }
 .define-body-variables(true) {
-  @fl-body-primary-color:             mix(@fl-primary-color, #000);
+  @fl-body-primary-color:             mix(@fl-primary-color, #000, 80%);
   @fl-body-secondary-color:           hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 13%);
 
   @fl-body-bg:                        hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 10%);

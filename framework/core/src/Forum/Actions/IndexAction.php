@@ -9,6 +9,7 @@ use View;
 use DB;
 use Flarum\Forum\Events\RenderView;
 use Flarum\Api\Request as ApiRequest;
+use Flarum\Core;
 
 class IndexAction extends BaseAction
 {
@@ -36,7 +37,7 @@ class IndexAction extends BaseAction
         }
 
         $view = View::make('flarum.forum::index')
-            ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
+            ->with('title', Core::config('forum_title'))
             ->with('config', $config)
             ->with('layout', 'flarum.forum::forum')
             ->with('data', $data)
@@ -49,6 +50,12 @@ class IndexAction extends BaseAction
             $root.'/js/forum/dist/app.js',
             $root.'/less/forum/app.less'
         ]);
+        $assetManager->addLess('
+            @fl-primary-color: '.Core::config('theme_primary_color').';
+            @fl-secondary-color: '.Core::config('theme_secondary_color').';
+            @fl-dark-mode: '.(Core::config('theme_dark_mode') ? 'true' : 'false').';
+            @fl-colored_header: '.(Core::config('theme_colored_header') ? 'true' : 'false').';
+        ');
 
         event(new RenderView($view, $assetManager, $this));
 
