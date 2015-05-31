@@ -17,27 +17,24 @@
 
   & > li {
     display: inline-block;
-    margin-right: 10px;
+    margin-right: -4px;
   }
   & h3 {
     margin: 0 0 10px;
     line-height: 1.5em;
 
     &, & input, & a {
-      color: @fl-body-muted-color;
-      font-size: 15px;
+      color: @fl-secondary-color;
+      font-size: 16px;
       font-weight: normal;
-      transition: color 0.2s;
-
-      .active & {
-        color: @fl-body-primary-color;
-      }
     }
-    & input, & input[disabled] {
-      background: none;
-      border: 0;
-      padding: 0;
-      height: auto;
+    & input {
+      &, &[disabled] {
+        background: none;
+        border: 0;
+        padding: 0 20px 0 0;
+        height: auto;
+      }
     }
   }
 }
@@ -134,6 +131,15 @@
       height: auto;
     }
   }
+  .composer-controls {
+    .full-screen & .btn {
+      padding: 13px;
+
+      & .fa {
+        font-size: 20px;
+      }
+    }
+  }
   .composer-header {
     .minimized & {
       pointer-events: none;
@@ -167,14 +173,14 @@
     float: left;
     .avatar-size(64px);
 
-    .minimized & {
+    .minimized &, .full-screen & {
       display: none;
     }
   }
   .composer-body {
     margin-left: 90px;
 
-    .minimized & {
+    .minimized &, .full-screen & {
       margin-left: 0;
     }
   }
@@ -182,15 +188,19 @@
     .minimized & {
       visibility: hidden;
     }
+
+    .full-screen & textarea {
+      font-size: 16px;
+    }
   }
 }
 
 @media @desktop, @desktop-hd {
-  .composer {
+  .composer:not(.full-screen) {
     margin-left: -20px;
     margin-right: 180px;
 
-    .index-page &:not(.full-screen) {
+    .index-page & {
       margin-left: 205px;
       margin-right: -20px;
     }
@@ -236,6 +246,12 @@
     margin: 0 -20px 0 -110px;
     padding: 15px 20px;
     border-top: 1px solid @fl-body-secondary-color;
+
+    .full-screen & {
+      margin: 0;
+      border-top: 0;
+      padding: 20px 0;
+    }
 
     & .btn-primary {
       padding-left: 20px;
