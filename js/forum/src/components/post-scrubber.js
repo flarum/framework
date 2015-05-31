@@ -211,7 +211,7 @@ export default class PostScrubber extends Component {
     // When any part of the whole scrollbar is clicked, we want to jump to
     // that position.
     this.$('.scrubber-scrollbar')
-      .bind('click touchstart', this.onclick.bind(this))
+      .bind('click', this.onclick.bind(this))
 
       // Now we want to make the scrollbar handle draggable. Let's start by
       // preventing default browser events from messing things up.
