@@ -127,8 +127,7 @@ export default class DiscussionList extends Component {
 
           var controls = discussion.controls(this).toArray();
 
-          var discussionRoute = app.route('discussion', { id: discussion.id(), slug: discussion.slug() });
-          var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
+          var active = m.route.param('id') === discussion.id();
 
           var subtree = this.subtrees[discussion.id()];
           return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {
