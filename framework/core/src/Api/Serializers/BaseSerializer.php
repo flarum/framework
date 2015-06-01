@@ -49,12 +49,12 @@ abstract class BaseSerializer extends SerializerAbstract
             $relation = $caller['function'];
         }
 
-        return function ($model, $include, $links) use ($serializer, $many, $relation) {
+        return function ($model, $include, $included, $links) use ($serializer, $many, $relation) {
             if ($relation instanceof Closure) {
                 $data = $relation($model, $include);
             } else {
                 if ($include) {
-                    $data = !is_null($model->$relation) ? $model->$relation : ($many ? $model->$relation()->get() : $model->$relation()->first());
+                    $data = !is_null($model->$relation) ? $model->$relation : $model->$relation()->getResults();
                 } elseif ($many) {
                     $relationIds = $relation.'_ids';
                     $data = $model->$relationIds ?: $model->$relation()->get(['id'])->fetch('id')->all();
@@ -67,7 +67,7 @@ abstract class BaseSerializer extends SerializerAbstract
             if ($serializer instanceof Closure) {
                 $serializer = $serializer($model, $data);
             }
-            $serializer = new $serializer($this->actor, $links);
+            $serializer = new $serializer($this->actor, $included, $links);
             return $many ? $serializer->collection($data) : $serializer->resource($data);
         };
     }

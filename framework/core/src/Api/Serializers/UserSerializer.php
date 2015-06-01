@@ -3,13 +3,6 @@
 class UserSerializer extends UserBasicSerializer
 {
     /**
-     * Default relations to include.
-     *
-     * @var array
-     */
-    protected $include = ['groups'];
-
-    /**
      * Serialize attributes of a User model for JSON output.
      *
      * @param User $user The User model to serialize.

@@ -3,13 +3,6 @@
 class DiscussionSerializer extends DiscussionBasicSerializer
 {
     /**
-     * Default relations to include.
-     *
-     * @var array
-     */
-    protected $include = ['startUser', 'lastUser'];
-
-    /**
      * Serialize attributes of a Discussion model for JSON output.
      *
      * @param Discussion $discussion The Discussion model to serialize.
