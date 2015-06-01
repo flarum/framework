@@ -130,9 +130,11 @@ class Model extends Eloquent
      */
     protected function makeValidator()
     {
-        $rules = $this->expandUniqueRules(static::$rules);
+        $dirty = $this->getDirty();
 
-        return static::$validator->make($this->attributes, $rules);
+        $rules = $this->expandUniqueRules(array_only(static::$rules, array_keys($dirty)));
+
+        return static::$validator->make($dirty, $rules);
     }
 
     /**
