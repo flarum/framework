@@ -3,6 +3,7 @@ import ComposerBody from 'flarum/components/composer-body';
 import Alert from 'flarum/components/alert';
 import ActionButton from 'flarum/components/action-button';
 import Composer from 'flarum/components/composer';
+import icon from 'flarum/helpers/icon';
 
 export default class ReplyComposer extends ComposerBody {
   constructor(props) {
@@ -25,7 +26,7 @@ export default class ReplyComposer extends ComposerBody {
       !app.current.discussion ||
       app.current.discussion() !== this.props.discussion) {
       items.add('title', m('h3', [
-        'Replying to ',
+        icon('reply'), ' ',
         m('a', {href: app.route.discussion(this.props.discussion), config: m.route}, this.props.discussion.title())
       ]));
     }
