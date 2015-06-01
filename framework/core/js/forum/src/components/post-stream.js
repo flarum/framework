@@ -51,7 +51,7 @@ class PostStream extends mixin(Component, evented) {
     return promise.then(() => {
       anchorScroll(this.$('.item:'+(backwards ? 'last' : 'first')), () => m.redraw(true));
 
-      this.scrollToIndex(index, noAnimation).done(this.unpause.bind(this));
+      this.scrollToIndex(index, noAnimation, backwards).done(this.unpause.bind(this));
     });
   }
 
@@ -66,7 +66,7 @@ class PostStream extends mixin(Component, evented) {
     Load and scroll down to the last post in the discussion.
    */
   goToLast() {
-    return this.goToIndex(this.count() - 1);
+    return this.goToIndex(this.count() - 1, true);
   }
 
   /**
@@ -419,16 +419,16 @@ class PostStream extends mixin(Component, evented) {
   /**
     Scroll down to a certain post by index.
    */
-  scrollToIndex(index, noAnimation) {
+  scrollToIndex(index, noAnimation, bottom) {
     var $item = this.$('.item[data-index='+index+']');
 
-    return this.scrollToItem($item, noAnimation, true);
+    return this.scrollToItem($item, noAnimation, true, true);
   }
 
   /**
     Scroll down to the given post.
    */
-  scrollToItem($item, noAnimation, force) {
+  scrollToItem($item, noAnimation, force, bottom) {
     var $container = $('html, body').stop(true);
 
     if ($item.length) {
@@ -439,7 +439,7 @@ class PostStream extends mixin(Component, evented) {
 
       // If the item is already in the viewport, we may not need to scroll.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        var scrollTop = $item.is(':first-child') ? 0 : itemTop;
+        var scrollTop = bottom ? itemBottom : ($item.is(':first-child') ? 0 : itemTop);
 
         if (noAnimation) {
           $container.scrollTop(scrollTop);
