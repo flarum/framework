@@ -60,7 +60,7 @@ export default class LoginModal extends FormModal {
 
     app.session.login(email, password).then(() => {
       this.hide();
-      this.props.callback && this.props.callback();
+      this.props.onlogin && this.props.onlogin();
     }, response => {
       this.loading(false);
       if (response && response.code === 'confirm_email') {
