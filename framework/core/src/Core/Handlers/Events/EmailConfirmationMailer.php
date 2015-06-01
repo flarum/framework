@@ -32,8 +32,8 @@ class EmailConfirmationMailer
         $user = $event->user;
         $data = $this->getPayload($user, $user->email);
 
-        $this->mailer->send(['text' => 'flarum::emails.activateAccount'], $data, function ($message) use ($email) {
-            $message->to($email);
+        $this->mailer->send(['text' => 'flarum::emails.activateAccount'], $data, function ($message) use ($user) {
+            $message->to($user->email);
             $message->subject('Activate Your New Account');
         });
     }
