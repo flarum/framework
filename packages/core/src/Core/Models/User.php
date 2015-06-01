@@ -174,7 +174,7 @@ class User extends Model
      */
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password'] = $value ? static::$hasher->make($value) : null;
+        $this->attributes['password'] = $value ? static::$hasher->make($value) : '';
     }
 
     /**
