@@ -6,7 +6,7 @@ import Composer from 'flarum/components/composer';
 
 export default class ReplyComposer extends ComposerBody {
   constructor(props) {
-    props.placeholder = props.placeholder || 'Write your reply...';
+    props.placeholder = props.placeholder || 'Write a Reply...';
     props.submitLabel = props.submitLabel || 'Post Reply';
     props.confirmExit = props.confirmExit || 'You have not posted your reply. Do you wish to discard it?';
 

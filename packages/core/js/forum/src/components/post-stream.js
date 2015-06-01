@@ -4,6 +4,7 @@ import PostLoading from 'flarum/components/post-loading';
 import anchorScroll from 'flarum/utils/anchor-scroll';
 import mixin from 'flarum/utils/mixin';
 import evented from 'flarum/utils/evented';
+import ReplyPlaceholder from 'flarum/components/reply-placeholder';
 
 class PostStream extends mixin(Component, evented) {
   constructor(props) {
@@ -170,7 +171,15 @@ class PostStream extends mixin(Component, evented) {
         }
 
         return m('div.item', attributes, content);
-      })
+      }),
+
+      // If we're viewing the end of the discussion, the user can reply, and
+      // is not already doing so, then show a 'write a reply' placeholder.
+      this.visibleEnd === this.count() &&
+        (!app.session.user() || this.discussion.canReply()) &&
+        !app.composingReplyTo(this.discussion)
+        ? m('div.item', ReplyPlaceholder.component({discussion: this.discussion}))
+        : ''
     );
   }
 
@@ -376,7 +385,9 @@ class PostStream extends mixin(Component, evented) {
         }
 
         if (top + height < scrollTop + viewportHeight) {
-          endNumber = $item.data('number');
+          if ($item.data('number')) {
+            endNumber = $item.data('number');
+          }
         } else {
           return false;
         }
