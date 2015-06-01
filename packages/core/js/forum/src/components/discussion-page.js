@@ -54,7 +54,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
   params() {
     return {
       near: this.currentNear,
-      include: ['posts', 'posts.user']
+      include: ['posts', 'posts.user', 'posts.user.groups']
     };
   }
 

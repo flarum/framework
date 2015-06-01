@@ -10,20 +10,6 @@ class PostBasicSerializer extends BaseSerializer
     protected $type = 'posts';
 
     /**
-     * Default relations to link.
-     *
-     * @var array
-     */
-    protected $link = ['discussion'];
-
-    /**
-     * Default relations to include.
-     *
-     * @var array
-     */
-    protected $include = ['user'];
-
-    /**
      * Serialize attributes of a Post model for JSON output.
      *
      * @param Post $post The Post model to serialize.
