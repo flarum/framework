@@ -88,7 +88,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || 1, true);
 
-    this.trigger('loaded');
+    this.trigger('loaded', discussion);
   }
 
   onload(element, isInitialized, context) {
