@@ -17,7 +17,7 @@ class ShowAction extends SerializeResourceAction
      *
      * @var string
      */
-    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+    public static $serializer = 'Flarum\Api\Serializers\CurrentUserSerializer';
 
     /**
      * The relationships that are available to be included, and which ones are
