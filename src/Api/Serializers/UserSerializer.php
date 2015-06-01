@@ -12,8 +12,8 @@ class UserSerializer extends UserBasicSerializer
     {
         $attributes = parent::attributes($user);
 
-        $actorUser = $this->actor->getUser();
-        $canEdit = $user->can($actorUser, 'edit');
+        $actingUser = $this->actor->getUser();
+        $canEdit = $user->can($actingUser, 'edit');
 
         $attributes += [
             'bioHtml'          => $user->bio_html,
@@ -21,7 +21,7 @@ class UserSerializer extends UserBasicSerializer
             'discussionsCount' => (int) $user->discussions_count,
             'commentsCount'    => (int) $user->comments_count,
             'canEdit'          => $canEdit,
-            'canDelete'        => $user->can($actorUser, 'delete'),
+            'canDelete'        => $user->can($actingUser, 'delete'),
         ];
 
         if ($user->preference('discloseOnline')) {
@@ -36,14 +36,6 @@ class UserSerializer extends UserBasicSerializer
                 'isActivated' => $user->is_activated,
                 'email'       => $user->email,
                 'isConfirmed' => $user->is_confirmed
-            ];
-        }
-
-        if ($user->id === $actorUser->id) {
-            $attributes += [
-                'readTime' => $user->read_time ? $user->read_time->toRFC3339String() : null,
-                'unreadNotificationsCount' => $user->getUnreadNotificationsCount(),
-                'preferences' => $user->preferences
             ];
         }
 
