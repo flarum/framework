@@ -2,6 +2,7 @@ import ItemList from 'flarum/utils/item-list';
 import ComposerBody from 'flarum/components/composer-body';
 import Alert from 'flarum/components/alert';
 import ActionButton from 'flarum/components/action-button';
+import icon from 'flarum/helpers/icon';
 
 /**
   The composer body for editing a post. Sets the initial content to the
@@ -23,7 +24,7 @@ export default class EditComposer extends ComposerBody {
     var post = this.props.post;
 
     items.add('title', m('h3', [
-      'Editing ',
+      icon('pencil'), ' ',
       m('a', {href: app.route.discussion(post.discussion(), post.number()), config: m.route}, 'Post #'+post.number()),
       ' in ', post.discussion().title()
     ]));
