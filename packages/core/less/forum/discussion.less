@@ -463,17 +463,23 @@
   font-size: 15px;
   cursor: text;
   overflow: hidden;
-  margin: -15px;
-  padding: 15px 15px 15px 90px + 15px;
+  margin: 50px -20px 0;
+  border: 2px dashed @fl-body-secondary-color;
+  color: @fl-body-muted-color;
+  border-radius: 10px;
+  padding: 20px 20px 20px 110px;
+  transition: color 0.2s, border-color 0.2s;
 
-  & .avatar {
-    opacity: 0.25;
+  & .post-header {
+    padding-top: 18px;
+    color: inherit;
   }
-
+  & .avatar {
+    margin-top: -18px;
+  }
   &:hover {
-    border: 1px dashed @fl-body-secondary-color;
-    border-radius: 64px;
-    margin: -16px;
+    color: @fl-secondary-color;
+    border-color: @fl-body-muted-color;
   }
 }
 
