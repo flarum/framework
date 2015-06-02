@@ -1,6 +1,8 @@
 <?php namespace Flarum\Core\Formatter;
 
 use Illuminate\Container\Container;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 
 class FormatterManager
 {
@@ -60,7 +62,20 @@ class FormatterManager
             $text = $this->container->make($formatter)->format($text, $post);
         }
 
-        return $text;
+        // Studio does not yet merge autoload_files...
+        // https://github.com/franzliedke/studio/commit/4f0f4314db4ed3e36c869a5f79b855c97bdd1be7
+        require __DIR__.'/../../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.composer.php';
+
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Core.Encoding', 'UTF-8');
+        $config->set('Core.EscapeInvalidTags', true);
+        $config->set('HTML.Doctype', 'HTML 4.01 Strict');
+        $config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br');
+        $config->set('HTML.Nofollow', true);
+
+        $purifier = new HTMLPurifier($config);
+
+        return $purifier->purify($text);
     }
 
     public function strip($text)
