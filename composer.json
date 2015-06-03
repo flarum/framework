@@ -17,7 +17,7 @@
         "intervention/image": "dev-master",
         "psr/http-message": "^1.0@dev",
         "nikic/fast-route": "dev-master",
-        "dflydev/fig-cookies": "0.0.*@dev"
+        "dflydev/fig-cookies": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "1.4.0",
