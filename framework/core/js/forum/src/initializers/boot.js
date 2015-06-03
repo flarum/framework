@@ -11,8 +11,7 @@ import FooterSecondary from 'flarum/components/footer-secondary';
 import Composer from 'flarum/components/composer';
 import Modal from 'flarum/components/modal';
 import Alerts from 'flarum/components/alerts';
-import SignupModal from 'flarum/components/signup-modal';
-import LoginModal from 'flarum/components/login-modal';
+import SearchBox from 'flarum/components/search-box';
 
 export default function(app) {
   var id = id => document.getElementById(id);
@@ -42,6 +41,8 @@ export default function(app) {
 
   m.route.mode = 'hash';
   m.route(id('content'), '/', mapRoutes(app.routes));
+
+  app.search = new SearchBox();
 
   new ScrollListener(top => $('body').toggleClass('scrolled', top > 0)).start();
 }
