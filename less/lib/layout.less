@@ -169,7 +169,7 @@ body {
       background: fadein(@fl-drawer-control-bg, 5%);
     }
   }
-  & .search-input:before {
+  & .search-input {
     color: @fl-drawer-control-color;
   }
   & .btn-default, & .btn-default:hover {
@@ -311,12 +311,8 @@ body {
   .header-secondary {
     float: right;
 
-    & .search-input {
+    & .search-box {
       margin-right: 10px;
-
-      &:focus {
-        width: 400px;
-      }
     }
   }
 }

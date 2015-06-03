@@ -2,6 +2,7 @@ import Component from 'flarum/component';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import humanTime from 'flarum/helpers/human-time';
+import highlight from 'flarum/helpers/highlight';
 
 export default class PostPreview extends Component {
   view() {
@@ -16,7 +17,7 @@ export default class PostPreview extends Component {
       avatar(user), ' ',
       username(user), ' ',
       humanTime(post.time()), ' ',
-      post.excerpt()
+      highlight(post.excerpt(), this.props.highlight)
     ]));
   }
 }
