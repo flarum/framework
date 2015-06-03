@@ -28,8 +28,11 @@ class LoginAction extends BaseAction
         event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
 
         // TODO: The client needs to pass through exceptions
+        $response = $this->success();
+        $response->getBody()->write(json_encode($data));
+
         return $this->withRememberCookie(
-            $this->success(),
+            $response,
             $data->token
         );
     }
