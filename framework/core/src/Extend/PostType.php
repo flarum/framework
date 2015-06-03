@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Flarum\Core\Models\Post;
 
 class PostType implements ExtenderInterface
@@ -12,7 +12,7 @@ class PostType implements ExtenderInterface
         $this->class = $class;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         Post::addType($this->class);
     }

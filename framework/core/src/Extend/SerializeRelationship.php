@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Closure;
 
 class SerializeRelationship implements ExtenderInterface
@@ -21,7 +21,7 @@ class SerializeRelationship implements ExtenderInterface
         $this->child = $child;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         $parent = $this->parent;
 

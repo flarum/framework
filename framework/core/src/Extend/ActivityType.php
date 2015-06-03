@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Flarum\Core\Models\Activity;
 use Flarum\Api\Serializers\ActivitySerializer;
 
@@ -16,7 +16,7 @@ class ActivityType implements ExtenderInterface
         $this->serializer = $serializer;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         $class = $this->class;
 

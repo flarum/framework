@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 class ApiInclude implements ExtenderInterface
 {
@@ -17,7 +17,7 @@ class ApiInclude implements ExtenderInterface
         $this->status = $status;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         foreach ((array) $this->actions as $action) {
             $parts = explode('.', $action);
