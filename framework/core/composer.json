@@ -16,7 +16,8 @@
         "oyejorge/less.php": "dev-master",
         "intervention/image": "dev-master",
         "psr/http-message": "^1.0@dev",
-        "nikic/fast-route": "dev-master"
+        "nikic/fast-route": "dev-master",
+        "dflydev/fig-cookies": "0.0.*@dev"
     },
     "require-dev": {
         "fzaninotto/faker": "1.4.0",

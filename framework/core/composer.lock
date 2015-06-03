@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8b517a2c5b1d000a443c5ad91c49b2c1",
+    "hash": "b4919da43ec6d4286a38b1b95b32ae31",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -61,6 +61,58 @@
                 "utils"
             ],
             "time": "2015-02-10 06:19:18"
+        },
+        {
+            "name": "dflydev/fig-cookies",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dflydev/dflydev-fig-cookies.git",
+                "reference": "adc6bab48d09585f67338e0d00695bf64a9ee2b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dflydev/dflydev-fig-cookies/zipball/adc6bab48d09585f67338e0d00695bf64a9ee2b8",
+                "reference": "adc6bab48d09585f67338e0d00695bf64a9ee2b8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4",
+                "psr/http-message": "~1.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "~0.1@dev",
+                "phpunit/phpunit": "~4.5",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dflydev\\FigCookies\\": "src/Dflydev/FigCookies"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Beau Simensen",
+                    "email": "beau@dflydev.com"
+                }
+            ],
+            "description": "Cookies for PSR-7 HTTP Message Interface.",
+            "keywords": [
+                "cookies",
+                "psr-7",
+                "psr7"
+            ],
+            "time": "2015-06-02 19:02:56"
         },
         {
             "name": "doctrine/inflector",
@@ -139,7 +191,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/container/zipball/55b81cfeb20745e74957d7ade2773e2bc2510bef",
+                "url": "https://api.github.com/repos/illuminate/container/zipball/c5a78e53ef15204469b5b072d390af9785a82d32",
                 "reference": "55b81cfeb20745e74957d7ade2773e2bc2510bef",
                 "shasum": ""
             },
@@ -224,7 +276,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/database/zipball/79b6de7d8b76265d5e765ecd828d9e57c7844959",
+                "url": "https://api.github.com/repos/illuminate/database/zipball/e8933b4765aaa1b65f3f4a3638b6a0ea61b76a5a",
                 "reference": "79ebeb4c169178a24c5eb7f17db94df01c7dd04d",
                 "shasum": ""
             },
@@ -532,7 +584,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oyejorge/less.php/zipball/b7f01fb8e86f8d77e0f5367715ec756418232e19",
+                "url": "https://api.github.com/repos/oyejorge/less.php/zipball/fc971e6d3eb54dff3d3eba4734ff207d37cb4e0e",
                 "reference": "b7f01fb8e86f8d77e0f5367715ec756418232e19",
                 "shasum": ""
             },
@@ -701,7 +753,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tobscure/json-api/zipball/31a74d27fd9ab6a9a9bc911614ceb696504d2c39",
+                "url": "https://api.github.com/repos/tobscure/json-api/zipball/d6c82a496289569e8907f3aa980ace407a35b45e",
                 "reference": "ec101f2b95cb3ef40489b778b01beb76c3a5c13f",
                 "shasum": ""
             },
@@ -737,7 +789,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tobscure/permissible/zipball/ac146ee44be5b2c4b99ad065e2cdcd51de1f7860",
+                "url": "https://api.github.com/repos/tobscure/permissible/zipball/0ba23dd1ed6f5372bf86fa917450cb70d08c012b",
                 "reference": "ac146ee44be5b2c4b99ad065e2cdcd51de1f7860",
                 "shasum": ""
             },
@@ -776,7 +828,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/cdc3569fedb017eea204b40eae0c82cf726e0107",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/b33bbcbf4344dbdbba86328c42fd3ef409bb286b",
                 "reference": "d3cf78c6053f3fdfa4025bfcdb713f91e3ccdbdf",
                 "shasum": ""
             },
@@ -1465,7 +1517,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/9ef4b8cbf3e839a44a9b375d8c59e109ac7aa020",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/3ee57a4fa5c2228da154f88239a921c8d54fcedd",
                 "reference": "9ef4b8cbf3e839a44a9b375d8c59e109ac7aa020",
                 "shasum": ""
             },
@@ -1711,7 +1763,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3afe303d873a4d64c62ef84de491b97b006fbdac",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ce9857103d2ec224382eb30847941d8322dc5570",
                 "reference": "3afe303d873a4d64c62ef84de491b97b006fbdac",
                 "shasum": ""
             },
@@ -1783,7 +1835,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/74ffb87f527f24616f72460e54b595f508dccb5c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/253c005852591fd547fc18cd5b7b43a1ec82d8f7",
                 "reference": "74ffb87f527f24616f72460e54b595f508dccb5c",
                 "shasum": ""
             },
@@ -2701,7 +2753,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-escaper/zipball/84e0c15195adfb3fe3efebb459defc65a1e0314d",
+                "url": "https://api.github.com/repos/zendframework/zend-escaper/zipball/dea2d94022ce072831d3424fbd0fd5514e81eb75",
                 "reference": "84e0c15195adfb3fe3efebb459defc65a1e0314d",
                 "shasum": ""
             },
@@ -2745,7 +2797,8 @@
         "oyejorge/less.php": 20,
         "intervention/image": 20,
         "psr/http-message": 20,
-        "nikic/fast-route": 20
+        "nikic/fast-route": 20,
+        "dflydev/fig-cookies": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
