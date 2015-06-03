@@ -3,14 +3,15 @@
   background: @fl-body-hero-bg;
   text-align: center;
   padding: 20px 0;
+  color: @fl-body-hero-color;
 
-  &, & a {
-    color: @fl-body-hero-color;
+  & a {
+    color: inherit;
   }
   & .close {
     float: right;
     margin-top: -10px;
-    color: @fl-body-hero-muted-color;
+    color: inherit;
   }
   & h2 {
     margin: 0;
@@ -21,7 +22,6 @@
   & .subtitle {
     margin: 8px 0 0;
     line-height: 1.5em;
-    color: @fl-body-hero-muted-color;
   }
 }
 @media @phone {
