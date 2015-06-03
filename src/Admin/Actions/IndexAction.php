@@ -1,16 +1,26 @@
 <?php namespace Flarum\Admin\Actions;
 
+use Flarum\Api\Client;
+use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
 use Session;
-use Auth;
 use Cookie;
 use Config;
 use DB;
-use Flarum\Api\Request as ApiRequest;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexAction extends HtmlAction
 {
+    protected $apiClient;
+
+    protected $actor;
+
+    public function __construct(Client $apiClient, Actor $actor)
+    {
+        $this->apiClient = $apiClient;
+        $this->actor = $actor;
+    }
+
     protected function render(Request $request, $routeParams = [])
     {
         $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
@@ -24,13 +34,11 @@ class IndexAction extends HtmlAction
                 'token' => Cookie::get('flarum_remember')
             ];
 
-            $response = app('Flarum\Api\Actions\Users\ShowAction')
-                ->handle(new ApiRequest(['id' => $user->id], $this->actor))
-                ->content->toArray();
+            $response = $this->apiClient->send('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
 
-            $data = [$response['data']];
-            if (isset($response['included'])) {
-                $data = array_merge($data, $response['included']);
+            $data = [$response->data];
+            if (isset($response->included)) {
+                $data = array_merge($data, $response->included);
             }
         }
 
