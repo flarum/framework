@@ -233,7 +233,7 @@
   & pre {
     border: 0;
     padding: 15px;
-    background: #fafafa;
+    background: #f3f3f3;
     color: #666;
     font-size: 90%;
   }
@@ -464,11 +464,11 @@
   cursor: text;
   overflow: hidden;
   margin: 50px -20px 0;
-  border: 2px dashed @fl-body-secondary-color;
+  border: 2px dashed transparent;
   color: @fl-body-muted-color;
   border-radius: 10px;
   padding: 20px 20px 20px 110px;
-  transition: color 0.2s, border-color 0.2s;
+  transition: border-color 0.2s;
 
   & .post-header {
     padding-top: 18px;
@@ -478,8 +478,7 @@
     margin-top: -18px;
   }
   &:hover {
-    color: @fl-secondary-color;
-    border-color: @fl-body-muted-color;
+    border-color: @fl-body-secondary-color;
   }
 }
 

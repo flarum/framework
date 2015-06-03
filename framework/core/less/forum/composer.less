@@ -29,7 +29,7 @@
       font-weight: normal;
     }
     & input {
-      &, &[disabled] {
+      &, &[disabled], &:focus {
         background: none;
         border: 0;
         padding: 0 20px 0 0;
@@ -147,6 +147,9 @@
     .minimized & {
       pointer-events: none;
     }
+    .full-screen & {
+      margin-bottom: 20px;
+    }
   }
   .composer-content {
     padding: 20px 20px 0;
@@ -231,6 +234,7 @@
 
     &, &:focus, &[disabled] {
       background: none;
+      border: 0;
     }
   }
 }
