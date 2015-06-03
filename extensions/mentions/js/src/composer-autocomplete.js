@@ -4,6 +4,7 @@ import ReplyComposer from 'flarum/components/reply-composer';
 import EditComposer from 'flarum/components/edit-composer';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
+import highlight from 'flarum/helpers/highlight';
 
 import AutocompleteDropdown from 'mentions/components/autocomplete-dropdown';
 
@@ -73,10 +74,7 @@ export default function() {
               (function() {
                 var vdom = username(user);
                 if (typed) {
-                  var regexp = new RegExp(typed, 'gi');
-                  vdom.children[0] = m.trust(
-                    $('<div/>').text(vdom.children[0]).html().replace(regexp, '<mark>$&</mark>')
-                  );
+                  vdom.children[0] = highlight(vdom.children[0], typed);
                 }
                 return vdom;
               })(), ' ',
