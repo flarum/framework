@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Formatter;
 
-use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container;
 
 class FormatterManager
 {
@@ -9,19 +9,18 @@ class FormatterManager
     /**
      * The IoC container instance.
      *
-     * @var \Illuminate\Container\Container
+     * @var \Illuminate\Contracts\Container\Container
      */
     protected $container;
 
     /**
      * Create a new formatter manager instance.
      *
-     * @param  \Illuminate\Container\Container  $container
-     * @return void
+     * @param  \Illuminate\Contracts\Container\Container  $container
      */
-    public function __construct(Container $container = null)
+    public function __construct(Container $container)
     {
-        $this->container = $container ?: new Container;
+        $this->container = $container;
     }
 
     public function add($name, $formatter, $priority = 0)
