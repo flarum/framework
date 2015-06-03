@@ -15,6 +15,10 @@ class StickySearchModifier
         if ($event->criteria->sort === null) {
             $query = $event->searcher->query();
 
+            if (!is_array($query->orders)) {
+                $query->orders = [];
+            }
+
             foreach ($event->searcher->getActiveGambits() as $gambit) {
                 if ($gambit instanceof CategoryGambit) {
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
