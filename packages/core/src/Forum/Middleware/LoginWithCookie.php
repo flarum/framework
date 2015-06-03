@@ -23,9 +23,7 @@ class LoginWithCookie implements MiddlewareInterface
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        $cookies = $request->getCookieParams();
-
-        if (($token = $cookies['flarum_remember']) &&
+        if (($token = array_get($request->getCookieParams(), 'flarum_remember')) &&
             ($accessToken = AccessToken::where('id', $token)->first())
         ) {
             $this->actor->setUser($user = $accessToken->user);
