@@ -1,0 +1,26 @@
+<?php namespace Flarum\Forum\Actions;
+
+use Dflydev\FigCookies\FigCookies;
+use Dflydev\FigCookies\SetCookie;
+use Psr\Http\Message\ResponseInterface;
+
+trait WritesRememberCookie
+{
+    protected function withRememberCookie(ResponseInterface $response, $token)
+    {
+        // Set a long-living cookie (two weeks) with the remember token
+        return FigCookies::setResponseSetCookie(
+            $response,
+            SetCookie::create('flarum_remember', $token)->withMaxAge(14 * 24 * 60 * 60)
+        );
+    }
+
+    protected function withForgetCookie(ResponseInterface $response)
+    {
+        // Delete the cookie by setting it to an expiration date in the past
+        return FigCookies::setResponseSetCookie(
+            $response,
+            SetCookie::create('flarum_remember')->withMaxAge(-2628000)
+        );
+    }
+}

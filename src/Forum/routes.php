@@ -1,44 +1,31 @@
 <?php
 
+use Psr\Http\Message\ServerRequestInterface;
+
 $action = function ($class) {
-    return function () use ($class) {
+    return function (ServerRequestInterface $httpRequest, $routeParams) use ($class) {
         $action = $this->app->make($class);
-        $request = $this->app['request']->instance();
-        $parameters = $this->app['router']->current()->parameters();
-        return $action->handle($request, $parameters);
+
+        return $action->handle($httpRequest, $routeParams);
     };
 };
 
-Route::group(['middleware' => 'Flarum\Forum\Middleware\LoginWithCookie'], function () use ($action) {
+/** @var Flarum\Http\Router $router */
+$router = $this->app->make('Flarum\Http\Router');
 
-    Route::get('/', [
-        'as' => 'flarum.forum.index',
-        'uses' => $action('Flarum\Forum\Actions\IndexAction')
-    ]);
+/**
+ * Route::group(['middleware' => 'Flarum\Forum\Middleware\LoginWithCookie'], function () use ($action) {
+ * For the two below
+ */
 
-    Route::get('logout', [
-        'as' => 'flarum.forum.logout',
-        'uses' => $action('Flarum\Forum\Actions\LogoutAction')
-    ]);
+$router->get('/', 'flarum.forum.index', $action('Flarum\Forum\Actions\IndexAction'));
 
-});
+$router->get('/logout', 'flarum.forum.logout', $action('Flarum\Forum\Actions\LogoutAction'));
 
-Route::post('login', [
-    'as' => 'flarum.forum.login',
-    'uses' => $action('Flarum\Forum\Actions\LoginAction')
-]);
+$router->post('/login', 'flarum.forum.login', $action('Flarum\Forum\Actions\LoginAction'));
 
-Route::get('confirm/{id}/{token}', [
-    'as' => 'flarum.forum.confirm',
-    'uses' => $action('Flarum\Forum\Actions\ConfirmAction')
-]);
+$router->get('/confirm/{id}/{token}', 'flarum.forum.confirm', $action('Flarum\Forum\Actions\ConfirmAction'));
 
-Route::get('reset/{token}', [
-    'as' => 'flarum.forum.resetPassword',
-    'uses' => $action('Flarum\Forum\Actions\ResetPasswordAction')
-]);
+$router->get('/reset/{token}', 'flarum.forum.resetPassword', $action('Flarum\Forum\Actions\ResetPasswordAction'));
 
-Route::post('reset', [
-    'as' => 'flarum.forum.savePassword',
-    'uses' => $action('Flarum\Forum\Actions\SavePasswordAction')
-]);
+$router->post('/reset', 'flarum.forum.savePassword', $action('Flarum\Forum\Actions\SavePasswordAction'));

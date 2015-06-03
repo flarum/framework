@@ -1,13 +1,13 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Illuminate\Http\Request;
 use Flarum\Forum\Events\UserLoggedIn;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Api\Request as ApiRequest;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class LoginAction extends BaseAction
 {
-    use MakesRememberCookie;
+    use WritesRememberCookie;
 
     protected $users;
 
@@ -18,13 +18,16 @@ class LoginAction extends BaseAction
 
     public function handle(Request $request, $routeParams = [])
     {
-        $response = app('Flarum\Api\Actions\TokenAction')
-            ->handle(new ApiRequest($request->only('identification', 'password')));
+        $params = array_only($request->getAttributes(), ['identification', 'password']);
 
-        if ($response->getStatusCode() === 200 && ($data = $response->getData()) && ! empty($data->token)) {
-            $response->withCookie($this->makeRememberCookie($data->token));
+        /** @var \Psr\Http\Message\ResponseInterface $response */
+        $response = app('Flarum\Api\Actions\TokenAction')->handle(new ApiRequest($params));
+
+        if ($response->getStatusCode() === 200) {
+            $data = json_decode($response->getBody());
 
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
+            return $this->withRememberCookie($response, $data->token);
         }
 
         return $response;

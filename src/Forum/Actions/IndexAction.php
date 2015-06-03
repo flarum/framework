@@ -1,18 +1,17 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Illuminate\Http\Request;
+use Flarum\Support\HtmlAction;
 use Session;
 use Auth;
-use Cookie;
 use Config;
-use View;
 use DB;
 use Flarum\Forum\Events\RenderView;
 use Flarum\Api\Request as ApiRequest;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
-class IndexAction extends BaseAction
+class IndexAction extends HtmlAction
 {
-    public function handle(Request $request, $params = [])
+    public function render(Request $request, $params = [])
     {
         $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
         $data = [];
@@ -22,7 +21,7 @@ class IndexAction extends BaseAction
         if (($user = $this->actor->getUser()) && $user->exists) {
             $session = [
                 'userId' => $user->id,
-                'token' => Cookie::get('flarum_remember')
+                'token' => $request->getCookieParams()['flarum_remember'],
             ];
 
             $response = app('Flarum\Api\Actions\Users\ShowAction')
@@ -35,7 +34,7 @@ class IndexAction extends BaseAction
             }
         }
 
-        $view = View::make('flarum.forum::index')
+        $view = view('flarum.forum::index')
             ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
             ->with('config', $config)
             ->with('layout', 'flarum.forum::forum')

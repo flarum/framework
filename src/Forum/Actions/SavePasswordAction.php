@@ -2,19 +2,19 @@
 
 use Flarum\Core\Models\ResetToken;
 use Flarum\Core\Commands\EditUserCommand;
-use Illuminate\Http\Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class SavePasswordAction extends BaseAction
 {
     public function handle(Request $request, $routeParams = [])
     {
-        $token = ResetToken::findOrFail($request->get('token'));
+        $token = ResetToken::findOrFail($request->getAttribute('token'));
 
-        $password = $request->get('password');
-        $confirmation = $request->get('password_confirmation');
+        $password = $request->getAttribute('password');
+        $confirmation = $request->getAttribute('password_confirmation');
 
         if (! $password || $password !== $confirmation) {
-            return redirect()->back();
+            return $this->redirectTo(''); // TODO: Redirect back
         }
 
         $this->dispatch(
@@ -23,6 +23,6 @@ class SavePasswordAction extends BaseAction
 
         $token->delete();
 
-        return redirect('');
+        return $this->redirectTo('');
     }
 }
