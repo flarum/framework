@@ -2,7 +2,6 @@
 
 use Flarum\Core;
 use Illuminate\Support\ServiceProvider;
-use DB;
 
 class ExtensionsServiceProvider extends ServiceProvider
 {

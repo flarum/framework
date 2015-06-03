@@ -4,10 +4,7 @@ use Flarum\Core\Commands\DeleteAvatarCommand;
 use Flarum\Core\Events\AvatarWillBeDeleted;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Support\DispatchesEvents;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
-use League\Flysystem\MountManager;
 
 class DeleteAvatarCommandHandler
 {
