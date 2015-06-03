@@ -20,6 +20,11 @@ abstract class Action
         return $action->call($params);
     }
 
+    protected function success()
+    {
+        return new Response();
+    }
+
     /**
      * @param string $url
      * @return \Psr\Http\Message\ResponseInterface
