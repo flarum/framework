@@ -70,7 +70,7 @@ class FormatterManager
         $config->set('Core.Encoding', 'UTF-8');
         $config->set('Core.EscapeInvalidTags', true);
         $config->set('HTML.Doctype', 'HTML 4.01 Strict');
-        $config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br');
+        $config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br,hr');
         $config->set('HTML.Nofollow', true);
 
         $purifier = new HTMLPurifier($config);
