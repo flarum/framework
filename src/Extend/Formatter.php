@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 class Formatter implements ExtenderInterface
 {
@@ -17,8 +17,8 @@ class Formatter implements ExtenderInterface
         $this->priority = $priority;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
-        $app['flarum.formatter']->add($this->name, $this->class, $this->priority);
+        $container->make('flarum.formatter')->add($this->name, $this->class, $this->priority);
     }
 }

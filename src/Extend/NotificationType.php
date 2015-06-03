@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Flarum\Core\Models\Notification;
 use Flarum\Core\Models\User;
 use Flarum\Api\Serializers\NotificationSerializer;
@@ -26,7 +26,7 @@ class NotificationType implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         $class = $this->class;
 

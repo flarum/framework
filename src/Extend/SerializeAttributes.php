@@ -1,7 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
-use Closure;
+use Illuminate\Contracts\Container\Container;
 
 class SerializeAttributes implements ExtenderInterface
 {
@@ -15,9 +14,9 @@ class SerializeAttributes implements ExtenderInterface
         $this->callback = $callback;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
-        $app['events']->listen('Flarum\Api\Events\SerializeAttributes', function ($event) {
+        $container->make('events')->listen('Flarum\Api\Events\SerializeAttributes', function ($event) {
             if ($event->serializer instanceof $this->serializer) {
                 call_user_func_array($this->callback, [&$event->attributes, $event->model, $event->serializer]);
             }

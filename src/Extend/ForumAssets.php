@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 class ForumAssets implements ExtenderInterface
 {
@@ -11,9 +11,9 @@ class ForumAssets implements ExtenderInterface
         $this->files = $files;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
-        $app['events']->listen('Flarum\Forum\Events\RenderView', function ($event) {
+        $container->make('events')->listen('Flarum\Forum\Events\RenderView', function ($event) {
             $event->assets->addFile($this->files);
         });
     }
