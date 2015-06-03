@@ -1,8 +1,8 @@
 <?php namespace Flarum\Forum\Actions;
 
+use Flarum\Api\Client;
 use Flarum\Forum\Events\UserLoggedIn;
 use Flarum\Core\Repositories\UserRepositoryInterface;
-use Flarum\Api\Request as ApiRequest;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class LoginAction extends BaseAction
@@ -11,25 +11,26 @@ class LoginAction extends BaseAction
 
     protected $users;
 
-    public function __construct(UserRepositoryInterface $users)
+    protected $apiClient;
+
+    public function __construct(UserRepositoryInterface $users, Client $apiClient)
     {
         $this->users = $users;
+        $this->apiClient = $apiClient;
     }
 
     public function handle(Request $request, $routeParams = [])
     {
         $params = array_only($request->getAttributes(), ['identification', 'password']);
 
-        /** @var \Psr\Http\Message\ResponseInterface $response */
-        $response = app('Flarum\Api\Actions\TokenAction')->handle(new ApiRequest($params));
+        $data = $this->apiClient->send('Flarum\Api\Actions\TokenAction', $params);
 
-        if ($response->getStatusCode() === 200) {
-            $data = json_decode($response->getBody());
+        event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
 
-            event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
-            return $this->withRememberCookie($response, $data->token);
-        }
-
-        return $response;
+        // TODO: The client needs to pass through exceptions
+        return $this->withRememberCookie(
+            $this->success(),
+            $data->token
+        );
     }
 }
