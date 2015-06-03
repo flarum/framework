@@ -1,6 +1,5 @@
 <?php namespace Flarum\Core\Search\Users;
 
-use Flarum\Core\Models\User;
 use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repositories\UserRepositoryInterface;
