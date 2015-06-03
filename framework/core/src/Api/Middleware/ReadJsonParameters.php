@@ -11,7 +11,7 @@ class ReadJsonParameters implements MiddlewareInterface
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        if (str_contains($request->getHeaderLine('content-type'), 'application/vnd.api+json')) {
+        if (str_contains($request->getHeaderLine('content-type'), 'json')) {
             $input = json_decode($request->getBody(), true);
 
             foreach ($input as $name => $value) {
