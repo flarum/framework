@@ -1,6 +1,5 @@
 <?php namespace Flarum\Api;
 
-use Flarum\Http\Router;
 use Illuminate\Support\ServiceProvider;
 
 class ApiServiceProvider extends ServiceProvider
