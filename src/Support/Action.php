@@ -44,6 +44,9 @@ abstract class Action
     </body>
 </html>', htmlspecialchars($url, ENT_QUOTES, 'UTF-8'));
 
-        return new Response($content, 302, ['location' => $url]);
+        $response = new Response('php://memory', 302, ['location' => $url]);
+        $response->getBody()->write($content);
+
+        return $response;
     }
 }
