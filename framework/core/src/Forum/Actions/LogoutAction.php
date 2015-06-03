@@ -17,6 +17,6 @@ class LogoutAction extends BaseAction
             event(new UserLoggedOut($user));
         }
 
-        return $this->withForgetCookie($this->redirectTo(''));
+        return $this->withForgetCookie($this->redirectTo('/'));
     }
 }
