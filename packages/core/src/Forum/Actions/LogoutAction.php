@@ -1,11 +1,12 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Illuminate\Http\Request;
 use Flarum\Forum\Events\UserLoggedOut;
-use Cookie;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class LogoutAction extends BaseAction
 {
+    use WritesRememberCookie;
+
     public function handle(Request $request, $params = [])
     {
         $user = $this->actor->getUser();
@@ -16,11 +17,6 @@ class LogoutAction extends BaseAction
             event(new UserLoggedOut($user));
         }
 
-        return redirect('')->withCookie($this->makeForgetCookie());
-    }
-
-    public function makeForgetCookie()
-    {
-        return Cookie::forget('flarum_remember');
+        return $this->withForgetCookie($this->redirectTo(''));
     }
 }

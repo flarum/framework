@@ -2,11 +2,15 @@
 
 use Flarum\Support\Actor;
 use Flarum\Core\Models\AccessToken;
-use Auth;
-use Closure;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Zend\Stratigility\MiddlewareInterface;
 
-class LoginWithCookie
+class LoginWithCookie implements MiddlewareInterface
 {
+    /**
+     * @var Actor
+     */
     protected $actor;
 
     public function __construct(Actor $actor)
@@ -14,16 +18,21 @@ class LoginWithCookie
         $this->actor = $actor;
     }
 
-    public function handle($request, Closure $next)
+    /**
+     * {@inheritdoc}
+     */
+    public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        if (($token = $request->cookie('flarum_remember')) &&
-            ($accessToken = AccessToken::where('id', $token)->first()) &&
-            ($user = $accessToken->user)) {
-            $this->actor->setUser($user);
+        $cookies = $request->getCookieParams();
+
+        if (($token = $cookies['flarum_remember']) &&
+            ($accessToken = AccessToken::where('id', $token)->first())
+        ) {
+            $this->actor->setUser($user = $accessToken->user);
 
             $user->updateLastSeen()->save();
         }
 
-        return $next($request);
+        return $out ? $out($request, $response) : $response;
     }
 }
