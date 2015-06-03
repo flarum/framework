@@ -1,8 +1,8 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 interface ExtenderInterface
 {
-    public function extend(Application $app);
+    public function extend(Container $container);
 }

@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 class DiscussionGambit implements ExtenderInterface
 {
@@ -11,9 +11,9 @@ class DiscussionGambit implements ExtenderInterface
         $this->class = $class;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
-        $app['events']->listen('Flarum\Core\Events\RegisterDiscussionGambits', function ($event) {
+        $container->make('events')->listen('Flarum\Core\Events\RegisterDiscussionGambits', function ($event) {
             $event->gambits->add($this->class);
         });
     }

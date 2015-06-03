@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 class EventSubscribers implements ExtenderInterface
 {
@@ -11,10 +11,10 @@ class EventSubscribers implements ExtenderInterface
         $this->subscribers = $subscribers;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         foreach ((array) $this->subscribers as $subscriber) {
-            $app['events']->subscribe($subscriber);
+            $container->make('events')->subscribe($subscriber);
         }
     }
 }

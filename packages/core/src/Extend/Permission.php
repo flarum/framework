@@ -1,8 +1,7 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Flarum\Core\Models\Permission as PermissionModel;
-use Flarum\Extend\SerializeAttributes;
 
 class Permission implements ExtenderInterface
 {
@@ -31,7 +30,7 @@ class Permission implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         PermissionModel::addPermission($this->permission);
 
@@ -45,7 +44,7 @@ class Permission implements ExtenderInterface
                 }
             );
 
-            $extender->extend($app);
+            $extender->extend($container);
         }
 
         foreach ($this->grant as $callback) {
