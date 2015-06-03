@@ -2,7 +2,7 @@
 
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Forum;
-use Illuminate\Mail\Mailer;
+use Illuminate\Contracts\Mail\Mailer;
 
 class NotificationMailer
 {

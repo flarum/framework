@@ -1,10 +1,10 @@
 <?php namespace Flarum\Core\Handlers\Events;
 
-use Illuminate\Mail\Mailer;
+use Config;
 use Flarum\Core\Events\UserWasRegistered;
 use Flarum\Core\Events\EmailWasChanged;
-use Config;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Mail\Mailer;
 
 class EmailConfirmationMailer
 {
