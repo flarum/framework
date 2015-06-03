@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b4919da43ec6d4286a38b1b95b32ae31",
+    "hash": "7565e9df531dc59fa898d68cf3d7d69e",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -68,12 +68,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dflydev/dflydev-fig-cookies.git",
-                "reference": "adc6bab48d09585f67338e0d00695bf64a9ee2b8"
+                "reference": "56133681a2d0055f110c1fa51b88c129bc6ce1c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dflydev/dflydev-fig-cookies/zipball/adc6bab48d09585f67338e0d00695bf64a9ee2b8",
-                "reference": "adc6bab48d09585f67338e0d00695bf64a9ee2b8",
+                "url": "https://api.github.com/repos/dflydev/dflydev-fig-cookies/zipball/56133681a2d0055f110c1fa51b88c129bc6ce1c9",
+                "reference": "56133681a2d0055f110c1fa51b88c129bc6ce1c9",
                 "shasum": ""
             },
             "require": {
@@ -88,7 +88,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.0.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -112,7 +112,7 @@
                 "psr-7",
                 "psr7"
             ],
-            "time": "2015-06-02 19:02:56"
+            "time": "2015-06-03 01:35:56"
         },
         {
             "name": "doctrine/inflector",
@@ -2797,11 +2797,9 @@
         "oyejorge/less.php": 20,
         "intervention/image": 20,
         "psr/http-message": 20,
-        "nikic/fast-route": 20,
-        "dflydev/fig-cookies": 20
+        "nikic/fast-route": 20
     },
     "prefer-stable": false,
-    "prefer-lowest": false,
     "platform": {
         "php": ">=5.4.0"
     },
