@@ -134,7 +134,11 @@ app.initializers.add('categories', function() {
   extend(DiscussionHero.prototype, 'items', function(items) {
     var category = this.props.discussion.category();
     if (category) {
-      items.add('category', categoryLabel(category), {before: 'title'});
+      items.add('category', m('a', {
+        href: app.route('category', {categories: category.slug()}),
+        config: m.route
+      }, categoryLabel(category)), {before: 'title'});
+
       items.title.content.wrapperClass = 'block-item';
     }
   });
