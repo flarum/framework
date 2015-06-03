@@ -43,7 +43,10 @@ abstract class JsonApiAction implements ActionInterface
 
         $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 
-        return new Response($data, $status);
+        $response = new Response('php://memory', $status);
+        $response->getBody()->write($data);
+
+        return $response;
     }
 
     /**
