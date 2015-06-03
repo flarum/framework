@@ -1,7 +1,6 @@
 <?php namespace Flarum\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
@@ -21,18 +20,6 @@ class InstallCommand extends Command
      * @var string
      */
     protected $description = 'Run Flarum\'s installation migrations and seeds.';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct(Application $app)
-    {
-        parent::__construct();
-
-        $this->app = $app;
-    }
 
     /**
      * Execute the console command.
