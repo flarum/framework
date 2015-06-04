@@ -89,6 +89,11 @@ class CoreServiceProvider extends ServiceProvider
             'Flarum\Core\Repositories\EloquentActivityRepository'
         );
 
+        $this->app->bind(
+            'Flarum\Core\Search\Discussions\Fulltext\DriverInterface',
+            'Flarum\Core\Search\Discussions\Fulltext\MySqlFulltextDriver'
+        );
+
         $avatarFilesystem = function (Container $app) {
             return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
         };
