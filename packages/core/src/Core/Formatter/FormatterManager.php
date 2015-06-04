@@ -58,8 +58,13 @@ class FormatterManager
 
     public function format($text, $post = null)
     {
+        $formatters = [];
         foreach ($this->getFormatters() as $formatter) {
-            $text = $this->container->make($formatter)->format($text, $post);
+            $formatters[] = $this->container->make($formatter);
+        }
+
+        foreach ($formatters as $formatter) {
+            $text = $formatter->beforePurification($text, $post);
         }
 
         // Studio does not yet merge autoload_files...
@@ -75,16 +80,10 @@ class FormatterManager
 
         $purifier = new HTMLPurifier($config);
 
-        return $purifier->purify($text);
-    }
+        $text = $purifier->purify($text);
 
-    public function strip($text)
-    {
-        foreach ($this->getFormatters() as $formatter) {
-            $formatter = $this->container->make($formatter);
-            if (method_exists($formatter, 'strip')) {
-                $text = $formatter->strip($text);
-            }
+        foreach ($formatters as $formatter) {
+            $text = $formatter->afterPurification($text, $post);
         }
 
         return $text;

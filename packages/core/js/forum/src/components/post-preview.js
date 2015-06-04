@@ -9,6 +9,20 @@ export default class PostPreview extends Component {
     var post = this.props.post;
     var user = post.user();
 
+    var excerpt = post.contentPlain();
+    var start = 0;
+
+    if (highlight) {
+      var regexp = new RegExp(this.props.highlight, 'gi');
+      start = Math.max(0, excerpt.search(regexp) - 100);
+    }
+
+    excerpt = (start > 0 ? '...' : '')+excerpt.substring(start, start + 200)+(excerpt.length > start + 200 ? '...' : '');
+
+    if (highlight) {
+      excerpt = highlight(excerpt, regexp);
+    }
+
     return m('a.post-preview', {
       href: app.route.post(post),
       config: m.route,
@@ -17,7 +31,7 @@ export default class PostPreview extends Component {
       avatar(user), ' ',
       username(user), ' ',
       humanTime(post.time()), ' ',
-      highlight(post.excerpt(), this.props.highlight)
+      excerpt
     ]));
   }
 }
