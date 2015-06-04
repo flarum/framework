@@ -32,7 +32,7 @@ class User extends Model
      * @var array
      */
     public static $rules = [
-        'username'          => 'required|unique',
+        'username'          => 'required|alpha_dash|unique',
         'email'             => 'required|email|unique',
         'password'          => 'required',
         'join_time'         => 'date',
