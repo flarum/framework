@@ -27,7 +27,7 @@ export default class DiscussionsSearchResults {
         return m('li.discussion-search-result', {'data-index': 'discussions'+discussion.id()},
           m('a', { href: app.route.discussion(discussion, post.number()), config: m.route },
             m('div.title', highlight(discussion.title(), string)),
-            m('div.excerpt', highlight(post.excerpt(), string))
+            m('div.excerpt', highlight(post.contentPlain().substring(0, 100), string))
           )
         );
       }) : ''
