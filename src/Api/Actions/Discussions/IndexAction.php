@@ -41,7 +41,9 @@ class IndexAction extends SerializeCollectionAction
         'lastUser' => true,
         'startPost' => false,
         'lastPost' => false,
-        'relevantPosts' => false
+        'relevantPosts' => false,
+        'relevantPosts.discussion' => false,
+        'relevantPosts.user' => false
     ];
 
     /**

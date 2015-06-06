@@ -1,10 +1,11 @@
 <?php namespace Flarum\Core\Handlers\Commands;
 
 use Flarum\Core\Commands\RequestPasswordResetCommand;
-use Flarum\Core\Models\ResetToken;
+use Flarum\Core\Models\PasswordToken;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Flarum\Core;
 
 class RequestPasswordResetCommandHandler
 {
@@ -34,15 +35,16 @@ class RequestPasswordResetCommandHandler
             throw new ModelNotFoundException;
         }
 
-        $token = ResetToken::generate($user->id);
+        $token = PasswordToken::generate($user->id);
         $token->save();
 
         $data = [
             'username' => $user->username,
-            'url' => route('flarum.forum.resetPassword', ['token' => $token->id])
+            'url' => route('flarum.forum.resetPassword', ['token' => $token->id]),
+            'forumTitle' => Core::config('forum_title')
         ];
 
-        $this->mailer->send(['text' => 'flarum::emails.reset'], $data, function ($message) use ($user) {
+        $this->mailer->send(['text' => 'flarum::emails.resetPassword'], $data, function ($message) use ($user) {
             $message->to($user->email);
             $message->subject('Reset Your Password');
         });

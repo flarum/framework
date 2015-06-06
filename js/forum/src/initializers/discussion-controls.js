@@ -8,25 +8,41 @@ import ItemList from 'flarum/utils/item-list';
 
 export default function(app) {
   Discussion.prototype.replyAction = function(goToLast, forceRefresh) {
-    if (app.session.user() && this.canReply()) {
-      if (goToLast && app.current.discussion && app.current.discussion().id() === this.id()) {
-        app.current.streamContent.goToLast();
+    var deferred = m.deferred();
+
+    var reply = () => {
+      if (this.canReply()) {
+        if (goToLast && app.viewingDiscussion(this)) {
+          app.current.stream.goToLast();
+        }
+
+        var component = app.composer.component;
+        if (!app.composingReplyTo(this) || forceRefresh) {
+          component = new ReplyComposer({
+            user: app.session.user(),
+            discussion: this
+          });
+          app.composer.load(component);
+        }
+        app.composer.show(goToLast);
+
+        deferred.resolve(component);
+      } else {
+        deferred.reject();
       }
-      var component = app.composer.component;
-      if (!(component instanceof ReplyComposer) || component.props.discussion !== this || component.props.user !== app.session.user() || forceRefresh) {
-        component = new ReplyComposer({
-          user: app.session.user(),
-          discussion: this
-        });
-        app.composer.load(component);
-      }
-      app.composer.show(goToLast);
-      return component;
-    } else if (!app.session.user()) {
-      app.modal.show(new LoginModal({
-        callback: () => app.current.one('loaded', this.replyAction.bind(this, goToLast, forceRefresh))
-      }));
+    };
+
+    if (app.session.user()) {
+      reply();
+    } else {
+      app.modal.show(
+        new LoginModal({
+          onlogin: () => app.current.one('loaded', reply)
+        })
+      );
     }
+
+    return deferred.promise;
   }
 
   Discussion.prototype.deleteAction = function() {
@@ -47,7 +63,7 @@ export default function(app) {
     if (title && title !== currentTitle) {
       this.save({title}).then(discussion => {
         if (app.current instanceof DiscussionPage) {
-          app.current.stream().sync();
+          app.current.stream.sync();
         }
         m.redraw();
       });

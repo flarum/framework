@@ -3,6 +3,8 @@
 use Flarum\Core\Repositories\UserRepositoryInterface as UserRepository;
 use Flarum\Core\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
+use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
+use Flarum\Core\Models\EmailToken;
 
 class ConfirmEmailCommandHandler
 {
@@ -17,10 +19,14 @@ class ConfirmEmailCommandHandler
 
     public function handle($command)
     {
-        $user = $this->users->findOrFail($command->userId);
+        $token = EmailToken::find($command->token)->first();
 
-        $user->assertConfirmationTokenValid($command->token);
-        $user->confirmEmail();
+        if (! $token) {
+            throw new InvalidConfirmationTokenException;
+        }
+
+        $user = $token->user;
+        $user->changeEmail($token->email);
 
         if (! $user->is_activated) {
             $user->activate();
@@ -30,6 +36,8 @@ class ConfirmEmailCommandHandler
 
         $user->save();
         $this->dispatchEventsFor($user);
+
+        $token->delete();
 
         return $user;
     }

@@ -110,12 +110,17 @@ class Model extends Eloquent
      */
     public function assertValid()
     {
-        $validation = $this->makeValidator();
-        if ($validation->fails()) {
-            throw (new ValidationFailureException)
-                ->setErrors($validation->errors())
-                ->setInput($validation->getData());
+        $validator = $this->makeValidator();
+        if ($validator->fails()) {
+            $this->throwValidationFailureException($validator);
         }
+    }
+
+    protected function throwValidationFailureException($validator)
+    {
+        throw (new ValidationFailureException)
+            ->setErrors($validator->errors())
+            ->setInput($validator->getData());
     }
 
     /**
@@ -125,9 +130,11 @@ class Model extends Eloquent
      */
     protected function makeValidator()
     {
-        $rules = $this->expandUniqueRules(static::$rules);
+        $dirty = $this->getDirty();
 
-        return static::$validator->make($this->attributes, $rules);
+        $rules = $this->expandUniqueRules(array_only(static::$rules, array_keys($dirty)));
+
+        return static::$validator->make($dirty, $rules);
     }
 
     /**

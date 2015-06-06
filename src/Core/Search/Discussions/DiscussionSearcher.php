@@ -93,7 +93,7 @@ class DiscussionSearcher implements SearcherInterface
         }
 
         if (in_array('relevantPosts', $load) && count($this->relevantPosts)) {
-            $load = array_diff($load, ['relevantPosts']);
+            $load = array_diff($load, ['relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user']);
 
             $postIds = [];
             foreach ($this->relevantPosts as $id => $posts) {
@@ -104,12 +104,6 @@ class DiscussionSearcher implements SearcherInterface
             foreach ($discussions as $discussion) {
                 $discussion->relevantPosts = $posts->filter(function ($post) use ($discussion) {
                     return $post->discussion_id == $discussion->id;
-                })
-                ->each(function ($post) {
-                    $pos = strpos(strtolower($post->content), strtolower($this->fulltext));
-                    // TODO: make clipping more intelligent (full words only)
-                    $start = max(0, $pos - 50);
-                    $post->content = ($start > 0 ? '...' : '').str_limit(substr($post->content, $start), 300);
                 });
             }
         }

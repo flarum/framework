@@ -2,8 +2,6 @@ import Component from 'flarum/component';
 import ItemList from 'flarum/utils/item-list';
 import IndexPage from 'flarum/components/index-page';
 import DiscussionList from 'flarum/components/discussion-list';
-import StreamContent from 'flarum/components/stream-content';
-import StreamScrubber from 'flarum/components/stream-scrubber';
 import UserCard from 'flarum/components/user-card';
 import ReplyComposer from 'flarum/components/reply-composer';
 import ActionButton from 'flarum/components/action-button';

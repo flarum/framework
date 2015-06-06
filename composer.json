@@ -15,6 +15,7 @@
         "misd/linkify": "1.1.*",
         "oyejorge/less.php": "dev-master",
         "intervention/image": "dev-master",
+        "ezyang/htmlpurifier": "dev-master",
         "psr/http-message": "^1.0@dev",
         "nikic/fast-route": "dev-master",
         "dflydev/fig-cookies": "^1.0"

@@ -1,13 +1,12 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Flarum\Api\Client;
+use Flarum\Core;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
 use Flarum\Forum\Events\RenderView;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Session;
-use Auth;
-use Config;
 use DB;
 
 class IndexAction extends HtmlAction
@@ -44,7 +43,7 @@ class IndexAction extends HtmlAction
         }
 
         $view = view('flarum.forum::index')
-            ->with('title', Config::get('flarum::forum_title', 'Flarum Demo Forum'))
+            ->with('title', Core::config('forum_title'))
             ->with('config', $config)
             ->with('layout', 'flarum.forum::forum')
             ->with('data', $data)
@@ -57,6 +56,12 @@ class IndexAction extends HtmlAction
             $root.'/js/forum/dist/app.js',
             $root.'/less/forum/app.less'
         ]);
+        $assetManager->addLess('
+            @fl-primary-color: '.Core::config('theme_primary_color').';
+            @fl-secondary-color: '.Core::config('theme_secondary_color').';
+            @fl-dark-mode: '.(Core::config('theme_dark_mode') ? 'true' : 'false').';
+            @fl-colored_header: '.(Core::config('theme_colored_header') ? 'true' : 'false').';
+        ');
 
         event(new RenderView($view, $assetManager, $this));
 

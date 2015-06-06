@@ -1,8 +1,9 @@
 <?php namespace Flarum\Core\Handlers\Events;
 
-use Config;
 use Flarum\Core\Events\UserWasRegistered;
-use Flarum\Core\Events\EmailWasChanged;
+use Flarum\Core\Events\UserEmailChangeWasRequested;
+use Flarum\Core;
+use Flarum\Core\Models\EmailToken;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
 
@@ -23,28 +24,47 @@ class EmailConfirmationMailer
     public function subscribe(Dispatcher $events)
     {
         $events->listen('Flarum\Core\Events\UserWasRegistered', __CLASS__.'@whenUserWasRegistered');
-        $events->listen('Flarum\Core\Events\EmailWasChanged', __CLASS__.'@whenEmailWasChanged');
+        $events->listen('Flarum\Core\Events\UserEmailChangeWasRequested', __CLASS__.'@whenUserEmailChangeWasRequested');
     }
 
     public function whenUserWasRegistered(UserWasRegistered $event)
     {
         $user = $event->user;
+        $data = $this->getPayload($user, $user->email);
 
-        $forumTitle = Config::get('flarum::forum_title');
-
-        $data = [
-            'username' => $user->username,
-            'forumTitle' => $forumTitle,
-            'url' => route('flarum.forum.confirm', ['id' => $user->id, 'token' => $user->confirmation_token])
-        ];
-
-        $this->mailer->send(['text' => 'flarum::emails.confirm'], $data, function ($message) use ($user) {
+        $this->mailer->send(['text' => 'flarum::emails.activateAccount'], $data, function ($message) use ($user) {
             $message->to($user->email);
-            $message->subject('Confirm Your Email Address');
+            $message->subject('Activate Your New Account');
         });
     }
 
-    public function whenEmailWasChanged(EmailWasChanged $event)
+    public function whenUserEmailChangeWasRequested(UserEmailChangeWasRequested $event)
     {
+        $email = $event->email;
+        $data = $this->getPayload($event->user, $email);
+
+        $this->mailer->send(['text' => 'flarum::emails.confirmEmail'], $data, function ($message) use ($email) {
+            $message->to($email);
+            $message->subject('Confirm Your New Email Address');
+        });
+    }
+
+    protected function generateToken($user, $email)
+    {
+        $token = EmailToken::generate($user->id, $email);
+        $token->save();
+
+        return $token;
+    }
+
+    protected function getPayload($user, $email)
+    {
+        $token = $this->generateToken($user, $email);
+
+        return [
+            'username' => $user->username,
+            'url' => route('flarum.forum.confirmEmail', ['token' => $token->id]),
+            'forumTitle' => Core::config('forum_title')
+        ];
     }
 }

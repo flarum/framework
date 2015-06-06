@@ -10,7 +10,7 @@ import ActionButton from 'flarum/components/action-button';
  */
 export default class DiscussionComposer extends ComposerBody {
   constructor(props) {
-    props.placeholder = props.placeholder || 'Write a post...';
+    props.placeholder = props.placeholder || 'Write a Post...';
     props.submitLabel = props.submitLabel || 'Post Discussion';
     props.confirmExit = props.confirmExit || 'You have not posted your discussion. Do you wish to discard it?';
     props.titlePlaceholder = props.titlePlaceholder || 'Discussion Title';

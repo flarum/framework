@@ -5,16 +5,15 @@ use Flarum\Core\Commands\GenerateAccessTokenCommand;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class ConfirmAction extends BaseAction
+class ConfirmEmailAction extends BaseAction
 {
     use WritesRememberCookie;
 
     public function handle(Request $request, $routeParams = [])
     {
         try {
-            $userId = array_get($routeParams, 'id');
             $token = array_get($routeParams, 'token');
-            $command = new ConfirmEmailCommand($userId, $token);
+            $command = new ConfirmEmailCommand($token);
             $user = $this->dispatch($command);
         } catch (InvalidConfirmationTokenException $e) {
             return 'Invalid confirmation token';
@@ -23,7 +22,7 @@ class ConfirmAction extends BaseAction
         $token = $this->dispatch(new GenerateAccessTokenCommand($user->id));
 
         return $this->withRememberCookie(
-            $this->redirectTo(''),
+            $this->redirectTo('/'),
             $token->id
         );
         // TODO: ->with('alert', ['type' => 'success', 'message' => 'Thanks for confirming!']);

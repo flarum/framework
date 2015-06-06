@@ -3,10 +3,11 @@ import ComposerBody from 'flarum/components/composer-body';
 import Alert from 'flarum/components/alert';
 import ActionButton from 'flarum/components/action-button';
 import Composer from 'flarum/components/composer';
+import icon from 'flarum/helpers/icon';
 
 export default class ReplyComposer extends ComposerBody {
   constructor(props) {
-    props.placeholder = props.placeholder || 'Write your reply...';
+    props.placeholder = props.placeholder || 'Write a Reply...';
     props.submitLabel = props.submitLabel || 'Post Reply';
     props.confirmExit = props.confirmExit || 'You have not posted your reply. Do you wish to discard it?';
 
@@ -25,7 +26,7 @@ export default class ReplyComposer extends ComposerBody {
       !app.current.discussion ||
       app.current.discussion() !== this.props.discussion) {
       items.add('title', m('h3', [
-        'Replying to ',
+        icon('reply'), ' ',
         m('a', {href: app.route.discussion(this.props.discussion), config: m.route}, this.props.discussion.title())
       ]));
     }
@@ -67,7 +68,7 @@ export default class ReplyComposer extends ComposerBody {
       // If we're currently viewing the discussion which this reply was made
       // in, then we can add the post to the end of the post stream.
       if (app.current && app.current.discussion && app.current.discussion().id() === discussion.id()) {
-        app.current.stream().addPostToEnd(post);
+        app.current.stream.pushPost(post);
         m.route(app.route('discussion.near', {
           id: discussion.id(),
           slug: discussion.slug(),

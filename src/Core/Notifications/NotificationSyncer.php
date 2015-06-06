@@ -2,6 +2,7 @@
 
 use Flarum\Core\Repositories\NotificationRepositoryInterface;
 use Flarum\Core\Models\Notification;
+use Flarum\Core\Events\NotificationWillBeSent;
 use Carbon\Carbon;
 use Closure;
 
@@ -65,6 +66,8 @@ class NotificationSyncer
 
         if (count($newRecipients)) {
             $now = Carbon::now('utc')->toDateTimeString();
+
+            event(new NotificationWillBeSent($notification, $newRecipients));
 
             Notification::insert(
                 array_map(function ($user) use ($attributes, $notification, $now) {

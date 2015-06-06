@@ -3,30 +3,24 @@ import icon from 'flarum/helpers/icon';
 import ScrollListener from 'flarum/utils/scroll-listener';
 import SubtreeRetainer from 'flarum/utils/subtree-retainer';
 import computed from 'flarum/utils/computed';
+import formatNumber from 'flarum/utils/format-number';
 
 /**
 
  */
-export default class StreamScrubber extends Component {
+export default class PostScrubber extends Component {
   /**
 
    */
   constructor(props) {
     super(props);
 
-    var streamContent = this.props.streamContent;
+    var stream = this.props.stream;
     this.handlers = {};
 
     // When the stream-content component begins loading posts at a certain
     // index, we want our scrubber scrollbar to jump to that position.
-    streamContent.on('loadingIndex', this.handlers.loadingIndex = this.loadingIndex.bind(this));
-    streamContent.on('unpaused', this.handlers.unpaused = this.unpaused.bind(this));
-
-    /**
-      Disable the scrubber if the stream's initial content isn't loaded, or
-      if all of the posts in the discussion are visible in the viewport.
-     */
-    this.disabled = () => !streamContent.loaded() || this.visible() >= this.count();
+    stream.on('unpaused', this.handlers.unpaused = this.unpaused.bind(this));
 
     /**
       The integer index of the last item that is visible in the viewport. This
@@ -36,7 +30,7 @@ export default class StreamScrubber extends Component {
       return Math.min(count, Math.ceil(Math.max(0, index) + visible));
     });
 
-    this.count = () => this.props.streamContent.props.stream.count();
+    this.count = () => this.props.stream.count();
     this.index = m.prop(-1);
     this.visible = m.prop(1);
     this.description = m.prop();
@@ -54,41 +48,71 @@ export default class StreamScrubber extends Component {
   }
 
   /**
+    Disable the scrubber if the stream's initial content isn't loaded, or
+    if all of the posts in the discussion are visible in the viewport.
+   */
+  disabled() {
+    return this.visible() >= this.count();
+  }
+
+  /**
 
    */
   view() {
     var retain = this.subtree.retain();
-    var streamContent = this.props.streamContent;
+    var stream = this.props.stream;
+    var unreadCount = this.props.stream.discussion.unreadCount();
+    var unreadPercent = unreadCount / this.count();
 
+    // @todo clean up duplication
     return m('div.stream-scrubber.dropdown'+(this.disabled() ? '.disabled' : ''), {config: this.onload.bind(this)}, [
       m('a.btn.btn-default.dropdown-toggle[href=javascript:;][data-toggle=dropdown]', [
-        m('span.index', retain || this.visibleIndex()), ' of ', m('span.count', this.count()), ' posts ',
+        m('span.index', retain || formatNumber(this.visibleIndex())), ' of ', m('span.count', formatNumber(this.count())), ' posts ',
         icon('sort icon-glyph')
       ]),
       m('div.dropdown-menu', [
         m('div.scrubber', [
-          m('a.scrubber-first[href=javascript:;]', {onclick: streamContent.goToFirst.bind(streamContent)}, [icon('angle-double-up'), ' Original Post']),
+          m('a.scrubber-first[href=javascript:;]', {onclick: () => {
+            stream.goToFirst();
+            this.index(0);
+            this.renderScrollbar(true);
+          }}, [icon('angle-double-up'), ' Original Post']),
           m('div.scrubber-scrollbar', [
             m('div.scrubber-before'),
             m('div.scrubber-slider', [
               m('div.scrubber-handle'),
               m('div.scrubber-info', [
-                m('strong', [m('span.index', retain || this.visibleIndex()), ' of ', m('span.count', this.count()), ' posts']),
+                m('strong', [m('span.index', retain || formatNumber(this.visibleIndex())), ' of ', m('span.count', formatNumber(this.count())), ' posts']),
                 m('span.description', retain || this.description())
               ])
             ]),
-            m('div.scrubber-after')
+            m('div.scrubber-after'),
+            (app.session.user() && unreadPercent) ? m('div.scrubber-unread', {
+              style: {top: (100 - unreadPercent * 100)+'%', height: (unreadPercent * 100)+'%'},
+              config: function(element, isInitialized, context) {
+                var $element = $(element);
+                var newStyle = {top: (100 - unreadPercent * 100)+'%', height: (unreadPercent * 100)+'%'};
+                if (context.oldStyle) {
+                  $element.stop(true).css(context.oldStyle).animate(newStyle);
+                }
+                context.oldStyle = newStyle;
+              }
+            }, formatNumber(unreadCount)+' unread') : ''
           ]),
-          m('a.scrubber-last[href=javascript:;]', {onclick: streamContent.goToLast.bind(streamContent)}, [icon('angle-double-down'), ' Now'])
+          m('a.scrubber-last[href=javascript:;]', {onclick: () => {
+            stream.goToLast();
+            this.index(stream.count());
+            this.renderScrollbar(true);
+          }}, [icon('angle-double-down'), ' Now'])
         ])
       ])
     ])
   }
 
   onscroll(top) {
-    var streamContent = this.props.streamContent;
+    var stream = this.props.stream;
 
-    if (!streamContent.active() || !streamContent.$()) { return; }
+    if (stream.paused() || !stream.$()) { return; }
 
     this.update(top);
     this.renderScrollbar();
@@ -99,10 +123,10 @@ export default class StreamScrubber extends Component {
     current scroll position.
    */
   update(top) {
-    var streamContent = this.props.streamContent;
+    var stream = this.props.stream;
 
     var $window = $(window);
-    var marginTop = streamContent.getMarginTop();
+    var marginTop = stream.getMarginTop();
     var scrollTop = $window.scrollTop() + marginTop;
     var windowHeight = $window.height() - marginTop;
 
@@ -110,8 +134,8 @@ export default class StreamScrubber extends Component {
     // properties to a 'default' state. These values reflect what would be
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
-    var $items = streamContent.$('.item');
-    var index = $items.first().data('end') - 1;
+    var $items = stream.$('> .item');
+    var index = $items.first().data('index');
     var visible = 0;
     var period = '';
 
@@ -128,7 +152,7 @@ export default class StreamScrubber extends Component {
       // loop.
       if (top + height < scrollTop) {
         visible = (top + height - scrollTop) / height;
-        index = parseFloat($this.data('end')) + 1 - visible;
+        index = parseFloat($this.data('index')) + 1 - visible;
         return;
       }
       if (top > scrollTop + windowHeight) {
@@ -136,14 +160,10 @@ export default class StreamScrubber extends Component {
       }
 
       // If the bottom half of this item is visible at the top of the
-      // viewport, then add the visible proportion to the visible
-      // counter, and set the scrollbar index to whatever the visible
-      // proportion represents. For example, if a gap represents indexes
-      // 0-9, and the bottom 50% of the gap is visible in the viewport,
-      // then the scrollbar index will be 5.
+      // viewport
       if (top <= scrollTop && top + height > scrollTop) {
         visible = (top + height - scrollTop) / height;
-        index = parseFloat($this.data('end')) + 1 - visible;
+        index = parseFloat($this.data('index')) + 1 - visible;
       }
 
       // If the top half of this item is visible at the bottom of the
@@ -188,69 +208,30 @@ export default class StreamScrubber extends Component {
     // so that it fills the height of the sidebar.
     $(window).on('resize', this.handlers.onresize = this.onresize.bind(this)).resize();
 
-    var self = this;
-
     // When any part of the whole scrollbar is clicked, we want to jump to
     // that position.
     this.$('.scrubber-scrollbar')
-      .bind('click touchstart', function(e) {
-        if (!self.props.streamContent.active()) { return; }
+      .bind('click', this.onclick.bind(this))
 
-        // Calculate the index which we want to jump to based on the
-        // click position.
-        // 1. Get the offset of the click from the top of the
-        //    scrollbar, as a percentage of the scrollbar's height.
-        var $this = $(this);
-        var offsetPixels = (e.clientY || e.originalEvent.touches[0].clientY) - $this.offset().top + $('body').scrollTop();
-        var offsetPercent = offsetPixels / $this.outerHeight() * 100;
-
-        // 2. We want the handle of the scrollbar to end up centered
-        //    on the click position. Thus, we calculate the height of
-        //    the handle in percent and use that to find a new
-        //    offset percentage.
-        offsetPercent = offsetPercent - parseFloat($this.find('.scrubber-slider')[0].style.height) / 2;
-
-        // 3. Now we can convert the percentage into an index, and
-        //    tell the stream-content component to jump to that index.
-        var offsetIndex = offsetPercent / self.percentPerPost().index;
-        offsetIndex = Math.max(0, Math.min(self.count() - 1, offsetIndex));
-        self.props.streamContent.goToIndex(Math.floor(offsetIndex));
-
-        self.$().removeClass('open');
-      });
-
-    // Now we want to make the scrollbar handle draggable. Let's start by
-    // preventing default browser events from messing things up.
-    this.$('.scrubber-scrollbar')
-      .css({
-        cursor: 'pointer',
-        'user-select': 'none'
-      })
-      .bind('dragstart mousedown touchstart', function(e) {
-        e.preventDefault();
-      });
+      // Now we want to make the scrollbar handle draggable. Let's start by
+      // preventing default browser events from messing things up.
+      .css({ cursor: 'pointer', 'user-select': 'none' })
+      .bind('dragstart mousedown touchstart', e => e.preventDefault());
 
     // When the mouse is pressed on the scrollbar handle, we capture some
     // information about its current position. We will store this
     // information in an object and pass it on to the document's
     // mousemove/mouseup events later.
+    this.dragging = false;
     this.mouseStart = 0;
     this.indexStart = 0;
-    this.handle = null;
 
     this.$('.scrubber-slider')
       .css('cursor', 'move')
-      .bind('mousedown touchstart', function(e) {
-        self.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
-        self.indexStart = self.index();
-        self.handle = $(this);
-        self.props.streamContent.paused(true);
-        $('body').css('cursor', 'move');
-      })
+      .bind('mousedown touchstart', this.onmousedown.bind(this))
+
       // Exempt the scrollbar handle from the 'jump to' click event.
-      .click(function(e) {
-        e.stopPropagation();
-      });
+      .click(e => e.stopPropagation());
 
     // When the mouse moves and when it is released, we pass the
     // information that we captured when the mouse was first pressed onto
@@ -264,8 +245,7 @@ export default class StreamScrubber extends Component {
   ondestroy() {
     this.scrollListener.stop();
 
-    this.props.streamContent.off('loadingIndex', this.handlers.loadingIndex);
-    this.props.streamContent.off('unpaused', this.handlers.unpaused);
+    this.props.stream.off('unpaused', this.handlers.unpaused);
 
     $(window)
       .off('resize', this.handlers.onresize);
@@ -286,8 +266,7 @@ export default class StreamScrubber extends Component {
     var visible = this.visible();
 
     var $scrubber = this.$();
-    $scrubber.find('.index').text(this.visibleIndex());
-    // $scrubber.find('.count').text(count);
+    $scrubber.find('.index').text(formatNumber(this.visibleIndex()));
     $scrubber.find('.description').text(this.description());
     $scrubber.toggleClass('disabled', this.disabled());
 
@@ -332,16 +311,7 @@ export default class StreamScrubber extends Component {
     };
   }
 
-  /*
-    When the stream-content component begins loading posts at a certain
-    index, we want our scrubber scrollbar to jump to that position.
-   */
-  loadingIndex(index) {
-    this.index(index);
-    this.renderScrollbar(true);
-  }
-
-  onresize(event) {
+  onresize() {
     this.scrollListener.update(true);
 
     // Adjust the height of the scrollbar so that it fills the height of
@@ -350,81 +320,68 @@ export default class StreamScrubber extends Component {
     scrollbar.css('max-height', $(window).height() - scrollbar.offset().top + $(window).scrollTop() - parseInt($('.global-page').css('padding-bottom')));
   }
 
-  onmousemove(event) {
-    if (! this.handle) { return; }
+  onmousedown(e) {
+    this.mouseStart = e.clientY || e.originalEvent.touches[0].clientY;
+    this.indexStart = this.index();
+    this.dragging = true;
+    this.props.stream.paused(true);
+    $('body').css('cursor', 'move');
+  }
+
+  onmousemove(e) {
+    if (! this.dragging) { return; }
 
     // Work out how much the mouse has moved by - first in pixels, then
     // convert it to a percentage of the scrollbar's height, and then
     // finally convert it into an index. Add this delta index onto
     // the index at which the drag was started, and then scroll there.
-    var deltaPixels = (event.clientY || event.originalEvent.touches[0].clientY) - this.mouseStart;
+    var deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
     var deltaPercent = deltaPixels / this.$('.scrubber-scrollbar').outerHeight() * 100;
     var deltaIndex = deltaPercent / this.percentPerPost().index;
     var newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
 
     this.index(Math.max(0, newIndex));
     this.renderScrollbar();
-
-    if (! this.$().is('.open')) {
-      this.scrollToIndex(newIndex);
-    }
   }
 
-  onmouseup(event) {
-    if (!this.handle) { return; }
+  onmouseup(e) {
+    if (!this.dragging) { return; }
     this.mouseStart = 0;
     this.indexStart = 0;
-    this.handle = null;
+    this.dragging = false;
     $('body').css('cursor', '');
 
-    if (this.$().is('.open')) {
-      this.scrollToIndex(this.index());
-      this.$().removeClass('open');
-    }
+    this.$().removeClass('open');
 
     // If the index we've landed on is in a gap, then tell the stream-
     // content that we want to load those posts.
     var intIndex = Math.floor(this.index());
-    if (!this.props.streamContent.props.stream.findNearestToIndex(intIndex).post) {
-      this.props.streamContent.goToIndex(intIndex);
-    } else {
-      this.props.streamContent.paused(false);
-    }
+    this.props.stream.goToIndex(intIndex);
+    this.renderScrollbar(true);
   }
 
-  /**
-    Instantly scroll to a certain index in the discussion. The index doesn't
-    have to be an integer; any fraction of a post will be scrolled to.
-   */
-  scrollToIndex(index) {
-    var streamContent = this.props.streamContent;
+  onclick(e) {
+    // Calculate the index which we want to jump to based on the click position.
 
-    index = Math.min(index, this.count() - 1);
+    // 1. Get the offset of the click from the top of the scrollbar, as a
+    //    percentage of the scrollbar's height.
+    var $scrollbar = this.$('.scrubber-scrollbar');
+    var offsetPixels = (e.clientY || e.originalEvent.touches[0].clientY) - $scrollbar.offset().top + $('body').scrollTop();
+    var offsetPercent = offsetPixels / $scrollbar.outerHeight() * 100;
 
-    // Find the item for this index, whether it's a post corresponding to
-    // the index, or a gap which the index is within.
-    var indexFloor = Math.max(0, Math.floor(index));
-    var $nearestItem = streamContent.findNearestToIndex(indexFloor);
+    // 2. We want the handle of the scrollbar to end up centered on the click
+    //    position. Thus, we calculate the height of the handle in percent and
+    //    use that to find a new offset percentage.
+    offsetPercent = offsetPercent - parseFloat($scrollbar.find('.scrubber-slider')[0].style.height) / 2;
 
-    // Calculate the position of this item so that we can scroll to it. If
-    // the item is a gap, then we will mark it as 'active' to indicate to
-    // the user that it will expand if they release their mouse.
-    // Otherwise, we will add a proportion of the item's height onto the
-    // scroll position.
-    var pos = $nearestItem.offset().top - streamContent.getMarginTop();
-    if ($nearestItem.is('.gap')) {
-      $nearestItem.addClass('active');
-    } else {
-      if (index >= 0) {
-        pos += $nearestItem.outerHeight(true) * (index - indexFloor);
-      } else {
-        pos += $nearestItem.offset().top * index;
-      }
-    }
+    // 3. Now we can convert the percentage into an index, and tell the stream-
+    //    content component to jump to that index.
+    var offsetIndex = offsetPercent / this.percentPerPost().index;
+    offsetIndex = Math.max(0, Math.min(this.count() - 1, offsetIndex));
+    this.props.stream.goToIndex(Math.floor(offsetIndex));
+    this.index(offsetIndex);
+    this.renderScrollbar(true);
 
-    // Remove the 'active' class from other gaps.
-    streamContent.$().find('.gap').not($nearestItem).removeClass('active');
-
-    $('html, body').scrollTop(pos);
+    this.$().removeClass('open');
   }
 }
