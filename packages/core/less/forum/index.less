@@ -17,17 +17,14 @@
   margin-bottom: 15px;
 }
 .index-toolbar-view {
-  display: inline-block;
+  &:extend(.list-inline);
 
-  & .control-show {
-    margin-right: 10px;
-  }
+  display: inline-block;
 }
 .index-toolbar-action {
+  &:extend(.list-inline);
+
   float: right;
-}
-.index-results .loading-indicator {
-  height: 46px;
 }
 
 @media @phone, @tablet {
@@ -84,10 +81,11 @@
       & .hero, & .index-nav, & .index-toolbar {
         display: none;
       }
-      & .discussions-list > li {
+      & .discussion-list > ul > li {
         margin: 0;
         padding-left: 57px + 15px;
         padding-right: 65px + 15px;
+
         &.active {
           background: @fl-body-control-bg;
         }
@@ -98,6 +96,9 @@
         }
         & .count strong {
           font-size: 18px;
+        }
+        & .relevant-posts {
+          display: none;
         }
       }
     }
@@ -132,15 +133,21 @@
 // ------------------------------------
 // Discussions List
 
-.discussions-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  position: relative;
+.discussion-list {
+  & .loading-indicator {
+    height: 46px;
+  }
+
+  & > ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    position: relative;
+  }
 }
 
 @media @phone {
-  .discussions-list > li {
+  .discussion-list > ul > li {
     padding-right: 45px;
 
     & .contextual-controls {
@@ -150,11 +157,9 @@
 }
 
 @media @tablet, @desktop, @desktop-hd {
-  .discussions-list {
-    & > li {
-      margin-right: -25px;
-      padding-right: 65px + 25px;
-    }
+  .discussion-list > ul > li {
+    margin-right: -25px;
+    padding-right: 65px + 25px;
   }
 }
 
@@ -203,7 +208,7 @@
     text-decoration: underline;
   }
   & .title {
-    margin: 0 0 7px;
+    margin: 0 0 6px;
     line-height: 1.3;
     color: @fl-secondary-color;
   }
@@ -234,6 +239,30 @@
 
     .unread& {
       cursor: pointer;
+    }
+  }
+  & .relevant-posts {
+    margin-bottom: 20px;
+
+    & .post-preview {
+      background: @fl-body-secondary-color;
+      display: block;
+      padding: 10px 15px;
+      border-bottom: 2px dotted @fl-body-bg;
+
+      & .avatar, & time {
+        display: none;
+      }
+      & .post-preview-content {
+        padding-left: 0;
+      }
+      &:first-child {
+        border-radius: @border-radius-base @border-radius-base 0 0;
+      }
+      &:hover {
+        background: darken(@fl-body-secondary-color, 2%);
+        text-decoration: none;
+      }
     }
   }
 }

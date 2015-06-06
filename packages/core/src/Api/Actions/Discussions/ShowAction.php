@@ -51,7 +51,7 @@ class ShowAction extends SerializeResourceAction
      *
      * @var array
      */
-    public static $link = ['posts'];
+    public static $link = ['posts', 'posts.discussion'];
 
     /**
      * The fields that are available to be sorted by.

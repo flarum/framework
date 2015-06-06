@@ -3,6 +3,25 @@ import computed from 'flarum/utils/computed';
 import ItemList from 'flarum/utils/item-list';
 
 class Discussion extends Model {
+  pushData(newData) {
+    super.pushData(newData);
+
+    var posts = this.data().links.posts;
+    if (posts) {
+      if (newData.removedPosts) {
+        posts.linkage.forEach((linkage, i) => {
+          if (newData.removedPosts.indexOf(linkage.id) !== -1) {
+            posts.linkage.splice(i, 1);
+          }
+        });
+      }
+
+      if (newData.links && newData.links.addedPosts) {
+        [].push.apply(posts.linkage, newData.links.addedPosts.linkage);
+      }
+    }
+  }
+
   unreadCount() {
     var user = app.session.user();
     if (user && user.readTime() < this.lastTime()) {
@@ -37,6 +56,7 @@ Discussion.prototype.commentsCount = Model.prop('commentsCount');
 Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => commentsCount - 1);
 
 Discussion.prototype.posts = Model.many('posts');
+Discussion.prototype.postIds = function() { return this.data().links.posts.linkage.map((link) => link.id); };
 Discussion.prototype.relevantPosts = Model.many('relevantPosts');
 Discussion.prototype.addedPosts = Model.many('addedPosts');
 Discussion.prototype.removedPosts = Model.prop('removedPosts');

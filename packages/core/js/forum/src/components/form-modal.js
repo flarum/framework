@@ -7,13 +7,14 @@ export default class FormModal extends Component {
   constructor(props) {
     super(props);
 
-    this.alert = null;
+    this.alert = m.prop();
     this.loading = m.prop(false);
   }
 
   view(options) {
-    if (this.alert) {
-      this.alert.props.dismissible = false;
+    var alert = this.alert();
+    if (alert) {
+      alert.props.dismissible = false;
     }
 
     return m('div.modal-dialog', {className: options.className, config: this.element}, [
@@ -21,7 +22,7 @@ export default class FormModal extends Component {
         m('a[href=javascript:;].btn.btn-icon.btn-link.close.back-control', {onclick: this.hide.bind(this)}, icon('times')),
         m('form', {onsubmit: this.onsubmit.bind(this)}, [
           m('div.modal-header', m('h3.title-control', options.title)),
-          this.alert ? m('div.modal-alert', this.alert.view()) : '',
+          alert ? m('div.modal-alert', alert) : '',
           m('div.modal-body', [
             m('div.form-centered', options.body)
           ]),
@@ -38,5 +39,20 @@ export default class FormModal extends Component {
 
   hide() {
     app.modal.close();
+  }
+
+  handleErrors(errors) {
+    if (errors) {
+      this.alert(new Alert({
+        type: 'warning',
+        message: errors.map((error, k) => [error.detail, k < errors.length - 1 ? m('br') : ''])
+      }));
+    }
+
+    m.redraw();
+
+    if (errors) {
+      this.$('[name='+errors[0].path+']').select();
+    }
   }
 }

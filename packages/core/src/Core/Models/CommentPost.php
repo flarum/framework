@@ -120,17 +120,6 @@ class CommentPost extends Post
     }
 
     /**
-     * Get the content formatter as HTML.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public function getContentPlainAttribute()
-    {
-        return static::$formatter->strip($this->content);
-    }
-
-    /**
      * Get text formatter instance.
      *
      * @return \Flarum\Core\Formatter\FormatterManager

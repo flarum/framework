@@ -73,67 +73,25 @@
     margin-bottom: 40px;
   }
 }
-.gap {
-  padding: 30px 0;
-  text-align: center;
-  color: #aaa;
-  cursor: pointer;
-  border: 2px dashed @fl-body-bg;
-  background: #f2f2f2;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: bold;
-  overflow: hidden;
-  position: relative;
-  .transition(padding 0.2s);
-
-  &:hover, &.loading, &.active {
-    padding: 50px 0;
-
-    &.up:before, &.down:after {
-      opacity: 1;
-    }
-  }
-  &.loading {
-    .transition(none);
-  }
-  &:before, &:after {
-    font-family: 'FontAwesome';
-    display: block;
-    opacity: 0;
-    transition: opacity 0.2s;
-    height: 15px;
-    color: #aaa;
-  }
-  &.up:before {
-    content: '\f077';
-    margin-top: -25px;
-    margin-bottom: 10px;
-  }
-  &.down:after {
-    content: '\f078';
-    margin-bottom: -25px;
-    margin-top: 10px;
-  }
-  &:only-child {
-    background: none;
-    border: 0;
-    color: @fl-primary-color;
-    &:before, &:after {
-      display: none;
-    }
-  }
-  & .loading-indicator {
-    color: #aaa;
-  }
+@keyframes blink {
+  0% {opacity: 0.5}
+  50% {opacity: 1}
+  100% {opacity: 0.5}
 }
+.loading-post {
+  animation: blink 1s linear;
+  animation-iteration-count: infinite;
+}
+.fake-text {
+  background: @fl-body-secondary-color;
+  height: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: @border-radius-base;
 
-@media @phone {
-  .gap {
-    margin-left: -15px;
-    margin-right: -15px;
-    border-left: 0;
-    border-right: 0;
+  .post-header & {
+    height: 16px;
+    width: 150px;
   }
 }
 
@@ -175,18 +133,18 @@
     background: @fl-primary-color;
   }
 }
-@-webkit-keyframes pulsate {
+@keyframes pulsate {
   0% {transform: scale(1)}
   50% {transform: scale(1.02)}
   100% {transform: scale(1)}
 }
 .item.pulsate {
-  -webkit-animation: pulsate 1s ease-in-out;
-  -webkit-animation-iteration-count: infinite;
+  animation: pulsate 1s ease-in-out;
+  animation-iteration-count: infinite;
 }
 .item.flash {
-  -webkit-animation: pulsate 0.2s ease-in-out;
-  -webkit-animation-iteration-count: 1;
+  animation: pulsate 0.2s ease-in-out;
+  animation-iteration-count: 1;
 }
 .post-header {
   margin-bottom: 10px;
@@ -275,9 +233,28 @@
   & pre {
     border: 0;
     padding: 15px;
-    background: #fafafa;
+    background: #f3f3f3;
     color: #666;
     font-size: 90%;
+  }
+  & h1 {
+    font-size: 160%;
+  }
+  & h2 {
+    font-size: 120%;
+    font-weight: bold;
+  }
+  & h3 {
+    font-size: 100%;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  & h4, & h5, & h6 {
+    font-size: 100%;
+    font-weight: bold;
+  }
+  & img {
+    max-width: 100%;
   }
 }
 .post.is-hidden {
@@ -482,6 +459,28 @@
     font-size: 22px;
   }
 }
+.reply-post {
+  font-size: 15px;
+  cursor: text;
+  overflow: hidden;
+  margin: 50px -20px 0;
+  border: 2px dashed transparent;
+  color: @fl-body-muted-color;
+  border-radius: 10px;
+  padding: 20px 20px 20px 110px;
+  transition: border-color 0.2s;
+
+  & .post-header {
+    padding-top: 18px;
+    color: inherit;
+  }
+  & .avatar {
+    margin-top: -18px;
+  }
+  &:hover {
+    border-color: @fl-body-secondary-color;
+  }
+}
 
 // ------------------------------------
 // Scrubber
@@ -509,8 +508,23 @@
 .scrubber-before, .scrubber-after {
   border-left: 1px solid @fl-body-secondary-color;
 }
+.scrubber-unread {
+  position: absolute;
+  border-left: 1px solid lighten(@fl-body-muted-color, 10%);
+  width: 100%;
+  background-image: linear-gradient(to right, @fl-body-secondary-color, fade(@fl-body-secondary-color, 0) 10px, fade(@fl-body-secondary-color, 0));
+  display: flex;
+  align-items: center;
+  color: @fl-body-muted-color;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: bold;
+  padding-left: 13px;
+}
 .scrubber-slider {
   position: relative;
+  z-index: 1;
+  background: @fl-body-bg;
   width: 100%;
   padding: 5px 0;
 }
@@ -522,6 +536,7 @@
   float: left;
   margin-left: -2px;
   transition: background 0.2s;
+
   .disabled & {
     background: @fl-body-secondary-color;
   }
@@ -533,6 +548,7 @@
   top: 50%;
   width: 100%;
   left: 15px;
+
   & strong {
     display: block;
   }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateResetTokensTable extends Migration
+class CreateEmailTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,11 @@ class CreateResetTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('reset_tokens', function (Blueprint $table) {
-            $table->string('id');
+        Schema::create('email_tokens', function (Blueprint $table) {
+            $table->string('id', 100)->primary();
             $table->integer('user_id')->unsigned();
+            $table->string('email', 150);
+            $table->timestamp('created_at');
         });
     }
 
@@ -25,6 +27,6 @@ class CreateResetTokensTable extends Migration
      */
     public function down()
     {
-        Schema::drop('reset_tokens');
+        Schema::drop('email_tokens');
     }
 }

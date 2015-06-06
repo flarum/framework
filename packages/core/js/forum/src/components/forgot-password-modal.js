@@ -21,13 +21,13 @@ export default class ForgotPasswordModal extends FormModal {
       title: 'Forgot Password',
       body: this.success()
         ? [
-          m('p.help-text', 'OK, we\'ve sent you an email containing a link to reset your password. Check your spam folder if you don\'t receive it within the next minute or two. Yeah, sometimes we get put through to spam - can you believe it?!'),
+          m('p.help-text', 'We\'ve sent you an email containing a link to reset your password. Check your spam folder if you don\'t receive it within the next minute or two.'),
           m('div.form-group', [
             m('a.btn.btn-primary.btn-block', {href: 'http://'+emailProviderName}, 'Go to '+emailProviderName)
           ])
         ]
         : [
-          m('p.help-text', 'Forgot your password? Don\'t worry, it happens all the time. Simply enter your email address and we\'ll send you instructions on how to set up a new one.'),
+          m('p.help-text', 'Enter your email address and we\'ll send you a link to reset your password.'),
           m('div.form-group', [
             m('input.form-control[name=email][placeholder=Email]', {value: this.email(), onchange: m.withAttr('value', this.email), disabled: this.loading()})
           ]),
@@ -57,12 +57,11 @@ export default class ForgotPasswordModal extends FormModal {
     }).then(response => {
       this.loading(false);
       this.success(true);
-      this.alert = null;
+      this.alert(null);
       m.redraw();
     }, response => {
       this.loading(false);
-      m.redraw();
-      this.ready();
+      this.handleErrors(response.errors);
     });
   }
 }

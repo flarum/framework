@@ -10,8 +10,24 @@
 
 .loading-indicator {
   position: relative;
-  color: @fl-secondary-color;
+  color: @fl-body-muted-color;
+}
+.loading-indicator-inline {
+  display: inline-block;
+  width: 25px;
 }
 .loading-indicator-block {
   height: 100px;
+}
+
+hr {
+  border-top: 2px solid @fl-body-secondary-color;
+}
+
+mark {
+  background: #FFE300;
+  color: @fl-body-color;
+  padding: 1px;
+  border-radius: @border-radius-base;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }

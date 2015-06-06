@@ -23,8 +23,9 @@ export default function(app) {
 
   function deleteAction() {
     this.delete();
+    this.discussion().pushData({removedPosts: [this.id()]});
     if (app.current instanceof DiscussionPage) {
-      app.current.stream().removePost(this.id());
+      app.current.stream.removePost(this.id());
     }
   }
 

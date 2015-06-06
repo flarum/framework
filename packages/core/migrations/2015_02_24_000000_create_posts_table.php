@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use DB;
 
 class CreatePostsTable extends Migration
 {
@@ -14,7 +15,6 @@ class CreatePostsTable extends Migration
     public function up()
     {
         Schema::create('posts', function (Blueprint $table) {
-        
             $table->increments('id');
             $table->integer('discussion_id')->unsigned();
             $table->integer('number')->unsigned()->nullable();
@@ -29,10 +29,11 @@ class CreatePostsTable extends Migration
             $table->integer('edit_user_id')->unsigned()->nullable();
             $table->dateTime('hide_time')->nullable();
             $table->integer('hide_user_id')->unsigned()->nullable();
+
+            $table->unique(['discussion_id', 'number']);
         });
 
-        // add fulltext index to content (and title?)
-        // add unique index on [discussion_id, number] !!!
+        DB::statement('ALTER TABLE posts ADD FULLTEXT content (content)');
     }
 
     /**
