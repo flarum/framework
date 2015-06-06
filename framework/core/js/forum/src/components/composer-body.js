@@ -41,7 +41,7 @@ export default class ComposerBody extends Component {
 
   focus() {
     this.ready(true);
-    m.redraw();
+    m.redraw(true);
 
     this.$(':input:enabled:visible:first').focus();
   }

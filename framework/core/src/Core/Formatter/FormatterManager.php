@@ -1,6 +1,8 @@
 <?php namespace Flarum\Core\Formatter;
 
 use Illuminate\Contracts\Container\Container;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 
 class FormatterManager
 {
@@ -55,20 +57,32 @@ class FormatterManager
 
     public function format($text, $post = null)
     {
+        $formatters = [];
         foreach ($this->getFormatters() as $formatter) {
-            $text = $this->container->make($formatter)->format($text, $post);
+            $formatters[] = $this->container->make($formatter);
         }
 
-        return $text;
-    }
+        foreach ($formatters as $formatter) {
+            $text = $formatter->beforePurification($text, $post);
+        }
 
-    public function strip($text)
-    {
-        foreach ($this->getFormatters() as $formatter) {
-            $formatter = $this->container->make($formatter);
-            if (method_exists($formatter, 'strip')) {
-                $text = $formatter->strip($text);
-            }
+        // Studio does not yet merge autoload_files...
+        // https://github.com/franzliedke/studio/commit/4f0f4314db4ed3e36c869a5f79b855c97bdd1be7
+        require __DIR__.'/../../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.composer.php';
+
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Core.Encoding', 'UTF-8');
+        $config->set('Core.EscapeInvalidTags', true);
+        $config->set('HTML.Doctype', 'HTML 4.01 Strict');
+        $config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br,hr');
+        $config->set('HTML.Nofollow', true);
+
+        $purifier = new HTMLPurifier($config);
+
+        $text = $purifier->purify($text);
+
+        foreach ($formatters as $formatter) {
+            $text = $formatter->afterPurification($text, $post);
         }
 
         return $text;

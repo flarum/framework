@@ -3,9 +3,17 @@
 use Illuminate\Database\Eloquent\Builder;
 use Flarum\Core\Models\Post;
 use Flarum\Core\Models\User;
+use Flarum\Core\Search\Discussions\Fulltext\DriverInterface;
 
 class EloquentPostRepository implements PostRepositoryInterface
 {
+    protected $fulltext;
+
+    public function __construct(DriverInterface $fulltext)
+    {
+        $this->fulltext = $fulltext;
+    }
+
     /**
      * Find a post by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
@@ -72,10 +80,13 @@ class EloquentPostRepository implements PostRepositoryInterface
      */
     public function findByContent($string, User $user = null)
     {
-        $query = Post::select('id', 'discussion_id')
-            ->where('content', 'like', '%'.$string.'%');
-            // ->whereRaw('MATCH (`content`) AGAINST (? IN BOOLEAN MODE)', [$string])
-            // ->orderByRaw('MATCH (`content`) AGAINST (?) DESC', [$string])
+        $ids = $this->fulltext->match($string);
+
+        $query = Post::select('id', 'discussion_id')->whereIn('id', $ids);
+
+        foreach ($ids as $id) {
+            $query->orderByRaw('id != ?', [$id]);
+        }
 
         return $this->scopeVisibleForUser($query, $user)->get();
     }

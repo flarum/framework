@@ -23,11 +23,12 @@ class EditUserCommandHandler
         $userToEdit->assertCan($user, 'edit');
 
         if (isset($command->data['username'])) {
+            $userToEdit->assertCan($user, 'rename');
             $userToEdit->rename($command->data['username']);
         }
 
         if (isset($command->data['email'])) {
-            $userToEdit->changeEmail($command->data['email']);
+            $userToEdit->requestEmailChange($command->data['email']);
         }
 
         if (isset($command->data['password'])) {

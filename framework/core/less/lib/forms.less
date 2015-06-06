@@ -3,11 +3,14 @@
 }
 .form-control {
   .box-shadow(none);
+  border-width: 2px;
+
   &:focus,
   &.focus {
     background-color: #fff;
     color: @fl-body-color;
     .box-shadow(none);
+    border: 2px solid @fl-body-primary-color;
   }
 }
 legend {
@@ -15,47 +18,6 @@ legend {
   border: 0;
   font-weight: bold;
   margin-bottom: 10px;
-}
-
-// Search inputs
-// @todo Extract some of this into header-specific definitions
-.search-input {
-  overflow: hidden;
-
-  &:before {
-    .fa();
-    content: @fa-var-search;
-    float: left;
-    margin-right: -36px;
-    width: 36px;
-    font-size: 14px;
-    text-align: center;
-    color: @fl-body-muted-color;
-    position: relative;
-    padding: @padding-base-vertical - 1 0;
-    line-height: @line-height-base;
-    pointer-events: none;
-  }
-  & .form-control {
-    float: left;
-    width: 225px;
-    padding-left: 36px;
-    padding-right: 36px;
-    .transition(~"all 0.4s");
-  }
-  & .clear {
-    float: left;
-    margin-left: -36px;
-    vertical-align: top;
-    opacity: 0;
-    width: 36px !important;
-    .rotate(-180deg);
-    .transition(~"transform 0.2s, opacity 0.2s");
-  }
-  &.clearable .clear {
-    opacity: 1;
-    .rotate(0deg);
-  }
 }
 
 // Select inputs

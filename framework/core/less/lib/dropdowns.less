@@ -44,8 +44,22 @@
     }
   }
   & .divider {
-    margin: 10px 0;
+    margin: 8px 0;
     background-color: @fl-body-control-bg;
+  }
+  & .dropdown-header {
+    padding: 10px 15px;
+    color: @fl-body-heading-color;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 8px;
+    border-top: 1px solid @fl-body-control-bg;
+
+    &:first-child {
+      margin-top: -8px;
+      border-top: 0;
+    }
   }
 }
 @media @tablet, @desktop, @desktop-hd {

@@ -2,11 +2,26 @@ import Component from 'flarum/component';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import humanTime from 'flarum/helpers/human-time';
+import highlight from 'flarum/helpers/highlight';
 
 export default class PostPreview extends Component {
   view() {
     var post = this.props.post;
     var user = post.user();
+
+    var excerpt = post.contentPlain();
+    var start = 0;
+
+    if (highlight) {
+      var regexp = new RegExp(this.props.highlight, 'gi');
+      start = Math.max(0, excerpt.search(regexp) - 100);
+    }
+
+    excerpt = (start > 0 ? '...' : '')+excerpt.substring(start, start + 200)+(excerpt.length > start + 200 ? '...' : '');
+
+    if (highlight) {
+      excerpt = highlight(excerpt, regexp);
+    }
 
     return m('a.post-preview', {
       href: app.route.post(post),
@@ -16,7 +31,7 @@ export default class PostPreview extends Component {
       avatar(user), ' ',
       username(user), ' ',
       humanTime(post.time()), ' ',
-      post.excerpt()
+      excerpt
     ]));
   }
 }

@@ -11,6 +11,10 @@ class Core
 
     public static function config($key, $default = null)
     {
+        if (! static::isInstalled()) {
+            return $default;
+        }
+
         if (is_null($value = DB::table('config')->where('key', $key)->pluck('value'))) {
             $value = $default;
         }

@@ -295,6 +295,11 @@ class Discussion extends Model
      */
     public function stateFor(User $user)
     {
+        $loadedState = array_get($this->relations, 'state');
+        if ($loadedState && $loadedState->user_id === $user->id) {
+            return $loadedState;
+        }
+
         $state = $this->state($user)->first();
 
         if (! $state) {

@@ -2,13 +2,10 @@
 
 class ConfirmEmailCommand
 {
-    public $userId;
-
     public $token;
 
-    public function __construct($userId, $token)
+    public function __construct($token)
     {
-        $this->userId = $userId;
         $this->token = $token;
     }
 }

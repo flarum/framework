@@ -1,10 +1,9 @@
 import Component from 'flarum/component';
 import ItemList from 'flarum/utils/item-list';
-import PostStream from 'flarum/utils/post-stream';
 import DiscussionList from 'flarum/components/discussion-list';
 import DiscussionHero from 'flarum/components/discussion-hero';
-import StreamContent from 'flarum/components/stream-content';
-import StreamScrubber from 'flarum/components/stream-scrubber';
+import PostStream from 'flarum/components/post-stream';
+import PostScrubber from 'flarum/components/post-scrubber';
 import ReplyComposer from 'flarum/components/reply-composer';
 import ActionButton from 'flarum/components/action-button';
 import LoadingIndicator from 'flarum/components/loading-indicator';
@@ -22,24 +21,13 @@ export default class DiscussionPage extends mixin(Component, evented) {
     super(props);
 
     this.discussion = m.prop();
-
-    // Set up the stream. The stream is an object that represents the posts in
-    // a discussion, as they're displayed on the screen (i.e. missing posts
-    // are condensed into "load more" gaps).
-    this.stream = m.prop();
-
-    // Get the discussion. We may already have a copy of it in our store, so
-    // we'll start off with that. If we do have a copy of the discussion, and
-    // its posts relationship has been loaded (i.e. we've viewed this
-    // discussion before), then we can proceed with displaying it immediately.
-    // If not, we'll make an API request first.
     this.refresh();
 
     if (app.cache.discussionList) {
       if (!(app.current instanceof DiscussionPage)) {
         app.cache.discussionList.subtrees.map(subtree => subtree.invalidate());
       } else {
-        m.redraw.strategy('diff'); // otherwise pane redraws (killing retained subtrees) and mouseenter even is triggered so it doesn't hide
+        m.redraw.strategy('diff'); // otherwise pane redraws (killing retained subtrees) and mouseenter event is triggered so it doesn't hide
       }
       app.pane.enable();
       app.pane.hide();
@@ -66,7 +54,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
   params() {
     return {
       near: this.currentNear,
-      include: ['posts', 'posts.user']
+      include: ['posts', 'posts.user', 'posts.user.groups']
     };
   }
 
@@ -74,25 +62,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
 
    */
   setupDiscussion(discussion) {
-    this.discussion(discussion);
-
-    var includedPosts = [];
-    discussion.payload.included && discussion.payload.included.forEach(record => {
-      if (record.type === 'posts' && (record.contentType !== 'comment' || record.contentHtml)) {
-        includedPosts.push(record.id);
-      }
-    });
-
-    // Set up the post stream for this discussion, and add all of the posts we
-    // have loaded so far.
-    this.stream(new PostStream(discussion));
-    this.stream().addPosts(discussion.posts().filter(value => value && includedPosts.indexOf(value.id()) !== -1));
-    this.streamContent = new StreamContent({
-      stream: this.stream(),
-      className: 'discussion-posts posts',
-      positionChanged: this.positionChanged.bind(this)
-    });
-
     // Hold up there skippy! If the slug in the URL doesn't match up, we'll
     // redirect so we have the correct one.
     // Waiting on https://github.com/lhorie/mithril.js/issues/539
@@ -104,11 +73,22 @@ export default class DiscussionPage extends mixin(Component, evented) {
     //   return;
     // }
 
-    this.streamContent.goToNumber(this.currentNear, true);
-
+    this.discussion(discussion);
     app.setTitle(discussion.title());
 
-    this.trigger('loaded');
+    var includedPosts = [];
+    discussion.payload.included && discussion.payload.included.forEach(record => {
+      if (record.type === 'posts' && (record.contentType !== 'comment' || record.contentHtml)) {
+        includedPosts.push(app.store.getById('posts', record.id));
+      }
+    });
+    includedPosts.sort((a, b) => a.id() - b.id());
+
+    this.stream = new PostStream({ discussion, includedPosts });
+    this.stream.on('positionChanged', this.positionChanged.bind(this));
+    this.stream.goToNumber(m.route.param('near') || 1, true);
+
+    this.trigger('loaded', discussion);
   }
 
   onload(element, isInitialized, context) {
@@ -134,7 +114,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
       if (m.route.param('id') == discussion.id()) {
         e.preventDefault();
         if (m.route.param('near') != this.currentNear) {
-          this.streamContent.goToNumber(m.route.param('near'));
+          this.stream.goToNumber(m.route.param('near') || 1);
         }
         this.currentNear = null;
         return;
@@ -160,7 +140,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
           m('nav.discussion-nav', [
             m('ul', listItems(this.sidebarItems().toArray()))
           ]),
-          this.streamContent.view()
+          this.stream.view()
         ])
       ] : LoadingIndicator.component({className: 'loading-indicator-block'}))
     ]);
@@ -219,8 +199,8 @@ export default class DiscussionPage extends mixin(Component, evented) {
     );
 
     items.add('scrubber',
-      StreamScrubber.component({
-        streamContent: this.streamContent,
+      PostScrubber.component({
+        stream: this.stream,
         wrapperClass: 'title-control'
       })
     );

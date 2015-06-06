@@ -24,7 +24,7 @@ $router->get('/logout', 'flarum.forum.logout', $action('Flarum\Forum\Actions\Log
 
 $router->post('/login', 'flarum.forum.login', $action('Flarum\Forum\Actions\LoginAction'));
 
-$router->get('/confirm/{id}/{token}', 'flarum.forum.confirm', $action('Flarum\Forum\Actions\ConfirmAction'));
+$router->get('/confirm/{token}', 'flarum.forum.confirmEmail', $action('Flarum\Forum\Actions\ConfirmEmailAction'));
 
 $router->get('/reset/{token}', 'flarum.forum.resetPassword', $action('Flarum\Forum\Actions\ResetPasswordAction'));
 

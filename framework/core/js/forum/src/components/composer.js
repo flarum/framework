@@ -17,7 +17,7 @@ class Composer extends Component {
     // (which is set when the resizing handle is dragged), and the composer's
     // current state.
     this.computedHeight = computed('height', 'position', function(height, position) {
-      if (position === Composer.PositionEnum.MINIMIZED || position === Composer.PositionEnum.HIDDEN) {
+      if (position === Composer.PositionEnum.MINIMIZED) {
         return '';
       } else if (position === Composer.PositionEnum.FULLSCREEN) {
         return $(window).height();
@@ -133,8 +133,6 @@ class Composer extends Component {
   }
 
   render(anchorToBottom) {
-    if (this.position() === this.oldPosition) { this.component.focus(); return; }
-
     var $composer = this.$().stop(true);
     var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 

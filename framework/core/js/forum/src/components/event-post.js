@@ -10,7 +10,7 @@ export default class EventPost extends Post {
     var user = post.user();
 
     attrs = attrs || {};
-    attrs.className = 'event-post post-'+dasherize(post.contentType())+' '+(attrs.className || '');
+    attrs.className = 'event-post '+dasherize(post.contentType())+'-post '+(attrs.className || '');
 
     return super.view([
       icon(iconName+' post-icon'),

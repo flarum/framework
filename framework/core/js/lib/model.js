@@ -34,6 +34,21 @@ export default class Model {
       }
     }
 
+    // clone the relevant parts of the model's old data so that we can revert
+    // back if the save fails
+    var oldData = {};
+    var currentData = this.data();
+    for (var i in data) {
+      if (i === 'links') {
+        oldData[i] = oldData[i] || {};
+        for (var j in currentData[i]) {
+          oldData[i][j] = currentData[i][j];
+        }
+      } else {
+        oldData[i] = currentData[i];
+      }
+    }
+
     this.pushData(data);
 
     return app.request({
@@ -45,6 +60,9 @@ export default class Model {
     }).then(payload => {
       this.store.data[payload.data.type][payload.data.id] = this;
       return this.store.pushPayload(payload);
+    }, response => {
+      this.pushData(oldData);
+      throw response;
     });
   }
 
@@ -62,23 +80,29 @@ export default class Model {
   static prop(name, transform) {
     return function() {
       var data = this.data()[name];
-      return transform ? transform(data) : data
+      return transform ? transform(data) : data;
     }
   }
 
   static one(name) {
     return function() {
-      var link = this.data().links[name];
-      return link && app.store.getById(link.linkage.type, link.linkage.id)
+      var data = this.data();
+      if (data.links) {
+        var link = data.links[name];
+        return link && app.store.getById(link.linkage.type, link.linkage.id);
+      }
     }
   }
 
   static many(name) {
     return function() {
-      var link = this.data().links[name];
-      return link && link.linkage.map(function(link) {
-        return app.store.getById(link.type, link.id)
-      })
+      var data = this.data();
+      if (data.links) {
+        var link = this.data().links[name];
+        return link && link.linkage.map(function(link) {
+          return app.store.getById(link.type, link.id)
+        });
+      }
     }
   }
 

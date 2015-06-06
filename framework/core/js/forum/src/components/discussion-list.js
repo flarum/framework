@@ -1,6 +1,7 @@
 import Component from 'flarum/component';
 import avatar from 'flarum/helpers/avatar';
 import listItems from 'flarum/helpers/list-items';
+import highlight from 'flarum/helpers/highlight';
 import humanTime from 'flarum/utils/human-time';
 import ItemList from 'flarum/utils/item-list';
 import abbreviateNumber from 'flarum/utils/abbreviate-number';
@@ -8,6 +9,7 @@ import ActionButton from 'flarum/components/action-button';
 import DropdownButton from 'flarum/components/dropdown-button';
 import LoadingIndicator from 'flarum/components/loading-indicator';
 import TerminalPost from 'flarum/components/terminal-post';
+import PostPreview from 'flarum/components/post-preview';
 import SubtreeRetainer from 'flarum/utils/subtree-retainer';
 
 export default class DiscussionList extends Component {
@@ -30,16 +32,26 @@ export default class DiscussionList extends Component {
       params[i] = this.props.params[i];
     }
     params.sort = this.sortMap()[params.sort];
+    if (params.q) {
+      params.include.push('relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user');
+    }
     return params;
   }
 
+  willBeRedrawn() {
+    this.subtrees.map(subtree => subtree.invalidate());
+  }
+
   sortMap() {
-    return {
-      recent: '-lastTime',
-      replies: '-commentsCount',
-      newest: '-startTime',
-      oldest: '+startTime'
-    };
+    var map = {};
+    if (this.props.params.q) {
+      map.relevance = '';
+    }
+    map.recent = '-lastTime';
+    map.replies = '-commentsCount';
+    map.newest = '-startTime';
+    map.oldest = '+startTime';
+    return map;
   }
 
   refresh() {
@@ -117,18 +129,18 @@ export default class DiscussionList extends Component {
   }
 
   view() {
-    return m('div', [
-      m('ul.discussions-list', [
+    return m('div.discussion-list', [
+      m('ul', [
         this.discussions().map(discussion => {
           var startUser = discussion.startUser();
           var isUnread = discussion.isUnread();
           var displayUnread = this.countType() !== 'replies' && isUnread;
           var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
+          var relevantPosts = this.props.params.q ? discussion.relevantPosts() : '';
 
           var controls = discussion.controls(this).toArray();
 
-          var discussionRoute = app.route('discussion', { id: discussion.id(), slug: discussion.slug() });
-          var active = m.route().substr(0, discussionRoute.length) === discussionRoute;
+          var active = m.route.param('id') === discussion.id();
 
           var subtree = this.subtrees[discussion.id()];
           return m('li.discussion-summary'+(isUnread ? '.unread' : '')+(active ? '.active' : ''), {
@@ -153,13 +165,16 @@ export default class DiscussionList extends Component {
             ]),
             m('ul.badges', listItems(discussion.badges().toArray())),
             m('a.main', {href: app.route('discussion.near', {id: discussion.id(), slug: discussion.slug(), near: jumpTo}), config: m.route}, [
-              m('h3.title', discussion.title()),
+              m('h3.title', highlight(discussion.title(), this.props.params.q)),
               m('ul.info', listItems(this.infoItems(discussion).toArray()))
             ]),
             m('span.count', {onclick: this.markAsRead.bind(this, discussion)}, [
               abbreviateNumber(discussion[displayUnread ? 'unreadCount' : 'repliesCount']()),
               m('span.label', displayUnread ? 'unread' : 'replies')
-            ])
+            ]),
+            (relevantPosts && relevantPosts.length)
+              ? m('div.relevant-posts', relevantPosts.map(post => PostPreview.component({post, highlight: this.props.params.q})))
+              : ''
           ]))
         })
       ]),

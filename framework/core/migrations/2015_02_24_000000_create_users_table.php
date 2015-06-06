@@ -17,8 +17,6 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('username', 100)->unique();
             $table->string('email', 150)->unique();
-            $table->boolean('is_confirmed')->default(0);
-            $table->string('confirmation_token', 50)->nullable();
             $table->boolean('is_activated')->default(0);
             $table->string('password', 100);
             $table->text('bio')->nullable();
