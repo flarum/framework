@@ -23,7 +23,7 @@ export default class PostedActivity extends Component {
         near: post.number()
       }), config: m.route}, [
         m('ul.list-inline', listItems(this.headerItems().toArray())),
-        m('div.body', m.trust(post.excerpt()))
+        m('div.body', m.trust(post.contentPlain().substring(0, 200)))
       ])
     ]);
   }
