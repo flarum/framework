@@ -20,7 +20,6 @@ class UsersTableSeeder extends Seeder
             $user = User::create([
                 'username'     => $faker->userName,
                 'email'        => $faker->safeEmail,
-                'is_confirmed' => true,
                 'is_activated' => true,
                 'password'     => 'password',
                 'join_time'    => $faker->dateTimeThisYear
