@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use DB;
 
 class CreatePostsTable extends Migration
 {
@@ -31,6 +30,8 @@ class CreatePostsTable extends Migration
             $table->integer('hide_user_id')->unsigned()->nullable();
 
             $table->unique(['discussion_id', 'number']);
+
+            $table->engine = 'MyISAM';
         });
 
         DB::statement('ALTER TABLE posts ADD FULLTEXT content (content)');
