@@ -1,0 +1,23 @@
+{
+    "name": "flarum-sticky",
+    "title": "Sticky",
+    "description": "Pin discussions to the top of the list.",
+    "tags": [
+        "discussions"
+    ],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    },
+    "links": {
+        "github": "https://github.com/flarum/sticky",
+        "issues": "https://github.com/flarum/sticky/issues"
+    }
+}

@@ -1,19 +1,7 @@
 {
-    "name": "flarum/sticky",
-    "description": "",
-    "authors": [
-        {
-            "name": "Toby Zerner",
-            "email": "toby@flarum.org"
-        }
-    ],
-    "require": {
-        "php": ">=5.4.0"
-    },
     "autoload": {
         "psr-4": {
             "Flarum\\Sticky\\": "src/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
