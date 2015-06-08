@@ -6,7 +6,7 @@ import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import highlight from 'flarum/helpers/highlight';
 
-import AutocompleteDropdown from 'mentions/components/autocomplete-dropdown';
+import AutocompleteDropdown from 'flarum-mentions/components/autocomplete-dropdown';
 
 export default function() {
   extend(ComposerBody.prototype, 'onload', function(original, element, isInitialized, context) {
