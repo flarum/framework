@@ -22,11 +22,12 @@ class ExtensionsServiceProvider extends ServiceProvider
         $providers = [];
 
         foreach ($extensions as $extension) {
-            if (file_exists($file = base_path().'/extensions/'.$extension.'/bootstrap.php')) {
+            if (file_exists($file = public_path().'/extensions/'.$extension.'/bootstrap.php') ||
+                file_exists($file = base_path().'/extensions/'.$extension.'/bootstrap.php')) {
                 $providers[$extension] = require $file;
             }
         }
 
-        // @todo store $providers somewhere so that extensions can talk to each other
+        // @todo store $providers somewhere (in Core?) so that extensions can talk to each other
     }
 }
