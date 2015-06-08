@@ -186,6 +186,7 @@ class User extends Model
     public function changeBio($bio)
     {
         $this->bio = $bio;
+        $this->bio_html = null;
 
         $this->raise(new UserBioWasChanged($this));
 
