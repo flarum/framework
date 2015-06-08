@@ -1,7 +1,6 @@
 <?php namespace Flarum\Core\Seeders;
 
 use Illuminate\Database\Seeder;
-use DB;
 use Flarum\Core\Models\CommentPost;
 use Flarum\Core\Models\Discussion;
 use Flarum\Core\Models\DiscussionRenamedPost;
@@ -126,10 +125,10 @@ class DiscussionsTableSeeder extends Seeder
         }
 
         // Update user post and discussion counts.
-        $prefix = DB::getTablePrefix();
-        DB::table('users')->update([
-            'discussions_count' => DB::raw('(SELECT COUNT(id) FROM '.$prefix.'discussions WHERE start_user_id = '.$prefix.'users.id)'),
-            'comments_count' => DB::raw('(SELECT COUNT(id) FROM '.$prefix.'posts WHERE user_id = '.$prefix.'users.id and type = \'comment\')'),
+        $prefix = app('db')->getTablePrefix();
+        app('db')->table('users')->update([
+            'discussions_count' => app('db')->raw('(SELECT COUNT(id) FROM '.$prefix.'discussions WHERE start_user_id = '.$prefix.'users.id)'),
+            'comments_count' => app('db')->raw('(SELECT COUNT(id) FROM '.$prefix.'posts WHERE user_id = '.$prefix.'users.id and type = \'comment\')'),
         ]);
     }
 }
