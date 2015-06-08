@@ -1,10 +1,10 @@
 <?php namespace Flarum\Admin\Actions;
 
+use Dflydev\FigCookies\FigRequestCookies;
 use Flarum\Api\Client;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
 use Session;
-use Cookie;
 use Config;
 use DB;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -31,7 +31,7 @@ class IndexAction extends HtmlAction
         if (($user = $this->actor->getUser()) && $user->exists) {
             $session = [
                 'userId' => $user->id,
-                'token' => Cookie::get('flarum_remember')
+                'token' => FigRequestCookies::get($request, 'flarum_remember'),
             ];
 
             $response = $this->apiClient->send('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
