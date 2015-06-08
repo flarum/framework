@@ -15,7 +15,7 @@ class Core
             return $default;
         }
 
-        if (is_null($value = DB::table('config')->where('key', $key)->pluck('value'))) {
+        if (is_null($value = app('db')->table('config')->where('key', $key)->pluck('value'))) {
             $value = $default;
         }
 

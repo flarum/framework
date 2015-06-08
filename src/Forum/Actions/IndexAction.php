@@ -5,9 +5,9 @@ use Flarum\Core;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
 use Flarum\Forum\Events\RenderView;
+use Illuminate\Database\DatabaseManager;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Session;
-use DB;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class IndexAction extends HtmlAction
 {
@@ -15,18 +15,24 @@ class IndexAction extends HtmlAction
 
     protected $actor;
 
-    public function __construct(Client $apiClient, Actor $actor)
+    protected $session;
+
+    protected $database;
+
+    public function __construct(Client $apiClient, Actor $actor, DatabaseManager $database, SessionInterface $session)
     {
         $this->apiClient = $apiClient;
         $this->actor = $actor;
+        $this->session = $session;
+        $this->database = $database;
     }
 
     public function render(Request $request, $params = [])
     {
-        $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
+        $config = $this->database->table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
         $data = [];
         $session = [];
-        $alert = Session::get('alert');
+        $alert = $this->session->get('alert');
 
         if (($user = $this->actor->getUser()) && $user->exists) {
             $session = [
