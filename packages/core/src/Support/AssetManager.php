@@ -83,12 +83,9 @@ class AssetManager
         foreach ($this->files[$type] as $file) {
             $lastModTime = max($lastModTime, filemtime($file));
         }
-        $debug = 0;
-        // $debug = 1;
 
         if (! file_exists($file = $dir.'/'.$this->name.'-'.$revision.'.'.$type)
-            || filemtime($file) < $lastModTime
-            || $debug) {
+            || filemtime($file) < $lastModTime) {
             $this->storage->put($file, $callback());
         }
 
