@@ -3,7 +3,6 @@
 use Illuminate\Contracts\Hashing\Hasher;
 use Tobscure\Permissible\Permissible;
 use Flarum\Core\Formatter\FormatterManager;
-use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Events\UserWasDeleted;
 use Flarum\Core\Events\UserWasRegistered;
 use Flarum\Core\Events\UserWasRenamed;
@@ -323,7 +322,7 @@ class User extends Model
             ->whereIn('type', array_filter($types, [$this, 'shouldAlert']))
             ->where('time', '>', $this->notification_read_time ?: 0)
             ->where('is_read', 0)
-            ->count(\DB::raw('DISTINCT type, subject_id'));
+            ->count($this->getConnection()->raw('DISTINCT type, subject_id'));
     }
 
     public function getPreferencesAttribute($value)
