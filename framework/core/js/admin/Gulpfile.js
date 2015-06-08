@@ -2,6 +2,7 @@ var gulp = require('flarum-gulp');
 
 gulp({
   files: [
+    'node_modules/babel-core/external-helpers.js',
     '../bower_components/loader.js/loader.js',
     '../bower_components/mithril/mithril.js',
     '../bower_components/jquery/dist/jquery.js',
@@ -16,5 +17,6 @@ gulp({
   ],
   bootstrapFiles: [],
   modulePrefix: 'flarum',
+  externalHelpers: true,
   outputFile: 'dist/app.js'
 });
