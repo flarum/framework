@@ -1,0 +1,23 @@
+{
+    "name": "flarum-mentions",
+    "title": "Mentions",
+    "description": "Mention and reply to specific posts and users.",
+    "tags": [
+        "discussions"
+    ],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    },
+    "links": {
+        "github": "https://github.com/flarum/mentions",
+        "issues": "https://github.com/flarum/mentions/issues"
+    }
+}
