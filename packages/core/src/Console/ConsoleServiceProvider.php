@@ -13,6 +13,7 @@ class ConsoleServiceProvider extends ServiceProvider
     {
         $this->commands('Flarum\Console\InstallCommand');
         $this->commands('Flarum\Console\SeedCommand');
+        $this->commands('Flarum\Console\GenerateExtensionCommand');
     }
 
     public function register()
