@@ -61,6 +61,7 @@ class IndexAction extends SerializeCollectionAction
         if (count($postIds)) {
             $posts = $this->posts->findByIds($postIds, $user);
         } else {
+            $where = [];
             if ($discussionId = $request->get('discussions')) {
                 $where['discussion_id'] = $discussionId;
             }
