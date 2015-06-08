@@ -80,6 +80,7 @@ class Router
     public function getPath($name, $parameters = [])
     {
         $parts = $this->reverse[$name];
+        array_forget($parts, 'method');
 
         $path = implode('', array_map(function ($part) use ($parameters) {
             if (is_array($part)) {
