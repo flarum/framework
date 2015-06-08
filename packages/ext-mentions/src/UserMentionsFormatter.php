@@ -1,6 +1,9 @@
 <?php namespace Flarum\Mentions;
 
-class UserMentionsFormatter
+use Flarum\Core\Formatter\FormatterAbstract;
+use Flarum\Core\Models\Post;
+
+class UserMentionsFormatter extends FormatterAbstract
 {
     protected $parser;
 
@@ -9,11 +12,13 @@ class UserMentionsFormatter
         $this->parser = $parser;
     }
 
-    public function format($text, $post = null)
+    public function afterPurification($text, Post $post = null)
     {
-        $text = $this->parser->replace($text, function ($match) {
-            return '<a href="#/u/'.$match['username'].'" class="mention-user" data-user="'.$match['username'].'">'.$match['username'].'</a>';
-        }, $text);
+        $text = $this->ignoreTags($text, ['a', 'code', 'pre'], function ($text) {
+            return $this->parser->replace($text, function ($match) {
+                return '<a href="#/u/'.$match['username'].'" class="mention-user" data-user="'.$match['username'].'">'.$match['username'].'</a>';
+            }, $text);
+        });
 
         return $text;
     }
