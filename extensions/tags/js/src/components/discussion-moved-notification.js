@@ -1,6 +1,6 @@
 import Notification from 'flarum/components/notification';
 import username from 'flarum/helpers/username';
-import categoryLabel from 'categories/helpers/category-label';
+import categoryLabel from 'flarum-categories/helpers/category-label';
 
 export default class DiscussionMovedNotification extends Notification {
   view() {

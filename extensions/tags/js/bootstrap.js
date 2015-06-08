@@ -14,17 +14,17 @@ import PostedActivity from 'flarum/components/posted-activity';
 import icon from 'flarum/helpers/icon';
 import app from 'flarum/app';
 
-import Category from 'categories/models/category';
-import CategoriesPage from 'categories/components/categories-page';
-import CategoryHero from 'categories/components/category-hero';
-import CategoryNavItem from 'categories/components/category-nav-item';
-import MoveDiscussionModal from 'categories/components/move-discussion-modal';
-import DiscussionMovedNotification from 'categories/components/discussion-moved-notification';
-import DiscussionMovedPost from 'categories/components/discussion-moved-post';
-import categoryLabel from 'categories/helpers/category-label';
-import categoryIcon from 'categories/helpers/category-icon';
+import Category from 'flarum-categories/models/category';
+import CategoriesPage from 'flarum-categories/components/categories-page';
+import CategoryHero from 'flarum-categories/components/category-hero';
+import CategoryNavItem from 'flarum-categories/components/category-nav-item';
+import MoveDiscussionModal from 'flarum-categories/components/move-discussion-modal';
+import DiscussionMovedNotification from 'flarum-categories/components/discussion-moved-notification';
+import DiscussionMovedPost from 'flarum-categories/components/discussion-moved-post';
+import categoryLabel from 'flarum-categories/helpers/category-label';
+import categoryIcon from 'flarum-categories/helpers/category-icon';
 
-app.initializers.add('categories', function() {
+app.initializers.add('flarum-categories', function() {
   // Register routes.
   app.routes['categories'] = ['/categories', CategoriesPage.component()];
   app.routes['category'] = ['/c/:categories', IndexPage.component()];

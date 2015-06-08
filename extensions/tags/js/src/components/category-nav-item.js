@@ -1,5 +1,5 @@
 import NavItem from 'flarum/components/nav-item';
-import categoryIcon from 'categories/helpers/category-icon';
+import categoryIcon from 'flarum-categories/helpers/category-icon';
 
 export default class CategoryNavItem extends NavItem {
   view() {

@@ -1,7 +1,7 @@
 import Component from 'flarum/component';
 import DiscussionPage from 'flarum/components/discussion-page';
 import icon from 'flarum/helpers/icon';
-import categoryLabel from 'categories/helpers/category-label';
+import categoryLabel from 'flarum-categories/helpers/category-label';
 
 export default class MoveDiscussionModal extends Component {
   constructor(props) {

@@ -1,5 +1,5 @@
 import EventPost from 'flarum/components/event-post';
-import categoryLabel from 'categories/helpers/category-label';
+import categoryLabel from 'flarum-categories/helpers/category-label';
 
 export default class DiscussionMovedPost extends EventPost {
   view() {
