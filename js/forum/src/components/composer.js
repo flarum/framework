@@ -117,7 +117,7 @@ class Composer extends Component {
     this.updateHeight();
 
     var scrollTop = $(window).scrollTop();
-    this.updateBodyPadding(false, scrollTop > 0 && scrollTop + $(window).height() >= $(document).height());
+    this.updateBodyPadding(scrollTop > 0 && scrollTop + $(window).height() >= $(document).height());
 
     localStorage.setItem('composerHeight', height);
   }
@@ -167,7 +167,7 @@ class Composer extends Component {
     }
 
     if (this.position() !== Composer.PositionEnum.FULLSCREEN) {
-      this.updateBodyPadding(true, anchorToBottom);
+      this.updateBodyPadding(anchorToBottom);
     } else {
       this.component.focus();
     }
@@ -182,17 +182,12 @@ class Composer extends Component {
   // Update the amount of padding-bottom on the body so that the page's
   // content will still be visible above the composer when the page is
   // scrolled right to the bottom.
-  updateBodyPadding(animate, anchorToBottom) {
-    var func = animate ? 'animate' : 'css';
+  updateBodyPadding(anchorToBottom) {
     var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN ? this.computedHeight() - parseInt($('#page').css('padding-bottom')) : 0;
-    $('#content')[func]({paddingBottom}, 'fast');
+    $('#content').css({paddingBottom});
 
     if (anchorToBottom) {
-      if (animate) {
-        $('html, body').stop(true).animate({scrollTop: $(document).height()}, 'fast');
-      } else {
-        $('html, body').scrollTop($(document).height());
-      }
+      $('html, body').scrollTop($(document).height());
     }
   }
 
