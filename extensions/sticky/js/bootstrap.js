@@ -9,8 +9,8 @@ import SettingsPage from 'flarum/components/settings-page';
 import icon from 'flarum/helpers/icon';
 import app from 'flarum/app';
 
-import DiscussionStickiedPost from 'sticky/components/discussion-stickied-post';
-import DiscussionStickiedNotification from 'sticky/components/discussion-stickied-notification';
+import DiscussionStickiedPost from 'flarum-sticky/components/discussion-stickied-post';
+import DiscussionStickiedNotification from 'flarum-sticky/components/discussion-stickied-notification';
 
 app.initializers.add('sticky', function() {
 
