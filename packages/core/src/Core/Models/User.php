@@ -200,7 +200,7 @@ class User extends Model
      */
     public function getBioHtmlAttribute($value)
     {
-        if (! $value) {
+        if ($value === null) {
             $this->bio_html = $value = static::formatBio($this->bio);
             $this->save();
         }
