@@ -6,7 +6,6 @@ use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
 use Session;
 use Config;
-use DB;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexAction extends HtmlAction
@@ -23,7 +22,7 @@ class IndexAction extends HtmlAction
 
     protected function render(Request $request, $routeParams = [])
     {
-        $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
+        $config = app('db')->table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
         $data = [];
         $session = [];
         $alert = Session::get('alert');

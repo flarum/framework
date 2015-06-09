@@ -34,7 +34,7 @@ class CreatePostsTable extends Migration
             $table->engine = 'MyISAM';
         });
 
-        DB::statement('ALTER TABLE posts ADD FULLTEXT content (content)');
+        app('db')->statement('ALTER TABLE posts ADD FULLTEXT content (content)');
     }
 
     /**
