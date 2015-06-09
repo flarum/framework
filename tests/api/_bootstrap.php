@@ -29,5 +29,5 @@ foreach ($permissions as &$permission) {
         'permission' => $permission[2]
     ];
 }
-\DB::table('permissions')->truncate();
-\DB::table('permissions')->insert($permissions);
+app('db')->table('permissions')->truncate();
+app('db')->table('permissions')->insert($permissions);
