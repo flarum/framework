@@ -1,7 +1,6 @@
 <?php  namespace Flarum\Core\Seeders;
 
 use Illuminate\Database\Seeder;
-use DB;
 
 class ConfigTableSeeder extends Seeder
 {
@@ -26,7 +25,7 @@ class ConfigTableSeeder extends Seeder
             'theme_colored_header'  => false,
         ];
 
-        DB::table('config')->insert(array_map(function ($key, $value) {
+        app('db')->table('config')->insert(array_map(function ($key, $value) {
             return compact('key', 'value');
         }, array_keys($config), $config));
     }
