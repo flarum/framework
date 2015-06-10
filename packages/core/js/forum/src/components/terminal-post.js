@@ -1,5 +1,5 @@
 import Component from 'flarum/component';
-import humanTime from 'flarum/utils/human-time';
+import humanTime from 'flarum/helpers/human-time';
 import username from 'flarum/helpers/username';
 
 /**
@@ -16,10 +16,13 @@ export default class TerminalPost extends Component {
     var discussion = this.props.discussion;
     var lastPost = this.props.lastPost && discussion.repliesCount();
 
+    var user = discussion[lastPost ? 'lastUser' : 'startUser']();
+    var time = discussion[lastPost ? 'lastTime' : 'startTime']();
+
     return m('span', [
-      username(discussion[lastPost ? 'lastUser' : 'startUser']()),
+      username(user),
       lastPost ? ' replied ' : ' started ',
-      m('time', humanTime(discussion[lastPost ? 'lastTime' : 'startTime']()))
+      humanTime(time)
     ])
   }
 }
