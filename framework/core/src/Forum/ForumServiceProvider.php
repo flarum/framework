@@ -1,7 +1,8 @@
 <?php namespace Flarum\Forum;
 
-use Illuminate\Support\ServiceProvider;
+use Flarum\Support\ServiceProvider;
 use Flarum\Support\AssetManager;
+use Flarum\Extend\ForumTranslations;
 
 class ForumServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,12 @@ class ForumServiceProvider extends ServiceProvider
         ]);
 
         include __DIR__.'/routes.php';
+
+        $this->extend(
+            new ForumTranslations([
+                //
+            ])
+        );
     }
 
     /**
