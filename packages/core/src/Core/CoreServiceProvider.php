@@ -18,6 +18,7 @@ use Flarum\Core\Events\RegisterUserGambits;
 use Flarum\Extend\Permission;
 use Flarum\Extend\ActivityType;
 use Flarum\Extend\NotificationType;
+use Flarum\Extend\Locale;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -56,6 +57,17 @@ class CoreServiceProvider extends ServiceProvider
             (new ActivityType('Flarum\Core\Activity\StartedDiscussionActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
             (new ActivityType('Flarum\Core\Activity\JoinedActivity', 'Flarum\Api\Serializers\UserBasicSerializer'))
         );
+
+        foreach (['en'] as $locale) {
+            $dir = __DIR__.'/../../locale/'.$locale;
+
+            $this->extend(
+                (new Locale($locale))
+                    ->translations($dir.'/translations.yml')
+                    ->config($dir.'/config.php')
+                    ->js($dir.'/config.js')
+            );
+        }
     }
 
     /**
@@ -71,6 +83,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton('flarum.forum', 'Flarum\Core\Models\Forum');
 
         $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\FormatterManager');
+
+        $this->app->singleton('flarum.localeManager', 'Flarum\Locale\LocaleManager');
 
         $this->app->bind(
             'Flarum\Core\Repositories\DiscussionRepositoryInterface',
