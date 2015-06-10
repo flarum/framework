@@ -1,10 +1,12 @@
 import ItemList from 'flarum/utils/item-list';
 import Alert from 'flarum/components/alert';
 import ServerError from 'flarum/utils/server-error';
+import Translator from 'flarum/utils/translator';
 
 class App {
   constructor() {
     this.initializers = new ItemList();
+    this.translator = new Translator();
     this.cache = {};
     this.serverError = null;
   }
@@ -54,6 +56,10 @@ class App {
     });
     var queryString = m.route.buildQueryString(params);
     return url+(queryString ? '?'+queryString : '');
+  }
+
+  translate(key, input) {
+    return this.translator.translate(key, input);
   }
 }
 
