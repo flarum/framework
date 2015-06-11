@@ -27,17 +27,17 @@ class MentionsServiceProvider extends ServiceProvider
                 __DIR__.'/../less/mentions.less'
             ]),
 
-            new Relationship('Flarum\Core\Models\Post', function ($model) {
+            new Relationship('Flarum\Core\Models\Post', 'mentionedBy', function ($model) {
                 return $model->belongsToMany('Flarum\Core\Models\Post', 'mentions_posts', 'mentions_id');
-            }, 'mentionedBy'),
+            }),
 
-            new Relationship('Flarum\Core\Models\Post', function ($model) {
+            new Relationship('Flarum\Core\Models\Post', 'mentionsPosts', function ($model) {
                 return $model->belongsToMany('Flarum\Core\Models\Post', 'mentions_posts', 'post_id', 'mentions_id');
-            }, 'mentionsPosts'),
+            }),
 
-            new Relationship('Flarum\Core\Models\Post', function ($model) {
+            new Relationship('Flarum\Core\Models\Post', 'mentionsUsers', function ($model) {
                 return $model->belongsToMany('Flarum\Core\Models\User', 'mentions_users', 'post_id', 'mentions_id');
-            }, 'mentionsUsers'),
+            }),
 
             new SerializeRelationship('Flarum\Api\Serializers\PostSerializer', 'hasMany', 'mentionedBy', 'Flarum\Api\Serializers\PostBasicSerializer'),
 
