@@ -160,7 +160,7 @@ export default class IndexPage extends Component {
     items.add('sort',
       SelectInput.component({
         options: sortOptions,
-        value: this.params.sort,
+        value: this.params().sort,
         onchange: this.reorder.bind(this)
       })
     );
