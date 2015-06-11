@@ -295,7 +295,7 @@ class PostStream extends mixin(Component, evented) {
     var redraw = () => {
       if (start < this.visibleStart || end > this.visibleEnd) return;
 
-      var anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
+      var anchorIndex = backwards && $(window).scrollTop() > 0 ? this.visibleEnd - 1 : this.visibleStart;
       anchorScroll(this.$('.item[data-index='+anchorIndex+']'), () => m.redraw(true));
 
       this.unpause();
