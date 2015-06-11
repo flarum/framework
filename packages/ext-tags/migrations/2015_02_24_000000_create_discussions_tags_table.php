@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCategoryToDiscussions extends Migration
+class CreateDiscussionsTagsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,10 @@ class AddCategoryToDiscussions extends Migration
      */
     public function up()
     {
-        Schema::table('discussions', function (Blueprint $table) {
-            $table->integer('category_id')->unsigned()->nullable();
+        Schema::create('discussions_tags', function (Blueprint $table) {
+            $table->integer('discussion_id')->unsigned();
+            $table->integer('tag_id')->unsigned();
+            $table->primary(['discussion_id', 'tag_id']);
         });
     }
 
@@ -24,8 +26,6 @@ class AddCategoryToDiscussions extends Migration
      */
     public function down()
     {
-        Schema::table('discussions', function (Blueprint $table) {
-            $table->dropColumn('category_id');
-        });
+        Schema::drop('discussions_tags');
     }
 }

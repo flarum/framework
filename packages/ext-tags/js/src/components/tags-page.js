@@ -2,7 +2,7 @@ import Component from 'flarum/component';
 import WelcomeHero from 'flarum/components/welcome-hero';
 import icon from 'flarum/helpers/icon';
 
-export default class CategoriesPage extends Component {
+export default class TagsPage extends Component {
   constructor(props) {
     super(props);
 

@@ -1,13 +1,13 @@
-<?php namespace Flarum\Categories;
+<?php namespace Flarum\Tags;
 
 use Illuminate\Database\Eloquent\Builder;
 use Flarum\Core\Models\User;
-use Flarum\Categories\Category;
+use Flarum\Tags\Tag;
 
-class EloquentCategoryRepository implements CategoryRepositoryInterface
+class EloquentTagRepository implements TagRepositoryInterface
 {
     /**
-     * Find all categories, optionally making sure they are visible to a
+     * Find all tags, optionally making sure they are visible to a
      * certain user.
      *
      * @param  \Flarum\Core\Models\User|null  $user
@@ -15,13 +15,13 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
      */
     public function find(User $user = null)
     {
-        $query = Category::newQuery();
+        $query = Tag::newQuery();
 
         return $this->scopeVisibleForUser($query, $user)->get();
     }
 
     /**
-     * Get the ID of a category with the given slug.
+     * Get the ID of a tag with the given slug.
      *
      * @param string $slug
      * @param \Flarum\Core\Models\User|null $user
@@ -29,7 +29,7 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
      */
     public function getIdForSlug($slug, User $user = null)
     {
-        $query = Category::where('slug', 'like', $slug);
+        $query = Tag::where('slug', 'like', $slug);
 
         return $this->scopeVisibleForUser($query, $user)->pluck('id');
     }
