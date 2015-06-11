@@ -1,7 +1,7 @@
 {
     "autoload": {
         "psr-4": {
-            "Flarum\\Categories\\": "src/"
+            "Flarum\\Tags\\": "src/"
         }
     }
 }

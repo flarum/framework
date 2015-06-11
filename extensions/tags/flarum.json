@@ -1,23 +1,16 @@
 {
-    "name": "flarum-categories",
-    "title": "Categories",
-    "description": "Organise discussions into a heirarchy of categories.",
-    "tags": [
-        "discussions"
-    ],
+    "name": "flarum-tags",
+    "title": "Tags",
+    "description": "Organise discussions into a heirarchy of tags and categories.",
+    "tags": [],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
-        "email": "toby@flarum.org",
-        "homepage": "http://tobyzerner.com"
+        "email": "toby.zerner@gmail.com"
     },
     "license": "MIT",
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
-    },
-    "links": {
-        "github": "https://github.com/flarum/categories",
-        "issues": "https://github.com/flarum/categories/issues"
     }
 }

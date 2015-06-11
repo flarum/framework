@@ -1,11 +1,11 @@
-<?php namespace Flarum\Categories;
+<?php namespace Flarum\Tags;
 
 use Flarum\Core\Models\User;
 
-interface CategoryRepositoryInterface
+interface TagRepositoryInterface
 {
     /**
-     * Find all categories, optionally making sure they are visible to a
+     * Find all tags, optionally making sure they are visible to a
      * certain user.
      *
      * @param  \Flarum\Core\Models\User|null  $user
@@ -14,7 +14,7 @@ interface CategoryRepositoryInterface
     public function find(User $user = null);
 
     /**
-     * Get the ID of a category with the given slug.
+     * Get the ID of a tag with the given slug.
      *
      * @param string $slug
      * @param \Flarum\Core\Models\User|null $user

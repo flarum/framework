@@ -1,0 +1,93 @@
+.tag-label {
+  font-size: 85%;
+  font-weight: 600;
+  display: inline-block;
+  padding: 0.2em 0.55em;
+  border-radius: @border-radius-base;
+  background: @fl-body-secondary-color;
+
+  &.untagged {
+    background: transparent;
+    border: 1px dotted @fl-body-muted-color;
+    color: @fl-body-muted-color;
+  }
+
+  &.colored {
+    & .tag-label-text {
+      color: #fff !important;
+    }
+  }
+
+  .discussion-hero .tags-label & {
+    background: transparent;
+    border-radius: 4px !important;
+
+    &.colored {
+      margin-right: 5px;
+      background: #fff !important;
+      color: @fl-body-muted-color;
+
+      & .tag-label-text {
+        color: inherit !important;
+      }
+    }
+  }
+
+  .discussion-moved-post & {
+    margin: 0 2px;
+  }
+}
+.tags-label {
+  .discussion-summary & {
+    margin-right: 10px;
+  }
+
+  & .tag-label {
+    border-radius: 0;
+    margin-right: 1px;
+
+    &:first-child {
+      border-radius: @border-radius-base 0 0 @border-radius-base;
+    }
+    &:last-child {
+      border-radius: 0 @border-radius-base @border-radius-base 0;
+    }
+    &:first-child:last-child {
+      border-radius: @border-radius-base;
+    }
+  }
+}
+
+// @todo give all <li>s a class in core, get rid of block-item
+.discussion-hero {
+  & .block-item {
+    margin-top: 15px;
+  }
+}
+
+.tag-icon {
+  border-radius: @border-radius-base;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: -3px;
+  margin-left: 1px;
+  background: @fl-body-secondary-color;
+
+  &.untagged {
+    border: 1px dotted @fl-body-muted-color;
+    background: transparent;
+  }
+}
+.side-nav .dropdown-menu > li > .dropdown-menu {
+  margin-bottom: 10px;
+
+  & .tag-icon {
+    display: none;
+  }
+  & > li > a {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-left: 10px;
+  }
+}
