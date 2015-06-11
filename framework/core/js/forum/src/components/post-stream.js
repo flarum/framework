@@ -422,7 +422,7 @@ class PostStream extends mixin(Component, evented) {
   scrollToIndex(index, noAnimation, bottom) {
     var $item = this.$('.item[data-index='+index+']');
 
-    return this.scrollToItem($item, noAnimation, true, true);
+    return this.scrollToItem($item, noAnimation, true, bottom);
   }
 
   /**
