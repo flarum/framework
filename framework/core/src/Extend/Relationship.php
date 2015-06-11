@@ -7,17 +7,19 @@ class Relationship implements ExtenderInterface
 {
     protected $parent;
 
-    protected $type;
-
     protected $name;
+
+    protected $type;
 
     protected $child;
 
-    public function __construct($parent, $type, $name, $child = null)
+    protected $table;
+
+    public function __construct($parent, $name, $type, $child = null)
     {
         $this->parent = $parent;
-        $this->type = $type;
         $this->name = $name;
+        $this->type = $type;
         $this->child = $child;
     }
 
@@ -30,6 +32,8 @@ class Relationship implements ExtenderInterface
                 return call_user_func($this->type, $model);
             } elseif ($this->type === 'belongsTo') {
                 return $model->belongsTo($this->child, null, null, $this->name);
+            } elseif ($this->type === 'belongsToMany') {
+                return $model->belongsToMany($this->child, $this->table, null, null, $this->name);
             } else {
                 // @todo
             }
