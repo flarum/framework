@@ -4,6 +4,6 @@ class JsCompiler extends RevisionCompiler
 {
     public function format($string)
     {
-        return $string.';';
+        return $string.";\n";
     }
 }
