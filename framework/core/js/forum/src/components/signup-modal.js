@@ -22,7 +22,7 @@ export default class SignupModal extends FormModal {
     var vdom = super.view({
       className: 'modal-sm signup-modal'+(welcomeUser ? ' signup-modal-success' : ''),
       title: 'Sign Up',
-      body: [
+      body: m('div.form-centered', [
         m('div.form-group', [
           m('input.form-control[name=username][placeholder=Username]', {value: this.username(), onchange: m.withAttr('value', this.username), disabled: this.loading()})
         ]),
@@ -35,7 +35,7 @@ export default class SignupModal extends FormModal {
         m('div.form-group', [
           m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Sign Up')
         ])
-      ],
+      ]),
       footer: [
         m('p.log-in-link', [
           'Already have an account? ',

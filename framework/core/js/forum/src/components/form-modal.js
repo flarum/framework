@@ -23,9 +23,7 @@ export default class FormModal extends Component {
         m('form', {onsubmit: this.onsubmit.bind(this)}, [
           m('div.modal-header', m('h3.title-control', options.title)),
           alert ? m('div.modal-alert', alert) : '',
-          m('div.modal-body', [
-            m('div.form-centered', options.body)
-          ]),
+          m('div.modal-body', options.body),
           options.footer ? m('div.modal-footer', options.footer) : ''
         ])
       ]),
