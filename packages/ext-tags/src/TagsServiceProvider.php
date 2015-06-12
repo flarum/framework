@@ -25,9 +25,9 @@ class TagsServiceProvider extends ServiceProvider
             ]),
 
             new EventSubscribers([
-                // 'Flarum\Categories\Handlers\DiscussionMovedNotifier',
+                // 'Flarum\Tags\Handlers\DiscussionTaggedNotifier',
                 'Flarum\Tags\Handlers\TagPreloader',
-                // 'Flarum\Categories\Handlers\CategorySaver'
+                'Flarum\Tags\Handlers\TagSaver'
             ]),
 
             new Relationship('Flarum\Core\Models\Discussion', 'tags', function ($model) {
@@ -38,7 +38,7 @@ class TagsServiceProvider extends ServiceProvider
 
             new ApiInclude(['discussions.index', 'discussions.show'], 'tags', true),
 
-            (new Permission('discussion.editTags'))
+            (new Permission('discussion.tag'))
                 ->serialize()
                 ->grant(function ($grant, $user) {
                     $grant->where('start_user_id', $user->id);

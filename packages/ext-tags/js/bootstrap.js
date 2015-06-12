@@ -8,6 +8,8 @@ import TagsPage from 'flarum-tags/components/tags-page';
 import addTagList from 'flarum-tags/add-tag-list';
 import addTagFilter from 'flarum-tags/add-tag-filter';
 import addTagLabels from 'flarum-tags/add-tag-labels';
+import addTagDiscussionControl from 'flarum-tags/add-tag-discussion-control';
+import addTagComposer from 'flarum-tags/add-tag-composer';
 
 app.initializers.add('flarum-tags', function() {
   // Register routes.
@@ -17,7 +19,7 @@ app.initializers.add('flarum-tags', function() {
   // Register models.
   app.store.models['tags'] = Tag;
   Discussion.prototype.tags = Model.many('tags');
-  Discussion.prototype.canMove = Model.prop('canMove');
+  Discussion.prototype.canTag = Model.prop('canTag');
 
   // Add a list of tags to the index navigation.
   addTagList();
@@ -28,7 +30,7 @@ app.initializers.add('flarum-tags', function() {
   // Add tags to the discussion list and discussion hero.
   addTagLabels();
 
-  // addMoveDiscussionControl();
+  addTagDiscussionControl();
 
-  // addDiscussionComposer();
+  addTagComposer();
 });

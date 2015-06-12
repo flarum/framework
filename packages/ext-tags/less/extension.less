@@ -5,6 +5,7 @@
   padding: 0.2em 0.55em;
   border-radius: @border-radius-base;
   background: @fl-body-secondary-color;
+  color: @fl-body-muted-color;
 
   &.untagged {
     background: transparent;
@@ -89,5 +90,124 @@
     padding-top: 4px;
     padding-bottom: 4px;
     margin-left: 10px;
+  }
+}
+
+.tag-discussion-modal {
+  & .modal-header {
+    background: @fl-body-secondary-color;
+    padding: 20px;
+
+    & h3 {
+      text-align: left;
+      color: @fl-body-muted-color;
+      font-size: 16px;
+    }
+  }
+  & .modal-body {
+    padding: 0 20px 20px;
+  }
+  & .modal-footer {
+    padding: 1px 0 0;
+    text-align: left;
+  }
+}
+.tags-form {
+  padding-right: 100px;
+  overflow: hidden;
+
+  & .tags-input {
+    float: left;
+  }
+  & .btn {
+    margin-right: -100px;
+    float: right;
+    width: 85px;
+  }
+}
+.tags-input {
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  white-space: nowrap;
+
+  & input {
+    display: inline;
+    outline: none;
+    margin-top: -2px;
+    border: 0 !important;
+    padding: 0;
+    width: 100%;
+    margin-right: -100%;
+  }
+  & .remove-tag {
+    cursor: not-allowed;
+  }
+}
+.tags-input-selected {
+  & .tag-label {
+    margin-right: 5px;
+  }
+}
+
+.tags-select {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  overflow: auto;
+  max-height: 50vh;
+
+  & > li {
+    padding: 7px 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+
+    &.category {
+      padding-top: 10px;
+      padding-bottom: 10px;
+
+      & .name {
+        font-size: 16px;
+      }
+      &.selected .tag-icon:before {
+        color: #fff;
+      }
+    }
+    &.active {
+      background: @fl-body-secondary-color;
+    }
+    & .name {
+      display: inline-block;
+      width: 150px;
+      margin-right: 10px;
+      margin-left: 10px;
+    }
+    & .description {
+      color: @fl-body-muted-color;
+      font-size: 12px;
+    }
+    &.selected {
+      & .tag-icon {
+        position: relative;
+
+        &:before {
+          .fa();
+          content: @fa-var-check;
+          color: @fl-body-muted-color;
+          position: absolute;
+          font-size: 14px;
+          width: 100%;
+          text-align: center;
+          padding-top: 1px;
+        }
+      }
+    }
+    & mark {
+      font-weight: bold;
+      background: none;
+      box-shadow: none;
+      color: inherit;
+    }
   }
 }

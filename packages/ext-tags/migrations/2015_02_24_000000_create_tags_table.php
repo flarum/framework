@@ -17,13 +17,20 @@ class CreateTagsTable extends Migration
             $table->string('name', 100);
             $table->string('slug', 100);
             $table->text('description')->nullable();
+
             $table->string('color', 50)->nullable();
             $table->string('background_path', 100)->nullable();
+            $table->string('background_mode', 100)->nullable();
             $table->string('icon_path', 100)->nullable();
-            $table->integer('discussions_count')->unsigned()->default(0);
+
             $table->integer('position')->nullable();
             $table->integer('parent_id')->unsigned()->nullable();
             $table->string('default_sort', 50)->nullable();
+
+            $table->integer('discussions_count')->unsigned()->default(0);
+            $table->integer('last_time')->unsigned()->nullable();
+            $table->integer('last_discussion_id')->unsigned()->nullable();
+
         });
     }
 

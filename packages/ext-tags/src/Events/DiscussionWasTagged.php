@@ -1,9 +1,9 @@
-<?php namespace Flarum\Categories\Events;
+<?php namespace Flarum\Tags\Events;
 
 use Flarum\Core\Models\Discussion;
 use Flarum\Core\Models\User;
 
-class DiscussionWasMoved
+class DiscussionWasTagged
 {
     /**
      * @var \Flarum\Core\Models\Discussion
@@ -16,19 +16,19 @@ class DiscussionWasMoved
     public $user;
 
     /**
-     * @var integer
+     * @var array
      */
-    public $oldCategoryId;
+    public $oldTags;
 
     /**
      * @param \Flarum\Core\Models\Discussion $discussion
      * @param \Flarum\Core\Models\User $user
      * @param \Flarum\Categories\Category $oldCategory
      */
-    public function __construct(Discussion $discussion, User $user, $oldCategoryId)
+    public function __construct(Discussion $discussion, User $user, array $oldTags)
     {
         $this->discussion = $discussion;
         $this->user = $user;
-        $this->oldCategoryId = $oldCategoryId;
+        $this->oldTags = $oldTags;
     }
 }
