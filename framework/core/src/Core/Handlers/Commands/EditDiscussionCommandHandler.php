@@ -20,9 +20,8 @@ class EditDiscussionCommandHandler
         $user = $command->user;
         $discussion = $this->discussions->findOrFail($command->discussionId, $user);
 
-        $discussion->assertCan($user, 'edit');
-
         if (isset($command->data['title'])) {
+            $discussion->assertCan($user, 'rename');
             $discussion->rename($command->data['title'], $user);
         }
 
