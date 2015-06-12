@@ -183,7 +183,9 @@ class Composer extends Component {
   // content will still be visible above the composer when the page is
   // scrolled right to the bottom.
   updateBodyPadding(anchorToBottom) {
-    var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN ? this.computedHeight() - parseInt($('#page').css('padding-bottom')) : 0;
+    var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN && this.position() !== Composer.PositionEnum.MINIMIZED
+      ? this.computedHeight() - parseInt($('#page').css('padding-bottom'))
+      : 0;
     $('#content').css({paddingBottom});
 
     if (anchorToBottom) {
