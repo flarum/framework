@@ -30,7 +30,14 @@ export default class Model {
     if (data.links) {
       for (var i in data.links) {
         var model = data.links[i];
-        data.links[i] = {linkage: {type: model.data().type, id: model.data().id}};
+        var linkage = model => {
+          return {type: model.data().type, id: model.data().id};
+        };
+        if (model instanceof Array) {
+          data.links[i] = {linkage: model.map(linkage)};
+        } else {
+          data.links[i] = {linkage: linkage(model)};
+        }
       }
     }
 
