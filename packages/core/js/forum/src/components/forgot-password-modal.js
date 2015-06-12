@@ -19,7 +19,7 @@ export default class ForgotPasswordModal extends FormModal {
     return super.view({
       className: 'modal-sm forgot-password',
       title: 'Forgot Password',
-      body: this.success()
+      body: m('div.form-centered', this.success()
         ? [
           m('p.help-text', 'We\'ve sent you an email containing a link to reset your password. Check your spam folder if you don\'t receive it within the next minute or two.'),
           m('div.form-group', [
@@ -34,7 +34,7 @@ export default class ForgotPasswordModal extends FormModal {
           m('div.form-group', [
             m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Recover Password')
           ])
-        ]
+        ])
     });
   }
 
