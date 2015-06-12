@@ -1,4 +1,5 @@
 import tagLabel from 'flarum-tags/helpers/tag-label';
+import sortTags from 'flarum-tags/utils/sort-tags';
 
 export default function tagsLabel(tags, attrs) {
   attrs = attrs || {};
@@ -8,7 +9,7 @@ export default function tagsLabel(tags, attrs) {
   delete attrs.link;
 
   if (tags) {
-    tags.forEach(tag => {
+    sortTags(tags).forEach(tag => {
       children.push(tagLabel(tag, {link}));
     });
   } else {

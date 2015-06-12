@@ -4,12 +4,13 @@ import DiscussionPage from 'flarum/components/discussion-page';
 import DiscussionHero from 'flarum/components/discussion-hero';
 
 import tagsLabel from 'flarum-tags/helpers/tags-label';
+import sortTags from 'flarum-tags/utils/sort-tags';
 
 export default function() {
   // Add tag labels to each discussion in the discussion list.
   extend(DiscussionList.prototype, 'infoItems', function(items, discussion) {
     var tags = discussion.tags();
-    if (tags) {
+    if (tags && tags.length) {
       items.add('tags', tagsLabel(tags.filter(tag => tag.slug() !== this.props.params.tags)), {first: true});
     }
   });
@@ -21,8 +22,8 @@ export default function() {
 
   // Restyle a discussion's hero to use its first tag's color.
   extend(DiscussionHero.prototype, 'view', function(view) {
-    var tags = this.props.discussion.tags();
-    if (tags) {
+    var tags = sortTags(this.props.discussion.tags());
+    if (tags && tags.length) {
       view.attrs.style = 'color: #fff; background-color: '+tags[0].color();
     }
   });
@@ -31,7 +32,7 @@ export default function() {
   // before the title. Put the title on its own line.
   extend(DiscussionHero.prototype, 'items', function(items) {
     var tags = this.props.discussion.tags();
-    if (tags) {
+    if (tags && tags.length) {
       items.add('tags', tagsLabel(tags, {link: true}), {before: 'title'});
 
       items.title.content.wrapperClass = 'block-item';
