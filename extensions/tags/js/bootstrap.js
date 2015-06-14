@@ -5,6 +5,7 @@ import IndexPage from 'flarum/components/index-page';
 
 import Tag from 'flarum-tags/models/tag';
 import TagsPage from 'flarum-tags/components/tags-page';
+import DiscussionTaggedPost from 'flarum-tags/components/discussion-tagged-post';
 import addTagList from 'flarum-tags/add-tag-list';
 import addTagFilter from 'flarum-tags/add-tag-filter';
 import addTagLabels from 'flarum-tags/add-tag-labels';
@@ -20,6 +21,8 @@ app.initializers.add('flarum-tags', function() {
   app.store.models['tags'] = Tag;
   Discussion.prototype.tags = Model.many('tags');
   Discussion.prototype.canTag = Model.prop('canTag');
+
+  app.postComponentRegistry['discussionTagged'] = DiscussionTaggedPost;
 
   // Add a list of tags to the index navigation.
   addTagList();

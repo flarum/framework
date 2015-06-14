@@ -8,6 +8,7 @@ use Flarum\Extend\SerializeRelationship;
 use Flarum\Extend\ApiInclude;
 use Flarum\Extend\Permission;
 use Flarum\Extend\DiscussionGambit;
+use Flarum\Extend\PostType;
 
 class TagsServiceProvider extends ServiceProvider
 {
@@ -18,14 +19,14 @@ class TagsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend(
+        $this->extend([
             new ForumAssets([
                 __DIR__.'/../js/dist/extension.js',
                 __DIR__.'/../less/extension.less'
             ]),
 
             new EventSubscribers([
-                // 'Flarum\Tags\Handlers\DiscussionTaggedNotifier',
+                'Flarum\Tags\Handlers\DiscussionTaggedNotifier',
                 'Flarum\Tags\Handlers\TagPreloader',
                 'Flarum\Tags\Handlers\TagSaver'
             ]),
@@ -45,8 +46,10 @@ class TagsServiceProvider extends ServiceProvider
                     // @todo add limitations to time etc. according to a config setting
                 }),
 
-            new DiscussionGambit('Flarum\Tags\TagGambit')
-        );
+            new DiscussionGambit('Flarum\Tags\TagGambit'),
+
+            new PostType('Flarum\Tags\DiscussionTaggedPost')
+        ]);
     }
 
     /**

@@ -1,16 +1,16 @@
-<?php namespace Flarum\Categories;
+<?php namespace Flarum\Tags;
 
 use Flarum\Core\Models\Model;
 use Flarum\Core\Models\EventPost;
 
-class DiscussionMovedPost extends EventPost
+class DiscussionTaggedPost extends EventPost
 {
     /**
      * The type of post this is, to be stored in the posts table.
      *
      * @var string
      */
-    public static $type = 'discussionMoved';
+    public static $type = 'discussionTagged';
 
     /**
      * Merge the post into another post of the same type.
@@ -27,6 +27,8 @@ class DiscussionMovedPost extends EventPost
             }
 
             $previous->content = static::buildContent($previous->content[0], $this->content[1]);
+            $previous->time = $this->time;
+
             return $previous;
         }
 
@@ -38,15 +40,15 @@ class DiscussionMovedPost extends EventPost
      *
      * @param integer $discussionId
      * @param integer $userId
-     * @param integer $oldCategoryId
-     * @param integer $newCategoryId
+     * @param array $oldTagIds
+     * @param array $newTagIds
      * @return static
      */
-    public static function reply($discussionId, $userId, $oldCategoryId, $newCategoryId)
+    public static function reply($discussionId, $userId, array $oldTagIds, array $newTagIds)
     {
         $post = new static;
 
-        $post->content       = static::buildContent($oldCategoryId, $newCategoryId);
+        $post->content       = static::buildContent($oldTagIds, $newTagIds);
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
@@ -57,12 +59,12 @@ class DiscussionMovedPost extends EventPost
     /**
      * Build the content attribute.
      *
-     * @param boolean $oldCategoryId The old category ID.
-     * @param boolean $newCategoryId The new category ID.
+     * @param array $oldTagIds
+     * @param array $newTagIds
      * @return array
      */
-    public static function buildContent($oldCategoryId, $newCategoryId)
+    public static function buildContent(array $oldTagIds, array $newTagIds)
     {
-        return [$oldCategoryId, $newCategoryId];
+        return [$oldTagIds, $newTagIds];
     }
 }
