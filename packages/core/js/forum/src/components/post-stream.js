@@ -88,7 +88,7 @@ class PostStream extends mixin(Component, evented) {
     stream is not visible.
    */
   pushPost(post) {
-    if (this.visibleEnd >= this.count() - 1) {
+    if (this.visibleEnd >= this.count() - 1 && this.posts.indexOf(post) === -1) {
       this.posts.push(post);
       this.visibleEnd++;
     }
