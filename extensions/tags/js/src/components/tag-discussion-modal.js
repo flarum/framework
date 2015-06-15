@@ -96,7 +96,8 @@ export default class TagDiscussionModal extends FormModal {
             ? m('li', {
               'data-index': tag.id(),
               className: classList({
-                category: tag.position() !== null,
+                pinned: tag.position() !== null,
+                colored: !!tag.color(),
                 selected: selected.indexOf(tag) !== -1,
                 active: this.index() == tag
               }),
