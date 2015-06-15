@@ -136,9 +136,9 @@ class Composer extends Component {
     var $composer = this.$().stop(true);
     var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 
-    if (this.position() !== Composer.PositionEnum.HIDDEN) {
-      m.redraw(true);
-    }
+    var scrollTop = $(window).scrollTop();
+
+    m.redraw(true);
 
     this.$().height(this.computedHeight());
     var newHeight = $composer.outerHeight();
@@ -167,7 +167,8 @@ class Composer extends Component {
     }
 
     if (this.position() !== Composer.PositionEnum.FULLSCREEN) {
-      this.updateBodyPadding(anchorToBottom);
+      this.updateBodyPadding();
+      $('html, body').scrollTop(anchorToBottom ? $(document).height() : scrollTop);
     } else {
       this.component.focus();
     }
@@ -182,15 +183,11 @@ class Composer extends Component {
   // Update the amount of padding-bottom on the body so that the page's
   // content will still be visible above the composer when the page is
   // scrolled right to the bottom.
-  updateBodyPadding(anchorToBottom) {
+  updateBodyPadding() {
     var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN && this.position() !== Composer.PositionEnum.MINIMIZED
       ? this.computedHeight() - parseInt($('#page').css('padding-bottom'))
       : 0;
     $('#content').css({paddingBottom});
-
-    if (anchorToBottom) {
-      $('html, body').scrollTop($(document).height());
-    }
   }
 
   // Update the height of the stuff inside of the composer. There should be
