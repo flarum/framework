@@ -27,7 +27,6 @@ class TagsServiceProvider extends ServiceProvider
 
             new EventSubscribers([
                 'Flarum\Tags\Handlers\DiscussionTaggedNotifier',
-                'Flarum\Tags\Handlers\TagPreloader',
                 'Flarum\Tags\Handlers\TagSaver'
             ]),
 
@@ -38,6 +37,14 @@ class TagsServiceProvider extends ServiceProvider
             new SerializeRelationship('Flarum\Api\Serializers\DiscussionBasicSerializer', 'hasMany', 'tags', 'Flarum\Tags\TagSerializer'),
 
             new ApiInclude(['discussions.index', 'discussions.show'], 'tags', true),
+
+            new Relationship('Flarum\Core\Models\Forum', 'tags', function ($model) {
+                return Tag::query();
+            }),
+
+            new SerializeRelationship('Flarum\Api\Serializers\ForumSerializer', 'hasMany', 'tags', 'Flarum\Tags\TagSerializer'),
+
+            new ApiInclude(['forum.show'], ['tags', 'tags.parent', 'tags.lastDiscussion'], true),
 
             (new Permission('discussion.tag'))
                 ->serialize()
