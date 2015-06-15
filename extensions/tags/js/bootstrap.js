@@ -17,6 +17,10 @@ app.initializers.add('flarum-tags', function() {
   app.routes['tags'] = ['/tags', TagsPage.component()];
   app.routes['tag'] = ['/t/:tags', IndexPage.component()];
 
+  app.route.tag = function(tag) {
+    return app.route('tag', { tags: tag.slug() });
+  };
+
   // Register models.
   app.store.models['tags'] = Tag;
   Discussion.prototype.tags = Model.many('tags');

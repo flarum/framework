@@ -212,3 +212,123 @@
     }
   }
 }
+
+
+.tag-tiles {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+
+  & > li {
+    float: left;
+    width: ~"calc(50% - 1px)";
+    height: 200px;
+    margin-right: 1px;
+    margin-bottom: 1px;
+    overflow: hidden;
+
+    &:first-child {
+      border-radius: @border-radius-base 0 0 0;
+    }
+    &:nth-child(2) {
+      border-radius: 0 @border-radius-base 0 0;
+    }
+    &:nth-last-child(2):nth-child(even), &:last-child {
+      border-radius: 0 0 @border-radius-base 0;
+    }
+    &:nth-last-child(2):nth-child(odd), &:last-child:nth-child(odd) {
+      border-radius: 0 0 0 @border-radius-base;
+    }
+  }
+}
+.tag-tile {
+  position: relative;
+
+  &, & a {
+    color: #fff;
+  }
+  & .tag-info, & .last-discussion {
+    padding: 20px;
+    text-decoration: none;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+  & > a {
+    transition: background 0.2s;
+
+    &:hover {
+      background: fade(#000, 10%);
+    }
+    &:active {
+      background: fade(#000, 20%);
+    }
+  }
+  & .tag-info {
+    top: 0;
+    bottom: 55px;
+    padding-right: 20px;
+
+    & .name {
+      font-size: 20px;
+      margin: 0 0 10px;
+      font-weight: normal;
+    }
+    & .description {
+      color: fade(#fff, 50%);
+      margin: 0 0 15px;
+    }
+    & .children {
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 12px;
+
+      & > a {
+        margin-right: 15px;
+      }
+    }
+  }
+  & .last-discussion {
+    bottom: 0;
+    height: 55px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 17px;
+    padding-bottom: 17px;
+    color: fade(#fff, 50%);
+
+    & .title {
+      margin-right: 15px;
+    }
+  }
+}
+.tag-cloud {
+  margin-top: 30px;
+  text-align: center;
+
+  & h4 {
+    font-size: 12px;
+    font-weight: bold;
+    color: @fl-body-muted-color;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+
+    &:before {
+      .fa();
+      content: @fa-var-tags;
+      margin-right: 5px;
+      font-size: 14px;
+    }
+  }
+}
+.tag-cloud-content {
+  font-size: 14px;
+
+  &, & a {
+    color: @fl-body-muted-color;
+  }
+  & a {
+    margin: 0 6px;
+  }
+}
