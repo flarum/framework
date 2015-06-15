@@ -22,9 +22,17 @@ class IndexAction extends BaseAction
     public function handle(Request $request, $params = [])
     {
         $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
-        $data = [];
         $session = [];
         $alert = Session::get('alert');
+
+        $response = app('Flarum\Api\Actions\Forum\ShowAction')
+            ->handle(new ApiRequest([], $this->actor))
+            ->content->toArray();
+
+        $data = [$response['data']];
+        if (isset($response['included'])) {
+            $data = array_merge($data, $response['included']);
+        }
 
         if (($user = $this->actor->getUser()) && $user->exists) {
             $session = [
@@ -36,7 +44,7 @@ class IndexAction extends BaseAction
                 ->handle(new ApiRequest(['id' => $user->id], $this->actor))
                 ->content->toArray();
 
-            $data = [$response['data']];
+            $data = array_merge($data, [$response['data']]);
             if (isset($response['included'])) {
                 $data = array_merge($data, $response['included']);
             }

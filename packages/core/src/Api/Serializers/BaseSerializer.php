@@ -4,6 +4,7 @@ use Tobscure\JsonApi\SerializerAbstract;
 use Flarum\Api\Events\SerializeAttributes;
 use Flarum\Api\Events\SerializeRelationship;
 use Flarum\Support\Actor;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Closure;
 
 /**
@@ -54,7 +55,16 @@ abstract class BaseSerializer extends SerializerAbstract
                 $data = $relation($model, $include);
             } else {
                 if ($include) {
-                    $data = !is_null($model->$relation) ? $model->$relation : $model->$relation()->getResults();
+                    if (! is_null($model->$relation)) {
+                        $data = $model->$relation;
+                    } else {
+                        $relation = $model->$relation();
+                        if ($relation instanceof Relation) {
+                            $data = $relation->getResults();
+                        } else {
+                            $data = $relation->get();
+                        }
+                    }
                 } elseif ($many) {
                     $relationIds = $relation.'_ids';
                     $data = $model->$relationIds ?: $model->$relation()->get(['id'])->fetch('id')->all();

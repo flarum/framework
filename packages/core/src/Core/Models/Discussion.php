@@ -28,6 +28,8 @@ class Discussion extends Model
         'last_post_number' => 'integer'
     ];
 
+    protected static $relationships = [];
+
     /**
      * The table associated with the model.
      *
