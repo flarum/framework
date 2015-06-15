@@ -10,8 +10,11 @@ export default function() {
   // Add tag labels to each discussion in the discussion list.
   extend(DiscussionList.prototype, 'infoItems', function(items, discussion) {
     var tags = discussion.tags();
-    if (tags && tags.length) {
-      items.add('tags', tagsLabel(tags.filter(tag => tag.slug() !== this.props.params.tags)), {first: true});
+    if (tags) {
+      tags = tags.filter(tag => tag.slug() !== this.props.params.tags);
+      if (tags.length) {
+        items.add('tags', tagsLabel(tags), {first: true});
+      }
     }
   });
 
