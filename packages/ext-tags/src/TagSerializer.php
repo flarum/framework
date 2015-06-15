@@ -25,11 +25,13 @@ class TagSerializer extends BaseSerializer
             'slug'             => $tag->slug,
             'color'            => $tag->color,
             'backgroundUrl'    => $tag->background_path,
+            'backgroundMode'   => $tag->background_mode,
             'iconUrl'          => $tag->icon_path,
             'discussionsCount' => (int) $tag->discussions_count,
             'position'         => $tag->position === null ? null : (int) $tag->position,
             'defaultSort'      => $tag->default_sort,
-            'isChild'          => (bool) $tag->parent_id
+            'isChild'          => (bool) $tag->parent_id,
+            'lastTime'         => $tag->last_time ? $tag->last_time->toRFC3339String() : null
         ];
 
         return $this->extendAttributes($tag, $attributes);
@@ -38,5 +40,10 @@ class TagSerializer extends BaseSerializer
     protected function parent()
     {
         return $this->hasOne('Flarum\Tags\TagSerializer');
+    }
+
+    protected function lastDiscussion()
+    {
+        return $this->hasOne('Flarum\Api\Serializers\DiscussionSerializer');
     }
 }
