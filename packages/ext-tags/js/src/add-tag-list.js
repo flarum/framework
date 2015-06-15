@@ -4,24 +4,25 @@ import NavItem from 'flarum/components/nav-item';
 import Separator from 'flarum/components/separator';
 
 import TagNavItem from 'flarum-tags/components/tag-nav-item';
+import TagsPage from 'flarum-tags/components/tags-page';
 
 export default function() {
   // Add a link to the tags page, as well as a list of all the tags,
   // to the index page's sidebar.
   extend(IndexPage.prototype, 'navItems', function(items) {
     items.add('tags', NavItem.component({
-      icon: 'reorder',
+      icon: 'th-large',
       label: 'Tags',
       href: app.route('tags'),
       config: m.route
     }), {last: true});
 
+    if (app.current instanceof TagsPage) return;
+
     items.add('separator', Separator.component(), {last: true});
 
     var params = this.stickyParams();
     var tags = app.store.all('tags');
-
-    items.add('untagged', TagNavItem.component({params}), {last: true});
 
     var addTag = tag => {
       var currentTag = this.currentTag();
