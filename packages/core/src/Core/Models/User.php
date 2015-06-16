@@ -1,7 +1,6 @@
 <?php namespace Flarum\Core\Models;
 
 use Illuminate\Contracts\Hashing\Hasher;
-use Tobscure\Permissible\Permissible;
 use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Events\UserWasDeleted;
@@ -14,10 +13,13 @@ use Flarum\Core\Events\UserAvatarWasChanged;
 use Flarum\Core\Events\UserWasActivated;
 use Flarum\Core\Events\UserEmailWasConfirmed;
 use Flarum\Core\Events\UserEmailChangeWasRequested;
+use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\VisibleScope;
 
 class User extends Model
 {
-    use Permissible;
+    use Locked;
+    use VisibleScope;
 
     /**
      * The text formatter instance.

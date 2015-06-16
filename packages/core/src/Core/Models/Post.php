@@ -1,11 +1,11 @@
 <?php namespace Flarum\Core\Models;
 
-use Tobscure\Permissible\Permissible;
 use Flarum\Core\Events\PostWasDeleted;
+use Flarum\Core\Support\Locked;
 
 class Post extends Model
 {
-    use Permissible;
+    use Locked;
 
     /**
      * The validation rules for this model.

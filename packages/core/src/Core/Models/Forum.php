@@ -1,11 +1,11 @@
 <?php namespace Flarum\Core\Models;
 
-use Tobscure\Permissible\Permissible;
+use Flarum\Core\Support\Locked;
 use Flarum\Core;
 
 class Forum extends Model
 {
-    use Permissible;
+    use Locked;
 
     protected static $relationships = [];
 
