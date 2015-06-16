@@ -2,6 +2,8 @@
 
 class DiscussionBasicSerializer extends BaseSerializer
 {
+    protected static $relationships = [];
+
     /**
      * The resource type.
      *
