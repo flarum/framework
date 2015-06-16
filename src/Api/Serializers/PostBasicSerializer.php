@@ -2,6 +2,8 @@
 
 class PostBasicSerializer extends BaseSerializer
 {
+    protected static $relationships = [];
+
     /**
      * The resource type.
      *
