@@ -271,6 +271,7 @@ export default class IndexPage extends Component {
     $('body').addClass('index-page');
     context.onunload = function() {
       $('body').removeClass('index-page');
+      $('.global-page').css('min-height', '');
     };
 
     app.setTitle('');
