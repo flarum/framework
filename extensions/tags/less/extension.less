@@ -229,16 +229,16 @@
     overflow: hidden;
 
     &:first-child {
-      border-radius: @border-radius-base 0 0 0;
+      border-top-left-radius: @border-radius-base;
     }
     &:nth-child(2) {
-      border-radius: 0 @border-radius-base 0 0;
+      border-top-right-radius: @border-radius-base;
     }
     &:nth-last-child(2):nth-child(even), &:last-child {
-      border-radius: 0 0 @border-radius-base 0;
+      border-bottom-right-radius: @border-radius-base;
     }
     &:nth-last-child(2):nth-child(odd), &:last-child:nth-child(odd) {
-      border-radius: 0 0 0 @border-radius-base;
+      border-bottom-left-radius: @border-radius-base;
     }
   }
 }
