@@ -19,6 +19,7 @@ class IndexAction extends HtmlAction
 
     protected $database;
 
+    // TODO: DatabaseManager should be ConnectionInterface
     public function __construct(Client $apiClient, Actor $actor, DatabaseManager $database, SessionInterface $session)
     {
         $this->apiClient = $apiClient;
