@@ -311,9 +311,13 @@ class User extends Model
             return true;
         }
 
-        $count = $this->permissions()->where('permission', $permission)->count();
+        static $permissions;
 
-        return (bool) $count;
+        if (!$permissions) {
+            $permissions = $this->permissions()->get();
+        }
+
+        return (bool) $permissions->contains('permission', $permission);
     }
 
     public function getUnreadNotificationsCount()
