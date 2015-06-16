@@ -29,7 +29,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         $query = User::where('id', $id);
 
-        return $this->scopeVisibleForUser($query, $user)->firstOrFail();
+        return $this->scopeVisibleTo($query, $user)->firstOrFail();
     }
 
     /**
@@ -67,7 +67,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         $query = User::where('username', 'like', $username);
 
-        return $this->scopeVisibleForUser($query, $user)->pluck('id');
+        return $this->scopeVisibleTo($query, $user)->pluck('id');
     }
 
     /**
@@ -85,7 +85,7 @@ class EloquentUserRepository implements UserRepositoryInterface
             ->orderByRaw('username = ? desc', [$string])
             ->orderByRaw('username like ? desc', [$string.'%']);
 
-        return $this->scopeVisibleForUser($query, $user)->lists('id');
+        return $this->scopeVisibleTo($query, $user)->lists('id');
     }
 
     /**
@@ -95,10 +95,10 @@ class EloquentUserRepository implements UserRepositoryInterface
      * @param  \Flarum\Core\Models\User  $user
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function scopeVisibleForUser(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, User $user = null)
     {
         if ($user !== null) {
-            $query->whereCan($user, 'view');
+            $query->whereVisibleTo($user);
         }
 
         return $query;

@@ -14,7 +14,6 @@ class CreateUsersDiscussionsTable extends Migration
     public function up()
     {
         Schema::create('users_discussions', function (Blueprint $table) {
-        
             $table->integer('user_id')->unsigned();
             $table->integer('discussion_id')->unsigned();
             $table->dateTime('read_time')->nullable();

@@ -59,7 +59,7 @@ class DiscussionSearcher implements SearcherInterface
     public function search(DiscussionSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])
     {
         $this->user = $criteria->user;
-        $this->query = $this->discussions->query()->whereCan($criteria->user, 'view');
+        $this->query = $this->discussions->query()->whereVisibleTo($criteria->user);
 
         $this->gambits->apply($criteria->query, $this);
 
