@@ -22,6 +22,7 @@ class IndexAction extends BaseAction
     public function handle(Request $request, $params = [])
     {
         $config = DB::table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
+        $data = [];
         $session = [];
         $alert = Session::get('alert');
 
@@ -40,6 +41,10 @@ class IndexAction extends BaseAction
                 'token' => Cookie::get('flarum_remember')
             ];
 
+            // TODO: calling on the API here results in an extra query to get
+            // the user + their groups, when we already have this information on
+            // $this->actor. Can we simply run the CurrentUserSerializer
+            // manually?
             $response = app('Flarum\Api\Actions\Users\ShowAction')
                 ->handle(new ApiRequest(['id' => $user->id], $this->actor))
                 ->content->toArray();
