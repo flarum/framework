@@ -4,17 +4,17 @@ namespace Flarum\Http;
 
 class UrlGenerator implements UrlGeneratorInterface
 {
-    protected $router;
+    protected $routes;
 
 
-    public function __construct(Router $router)
+    public function __construct(RouteCollection $routes)
     {
-        $this->router = $router;
+        $this->routes = $routes;
     }
 
     public function toRoute($name, $parameters = [])
     {
-        $path = $this->router->getPath($name, $parameters);
+        $path = $this->routes->getPath($name, $parameters);
         $path = ltrim($path, '/');
 
         // TODO: Prepend real base URL

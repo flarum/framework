@@ -1,10 +1,32 @@
 <?php namespace Flarum\Admin;
 
-use Illuminate\Support\ServiceProvider;
+use Flarum\Http\RouteCollection;
+use Flarum\Http\UrlGenerator;
 use Flarum\Support\AssetManager;
+use Illuminate\Support\ServiceProvider;
+use Psr\Http\Message\ServerRequestInterface;
 
 class AdminServiceProvider extends ServiceProvider
 {
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton('flarum.admin.assetManager', function () {
+            return new AssetManager($this->app->make('files'), public_path('assets'), 'admin');
+        });
+
+        $this->app->singleton(
+            'Flarum\Http\UrlGeneratorInterface',
+            function () {
+                return new UrlGenerator($this->app->make('flarum.admin.routes'));
+            }
+        );
+    }
+
     /**
      * Bootstrap the application events.
      *
@@ -20,18 +42,26 @@ class AdminServiceProvider extends ServiceProvider
             $root.'/public/fonts' => public_path('assets/fonts')
         ]);
 
-        include __DIR__.'/routes.php';
+        $this->routes();
     }
 
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
+    protected function routes()
     {
-        $this->app->singleton('flarum.admin.assetManager', function () {
-            return new AssetManager($this->app->make('files'), public_path('assets'), 'admin');
-        });
+        $this->app->instance('flarum.admin.routes', $routes = new RouteCollection);
+
+        $routes->get(
+            '/',
+            'flarum.admin.index',
+            $this->action('Flarum\Admin\Actions\IndexAction')
+        );
+    }
+
+    protected function action($class)
+    {
+        return function (ServerRequestInterface $httpRequest, $routeParams) use ($class) {
+            $action = $this->app->make($class);
+
+            return $action->handle($httpRequest, $routeParams);
+        };
     }
 }

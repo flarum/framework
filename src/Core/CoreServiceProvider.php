@@ -71,11 +71,6 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\FormatterManager');
 
         $this->app->bind(
-            'Flarum\Http\UrlGeneratorInterface',
-            'Flarum\Http\UrlGenerator'
-        );
-
-        $this->app->bind(
             'Flarum\Core\Repositories\DiscussionRepositoryInterface',
             'Flarum\Core\Repositories\EloquentDiscussionRepository'
         );
