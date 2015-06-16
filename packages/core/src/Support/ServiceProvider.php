@@ -17,8 +17,14 @@ class ServiceProvider extends IlluminateServiceProvider
 
     public function extend()
     {
-        foreach (func_get_args() as $extender) {
-            $extender->extend($this->app);
+        // @todo don't support func_get_args
+        foreach (func_get_args() as $extenders) {
+            if (! is_array($extenders)) {
+                $extenders = [$extenders];
+            }
+            foreach ($extenders as $extender) {
+                $extender->extend($this->app);
+            }
         }
     }
 }

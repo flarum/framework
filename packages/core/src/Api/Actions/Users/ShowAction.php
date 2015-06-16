@@ -29,6 +29,8 @@ class ShowAction extends SerializeResourceAction
         'groups' => true
     ];
 
+    public static $link = [];
+
     /**
      * Instantiate the action.
      *

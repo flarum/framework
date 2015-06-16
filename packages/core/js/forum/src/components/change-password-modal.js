@@ -5,12 +5,12 @@ export default class ChangePasswordModal extends FormModal {
     return super.view({
       className: 'modal-sm change-password-modal',
       title: 'Change Password',
-      body: [
+      body: m('div.form-centered', [
         m('p.help-text', 'Click the button below and check your email for a link to change your password.'),
         m('div.form-group', [
           m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Send Password Reset Email')
         ])
-      ]
+      ])
     });
   }
 

@@ -6,23 +6,15 @@ class DiscussionSearchResults
 
     protected $areMoreResults;
 
-    protected $total;
-
-    public function __construct($discussions, $areMoreResults, $total)
+    public function __construct($discussions, $areMoreResults)
     {
         $this->discussions = $discussions;
         $this->areMoreResults = $areMoreResults;
-        $this->total = $total;
     }
 
     public function getDiscussions()
     {
         return $this->discussions;
-    }
-
-    public function getTotal()
-    {
-        return $this->total;
     }
 
     public function areMoreResults()

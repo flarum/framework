@@ -1,7 +1,8 @@
 <?php namespace Flarum\Core\Models;
 
-use Tobscure\Permissible\Permissible;
 use Flarum\Core\Support\EventGenerator;
+use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Events\DiscussionWasDeleted;
 use Flarum\Core\Events\DiscussionWasStarted;
 use Flarum\Core\Events\DiscussionWasRenamed;
@@ -9,7 +10,8 @@ use Flarum\Core\Models\User;
 
 class Discussion extends Model
 {
-    use Permissible;
+    use Locked;
+    use VisibleScope;
 
     /**
      * The validation rules for this model.
@@ -27,6 +29,8 @@ class Discussion extends Model
         'last_post_id'     => 'integer',
         'last_post_number' => 'integer'
     ];
+
+    protected static $relationships = [];
 
     /**
      * The table associated with the model.
@@ -213,6 +217,24 @@ class Discussion extends Model
         return $this->hasMany('Flarum\Core\Models\Post');
     }
 
+    protected static $visiblePostsScopes = [];
+
+    public static function scopeVisiblePosts($scope)
+    {
+        static::$visiblePostsScopes[] = $scope;
+    }
+
+    public function visiblePosts(User $user)
+    {
+        $query = $this->posts();
+
+        foreach (static::$visiblePostsScopes as $scope) {
+            $scope($query, $user, $this);
+        }
+
+        return $query;
+    }
+
     /**
      * Define the relationship with the discussion's comments.
      *
@@ -295,9 +317,8 @@ class Discussion extends Model
      */
     public function stateFor(User $user)
     {
-        $loadedState = array_get($this->relations, 'state');
-        if ($loadedState && $loadedState->user_id === $user->id) {
-            return $loadedState;
+        if ($this->isRelationLoaded('state')) {
+            return $this->relations['state'];
         }
 
         $state = $this->state($user)->first();

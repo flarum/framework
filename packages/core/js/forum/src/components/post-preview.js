@@ -12,14 +12,14 @@ export default class PostPreview extends Component {
     var excerpt = post.contentPlain();
     var start = 0;
 
-    if (highlight) {
+    if (this.props.highlight) {
       var regexp = new RegExp(this.props.highlight, 'gi');
       start = Math.max(0, excerpt.search(regexp) - 100);
     }
 
     excerpt = (start > 0 ? '...' : '')+excerpt.substring(start, start + 200)+(excerpt.length > start + 200 ? '...' : '');
 
-    if (highlight) {
+    if (this.props.highlight) {
       excerpt = highlight(excerpt, regexp);
     }
 

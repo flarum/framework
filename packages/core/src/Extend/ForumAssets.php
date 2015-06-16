@@ -14,7 +14,7 @@ class ForumAssets implements ExtenderInterface
     public function extend(Container $container)
     {
         $container->make('events')->listen('Flarum\Forum\Events\RenderView', function ($event) {
-            $event->assets->addFile($this->files);
+            $event->assets->addFiles($this->files);
         });
     }
 }

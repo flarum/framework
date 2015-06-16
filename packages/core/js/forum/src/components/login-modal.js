@@ -18,7 +18,7 @@ export default class LoginModal extends FormModal {
     return super.view({
       className: 'modal-sm login-modal',
       title: 'Log In',
-      body: [
+      body: m('div.form-centered', [
         m('div.form-group', [
           m('input.form-control[name=email][placeholder=Username or Email]', {value: this.email(), onchange: m.withAttr('value', this.email), disabled: this.loading()})
         ]),
@@ -28,7 +28,7 @@ export default class LoginModal extends FormModal {
         m('div.form-group', [
           m('button.btn.btn-primary.btn-block[type=submit]', {disabled: this.loading()}, 'Log In')
         ])
-      ],
+      ]),
       footer: [
         m('p.forgot-password-link', m('a[href=javascript:;]', {onclick: () => {
           var email = this.email();

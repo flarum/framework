@@ -160,7 +160,7 @@ export default class IndexPage extends Component {
     items.add('sort',
       SelectInput.component({
         options: sortOptions,
-        value: this.params.sort,
+        value: this.params().sort,
         onchange: this.reorder.bind(this)
       })
     );
@@ -271,6 +271,7 @@ export default class IndexPage extends Component {
     $('body').addClass('index-page');
     context.onunload = function() {
       $('body').removeClass('index-page');
+      $('.global-page').css('min-height', '');
     };
 
     app.setTitle('');
@@ -339,16 +340,30 @@ export default class IndexPage extends Component {
   /**
    * Initialize the composer for a new discussion.
    *
-   * @todo return a promise
-   * @return void
+   * @return {Promise}
    */
   newDiscussion() {
+    var deferred = m.deferred();
+
     if (app.session.user()) {
-      app.composer.load(new DiscussionComposer({ user: app.session.user() }));
-      app.composer.show();
-      return true;
+      this.composeNewDiscussion(deferred);
+    } else {
+      app.modal.show(
+        new LoginModal({ onlogin: this.composeNewDiscussion.bind(this, deferred) })
+      );
     }
-    app.modal.show(new LoginModal({ onlogin: this.newDiscussion.bind(this) }));
+
+    return deferred.promise;
+  }
+
+  composeNewDiscussion(deferred) {
+    // @todo check global permissions
+    var component = new DiscussionComposer({ user: app.session.user() });
+    app.composer.load(component);
+    app.composer.show();
+    deferred.resolve(component);
+
+    return deferred.promise;
   }
 
   /**

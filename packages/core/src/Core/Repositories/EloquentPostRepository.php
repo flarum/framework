@@ -1,9 +1,31 @@
 <?php namespace Flarum\Core\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Models\Post;
 use Flarum\Core\Models\User;
+use Flarum\Core\Models\Discussion;
 use Flarum\Core\Search\Discussions\Fulltext\DriverInterface;
+
+// TODO: In some cases, the use of a post repository incurs extra query expense,
+// because for every post retrieved we need to check if the discussion it's in
+// is visible. Especially when retrieving a discussion's posts, we can end up
+// with an inefficient chain of queries like this:
+// 1. Api\Discussions\ShowAction: get discussion (will exit if not visible)
+// 2. Discussion@visiblePosts: get discussion tags (for post visibility purposes)
+// 3. Discussion@visiblePosts: get post IDs
+// 4. EloquentPostRepository@getIndexForNumber: get discussion
+// 5. EloquentPostRepository@getIndexForNumber: get discussion tags (for post visibility purposes)
+// 6. EloquentPostRepository@getIndexForNumber: get post index for number
+// 7. EloquentPostRepository@findWhere: get post IDs for discussion to check for discussion visibility
+// 8. EloquentPostRepository@findWhere: get post IDs in visible discussions
+// 9. EloquentPostRepository@findWhere: get posts
+// 10. EloquentPostRepository@findWhere: eager load discussion onto posts
+// 11. EloquentPostRepository@findWhere: get discussion tags to filter visible posts
+// 12. Api\Discussions\ShowAction: eager load users
+// 13. Api\Discussions\ShowAction: eager load groups
+// 14. Api\Discussions\ShowAction: eager load mentions
+// 14. Serializers\DiscussionSerializer: load discussion-user state
 
 class EloquentPostRepository implements PostRepositoryInterface
 {
@@ -26,9 +48,13 @@ class EloquentPostRepository implements PostRepositoryInterface
      */
     public function findOrFail($id, User $user = null)
     {
-        $query = Post::where('id', $id);
+        $posts = $this->findByIds([$id], $user);
 
-        return $this->scopeVisibleForUser($query, $user)->firstOrFail();
+        if (! count($posts)) {
+            throw new ModelNotFoundException;
+        }
+
+        return $posts->first();
     }
 
     /**
@@ -52,7 +78,9 @@ class EloquentPostRepository implements PostRepositoryInterface
             $query->orderBy($field, $order);
         }
 
-        return $this->scopeVisibleForUser($query, $user)->get();
+        $ids = $query->lists('id');
+
+        return $this->findByIds($ids, $user);
     }
 
     /**
@@ -65,9 +93,11 @@ class EloquentPostRepository implements PostRepositoryInterface
      */
     public function findByIds(array $ids, User $user = null)
     {
-        $query = Post::whereIn('id', (array) $ids);
+        $ids = $this->filterDiscussionVisibleTo($ids, $user);
 
-        return $this->scopeVisibleForUser($query, $user)->get();
+        $posts = Post::with('discussion')->whereIn('id', (array) $ids)->get();
+
+        return $this->filterVisibleTo($posts, $user);
     }
 
     /**
@@ -82,13 +112,17 @@ class EloquentPostRepository implements PostRepositoryInterface
     {
         $ids = $this->fulltext->match($string);
 
+        $ids = $this->filterDiscussionVisibleTo($ids, $user);
+
         $query = Post::select('id', 'discussion_id')->whereIn('id', $ids);
 
         foreach ($ids as $id) {
             $query->orderByRaw('id != ?', [$id]);
         }
 
-        return $this->scopeVisibleForUser($query, $user)->get();
+        $posts = $query->get();
+
+        return $this->filterVisibleTo($posts, $user);
     }
 
     /**
@@ -103,7 +137,8 @@ class EloquentPostRepository implements PostRepositoryInterface
      */
     public function getIndexForNumber($discussionId, $number, User $user = null)
     {
-        $query = Post::where('discussion_id', $discussionId)
+        $query = Discussion::find($discussionId)
+            ->visiblePosts($user)
             ->where('time', '<', function ($query) use ($discussionId, $number) {
                 $query->select('time')
                       ->from('posts')
@@ -116,22 +151,32 @@ class EloquentPostRepository implements PostRepositoryInterface
                       ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')');
             });
 
-        return $this->scopeVisibleForUser($query, $user)->count();
+        return $query->count();
     }
 
-    /**
-     * Scope a query to only include records that are visible to a user.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Flarum\Core\Models\User  $user
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    protected function scopeVisibleForUser(Builder $query, User $user = null)
+    protected function filterDiscussionVisibleTo($ids, $user)
     {
-        if ($user !== null) {
-            $query->whereCan($user, 'view');
+        // For each post ID, we need to make sure that the discussion it's in
+        // is visible to the user.
+        if ($user) {
+            $ids = Discussion::join('posts', 'discussions.id', '=', 'posts.discussion_id')
+                ->whereIn('posts.id', $ids)
+                ->whereVisibleTo($user)
+                ->get(['posts.id'])
+                ->lists('id');
         }
 
-        return $query;
+        return $ids;
+    }
+
+    protected function filterVisibleTo($posts, $user)
+    {
+        if ($user) {
+            $posts = $posts->filter(function ($post) use ($user) {
+                return $post->can($user, 'view');
+            });
+        }
+
+        return $posts;
     }
 }

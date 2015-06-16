@@ -134,7 +134,7 @@ export default class PostScrubber extends Component {
     // properties to a 'default' state. These values reflect what would be
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
-    var $items = stream.$('> .item');
+    var $items = stream.$('> .item[data-index]');
     var index = $items.first().data('index');
     var visible = 0;
     var period = '';
