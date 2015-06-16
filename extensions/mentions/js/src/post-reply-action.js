@@ -5,7 +5,7 @@ import CommentPost from 'flarum/components/comment-post';
 export default function() {
   extend(CommentPost.prototype, 'actionItems', function(items) {
     var post = this.props.post;
-    if (post.isHidden()) return;
+    if (post.isHidden() || (app.session.user() && !post.discussion().canReply())) return;
 
     function insertMention(component, quote) {
       var mention = '@'+post.user().username()+'#'+post.number()+' ';
