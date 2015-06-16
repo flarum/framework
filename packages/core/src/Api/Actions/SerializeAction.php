@@ -3,6 +3,7 @@
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Api\JsonApiResponse;
+use Flarum\Api\Events\WillRespond;
 use Tobscure\JsonApi\SerializerInterface;
 use Tobscure\JsonApi\Criteria;
 use Illuminate\Http\Response;
@@ -70,6 +71,8 @@ abstract class SerializeAction extends JsonApiAction
         $request = static::buildJsonApiRequest($request);
 
         $data = $this->data($request, $response = new JsonApiResponse);
+
+        event(new WillRespond($this, $data, $request, $response));
 
         $serializer = new static::$serializer($request->actor, $request->include, $request->link);
 
