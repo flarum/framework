@@ -63,8 +63,6 @@ class DiscussionSearcher implements SearcherInterface
 
         $this->gambits->apply($criteria->query, $this);
 
-        $total = $this->query->count();
-
         $sort = $criteria->sort ?: $this->defaultSort;
 
         foreach ($sort as $field => $order) {
@@ -112,6 +110,6 @@ class DiscussionSearcher implements SearcherInterface
         Discussion::setStateUser($this->user);
         $discussions->load($load);
 
-        return new DiscussionSearchResults($discussions, $areMoreResults, $total);
+        return new DiscussionSearchResults($discussions, $areMoreResults);
     }
 }
