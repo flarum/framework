@@ -1,9 +1,11 @@
 <?php namespace Flarum\Tags\Handlers;
 
+use Flarum\Tags\Tag;
 use Flarum\Tags\Events\DiscussionWasTagged;
 use Flarum\Core\Events\DiscussionWillBeSaved;
 use Flarum\Core\Events\DiscussionWasDeleted;
 use Flarum\Core\Models\Discussion;
+use Flarum\Core\Exceptions\PermissionDeniedException;
 
 class TagSaver
 {
@@ -23,6 +25,13 @@ class TagSaver
             $newTagIds = [];
             foreach ($linkage as $link) {
                 $newTagIds[] = (int) $link['id'];
+            }
+
+            $newTags = Tag::whereIn('id', $newTagIds);
+            foreach ($newTags as $tag) {
+                if (! $tag->can($user, 'startDiscussion')) {
+                    throw new PermissionDeniedException;
+                }
             }
 
             $oldTags = [];

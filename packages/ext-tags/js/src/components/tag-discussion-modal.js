@@ -11,7 +11,7 @@ export default class TagDiscussionModal extends FormModal {
   constructor(props) {
     super(props);
 
-    this.tags = sortTags(app.store.all('tags'));
+    this.tags = sortTags(app.store.all('tags').filter(tag => tag.canStartDiscussion()));
 
     this.selected = m.prop([]);
     if (this.props.selectedTags) {
@@ -28,6 +28,8 @@ export default class TagDiscussionModal extends FormModal {
   }
 
   addTag(tag) {
+    if (!tag.canStartDiscussion()) return;
+
     var selected = this.selected();
     var parent = tag.parent();
     if (parent) {

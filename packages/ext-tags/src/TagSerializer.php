@@ -19,6 +19,8 @@ class TagSerializer extends BaseSerializer
      */
     protected function attributes($tag)
     {
+        $user = $this->actor->getUser();
+
         $attributes = [
             'name'             => $tag->name,
             'description'      => $tag->description,
@@ -31,7 +33,8 @@ class TagSerializer extends BaseSerializer
             'position'         => $tag->position === null ? null : (int) $tag->position,
             'defaultSort'      => $tag->default_sort,
             'isChild'          => (bool) $tag->parent_id,
-            'lastTime'         => $tag->last_time ? $tag->last_time->toRFC3339String() : null
+            'lastTime'         => $tag->last_time ? $tag->last_time->toRFC3339String() : null,
+            'canStartDiscussion' => $tag->can($user, 'startDiscussion')
         ];
 
         return $this->extendAttributes($tag, $attributes);
@@ -44,6 +47,6 @@ class TagSerializer extends BaseSerializer
 
     protected function lastDiscussion()
     {
-        return $this->hasOne('Flarum\Api\Serializers\DiscussionSerializer');
+        return $this->hasOne('Flarum\Api\Serializers\DiscussionBasicSerializer');
     }
 }

@@ -26,6 +26,7 @@ class CreateTagsTable extends Migration
             $table->integer('position')->nullable();
             $table->integer('parent_id')->unsigned()->nullable();
             $table->string('default_sort', 50)->nullable();
+            $table->boolean('is_restricted')->default(0);
 
             $table->integer('discussions_count')->unsigned()->default(0);
             $table->integer('last_time')->unsigned()->nullable();
