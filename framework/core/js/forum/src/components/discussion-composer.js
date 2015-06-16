@@ -41,10 +41,30 @@ export default class DiscussionComposer extends ComposerBody {
           if (empty) { $this.val(''); }
         });
         setTimeout(() => $(element).trigger('input'));
+      },
+      onkeydown: (e) => {
+        if (e.which === 13) { // return
+          e.preventDefault();
+          this.editor.setSelectionRange(0, 0);
+        }
+        m.redraw.strategy('none');
       }
     })));
 
     return items;
+  }
+
+  onload(element) {
+    super.onload(element);
+
+    this.editor.$('textarea').keydown((e) => {
+      if (e.which === 8 && e.target.selectionStart == 0 && e.target.selectionEnd == 0) { // Backspace
+        e.preventDefault();
+        var title = this.$(':input:enabled:visible:first')[0];
+        title.focus();
+        title.selectionStart = title.selectionEnd = title.value.length;
+      }
+    });
   }
 
   preventExit() {

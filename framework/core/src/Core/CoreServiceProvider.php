@@ -16,6 +16,7 @@ use Flarum\Core\Events\RegisterUserGambits;
 use Flarum\Extend\Permission;
 use Flarum\Extend\ActivityType;
 use Flarum\Extend\NotificationType;
+use Flarum\Extend\Locale;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,17 @@ class CoreServiceProvider extends ServiceProvider
             (new ActivityType('Flarum\Core\Activity\StartedDiscussionActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
             (new ActivityType('Flarum\Core\Activity\JoinedActivity', 'Flarum\Api\Serializers\UserBasicSerializer'))
         );
+
+        foreach (['en'] as $locale) {
+            $dir = __DIR__.'/../../locale/'.$locale;
+
+            $this->extend(
+                (new Locale($locale))
+                    ->translations($dir.'/translations.yml')
+                    ->config($dir.'/config.php')
+                    ->js($dir.'/config.js')
+            );
+        }
     }
 
     /**
@@ -69,6 +81,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton('flarum.forum', 'Flarum\Core\Models\Forum');
 
         $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\FormatterManager');
+
+        $this->app->singleton('flarum.localeManager', 'Flarum\Locale\LocaleManager');
 
         $this->app->bind(
             'Flarum\Core\Repositories\DiscussionRepositoryInterface',
@@ -169,71 +183,78 @@ class CoreServiceProvider extends ServiceProvider
         $this->extend(
             new Permission('forum.view'),
             new Permission('forum.startDiscussion'),
-            new Permission('discussion.rename'),
-            new Permission('discussion.delete'),
             new Permission('discussion.reply'),
-            new Permission('post.edit'),
-            new Permission('post.delete')
+            new Permission('discussion.editPosts'),
+            new Permission('discussion.deletePosts'),
+            new Permission('discussion.rename'),
+            new Permission('discussion.delete')
         );
 
-        Forum::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission('forum.'.$permission);
+        Forum::allow('*', function ($forum, $user, $action) {
+            if ($user->hasPermission('forum.'.$action)) {
+                return true;
+            }
         });
 
-        Post::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission('post'.$permission);
+        Post::allow('*', function ($post, $user, $action) {
+            if ($user->hasPermission('post.'.$action)) {
+                return true;
+            }
         });
 
-        // Grant view access to a post only if the user can also view the
-        // discussion which the post is in. Also, the if the post is hidden,
-        // the user must have edit permissions too.
-        Post::grantPermission('view', function ($grant) {
-            $grant->whereCan('view', 'discussion');
-        });
-
-        Post::demandPermission('view', function ($demand) {
-            $demand->whereNull('hide_user_id')
-                   ->orWhereCan('edit');
-        });
-
-        // Allow a user to edit their own post, unless it has been hidden by
-        // someone else.
-        Post::grantPermission('edit', function ($grant, $user) {
-            $grant->where('user_id', $user->id)
-                  ->where(function ($query) use ($user) {
+        // When fetching a discussion's posts: if the user doesn't have permission
+        // to moderate the discussion, then they can't see posts that have been
+        // hidden by someone other than themself.
+        Discussion::scopeVisiblePosts(function ($query, User $user, Discussion $discussion) {
+            if (! $discussion->can($user, 'editPosts')) {
+                $query->where(function ($query) use ($user) {
                     $query->whereNull('hide_user_id')
                           ->orWhere('hide_user_id', $user->id);
-                  });
-            // @todo add limitations to time etc. according to a config setting
+                });
+            }
         });
 
-        User::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission('user.'.$permission);
+        Post::allow('view', function ($post, $user) {
+            if (! $post->hide_user_id || $post->can($user, 'edit')) {
+                return true;
+            }
         });
 
-        // Grant view access to a user if the user can view the forum.
-        User::grantPermission('view', function ($grant, $user) {
-            $grant->whereCan('view', 'forum');
+        // A post is allowed to be edited if the user has permission to moderate
+        // the discussion which it's in, or if they are the author and the post
+        // hasn't been deleted by someone else.
+        Post::allow('edit', function ($post, $user) {
+            if ($post->discussion->can($user, 'editPosts') ||
+                ($post->user_id == $user->id && (! $post->hide_user_id || $post->hide_user_id == $user->id))
+            ) {
+                return true;
+            }
         });
 
-        // Allow a user to edit their own account.
-        User::grantPermission(['edit', 'delete'], function ($grant, $user) {
-            $grant->where('id', $user->id);
+        User::allow('*', function ($discussion, $user, $action) {
+            if ($user->hasPermission('user.'.$action)) {
+                return true;
+            }
         });
 
-        Discussion::grantPermission(function ($grant, $user, $permission) {
-            return $user->hasPermission('discussion.'.$permission);
+        User::allow(['edit', 'delete'], function ($user, $actor) {
+            if ($user->id == $actor->id) {
+                return true;
+            }
         });
 
-        // Grant view access to a discussion if the user can view the forum.
-        Discussion::grantPermission('view', function ($grant, $user) {
-            $grant->whereCan('view', 'forum');
+        Discussion::allow('*', function ($discussion, $user, $action) {
+            if ($user->hasPermission('discussion.'.$action)) {
+                return true;
+            }
         });
 
         // Allow a user to rename their own discussion.
-        Discussion::grantPermission('rename', function ($grant, $user) {
-            $grant->where('start_user_id', $user->id);
-            // @todo add limitations to time etc. according to a config setting
+        Discussion::allow('rename', function ($discussion, $user) {
+            if ($discussion->start_user_id == $user->id) {
+                return true;
+                // @todo add limitations to time etc. according to a config setting
+            }
         });
     }
 }

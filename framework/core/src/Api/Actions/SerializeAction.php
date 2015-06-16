@@ -1,11 +1,12 @@
 <?php namespace Flarum\Api\Actions;
 
+use Flarum\Api\Events\WillRespond;
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Api\JsonApiResponse;
+use Tobscure\JsonApi\Criteria;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\SerializerInterface;
-use Tobscure\JsonApi\Criteria;
 
 abstract class SerializeAction extends JsonApiAction
 {
@@ -68,15 +69,18 @@ abstract class SerializeAction extends JsonApiAction
     public function respond(Request $request)
     {
         $request = static::buildJsonApiRequest($request);
-
         $document = new Document();
 
         $data = $this->data($request, $document);
+
         $serializer = new static::$serializer($request->actor, $request->include, $request->link);
 
         $document->setData($this->serialize($serializer, $data));
+        $response = new JsonApiResponse($document);
 
-        return new JsonApiResponse($document);
+        event(new WillRespond($this, $data, $request, $response));
+
+        return $response;
     }
 
     /**

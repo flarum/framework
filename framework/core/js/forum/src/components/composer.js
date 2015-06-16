@@ -117,7 +117,7 @@ class Composer extends Component {
     this.updateHeight();
 
     var scrollTop = $(window).scrollTop();
-    this.updateBodyPadding(false, scrollTop > 0 && scrollTop + $(window).height() >= $(document).height());
+    this.updateBodyPadding(scrollTop > 0 && scrollTop + $(window).height() >= $(document).height());
 
     localStorage.setItem('composerHeight', height);
   }
@@ -136,9 +136,9 @@ class Composer extends Component {
     var $composer = this.$().stop(true);
     var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 
-    if (this.position() !== Composer.PositionEnum.HIDDEN) {
-      m.redraw(true);
-    }
+    var scrollTop = $(window).scrollTop();
+
+    m.redraw(true);
 
     this.$().height(this.computedHeight());
     var newHeight = $composer.outerHeight();
@@ -167,7 +167,8 @@ class Composer extends Component {
     }
 
     if (this.position() !== Composer.PositionEnum.FULLSCREEN) {
-      this.updateBodyPadding(true, anchorToBottom);
+      this.updateBodyPadding();
+      $('html, body').scrollTop(anchorToBottom ? $(document).height() : scrollTop);
     } else {
       this.component.focus();
     }
@@ -182,18 +183,11 @@ class Composer extends Component {
   // Update the amount of padding-bottom on the body so that the page's
   // content will still be visible above the composer when the page is
   // scrolled right to the bottom.
-  updateBodyPadding(animate, anchorToBottom) {
-    var func = animate ? 'animate' : 'css';
-    var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN ? this.computedHeight() - parseInt($('#page').css('padding-bottom')) : 0;
-    $('#content')[func]({paddingBottom}, 'fast');
-
-    if (anchorToBottom) {
-      if (animate) {
-        $('html, body').stop(true).animate({scrollTop: $(document).height()}, 'fast');
-      } else {
-        $('html, body').scrollTop($(document).height());
-      }
-    }
+  updateBodyPadding() {
+    var paddingBottom = this.position() !== Composer.PositionEnum.HIDDEN && this.position() !== Composer.PositionEnum.MINIMIZED
+      ? this.computedHeight() - parseInt($('#page').css('padding-bottom'))
+      : 0;
+    $('#content').css({paddingBottom});
   }
 
   // Update the height of the stuff inside of the composer. There should be

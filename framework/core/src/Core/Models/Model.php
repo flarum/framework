@@ -169,37 +169,22 @@ class Model extends Eloquent
         return $rules;
     }
 
-    /**
-     * Assert that the user has permission to view this model, throwing an
-     * exception if they don't.
-     *
-     * @param  \Flarum\Core\Models\User  $user
-     * @return void
-     *
-     * @throws  \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
-    public function assertVisibleTo(User $user)
+    public function isRelationLoaded($relation)
     {
-        if (! $this->can($user, 'view')) {
-            throw new ModelNotFoundException;
-        }
+        return array_key_exists($relation, $this->relations);
     }
 
-    /**
-     * Assert that the user has a certain permission for this model, throwing
-     * an exception if they don't.
-     *
-     * @param  \Flarum\Core\Models\User  $user
-     * @param  string  $permission
-     * @return void
-     *
-     * @throws  \Flarum\Core\Exceptions\PermissionDeniedException
-     */
-    public function assertCan(User $user, $permission)
+    public function getRelation($relation)
     {
-        if (! $this->can($user, $permission)) {
-            throw new PermissionDeniedException;
+        if (isset($this->$relation)) {
+            return $this->$relation;
         }
+
+        if (! $this->isRelationLoaded($relation)) {
+            $this->relations[$relation] = $this->$relation()->getResults();
+        }
+
+        return $this->relations[$relation];
     }
 
     /**

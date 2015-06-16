@@ -17,7 +17,11 @@ class Discussion extends Model {
       }
 
       if (newData.links && newData.links.addedPosts) {
-        [].push.apply(posts.linkage, newData.links.addedPosts.linkage);
+        newData.links.addedPosts.linkage.forEach(linkage => {
+          if (posts.linkage[posts.linkage.length - 1].id != linkage.id) {
+            posts.linkage.push(linkage);
+          }
+        });
       }
     }
   }

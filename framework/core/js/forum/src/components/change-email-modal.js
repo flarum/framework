@@ -18,7 +18,7 @@ export default class ChangeEmailModal extends FormModal {
     return super.view({
       className: 'modal-sm change-email-modal',
       title: 'Change Email',
-      body: this.success()
+      body: m('div.form-centered', this.success()
         ? [
           m('p.help-text', 'We\'ve sent a confirmation email to ', m('strong', this.email()), '. If it doesn\'t arrive soon, check your spam folder.'),
           m('div.form-group', [
@@ -37,7 +37,7 @@ export default class ChangeEmailModal extends FormModal {
           m('div.form-group', [
             m('button.btn.btn-primary.btn-block[type=submit]', {disabled}, 'Save Changes')
           ])
-        ]
+        ])
     });
   }
 
