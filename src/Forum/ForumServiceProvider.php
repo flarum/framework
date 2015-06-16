@@ -1,9 +1,10 @@
 <?php namespace Flarum\Forum;
 
+use Flarum\Extend\ForumTranslations;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Flarum\Support\AssetManager;
-use Illuminate\Support\ServiceProvider;
+use Flarum\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ForumServiceProvider extends ServiceProvider
@@ -43,6 +44,12 @@ class ForumServiceProvider extends ServiceProvider
         ]);
 
         $this->routes();
+
+        $this->extend(
+            new ForumTranslations([
+                //
+            ])
+        );
     }
 
     protected function routes()

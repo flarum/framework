@@ -84,15 +84,11 @@ class IndexAction extends SerializeCollectionAction
         $load = array_merge($request->include, ['state']);
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $load);
 
-        if (($total = $results->getTotal()) !== null) {
-            $document->addMeta('total', $total);
-        }
-
         static::addPaginationLinks(
             $document,
             $request,
             $this->url->toRoute('flarum.api.discussions.index'),
-            $total ?: $results->areMoreResults()
+            $results->areMoreResults()
         );
 
         return $results->getDiscussions();

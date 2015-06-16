@@ -19,6 +19,7 @@ class ConfigTableSeeder extends Seeder
             'welcome_message'       => 'Flarum is now at a point where you can have basic conversations, so here is a little demo for you to break.',
             'welcome_title'         => 'Welcome to Flarum Demo Forum',
             'extensions_enabled'    => '[]',
+            'locale'                => 'en',
             'theme_primary_color'   => '#536F90',
             'theme_secondary_color' => '#536F90',
             'theme_dark_mode'       => false,

@@ -88,7 +88,7 @@ class PostStream extends mixin(Component, evented) {
     stream is not visible.
    */
   pushPost(post) {
-    if (this.visibleEnd >= this.count() - 1) {
+    if (this.visibleEnd >= this.count() - 1 && this.posts.indexOf(post) === -1) {
       this.posts.push(post);
       this.visibleEnd++;
     }
@@ -295,7 +295,7 @@ class PostStream extends mixin(Component, evented) {
     var redraw = () => {
       if (start < this.visibleStart || end > this.visibleEnd) return;
 
-      var anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
+      var anchorIndex = backwards && $(window).scrollTop() > 0 ? this.visibleEnd - 1 : this.visibleStart;
       anchorScroll(this.$('.item[data-index='+anchorIndex+']'), () => m.redraw(true));
 
       this.unpause();
@@ -422,7 +422,7 @@ class PostStream extends mixin(Component, evented) {
   scrollToIndex(index, noAnimation, bottom) {
     var $item = this.$('.item[data-index='+index+']');
 
-    return this.scrollToItem($item, noAnimation, true, true);
+    return this.scrollToItem($item, noAnimation, true, bottom);
   }
 
   /**

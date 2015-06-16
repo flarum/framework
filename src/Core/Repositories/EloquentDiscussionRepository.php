@@ -30,7 +30,7 @@ class EloquentDiscussionRepository implements DiscussionRepositoryInterface
     {
         $query = Discussion::where('id', $id);
 
-        return $this->scopeVisibleForUser($query, $user)->firstOrFail();
+        return $this->scopeVisibleTo($query, $user)->firstOrFail();
     }
 
     /**
@@ -54,10 +54,10 @@ class EloquentDiscussionRepository implements DiscussionRepositoryInterface
      * @param  \Flarum\Core\Models\User  $user
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function scopeVisibleForUser(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, User $user = null)
     {
         if ($user !== null) {
-            $query->whereCan($user, 'view');
+            $query->whereVisibleTo($user);
         }
 
         return $query;

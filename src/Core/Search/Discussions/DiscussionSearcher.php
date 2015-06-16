@@ -59,11 +59,9 @@ class DiscussionSearcher implements SearcherInterface
     public function search(DiscussionSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])
     {
         $this->user = $criteria->user;
-        $this->query = $this->discussions->query()->whereCan($criteria->user, 'view');
+        $this->query = $this->discussions->query()->whereVisibleTo($criteria->user);
 
         $this->gambits->apply($criteria->query, $this);
-
-        $total = $this->query->count();
 
         $sort = $criteria->sort ?: $this->defaultSort;
 
@@ -112,6 +110,6 @@ class DiscussionSearcher implements SearcherInterface
         Discussion::setStateUser($this->user);
         $discussions->load($load);
 
-        return new DiscussionSearchResults($discussions, $areMoreResults, $total);
+        return new DiscussionSearchResults($discussions, $areMoreResults);
     }
 }

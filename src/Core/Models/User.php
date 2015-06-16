@@ -1,7 +1,6 @@
 <?php namespace Flarum\Core\Models;
 
 use Illuminate\Contracts\Hashing\Hasher;
-use Tobscure\Permissible\Permissible;
 use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Core\Events\UserWasDeleted;
 use Flarum\Core\Events\UserWasRegistered;
@@ -13,10 +12,13 @@ use Flarum\Core\Events\UserAvatarWasChanged;
 use Flarum\Core\Events\UserWasActivated;
 use Flarum\Core\Events\UserEmailWasConfirmed;
 use Flarum\Core\Events\UserEmailChangeWasRequested;
+use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\VisibleScope;
 
 class User extends Model
 {
-    use Permissible;
+    use Locked;
+    use VisibleScope;
 
     /**
      * The text formatter instance.
@@ -185,6 +187,7 @@ class User extends Model
     public function changeBio($bio)
     {
         $this->bio = $bio;
+        $this->bio_html = null;
 
         $this->raise(new UserBioWasChanged($this));
 
@@ -199,7 +202,7 @@ class User extends Model
      */
     public function getBioHtmlAttribute($value)
     {
-        if (! $value) {
+        if ($value === null) {
             $this->bio_html = $value = static::formatBio($this->bio);
             $this->save();
         }
@@ -309,9 +312,13 @@ class User extends Model
             return true;
         }
 
-        $count = $this->permissions()->where('permission', $permission)->count();
+        static $permissions;
 
-        return (bool) $count;
+        if (!$permissions) {
+            $permissions = $this->permissions()->get();
+        }
+
+        return (bool) $permissions->contains('permission', $permission);
     }
 
     public function getUnreadNotificationsCount()

@@ -15,6 +15,8 @@ class FormatterManager
      */
     protected $container;
 
+    public $config;
+
     /**
      * Create a new formatter manager instance.
      *
@@ -23,6 +25,17 @@ class FormatterManager
     public function __construct(Container $container)
     {
         $this->container = $container;
+
+        // Studio does not yet merge autoload_files...
+        // https://github.com/franzliedke/studio/commit/4f0f4314db4ed3e36c869a5f79b855c97bdd1be7
+        require __DIR__.'/../../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.composer.php';
+
+        $this->config = HTMLPurifier_Config::createDefault();
+        $this->config->set('Core.Encoding', 'UTF-8');
+        $this->config->set('Core.EscapeInvalidTags', true);
+        $this->config->set('HTML.Doctype', 'HTML 4.01 Strict');
+        $this->config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br,hr,img[src|alt]');
+        $this->config->set('HTML.Nofollow', true);
     }
 
     public function add($name, $formatter, $priority = 0)
@@ -66,18 +79,7 @@ class FormatterManager
             $text = $formatter->beforePurification($text, $post);
         }
 
-        // Studio does not yet merge autoload_files...
-        // https://github.com/franzliedke/studio/commit/4f0f4314db4ed3e36c869a5f79b855c97bdd1be7
-        require __DIR__.'/../../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.composer.php';
-
-        $config = HTMLPurifier_Config::createDefault();
-        $config->set('Core.Encoding', 'UTF-8');
-        $config->set('Core.EscapeInvalidTags', true);
-        $config->set('HTML.Doctype', 'HTML 4.01 Strict');
-        $config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br,hr');
-        $config->set('HTML.Nofollow', true);
-
-        $purifier = new HTMLPurifier($config);
+        $purifier = new HTMLPurifier($this->config);
 
         $text = $purifier->purify($text);
 
