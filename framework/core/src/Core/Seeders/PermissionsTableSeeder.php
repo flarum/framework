@@ -27,8 +27,8 @@ class PermissionsTableSeeder extends Seeder
             // Moderators can edit + delete stuff and suspend users
             [4, 'discussion.delete'],
             [4, 'discussion.rename'],
-            [4, 'post.delete'],
-            [4, 'post.edit'],
+            [4, 'discussion.editPosts'],
+            [4, 'discussion.deletePosts'],
             [4, 'user.suspend'],
 
         ];

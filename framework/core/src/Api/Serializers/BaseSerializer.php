@@ -55,16 +55,7 @@ abstract class BaseSerializer extends SerializerAbstract
                 $data = $relation($model, $include);
             } else {
                 if ($include) {
-                    if (! is_null($model->$relation)) {
-                        $data = $model->$relation;
-                    } else {
-                        $relation = $model->$relation();
-                        if ($relation instanceof Relation) {
-                            $data = $relation->getResults();
-                        } else {
-                            $data = $relation->get();
-                        }
-                    }
+                    $data = $model->getRelation($relation);
                 } elseif ($many) {
                     $relationIds = $relation.'_ids';
                     $data = $model->$relationIds ?: $model->$relation()->get(['id'])->fetch('id')->all();
