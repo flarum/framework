@@ -43,7 +43,7 @@ class RouterMiddleware
         $method = $request->getMethod();
         $uri = $request->getUri()->getPath();
 
-        $routeInfo = $this->getDispatcher()->dispatch($method, $uri);dd($request, $this->routes, $routeInfo);
+        $routeInfo = $this->getDispatcher()->dispatch($method, $uri);
 
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
