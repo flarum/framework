@@ -1,9 +1,14 @@
 <?php namespace Flarum\Tags;
 
 use Flarum\Core\Models\Model;
+use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\VisibleScope;
 
 class Tag extends Model
 {
+    use Locked;
+    use VisibleScope;
+
     protected $table = 'tags';
 
     protected $dates = ['last_time'];

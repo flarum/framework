@@ -21,4 +21,6 @@ Tag.prototype.discussionsCount = Model.prop('discussionsCount');
 Tag.prototype.lastTime = Model.prop('lastTime', Model.date);
 Tag.prototype.lastDiscussion = Model.one('lastDiscussion');
 
+Tag.prototype.canStartDiscussion = Model.prop('canStartDiscussion');
+
 export default Tag;
