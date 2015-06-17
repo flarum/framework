@@ -84,6 +84,8 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->app->singleton('flarum.localeManager', 'Flarum\Locale\LocaleManager');
 
+        $this->app->singleton('Flarum\Support\Actor');
+
         $this->app->bind(
             'Flarum\Core\Repositories\DiscussionRepositoryInterface',
             'Flarum\Core\Repositories\EloquentDiscussionRepository'
