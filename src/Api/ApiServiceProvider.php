@@ -43,23 +43,25 @@ class ApiServiceProvider extends ServiceProvider
     {
         $this->app->instance('flarum.api.routes', $routes = new RouteCollection);
 
+        $prefix = '/api';
+
         // Get forum information
         $routes->get(
-            '/forum',
+            $prefix.'/forum',
             'flarum.api.forum.show',
             $this->action('Flarum\Api\Actions\Forum\ShowAction')
         );
 
         // Retrieve authentication token
         $routes->post(
-            '/token',
+            $prefix.'/token',
             'flarum.api.token',
             $this->action('Flarum\Api\Actions\TokenAction')
         );
 
         // Send forgot password email
         $routes->post(
-            '/forgot',
+            $prefix.'/forgot',
             'flarum.api.forgot',
             $this->action('Flarum\Api\Actions\ForgotAction')
         );
@@ -72,49 +74,49 @@ class ApiServiceProvider extends ServiceProvider
 
         // List users
         $routes->get(
-            '/users',
+            $prefix.'/users',
             'flarum.api.users.index',
             $this->action('Flarum\Api\Actions\Users\IndexAction')
         );
 
         // Register a user
         $routes->post(
-            '/users',
+            $prefix.'/users',
             'flarum.api.users.create',
             $this->action('Flarum\Api\Actions\Users\CreateAction')
         );
 
         // Get a single user
         $routes->get(
-            '/users/{id}',
+            $prefix.'/users/{id}',
             'flarum.api.users.show',
             $this->action('Flarum\Api\Actions\Users\ShowAction')
         );
 
         // Edit a user
         $routes->put(
-            '/users/{id}',
+            $prefix.'/users/{id}',
             'flarum.api.users.update',
             $this->action('Flarum\Api\Actions\Users\UpdateAction')
         );
 
         // Delete a user
         $routes->delete(
-            '/users/{id}',
+            $prefix.'/users/{id}',
             'flarum.api.users.delete',
             $this->action('Flarum\Api\Actions\Users\DeleteAction')
         );
 
         // Upload avatar
         $routes->post(
-            '/users/{id}/avatar',
+            $prefix.'/users/{id}/avatar',
             'flarum.api.users.avatar.upload',
             $this->action('Flarum\Api\Actions\Users\UploadAvatarAction')
         );
 
         // Remove avatar
         $routes->delete(
-            '/users/{id}/avatar',
+            $prefix.'/users/{id}/avatar',
             'flarum.api.users.avatar.delete',
             $this->action('Flarum\Api\Actions\Users\DeleteAvatarAction')
         );
@@ -127,21 +129,21 @@ class ApiServiceProvider extends ServiceProvider
 
         // List activity
         $routes->get(
-            '/activity',
+            $prefix.'/activity',
             'flarum.api.activity.index',
             $this->action('Flarum\Api\Actions\Activity\IndexAction')
         );
 
         // List notifications for the current user
         $routes->get(
-            '/notifications',
+            $prefix.'/notifications',
             'flarum.api.notifications.index',
             $this->action('Flarum\Api\Actions\Notifications\IndexAction')
         );
 
         // Mark a single notification as read
         $routes->put(
-            '/notifications/{id}',
+            $prefix.'/notifications/{id}',
             'flarum.api.notifications.update',
             $this->action('Flarum\Api\Actions\Notifications\UpdateAction')
         );
@@ -154,34 +156,34 @@ class ApiServiceProvider extends ServiceProvider
 
         // List discussions
         $routes->get(
-            '/discussions',
+            $prefix.'/discussions',
             'flarum.api.discussions.index',
             $this->action('Flarum\Api\Actions\Discussions\IndexAction')
         );
 
         // Create a discussion
         $routes->post(
-            '/discussions',
+            $prefix.'/discussions',
             'flarum.api.discussions.create',
             $this->action('Flarum\Api\Actions\Discussions\CreateAction'));
 
         // Show a single discussion
         $routes->get(
-            '/discussions/{id}',
+            $prefix.'/discussions/{id}',
             'flarum.api.discussions.show',
             $this->action('Flarum\Api\Actions\Discussions\ShowAction')
         );
 
         // Edit a discussion
         $routes->put(
-            '/discussions/{id}',
+            $prefix.'/discussions/{id}',
             'flarum.api.discussions.update',
             $this->action('Flarum\Api\Actions\Discussions\UpdateAction')
         );
 
         // Delete a discussion
         $routes->delete(
-            '/discussions/{id}',
+            $prefix.'/discussions/{id}',
             'flarum.api.discussions.delete',
             $this->action('Flarum\Api\Actions\Discussions\DeleteAction')
         );
@@ -194,7 +196,7 @@ class ApiServiceProvider extends ServiceProvider
 
         // List posts, usually for a discussion
         $routes->get(
-            '/posts',
+            $prefix.'/posts',
             'flarum.api.posts.index',
             $this->action('Flarum\Api\Actions\Posts\IndexAction')
         );
@@ -202,28 +204,28 @@ class ApiServiceProvider extends ServiceProvider
         // Create a post
         // @todo consider 'discussions/{id}/links/posts'?
         $routes->post(
-            '/posts',
+            $prefix.'/posts',
             'flarum.api.posts.create',
             $this->action('Flarum\Api\Actions\Posts\CreateAction')
         );
 
         // Show a single or multiple posts by ID
         $routes->get(
-            '/posts/{id}',
+            $prefix.'/posts/{id}',
             'flarum.api.posts.show',
             $this->action('Flarum\Api\Actions\Posts\ShowAction')
         );
 
         // Edit a post
         $routes->put(
-            '/posts/{id}',
+            $prefix.'/posts/{id}',
             'flarum.api.posts.update',
             $this->action('Flarum\Api\Actions\Posts\UpdateAction')
         );
 
         // Delete a post
         $routes->delete(
-            '/posts/{id}',
+            $prefix.'/posts/{id}',
             'flarum.api.posts.delete',
             $this->action('Flarum\Api\Actions\Posts\DeleteAction')
         );
@@ -236,35 +238,35 @@ class ApiServiceProvider extends ServiceProvider
 
         // List groups
         $routes->get(
-            '/groups',
+            $prefix.'/groups',
             'flarum.api.groups.index',
             $this->action('Flarum\Api\Actions\Groups\IndexAction')
         );
 
         // Create a group
         $routes->post(
-            '/groups',
+            $prefix.'/groups',
             'flarum.api.groups.create',
             $this->action('Flarum\Api\Actions\Groups\CreateAction')
         );
 
         // Show a single group
         $routes->get(
-            '/groups/{id}',
+            $prefix.'/groups/{id}',
             'flarum.api.groups.show',
             $this->action('Flarum\Api\Actions\Groups\ShowAction')
         );
 
         // Edit a group
         $routes->put(
-            '/groups/{id}',
+            $prefix.'/groups/{id}',
             'flarum.api.groups.update',
             $this->action('Flarum\Api\Actions\Groups\UpdateAction')
         );
 
         // Delete a group
         $routes->delete(
-            '/groups/{id}',
+            $prefix.'/groups/{id}',
             'flarum.api.groups.delete',
             $this->action('Flarum\Api\Actions\Groups\DeleteAction')
         );
