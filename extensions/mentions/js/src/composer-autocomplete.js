@@ -5,6 +5,7 @@ import EditComposer from 'flarum/components/edit-composer';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import highlight from 'flarum/helpers/highlight';
+import truncate from 'flarum/utils/truncate';
 
 import AutocompleteDropdown from 'flarum-mentions/components/autocomplete-dropdown';
 
@@ -105,7 +106,7 @@ export default function() {
                   suggestions.push(
                     makeSuggestion(user, '@'+user.username()+'#'+post.number(), [
                       'Reply to #', post.number(), ' — ',
-                      post.excerpt()
+                      truncate(post.contentPlain(), 200)
                     ], 'suggestion-post')
                   );
                 });
