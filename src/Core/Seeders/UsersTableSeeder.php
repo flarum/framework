@@ -18,7 +18,7 @@ class UsersTableSeeder extends Seeder
 
         for ($i = 0; $i < 100; $i++) {
             $user = User::create([
-                'username'     => $faker->userName,
+                'username'     => str_replace('.', '_', $faker->userName),
                 'email'        => $faker->safeEmail,
                 'is_activated' => true,
                 'password'     => 'password',
