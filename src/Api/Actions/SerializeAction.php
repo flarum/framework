@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions;
 
-use Flarum\Api\Events\WillRespond;
+use Flarum\Api\Events\WillSerializeData;
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Api\JsonApiResponse;
@@ -73,12 +73,12 @@ abstract class SerializeAction extends JsonApiAction
 
         $data = $this->data($request, $document);
 
+        event(new WillSerializeData($this, $data, $request));
+
         $serializer = new static::$serializer($request->actor, $request->include, $request->link);
 
         $document->setData($this->serialize($serializer, $data));
         $response = new JsonApiResponse($document);
-
-        event(new WillRespond($this, $data, $request, $response));
 
         return $response;
     }

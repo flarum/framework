@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Events;
 
-class WillRespond
+class WillSerializeData
 {
     public $action;
 
@@ -8,13 +8,10 @@ class WillRespond
 
     public $request;
 
-    public $response;
-
-    public function __construct($action, &$data, $request, $response)
+    public function __construct($action, &$data, $request)
     {
         $this->action = $action;
         $this->data = &$data;
         $this->request = $request;
-        $this->response = $response;
     }
 }
