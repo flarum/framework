@@ -3,6 +3,7 @@ import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import humanTime from 'flarum/helpers/human-time';
 import highlight from 'flarum/helpers/highlight';
+import truncate from 'flarum/utils/truncate';
 
 export default class PostPreview extends Component {
   view() {
@@ -17,7 +18,7 @@ export default class PostPreview extends Component {
       start = Math.max(0, excerpt.search(regexp) - 100);
     }
 
-    excerpt = (start > 0 ? '...' : '')+excerpt.substring(start, start + 200)+(excerpt.length > start + 200 ? '...' : '');
+    excerpt = truncate(excerpt, 200, start);
 
     if (this.props.highlight) {
       excerpt = highlight(excerpt, regexp);
