@@ -256,7 +256,7 @@ class User extends Model
      */
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar_path ? asset('assets/avatars/'.$this->avatar_path) : null;
+        return $this->avatar_path ? app('Flarum\Http\UrlGeneratorInterface')->toAsset('assets/avatars/'.$this->avatar_path) : null;
     }
 
     /**
