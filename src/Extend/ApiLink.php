@@ -1,6 +1,6 @@
 <?php namespace Flarum\Extend;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 
 class ApiLink implements ExtenderInterface
 {
@@ -14,7 +14,7 @@ class ApiLink implements ExtenderInterface
         $this->relationships = $relationships;
     }
 
-    public function extend(Application $app)
+    public function extend(Container $container)
     {
         foreach ((array) $this->actions as $action) {
             $parts = explode('.', $action);
