@@ -168,7 +168,7 @@ class Composer extends Component {
 
     if (this.position() !== Composer.PositionEnum.FULLSCREEN) {
       this.updateBodyPadding();
-      $('html, body').scrollTop(anchorToBottom ? $(document).height() : scrollTop);
+      $('html, body').scrollTop(scrollTop);
     } else {
       this.component.focus();
     }
