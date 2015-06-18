@@ -14,10 +14,6 @@ class ForumServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.forum.assetManager', function ($app) {
-            return new AssetManager($app['files'], $app['path.public'].'/assets', 'forum');
-        });
-
         $this->app->singleton(
             'Flarum\Http\UrlGeneratorInterface',
             function () {
