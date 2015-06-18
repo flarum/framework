@@ -4,9 +4,8 @@ use Dflydev\FigCookies\FigRequestCookies;
 use Flarum\Api\Client;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
-use Session;
-use Config;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Flarum\Core;
 
 class IndexAction extends HtmlAction
 {
@@ -25,7 +24,6 @@ class IndexAction extends HtmlAction
         $config = app('db')->table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
         $data = [];
         $session = [];
-        $alert = Session::get('alert');
 
         if (($user = $this->actor->getUser()) && $user->exists) {
             $session = [
@@ -42,12 +40,11 @@ class IndexAction extends HtmlAction
         }
 
         $view = view('flarum.admin::index')
-            ->with('title', 'Administration - '.Config::get('flarum::forum_title', 'Flarum Demo Forum'))
+            ->with('title', 'Administration - '.Core::config('forum_title'))
             ->with('config', $config)
             ->with('layout', 'flarum.admin::admin')
             ->with('data', $data)
-            ->with('session', $session)
-            ->with('alert', $alert);
+            ->with('session', $session);
 
         $assetManager = app('flarum.admin.assetManager');
         $root = __DIR__.'/../../..';

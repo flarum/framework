@@ -2,7 +2,6 @@
 
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
-use Flarum\Support\AssetManager;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -15,10 +14,6 @@ class AdminServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.admin.assetManager', function () {
-            return new AssetManager($this->app->make('files'), public_path('assets'), 'admin');
-        });
-
         $this->app->singleton(
             'Flarum\Http\UrlGeneratorInterface',
             function () {
