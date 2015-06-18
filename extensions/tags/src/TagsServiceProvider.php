@@ -124,6 +124,7 @@ class TagsServiceProvider extends ServiceProvider
             // Add an event subscriber so that tags data is persisted when
             // saving a discussion.
             new Extend\EventSubscriber('Flarum\Tags\Handlers\TagSaver'),
+            new Extend\EventSubscriber('Flarum\Tags\Handlers\TagMetadataUpdater'),
 
             // Add a gambit that allows filtering discussions by tag(s).
             new Extend\DiscussionGambit('Flarum\Tags\TagGambit'),
