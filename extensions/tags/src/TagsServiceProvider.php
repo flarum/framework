@@ -32,7 +32,9 @@ class TagsServiceProvider extends ServiceProvider
                 ->assets([
                     __DIR__.'/../js/dist/extension.js',
                     __DIR__.'/../less/extension.less'
-                ]),
+                ])
+                ->route('get', '/t/{slug}', 'flarum-tags.forum.tag')
+                ->route('get', '/tags', 'flarum-tags.forum.tags'),
 
             (new Extend\Model('Flarum\Tags\Tag'))
                 // Hide tags that the user doesn't have permission to see.
