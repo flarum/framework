@@ -22,17 +22,12 @@ class ShowAction extends SerializeResourceAction
     protected $posts;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
-     * The relationships that are available to be included, and which ones are
-     * included by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $include = [
         'startUser' => false,
@@ -47,23 +42,27 @@ class ShowAction extends SerializeResourceAction
     ];
 
     /**
-     * The relations that are linked by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $link = ['posts', 'posts.discussion'];
 
     /**
-     * The fields that are available to be sorted by.
-     *
-     * @var array
+     * @inheritdoc
+     */
+    public static $limitMax = 50;
+
+    /**
+     * @inheritdoc
+     */
+    public static $limit = 20;
+
+    /**
+     * @inheritdoc
      */
     public static $sortFields = ['time'];
 
     /**
-     * The default sort field and order to user.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $sort = ['time' => 'asc'];
 

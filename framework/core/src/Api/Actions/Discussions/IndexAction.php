@@ -24,17 +24,12 @@ class IndexAction extends SerializeCollectionAction
     protected $url;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
-     * The relationships that are available to be included, and which ones are
-     * included by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $include = [
         'startUser' => true,
@@ -47,11 +42,29 @@ class IndexAction extends SerializeCollectionAction
     ];
 
     /**
-     * The fields that are available to be sorted by.
-     *
-     * @var array
+     * @inheritdoc
+     */
+    public static $link = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $limitMax = 50;
+
+    /**
+     * @inheritdoc
+     */
+    public static $limit = 20;
+
+    /**
+     * @inheritdoc
      */
     public static $sortFields = ['lastTime', 'commentsCount', 'startTime'];
+
+    /**
+     * @inheritdoc
+     */
+    public static $sort;
 
     /**
      * Instantiate the action.

@@ -14,17 +14,12 @@ class ShowAction extends SerializeResourceAction
     protected $posts;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\PostSerializer';
 
     /**
-     * The relationships that are available to be included, and which ones are
-     * included by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $include = [
         'user' => true,
@@ -33,6 +28,31 @@ class ShowAction extends SerializeResourceAction
         'hideUser' => true,
         'discussion' => false
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public static $link = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $limitMax = 50;
+
+    /**
+     * @inheritdoc
+     */
+    public static $limit = 20;
+
+    /**
+     * @inheritdoc
+     */
+    public static $sortFields = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $sort;
 
     /**
      * Instantiate the action.

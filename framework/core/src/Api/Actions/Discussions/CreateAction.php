@@ -24,17 +24,12 @@ class CreateAction extends BaseCreateAction
     protected $forum;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
-     * The relationships that are available to be included, and which ones are
-     * included by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $include = [
         'posts' => true,
@@ -43,6 +38,31 @@ class CreateAction extends BaseCreateAction
         'startPost' => true,
         'lastPost' => true
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public static $link = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $limitMax = 50;
+
+    /**
+     * @inheritdoc
+     */
+    public static $limit = 20;
+
+    /**
+     * @inheritdoc
+     */
+    public static $sortFields = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $sort;
 
     /**
      * Instantiate the action.

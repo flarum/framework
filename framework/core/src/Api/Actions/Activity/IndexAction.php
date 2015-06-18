@@ -19,17 +19,12 @@ class IndexAction extends SerializeCollectionAction
     protected $activity;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\ActivitySerializer';
 
     /**
-     * The relationships that are available to be included, and which ones are
-     * included by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $include = [
         'subject' => true,
@@ -38,11 +33,29 @@ class IndexAction extends SerializeCollectionAction
     ];
 
     /**
-     * The relations that are linked by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $link = ['user'];
+
+    /**
+     * @inheritdoc
+     */
+    public static $limitMax = 50;
+
+    /**
+     * @inheritdoc
+     */
+    public static $limit = 20;
+
+    /**
+     * @inheritdoc
+     */
+    public static $sortFields = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $sort;
 
     /**
      * Instantiate the action.
