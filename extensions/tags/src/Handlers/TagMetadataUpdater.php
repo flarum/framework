@@ -19,31 +19,41 @@ class TagMetadataUpdater
     {
         $tags = $event->discussion->tags();
 
-        $this->updateTagCounts($tags, 1);
+        $this->updateTags($tags, 1, $event->discussion);
     }
 
     public function whenDiscussionWasTagged(DiscussionWasTagged $event)
     {
         $oldTags = Tag::whereIn('id', array_pluck($event->oldTags, 'id'));
 
-        $this->updateTagCounts($oldTags, -1);
+        $this->updateTags($oldTags, -1, $event->discussion);
 
         $newTags = $event->discussion->tags();
 
-        $this->updateTagCounts($newTags, 1);
+        $this->updateTags($newTags, 1, $event->discussion);
     }
 
     public function whenDiscussionWasDeleted(DiscussionWasDeleted $event)
     {
         $tags = $event->discussion->tags();
 
-        $this->updateTagCounts($tags, -1);
+        $this->updateTags($tags, -1, $event->discussion);
 
         $tags->detach();
     }
 
-    protected function updateTagCounts($query, $delta)
+    protected function updateTags($query, $delta, $discussion)
     {
-        $query->update(['discussions_count' => app('db')->raw('discussions_count + '.$delta)]);
+        foreach ($query->get() as $tag) {
+            $tag->discussions_count += $delta;
+
+            if ($delta > 0 && max($discussion->start_time, $discussion->last_time) > $tag->last_time) {
+                $tag->setLastDiscussion($discussion);
+            } elseif ($delta < 0 && $discussion->id == $tag->last_discussion_id) {
+                $tag->refreshLastDiscussion();
+            }
+
+            $tag->save();
+        }
     }
 }
