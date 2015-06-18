@@ -22,4 +22,21 @@ class Tag extends Model
     {
         return $this->belongsTo('Flarum\Core\Models\Discussion', 'last_discussion_id');
     }
+
+    public static function getVisibleTo($user)
+    {
+        static $tags;
+        if (!$tags) {
+            $tags = static::all();
+        }
+
+        $ids = [];
+        foreach ($tags as $tag) {
+            if (! $tag->is_restricted || $user->hasPermission('tag'.$tag->id.'.view')) {
+                $ids[] = $tag->id;
+            }
+        }
+
+        return $ids;
+    }
 }
