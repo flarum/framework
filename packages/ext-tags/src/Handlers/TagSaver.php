@@ -3,7 +3,6 @@
 use Flarum\Tags\Tag;
 use Flarum\Tags\Events\DiscussionWasTagged;
 use Flarum\Core\Events\DiscussionWillBeSaved;
-use Flarum\Core\Events\DiscussionWasDeleted;
 use Flarum\Core\Models\Discussion;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 
@@ -12,7 +11,6 @@ class TagSaver
     public function subscribe($events)
     {
         $events->listen('Flarum\Core\Events\DiscussionWillBeSaved', __CLASS__.'@whenDiscussionWillBeSaved');
-        $events->listen('Flarum\Core\Events\DiscussionWasDeleted', __CLASS__.'@whenDiscussionWasDeleted');
     }
 
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
@@ -56,10 +54,5 @@ class TagSaver
                 $discussion->raise(new DiscussionWasTagged($discussion, $user, $oldTags->all()));
             }
         }
-    }
-
-    public function whenDiscussionWasDeleted(DiscussionWasDeleted $event)
-    {
-        $event->discussion->tags()->sync([]);
     }
 }
