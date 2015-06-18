@@ -18,7 +18,10 @@ export default function(app) {
 
   app.history = new History();
   app.pane = new Pane(id('page'));
+  app.search = new SearchBox();
   app.cache = {};
+
+  m.startComputation();
 
   m.mount(id('back-control'), BackButton.component({ className: 'back-control', drawer: true }));
   m.mount(id('back-button'), BackButton.component());
@@ -39,10 +42,12 @@ export default function(app) {
   app.modal = m.mount(id('modal'), Modal.component());
   app.alerts = m.mount(id('alerts'), Alerts.component());
 
-  m.route.mode = 'hash';
+  m.route.mode = 'pathname';
   m.route(id('content'), '/', mapRoutes(app.routes));
 
-  app.search = new SearchBox();
+  m.endComputation();
 
   new ScrollListener(top => $('body').toggleClass('scrolled', top > 0)).start();
+
+  app.booted = true;
 }

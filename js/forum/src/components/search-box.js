@@ -23,7 +23,7 @@ export default class SearchBox extends Component {
   constructor(props) {
     super(props);
 
-    this.value = m.prop(this.getCurrentSearch() || '');
+    this.value = m.prop();
     this.hasFocus = m.prop(false);
 
     this.sources = this.sourceItems().toArray();
@@ -40,10 +40,16 @@ export default class SearchBox extends Component {
   }
 
   getCurrentSearch() {
-    return typeof app.current.searching === 'function' && app.current.searching();
+    return app.current && typeof app.current.searching === 'function' && app.current.searching();
   }
 
   view() {
+    // Initialize value in the view rather than the constructor so that we have
+    // access to app.current.
+    if (typeof this.value() === 'undefined') {
+      this.value(this.getCurrentSearch() || '');
+    }
+
     var currentSearch = this.getCurrentSearch();
 
     return m('div.search-box.dropdown', {
@@ -104,7 +110,7 @@ export default class SearchBox extends Component {
 
           case 13: // Return
             this.$('input').blur();
-            this.getItem(this.index()).find('a')[0].dispatchEvent(new Event('click'));
+            m.route(this.getItem(this.index()).find('a').attr('href'));
             break;
 
           case 27: // Escape

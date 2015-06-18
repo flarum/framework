@@ -25,6 +25,7 @@
       app.config = {!! json_encode($config) !!};
       app.preload = {
         data: {!! json_encode($data) !!},
+        response: {!! json_encode($response) !!},
         session: {!! json_encode($session) !!}
       };
       app.boot();
