@@ -60,7 +60,7 @@ class IndexAction extends HtmlAction
             // manually?
             $response = $this->apiClient->send('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
 
-            $data = [$response->data];
+            $data[] = $response->data;
             if (isset($response->included)) {
                 $data = array_merge($data, $response->included);
             }
