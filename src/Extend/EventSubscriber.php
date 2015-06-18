@@ -2,18 +2,18 @@
 
 use Illuminate\Contracts\Container\Container;
 
-class EventSubscribers implements ExtenderInterface
+class EventSubscriber implements ExtenderInterface
 {
-    protected $subscribers;
+    protected $subscriber;
 
-    public function __construct($subscribers)
+    public function __construct($subscriber)
     {
-        $this->subscribers = $subscribers;
+        $this->subscriber = $subscriber;
     }
 
     public function extend(Container $container)
     {
-        foreach ((array) $this->subscribers as $subscriber) {
+        foreach ((array) $this->subscriber as $subscriber) {
             $container->make('events')->subscribe($subscriber);
         }
     }
