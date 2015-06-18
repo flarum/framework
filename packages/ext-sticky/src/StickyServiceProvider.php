@@ -1,42 +1,37 @@
 <?php namespace Flarum\Sticky;
 
 use Flarum\Support\ServiceProvider;
-use Flarum\Extend\EventSubscribers;
-use Flarum\Extend\ForumAssets;
-use Flarum\Extend\PostType;
-use Flarum\Extend\SerializeAttributes;
-use Flarum\Extend\DiscussionGambit;
-use Flarum\Extend\NotificationType;
-use Flarum\Extend\Permission;
+use Flarum\Extend;
 
 class StickyServiceProvider extends ServiceProvider
 {
     public function boot()
     {
         $this->extend(
-            new EventSubscribers([
+            new Extend\EventSubscriber([
                 'Flarum\Sticky\Handlers\StickySaver',
                 'Flarum\Sticky\Handlers\StickySearchModifier',
                 'Flarum\Sticky\Handlers\DiscussionStickiedNotifier'
             ]),
 
-            new ForumAssets([
-                __DIR__.'/../js/dist/extension.js',
-                __DIR__.'/../less/sticky.less'
-            ]),
+            (new Extend\ForumClient())
+                ->assets([
+                    __DIR__.'/../js/dist/extension.js',
+                    __DIR__.'/../less/sticky.less'
+                ]),
 
-            new PostType('Flarum\Sticky\DiscussionStickiedPost'),
+            new Extend\PostType('Flarum\Sticky\DiscussionStickiedPost'),
 
-            new SerializeAttributes('Flarum\Api\Serializers\DiscussionSerializer', function (&$attributes, $model, $serializer) {
-                $attributes['isSticky'] = (bool) $model->is_sticky;
-                $attributes['canSticky'] = (bool) $model->can($serializer->actor->getUser(), 'sticky');
-            }),
+            (new Extend\ApiSerializer('Flarum\Api\Serializers\DiscussionSerializer'))
+                ->attributes(function (&$attributes, $model, $user) {
+                    $attributes['isSticky'] = (bool) $model->is_sticky;
+                    $attributes['canSticky'] = (bool) $model->can($user, 'sticky');
+                }),
 
-            new DiscussionGambit('Flarum\Sticky\StickyGambit'),
+            new Extend\DiscussionGambit('Flarum\Sticky\StickyGambit'),
 
-            (new NotificationType('Flarum\Sticky\DiscussionStickiedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))->enableByDefault('alert'),
-
-            new Permission('discussion.sticky')
+            (new Extend\NotificationType('Flarum\Sticky\DiscussionStickiedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))
+                ->enableByDefault('alert')
         );
     }
 }
