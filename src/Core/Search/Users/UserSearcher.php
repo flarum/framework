@@ -50,8 +50,6 @@ class UserSearcher implements SearcherInterface
 
         $this->gambits->apply($criteria->query, $this);
 
-        $total = $this->query->count();
-
         $sort = $criteria->sort ?: $this->defaultSort;
 
         foreach ($sort as $field => $order) {
@@ -81,6 +79,6 @@ class UserSearcher implements SearcherInterface
 
         $users->load($load);
 
-        return new UserSearchResults($users, $areMoreResults, $total);
+        return new UserSearchResults($users, $areMoreResults);
     }
 }
