@@ -14,9 +14,7 @@ class DeleteAvatarAction extends SerializeResourceAction
     protected $bus;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
 
