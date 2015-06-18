@@ -182,16 +182,6 @@ class CoreServiceProvider extends ServiceProvider
 
     public function registerPermissions()
     {
-        $this->extend(
-            new Permission('forum.view'),
-            new Permission('forum.startDiscussion'),
-            new Permission('discussion.reply'),
-            new Permission('discussion.editPosts'),
-            new Permission('discussion.deletePosts'),
-            new Permission('discussion.rename'),
-            new Permission('discussion.delete')
-        );
-
         Forum::allow('*', function ($forum, $user, $action) {
             if ($user->hasPermission('forum.'.$action)) {
                 return true;
@@ -199,7 +189,7 @@ class CoreServiceProvider extends ServiceProvider
         });
 
         Post::allow('*', function ($post, $user, $action) {
-            if ($user->hasPermission('post.'.$action)) {
+            if ($post->discussion->can($user, $action.'Posts')) {
                 return true;
             }
         });
