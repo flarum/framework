@@ -100,7 +100,7 @@ class IndexAction extends SerializeCollectionAction
         static::addPaginationLinks(
             $document,
             $request,
-            $this->url->toRoute('flarum.api.discussions.index'),
+            $request->http ? $this->url->toRoute('flarum.api.discussions.index') : '',
             $results->areMoreResults()
         );
 

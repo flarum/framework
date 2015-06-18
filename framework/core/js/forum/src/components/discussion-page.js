@@ -44,7 +44,21 @@ export default class DiscussionPage extends mixin(Component, evented) {
 
     var params = this.params();
     params.include = params.include.join(',');
-    app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
+
+    var discussion;
+    if (app.preload.response) {
+      // We must wrap this in a setTimeout because if we are mounting this
+      // component for the first time on page load, then any calls to m.redraw
+      // will be ineffective and thus any configs (scroll code) will be run
+      // before stuff is drawn to the page.
+      setTimeout(() => {
+        var discussion = app.store.pushPayload(app.preload.response);
+        app.preload.response = null;
+        this.setupDiscussion(discussion);
+      });
+    } else {
+      app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
+    }
 
     // Trigger a redraw only if we're not already in a computation (e.g. route change)
     m.startComputation();
@@ -77,12 +91,19 @@ export default class DiscussionPage extends mixin(Component, evented) {
     app.setTitle(discussion.title());
 
     var includedPosts = [];
-    discussion.payload.included && discussion.payload.included.forEach(record => {
-      if (record.type === 'posts' && (record.contentType !== 'comment' || record.contentHtml)) {
-        includedPosts.push(app.store.getById('posts', record.id));
+    if (discussion.payload && discussion.payload.included) {
+      discussion.payload.included.forEach(record => {
+        if (record.type === 'posts' && (record.contentType !== 'comment' || record.contentHtml)) {
+          includedPosts.push(app.store.getById('posts', record.id));
+        }
+      });
+      includedPosts.sort((a, b) => a.id() - b.id());
+    } else {
+      var posts = discussion.posts();
+      if (posts) {
+        includedPosts = posts.filter(post => post);
       }
-    });
-    includedPosts.sort((a, b) => a.id() - b.id());
+    }
 
     this.stream = new PostStream({ discussion, includedPosts });
     this.stream.on('positionChanged', this.positionChanged.bind(this));

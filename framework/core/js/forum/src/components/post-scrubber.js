@@ -199,9 +199,8 @@ export default class PostScrubber extends Component {
 
     if (isInitialized) { return; }
 
-    this.renderScrollbar();
-
     context.onunload = this.ondestroy.bind(this);
+
     this.scrollListener.start();
 
     // Whenever the window is resized, adjust the height of the scrollbar

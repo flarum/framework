@@ -32,8 +32,8 @@ class ShowAction extends SerializeResourceAction
     public static $include = [
         'startUser' => false,
         'lastUser' => false,
-        'startPost' => true,
-        'lastPost' => true,
+        'startPost' => false,
+        'lastPost' => false,
         'posts' => true,
         'posts.user' => true,
         'posts.user.groups' => true,

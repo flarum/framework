@@ -6,6 +6,7 @@ use Flarum\Assets\JsCompiler;
 use Flarum\Assets\LessCompiler;
 use Flarum\Core;
 use Flarum\Forum\Events\RenderView;
+use Flarum\Forum\Loaders\LoaderInterface;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
@@ -66,11 +67,18 @@ class IndexAction extends HtmlAction
             }
         }
 
+        $details = $this->getDetails($request, $params);
+
+        $data = array_merge($data, array_get($details, 'data', []));
+        $response = array_get($details, 'response');
+        $title = array_get($details, 'title');
+
         $view = view('flarum.forum::index')
-            ->with('title', Core::config('forum_title'))
+            ->with('title', ($title ? $title.' - ' : '').Core::config('forum_title'))
             ->with('config', $config)
             ->with('layout', 'flarum.forum::forum')
             ->with('data', $data)
+            ->with('response', $response)
             ->with('session', $session)
             ->with('alert', $alert);
 
@@ -110,6 +118,23 @@ class IndexAction extends HtmlAction
         return $view
             ->with('styles', [$assets->getCssFile()])
             ->with('scripts', [$assets->getJsFile(), $localeCompiler->getFile()]);
+    }
+
+    protected function getDetails($request, $params)
+    {
+        $queryParams = $request->getQueryParams();
+
+        // Only preload data if we're viewing the default index with no filters,
+        // otherwise we have to do all kinds of crazy stuff
+        if (!count($queryParams) && $request->getUri()->getPath() === '/') {
+            $response = $this->apiClient->send('Flarum\Api\Actions\Discussions\IndexAction');
+
+            return [
+                'response' => $response
+            ];
+        }
+
+        return [];
     }
 
     protected static function filterTranslations($translations)
