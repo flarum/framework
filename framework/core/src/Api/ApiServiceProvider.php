@@ -276,7 +276,7 @@ class ApiServiceProvider extends ServiceProvider
             $action = app($class);
             $actor = app('Flarum\Support\Actor');
 
-            $input = array_merge($httpRequest->getAttributes(), $routeParams);
+            $input = array_merge($httpRequest->getQueryParams(), $httpRequest->getAttributes(), $routeParams);
             $request = new Request($input, $actor, $httpRequest);
 
             return $action->handle($request);
