@@ -6,23 +6,15 @@ class UserSearchResults
 
     protected $areMoreResults;
 
-    protected $total;
-
-    public function __construct($users, $areMoreResults, $total)
+    public function __construct($users, $areMoreResults)
     {
         $this->users = $users;
         $this->areMoreResults = $areMoreResults;
-        $this->total = $total;
     }
 
     public function getUsers()
     {
         return $this->users;
-    }
-
-    public function getTotal()
-    {
-        return $this->total;
     }
 
     public function areMoreResults()
