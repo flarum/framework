@@ -1,4 +1,5 @@
 import highlight from 'flarum/helpers/highlight';
+import truncate from 'flarum/utils/truncate';
 import ActionButton from 'flarum/components/action-button';
 
 export default class DiscussionsSearchResults {
@@ -27,7 +28,7 @@ export default class DiscussionsSearchResults {
         return m('li.discussion-search-result', {'data-index': 'discussions'+discussion.id()},
           m('a', { href: app.route.discussion(discussion, post.number()), config: m.route },
             m('div.title', highlight(discussion.title(), string)),
-            m('div.excerpt', highlight(post.contentPlain().substring(0, 100), string))
+            m('div.excerpt', highlight(truncate(post.contentPlain(), 100), string))
           )
         );
       }) : ''
