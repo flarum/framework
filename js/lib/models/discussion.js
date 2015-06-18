@@ -6,7 +6,8 @@ class Discussion extends Model {
   pushData(newData) {
     super.pushData(newData);
 
-    var posts = this.data().links.posts;
+    var links = this.data().links;
+    var posts = links && links.posts;
     if (posts) {
       if (newData.removedPosts) {
         posts.linkage.forEach((linkage, i) => {
