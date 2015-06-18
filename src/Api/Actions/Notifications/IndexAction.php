@@ -14,16 +14,12 @@ class IndexAction extends SerializeCollectionAction
     protected $notifications;
 
     /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $serializer = 'Flarum\Api\Serializers\NotificationSerializer';
 
     /**
-     * The relations that are included by default.
-     *
-     * @var array
+     * @inheritdoc
      */
     public static $include = [
         'sender' => true,
@@ -32,18 +28,29 @@ class IndexAction extends SerializeCollectionAction
     ];
 
     /**
-     * The maximum number of records that can be requested.
-     *
-     * @var integer
+     * @inheritdoc
+     */
+    public static $link = [];
+
+    /**
+     * @inheritdoc
      */
     public static $limitMax = 50;
 
     /**
-     * The number of records included by default.
-     *
-     * @var integer
+     * @inheritdoc
      */
     public static $limit = 10;
+
+    /**
+     * @inheritdoc
+     */
+    public static $sortFields = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $sort;
 
     /**
      * Instantiate the action.

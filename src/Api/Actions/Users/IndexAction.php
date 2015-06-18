@@ -24,6 +24,43 @@ class IndexAction extends SerializeCollectionAction
     protected $url;
 
     /**
+     * @inheritdoc
+     */
+    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+
+    /**
+     * @inheritdoc
+     */
+    public static $include = [
+        'groups' => true
+    ];
+
+    /**
+     * @inheritdoc
+     */
+    public static $link = [];
+
+    /**
+     * @inheritdoc
+     */
+    public static $limitMax = 50;
+
+    /**
+     * @inheritdoc
+     */
+    public static $limit = 20;
+
+    /**
+     * @inheritdoc
+     */
+    public static $sortFields = ['username', 'postsCount', 'discussionsCount', 'lastSeenTime', 'joinTime'];
+
+    /**
+     * @inheritdoc
+     */
+    public static $sort;
+
+    /**
      * Instantiate the action.
      *
      * @param  \Flarum\Core\Search\Users\UserSearcher  $searcher
@@ -34,30 +71,6 @@ class IndexAction extends SerializeCollectionAction
         $this->searcher = $searcher;
         $this->url = $url;
     }
-
-    /**
-     * The name of the serializer class to output results with.
-     *
-     * @var string
-     */
-    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
-
-    /**
-     * The relationships that are available to be included, and which ones are
-     * included by default.
-     *
-     * @var array
-     */
-    public static $include = [
-        'groups' => true
-    ];
-
-    /**
-     * The fields that are available to be sorted by.
-     *
-     * @var array
-     */
-    public static $sortFields = ['username', 'postsCount', 'discussionsCount', 'lastSeenTime', 'joinTime'];
 
     /**
      * Get the user results, ready to be serialized and assigned to the
@@ -77,15 +90,11 @@ class IndexAction extends SerializeCollectionAction
 
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $request->include);
 
-        if (($total = $results->getTotal()) !== null) {
-            $document->addMeta('total', $total);
-        }
-
         static::addPaginationLinks(
             $document,
             $request,
             $this->url->toRoute('flarum.api.users.index'),
-            $total ?: $results->areMoreResults()
+            $results->areMoreResults()
         );
 
         return $results->getUsers();
