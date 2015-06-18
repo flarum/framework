@@ -34,9 +34,9 @@ class MentionsServiceProvider extends ServiceProvider
             (new Extend\ApiAction('Flarum\Api\Actions\Discussions\ShowAction'))
                 ->addInclude('posts.mentionedBy')
                 ->addInclude('posts.mentionedBy.user')
-                ->addInclude('posts.mentionsPosts')
-                ->addInclude('posts.mentionsPosts.user')
-                ->addInclude('posts.mentionsUsers'),
+                ->addInclude('posts.mentionsPosts', false)
+                ->addInclude('posts.mentionsPosts.user', false)
+                ->addInclude('posts.mentionsUsers', false),
 
             (new Extend\ApiAction([
                 'Flarum\Api\Actions\Posts\IndexAction',
