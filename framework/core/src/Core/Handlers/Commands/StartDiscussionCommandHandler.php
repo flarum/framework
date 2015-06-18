@@ -34,15 +34,18 @@ class StartDiscussionCommandHandler
 
         $discussion->save();
 
-        $this->dispatchEventsFor($discussion);
-
         // Now that the discussion has been created, we can add the first post.
-        // For now we will do this by running the PostReply command, but as this
-        // will trigger a domain event that is slightly semantically incorrect
-        // in this situation (PostWasPosted), we may need to reconsider someday.
+        // We will do this by running the PostReply command.
         $post = $this->bus->dispatch(
             new PostReplyCommand($discussion->id, $command->user, $command->data)
         );
+
+        // Before we dispatch events, refresh our discussion instance's
+        // attributes as posting the reply will have changed some of them (e.g.
+        // last_time.)
+        $discussion->setRawAttributes($post->discussion->getAttributes(), true);
+
+        $this->dispatchEventsFor($discussion);
 
         return $post->discussion;
     }
