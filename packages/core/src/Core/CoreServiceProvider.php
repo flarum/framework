@@ -13,7 +13,6 @@ use Flarum\Core\Models\Discussion;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Events\RegisterDiscussionGambits;
 use Flarum\Core\Events\RegisterUserGambits;
-use Flarum\Extend\Permission;
 use Flarum\Extend\ActivityType;
 use Flarum\Extend\NotificationType;
 use Flarum\Extend\Locale;
