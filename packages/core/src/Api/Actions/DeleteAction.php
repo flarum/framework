@@ -16,7 +16,7 @@ abstract class DeleteAction extends JsonApiAction
     {
         $this->delete($request);
 
-        return new Response('', 204);
+        return new Response('php://memory', 204);
     }
 
     /**
