@@ -54,12 +54,14 @@ class DiscussionMetadataUpdater
     {
         $discussion = $post->discussion;
 
-        $discussion->refreshCommentsCount();
+        if ($discussion->exists) {
+            $discussion->refreshCommentsCount();
 
-        if ($discussion->last_post_id == $post->id) {
-            $discussion->refreshLastPost();
+            if ($discussion->last_post_id == $post->id) {
+                $discussion->refreshLastPost();
+            }
+
+            $discussion->save();
         }
-
-        $discussion->save();
     }
 }

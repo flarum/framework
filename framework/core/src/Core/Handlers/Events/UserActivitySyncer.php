@@ -71,6 +71,6 @@ class UserActivitySyncer
 
     protected function postedActivity(Post $post)
     {
-        return $post->number === 1 ? new StartedDiscussionActivity($post) : new PostedActivity($post);
+        return $post->number == 1 ? new StartedDiscussionActivity($post) : new PostedActivity($post);
     }
 }

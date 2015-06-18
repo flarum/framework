@@ -6,6 +6,7 @@ use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Events\DiscussionWasDeleted;
 use Flarum\Core\Events\DiscussionWasStarted;
 use Flarum\Core\Events\DiscussionWasRenamed;
+use Flarum\Core\Events\PostWasDeleted;
 use Flarum\Core\Models\User;
 
 class Discussion extends Model
@@ -79,7 +80,16 @@ class Discussion extends Model
         static::deleted(function ($discussion) {
             $discussion->raise(new DiscussionWasDeleted($discussion));
 
-            $discussion->posts()->allTypes()->delete();
+            $posts = $discussion->posts()->allTypes();
+
+            foreach ($posts->get() as $post) {
+                $post->setRelation('discussion', $discussion);
+
+                $discussion->raise(new PostWasDeleted($post));
+            }
+
+            $posts->delete();
+
             $discussion->readers()->detach();
         });
     }
