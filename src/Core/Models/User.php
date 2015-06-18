@@ -312,13 +312,13 @@ class User extends Model
             return true;
         }
 
-        static $permissions;
+        static $permissions = [];
 
-        if (!$permissions) {
-            $permissions = $this->permissions()->get();
+        if (! isset($permissions[$this->id])) {
+            $permissions[$this->id] = $this->permissions()->get();
         }
 
-        return (bool) $permissions->contains('permission', $permission);
+        return (bool) $permissions[$this->id]->contains('permission', $permission);
     }
 
     public function getUnreadNotificationsCount()
