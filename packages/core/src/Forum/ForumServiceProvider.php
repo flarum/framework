@@ -2,7 +2,6 @@
 
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
-use Flarum\Support\AssetManager;
 use Flarum\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -49,13 +48,33 @@ class ForumServiceProvider extends ServiceProvider
     {
         $this->app->instance('flarum.forum.routes', $routes = new RouteCollection);
 
-        /**
-         * Route::group(['middleware' => 'Flarum\Forum\Middleware\LoginWithCookie'], function () use ($action) {
-         * For the two below
-         */
         $routes->get(
             '/',
             'flarum.forum.index',
+            $this->action('Flarum\Forum\Actions\IndexAction')
+        );
+
+        $routes->get(
+            '/d/{id:\d+}/{slug}',
+            'flarum.forum.discussion',
+            $this->action('Flarum\Forum\Actions\DiscussionAction')
+        );
+
+        $routes->get(
+            '/d/{id:\d+}/{slug}/{near}',
+            'flarum.forum.discussion.near',
+            $this->action('Flarum\Forum\Actions\DiscussionAction')
+        );
+
+        $routes->get(
+            '/u/{username}',
+            'flarum.forum.user',
+            $this->action('Flarum\Forum\Actions\IndexAction')
+        );
+
+        $routes->get(
+            '/settings',
+            'flarum.forum.settings',
             $this->action('Flarum\Forum\Actions\IndexAction')
         );
 

@@ -78,10 +78,16 @@ export default class DiscussionList extends Component {
   }
 
   loadResults(offset) {
-    var params = this.params();
-    params.page = {offset};
-    params.include = params.include.join(',');
-    return app.store.find('discussions', params);
+    if (app.preload.response) {
+      var discussions = app.store.pushPayload(app.preload.response);
+      app.preload.response = null;
+      return m.deferred().resolve(discussions).promise;
+    } else {
+      var params = this.params();
+      params.page = {offset};
+      params.include = params.include.join(',');
+      return app.store.find('discussions', params);
+    }
   }
 
   loadMore() {
