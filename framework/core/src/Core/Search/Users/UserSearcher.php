@@ -46,7 +46,7 @@ class UserSearcher implements SearcherInterface
     public function search(UserSearchCriteria $criteria, $limit = null, $offset = 0, $load = [])
     {
         $this->user = $criteria->user;
-        $this->query = $this->users->query()->whereCan($criteria->user, 'view');
+        $this->query = $this->users->query()->whereVisibleTo($criteria->user);
 
         $this->gambits->apply($criteria->query, $this);
 
