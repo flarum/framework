@@ -26,10 +26,7 @@ class RevisionCompiler implements CompilerInterface
 
     public function getFile()
     {
-        if (! ($revision = $this->getRevision())) {
-            $revision = Str::quickRandom();
-            $this->putRevision($revision);
-        }
+        $revision = $this->getRevision();
 
         $lastModTime = 0;
         foreach ($this->files as $file) {
@@ -39,8 +36,16 @@ class RevisionCompiler implements CompilerInterface
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
         $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
 
-        if (! file_exists($file)
+        if (! ($exists = file_exists($file))
             || filemtime($file) < $lastModTime) {
+
+            if ($exists) {
+                unlink($file);
+            }
+
+            $revision = Str::quickRandom();
+            $this->putRevision($revision);
+            $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
             file_put_contents($file, $this->compile());
         }
 
