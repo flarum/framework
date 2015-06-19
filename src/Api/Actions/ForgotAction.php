@@ -1,4 +1,4 @@
-<?php namespace Flarum\Api\Actions\Users;
+<?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
 use Flarum\Api\Actions\JsonApiAction;
