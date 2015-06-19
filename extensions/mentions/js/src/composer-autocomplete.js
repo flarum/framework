@@ -152,15 +152,17 @@ export default function() {
           dropdown.active(true);
 
           clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(function() {
-            var typedLower = typed.toLowerCase();
-            if (searched.indexOf(typedLower) === -1) {
-              app.store.find('users', {q: typed, page: {limit: 5}}).then(users => {
-                if (dropdown.active()) buildSuggestions();
-              });
-              searched.push(typedLower);
-            }
-          }, 250);
+          if (typed) {
+            searchTimeout = setTimeout(function() {
+              var typedLower = typed.toLowerCase();
+              if (searched.indexOf(typedLower) === -1) {
+                app.store.find('users', {q: typed, page: {limit: 5}}).then(users => {
+                  if (dropdown.active()) buildSuggestions();
+                });
+                searched.push(typedLower);
+              }
+            }, 250);
+          }
         }
       });
   });
