@@ -58,7 +58,7 @@ abstract class BaseSerializer extends SerializerAbstract
                     $data = $model->getRelation($relation);
                 } elseif ($many) {
                     $relationIds = $relation.'_ids';
-                    $data = $model->$relationIds ?: $model->$relation()->get(['id'])->fetch('id')->all();
+                    $data = $model->$relationIds ?: $model->$relation()->lists('id');
                 } else {
                     $relationId = $relation.'_id';
                     $data = $model->$relationId;
