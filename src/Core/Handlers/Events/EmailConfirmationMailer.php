@@ -61,9 +61,12 @@ class EmailConfirmationMailer
     {
         $token = $this->generateToken($user, $email);
 
+        // TODO: Need to use UrlGenerator, but since this is part of core we
+        // don't know that the forum routes will be loaded. Should the confirm
+        // email route be part of core??
         return [
             'username' => $user->username,
-            'url' => route('flarum.forum.confirmEmail', ['token' => $token->id]),
+            'url' => Core::config('base_url').'/confirm/'.$token->id,
             'forumTitle' => Core::config('forum_title')
         ];
     }
