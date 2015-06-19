@@ -11,7 +11,9 @@ trait WritesRememberCookie
         // Set a long-living cookie (two weeks) with the remember token
         return FigResponseCookies::set(
             $response,
-            SetCookie::create('flarum_remember', $token)->withMaxAge(14 * 24 * 60 * 60)
+            SetCookie::create('flarum_remember', $token)
+                ->withMaxAge(14 * 24 * 60 * 60)
+                ->withPath('/')
         );
     }
 
@@ -20,7 +22,9 @@ trait WritesRememberCookie
         // Delete the cookie by setting it to an expiration date in the past
         return FigResponseCookies::set(
             $response,
-            SetCookie::create('flarum_remember')->withMaxAge(-2628000)
+            SetCookie::create('flarum_remember')
+                ->withMaxAge(-2628000)
+                ->withPath('/')
         );
     }
 }
