@@ -43,12 +43,16 @@ export default class IndexPage extends Component {
       // are currently present in the cached discussion list. If they differ, we
       // will clear the cache and set up a new discussion list component with
       // the new parameters.
-      Object.keys(params).some(key => {
-        if (app.cache.discussionList.props.params[key] !== params[key]) {
-          app.cache.discussionList = null;
-          return true;
-        }
-      });
+      if (app.cache.discussionList.forceReload) {
+        app.cache.discussionList = null;
+      } else {
+        Object.keys(params).some(key => {
+          if (app.cache.discussionList.props.params[key] !== params[key]) {
+            app.cache.discussionList = null;
+            return true;
+          }
+        });
+      }
     }
 
     if (!app.cache.discussionList) {
