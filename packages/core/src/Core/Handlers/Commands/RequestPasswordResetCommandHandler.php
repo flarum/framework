@@ -6,6 +6,7 @@ use Flarum\Core\Repositories\UserRepositoryInterface;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core;
+use Flarum\Http\UrlGeneratorInterface;
 
 class RequestPasswordResetCommandHandler
 {
@@ -21,10 +22,11 @@ class RequestPasswordResetCommandHandler
      */
     protected $mailer;
 
-    public function __construct(UserRepositoryInterface $users, Mailer $mailer)
+    public function __construct(UserRepositoryInterface $users, Mailer $mailer, UrlGeneratorInterface $url)
     {
         $this->users = $users;
         $this->mailer = $mailer;
+        $this->url = $url;
     }
 
     public function handle(RequestPasswordResetCommand $command)
@@ -38,9 +40,12 @@ class RequestPasswordResetCommandHandler
         $token = PasswordToken::generate($user->id);
         $token->save();
 
+        // TODO: Need to use UrlGenerator, but since this is part of core we
+        // don't know that the forum routes will be loaded. Should the reset
+        // password route be part of core??
         $data = [
             'username' => $user->username,
-            'url' => route('flarum.forum.resetPassword', ['token' => $token->id]),
+            'url' => Core::config('base_url').'/reset/'.$token->id,
             'forumTitle' => Core::config('forum_title')
         ];
 

@@ -8,13 +8,15 @@ class SavePasswordAction extends BaseAction
 {
     public function handle(Request $request, $routeParams = [])
     {
-        $token = PasswordToken::findOrFail($request->getAttribute('token'));
+        $input = $request->getParsedBody();
 
-        $password = $request->getAttribute('password');
-        $confirmation = $request->getAttribute('password_confirmation');
+        $token = PasswordToken::findOrFail(array_get($input, 'token'));
+
+        $password = array_get($input, 'password');
+        $confirmation = array_get($input, 'password_confirmation');
 
         if (! $password || $password !== $confirmation) {
-            return $this->redirectTo(''); // TODO: Redirect back
+            return $this->redirectTo('/reset/'.$token->id); // TODO: Use UrlGenerator
         }
 
         $this->dispatch(
@@ -23,6 +25,6 @@ class SavePasswordAction extends BaseAction
 
         $token->delete();
 
-        return $this->redirectTo('');
+        return $this->redirectTo('/');
     }
 }
