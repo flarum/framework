@@ -93,16 +93,11 @@ export default class DiscussionPage extends mixin(Component, evented) {
     var includedPosts = [];
     if (discussion.payload && discussion.payload.included) {
       discussion.payload.included.forEach(record => {
-        if (record.type === 'posts' && (record.contentType !== 'comment' || record.contentHtml)) {
+        if (record.type === 'posts' && record.links && record.links.discussion) {
           includedPosts.push(app.store.getById('posts', record.id));
         }
       });
       includedPosts.sort((a, b) => a.id() - b.id());
-    } else {
-      var posts = discussion.posts();
-      if (posts) {
-        includedPosts = posts.filter(post => post);
-      }
     }
 
     this.stream = new PostStream({ discussion, includedPosts });
