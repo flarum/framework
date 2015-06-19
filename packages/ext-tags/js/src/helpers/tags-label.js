@@ -10,7 +10,9 @@ export default function tagsLabel(tags, attrs) {
 
   if (tags) {
     sortTags(tags).forEach(tag => {
-      children.push(tagLabel(tag, {link}));
+      if (tag || tags.length === 1) {
+        children.push(tagLabel(tag, {link}));
+      }
     });
   } else {
     children.push(tagLabel());
