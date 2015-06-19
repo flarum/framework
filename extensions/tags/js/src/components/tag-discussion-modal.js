@@ -126,7 +126,7 @@ export default class TagDiscussionModal extends FormModal {
             }, [
               tagIcon(tag),
               m('span.name', highlight(tag.name(), filter)),
-              tag.description() ? m('span.description', tag.description()) : ''
+              tag.description() ? m('span.description', {title: tag.description()}, tag.description()) : ''
             ])
             : ''
         ))
