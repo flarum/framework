@@ -134,7 +134,14 @@ class Model extends Eloquent
 
         $rules = $this->expandUniqueRules(array_only(static::$rules, array_keys($dirty)));
 
-        return static::$validator->make($dirty, $rules);
+        // TODO: translation
+        $messages = [
+            'unique'    => 'That :attribute has already been taken.',
+            'email'     => 'The :attribute must be a valid email address.',
+            'alpha_num' => 'The :attribute may only contain letters and numbers.'
+        ];
+
+        return static::$validator->make($dirty, $rules, $messages);
     }
 
     /**
