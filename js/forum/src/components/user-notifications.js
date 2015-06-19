@@ -28,10 +28,10 @@ export default class UserNotifications extends Component {
         var key = discussion ? discussion.id() : 0;
         groupsObject[key] = groupsObject[key] || {discussion: discussion, notifications: []};
         groupsObject[key].notifications.push(notification);
+        if (groups.indexOf(groupsObject[key]) === -1) {
+          groups.push(groupsObject[key]);
+        }
       });
-      for (var i in groupsObject) {
-        groups.push(groupsObject[i]);
-      }
     }
 
     return DropdownButton.component({
