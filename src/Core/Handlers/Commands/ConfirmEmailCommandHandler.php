@@ -19,7 +19,7 @@ class ConfirmEmailCommandHandler
 
     public function handle($command)
     {
-        $token = EmailToken::find($command->token)->first();
+        $token = EmailToken::find($command->token);
 
         if (! $token) {
             throw new InvalidConfirmationTokenException;
