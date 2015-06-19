@@ -27,7 +27,8 @@ export default function() {
   extend(DiscussionHero.prototype, 'view', function(view) {
     var tags = sortTags(this.props.discussion.tags());
     if (tags && tags.length) {
-      view.attrs.style = 'color: #fff; background-color: '+tags[0].color();
+      view.attrs.style = 'background-color: '+tags[0].color();
+      view.attrs.className += ' discussion-hero-colored';
     }
   });
 
