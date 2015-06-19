@@ -54,8 +54,8 @@ export default class DiscussionComposer extends ComposerBody {
     return items;
   }
 
-  onload(element) {
-    super.onload(element);
+  onload(element, isInitialized, context) {
+    super.onload(element, isInitialized, context);
 
     this.editor.$('textarea').keydown((e) => {
       if (e.which === 8 && e.target.selectionStart == 0 && e.target.selectionEnd == 0) { // Backspace
