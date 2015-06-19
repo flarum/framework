@@ -154,6 +154,8 @@ class PostStream extends mixin(Component, evented) {
       context.fadedIn = true;
     }
 
+    var lastTime;
+
     return m('div.discussion-posts.posts', {config: this.onload.bind(this)},
       this.posts.map((post, i) => {
         var content;
@@ -166,6 +168,15 @@ class PostStream extends mixin(Component, evented) {
           attributes.config = fadeIn;
           attributes['data-time'] = post.time().toISOString();
           attributes['data-number'] = post.number();
+
+          var dt = post.time() - lastTime;
+          if (dt > 1000 * 60 * 60 * 24 * 4) {
+            content = [
+              m('div.time-gap', m('span', moment.duration(dt).humanize(), ' later')),
+              content
+            ];
+          }
+          lastTime = post.time();
         } else {
           content = PostLoading.component();
         }
