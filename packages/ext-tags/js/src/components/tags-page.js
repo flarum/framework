@@ -54,12 +54,12 @@ export default class TagsPage extends Component {
               ]);
             })
           ]),
-          m('div.tag-cloud', [
+          cloud.length ? m('div.tag-cloud', [
             m('h4', 'Tags'),
             m('div.tag-cloud-content', cloud.map(tag =>
               m('a', {href: app.route.tag(tag), config: m.route, style: tag.color() ? 'color: '+tag.color() : ''}, tag.name())
             ))
-          ])
+          ]) : ''
         ])
       ])
     ]);
