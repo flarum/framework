@@ -15,9 +15,9 @@ export default function sortTags(tags) {
     } else if (aParent === bParent) {
       return aPos - bPos;
     } else if (aParent) {
-      return aParent.position() - bPos;
+      return aParent === b ? -1 : aParent.position() - bPos;
     } else if (bParent) {
-      return aPos - bParent.position();
+      return bParent === a ? -1 : aPos - bParent.position();
     }
 
     return 0;

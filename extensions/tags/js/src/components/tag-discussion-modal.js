@@ -99,6 +99,7 @@ export default class TagDiscussionModal extends FormModal {
               'data-index': tag.id(),
               className: classList({
                 pinned: tag.position() !== null,
+                child: !!tag.parent(),
                 colored: !!tag.color(),
                 selected: selected.indexOf(tag) !== -1,
                 active: this.index() == tag
