@@ -39,7 +39,7 @@ class TagsServiceProvider extends ServiceProvider
             (new Extend\Model('Flarum\Tags\Tag'))
                 // Hide tags that the user doesn't have permission to see.
                 ->scopeVisible(function ($query, User $user) {
-                    $query->whereIn('id', Tag::getVisibleTo($user));
+                    $query->whereNotIn('id', Tag::getNotVisibleTo($user));
                 })
 
                 // Allow the user to start discussions in tags which aren't
@@ -76,7 +76,7 @@ class TagsServiceProvider extends ServiceProvider
                     $query->whereNotExists(function ($query) use ($user) {
                         return $query->select(app('db')->raw(1))
                             ->from('discussions_tags')
-                            ->whereNotIn('tag_id', Tag::getVisibleTo($user))
+                            ->whereIn('tag_id', Tag::getNotVisibleTo($user))
                             ->whereRaw('discussion_id = discussions.id');
                     });
                 })
