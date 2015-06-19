@@ -19,7 +19,12 @@ export default class TagNavItem extends NavItem {
       m('a', {
         href: this.props.href,
         config: m.route,
-        onclick: () => {app.cache.discussionList = null; m.redraw.strategy('none')},
+        onclick: () => {
+          if (app.cache.discussionList) {
+            app.cache.discussionList.forceReload = true;
+          }
+          m.redraw.strategy('none');
+        },
         style: (active && tag) ? 'color: '+tag.color() : '',
         title: description || ''
       }, [
