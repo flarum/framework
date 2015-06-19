@@ -24,7 +24,8 @@ class UpdateAction extends SerializeResourceAction
      */
     public static $include = [
         'addedPosts' => true,
-        'addedPosts.user' => true
+        'addedPosts.user' => true,
+        'addedPosts.discussion' => true
     ];
 
     /**
