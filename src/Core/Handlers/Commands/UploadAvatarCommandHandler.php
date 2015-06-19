@@ -40,14 +40,16 @@ class UploadAvatarCommandHandler
         // throw an exception otherwise.
         $user->assertCan($command->actor, 'edit');
 
-        $manager = new ImageManager(array('driver' => 'imagick'));
-        $manager->make($command->file->getRealPath())->fit(100, 100)->save();
+        $tmpFile = tempnam(sys_get_temp_dir(), 'avatar');
+        $command->file->moveTo($tmpFile);
 
-        $filename = $command->file->getFilename();
         $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
 
+        $manager = new ImageManager(array('driver' => 'imagick'));
+        $manager->make($tmpFile)->fit(100, 100)->save();
+
         $mount = new MountManager([
-            'source' => new Filesystem(new Local($command->file->getPath())),
+            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
             'target' => $this->uploadDir,
         ]);
 
@@ -59,7 +61,7 @@ class UploadAvatarCommandHandler
 
         event(new AvatarWillBeUploaded($user, $command));
 
-        $mount->move("source://$filename", "target://$uploadName");
+        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
 
         $user->save();
         $this->dispatchEventsFor($user);

@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core\Commands;
 
+use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 
 class UploadAvatarCommand
@@ -7,13 +8,13 @@ class UploadAvatarCommand
     public $userId;
 
     /**
-     * @var \Symfony\Component\HttpFoundation\File\UploadedFile
+     * @var \Psr\Http\Message\UploadedFileInterface
      */
     public $file;
 
     public $actor;
 
-    public function __construct($userId, $file, $actor)
+    public function __construct($userId, UploadedFileInterface $file, $actor)
     {
         if (empty($userId) || !intval($userId)) {
             throw new RuntimeException('No valid user ID specified.');
