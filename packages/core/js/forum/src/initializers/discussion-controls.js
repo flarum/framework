@@ -87,7 +87,7 @@ export default function(app) {
     }
 
     if (this.canDelete()) {
-      items.add('separator', Separator.component());
+      items.add('separator2', Separator.component());
 
       items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: this.deleteAction.bind(this) }));
     }
