@@ -57,7 +57,7 @@ class Tag extends Model
         return $this;
     }
 
-    public static function getVisibleTo($user)
+    public static function getNotVisibleTo($user)
     {
         static $tags;
         if (! $tags) {
@@ -66,7 +66,7 @@ class Tag extends Model
 
         $ids = [];
         foreach ($tags as $tag) {
-            if (! $tag->is_restricted || $user->hasPermission('tag'.$tag->id.'.view')) {
+            if ($tag->is_restricted && ! $user->hasPermission('tag'.$tag->id.'.view')) {
                 $ids[] = $tag->id;
             }
         }
