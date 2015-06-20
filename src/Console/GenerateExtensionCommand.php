@@ -13,7 +13,7 @@ class GenerateExtensionCommand extends Command
      *
      * @var string
      */
-    protected $name = 'flarum:extension';
+    protected $name = 'generate:extension';
 
     /**
      * The console command description.
