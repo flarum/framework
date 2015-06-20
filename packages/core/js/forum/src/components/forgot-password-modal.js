@@ -49,7 +49,7 @@ export default class ForgotPasswordModal extends FormModal {
       background: true,
       extract: xhr => {
         if (xhr.status === 404) {
-          this.alert = new Alert({ type: 'warning', message: 'That email wasn\'t found in our database.' });
+          this.alert(new Alert({ type: 'warning', message: 'That email wasn\'t found in our database.' }));
           throw new Error;
         }
         return null;
