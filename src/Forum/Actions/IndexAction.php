@@ -6,7 +6,6 @@ use Flarum\Assets\JsCompiler;
 use Flarum\Assets\LessCompiler;
 use Flarum\Core;
 use Flarum\Forum\Events\RenderView;
-use Flarum\Forum\Loaders\LoaderInterface;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
@@ -37,8 +36,9 @@ class IndexAction extends HtmlAction
 
     public function render(Request $request, $params = [])
     {
-        $config = $this->database->table('config')->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])->lists('value', 'key');
-        $data = [];
+        $config = $this->database->table('config')
+            ->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])
+            ->lists('value', 'key');
         $session = [];
         $alert = $this->session->get('alert');
 
