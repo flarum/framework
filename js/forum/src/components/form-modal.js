@@ -51,6 +51,8 @@ export default class FormModal extends Component {
 
     if (errors) {
       this.$('[name='+errors[0].path+']').select();
+    } else {
+      this.$(':input:first').select();
     }
   }
 }
