@@ -12,7 +12,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $name = 'flarum:install';
+    protected $name = 'install';
 
     /**
      * The console command description.
