@@ -248,7 +248,7 @@ class PostStream extends mixin(Component, evented) {
     }
 
     clearTimeout(this.calculatePositionTimeout);
-    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this), 500);
+    this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this), 100);
   }
 
   /**
