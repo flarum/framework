@@ -1,0 +1,16 @@
+{
+    "name": "flarum-likes",
+    "title": "Likes",
+    "description": "Allows users to like posts.",
+    "tags": [],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org'"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    }
+}
