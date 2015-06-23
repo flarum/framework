@@ -70,8 +70,6 @@
   margin-top: 10px;
 
   & .item {
-    padding: 30px 0;
-
     &:not(:last-child) {
       border-bottom: 1px solid @fl-body-secondary-color;
     }
@@ -109,7 +107,7 @@
 // Posts
 
 .post {
-  padding-bottom: 1px;
+  padding: 30px 0;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
@@ -376,8 +374,6 @@
   text-transform: uppercase;
   font-weight: bold;
   color: @fl-body-muted-color;
-  margin-top: -30px;
-  margin-bottom: 30px;
   padding: 20px 20px 20px 90px;
   background: @fl-body-secondary-color;
   font-size: 12px;
@@ -440,7 +436,9 @@
 }
 
 @media @tablet, @desktop, @desktop-hd {
-  .item {
+  .post {
+    padding-left: 90px;
+
     & .contextual-controls {
       opacity: 0;
       transition: opacity 0.2s;
@@ -448,9 +446,6 @@
     &:hover .contextual-controls, & .contextual-controls.open {
       opacity: 1;
     }
-  }
-  .post {
-    padding-left: 90px;
   }
   .post-header {
     & .avatar {
