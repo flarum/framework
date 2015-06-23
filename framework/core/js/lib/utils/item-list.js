@@ -44,12 +44,18 @@ export default class ItemList {
     items.forEach(item => {
       var key = item.position.before || item.position.after;
       var type = item.position.before ? 'before' : 'after';
+      // TODO: Allow both before and after to be specified, and multiple keys to
+      // be specified for each.
+      // e.g. {before: ['foo', 'bar'], after: ['qux', 'qaz']}
+      // This way extensions can make sure they are positioned where
+      // they want to be relative to other extensions.
       if (key) {
         var index = array.indexOf(this[key]);
         if (index === -1) {
-          index = type === 'before' ? 0 : array.length;
+          array.push(item);
+        } else {
+          array.splice(index + (type === 'after' ? 1 : 0), 0, item);
         }
-        array.splice(index + (type === 'after' ? 1 : 0), 0, item);
       }
     });
 
