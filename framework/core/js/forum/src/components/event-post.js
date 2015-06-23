@@ -17,8 +17,7 @@ export default class EventPost extends Post {
       m('div.event-post-info', [
         user ? m('a.post-user', {href: app.route.user(user), config: m.route}, username(user)) : username(user), ' ',
         content
-      ]),
-      m('div.event-post-time', humanTime(post.time()))
+      ])
     ], attrs);
   }
 }

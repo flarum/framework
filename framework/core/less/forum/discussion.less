@@ -67,10 +67,14 @@
 // Stream
 
 .discussion-posts {
-  margin-top: 40px;
+  margin-top: 10px;
 
   & .item {
-    margin-bottom: 40px;
+    padding: 30px 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid @fl-body-secondary-color;
+    }
   }
 }
 @keyframes blink {
@@ -117,7 +121,7 @@
 
   & .contextual-controls {
     float: right;
-    margin-top: -3px;
+    margin-top: -8px;
     margin-left: 10px;
   }
 }
@@ -316,7 +320,6 @@
 }
 .event-post-info {
   font-size: 15px;
-  margin-bottom: 5px;
 }
 .discussion-renamed-post {
   & .old-title, & .new-title {
@@ -373,19 +376,11 @@
   text-transform: uppercase;
   font-weight: bold;
   color: @fl-body-muted-color;
-  margin-top: 60px;
-  margin-bottom: 60px;
-  padding-left: 90px;
-  border-top: 1px solid @fl-body-secondary-color;
+  margin-top: -30px;
+  margin-bottom: 30px;
+  padding: 20px 20px 20px 90px;
+  background: @fl-body-secondary-color;
   font-size: 12px;
-
-  & span {
-    float: left;
-    background: #fff;
-    margin-top: -9px;
-    margin-left: -10px;
-    padding: 0 10px;
-  }
 }
 
 .post-preview {
@@ -445,15 +440,17 @@
 }
 
 @media @tablet, @desktop, @desktop-hd {
-  .post {
-    padding-left: 90px;
-
+  .item {
     & .contextual-controls {
-      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s;
     }
     &:hover .contextual-controls, & .contextual-controls.open {
-      visibility: visible;
+      opacity: 1;
     }
+  }
+  .post {
+    padding-left: 90px;
   }
   .post-header {
     & .avatar {
