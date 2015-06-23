@@ -39,6 +39,10 @@ export default class FormModal extends Component {
     app.modal.close();
   }
 
+  onsubmit(e) {
+    //
+  }
+
   handleErrors(errors) {
     if (errors) {
       this.alert(new Alert({
