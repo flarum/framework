@@ -15,8 +15,15 @@ export default function mentionedByList() {
   });
 
   extend(CommentPost.prototype, 'footerItems', function(items) {
-    var replies = this.props.post.mentionedBy();
+    var post = this.props.post;
+    var replies = post.mentionedBy();
     if (replies && replies.length) {
+
+      // If there is only one reply, and it's adjacent to this post, we don't
+      // really need to show the list.
+      if (replies.length === 1 && replies[0].number() == post.number() + 1) {
+        return;
+      }
 
       var hidePreview = () => {
         this.$('.mentioned-by-preview').removeClass('in').one('transitionend', function() { $(this).hide(); });
