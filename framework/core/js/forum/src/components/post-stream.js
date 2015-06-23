@@ -128,7 +128,7 @@ class PostStream extends mixin(Component, evented) {
    */
   setup(posts) {
     this.posts = posts;
-    this.visibleStart = this.discussion.postIds().indexOf(posts[0].id());
+    this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
     this.visibleEnd = this.visibleStart + posts.length;
   }
 
@@ -137,7 +137,7 @@ class PostStream extends mixin(Component, evented) {
    */
   clear(start, end) {
     this.visibleStart = start || 0;
-    this.visibleEnd = end || this.constructor.loadCount;
+    this.visibleEnd = Math.min(this.count(), end || this.constructor.loadCount);
     this.posts = [];
     for (var i = this.visibleStart; i < this.visibleEnd; i++) {
       this.posts.push(null);
@@ -234,7 +234,7 @@ class PostStream extends mixin(Component, evented) {
     if (this.visibleStart > 0) {
       var $item = this.$('.item[data-index='+this.visibleStart+']');
 
-      if ($item.offset().top > viewportTop - loadAheadDistance) {
+      if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
         this.loadPrevious();
       }
     }
@@ -242,7 +242,7 @@ class PostStream extends mixin(Component, evented) {
     if (this.visibleEnd < this.count()) {
       var $item = this.$('.item[data-index='+(this.visibleEnd - 1)+']');
 
-      if ($item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
+      if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
         this.loadNext();
       }
     }

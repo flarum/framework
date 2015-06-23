@@ -58,7 +58,7 @@ Discussion.prototype.canRename = Model.prop('canRename');
 Discussion.prototype.canDelete = Model.prop('canDelete');
 
 Discussion.prototype.commentsCount = Model.prop('commentsCount');
-Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => commentsCount - 1);
+Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1));
 
 Discussion.prototype.posts = Model.many('posts');
 Discussion.prototype.postIds = function() { return this.data().links.posts.linkage.map((link) => link.id); };
