@@ -16,7 +16,8 @@ class UserMentionsFormatter extends FormatterAbstract
     {
         $text = $this->ignoreTags($text, ['a', 'code', 'pre'], function ($text) {
             return $this->parser->replace($text, function ($match) {
-                return '<a href="#/u/'.$match['username'].'" class="mention-user" data-user="'.$match['username'].'">'.$match['username'].'</a>';
+                // TODO: use URL generator
+                return '<a href="/u/'.$match['username'].'" class="mention-user" data-user="'.$match['username'].'">'.$match['username'].'</a>';
             }, $text);
         });
 

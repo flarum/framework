@@ -17,7 +17,8 @@ class PostMentionsFormatter extends FormatterAbstract
         if ($post) {
             $text = $this->ignoreTags($text, ['a', 'code', 'pre'], function ($text) use ($post) {
                 return $this->parser->replace($text, function ($match) use ($post) {
-                    return '<a href="#/d/'.$post->discussion_id.'/-/'.$match['number'].'" class="mention-post" data-number="'.$match['number'].'">'.$match['username'].'</a>';
+                    // TODO: use URL generator
+                    return '<a href="/d/'.$post->discussion_id.'/-/'.$match['number'].'" class="mention-post" data-number="'.$match['number'].'">'.$match['username'].'</a>';
                 }, $text);
             });
         }
