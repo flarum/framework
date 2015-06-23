@@ -3,6 +3,7 @@
 use Flarum\Core\Repositories\PostRepositoryInterface as PostRepository;
 use Flarum\Core\Events\PostWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
+use Flarum\Core\Models\CommentPost;
 
 class EditPostCommandHandler
 {
@@ -22,15 +23,17 @@ class EditPostCommandHandler
 
         $post->assertCan($user, 'edit');
 
-        if (isset($command->data['content'])) {
-            $post->revise($command->data['content'], $user);
-        }
+        if ($post instanceof CommentPost) {
+            if (isset($command->data['content'])) {
+                $post->revise($command->data['content'], $user);
+            }
 
-        if (isset($command->data['isHidden'])) {
-            if ($command->data['isHidden']) {
-                $post->hide($user);
-            } else {
-                $post->restore($user);
+            if (isset($command->data['isHidden'])) {
+                if ($command->data['isHidden']) {
+                    $post->hide($user);
+                } else {
+                    $post->restore($user);
+                }
             }
         }
 

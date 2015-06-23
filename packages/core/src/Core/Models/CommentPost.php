@@ -5,6 +5,7 @@ use Flarum\Core\Events\PostWasPosted;
 use Flarum\Core\Events\PostWasRevised;
 use Flarum\Core\Events\PostWasHidden;
 use Flarum\Core\Events\PostWasRestored;
+use Flarum\Core\Exceptions\ValidationFailureException;
 
 class CommentPost extends Post
 {
@@ -75,6 +76,10 @@ class CommentPost extends Post
      */
     public function hide($user)
     {
+        if ($this->number == 1) {
+            throw new ValidationFailureException;
+        }
+
         if (! $this->hide_time) {
             $this->hide_time = time();
             $this->hide_user_id = $user->id;
@@ -93,6 +98,10 @@ class CommentPost extends Post
      */
     public function restore($user)
     {
+        if ($this->number == 1) {
+            throw new ValidationFailureException;
+        }
+
         if ($this->hide_time !== null) {
             $this->hide_time = null;
             $this->hide_user_id = null;
