@@ -135,7 +135,7 @@ export default class PostScrubber extends Component {
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
     var $items = stream.$('> .item[data-index]');
-    var index = $items.first().data('index');
+    var index = $items.first().data('index') || 0;
     var visible = 0;
     var period = '';
 
@@ -262,7 +262,7 @@ export default class PostScrubber extends Component {
     var percentPerPost = this.percentPerPost();
     var index = this.index();
     var count = this.count();
-    var visible = this.visible();
+    var visible = this.visible() || 1;
 
     var $scrubber = this.$();
     $scrubber.find('.index').text(formatNumber(this.visibleIndex()));
@@ -292,7 +292,7 @@ export default class PostScrubber extends Component {
    */
   percentPerPost() {
     var count = this.count() || 1;
-    var visible = this.visible();
+    var visible = this.visible() || 1;
 
     // To stop the slider of the scrollbar from getting too small when there
     // are many posts, we define a minimum percentage height for the slider
