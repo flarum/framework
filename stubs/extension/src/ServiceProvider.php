@@ -1,9 +1,7 @@
 <?php namespace {{namespace}};
 
 use Flarum\Support\ServiceProvider;
-use Flarum\Extend\ForumAssets;
-use Flarum\Extend\Locale;
-use Flarum\Extend\ForumTranslations;
+use Flarum\Extend;
 
 class {{classPrefix}}ServiceProvider extends ServiceProvider
 {
@@ -14,19 +12,19 @@ class {{classPrefix}}ServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend(
-            new ForumAssets([
-                __DIR__.'/../js/dist/extension.js',
-                __DIR__.'/../less/extension.less'
-            ]),
+        $this->extend([
+            (new Extend\Locale('en'))->translations(__DIR__.'/../locale/en.yml'),
 
-            (new Locale('en'))->translations(__DIR__.'/../locale/en.yml'),
-
-            new ForumTranslations([
-                // Add the keys of translations you would like to be available
-                // for use by the JS client application.
-            ]),
-        );
+            (new Extend\ForumClient())
+                ->assets([
+                    __DIR__.'/../js/dist/extension.js',
+                    __DIR__.'/../less/extension.less'
+                ])
+                ->translations([
+                    // Add the keys of translations you would like to be available
+                    // for use by the JS client application.
+                ])
+        ]);
     }
 
     /**
