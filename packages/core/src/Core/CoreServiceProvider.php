@@ -247,5 +247,12 @@ class CoreServiceProvider extends ServiceProvider
                 // @todo add limitations to time etc. according to a config setting
             }
         });
+
+        Discussion::allow('delete', function ($discussion, $user) {
+            if ($discussion->start_user_id == $user->id && $discussion->participants_count == 1) {
+                return true;
+                // @todo add limitations to time etc. according to a config setting
+            }
+        });
     }
 }
