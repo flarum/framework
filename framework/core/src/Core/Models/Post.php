@@ -2,6 +2,7 @@
 
 use Flarum\Core\Events\PostWasDeleted;
 use Flarum\Core\Support\Locked;
+use Flarum\Core\Exceptions\ValidationFailureException;
 
 class Post extends Model
 {
@@ -72,6 +73,12 @@ class Post extends Model
             $post->type = $post::$type;
             $post->number = ++$post->discussion->number_index;
             $post->discussion->save();
+        });
+
+        static::deleting(function ($post) {
+            if ($post->number == 1) {
+                throw new ValidationFailureException;
+            }
         });
 
         static::deleted(function ($post) {

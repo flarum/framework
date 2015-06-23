@@ -28,6 +28,7 @@ class DiscussionMetadataUpdater
 
         $discussion->comments_count++;
         $discussion->setLastPost($event->post);
+        $discussion->refreshParticipantsCount();
         $discussion->save();
     }
 
@@ -46,6 +47,7 @@ class DiscussionMetadataUpdater
         $discussion = $event->post->discussion;
 
         $discussion->refreshCommentsCount();
+        $discussion->refreshParticipantsCount();
         $discussion->refreshLastPost();
         $discussion->save();
     }
@@ -56,6 +58,7 @@ class DiscussionMetadataUpdater
 
         if ($discussion->exists) {
             $discussion->refreshCommentsCount();
+            $discussion->refreshParticipantsCount();
 
             if ($discussion->last_post_id == $post->id) {
                 $discussion->refreshLastPost();

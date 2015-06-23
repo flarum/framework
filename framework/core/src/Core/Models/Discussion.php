@@ -20,15 +20,16 @@ class Discussion extends Model
      * @var array
      */
     public static $rules = [
-        'title'            => 'required',
-        'start_time'       => 'required|date',
-        'comments_count'   => 'integer',
-        'start_user_id'    => 'integer',
-        'start_post_id'    => 'integer',
-        'last_time'        => 'date',
-        'last_user_id'     => 'integer',
-        'last_post_id'     => 'integer',
-        'last_post_number' => 'integer'
+        'title'              => 'required',
+        'start_time'         => 'required|date',
+        'comments_count'     => 'integer',
+        'participants_count' => 'integer',
+        'start_user_id'      => 'integer',
+        'start_post_id'      => 'integer',
+        'last_time'          => 'date',
+        'last_user_id'       => 'integer',
+        'last_post_id'       => 'integer',
+        'last_post_number'   => 'integer'
     ];
 
     protected static $relationships = [];
@@ -176,6 +177,18 @@ class Discussion extends Model
     }
 
     /**
+     * Refresh the discussion's participants count.
+     *
+     * @return $this
+     */
+    public function refreshParticipantsCount()
+    {
+        $this->participants_count = $this->participants()->count('users.id');
+
+        return $this;
+    }
+
+    /**
      * Specify that a post was added to this discussion during this request
      * for later retrieval.
      *
@@ -253,6 +266,16 @@ class Discussion extends Model
     public function comments()
     {
         return $this->posts()->where('type', 'comment')->whereNull('hide_time');
+    }
+
+    /**
+     * Define the relationship with the discussion's participants.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function participants()
+    {
+        return User::join('posts', 'posts.user_id', '=', 'users.id')->where('posts.discussion_id', $this->id)->select('users.*')->distinct();
     }
 
     /**

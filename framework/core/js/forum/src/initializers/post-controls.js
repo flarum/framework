@@ -37,11 +37,14 @@ export default function(app) {
         items.add('restore', ActionButton.component({ icon: 'reply', label: 'Restore', onclick: restoreAction.bind(this) }));
       } else {
         items.add('edit', ActionButton.component({ icon: 'pencil', label: 'Edit', onclick: editAction.bind(this) }));
-        items.add('hide', ActionButton.component({ icon: 'times', label: 'Delete', onclick: hideAction.bind(this) }));
+
+        if (this.number() != 1) {
+          items.add('hide', ActionButton.component({ icon: 'times', label: 'Delete', onclick: hideAction.bind(this) }));
+        }
       }
     }
 
-    if ((this.contentType() !== 'comment' || this.isHidden()) && this.canDelete()) {
+    if ((this.contentType() !== 'comment' || this.isHidden()) && this.canDelete() && this.number() != 1) {
       items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: deleteAction.bind(this) }));
     }
 
