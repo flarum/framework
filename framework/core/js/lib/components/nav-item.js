@@ -4,7 +4,7 @@ import icon from 'flarum/helpers/icon'
 export default class NavItem extends Component {
   view() {
     var active = this.constructor.active(this.props);
-    return m('li'+(active ? '.active' : ''), m('a', {
+    return m('li'+(active ? '.active' : ''), m('a.has-icon', {
       href: this.props.href,
       onclick: this.props.onclick,
       config: m.route

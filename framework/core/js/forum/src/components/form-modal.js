@@ -19,7 +19,7 @@ export default class FormModal extends Component {
 
     return m('div.modal-dialog', {className: options.className, config: this.element}, [
       m('div.modal-content', [
-        m('a[href=javascript:;].btn.btn-icon.btn-link.close.back-control', {onclick: this.hide.bind(this)}, icon('times')),
+        m('div.back-control.close', m('a[href=javascript:;].btn.btn-icon.btn-link', {onclick: this.hide.bind(this)}, icon('times icon'))),
         m('form', {onsubmit: this.onsubmit.bind(this)}, [
           m('div.modal-header', m('h3.title-control', options.title)),
           alert ? m('div.modal-alert', alert) : '',

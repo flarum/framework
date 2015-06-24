@@ -146,11 +146,13 @@
 }
 
 @media @phone {
-  .discussion-list > ul > li {
-    padding-right: 45px;
+  .discussion-list {
+    margin: 0 -15px;
 
-    & .contextual-controls {
-      display: none;
+    & > ul > li {
+      & .contextual-controls {
+        display: none;
+      }
     }
   }
 }
@@ -271,8 +273,12 @@
 
 @media @phone {
   .discussion-summary {
-    padding-left: 45px;
-    padding-right: 45px;
+    padding-left: 15px + 45px;
+    padding-right: 15px + 35px;
+
+    &:active {
+      background: @fl-body-secondary-color;
+    }
 
     & .author {
       margin-left: -45px;
@@ -294,9 +300,10 @@
     }
     & .title {
       font-size: 14px;
+      text-decoration: none !important;
     }
     & .count {
-      margin-right: -45px;
+      margin-right: -35px;
       background: @fl-body-control-bg;
       color: @fl-body-control-color;
       border-radius: @border-radius-base;

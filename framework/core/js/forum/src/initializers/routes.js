@@ -2,6 +2,7 @@ import IndexPage from 'flarum/components/index-page';
 import DiscussionPage from 'flarum/components/discussion-page';
 import ActivityPage from 'flarum/components/activity-page';
 import SettingsPage from 'flarum/components/settings-page';
+import NotificationsPage from 'flarum/components/notifications-page';
 
 export default function(app) {
   app.routes = {
@@ -16,7 +17,8 @@ export default function(app) {
     'user.discussions': ['/u/:username/discussions', ActivityPage.component({filter: 'startedDiscussion'})],
     'user.posts':       ['/u/:username/posts', ActivityPage.component({filter: 'posted'})],
 
-    'settings':         ['/settings', SettingsPage.component()]
+    'settings':         ['/settings', SettingsPage.component()],
+    'notifications':    ['/notifications', NotificationsPage.component()]
   };
 
   app.route.discussion = function(discussion, near) {

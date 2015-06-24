@@ -19,6 +19,7 @@ export default class SettingsPage extends UserPage {
 
     this.setupUser(app.session.user());
     app.setTitle('Settings');
+    app.drawer.hide();
   }
 
   content() {

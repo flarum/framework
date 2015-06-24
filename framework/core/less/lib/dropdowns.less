@@ -81,59 +81,73 @@
   }
 }
 
-// PHONES
 @media @phone {
-  .dropdown-open {
-    overflow: hidden;
-  }
-  .dropdown-menu {
-    margin: 0;
-    position: fixed;
-    left: 0 !important;
-    right: 0 !important;
-    width: auto !important;
-    bottom: -100vh;
-    top: auto;
-    padding: 0;
+  .dropdown.open {
     z-index: @zindex-modal;
-    display: block;
-    max-height: 100vh;
-    border-radius: 0;
-    .box-shadow(0 2px 6px @fl-shadow-color);
-    .translate3d(0, 0, 0);
-    visibility: hidden;
-    .transition(~"bottom 0.3s, visibility 0s 0.3s");
+  }
+  .dropdown {
+    & .dropdown-menu {
+      margin: 0;
+      position: fixed;
+      left: 0 !important;
+      right: 0 !important;
+      width: auto !important;
+      bottom: 0;
+      top: auto;
+      padding: 0;
+      padding-bottom: 40px !important;
+      display: block;
+      max-height: 70vh;
+      border-radius: 0;
+      .box-shadow(0 2px 6px @fl-shadow-color);
+      visibility: hidden;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      .translate3d(0, 70vh, 0);
+      .transition-transform(~" 0.3s, visibility 0s 0.3s");
 
-    & > li > a {
-      background: #fff;
-      font-size: 16px;
-      padding: 15px 20px 15px 50px;
-
-      & .icon {
+      & > li > a {
+        background: #fff;
         font-size: 16px;
-        margin-left: -30px;
+        padding: 15px 20px;
+
+        &.has-icon {
+          padding-left: 50px;
+        }
+        & .icon {
+          font-size: 16px;
+          margin-left: -30px;
+        }
+        &:hover {
+          background: @fl-body-secondary-color;
+        }
+      }
+      & .divider {
+        margin: 0;
+      }
+      & > .active > a {
+        &, &:hover {
+          background: @fl-body-primary-color !important;
+          color: #fff !important;
+        }
+      }
+
+      .open& {
+        -webkit-transform: none;
+                transform: none;
+        visibility: visible;
+        transition-delay: 0s;
       }
     }
-    & .divider {
-      margin: 0;
-    }
-    & > .active > a {
-      color: #fff !important;
-    }
+    & .dropdown-backdrop {
+      background: fade(@fl-secondary-color, 90%);
+      opacity: 0;
+      .transition(~"opacity 0.3s");
+      .translate3d(0, 0, 0);
 
-    .open & {
-      bottom: 0;
-      visibility: visible;
-      transition-delay: 0s;
-    }
-  }
-  .dropdown-backdrop {
-    background: fade(@fl-body-primary-color, 90%);
-    opacity: 0;
-    .transition(~"opacity 0.3s");
-
-    .open & {
-      opacity: 1;
+      .open& {
+        opacity: 1;
+      }
     }
   }
 }

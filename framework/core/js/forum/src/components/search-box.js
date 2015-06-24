@@ -111,6 +111,7 @@ export default class SearchBox extends Component {
           case 13: // Return
             this.$('input').blur();
             m.route(this.getItem(this.index()).find('a').attr('href'));
+            app.drawer.hide();
             break;
 
           case 27: // Escape

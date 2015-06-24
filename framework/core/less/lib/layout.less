@@ -22,14 +22,14 @@ body {
 
 .toolbar() {
   background: fade(@fl-hdr-bg, 98%);
-  transform: translateZ(0); // Fix for Chrome bug where a transparent white background is actually gray
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: @zindex-navbar-fixed;
   border-bottom: 1px solid @fl-body-control-bg;
-  .transition(~"box-shadow 0.2s, left 0.2s");
+  .translate3d(0, 0, 0);
+  .transition(~"box-shadow 0.2s, -webkit-transform 0.2s");
 
   @media @phone {
     height: @mobile-header-height;
@@ -55,7 +55,7 @@ body {
   // PHONES: Push the toolbar to the right when the drawer is open.
   @media @phone {
     .drawer-open & {
-      left: @drawer-width;
+      .translate3d(@drawer-width, 0, 0);
     }
   }
 }
@@ -67,29 +67,35 @@ body {
   .primary-control, .title-control, .back-control {
     position: fixed;
     z-index: @zindex-navbar-fixed + 1;
-    top: 5px;
+    top: 0;
     margin: 0;
+    visibility: visible;
+    .transition(visibility 0s 0.4s);
 
     & .btn {
       float: none;
       background: transparent !important;
       .box-shadow(~"none !important");
+      height: @mobile-header-height;
+      width: auto;
+      padding: 13px !important;
 
       &:active {
         opacity: 0.5;
       }
     }
   }
+  .primary-control, .title-control {
+    .drawer-open .global-page & {
+      visibility: hidden;
+      transition-delay: 0s;
+    }
+  }
   .primary-control {
     width: auto;
-    right: 5px;
-    .transition(right 0.2s);
+    right: 0;
 
-    .drawer-open .global-page & {
-      right: -@drawer-width;
-    }
-
-    & .dropdown-split {
+    &.dropdown-split {
       & .btn, & .icon-caret {
         display: none;
       }
@@ -101,12 +107,10 @@ body {
   .primary-control, .back-control {
     & .btn {
       color: @fl-hdr-control-color !important;
-      padding-left: 5px;
-      padding-right: 5px;
 
       & .icon {
         display: block;
-        font-size: 18px;
+        font-size: 20px;
       }
       & .label {
         display: none;
@@ -118,24 +122,27 @@ body {
     left: 50%;
     margin-left: -100px;
     text-align: center;
-    line-height: 33px;
-    .transition(margin-left 0.2s);
-
-    .drawer-open .global-page & {
-      margin-left: -100px + @drawer-width;
-    }
+    color: @fl-body-muted-color;
 
     &, & .btn {
-      color: @fl-hdr-color;
       font-size: 16px;
     }
+    & .btn {
+      color: @fl-hdr-color;
+    }
+  }
+  h3.title-control, h4.title-control {
+    line-height: 46px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .back-control {
-    left: 5px;
-    .transition(left 0.2s);
+    left: 0;
+    .transition-transform(0.2s);
 
     .drawer-open .global-page & {
-      left: @drawer-width + 10px;
+      .translate3d(@drawer-width, 0, 0);
     }
 
     & .pin {
@@ -147,41 +154,34 @@ body {
 // ------------------------------------
 // Drawer
 
-// This is a mixin which styles components (buttons, inputs, etc.) for use in
-// the drawer. We define it as a mixin because it is also pulled in when
-// styling a "colored header".
-.drawer-components() {
+// This is a mixin which styles components (buttons, inputs, etc.) for use on
+// dark backgrounds.
+.inverted-components() {
   .header-title {
     &, & a {
-      color: @fl-drawer-color;
+      color: #fff;
     }
   }
   &, & a, & .btn-link {
-    color: @fl-drawer-control-color;
+    color: #fff;
   }
   & .form-control {
-    background: @fl-drawer-control-bg;
+    background: fade(#000, 10%);
     border: 0;
-    color: @fl-drawer-control-color;
-    .placeholder(@fl-drawer-control-color);
+    color: #fff;
+    .placeholder(fade(#fff, 50%));
 
     &:focus {
-      background: fadein(@fl-drawer-control-bg, 5%);
+      background: fade(#000, 15%);
     }
   }
-  & .search-input {
-    color: @fl-drawer-control-color;
-  }
-  & .btn-default, & .btn-default:hover {
-    background: @fl-drawer-control-bg;
-    color: @fl-drawer-control-color;
+  & .btn-default:not(.btn-naked), & .btn-default:hover {
+    background: fade(#000, 10%);
+    color: #fff;
   }
   & .btn-default.active, .open > .dropdown-toggle.btn-default {
-    background: fadein(@fl-drawer-control-bg, 5%);
-    color: @fl-drawer-control-color;
-  }
-  & .btn-naked {
-    background: transparent;
+    background: fade(#000, 15%);
+    color: #fff;
   }
 }
 
@@ -193,8 +193,7 @@ body {
     overflow: hidden;
   }
   .global-drawer {
-    background: @fl-drawer-bg;
-    color: @fl-drawer-color;
+    background: @fl-hdr-bg;
     width: @drawer-width;
     position: fixed;
     left: 0;
@@ -202,8 +201,11 @@ body {
     bottom: 0;
     visibility: hidden;
     .transition(visibility 0s 0.2s);
+    .box-shadow(inset -6px 0 6px -6px @fl-shadow-color);
 
-    .drawer-components();
+    & when (@fl-colored-hdr = true) {
+      .inverted-components();
+    }
 
     .drawer-open & {
       visibility: visible;
@@ -279,7 +281,7 @@ body {
     .clearfix();
 
     & when (@fl-colored-hdr = true) {
-      .drawer-components();
+      .inverted-components();
     }
 
     & .back-button {
@@ -333,13 +335,12 @@ body {
     position: relative;
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 15px;
+    padding-bottom: 50px;
     margin-top: @mobile-header-height;
-    .box-shadow(0 0 6px @fl-shadow-color);
-    .transition(margin-left 0.2s);
+    .transition-transform(0.2s);
 
     .drawer-open & {
-      margin-left: @drawer-width;
+      .translate3d(@drawer-width, 0, 0);
 
       // Disable all interaction with the content when the drawer is open. When
       // .global-content is touched, the drawer will be closed.
