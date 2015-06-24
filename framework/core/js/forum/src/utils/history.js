@@ -37,7 +37,6 @@ export default class History {
 
   home() {
     this.stack.splice(1);
-    var top = this.top();
-    m.route(top.url);
+    m.route('/');
   }
 }
