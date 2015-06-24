@@ -1,6 +1,7 @@
 import FormModal from 'flarum/components/form-modal';
 import DiscussionPage from 'flarum/components/discussion-page';
 import highlight from 'flarum/helpers/highlight';
+import icon from 'flarum/helpers/icon';
 import classList from 'flarum/utils/class-list';
 
 import tagLabel from 'flarum-tags/helpers/tag-label';
@@ -89,7 +90,9 @@ export default class TagDiscussionModal extends FormModal {
               onblur: () => this.focused(false)
             })
           ]),
-          m('button[type=submit].btn.btn-primary', {disabled: !selected.length}, 'Confirm')
+          m('span.primary-control',
+            m('button[type=submit].btn.btn-primary', {disabled: !selected.length}, icon('check icon'), m('span.label', 'Confirm'))
+          )
         ])
       ],
       footer: [

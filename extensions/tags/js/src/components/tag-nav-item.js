@@ -16,7 +16,7 @@ export default class TagNavItem extends NavItem {
     }
 
     return m('li'+(active ? '.active' : ''),
-      m('a', {
+      m('a.has-icon', {
         href: this.props.href,
         config: m.route,
         onclick: () => {
