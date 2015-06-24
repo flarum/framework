@@ -1,5 +1,5 @@
 import { extend } from 'flarum/extension-utils';
-import DiscussionList from 'flarum/components/discussion-list';
+import DiscussionListItem from 'flarum/components/discussion-list-item';
 import DiscussionPage from 'flarum/components/discussion-page';
 import DiscussionHero from 'flarum/components/discussion-hero';
 
@@ -8,13 +8,10 @@ import sortTags from 'flarum-tags/utils/sort-tags';
 
 export default function() {
   // Add tag labels to each discussion in the discussion list.
-  extend(DiscussionList.prototype, 'infoItems', function(items, discussion) {
-    var tags = discussion.tags();
-    if (tags) {
-      tags = tags.filter(tag => tag.slug() !== this.props.params.tags);
-      if (tags.length) {
-        items.add('tags', tagsLabel(tags), {first: true});
-      }
+  extend(DiscussionListItem.prototype, 'infoItems', function(items) {
+    var tags = this.props.discussion.tags();
+    if (tags && tags.length) {
+      items.add('tags', tagsLabel(tags), {first: true});
     }
   });
 
