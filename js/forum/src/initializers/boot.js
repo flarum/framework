@@ -1,6 +1,7 @@
 import ScrollListener from 'flarum/utils/scroll-listener';
 import History from 'flarum/utils/history';
 import Pane from 'flarum/utils/pane';
+import Drawer from 'flarum/utils/drawer';
 import mapRoutes from 'flarum/utils/map-routes';
 
 import BackButton from 'flarum/components/back-button';
@@ -19,6 +20,7 @@ export default function(app) {
   app.history = new History();
   app.pane = new Pane(id('page'));
   app.search = new SearchBox();
+  app.drawer = new Drawer();
   app.cache = {};
 
   m.startComputation();
@@ -48,6 +50,10 @@ export default function(app) {
   m.endComputation();
 
   new ScrollListener(top => $('body').toggleClass('scrolled', top > 0)).start();
+
+  $(function() {
+    FastClick.attach(document.body);
+  });
 
   app.booted = true;
 }

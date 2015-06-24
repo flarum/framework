@@ -83,32 +83,31 @@
   .modal.fade {
     opacity: 1;
   }
-  .modal-backdrop.in {
-    opacity: 0;
-  }
-  .modal-dialog {
+  .modal {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     top: 0;
-  }
-  .modal-dialog {
-    margin: 0;
+    overflow: auto;
 
-    .modal.fade & {
-      .transition(top 0.3s);
-      top: 100%;
-      .translate(0, 0);
+    &.fade {
+      .transition-transform(0.3s);
+      .translate3d(0, 100vh, 0);
     }
-    .modal.in & {
-      top: 0;
+    &.in {
+      -webkit-transform: none !important;
+              transform: none !important;
     }
-
     &:before {
       content: " ";
       .toolbar();
     }
+  }
+  .modal-dialog {
+    margin: 0;
+    -webkit-transform: none !important;
+            transform: none !important;
   }
   .modal-content {
     border-radius: 0;
@@ -121,10 +120,6 @@
     padding: 0;
     border: 0;
     min-height: 0;
-
-    & h3 {
-      line-height: 36px;
-    }
   }
 }
 

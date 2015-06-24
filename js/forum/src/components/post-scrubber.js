@@ -65,7 +65,7 @@ export default class PostScrubber extends Component {
     var unreadPercent = unreadCount / this.count();
 
     // @todo clean up duplication
-    return m('div.stream-scrubber.dropdown'+(this.disabled() ? '.disabled' : ''), {config: this.onload.bind(this)}, [
+    return m('div.stream-scrubber.dropdown'+(this.disabled() ? '.disabled' : ''), {config: this.onload.bind(this), className: this.props.className}, [
       m('a.btn.btn-default.dropdown-toggle[href=javascript:;][data-toggle=dropdown]', [
         m('span.index', retain || formatNumber(this.visibleIndex())), ' of ', m('span.count', formatNumber(this.count())), ' posts ',
         icon('sort icon-glyph')

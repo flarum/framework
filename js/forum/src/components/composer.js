@@ -273,7 +273,7 @@ class Composer extends Component {
       items.add('exitFullScreen', this.control({ icon: 'compress', title: 'Exit Full Screen', onclick: this.exitFullScreen.bind(this) }));
     } else {
       if (this.position() !== Composer.PositionEnum.MINIMIZED) {
-        items.add('minimize', this.control({ icon: 'minus minimize', title: 'Minimize', onclick: this.minimize.bind(this) }));
+        items.add('minimize', this.control({ icon: 'minus minimize', title: 'Minimize', onclick: this.minimize.bind(this), wrapperClass: 'back-control' }));
         items.add('fullScreen', this.control({ icon: 'expand', title: 'Full Screen', onclick: this.fullScreen.bind(this) }));
       }
       items.add('close', this.control({ icon: 'times', title: 'Close', onclick: this.close.bind(this) }));

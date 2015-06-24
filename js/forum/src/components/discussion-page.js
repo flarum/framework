@@ -208,16 +208,16 @@ export default class DiscussionPage extends mixin(Component, evented) {
     items.add('controls',
       DropdownSplit.component({
         items: this.discussion().controls(this).toArray(),
-        icon: 'reply',
-        buttonClass: 'btn btn-primary',
-        wrapperClass: 'primary-control'
+        icon: 'ellipsis-v',
+        className: 'primary-control',
+        buttonClass: 'btn btn-primary'
       })
     );
 
     items.add('scrubber',
       PostScrubber.component({
         stream: this.stream,
-        wrapperClass: 'title-control'
+        className: 'title-control'
       })
     );
 
