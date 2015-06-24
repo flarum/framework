@@ -1,0 +1,128 @@
+import Component from 'flarum/component';
+import avatar from 'flarum/helpers/avatar';
+import listItems from 'flarum/helpers/list-items';
+import highlight from 'flarum/helpers/highlight';
+import icon from 'flarum/helpers/icon';
+import humanTime from 'flarum/utils/human-time';
+import classList from 'flarum/utils/class-list';
+import ItemList from 'flarum/utils/item-list';
+import abbreviateNumber from 'flarum/utils/abbreviate-number';
+import DropdownButton from 'flarum/components/dropdown-button';
+import TerminalPost from 'flarum/components/terminal-post';
+import PostPreview from 'flarum/components/post-preview';
+import SubtreeRetainer from 'flarum/utils/subtree-retainer';
+import slidable from 'flarum/utils/slidable';
+
+export default class DiscussionListItem extends Component {
+  constructor(props) {
+    super(props);
+
+    this.subtree = new SubtreeRetainer(
+      () => this.props.discussion.freshness,
+      () => app.session.user() && app.session.user().readTime()
+    );
+  }
+
+  view() {
+    var discussion = this.props.discussion;
+
+    var startUser = discussion.startUser();
+    var isUnread = discussion.isUnread();
+    var displayUnread = this.props.countType !== 'replies' && isUnread;
+    var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
+    var relevantPosts = this.props.q ? discussion.relevantPosts() : '';
+    var controls = discussion.controls(this).toArray();
+    var isActive = m.route.param('id') === discussion.id();
+
+    return this.subtree.retain() || m('div.discussion-list-item', {config: this.onload.bind(this)}, [
+      controls.length ? DropdownButton.component({
+        items: controls,
+        className: 'contextual-controls',
+        buttonClass: 'btn btn-default btn-icon btn-sm btn-naked slidable-underneath slidable-underneath-right',
+        menuClass: 'pull-right'
+      }) : '',
+
+      m('a.slidable-underneath.slidable-underneath-left.elastic', {
+        className: discussion.isUnread() ? '' : 'disabled',
+        onclick: this.markAsRead.bind(this)
+      }, icon('check icon')),
+
+      m('div.slidable-slider.discussion-summary', {
+        className: classList({
+          unread: isUnread,
+          active: isActive
+        })
+      }, [
+
+        m((startUser ? 'a' : 'span')+'.author', {
+          href: startUser ? app.route.user(startUser) : undefined,
+          config: function(element, isInitialized, context) {
+            $(element).tooltip({ placement: 'right' });
+            m.route.apply(this, arguments);
+          },
+          title: 'Started by '+(startUser ? startUser.username() : '[deleted]')+' '+humanTime(discussion.startTime())
+        }, [
+          avatar(startUser, {title: ''})
+        ]),
+
+        m('ul.badges', listItems(discussion.badges().toArray())),
+
+        m('a.main', {href: app.route.discussion(discussion, jumpTo), config: m.route}, [
+          m('h3.title', highlight(discussion.title(), this.props.q)),
+          m('ul.info', listItems(this.infoItems().toArray()))
+        ]),
+
+        m('span.count', {onclick: this.markAsRead.bind(this)}, [
+          abbreviateNumber(discussion[displayUnread ? 'unreadCount' : 'repliesCount']()),
+          m('span.label', displayUnread ? 'unread' : 'replies')
+        ]),
+
+        (relevantPosts && relevantPosts.length)
+          ? m('div.relevant-posts', relevantPosts.map(post => PostPreview.component({post, highlight: this.props.q})))
+          : ''
+      ])
+    ]);
+  }
+
+  markAsRead() {
+    var discussion = this.props.discussion;
+
+    if (discussion.isUnread()) {
+      discussion.save({ readNumber: discussion.lastPostNumber() });
+      m.redraw();
+    }
+  }
+
+  /**
+    Build an item list of info for a discussion listing. By default this is
+    just the first/last post indicator.
+
+    @return {ItemList}
+   */
+  infoItems() {
+    var items = new ItemList();
+
+    items.add('terminalPost',
+      TerminalPost.component({
+        discussion: this.props.discussion,
+        lastPost: this.props.terminalPostType !== 'start'
+      })
+    );
+
+    return items;
+  }
+
+  onload(element, isInitialized, context) {
+    if (isInitialized) return;
+
+    if (window.ontouchstart !== 'undefined') {
+      this.$().addClass('slidable');
+
+      var slidableInstance = slidable(element);
+
+      this.$('.contextual-controls').on('hidden.bs.dropdown', function() {
+        slidableInstance.reset();
+      });
+    }
+  }
+};
