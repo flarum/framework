@@ -97,7 +97,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
           includedPosts.push(app.store.getById('posts', record.id));
         }
       });
-      includedPosts.sort((a, b) => a.id() - b.id());
+      includedPosts.sort((a, b) => a.id() - b.id()).splice(20);
     }
 
     this.stream = new PostStream({ discussion, includedPosts });
