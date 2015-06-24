@@ -7,6 +7,7 @@ import ActionButton from 'flarum/components/action-button';
 import CommentPost from 'flarum/components/comment-post';
 import punctuate from 'flarum/helpers/punctuate';
 import username from 'flarum/helpers/username';
+import icon from 'flarum/helpers/icon';
 
 import PostLikedNotification from 'flarum-likes/components/post-liked-notification';
 import PostLikesModal from 'flarum-likes/components/post-likes-modal';
@@ -53,9 +54,11 @@ app.initializers.add('flarum-likes', function() {
 
       items.add('liked',
         m('div.liked-by', [
+          icon('thumbs-o-up icon'),
           punctuate(names),
-          ' like this.'
-        ])
+          names.length === 1 && (!app.session.user() || likes[0] !== app.session.user()) ? ' likes this.' : ' like this.'
+        ]),
+        {before: 'replies'}
       );
     }
   });
@@ -89,7 +92,8 @@ app.initializers.add('flarum-likes', function() {
 
           m.redraw();
         }
-      })
+      }),
+      {before: 'reply'}
     );
   });
 
