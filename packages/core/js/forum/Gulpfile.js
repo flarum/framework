@@ -11,7 +11,8 @@ gulp({
     '../bower_components/moment/moment.js',
     '../bower_components/bootstrap/dist/js/bootstrap.js',
     '../bower_components/spin.js/spin.js',
-    '../bower_components/spin.js/jquery.spin.js'
+    '../bower_components/spin.js/jquery.spin.js',
+    '../bower_components/fastclick/lib/fastclick.js'
   ],
   moduleFiles: [
     'src/**/*.js',

@@ -75,6 +75,12 @@ class ForumServiceProvider extends ServiceProvider
         );
 
         $routes->get(
+            '/notifications',
+            'flarum.forum.notifications',
+            $this->action('Flarum\Forum\Actions\IndexAction')
+        );
+
+        $routes->get(
             '/logout',
             'flarum.forum.logout',
             $this->action('Flarum\Forum\Actions\LogoutAction')

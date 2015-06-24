@@ -72,6 +72,11 @@
   & .item {
     &:not(:last-child) {
       border-bottom: 1px solid @fl-body-secondary-color;
+
+      @media @phone {
+        margin: 0 -15px;
+        padding: 0 15px;
+      }
     }
   }
 }
@@ -85,6 +90,8 @@
   animation-iteration-count: infinite;
 }
 .fake-text {
+  display: inline-block;
+  vertical-align: middle;
   background: @fl-body-secondary-color;
   height: 12px;
   width: 100%;
@@ -94,6 +101,10 @@
   .post-header & {
     height: 16px;
     width: 150px;
+
+    @media @phone {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -135,6 +146,11 @@
     background: @fl-primary-color;
   }
 }
+@-webkit-keyframes pulsate {
+  0% {-webkit-transform: scale(1)}
+  50% {-webkit-transform: scale(1.02)}
+  100% {-webkit-transform: scale(1)}
+}
 @keyframes pulsate {
   0% {transform: scale(1)}
   50% {transform: scale(1.02)}
@@ -143,10 +159,14 @@
 .item.pulsate {
   animation: pulsate 1s ease-in-out;
   animation-iteration-count: infinite;
+  -webkit-animation: pulsate 1s ease-in-out;
+  -webkit-animation-iteration-count: infinite;
 }
 .item.flash {
   animation: pulsate 0.2s ease-in-out;
   animation-iteration-count: 1;
+  -webkit-animation: pulsate 0.2s ease-in-out;
+  -webkit-animation-iteration-count: 1;
 }
 .post-header {
   margin-bottom: 10px;
@@ -356,9 +376,12 @@
 }
 .post-actions {
   margin-top: 10px;
-  margin-bottom: -10px;
-  opacity: 0;
   .transition(opacity 0.2s);
+
+  @media @tablet, @desktop, @desktop-hd {
+    margin-bottom: -10px;
+    opacity: 0;
+  }
 
   & > ul {
     & > li {
@@ -377,6 +400,11 @@
   padding: 20px 20px 20px 90px;
   background: @fl-body-secondary-color;
   font-size: 12px;
+
+  @media @phone {
+    margin: 0 -15px;
+    padding: 20px 15px;
+  }
 }
 
 .post-preview {
@@ -415,8 +443,8 @@
 
     & h3 .badges {
       position: absolute;
-      top: -7px;
-      left: 5px;
+      top: -12px;
+      left: 6px;
       width: 32px;
 
       & .badge {
@@ -469,26 +497,39 @@
     font-size: 22px;
   }
 }
+
 .reply-post {
   font-size: 15px;
   cursor: text;
   overflow: hidden;
-  margin: 50px -20px 0;
-  border: 2px dashed transparent;
+  margin-top: 50px;
+  border: 2px dashed @fl-body-secondary-color;
   color: @fl-body-muted-color;
   border-radius: 10px;
-  padding: 20px 20px 20px 110px;
-  transition: border-color 0.2s;
+  padding: 20px;
 
   & .post-header {
-    padding-top: 18px;
+    margin: 0;
     color: inherit;
   }
-  & .avatar {
-    margin-top: -18px;
-  }
-  &:hover {
-    border-color: @fl-body-secondary-color;
+}
+@media @tablet, @desktop, @desktop-hd {
+  .reply-post {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 110px;
+    border-color: transparent;
+    transition: border-color 0.2s;
+
+    & .post-header {
+      padding-top: 18px;
+    }
+    & .avatar {
+      margin-top: -18px;
+    }
+    &:hover {
+      border-color: @fl-body-secondary-color;
+    }
   }
 }
 

@@ -4,23 +4,39 @@
 .composer {
   pointer-events: auto;
   .box-shadow(0 2px 6px @fl-shadow-color);
+
+  &.minimized {
+    height: 50px;
+    cursor: pointer;
+  }
 }
 .composer-controls {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+.composer-content {
+  .minimized & {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 .composer-header {
   list-style: none;
   padding: 1px 0;
-  margin: 0;
+  margin: 0 0 10px;
+
+  .minimized & {
+    pointer-events: none;
+  }
 
   & > li {
     display: inline-block;
     margin-right: -4px;
   }
   & h3 {
-    margin: 0 0 10px;
+    margin: 0;
     line-height: 1.5em;
 
     &, & input, & a {
@@ -40,6 +56,9 @@
       font-size: 14px;
     }
   }
+}
+.fa-minus.minimize {
+  vertical-align: -5px;
 }
 .composer-controls {
   position: absolute;
@@ -71,26 +90,84 @@
     pointer-events: auto;
   }
 }
+.composer-editor {
+  .minimized & {
+    visibility: hidden;
+  }
+}
 
 // On phones, show the composer as a fixed overlay that covers the whole
 // screen. The controls are hidden (except for the 'x', which is the back-
 // control), and the avatar hidden.
 @media @phone {
   .composer {
-    position: absolute;
+    position: fixed;
+    bottom: 0;
     left: 0;
     right: 0;
+    z-index: @zindex-composer;
+    background: @fl-body-bg;
+
+    &:not(.minimized) {
+      top: 0;
+      height: 100vh !important;
+      padding-top: @mobile-header-height;
+
+      &:before {
+        content: " ";
+        .toolbar();
+        opacity: 0;
+
+        .visible& {
+          opacity: 1;
+        }
+      }
+
+      & .composer-controls {
+        z-index: @zindex-navbar-fixed + 1;
+
+        & li:not(.back-control) {
+          display: none;
+        }
+      }
+    }
   }
   .composer-content {
-    padding: 15px 15px 0;
-  }
-  .composer-controls {
-    & li:not(:last-child) {
-      display: none;
+    .minimized & {
+      margin-right: 50px;
     }
   }
   .composer-avatar {
     display: none;
+  }
+  .composer-header {
+    margin-bottom: 0;
+
+    & > li {
+      display: block;
+      border-bottom: 1px solid @fl-body-secondary-color;
+      padding: 10px 15px;
+
+      .minimized & {
+        border-bottom: 0;
+        padding: 15px;
+      }
+    }
+    & h3 {
+      &, & a, & input {
+        font-size: 14px;
+      }
+      & input {
+        width: 100% !important;
+      }
+    }
+  }
+  .composer-editor {
+    padding: 15px;
+
+    & textarea {
+      height: 50vh !important;
+    }
   }
 }
 
@@ -120,10 +197,6 @@
     &.active:not(.full-screen) {
       box-shadow: 0 0 0 2px @fl-body-primary-color, 0 2px 6px @fl-shadow-color;
     }
-    &.minimized {
-      height: 50px;
-      cursor: pointer;
-    }
     &.full-screen {
       position: fixed;
       left: 0;
@@ -144,9 +217,6 @@
     }
   }
   .composer-header {
-    .minimized & {
-      pointer-events: none;
-    }
     .full-screen & {
       margin-bottom: 20px;
     }
@@ -172,9 +242,6 @@
       display: none;
     }
   }
-  .fa-minus.minimize {
-    vertical-align: -5px;
-  }
   .composer-avatar {
     float: left;
     .avatar-size(64px);
@@ -191,10 +258,6 @@
     }
   }
   .composer-editor {
-    .minimized & {
-      visibility: hidden;
-    }
-
     .full-screen & textarea {
       font-size: 16px;
     }

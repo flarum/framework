@@ -21,7 +21,7 @@ export default class DropdownSplit extends Component {
 
     return m('div', {className: 'dropdown dropdown-split btn-group item-count-'+(items.length)+' '+this.props.className}, [
       ActionButton.component(buttonProps),
-      m('a[href=javascript:;]', {className: 'dropdown-toggle '+this.props.buttonClass, 'data-toggle': 'dropdown'}, [
+      m('a[href=javascript:;]', {className: 'dropdown-toggle btn-icon '+this.props.buttonClass, 'data-toggle': 'dropdown'}, [
         icon('caret-down icon-caret'),
         icon((this.props.icon || 'ellipsis-v')+' icon'),
       ]),
