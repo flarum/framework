@@ -35,6 +35,12 @@ export default function(app) {
     }
   });
 
+  $('#home-link').click(e => {
+    if (e.ctrlKey || e.metaKey || e.which === 2) return;
+    e.preventDefault();
+    app.history.home();
+  });
+
   m.mount(id('header-primary'), HeaderPrimary.component());
   m.mount(id('header-secondary'), HeaderSecondary.component());
   m.mount(id('footer-primary'), FooterPrimary.component());
