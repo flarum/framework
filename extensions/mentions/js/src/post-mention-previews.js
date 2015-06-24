@@ -26,61 +26,71 @@ export default function postMentionPreviews() {
         return $('.discussion-posts .item[data-number='+number+']');
       };
 
+      var showPreview = function() {
+        // When the user hovers their mouse over the mention, look for the
+        // post that it's referring to in the stream, and determine if it's
+        // in the viewport. If it is, we will "pulsate" it.
+        var $post = getPostElement();
+        var visible = false;
+        if ($post.length) {
+          var top = $post.offset().top;
+          var scrollTop = window.pageYOffset;
+          if (top > scrollTop && top + $post.height() < scrollTop + $(window).height()) {
+            $post.addClass('pulsate');
+            visible = true;
+          }
+        }
+
+        // Otherwise, we will show a popup preview of the post. If the post
+        // hasn't yet been loaded, we will need to do that.
+        if (!visible) {
+          var showPost = function(post) {
+            m.render($preview[0], m('li', PostPreview.component({post})));
+            positionPreview();
+          };
+
+          // Position the preview so that it appears above the mention.
+          // (The offsetParent should be .post-body.)
+          var positionPreview = function() {
+            $preview.show().css('top', $this.offset().top - $this.offsetParent().offset().top - $preview.outerHeight(true));
+          };
+
+          var post = discussion.posts().filter(post => post && post.number() == number)[0];
+          if (post) {
+            showPost(post);
+          } else {
+            m.render($preview[0], LoadingIndicator.component());
+            app.store.find('posts', {discussions: discussion.id(), number}).then(posts => showPost(posts[0]));
+            positionPreview();
+          }
+
+          setTimeout(() => $preview.off('transitionend').addClass('in'));
+        }
+      };
+      var hidePreview = () => {
+        getPostElement().removeClass('pulsate');
+        if ($preview.hasClass('in')) {
+          $preview.removeClass('in').one('transitionend', () => $preview.hide());
+        }
+      };
+
       $this.parent().hover(
         function() {
           clearTimeout(timeout);
-          timeout = setTimeout(function() {
-            // When the user hovers their mouse over the mention, look for the
-            // post that it's referring to in the stream, and determine if it's
-            // in the viewport. If it is, we will "pulsate" it.
-            var $post = getPostElement();
-            var visible = false;
-            if ($post.length) {
-              var top = $post.offset().top;
-              var scrollTop = window.pageYOffset;
-              if (top > scrollTop && top + $post.height() < scrollTop + $(window).height()) {
-                $post.addClass('pulsate');
-                visible = true;
-              }
-            }
-
-            // Otherwise, we will show a popup preview of the post. If the post
-            // hasn't yet been loaded, we will need to do that.
-            if (!visible) {
-              var showPost = function(post) {
-                m.render($preview[0], m('li', PostPreview.component({post})));
-                positionPreview();
-              };
-
-              // Position the preview so that it appears above the mention.
-              // (The offsetParent should be .post-body.)
-              var positionPreview = function() {
-                $preview.show().css('top', $this.offset().top - $this.offsetParent().offset().top - $preview.outerHeight(true));
-              };
-
-              var post = discussion.posts().filter(post => post && post.number() == number)[0];
-              if (post) {
-                showPost(post);
-              } else {
-                m.render($preview[0], LoadingIndicator.component());
-                app.store.find('posts', {discussions: discussion.id(), number}).then(posts => showPost(posts[0]));
-                positionPreview();
-              }
-
-              setTimeout(() => $preview.off('transitionend').addClass('in'));
-            }
-          }, 500);
+          timeout = setTimeout(showPreview, 500);
         },
         function() {
           clearTimeout(timeout);
           getPostElement().removeClass('pulsate');
-          timeout = setTimeout(() => {
-            if ($preview.hasClass('in')) {
-              $preview.removeClass('in').one('transitionend', () => $preview.hide());
-            }
-          }, 250);
+          timeout = setTimeout(hidePreview, 250);
         }
-      );
+      )
+        .on('click', e => e.preventDefault())
+        .on('touchend', e => {
+          showPreview();
+          e.stopPropagation();
+        });
+      $(document).on('touchend', hidePreview);
     });
   });
 }
