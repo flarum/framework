@@ -224,6 +224,11 @@
   & .relevant-posts {
     margin-bottom: 20px;
 
+    @media @phone {
+      margin-left: -45px;
+      margin-right: -35px;
+    }
+
     & .post-preview {
       background: @fl-body-secondary-color;
       display: block;
@@ -240,7 +245,7 @@
         border-radius: @border-radius-base @border-radius-base 0 0;
       }
       &:hover {
-        background: darken(@fl-body-secondary-color, 2%);
+        background: darken(@fl-body-secondary-color, 3%);
         text-decoration: none;
       }
     }
