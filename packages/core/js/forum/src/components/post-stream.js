@@ -160,9 +160,11 @@ class PostStream extends mixin(Component, evented) {
       this.posts.map((post, i) => {
         var content;
         var attributes = {};
-        attributes['data-index'] = attributes.key = this.visibleStart + i;
+        attributes['data-index'] = this.visibleStart + i;
 
         if (post) {
+          attributes.key = 'post'+post.id();
+
           var PostComponent = app.postComponentRegistry[post.contentType()];
           content = PostComponent ? PostComponent.component({post}) : '';
           attributes.config = fadeIn;
@@ -178,6 +180,8 @@ class PostStream extends mixin(Component, evented) {
           }
           lastTime = post.time();
         } else {
+          attributes.key = this.visibleStart + i;
+
           content = PostLoading.component();
         }
 
