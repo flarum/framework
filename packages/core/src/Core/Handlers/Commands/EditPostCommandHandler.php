@@ -21,14 +21,16 @@ class EditPostCommandHandler
         $user = $command->user;
         $post = $this->posts->findOrFail($command->postId, $user);
 
-        $post->assertCan($user, 'edit');
-
         if ($post instanceof CommentPost) {
             if (isset($command->data['content'])) {
+                $post->assertCan($user, 'edit');
+
                 $post->revise($command->data['content'], $user);
             }
 
             if (isset($command->data['isHidden'])) {
+                $post->assertCan($user, 'edit');
+
                 if ($command->data['isHidden']) {
                     $post->hide($user);
                 } else {
