@@ -100,33 +100,43 @@
 .tag-discussion-modal {
   & .modal-header {
     background: @fl-body-secondary-color;
-    padding: 20px;
+    padding: 20px 20px 0;
 
     & h3 {
       text-align: left;
       color: @fl-body-muted-color;
       font-size: 16px;
     }
+
+    @media @phone {
+      padding: 0;
+    }
   }
   & .modal-body {
-    padding: 0 20px 20px;
+    padding: 20px;
+
+    @media @phone {
+      padding: 15px;
+    }
   }
   & .modal-footer {
     padding: 1px 0 0;
     text-align: left;
   }
 }
-.tags-form {
-  padding-right: 100px;
-  overflow: hidden;
+@media @tablet, @desktop, @desktop-hd {
+  .tags-form {
+    padding-right: 100px;
+    overflow: hidden;
 
-  & .tags-input {
-    float: left;
-  }
-  & .btn {
-    margin-right: -100px;
-    float: right;
-    width: 85px;
+    & .tags-input {
+      float: left;
+    }
+    & .primary-control {
+      margin-right: -100px;
+      float: right;
+      width: 85px;
+    }
   }
 }
 .tags-input {
@@ -161,6 +171,10 @@
   overflow: auto;
   max-height: 50vh;
 
+  @media @phone {
+    max-height: none;
+  }
+
   & > li {
     padding: 7px 20px;
     overflow: hidden;
@@ -189,10 +203,18 @@
       width: 150px;
       margin-right: 10px;
       margin-left: 10px;
+
+      @media @phone {
+        width: auto;
+      }
     }
     & .description {
       color: @fl-body-muted-color;
       font-size: 12px;
+
+      @media @phone {
+        display: none;
+      }
     }
     &.selected {
       & .tag-icon {
@@ -226,25 +248,31 @@
   margin: 0;
   overflow: hidden;
 
+  @media @phone {
+    margin: -15px -15px 0;
+  }
+
   & > li {
-    float: left;
-    width: ~"calc(50% - 1px)";
     height: 200px;
-    margin-right: 1px;
     margin-bottom: 1px;
     overflow: hidden;
 
-    &:first-child {
-      border-top-left-radius: @border-radius-base;
-    }
-    &:nth-child(2) {
-      border-top-right-radius: @border-radius-base;
-    }
-    &:nth-last-child(2):nth-child(even), &:last-child {
-      border-bottom-right-radius: @border-radius-base;
-    }
-    &:nth-last-child(2):nth-child(odd), &:last-child:nth-child(odd) {
-      border-bottom-left-radius: @border-radius-base;
+    @media @tablet, @desktop, @desktop-hd {
+      float: left;
+      width: ~"calc(50% - 1px)";
+      margin-right: 1px;
+      &:first-child {
+        border-top-left-radius: @border-radius-base;
+      }
+      &:nth-child(2) {
+        border-top-right-radius: @border-radius-base;
+      }
+      &:nth-last-child(2):nth-child(even), &:last-child {
+        border-bottom-right-radius: @border-radius-base;
+      }
+      &:nth-last-child(2):nth-child(odd), &:last-child:nth-child(odd) {
+        border-bottom-left-radius: @border-radius-base;
+      }
     }
   }
 }
@@ -303,6 +331,9 @@
     padding-top: 17px;
     padding-bottom: 17px;
     color: fade(#fff, 50%);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     & .title {
       margin-right: 15px;
@@ -310,7 +341,7 @@
   }
 }
 .tag-cloud {
-  margin-top: 30px;
+  margin-top: 50px;
   text-align: center;
 
   & h4 {
@@ -330,6 +361,7 @@
 }
 .tag-cloud-content {
   font-size: 14px;
+  line-height: 1.7;
 
   &, & a {
     color: @fl-body-muted-color;
