@@ -10,7 +10,7 @@ export default class DropdownButton extends Component {
         'data-toggle': 'dropdown',
         onclick: this.props.buttonClick
       }, this.props.buttonContent || [
-        icon((this.props.icon || 'ellipsis-v')+' icon-glyph'),
+        icon((this.props.icon || 'ellipsis-v')+' icon-glyph icon'),
         m('span.label', this.props.label || 'Controls'),
         icon('caret-down icon-caret')
       ]),

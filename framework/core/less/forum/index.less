@@ -83,16 +83,18 @@
       & .hero, & .index-nav, & .index-toolbar {
         display: none;
       }
-      & .discussion-list > ul > li {
+      & .discussion-list-item {
         margin: 0;
-        padding-left: 57px + 15px;
-        padding-right: 65px + 15px;
+        padding: 0;
 
         &.active {
           background: @fl-body-control-bg;
         }
       }
       & .discussion-summary {
+        padding-left: 57px + 15px;
+        padding-right: 65px + 15px;
+
         & .title {
           font-size: 14px;
         }
@@ -148,19 +150,6 @@
 @media @phone {
   .discussion-list {
     margin: 0 -15px;
-
-    & > ul > li {
-      & .contextual-controls {
-        display: none;
-      }
-    }
-  }
-}
-
-@media @tablet, @desktop, @desktop-hd {
-  .discussion-list > ul > li {
-    margin-right: -25px;
-    padding-right: 65px + 25px;
   }
 }
 
@@ -170,15 +159,6 @@
   &, & .main {
     color: @fl-body-muted-color;
     text-decoration: none;
-  }
-  & .contextual-controls {
-    visibility: hidden;
-    position: absolute;
-    right: 0;
-    top: 13px;
-  }
-  &:hover .contextual-controls, & .contextual-controls.open {
-    visibility: visible;
   }
   & .author {
     float: left;
@@ -308,12 +288,16 @@
       color: @fl-body-control-color;
       border-radius: @border-radius-base;
       font-size: 12px;
-      padding: 1px 6px;
+      padding: 2px 6px;
 
       .unread& {
         background: @fl-body-primary-color;
         color: #fff;
         font-weight: bold;
+
+        &:active {
+          opacity: 0.5;
+        }
       }
 
       & .label {
@@ -323,7 +307,79 @@
   }
 }
 
+.slidable {
+  position: relative;
+
+  & .contextual-controls {
+    display: block;
+    position: static;
+  }
+
+  & .slidable-underneath {
+    display: none;
+    background: @fl-secondary-color !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    z-index: 0;
+    color: #fff !important;
+    border: 0;
+    border-radius: 0;
+    .box-shadow(none);
+    padding: 20px 0;
+    text-align: right;
+
+    &.slidable-underneath-left {
+      text-align: left;
+    }
+
+    & .icon {
+      width: 50px;
+      text-align: center;
+      font-size: 20px;
+    }
+  }
+  & .slidable-slider {
+    .transition(~"box-shadow 0.2s, border-radius 0.2s");
+
+    .sliding& {
+      position: relative;
+      background: #fff;
+      z-index: 2;
+      border-radius: 2px;
+      .box-shadow(0 2px 6px @fl-shadow-color);
+    }
+  }
+}
+
 @media @tablet, @desktop, @desktop-hd {
+  .slidable-underneath {
+    display: none;
+  }
+  .discussion-list-item {
+    position: relative;
+    margin-right: -25px;
+    padding-right: 25px;
+
+    & .contextual-controls {
+      visibility: hidden;
+      position: absolute;
+      right: 0;
+      top: 8px;
+      z-index: 1;
+
+      & .dropdown-toggle {
+        display: block;
+      }
+    }
+    &:hover .contextual-controls, & .contextual-controls.open {
+      visibility: visible;
+    }
+  }
   .discussion-summary {
     padding-left: 57px;
     padding-right: 65px;

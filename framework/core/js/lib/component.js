@@ -18,14 +18,6 @@ export default class Component {
     return selector ? $(this.element()).find(selector) : $(this.element());
   }
 
-  onload(element) {
-    this.element(element);
-  }
-
-  config() {
-
-  }
-
   /**
 
    */
@@ -38,13 +30,12 @@ export default class Component {
       component.props = props;
       var vdom = component.view();
       vdom.attrs = vdom.attrs || {};
-      if (!vdom.attrs.config) {
-        vdom.attrs.config = function() {
-          var args = [].slice.apply(arguments);
-          if (!args[1]) {
-            component.onload.apply(component, args);
-          }
-          component.config.apply(component, args);
+      var oldConfig = vdom.attrs.config;
+      vdom.attrs.config = function() {
+        var args = [].slice.apply(arguments);
+        component.element(args[0]);
+        if (oldConfig) {
+          oldConfig.apply(component, args);
         }
       }
       return vdom;
