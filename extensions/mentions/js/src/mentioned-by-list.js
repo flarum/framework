@@ -6,6 +6,7 @@ import CommentPost from 'flarum/components/comment-post';
 import PostPreview from 'flarum/components/post-preview';
 import punctuate from 'flarum/helpers/punctuate';
 import username from 'flarum/helpers/username';
+import icon from 'flarum/helpers/icon';
 
 export default function mentionedByList() {
   Post.prototype.mentionedBy = Model.many('mentionedBy');
@@ -81,6 +82,7 @@ export default function mentionedByList() {
       items.add('replies',
         m('div.mentioned-by', {config}, [
           m('span.summary', [
+            icon('reply icon'),
             punctuate(repliers.map(reply => {
               return m('a', {
                 href: app.route.post(reply),
