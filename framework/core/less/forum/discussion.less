@@ -323,6 +323,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  @media @phone {
+    padding: 15px !important;
+  }
 }
 
 .post-icon {
@@ -431,6 +435,16 @@
 }
 
 @media @phone {
+  .post {
+    & .contextual-controls {
+      margin-top: -6px;
+      margin-right: -8px;
+
+      & .dropdown-toggle {
+        opacity: 0.5;
+      }
+    }
+  }
   .post-header {
     & .avatar {
       .avatar-size(32px);
