@@ -92,7 +92,7 @@ class ShowAction extends SerializeResourceAction
 
         $discussion = $this->discussions->findOrFail($request->get('id'), $user);
 
-        $discussion->posts_ids = $discussion->visiblePosts($user)->lists('id');
+        $discussion->posts_ids = $discussion->visiblePosts($user)->orderBy('time')->lists('id');
 
         if (in_array('posts', $request->include)) {
             $length = strlen($prefix = 'posts.');
