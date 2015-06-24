@@ -24,9 +24,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     this.refresh();
 
     if (app.cache.discussionList) {
-      if (!(app.current instanceof DiscussionPage)) {
-        app.cache.discussionList.subtrees.map(subtree => subtree.invalidate());
-      } else {
+      if (app.current instanceof DiscussionPage) {
         m.redraw.strategy('diff'); // otherwise pane redraws (killing retained subtrees) and mouseenter event is triggered so it doesn't hide
       }
       app.pane.enable();
