@@ -312,13 +312,15 @@
   }
 }
 
+.slidable-underneath {
+  display: none;
+}
+.discussion-list-item .contextual-controls {
+  display: block;
+  position: static;
+}
 .slidable {
   position: relative;
-
-  & .contextual-controls {
-    display: block;
-    position: static;
-  }
 
   & .slidable-underneath {
     display: none;
@@ -362,9 +364,6 @@
 }
 
 @media @tablet, @desktop, @desktop-hd {
-  .slidable-underneath {
-    display: none;
-  }
   .discussion-list-item {
     position: relative;
     margin-right: -25px;
