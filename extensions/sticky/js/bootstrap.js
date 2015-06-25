@@ -3,10 +3,12 @@ import Model from 'flarum/model';
 import Discussion from 'flarum/models/discussion';
 import DiscussionPage from 'flarum/components/discussion-page';
 import DiscussionList from 'flarum/components/discussion-list';
+import DiscussionListItem from 'flarum/components/discussion-list-item';
 import Badge from 'flarum/components/badge';
 import ActionButton from 'flarum/components/action-button';
 import SettingsPage from 'flarum/components/settings-page';
 import icon from 'flarum/helpers/icon';
+import truncate from 'flarum/utils/truncate';
 import app from 'flarum/app';
 
 import DiscussionStickiedPost from 'flarum-sticky/components/discussion-stickied-post';
@@ -57,20 +59,23 @@ app.initializers.add('sticky', function() {
     items.add('discussionStickied', {
       name: 'discussionStickied',
       label: [icon('thumb-tack'), ' Someone stickies a discussion I started']
-    });
+    }, {after: 'discussionRenamed'});
   });
 
   extend(DiscussionList.prototype, 'params', function(params) {
     params.include.push('startPost');
   });
 
-  extend(DiscussionList.prototype, 'infoItems', function(items, discussion) {
+  extend(DiscussionListItem.prototype, 'infoItems', function(items) {
+    var discussion = this.props.discussion;
+
     if (discussion.isSticky()) {
+      console.log(discussion.startPost())
       var startPost = discussion.startPost();
       if (startPost) {
-        var excerpt = m('span', startPost.excerpt());
+        var excerpt = m('span', truncate(startPost.contentPlain(), 200));
         excerpt.wrapperClass = 'discussion-excerpt';
-        var item = items.add('excerpt', excerpt, {last: true});
+        items.add('excerpt', excerpt, {last: true});
       }
     }
   });
