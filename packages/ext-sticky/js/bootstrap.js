@@ -30,7 +30,7 @@ app.initializers.add('sticky', function() {
         label: 'Sticky',
         icon: 'thumb-tack',
         className: 'badge-sticky',
-      }));
+      }), {last: true});
     }
   });
 
