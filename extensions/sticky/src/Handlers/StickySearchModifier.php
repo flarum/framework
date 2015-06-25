@@ -1,7 +1,7 @@
 <?php namespace Flarum\Sticky\Handlers;
 
 use Flarum\Core\Events\DiscussionSearchWillBePerformed;
-use Flarum\Categories\CategoryGambit;
+use Flarum\Tags\TagGambit;
 
 class StickySearchModifier
 {
@@ -20,7 +20,7 @@ class StickySearchModifier
             }
 
             foreach ($event->searcher->getActiveGambits() as $gambit) {
-                if ($gambit instanceof CategoryGambit) {
+                if ($gambit instanceof TagGambit) {
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
                     return;
                 }
