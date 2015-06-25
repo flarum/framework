@@ -44,8 +44,11 @@ class StartDiscussionCommandHandler
         // attributes as posting the reply will have changed some of them (e.g.
         // last_time.)
         $discussion->setRawAttributes($post->discussion->getAttributes(), true);
+        $discussion->setStartPost($post);
 
         $this->dispatchEventsFor($discussion);
+
+        $discussion->save();
 
         return $post->discussion;
     }
