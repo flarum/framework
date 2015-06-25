@@ -44,13 +44,13 @@ app.initializers.add('sticky', function() {
   }
 
   // Add a sticky control to discussions.
-  extend(Discussion.prototype, 'controls', function(items) {
+  extend(Discussion.prototype, 'moderationControls', function(items) {
     if (this.canSticky()) {
       items.add('sticky', ActionButton.component({
         label: this.isSticky() ? 'Unsticky' : 'Sticky',
         icon: 'thumb-tack',
         onclick: toggleSticky.bind(this)
-      }), {after: 'rename'});
+      }));
     }
   });
 
