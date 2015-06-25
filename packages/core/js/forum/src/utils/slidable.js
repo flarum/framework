@@ -41,7 +41,6 @@ export default function slidable(element) {
       startY = e.originalEvent.targetTouches[0].clientY;
 
       couldBeSliding = true;
-      console.log('GO')
     })
 
     .on('touchmove', function(e) {
