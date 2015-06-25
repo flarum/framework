@@ -47,6 +47,6 @@ class TagSerializer extends BaseSerializer
 
     protected function lastDiscussion()
     {
-        return $this->hasOne('Flarum\Api\Serializers\DiscussionBasicSerializer');
+        return $this->hasOne('Flarum\Api\Serializers\DiscussionSerializer');
     }
 }
