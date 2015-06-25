@@ -113,7 +113,7 @@ export default class DiscussionListItem extends Component {
   config(element, isInitialized, context) {
     if (isInitialized) return;
 
-    if (window.ontouchstart !== 'undefined') {
+    if ('ontouchstart' in window) {
       this.$().addClass('slidable');
 
       var slidableInstance = slidable(element);
