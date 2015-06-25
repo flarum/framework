@@ -4,7 +4,6 @@ import listItems from 'flarum/helpers/list-items';
 import highlight from 'flarum/helpers/highlight';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/utils/human-time';
-import classList from 'flarum/utils/class-list';
 import ItemList from 'flarum/utils/item-list';
 import abbreviateNumber from 'flarum/utils/abbreviate-number';
 import DropdownButton from 'flarum/components/dropdown-button';
@@ -19,8 +18,13 @@ export default class DiscussionListItem extends Component {
 
     this.subtree = new SubtreeRetainer(
       () => this.props.discussion.freshness,
-      () => app.session.user() && app.session.user().readTime()
+      () => app.session.user() && app.session.user().readTime(),
+      () => this.active()
     );
+  }
+
+  active() {
+    return m.route.param('id') === this.props.discussion.id();
   }
 
   view() {
@@ -32,9 +36,8 @@ export default class DiscussionListItem extends Component {
     var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
     var relevantPosts = this.props.q ? discussion.relevantPosts() : '';
     var controls = discussion.controls(this).toArray();
-    var isActive = m.route.param('id') === discussion.id();
 
-    return this.subtree.retain() || m('div.discussion-list-item', {config: this.onload.bind(this)}, [
+    return this.subtree.retain() || m('div.discussion-list-item', {className: this.active() ? 'active' : ''}, [
       controls.length ? DropdownButton.component({
         items: controls,
         className: 'contextual-controls',
@@ -47,12 +50,7 @@ export default class DiscussionListItem extends Component {
         onclick: this.markAsRead.bind(this)
       }, icon('check icon')),
 
-      m('div.slidable-slider.discussion-summary', {
-        className: classList({
-          unread: isUnread,
-          active: isActive
-        })
-      }, [
+      m('div.slidable-slider.discussion-summary', {className: isUnread ? 'unread' : ''}, [
 
         m((startUser ? 'a' : 'span')+'.author', {
           href: startUser ? app.route.user(startUser) : undefined,
@@ -112,7 +110,7 @@ export default class DiscussionListItem extends Component {
     return items;
   }
 
-  onload(element, isInitialized, context) {
+  config(element, isInitialized, context) {
     if (isInitialized) return;
 
     if (window.ontouchstart !== 'undefined') {
