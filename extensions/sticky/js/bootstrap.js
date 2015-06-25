@@ -70,7 +70,6 @@ app.initializers.add('sticky', function() {
     var discussion = this.props.discussion;
 
     if (discussion.isSticky()) {
-      console.log(discussion.startPost())
       var startPost = discussion.startPost();
       if (startPost) {
         var excerpt = m('span', truncate(startPost.contentPlain(), 200));
