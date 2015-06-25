@@ -22,6 +22,7 @@ export default class ItemList {
     var items = [];
     for (var i in this) {
       if (this.hasOwnProperty(i) && this[i] instanceof Item) {
+        this[i].content.itemName = i;
         items.push(this[i]);
       }
     }
@@ -49,6 +50,8 @@ export default class ItemList {
       // e.g. {before: ['foo', 'bar'], after: ['qux', 'qaz']}
       // This way extensions can make sure they are positioned where
       // they want to be relative to other extensions.
+      // Alternatively, it might be better to just have a numbered priority
+      // system, so extensions don't have to make awkward references to each other.
       if (key) {
         var index = array.indexOf(this[key]);
         if (index === -1) {

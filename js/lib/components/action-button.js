@@ -20,7 +20,7 @@ export default class ActionButton extends Component {
 
     attrs.href = attrs.href || 'javascript:;';
     return m('a'+(iconName ? '.has-icon' : ''), attrs, [
-      iconName ? icon(iconName+' icon') : '',
+      iconName ? icon(iconName+' icon') : '', ' ',
       m('span.label', label)
     ]);
   }
