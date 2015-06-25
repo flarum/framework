@@ -10,7 +10,7 @@ import composerAutocomplete from 'flarum-mentions/composer-autocomplete';
 import PostMentionedNotification from 'flarum-mentions/components/post-mentioned-notification';
 import UserMentionedNotification from 'flarum-mentions/components/user-mentioned-notification';
 
-app.initializers.add('mentions', function() {
+app.initializers.add('flarum-mentions', function() {
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   postMentionPreviews();
