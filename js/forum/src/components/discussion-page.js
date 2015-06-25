@@ -136,8 +136,13 @@ export default class DiscussionPage extends mixin(Component, evented) {
     }
 
     app.pane.disable();
-    app.composer.minimize();
     app.session.off('loggedIn', this.loggedInHandler);
+
+    if (app.composingReplyTo(discussion) && !app.composer.component.content()) {
+      app.composer.hide();
+    } else {
+      app.composer.minimize();
+    }
   }
 
   /**
