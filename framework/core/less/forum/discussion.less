@@ -4,6 +4,7 @@
 .discussion-hero {
   & .badges {
     margin-right: 5px;
+    margin-bottom: -2px;
   }
   & .discussion-hero-items {
     padding: 0;
@@ -34,6 +35,22 @@
   }
 }
 
+@media @phone {
+  .discussion-nav {
+    margin: 0 -15px;
+    border-bottom: 1px solid @fl-body-secondary-color;
+
+    & > ul > li {
+      margin: 15px;
+      display: inline-block;
+
+      &.item-controls, &.item-scrubber {
+        margin: 0;
+        display: block;
+      }
+    }
+  }
+}
 @media @tablet, @desktop, @desktop-hd {
   .discussion-nav {
     float: right;
@@ -67,7 +84,9 @@
 // Stream
 
 .discussion-posts {
-  margin-top: 10px;
+  @media @tablet, @desktop, @desktop-hd {
+    margin-top: 10px;
+  }
 
   & .item {
     &:not(:last-child) {
