@@ -135,6 +135,21 @@ class Discussion extends Model
     }
 
     /**
+     * Set the discussion's start post details.
+     *
+     * @param  \Flarum\Core\Models\Post  $post
+     * @return $this
+     */
+    public function setStartPost(Post $post)
+    {
+        $this->start_time    = $post->time;
+        $this->start_user_id = $post->user_id;
+        $this->start_post_id = $post->id;
+
+        return $this;
+    }
+
+    /**
      * Set the discussion's last post details.
      *
      * @param  \Flarum\Core\Models\Post  $post
@@ -350,6 +365,10 @@ class Discussion extends Model
      */
     public function stateFor(User $user)
     {
+        // If the state is already eager-loaded, we'll return that.
+        // Unfortunately we can't check to see if the user ID is the same,
+        // because the user may not have a state entry, in which case the loaded
+        // relation will be null.
         if ($this->isRelationLoaded('state')) {
             return $this->relations['state'];
         }
