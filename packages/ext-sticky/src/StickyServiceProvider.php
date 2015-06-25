@@ -28,6 +28,10 @@ class StickyServiceProvider extends ServiceProvider
                     $attributes['canSticky'] = (bool) $model->can($user, 'sticky');
                 }),
 
+            // include discussion start posts by default
+            (new Extend\ApiAction('Flarum\Api\Actions\Discussions\IndexAction'))
+                ->addInclude('startPost'),
+
             new Extend\DiscussionGambit('Flarum\Sticky\StickyGambit'),
 
             (new Extend\NotificationType('Flarum\Sticky\DiscussionStickiedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))
