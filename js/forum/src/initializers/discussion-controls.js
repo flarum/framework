@@ -70,7 +70,7 @@ export default function(app) {
     }
   }
 
-  Discussion.prototype.controls = function(context) {
+  Discussion.prototype.userControls = function(context) {
     var items = new ItemList();
 
     if (context instanceof DiscussionPage) {
@@ -78,19 +78,41 @@ export default function(app) {
         ? ActionButton.component({ icon: 'reply', label: app.session.user() ? 'Reply' : 'Log In to Reply', onclick: this.replyAction.bind(this, true, false) })
         : ActionButton.component({ icon: 'reply', label: 'Can\'t Reply', className: 'disabled', title: 'You don\'t have permission to reply to this discussion.' })
       );
-
-      items.add('separator', Separator.component());
     }
+
+    return items;
+  };
+
+  Discussion.prototype.moderationControls = function(context) {
+    var items = new ItemList();
 
     if (this.canRename()) {
       items.add('rename', ActionButton.component({ icon: 'pencil', label: 'Rename', onclick: this.renameAction.bind(this) }));
     }
 
-    if (this.canDelete()) {
-      items.add('separator2', Separator.component());
+    return items;
+  };
 
+  Discussion.prototype.destructiveControls = function(context) {
+    var items = new ItemList();
+
+    if (this.canDelete()) {
       items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: this.deleteAction.bind(this) }));
     }
+
+    return items;
+  };
+
+  Discussion.prototype.controls = function(context) {
+    var items = new ItemList();
+
+    ['user', 'moderation', 'destructive'].forEach(section => {
+      var controls = this[section+'Controls'](context).toArray();
+      if (controls.length) {
+        items.add(section, controls);
+        items.add(section+'Separator', Separator.component());
+      }
+    });
 
     return items;
   }
