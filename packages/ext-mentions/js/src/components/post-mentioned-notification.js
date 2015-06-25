@@ -11,7 +11,7 @@ export default class PostMentionedNotification extends Notification {
     return super.view({
       href: app.route.discussion(post.discussion(), auc ? post.number() : (content && content.replyNumber)),
       icon: 'reply',
-      content: [username(notification.sender()), (auc ? ' and '+auc+' others' : '')+' replied to your post (#'+post.number()+')']
+      content: [username(notification.sender()), (auc ? ' and '+auc+' others' : '')+' replied to your post #'+post.number()]
     });
   }
 }
