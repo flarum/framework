@@ -49,7 +49,7 @@ export default class ComposerBody extends Component {
   }
 
   preventExit() {
-    return this.content() && this.content() != this.props.originalContent && !confirm(this.props.confirmExit);
+    return this.content() && this.content() != this.props.originalContent && this.props.confirmExit;
   }
 
   onsubmit(value) {
