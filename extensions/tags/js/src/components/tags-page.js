@@ -37,19 +37,23 @@ export default class TagsPage extends Component {
                 return parent && parent.id() == tag.id();
               });
 
-              return m('li.tag-tile', {style: 'background-color: '+tag.color()}, [
+              return m('li.tag-tile', {className: tag.color() ? 'colored' : '', style: 'background-color: '+tag.color()}, [
                 m('a.tag-info', {href: app.route.tag(tag), config: m.route}, [
                   m('h3.name', tag.name()),
                   m('p.description', tag.description()),
                   children ? m('div.children', children.map(tag =>
-                    m('a', {href: app.route.tag(tag), config: m.route, onclick: (e) => e.stopPropagation()}, tag.name())
+                    m('a', {href: app.route.tag(tag), config: function(element, isInitialized) {
+                      if (isInitialized) return;
+                      $(element).on('click', e => e.stopPropagation());
+                      m.route.apply(this, arguments);
+                    }}, tag.name())
                   )) : ''
                 ]),
                 lastDiscussion
                   ? m('a.last-discussion', {
                     href: app.route.discussion(lastDiscussion, lastDiscussion.lastPostNumber()),
                     config: m.route
-                  }, [m('span.title', lastDiscussion.title()), humanTime(lastDiscussion.lastTime())])
+                  }, [humanTime(lastDiscussion.lastTime()), m('span.title', lastDiscussion.title())])
                   : m('span.last-discussion')
               ]);
             })

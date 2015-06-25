@@ -278,9 +278,15 @@
 }
 .tag-tile {
   position: relative;
+  background: @fl-body-secondary-color;
 
   &, & a {
-    color: #fff;
+    color: @fl-body-muted-color;
+  }
+  &.colored {
+    &, & a {
+      color: #fff;
+    }
   }
   & .tag-info, & .last-discussion {
     padding: 20px;
@@ -294,15 +300,15 @@
     transition: background 0.2s;
 
     &:hover {
-      background: fade(#000, 10%);
+      background: fade(#000, 5%);
     }
     &:active {
-      background: fade(#000, 20%);
+      background: fade(#000, 15%);
     }
   }
   & .tag-info {
     top: 0;
-    bottom: 55px;
+    bottom: 45px;
     padding-right: 20px;
 
     & .name {
@@ -311,8 +317,9 @@
       font-weight: normal;
     }
     & .description {
-      color: fade(#fff, 50%);
-      margin: 0 0 15px;
+      font-size: 14px;
+      opacity: 0.5;
+      margin: 0 0 10px;
     }
     & .children {
       text-transform: uppercase;
@@ -326,17 +333,29 @@
   }
   & .last-discussion {
     bottom: 0;
-    height: 55px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding-top: 17px;
-    padding-bottom: 17px;
-    color: fade(#fff, 50%);
+    height: 45px;
+    padding-top: 12px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    line-height: 21px;
+    opacity: 0.5;
+
+    &, &:hover, &:active {
+      background: fade(#000, 10%);
+    }
 
     & .title {
-      margin-right: 15px;
+      margin-right: 10px;
+    }
+    &:hover .title {
+      text-decoration: underline;
+    }
+    & time {
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: bold;
+      float: right;
     }
   }
 }
