@@ -118,6 +118,7 @@
   .global-content, .global-footer {
     .has-pane.pane-pinned & {
       margin-left: @index-pane-width;
+
       & .container {
         max-width: 100%;
         padding: 0 30px;
@@ -125,6 +126,8 @@
     }
   }
   .global-header .container {
+    transition: width 0.2s;
+
     .has-pane.pane-pinned & {
       width: 100%;
     }
