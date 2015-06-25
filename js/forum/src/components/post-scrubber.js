@@ -315,8 +315,9 @@ export default class PostScrubber extends Component {
 
     // Adjust the height of the scrollbar so that it fills the height of
     // the sidebar and doesn't overlap the footer.
+    var scrubber = this.$();
     var scrollbar = this.$('.scrubber-scrollbar');
-    scrollbar.css('max-height', $(window).height() - scrollbar.offset().top + $(window).scrollTop() - parseInt($('.global-page').css('padding-bottom')));
+    scrollbar.css('max-height', $(window).height() - scrubber.offset().top + $(window).scrollTop() - parseInt($('.global-page').css('padding-bottom')) - (scrubber.outerHeight() - scrollbar.outerHeight()));
   }
 
   onmousedown(e) {
