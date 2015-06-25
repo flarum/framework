@@ -3,6 +3,7 @@ import app from 'flarum/app';
 import Post from 'flarum/models/post';
 import Model from 'flarum/model';
 import DiscussionPage from 'flarum/components/discussion-page';
+import SettingsPage from 'flarum/components/settings-page';
 import ActionButton from 'flarum/components/action-button';
 import CommentPost from 'flarum/components/comment-post';
 import punctuate from 'flarum/helpers/punctuate';
@@ -95,6 +96,14 @@ app.initializers.add('flarum-likes', function() {
       }),
       {before: 'reply'}
     );
+  });
+
+  // Add a notification preference.
+  extend(SettingsPage.prototype, 'notificationTypes', function(items) {
+    items.add('postLiked', {
+      name: 'postLiked',
+      label: [icon('thumbs-o-up'), ' Someone likes my post']
+    });
   });
 
 });
