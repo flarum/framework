@@ -68,7 +68,7 @@ export default class DiscussionComposer extends ComposerBody {
   }
 
   preventExit() {
-    return (this.title() || this.content()) && !confirm(this.props.confirmExit);
+    return (this.title() || this.content()) && this.props.confirmExit;
   }
 
   data() {

@@ -70,6 +70,10 @@ class Composer extends Component {
     $(document)
       .on('mousemove', this.handlers.onmousemove = this.onmousemove.bind(this))
       .on('mouseup', this.handlers.onmouseup = this.onmouseup.bind(this));
+
+    window.onbeforeunload = e => {
+      return this.component && this.component.preventExit();
+    };
   }
 
   configHandle(element, isInitialized) {
@@ -129,7 +133,12 @@ class Composer extends Component {
   }
 
   preventExit() {
-    return this.component && this.component.preventExit();
+    if (this.component) {
+      var preventExit = this.component.preventExit();
+      if (preventExit) {
+        return !confirm(preventExit);
+      }
+    }
   }
 
   render(anchorToBottom) {
