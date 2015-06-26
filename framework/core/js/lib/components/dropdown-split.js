@@ -10,7 +10,11 @@ import ActionButton from 'flarum/components/action-button';
  */
 export default class DropdownSplit extends Component {
   view() {
-    var firstItem = this.props.items[0];
+    var firstItem = this.props.items;
+    while (firstItem instanceof Array) {
+      firstItem = firstItem[0];
+    }
+
     var items = listItems(this.props.items);
 
     var buttonProps = {};
