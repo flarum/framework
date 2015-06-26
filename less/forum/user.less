@@ -107,7 +107,7 @@
       cursor: text;
 
       &:hover {
-        border-color: rgba(255, 255, 255, 0.5);
+        border-color: rgba(255, 255, 255, 0.2);
       }
     }
 
@@ -121,6 +121,10 @@
     & textarea {
       padding: 10px;
       font-size: 14px;
+      resize: none;
+    }
+    & .placeholder {
+      opacity: 0.3;
     }
   }
   & .user-last-seen {

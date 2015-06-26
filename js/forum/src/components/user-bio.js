@@ -14,6 +14,7 @@ export default class UserBio extends Component {
     super(props);
 
     this.editing = m.prop(false);
+    this.loading = m.prop(false);
   }
 
   view() {
@@ -21,16 +22,22 @@ export default class UserBio extends Component {
 
     return m('div.user-bio', {
       className: classList({editable: this.isEditable(), editing: this.editing()}),
-      onclick: this.edit.bind(this),
-      config: this.element
+      onclick: this.edit.bind(this)
     }, [
       this.editing()
-        ? m('textarea.form-control', {value: user.bio()})
-        : m('div.bio-content', [
-          user.bioHtml()
-            ? m.trust(user.bioHtml())
-            : (this.props.editable ? m('p', 'Write something about yourself...') : '')
-        ])
+        ? m('textarea.form-control', {
+          value: user.bio(),
+          placeholder: 'Write something about yourself...',
+          rows: 3
+        })
+        : m('div.bio-content', this.loading()
+          ? m('p.placeholder', 'Saving...')
+          : [
+            user.bioHtml()
+              ? m.trust(user.bioHtml())
+              : (this.props.editable ? m('p.placeholder', 'Write something about yourself...') : '')
+          ]
+        )
     ]);
   }
 
@@ -42,7 +49,6 @@ export default class UserBio extends Component {
     if (!this.isEditable()) { return; }
 
     this.editing(true);
-    var height = this.$().height();
 
     m.redraw();
 
@@ -52,13 +58,20 @@ export default class UserBio extends Component {
       e.preventDefault();
       self.save($(this).val());
     };
-    this.$('textarea').css('height', height).focus().bind('blur', save).bind('keydown', 'return', save);
+    this.$('textarea').focus().bind('blur', save).bind('keydown', 'return', save);
   }
 
   save(value) {
     this.editing(false);
 
-    this.props.user.save({bio: value}).then(() => m.redraw());
+    if (this.props.user.bio() !== value) {
+      this.loading(true);
+      this.props.user.save({bio: value}).then(() => {
+        this.loading(false);
+        m.redraw();
+      });
+    }
+
     m.redraw();
   }
 }

@@ -17,7 +17,7 @@ export default class TextEditor extends Component {
   }
 
   view() {
-    return m('div.text-editor', {config: this.element}, [
+    return m('div.text-editor', [
       m('textarea.form-control.flexible-height', {
         config: this.configTextarea.bind(this),
         oninput: m.withAttr('value', this.oninput.bind(this)),
