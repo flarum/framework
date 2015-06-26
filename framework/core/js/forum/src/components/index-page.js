@@ -74,7 +74,7 @@ export default class IndexPage extends Component {
             m('ul.index-toolbar-view', listItems(this.viewItems().toArray())),
             m('ul.index-toolbar-action', listItems(this.actionItems().toArray()))
           ]),
-          app.cache.discussionList.view()
+          app.cache.discussionList.render()
         ])
       ])
     ]);

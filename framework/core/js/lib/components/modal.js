@@ -2,7 +2,7 @@ import Component from 'flarum/component';
 
 export default class Modal extends Component {
   view() {
-    return m('div.modal.fade', {config: this.onload.bind(this)}, this.component && this.component.view())
+    return m('div.modal.fade', {config: this.onload.bind(this)}, this.component && this.component.render())
   }
 
   onload(element, isInitialized) {
