@@ -10,7 +10,7 @@ export default class AutocompleteDropdown extends Component {
   }
 
   view() {
-    return m('ul.dropdown-menu.mentions-dropdown', {config: this.element}, this.props.items.map(item => m('li', item)));
+    return m('ul.dropdown-menu.mentions-dropdown', this.props.items.map(item => m('li', item)));
   }
 
   show(left, top) {

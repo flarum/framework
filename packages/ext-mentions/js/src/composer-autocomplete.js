@@ -10,7 +10,7 @@ import truncate from 'flarum/utils/truncate';
 import AutocompleteDropdown from 'flarum-mentions/components/autocomplete-dropdown';
 
 export default function() {
-  extend(ComposerBody.prototype, 'onload', function(original, element, isInitialized, context) {
+  extend(ComposerBody.prototype, 'config', function(original, element, isInitialized, context) {
     if (isInitialized) return;
 
     var composer = this;
@@ -126,7 +126,7 @@ export default function() {
 
             if (suggestions.length) {
               dropdown.props.items = suggestions;
-              m.render($container[0], dropdown.view());
+              m.render($container[0], dropdown.render());
 
               dropdown.show();
               var coordinates = getCaretCoordinates(this, mentionStart);
