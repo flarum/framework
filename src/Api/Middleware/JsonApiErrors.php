@@ -2,7 +2,7 @@
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\StringResponse;
+use Zend\Diactoros\Response\JsonResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
 
 class JsonApiErrors implements ErrorMiddlewareInterface
@@ -31,6 +31,6 @@ class JsonApiErrors implements ErrorMiddlewareInterface
             'errors' => [$errorObject]
         ];
 
-        return StringResponse::json($data, $status);
+        return new JsonResponse($data, $status);
     }
 }

@@ -6,6 +6,7 @@ use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Core\Events\UserEmailChangeWasRequested;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Zend\Diactoros\Response\JsonResponse;
 
 class TokenAction extends JsonApiAction
 {
@@ -39,7 +40,7 @@ class TokenAction extends JsonApiAction
 
         if (! $user->is_activated) {
             event(new UserEmailChangeWasRequested($user, $user->email));
-            return $this->json([
+            return new JsonResponse([
                 'code' => 'confirm_email',
                 'email' => $user->email
             ], 401);
@@ -49,7 +50,7 @@ class TokenAction extends JsonApiAction
             new GenerateAccessTokenCommand($user->id)
         );
 
-        return $this->json([
+        return new JsonResponse([
             'token' => $token->id,
             'userId' => $user->id
         ]);
