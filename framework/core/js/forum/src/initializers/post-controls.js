@@ -29,7 +29,11 @@ export default function(app) {
     }
   }
 
-  Post.prototype.controls = function(context) {
+  Post.prototype.userControls = function(context) {
+    return new ItemList();
+  };
+
+  Post.prototype.moderationControls = function(context) {
     var items = new ItemList();
 
     if (this.contentType() === 'comment' && this.canEdit()) {
@@ -37,16 +41,36 @@ export default function(app) {
         items.add('restore', ActionButton.component({ icon: 'reply', label: 'Restore', onclick: restoreAction.bind(this) }));
       } else {
         items.add('edit', ActionButton.component({ icon: 'pencil', label: 'Edit', onclick: editAction.bind(this) }));
-
-        if (this.number() != 1) {
-          items.add('hide', ActionButton.component({ icon: 'times', label: 'Delete', onclick: hideAction.bind(this) }));
-        }
       }
     }
 
-    if ((this.contentType() !== 'comment' || this.isHidden()) && this.canDelete() && this.number() != 1) {
-      items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete', onclick: deleteAction.bind(this) }));
+    return items;
+  };
+
+  Post.prototype.destructiveControls = function(context) {
+    var items = new ItemList();
+
+    if (this.number() != 1) {
+      if (this.contentType() === 'comment' && !this.isHidden() && this.canEdit()) {
+        items.add('hide', ActionButton.component({ icon: 'times', label: 'Delete', onclick: hideAction.bind(this) }));
+      } else if ((this.contentType() !== 'comment' || this.isHidden()) && this.canDelete()) {
+        items.add('delete', ActionButton.component({ icon: 'times', label: 'Delete Forever', onclick: deleteAction.bind(this) }));
+      }
     }
+
+    return items;
+  };
+
+  Post.prototype.controls = function(context) {
+    var items = new ItemList();
+
+    ['user', 'moderation', 'destructive'].forEach(section => {
+      var controls = this[section+'Controls'](context).toArray();
+      if (controls.length) {
+        items.add(section, controls);
+        items.add(section+'Separator', Separator.component());
+      }
+    });
 
     return items;
   }
