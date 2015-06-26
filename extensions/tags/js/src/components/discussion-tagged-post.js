@@ -12,7 +12,7 @@ export default class DiscussionTaggedPost extends EventPost {
     var total = added.concat(removed);
 
     var build = function(verb, tags, only) {
-      return tags.length ? [verb, ' ', only && tags.length == 1 ? 'the ' : '', tagsLabel(tags)] : '';
+      return tags.length ? [verb, ' ', only && tags.length == 1 ? 'the ' : '', tagsLabel(tags, {link: true})] : '';
     };
 
     return super.view('tag', [
