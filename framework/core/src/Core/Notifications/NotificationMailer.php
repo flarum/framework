@@ -19,7 +19,7 @@ class NotificationMailer
             compact('notification', 'user'),
             function ($message) use ($notification, $user) {
                 $message->to($user->email, $user->username)
-                        ->subject('['.$this->forum->title.'] '.$notification->getEmailSubject());
+                        ->subject($notification->getEmailSubject());
             }
         );
     }
