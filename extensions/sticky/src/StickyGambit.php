@@ -10,7 +10,7 @@ class StickyGambit extends GambitAbstract
      *
      * @var string
      */
-    protected $pattern = 'sticky:(true|false)';
+    protected $pattern = 'is:sticky';
 
     /**
      * Apply conditions to the searcher, given matches from the gambit's
@@ -20,10 +20,8 @@ class StickyGambit extends GambitAbstract
      * @param \Flarum\Core\Search\SearcherInterface $searcher
      * @return void
      */
-    public function conditions($matches, SearcherInterface $searcher)
+    protected function conditions(SearcherInterface $searcher, array $matches, $negate)
     {
-        $sticky = $matches[1] === 'true';
-
-        $searcher->query()->where('is_sticky', $sticky);
+        $searcher->getQuery()->where('is_sticky', ! $negate);
     }
 }
