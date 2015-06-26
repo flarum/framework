@@ -2,6 +2,7 @@ import Component from 'flarum/component';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import username from 'flarum/helpers/username';
+import listItems from 'flarum/helpers/list-items';
 import DropdownButton from 'flarum/components/dropdown-button';
 import ActionButton from 'flarum/components/action-button';
 import ItemList from 'flarum/utils/item-list';
@@ -49,11 +50,18 @@ export default class NotificationList extends Component {
       ]),
       m('div.notifications-content', groups.length
         ? groups.map(group => {
+          var badges = group.discussion && group.discussion.badges().toArray();
+
           return m('div.notification-group', [
-            group.discussion ? m('a.notification-group-header', {
-              href: app.route.discussion(group.discussion),
-              config: m.route
-            }, group.discussion.title()) : m('div.notification-group-header', app.config['forum_title']),
+            group.discussion
+              ? m('a.notification-group-header', {
+                  href: app.route.discussion(group.discussion),
+                  config: m.route
+                },
+                badges && badges.length ? m('ul.badges', listItems(badges)) : '',
+                group.discussion.title()
+              )
+              : m('div.notification-group-header', app.config['forum_title']),
             m('ul.notification-group-list', group.notifications.map(notification => {
               var NotificationComponent = app.notificationComponentRegistry[notification.contentType()];
               return NotificationComponent ? m('li', NotificationComponent.component({notification})) : '';

@@ -84,6 +84,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  & .badges {
+    margin-left: -2px;
+    margin-right: 18px;
+    vertical-align: 1px;
+
+    & .badge {
+      margin-right: -13px;
+      position: relative;
+      .badge-size(21px);
+    }
+  }
 }
 .notification-group-list {
   list-style: none;
