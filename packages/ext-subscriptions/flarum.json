@@ -1,0 +1,16 @@
+{
+    "name": "flarum-subscriptions",
+    "title": "Subscriptions",
+    "description": "Allow users to follow discussions and receive notifications for new posts.",
+    "tags": [],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    }
+}
