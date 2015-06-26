@@ -24,11 +24,12 @@ export default class DiscussionsSearchResults {
         config: m.route
       })),
       (this.results[string] && this.results[string].length) ? this.results[string].map(discussion => {
-        var post = discussion.relevantPosts()[0];
+        var relevantPosts = discussion.relevantPosts();
+        var post = relevantPosts && relevantPosts[0];
         return m('li.discussion-search-result', {'data-index': 'discussions'+discussion.id()},
-          m('a', { href: app.route.discussion(discussion, post.number()), config: m.route },
+          m('a', { href: app.route.discussion(discussion, post && post.number()), config: m.route },
             m('div.title', highlight(discussion.title(), string)),
-            m('div.excerpt', highlight(truncate(post.contentPlain(), 100), string))
+            post ? m('div.excerpt', highlight(truncate(post.contentPlain(), 100), string)) : ''
           )
         );
       }) : ''
