@@ -50,13 +50,13 @@ class RouteCollection
 
     public function addRoute($method, $path, $name, $handler)
     {
-        $this->dataGenerator->addRoute(
-            $method,
-            $parsed = $this->routeParser->parse($path),
-            $handler
-        );
+        $routeDatas = $this->routeParser->parse($path);
 
-        $this->reverse[$name] = $parsed;
+        foreach ($routeDatas as $routeData) {
+            $this->dataGenerator->addRoute($method, $routeData, $handler);
+        }
+
+        $this->reverse[$name] = $routeDatas;
 
         return $this;
     }
@@ -68,7 +68,7 @@ class RouteCollection
 
     public function getPath($name, $parameters = [])
     {
-        $parts = $this->reverse[$name];
+        $parts = $this->reverse[$name][0];
 
         $path = implode('', array_map(function ($part) use ($parameters) {
             if (is_array($part)) {
