@@ -2,7 +2,9 @@
 
 interface SearcherInterface
 {
-    public function query();
+    public function getQuery();
+
+    public function getUser();
 
     public function setDefaultSort($defaultSort);
 }

@@ -7,15 +7,18 @@ abstract class GambitAbstract
     public function apply($bit, SearcherInterface $searcher)
     {
         if ($matches = $this->match($bit)) {
-            $this->conditions($matches, $searcher);
+            list($negate) = array_splice($matches, 1, 1);
+            $this->conditions($searcher, $matches, !! $negate);
             return true;
         }
     }
 
-    public function match($bit)
+    protected function match($bit)
     {
-        if (preg_match('/^'.$this->pattern.'$/i', $bit, $matches)) {
+        if (preg_match('/^(-?)'.$this->pattern.'$/i', $bit, $matches)) {
             return $matches;
         }
     }
+
+    abstract protected function conditions(SearcherInterface $searcher, array $matches, $negate);
 }

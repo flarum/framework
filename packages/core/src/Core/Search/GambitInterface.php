@@ -2,5 +2,5 @@
 
 interface GambitInterface
 {
-    public function apply($string, $searcher);
+    public function apply($string, SearcherInterface $searcher);
 }

@@ -41,9 +41,14 @@ class DiscussionSearcher implements SearcherInterface
         $this->defaultSort = $defaultSort;
     }
 
-    public function query()
+    public function getQuery()
     {
         return $this->query->getQuery();
+    }
+
+    public function getUser()
+    {
+        return $this->user;
     }
 
     public function addActiveGambit($gambit)
@@ -90,17 +95,17 @@ class DiscussionSearcher implements SearcherInterface
             $discussions->pop();
         }
 
-        if (in_array('relevantPosts', $load) && count($this->relevantPosts)) {
+        if (in_array('relevantPosts', $load)) {
             $load = array_diff($load, ['relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user']);
 
             $postIds = [];
             foreach ($this->relevantPosts as $id => $posts) {
                 $postIds = array_merge($postIds, array_slice($posts, 0, 2));
             }
-            $posts = $this->posts->findByIds($postIds, $this->user)->load('user');
+            $posts = $postIds ? $this->posts->findByIds($postIds, $this->user)->load('user')->all() : [];
 
             foreach ($discussions as $discussion) {
-                $discussion->relevantPosts = $posts->filter(function ($post) use ($discussion) {
+                $discussion->relevantPosts = array_filter($posts, function ($post) use ($discussion) {
                     return $post->discussion_id == $discussion->id;
                 });
             }
