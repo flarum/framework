@@ -28,9 +28,14 @@ class UserSearcher implements SearcherInterface
         $this->defaultSort = $defaultSort;
     }
 
-    public function query()
+    public function getQuery()
     {
         return $this->query->getQuery();
+    }
+
+    public function getUser()
+    {
+        return $this->user;
     }
 
     public function addActiveGambit($gambit)
