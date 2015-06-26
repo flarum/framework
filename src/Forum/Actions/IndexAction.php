@@ -37,7 +37,7 @@ class IndexAction extends HtmlAction
     public function render(Request $request, $params = [])
     {
         $config = $this->database->table('config')
-            ->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message'])
+            ->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message', 'theme_primary_color'])
             ->lists('value', 'key');
         $session = [];
         $alert = $this->session->get('alert');

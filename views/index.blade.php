@@ -6,6 +6,10 @@
     <title>{{ $title }}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+
+    <!-- Theme color for Android phones -->
+    <meta name="theme-color" content="{{ $config['theme_primary_color'] }}">
+
     @foreach ($styles as $file)
       <link rel="stylesheet" href="{{ str_replace(public_path(), '', $file) }}">
     @endforeach
