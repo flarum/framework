@@ -64,15 +64,6 @@ export default class ItemList {
 
     array = array.map(item => item.content);
 
-    //recursively flatten array
-    for (var i = 0, len = array.length; i < len; i++) {
-      if (array[i] instanceof Array) {
-        array = array.concat.apply([], array);
-        i-- //check current index again and flatten until there are no more nested arrays at that index
-        len = array.length;
-      }
-    }
-
     return array;
   }
 }
