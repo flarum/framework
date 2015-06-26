@@ -43,7 +43,7 @@ export default class NotificationGrid extends Component {
             m('td.toggle-group', {onclick: this.toggleType.bind(this, type.name)}, type.label),
             this.methods.map(method => {
               var key = this.key(type.name, method.name);
-              return m('td.yesno-cell', this.inputs[key].view());
+              return m('td.yesno-cell', this.inputs[key].render());
             })
           ]))
         ])
