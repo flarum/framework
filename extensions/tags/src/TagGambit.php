@@ -36,13 +36,14 @@ class TagGambit extends GambitAbstract
      * @param \Flarum\Core\Search\SearcherInterface $searcher
      * @return void
      */
-    public function conditions($matches, SearcherInterface $searcher)
+    protected function conditions(SearcherInterface $searcher, array $matches, $negate)
     {
         $slugs = explode(',', trim($matches[1], '"'));
 
-        $searcher->query()->where(function ($query) use ($slugs) {
+        // TODO: implement $negate
+        $searcher->getQuery()->where(function ($query) use ($slugs) {
             foreach ($slugs as $slug) {
-                if ($slug === 'uncategorized') {
+                if ($slug === 'untagged') {
                     $query->orWhereNotExists(function ($query) {
                         $query->select(app('db')->raw(1))
                               ->from('discussions_tags')
