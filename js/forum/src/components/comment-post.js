@@ -52,7 +52,7 @@ export default class CommentPost extends Post {
     var post = this.props.post;
     var props = {post};
 
-    items.add('user', this.postHeaderUser.view(), {first: true});
+    items.add('user', this.postHeaderUser.render(), {first: true});
     items.add('meta', PostHeaderMeta.component(props));
 
     if (post.isEdited() && !post.isHidden()) {

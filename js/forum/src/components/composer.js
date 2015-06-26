@@ -41,7 +41,7 @@ class Composer extends Component {
       m('ul.composer-controls', listItems(this.controlItems().toArray())),
       m('div.composer-content', {onclick: () => {
         if (this.position() === Composer.PositionEnum.MINIMIZED) this.show();
-      }}, this.component ? this.component.view() : '')
+      }}, this.component ? this.component.render() : '')
     ]);
   }
 
@@ -141,7 +141,7 @@ class Composer extends Component {
     }
   }
 
-  render(anchorToBottom) {
+  update(anchorToBottom) {
     var $composer = this.$().stop(true);
     var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
 
@@ -235,12 +235,12 @@ class Composer extends Component {
     if ([Composer.PositionEnum.MINIMIZED, Composer.PositionEnum.HIDDEN].indexOf(this.position()) !== -1) {
       this.position(Composer.PositionEnum.NORMAL);
     }
-    this.render(anchorToBottom);
+    this.update(anchorToBottom);
   }
 
   hide() {
     this.position(Composer.PositionEnum.HIDDEN);
-    this.render();
+    this.update();
   }
 
   close() {
@@ -252,21 +252,21 @@ class Composer extends Component {
   minimize() {
     if (this.position() !== Composer.PositionEnum.HIDDEN) {
       this.position(Composer.PositionEnum.MINIMIZED);
-      this.render();
+      this.update();
     }
   }
 
   fullScreen() {
     if (this.position() !== Composer.PositionEnum.HIDDEN) {
       this.position(Composer.PositionEnum.FULLSCREEN);
-      this.render();
+      this.update();
     }
   }
 
   exitFullScreen() {
     if (this.position() === Composer.PositionEnum.FULLSCREEN) {
       this.position(Composer.PositionEnum.NORMAL);
-      this.render();
+      this.update();
     }
   }
 

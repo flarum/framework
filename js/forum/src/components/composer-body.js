@@ -25,18 +25,14 @@ export default class ComposerBody extends Component {
   view(className) {
     this.editor.props.disabled = this.loading() || !this.ready();
 
-    return m('div', {className, config: this.onload.bind(this)}, [
+    return m('div', {className}, [
       avatar(this.props.user, {className: 'composer-avatar'}),
       m('div.composer-body', [
         m('ul.composer-header', listItems(this.headerItems().toArray())),
-        m('div.composer-editor', this.editor.view())
+        m('div.composer-editor', this.editor.render())
       ]),
       LoadingIndicator.component({className: 'composer-loading'+(this.loading() ? ' active' : '')})
     ]);
-  }
-
-  onload(element) {
-    this.element(element);
   }
 
   focus() {

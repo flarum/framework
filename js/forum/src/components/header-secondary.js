@@ -16,7 +16,7 @@ export default class HeaderSecondary extends Component {
   items() {
     var items = new ItemList();
 
-    items.add('search', app.search.view());
+    items.add('search', app.search.render());
 
     if (app.session.user()) {
       items.add('notifications', UserNotifications.component({ user: app.session.user() }))

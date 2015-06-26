@@ -22,6 +22,22 @@ export default class Component {
     //
   }
 
+  render() {
+    var vdom = this.view();
+    vdom.attrs = vdom.attrs || {};
+
+    if (!vdom.attrs.config) {
+      var component = this;
+      vdom.attrs.config = function() {
+        var args = [].slice.apply(arguments);
+        component.element(args[0]);
+        component.config.apply(component, args);
+      };
+    }
+
+    return vdom;
+  }
+
   /**
 
    */
@@ -32,18 +48,7 @@ export default class Component {
     }
     var view = function(component) {
       component.props = props;
-      var vdom = component.view();
-      vdom.attrs = vdom.attrs || {};
-
-      if (!vdom.attrs.config) {
-        vdom.attrs.config = function() {
-          var args = [].slice.apply(arguments);
-          component.element(args[0]);
-          component.config.apply(component, args);
-        };
-      }
-
-      return vdom;
+      return component.render();
     };
     view.$original = this.prototype.view;
     var output = {

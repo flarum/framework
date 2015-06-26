@@ -152,14 +152,14 @@ export default class DiscussionPage extends mixin(Component, evented) {
     var discussion = this.discussion();
 
     return m('div', {config: this.onload.bind(this)}, [
-      app.cache.discussionList ? m('div.index-area.paned', {config: this.configIndex.bind(this)}, app.cache.discussionList.view()) : '',
+      app.cache.discussionList ? m('div.index-area.paned', {config: this.configIndex.bind(this)}, app.cache.discussionList.render()) : '',
       m('div.discussion-area', discussion ? [
         DiscussionHero.component({discussion}),
         m('div.container', [
           m('nav.discussion-nav', [
             m('ul', listItems(this.sidebarItems().toArray()))
           ]),
-          this.stream.view()
+          this.stream.render()
         ])
       ] : LoadingIndicator.component({className: 'loading-indicator-block'}))
     ]);
