@@ -210,7 +210,7 @@ export default class IndexPage extends Component {
   clearSearch() {
     var params = this.params();
     delete params.q;
-    m.route(app.route('index', params));
+    m.route(app.route(this.props.routeName, params));
   }
 
   /**
