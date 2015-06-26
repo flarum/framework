@@ -16,6 +16,10 @@ export default function tagsLabel(tag, attrs) {
       attrs.style.backgroundColor = attrs.style.color = color;
       attrs.className += ' colored';
     }
+
+    if (link) {
+      attrs.title = tag.description() || '';
+    }
   } else {
     attrs.className += ' untagged';
   }
