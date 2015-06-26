@@ -62,7 +62,7 @@ export default class PostScrubber extends Component {
     var retain = this.subtree.retain();
     var stream = this.props.stream;
     var unreadCount = this.props.stream.discussion.unreadCount();
-    var unreadPercent = unreadCount / this.count();
+    var unreadPercent = Math.min(this.count() - this.index(), unreadCount) / this.count();
 
     // @todo clean up duplication
     return m('div.stream-scrubber.dropdown'+(this.disabled() ? '.disabled' : ''), {config: this.onload.bind(this), className: this.props.className}, [
