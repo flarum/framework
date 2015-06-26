@@ -33,12 +33,7 @@ class NotificationSyncer
      */
     public function sync(NotificationInterface $notification, array $users)
     {
-        $attributes = [
-            'type'       => $notification::getType(),
-            'sender_id'  => $notification->getSender()->id,
-            'subject_id' => $notification->getSubject()->id,
-            'data'       => ($data = $notification->getData()) ? json_encode($data) : null
-        ];
+        $attributes = $this->getAttributes($notification);
 
         $toDelete = Notification::where($attributes)->get();
         $toUndelete = [];
@@ -83,6 +78,16 @@ class NotificationSyncer
         }
     }
 
+    public function delete(NotificationInterface $notification)
+    {
+        Notification::where($this->getAttributes($notification))->update(['is_deleted' => true]);
+    }
+
+    public function restore(NotificationInterface $notification)
+    {
+        Notification::where($this->getAttributes($notification))->update(['is_deleted' => false]);
+    }
+
     public function onePerUser(Closure $callback)
     {
         $this->sentTo = [];
@@ -91,5 +96,15 @@ class NotificationSyncer
         $callback();
 
         $this->onePerUser = false;
+    }
+
+    protected function getAttributes(NotificationInterface $notification)
+    {
+        return [
+            'type'       => $notification::getType(),
+            'sender_id'  => $notification->getSender()->id,
+            'subject_id' => $notification->getSubject()->id,
+            'data'       => ($data = $notification->getData()) ? json_encode($data) : null
+        ];
     }
 }
