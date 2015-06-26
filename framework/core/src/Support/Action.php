@@ -2,7 +2,8 @@
 
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response;
+use Zend\Diactoros\Response\EmptyResponse;
+use Zend\Diactoros\Response\RedirectResponse;
 
 abstract class Action
 {
@@ -22,7 +23,7 @@ abstract class Action
 
     protected function success()
     {
-        return new Response();
+        return new EmptyResponse();
     }
 
     /**
@@ -44,7 +45,7 @@ abstract class Action
     </body>
 </html>', htmlspecialchars($url, ENT_QUOTES, 'UTF-8'));
 
-        $response = new Response('php://memory', 302, ['location' => $url]);
+        $response = new RedirectResponse($url);
         $response->getBody()->write($content);
 
         return $response;

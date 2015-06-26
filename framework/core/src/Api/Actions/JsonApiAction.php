@@ -4,7 +4,7 @@ use Flarum\Api\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
-use Zend\Diactoros\Response;
+use Zend\Diactoros\Response\JsonResponse;
 
 abstract class JsonApiAction implements ActionInterface
 {
@@ -27,26 +27,12 @@ abstract class JsonApiAction implements ActionInterface
                     'path' => $field
                 ];
             }
-            return $this->json(['errors' => $errors], 422);
+            return new JsonResponse(['errors' => $errors], 422);
         } catch (PermissionDeniedException $e) {
-            return $this->json(null, 401);
+            return new JsonResponse(null, 401);
         } catch (ModelNotFoundException $e) {
-            return $this->json(null, 404);
+            return new JsonResponse(null, 404);
         }
-    }
-
-    protected function json($data = null, $status = 200)
-    {
-        if ($data === null) {
-            $data = new \ArrayObject();
-        }
-
-        $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
-
-        $response = new Response('php://memory', $status);
-        $response->getBody()->write($data);
-
-        return $response;
     }
 
     /**

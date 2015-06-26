@@ -4,7 +4,7 @@ use Flarum\Api\Client;
 use Flarum\Forum\Events\UserLoggedIn;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response;
+use Zend\Diactoros\Response\EmptyResponse;
 
 class LoginAction extends BaseAction
 {
@@ -40,7 +40,7 @@ class LoginAction extends BaseAction
                 $data->token
             );
         } else {
-            return new Response('php://memory', 401);
+            return new EmptyResponse(401);
         }
     }
 }
