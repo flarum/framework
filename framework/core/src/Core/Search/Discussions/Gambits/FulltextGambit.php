@@ -2,9 +2,9 @@
 
 use Flarum\Core\Repositories\PostRepositoryInterface;
 use Flarum\Core\Search\SearcherInterface;
-use Flarum\Core\Search\GambitAbstract;
+use Flarum\Core\Search\GambitInterface;
 
-class FulltextGambit extends GambitAbstract
+class FulltextGambit implements GambitInterface
 {
     protected $posts;
 
@@ -24,7 +24,8 @@ class FulltextGambit extends GambitAbstract
         }
         $discussions = array_unique($discussions);
 
-        $searcher->query()->whereIn('id', $discussions);
+        // TODO: implement negate (match for - at start of string)
+        $searcher->getQuery()->whereIn('id', $discussions);
 
         $searcher->setDefaultSort(['id' => $discussions]);
     }

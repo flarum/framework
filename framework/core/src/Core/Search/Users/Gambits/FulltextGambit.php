@@ -2,9 +2,9 @@
 
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Search\SearcherInterface;
-use Flarum\Core\Search\GambitAbstract;
+use Flarum\Core\Search\GambitInterface;
 
-class FulltextGambit extends GambitAbstract
+class FulltextGambit implements GambitInterface
 {
     protected $users;
 
@@ -17,7 +17,7 @@ class FulltextGambit extends GambitAbstract
     {
         $users = $this->users->getIdsForUsername($string, $searcher->user);
 
-        $searcher->query()->whereIn('id', $users);
+        $searcher->getQuery()->whereIn('id', $users);
 
         $searcher->setDefaultSort(['id' => $users]);
     }

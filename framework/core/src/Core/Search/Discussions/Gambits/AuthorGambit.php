@@ -19,12 +19,12 @@ class AuthorGambit extends GambitAbstract
         $this->users = $users;
     }
 
-    public function conditions($matches, SearcherInterface $searcher)
+    protected function conditions(SearcherInterface $searcher, array $matches, $negate)
     {
         $username = trim($matches[1], '"');
 
         $id = $this->users->getIdForUsername($username);
 
-        $searcher->query()->where('start_user_id', $id);
+        $searcher->getQuery()->where('start_user_id', $negate ? '!=' : '=', $id);
     }
 }
