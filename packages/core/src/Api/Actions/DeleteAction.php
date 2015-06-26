@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
-use Zend\Diactoros\Response;
+use Zend\Diactoros\Response\EmptyResponse;
 
 abstract class DeleteAction extends JsonApiAction
 {
@@ -16,7 +16,7 @@ abstract class DeleteAction extends JsonApiAction
     {
         $this->delete($request);
 
-        return new Response('php://memory', 204);
+        return new EmptyResponse(204);
     }
 
     /**

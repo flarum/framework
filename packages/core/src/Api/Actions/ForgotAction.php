@@ -1,10 +1,10 @@
 <?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
-use Flarum\Api\Actions\JsonApiAction;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Flarum\Core\Commands\RequestPasswordResetCommand;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Zend\Diactoros\Response\EmptyResponse;
 
 class ForgotAction extends JsonApiAction
 {
@@ -32,6 +32,6 @@ class ForgotAction extends JsonApiAction
             new RequestPasswordResetCommand($email)
         );
 
-        return $this->json();
+        return new EmptyResponse();
     }
 }

@@ -2,7 +2,7 @@
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\StringResponse;
+use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
 
 class HandleErrors implements ErrorMiddlewareInterface
@@ -30,7 +30,7 @@ class HandleErrors implements ErrorMiddlewareInterface
 
         $errorPage = $this->getErrorPage($status);
 
-        return StringResponse::html($errorPage, $status);
+        return new HtmlResponse($errorPage, $status);
     }
 
     protected function getErrorPage($status)

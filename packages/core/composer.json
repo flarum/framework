@@ -17,6 +17,7 @@
         "intervention/image": "dev-master",
         "ezyang/htmlpurifier": "dev-master",
         "psr/http-message": "^1.0@dev",
+        "zendframework/zend-diactoros": "^1.1",
         "nikic/fast-route": "dev-master",
         "dflydev/fig-cookies": "^1.0"
     },
