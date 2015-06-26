@@ -6,4 +6,4 @@ Hey {{ $user->username }}!
 
 ---
 
-{{{ $notification->reply->contentPlain }}}
+{{ strip_tags($notification->post->contentHtml) }}
