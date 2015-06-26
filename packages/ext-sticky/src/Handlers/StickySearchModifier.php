@@ -13,7 +13,7 @@ class StickySearchModifier
     public function reorderSearch(DiscussionSearchWillBePerformed $event)
     {
         if ($event->criteria->sort === null) {
-            $query = $event->searcher->query();
+            $query = $event->searcher->getQuery();
 
             if (!is_array($query->orders)) {
                 $query->orders = [];
