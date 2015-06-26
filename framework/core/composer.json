@@ -18,7 +18,7 @@
         "ezyang/htmlpurifier": "dev-master",
         "psr/http-message": "^1.0@dev",
         "zendframework/zend-diactoros": "^1.1",
-        "nikic/fast-route": "dev-master",
+        "nikic/fast-route": "^0.6",
         "dflydev/fig-cookies": "^1.0"
     },
     "require-dev": {

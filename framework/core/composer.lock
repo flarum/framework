@@ -581,12 +581,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/FastRoute.git",
-                "reference": "ffb3b68a3ab0df7e60cf587d2de4937915670f16"
+                "reference": "31fa86924556b80735f98b294a7ffdfb26789f22"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/nikic/FastRoute/zipball/31fa86924556b80735f98b294a7ffdfb26789f22",
-                "reference": "ffb3b68a3ab0df7e60cf587d2de4937915670f16",
+                "reference": "31fa86924556b80735f98b294a7ffdfb26789f22",
                 "shasum": ""
             },
             "require": {
@@ -616,7 +616,7 @@
                 "router",
                 "routing"
             ],
-            "time": "2015-05-15 16:58:32"
+            "time": "2015-06-18 19:15:47"
         },
         {
             "name": "oyejorge/less.php",
