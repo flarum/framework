@@ -72,7 +72,7 @@ class Composer extends Component {
       .on('mouseup', this.handlers.onmouseup = this.onmouseup.bind(this));
 
     window.onbeforeunload = e => {
-      return this.component && this.component.preventExit();
+      return (this.component && this.component.preventExit()) || null;
     };
   }
 
