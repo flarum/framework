@@ -21,15 +21,10 @@ export default class ReplyComposer extends ComposerBody {
   headerItems() {
     var items = new ItemList();
 
-    if (app.composer.position() === Composer.PositionEnum.MINIMIZED ||
-      // https://github.com/babel/babel/issues/1150
-      !app.current.discussion ||
-      app.current.discussion() !== this.props.discussion) {
-      items.add('title', m('h3', [
-        icon('reply'), ' ',
-        m('a', {href: app.route.discussion(this.props.discussion), config: m.route}, this.props.discussion.title())
-      ]));
-    }
+    items.add('title', m('h3', [
+      icon('reply'), ' ',
+      m('a', {href: app.route.discussion(this.props.discussion), config: m.route}, this.props.discussion.title())
+    ]));
 
     return items;
   }
