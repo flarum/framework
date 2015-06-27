@@ -12,13 +12,16 @@ export default function() {
     }
   };
 
+  var originalThemeColor = $('meta[name=theme-color]').attr('content');
+
   // If currently viewing a tag, insert a tag hero at the top of the
-  // view.
+  // view and set the theme color accordingly.
   extend(IndexPage.prototype, 'view', function(view) {
     var tag = this.currentTag();
     if (tag) {
       view.children[0] = TagHero.component({tag});
     }
+    $('meta[name=theme-color]').attr('content', tag ? tag.color() : originalThemeColor);
   });
 
   // If currently viewing a tag, restyle the 'new discussion' button to use
