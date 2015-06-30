@@ -4,7 +4,7 @@ class Core
 {
     public static function isInstalled()
     {
-        return file_exists(base_path('../config.php'));
+        return app()->bound('flarum.config');
     }
 
     public static function inDebugMode()
@@ -18,7 +18,7 @@ class Core
             return $default;
         }
 
-        if (is_null($value = app('db')->table('config')->where('key', $key)->pluck('value'))) {
+        if (is_null($value = app('flarum.db')->table('config')->where('key', $key)->pluck('value'))) {
             $value = $default;
         }
 

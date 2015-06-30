@@ -9,7 +9,7 @@ use Flarum\Forum\Events\RenderView;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
-use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -25,8 +25,7 @@ class IndexAction extends HtmlAction
 
     public static $translations = [];
 
-    // TODO: DatabaseManager should be ConnectionInterface
-    public function __construct(Client $apiClient, Actor $actor, DatabaseManager $database, SessionInterface $session)
+    public function __construct(Client $apiClient, Actor $actor, ConnectionInterface $database, SessionInterface $session)
     {
         $this->apiClient = $apiClient;
         $this->actor = $actor;
