@@ -20,6 +20,8 @@ class ForumServiceProvider extends ServiceProvider
                 return new UrlGenerator($this->app->make('flarum.forum.routes'));
             }
         );
+
+        $this->app->register('Flarum\Locale\LocaleServiceProvider');
     }
 
     /**

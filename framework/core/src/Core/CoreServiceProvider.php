@@ -2,7 +2,6 @@
 
 use Illuminate\Bus\Dispatcher as Bus;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Support\ServiceProvider;
 use Flarum\Core\Models\CommentPost;
 use Flarum\Core\Models\Post;
@@ -11,11 +10,7 @@ use Flarum\Core\Models\Forum;
 use Flarum\Core\Models\User;
 use Flarum\Core\Models\Discussion;
 use Flarum\Core\Search\GambitManager;
-use Flarum\Core\Events\RegisterDiscussionGambits;
-use Flarum\Core\Events\RegisterUserGambits;
-use Flarum\Extend\ActivityType;
-use Flarum\Extend\NotificationType;
-use Flarum\Extend\Locale;
+use Flarum\Extend;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -24,47 +19,26 @@ class CoreServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Dispatcher $events, Bus $bus)
+    public function boot()
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
-        $this->registerEventHandlers($events);
-        $this->registerPostTypes();
-        $this->registerPermissions();
-        $this->registerGambits();
-        $this->setupModels();
+        $this->addEventHandlers();
+        $this->bootModels();
+        $this->addPostTypes();
+        $this->grantPermissions();
+        $this->mapCommandHandlers();
+    }
 
-        $this->app['flarum.formatter']->add('linkify', 'Flarum\Core\Formatter\LinkifyFormatter');
-
-        $bus->mapUsing(function ($command) {
+    public function mapCommandHandlers()
+    {
+        $this->app->make(Bus::class)->mapUsing(function ($command) {
             return Bus::simpleMapping(
                 $command,
                 'Flarum\Core\Commands',
                 'Flarum\Core\Handlers\Commands'
             );
         });
-
-        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier');
-        $events->subscribe('Flarum\Core\Handlers\Events\UserActivitySyncer');
-
-        $this->extend(
-            (new NotificationType('Flarum\Core\Notifications\DiscussionRenamedNotification', 'Flarum\Api\Serializers\DiscussionBasicSerializer'))
-                ->enableByDefault('alert'),
-            (new ActivityType('Flarum\Core\Activity\PostedActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
-            (new ActivityType('Flarum\Core\Activity\StartedDiscussionActivity', 'Flarum\Api\Serializers\PostBasicSerializer')),
-            (new ActivityType('Flarum\Core\Activity\JoinedActivity', 'Flarum\Api\Serializers\UserBasicSerializer'))
-        );
-
-        foreach (['en'] as $locale) {
-            $dir = __DIR__.'/../../locale/'.$locale;
-
-            $this->extend(
-                (new Locale($locale))
-                    ->translations($dir.'/translations.yml')
-                    ->config($dir.'/config.php')
-                    ->js($dir.'/config.js')
-            );
-        }
     }
 
     /**
@@ -76,30 +50,31 @@ class CoreServiceProvider extends ServiceProvider
     {
         // Register a singleton entity that represents this forum. This entity
         // will be used to check for global forum permissions (like viewing the
-        // forum, registering, and starting discussions.)
+        // forum, registering, and starting discussions).
         $this->app->singleton('flarum.forum', 'Flarum\Core\Models\Forum');
 
-        $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\FormatterManager');
+        // TODO: probably use Illuminate's AggregateServiceProvider
+        // functionality, because it includes the 'provides' stuff.
+        $this->app->register('Flarum\Core\Activity\ActivityServiceProvider');
+        $this->app->register('Flarum\Core\Formatter\FormatterServiceProvider');
+        $this->app->register('Flarum\Core\Notifications\NotificationsServiceProvider');
 
-        $this->app->singleton('flarum.localeManager', 'Flarum\Locale\LocaleManager');
-
-        $this->app->singleton('Flarum\Support\Actor');
-
+        // TODO: refactor these into the appropriate service providers, when
+        // (if) we restructure our namespaces per-entity
+        // (Flarum\Core\Discussions\DiscussionsServiceProvider, etc.)
         $this->app->bind(
             'Flarum\Core\Repositories\DiscussionRepositoryInterface',
             'Flarum\Core\Repositories\EloquentDiscussionRepository'
         );
+
         $this->app->bind(
             'Flarum\Core\Repositories\PostRepositoryInterface',
             'Flarum\Core\Repositories\EloquentPostRepository'
         );
+
         $this->app->bind(
             'Flarum\Core\Repositories\UserRepositoryInterface',
             'Flarum\Core\Repositories\EloquentUserRepository'
-        );
-        $this->app->bind(
-            'Flarum\Core\Repositories\ActivityRepositoryInterface',
-            'Flarum\Core\Repositories\EloquentActivityRepository'
         );
 
         $this->app->bind(
@@ -107,70 +82,89 @@ class CoreServiceProvider extends ServiceProvider
             'Flarum\Core\Search\Discussions\Fulltext\MySqlFulltextDriver'
         );
 
-        $avatarFilesystem = function (Container $app) {
+        $this->registerDiscussionGambits();
+        $this->registerUserGambits();
+        $this->registerAvatarsFilesystem();
+    }
+
+    public function registerAvatarsFilesystem()
+    {
+        $avatarsFilesystem = function (Container $app) {
             return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
         };
 
         $this->app->when('Flarum\Core\Handlers\Commands\UploadAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
-            ->give($avatarFilesystem);
+            ->give($avatarsFilesystem);
 
         $this->app->when('Flarum\Core\Handlers\Commands\DeleteAvatarCommandHandler')
             ->needs('League\Flysystem\FilesystemInterface')
-            ->give($avatarFilesystem);
-
-        $this->app->bind(
-            'Flarum\Core\Repositories\NotificationRepositoryInterface',
-            'Flarum\Core\Repositories\EloquentNotificationRepository'
-        );
+            ->give($avatarsFilesystem);
     }
 
-    public function registerGambits()
+    public function registerDiscussionGambits()
     {
+        $this->app->instance('flarum.discussionGambits', [
+            'Flarum\Core\Search\Discussions\Gambits\AuthorGambit',
+            'Flarum\Core\Search\Discussions\Gambits\UnreadGambit'
+        ]);
+
         $this->app->when('Flarum\Core\Search\Discussions\DiscussionSearcher')
             ->needs('Flarum\Core\Search\GambitManager')
-            ->give(function () {
-                $gambits = new GambitManager($this->app);
-                $gambits->add('Flarum\Core\Search\Discussions\Gambits\AuthorGambit');
-                $gambits->add('Flarum\Core\Search\Discussions\Gambits\UnreadGambit');
-                $gambits->setFulltextGambit('Flarum\Core\Search\Discussions\Gambits\FulltextGambit');
+            ->give(function (Container $app) {
+                $gambits = new GambitManager($app);
 
-                event(new RegisterDiscussionGambits($gambits));
+                foreach ($app->make('flarum.discussionGambits') as $gambit) {
+                    $gambits->add($gambit);
+                }
+
+                $gambits->setFulltextGambit('Flarum\Core\Search\Discussions\Gambits\FulltextGambit');
 
                 return $gambits;
             });
+    }
+
+    public function registerUserGambits()
+    {
+        $this->app->instance('flarum.userGambits', []);
 
         $this->app->when('Flarum\Core\Search\Users\UserSearcher')
             ->needs('Flarum\Core\Search\GambitManager')
-            ->give(function () {
-                $gambits = new GambitManager($this->app);
-                $gambits->setFulltextGambit('Flarum\Core\Search\Users\Gambits\FulltextGambit');
+            ->give(function (Container $app) {
+                $gambits = new GambitManager($app);
 
-                event(new RegisterUserGambits($gambits));
+                foreach ($app->make('flarum.userGambits') as $gambit) {
+                    $gambits->add($gambit);
+                }
+
+                $gambits->setFulltextGambit('Flarum\Core\Search\Users\Gambits\FulltextGambit');
 
                 return $gambits;
             });
     }
 
-    public function registerPostTypes()
+    public function addPostTypes()
     {
-        Post::addType('Flarum\Core\Models\CommentPost');
-        Post::addType('Flarum\Core\Models\DiscussionRenamedPost');
+        $this->extend([
+            new Extend\PostType('Flarum\Core\Models\CommentPost'),
+            new Extend\PostType('Flarum\Core\Models\DiscussionRenamedPost')
+        ]);
+    }
+
+    public function addEventHandlers()
+    {
+        $this->extend([
+            new Extend\EventSubscriber('Flarum\Core\Handlers\Events\DiscussionMetadataUpdater'),
+            new Extend\EventSubscriber('Flarum\Core\Handlers\Events\UserMetadataUpdater'),
+            new Extend\EventSubscriber('Flarum\Core\Handlers\Events\EmailConfirmationMailer')
+        ]);
+    }
+
+    public function bootModels()
+    {
+        Model::setValidator($this->app['validator']);
 
         CommentPost::setFormatter($this->app['flarum.formatter']);
-    }
-
-    public function registerEventHandlers($events)
-    {
-        $events->subscribe('Flarum\Core\Handlers\Events\DiscussionMetadataUpdater');
-        $events->subscribe('Flarum\Core\Handlers\Events\UserMetadataUpdater');
-        $events->subscribe('Flarum\Core\Handlers\Events\EmailConfirmationMailer');
-    }
-
-    public function setupModels()
-    {
-        Model::setForum($this->app['flarum.forum']);
-        Model::setValidator($this->app['validator']);
 
         User::setHasher($this->app['hash']);
         User::setFormatter($this->app['flarum.formatter']);
@@ -179,7 +173,7 @@ class CoreServiceProvider extends ServiceProvider
         User::registerPreference('indexProfile', 'boolval', true);
     }
 
-    public function registerPermissions()
+    public function grantPermissions()
     {
         Forum::allow('*', function ($forum, $user, $action) {
             if ($user->hasPermission('forum.'.$action)) {
@@ -196,7 +190,7 @@ class CoreServiceProvider extends ServiceProvider
         // When fetching a discussion's posts: if the user doesn't have permission
         // to moderate the discussion, then they can't see posts that have been
         // hidden by someone other than themself.
-        Discussion::scopeVisiblePosts(function ($query, User $user, Discussion $discussion) {
+        Discussion::addVisiblePostsScope(function ($query, User $user, Discussion $discussion) {
             if (! $discussion->can($user, 'editPosts')) {
                 $query->where(function ($query) use ($user) {
                     $query->whereNull('hide_user_id')

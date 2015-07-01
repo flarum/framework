@@ -13,10 +13,16 @@ class NotificationType implements ExtenderInterface
 
     protected $enabled = [];
 
-    public function __construct($class, $serializer)
+    public function __construct($class)
     {
         $this->class = $class;
+    }
+
+    public function subjectSerializer($serializer)
+    {
         $this->serializer = $serializer;
+
+        return $this;
     }
 
     public function enableByDefault($method)

@@ -10,18 +10,27 @@ class ActivityType implements ExtenderInterface
 
     protected $serializer;
 
-    public function __construct($class, $serializer)
+    public function __construct($class)
     {
         $this->class = $class;
+    }
+
+    public function subjectSerializer($serializer)
+    {
         $this->serializer = $serializer;
+
+        return $this;
     }
 
     public function extend(Container $container)
     {
         $class = $this->class;
+        $type = $class::getType();
 
-        Activity::setSubjectModel($class::getType(), $class::getSubjectModel());
+        Activity::setSubjectModel($type, $class::getSubjectModel());
 
-        ActivitySerializer::$subjects[$class::getType()] = $this->serializer;
+        if ($this->serializer) {
+            ActivitySerializer::setSubjectSerializer($type, $this->serializer);
+        }
     }
 }
