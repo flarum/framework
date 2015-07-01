@@ -90,7 +90,7 @@ class Model implements ExtenderInterface
         }
 
         foreach ($this->dates as $attribute) {
-            $model::addDate($attribute);
+            $model::addDateAttribute($attribute);
         }
     }
 }

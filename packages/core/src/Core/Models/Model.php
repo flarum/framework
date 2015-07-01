@@ -35,14 +35,14 @@ abstract class Model extends Eloquent
      *
      * @var array
      */
-    public static $dates = [];
+    protected static $dateAttributes = [];
 
     /**
      * The validation rules for this model.
      *
      * @var array
      */
-    protected static $rules = [];
+    public static $rules = [];
 
     /**
      * An array of custom relation methods, grouped by subclass.
@@ -176,7 +176,7 @@ abstract class Model extends Eloquent
      */
     public function getDates()
     {
-        return static::$dates;
+        return array_merge(static::$dateAttributes, $this->dates);
     }
 
     /**
@@ -184,9 +184,9 @@ abstract class Model extends Eloquent
      *
      * @param string $attribute
      */
-    public static function addDate($attribute)
+    public static function addDateAttribute($attribute)
     {
-        static::$dates[] = $attribute;
+        static::$dateAttributes[] = $attribute;
     }
 
     /**
