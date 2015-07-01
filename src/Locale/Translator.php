@@ -2,6 +2,9 @@
 
 use Closure;
 
+/**
+ * @todo implement Symfony\Component\Translation\TranslatorInterface
+ */
 class Translator
 {
     protected $translations;
@@ -16,9 +19,7 @@ class Translator
 
     public function plural($count)
     {
-        $callback = $this->plural;
-
-        return $callback($count);
+        return {$this->plural}($count);
     }
 
     public function translate($key, array $input = [])
