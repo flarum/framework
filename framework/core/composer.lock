@@ -852,12 +852,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tobscure/json-api.git",
-                "reference": "c36430b621cc4bc014706395a184e6ced07af3e4"
+                "reference": "ea24da83ff5c4ee9f5df4f2a8eef9f1e6b124d55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tobscure/json-api/zipball/c36430b621cc4bc014706395a184e6ced07af3e4",
-                "reference": "c36430b621cc4bc014706395a184e6ced07af3e4",
+                "url": "https://api.github.com/repos/tobscure/json-api/zipball/ea24da83ff5c4ee9f5df4f2a8eef9f1e6b124d55",
+                "reference": "ea24da83ff5c4ee9f5df4f2a8eef9f1e6b124d55",
                 "shasum": ""
             },
             "require": {
@@ -880,7 +880,7 @@
                 }
             ],
             "description": "JSON-API responses in PHP.",
-            "time": "2015-06-27 22:53:34"
+            "time": "2015-06-30 22:32:11"
         },
         {
             "name": "tobscure/permissible",
