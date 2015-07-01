@@ -2,18 +2,23 @@
 
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Core\Support\EventGenerator;
-use Flarum\Core\Support\MappedMorphToTrait;
+use LogicException;
 
-class Model extends Eloquent
+/**
+ * Base model class, building on Eloquent.
+ *
+ * Adds the ability for custom relations to be added to a model during runtime.
+ * These relations behave in the same way that you would expect; they can be
+ * queried, eager loaded, and accessed as an attribute.
+ */
+abstract class Model extends Eloquent
 {
-    use EventGenerator;
-    use MappedMorphToTrait;
-
     /**
-     * Disable timestamps.
+     * Indicates if the model should be timestamped. Turn them off by default.
      *
      * @var boolean
      */
@@ -27,18 +32,11 @@ class Model extends Eloquent
     protected static $rules = [];
 
     /**
-     * The custom relations on this model, registered by extensions.
+     * An array of custom relation methods, grouped by subclass.
      *
      * @var array
      */
-    protected static $relationships = [];
-
-    /**
-     * The forum model instance.
-     *
-     * @var \Flarum\Core\Models\Forum
-     */
-    protected static $forum;
+    protected static $relationMethods = [];
 
     /**
      * The validation factory instance.
@@ -48,7 +46,7 @@ class Model extends Eloquent
     protected static $validator;
 
     /**
-     * Validate the model on save.
+     * Boot the model.
      *
      * @return void
      */
@@ -56,29 +54,11 @@ class Model extends Eloquent
     {
         parent::boot();
 
+        // Before the model is saved, validate it. If validation fails, an
+        // exception will be thrown, preventing the model from saving.
         static::saving(function ($model) {
             $model->assertValid();
         });
-    }
-
-    /**
-     * Define the relationship with the forum.
-     *
-     * @return \Flarum\Core\Models\Forum
-     */
-    public function forum()
-    {
-        return static::$forum;
-    }
-
-    /**
-     * Set the forum model instance.
-     *
-     * @param \Flarum\Core\Models\Forum $forum
-     */
-    public static function setForum(Forum $forum)
-    {
-        static::$forum = $forum;
     }
 
     /**
@@ -176,51 +156,57 @@ class Model extends Eloquent
         return $rules;
     }
 
-    public function isRelationLoaded($relation)
-    {
-        return array_key_exists($relation, $this->relations);
-    }
-
-    public function getRelation($relation)
-    {
-        if (isset($this->$relation)) {
-            return $this->$relation;
-        }
-
-        if (! $this->isRelationLoaded($relation)) {
-            $this->relations[$relation] = $this->$relation()->getResults();
-        }
-
-        return $this->relations[$relation];
-    }
-
     /**
-     * Add a custom relationship to the model.
+     * Get an attribute from the model. If nothing is found, attempt to load
+     * a custom relation method with this key.
      *
-     * @param string $name The name of the relationship.
-     * @param Closure $callback The callback to execute. This should return an
-     *     Eloquent relationship object.
-     * @return void
-     */
-    public static function addRelationship($name, $callback)
-    {
-        static::$relationships[$name] = $callback;
-    }
-
-    /**
-     * Check for and execute custom relationships.
-     *
-     * @param string $name
-     * @param array $arguments
+     * @param string $key
      * @return mixed
      */
-    public function __call($name, $arguments)
+    public function getAttribute($key)
     {
-        if (isset(static::$relationships[$name])) {
-            array_unshift($arguments, $this);
-            return call_user_func_array(static::$relationships[$name], $arguments);
+        if (! is_null($value = parent::getAttribute($key))) {
+            return $value;
         }
 
-        return parent::__call($name, $arguments);
+        // If a custom relation with this key has been set up, then we will load
+        // and return results from the query and hydrate the relationship's
+        // value on the "relationships" array.
+        if (isset(static::$relationMethods[get_called_class()][$key])) {
+            return $this->getCustomRelationship($key);
+        }
+    }
+
+    /**
+     * Get a relationship value from a custom relationship method.
+     *
+     * @param string $name
+     * @return mixed
+     *
+     * @throws \LogicException
+     */
+    public function getCustomRelationship($name)
+    {
+        $relation = static::$relationMethods[get_called_class()][$name]($this);
+
+        if (! $relation instanceof Relation) {
+            throw new LogicException('Relationship method must return an object of type '
+                . 'Illuminate\Database\Eloquent\Relations\Relation');
+        }
+
+        return $this->relations[$method] = $relation->getResults();
+    }
+
+    /**
+     * Add a custom relation to the model.
+     *
+     * @param string $name The name of the relation.
+     * @param callable $callback The callback to execute. This should return an
+     *     object of type Illuminate\Database\Eloquent\Relations\Relation.
+     * @return void
+     */
+    public static function setRelationMethod($name, callable $callback)
+    {
+        static::$relationMethods[get_called_class()][$name] = $callback;
     }
 }
