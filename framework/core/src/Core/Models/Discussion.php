@@ -11,6 +11,7 @@ use Flarum\Core\Models\User;
 
 class Discussion extends Model
 {
+    use EventGenerator;
     use Locked;
     use VisibleScope;
 
@@ -369,7 +370,7 @@ class Discussion extends Model
         // Unfortunately we can't check to see if the user ID is the same,
         // because the user may not have a state entry, in which case the loaded
         // relation will be null.
-        if ($this->isRelationLoaded('state')) {
+        if (array_key_exists('state', $this->relations)) {
             return $this->relations['state'];
         }
 
