@@ -1,9 +1,20 @@
 <?php namespace Flarum\Core\Models;
 
 use Flarum\Core\Events\DiscussionWasRead;
+use Flarum\Core\Support\EventGenerator;
+use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Models a discussion-user state record in the database.
+ *
+ * Stores information about how much of a discussion a user has read. Can also
+ * be used to store other information, if the appropriate columns are added to
+ * the database, like a user's subscription status for a discussion.
+ */
 class DiscussionState extends Model
 {
+    use EventGenerator;
+
     /**
      * The table associated with the model.
      *
@@ -16,13 +27,13 @@ class DiscussionState extends Model
      *
      * @var array
      */
-    protected $dates = ['read_time'];
+    protected static $dateAttributes = ['read_time'];
 
     /**
-     * Mark the discussion as read to a certain point by updating that state's
-     * data.
+     * Mark the discussion as being read up to a certain point. Raises the
+     * DiscussionWasRead event.
      *
-     * @param  int  $number
+     * @param int $number
      * @return $this
      */
     public function read($number)
@@ -60,10 +71,10 @@ class DiscussionState extends Model
     /**
      * Set the keys for a save update query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function setKeysForSaveQuery(\Illuminate\Database\Eloquent\Builder $query)
+    protected function setKeysForSaveQuery(Builder $query)
     {
         $query->where('discussion_id', $this->discussion_id)
               ->where('user_id', $this->user_id);

@@ -45,7 +45,7 @@ class Discussion extends Model
      *
      * @var array
      */
-    protected static $dates = ['start_time', 'last_time'];
+    protected static $dateAttributes = ['start_time', 'last_time'];
 
     /**
      * The user for which the state relationship should be loaded.
