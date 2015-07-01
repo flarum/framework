@@ -32,6 +32,11 @@ class Model implements ExtenderInterface
         return $this;
     }
 
+    public function date($attribute)
+    {
+        $this->dates[] = $attribute;
+    }
+
     public function hasOne($relation, $related, $foreignKey = null, $localKey = null)
     {
         $this->relations[$relation] = function ($model) use ($relation, $related, $foreignKey, $localKey) {
@@ -73,7 +78,7 @@ class Model implements ExtenderInterface
         $model = $this->model;
 
         foreach ($this->relations as $relation => $callback) {
-            $model::addRelationship($relation, $callback);
+            $model::setRelationMethod($relation, $callback);
         }
 
         foreach ($this->scopeVisible as $callback) {
@@ -82,6 +87,10 @@ class Model implements ExtenderInterface
 
         foreach ($this->allow as $info) {
             $model::allow($info['action'], $info['callback']);
+        }
+
+        foreach ($this->dates as $attribute) {
+            $model::addDate($attribute);
         }
     }
 }
