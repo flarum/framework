@@ -3,9 +3,7 @@
 class ActivitySerializer extends BaseSerializer
 {
     /**
-     * The resource type.
-     *
-     * @var string
+     * @inheritdoc
      */
     protected $type = 'activity';
 
@@ -15,10 +13,7 @@ class ActivitySerializer extends BaseSerializer
      *
      * @var array
      */
-    public static $subjects = [
-        'posted' => 'Flarum\Api\Serializers\PostBasicSerializer',
-        'joined' => 'Flarum\Api\Serializers\UserBasicSerializer'
-    ];
+    protected static $subjectSerializers = [];
 
     /**
      * Serialize attributes of an Activity model for JSON output.
@@ -51,5 +46,10 @@ class ActivitySerializer extends BaseSerializer
         return $this->hasOne(function ($activity) {
             return static::$subjects[$activity->type];
         });
+    }
+
+    public static function setSubjectSerializer($type, $serializer)
+    {
+        static::$subjectSerializers[$type] = $serializer;
     }
 }

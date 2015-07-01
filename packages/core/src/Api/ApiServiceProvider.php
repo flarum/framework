@@ -22,6 +22,8 @@ class ApiServiceProvider extends ServiceProvider
                 return new UrlGenerator($this->app->make('flarum.api.routes'));
             }
         );
+
+        $this->app->register('Flarum\Locale\LocaleServiceProvider');
     }
 
     /**
