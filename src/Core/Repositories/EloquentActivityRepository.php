@@ -8,7 +8,7 @@ class EloquentActivityRepository implements ActivityRepositoryInterface
     public function findByUser($userId, User $viewer, $limit = null, $offset = 0, $type = null)
     {
         $query = Activity::where('user_id', $userId)
-            ->whereIn('type', array_keys(Activity::getTypes()))
+            ->whereIn('type', array_keys(Activity::getSubjectModels()))
             ->orderBy('time', 'desc')
             ->skip($offset)
             ->take($limit);

@@ -20,7 +20,7 @@ class ActivityType implements ExtenderInterface
     {
         $class = $this->class;
 
-        Activity::registerType($class);
+        Activity::setSubjectModel($class::getType(), $class::getSubjectModel());
 
         ActivitySerializer::$subjects[$class::getType()] = $this->serializer;
     }
