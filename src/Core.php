@@ -9,7 +9,7 @@ class Core
 
     public static function inDebugMode()
     {
-        return env('APP_DEBUG');
+        return app('flarum.config')['debug'];
     }
 
     public static function config($key, $default = null)
