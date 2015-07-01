@@ -3,9 +3,11 @@
 use Flarum\Core\Events\PostWasDeleted;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Exceptions\ValidationFailureException;
+use Flarum\Core\Support\EventGenerator;
 
 class Post extends Model
 {
+    use EventGenerator;
     use Locked;
 
     /**
