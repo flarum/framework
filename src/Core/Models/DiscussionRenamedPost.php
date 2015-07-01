@@ -1,31 +1,40 @@
 <?php namespace Flarum\Core\Models;
 
+/**
+ * A post which indicates that a discussion's title was changed.
+ *
+ * The content is stored as a sequential array containing the old title and the
+ * new title.
+ */
 class DiscussionRenamedPost extends EventPost
 {
     /**
-     * The type of post this is, to be stored in the posts table.
-     *
-     * @var string
+     * @inheritdoc
      */
     public static $type = 'discussionRenamed';
 
     /**
-     * Merge the post into another post of the same type.
-     *
-     * @param \Flarum\Core\Models\DiscussionRenamedPost $previous
-     * @return \Flarum\Core\Models\Model|null The final model, or null if the
-     *     previous post was deleted.
+     * @inheritdoc
      */
-    protected function mergeInto(Model $previous)
+    protected function saveAfter(Model $previous)
     {
-        if ($this->user_id === $previous->user_id) {
+        // If the previous post is another 'discussion renamed' post, and it's
+        // by the same user, then we can merge this post into it. If we find
+        // that we've in fact reverted the title, delete it. Otherwise, update
+        // its content.
+        if ($previous instanceof static && $this->user_id === $previous->user_id) {
             if ($previous->content[0] == $this->content[1]) {
-                return;
+                $previous->delete();
+            } else {
+                $previous->content = static::buildContent($previous->content[0], $this->content[1]);
+
+                $previous->save();
             }
 
-            $previous->content = static::buildContent($previous->content[0], $this->content[1]);
             return $previous;
         }
+
+        $this->save();
 
         return $this;
     }
@@ -33,11 +42,11 @@ class DiscussionRenamedPost extends EventPost
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param  int  $discussionId
-     * @param  int  $userId
-     * @param  string  $oldTitle
-     * @param  string  $newTitle
-     * @return static
+     * @param int $discussionId
+     * @param int $userId
+     * @param string $oldTitle
+     * @param string $newTitle
+     * @return \Flarum\Core\Models\DiscussionRenamedPost
      */
     public static function reply($discussionId, $userId, $oldTitle, $newTitle)
     {
@@ -54,11 +63,11 @@ class DiscussionRenamedPost extends EventPost
     /**
      * Build the content attribute.
      *
-     * @param boolean $oldTitle The old title of the discussion.
-     * @param boolean $newTitle The new title of the discussion.
+     * @param string $oldTitle The old title of the discussion.
+     * @param string $newTitle The new title of the discussion.
      * @return array
      */
-    public static function buildContent($oldTitle, $newTitle)
+    protected static function buildContent($oldTitle, $newTitle)
     {
         return [$oldTitle, $newTitle];
     }

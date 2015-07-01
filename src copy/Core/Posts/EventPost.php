@@ -1,11 +1,13 @@
 <?php namespace Flarum\Core\Models;
 
-abstract class EventPost extends Post
+abstract class EventPost extends Post implements MergeableInterface
 {
+    use MergeableTrait;
+
     /**
-     * Unserialize the content attribute from the database's JSON value.
+     * Unserialize the content attribute.
      *
-     * @param string $value
+     * @param  string  $value
      * @return string
      */
     public function getContentAttribute($value)
@@ -14,9 +16,9 @@ abstract class EventPost extends Post
     }
 
     /**
-     * Serialize the content attribute to be stored in the database as JSON.
+     * Serialize the content attribute.
      *
-     * @param string $value
+     * @param  string  $value
      */
     public function setContentAttribute($value)
     {
