@@ -1,8 +1,6 @@
 <?php namespace Flarum\Core\Support;
 
 use Flarum\Core\Exceptions\PermissionDeniedException;
-use Flarum\Core\Models\User;
-use Closure;
 
 trait Locked
 {
@@ -16,7 +14,7 @@ trait Locked
         return array_merge($conditions, $all);
     }
 
-    public static function allow($action, Closure $condition)
+    public static function allow($action, callable $condition)
     {
         foreach ((array) $action as $action) {
             if (! isset(static::$conditions[$action])) {
@@ -27,7 +25,7 @@ trait Locked
         }
     }
 
-    public function can(User $user, $action)
+    public function can($user, $action)
     {
         foreach ($this->getConditions($action) as $condition) {
             $can = $condition($this, $user, $action);
@@ -48,7 +46,7 @@ trait Locked
      *
      * @throws \Flarum\Core\Exceptions\PermissionDeniedException
      */
-    public function assertCan(User $user, $action)
+    public function assertCan($user, $action)
     {
         if (! $this->can($user, $action)) {
             throw new PermissionDeniedException;
