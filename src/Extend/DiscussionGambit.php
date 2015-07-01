@@ -13,8 +13,6 @@ class DiscussionGambit implements ExtenderInterface
 
     public function extend(Container $container)
     {
-        $container->make('events')->listen('Flarum\Core\Events\RegisterDiscussionGambits', function ($event) {
-            $event->gambits->add($this->class);
-        });
+        $container->make('flarum.discussionGambits')[] = $this->class;
     }
 }
