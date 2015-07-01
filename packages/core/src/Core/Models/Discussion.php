@@ -33,8 +33,6 @@ class Discussion extends Model
         'last_post_number'   => 'integer'
     ];
 
-    protected static $relationships = [];
-
     /**
      * The table associated with the model.
      *
@@ -47,20 +45,6 @@ class Discussion extends Model
      *
      * @var array
      */
-
-    /**
-     * An array of posts that have been added during this request.
-     *
-     * @var \Flarum\Core\Models\Post[]
-     */
-    public $addedPosts = [];
-
-    /**
-     * An array of posts that have been removed during this request.
-     *
-     * @var \Flarum\Core\Models\Post[]
-     */
-    public $removedPosts = [];
     protected static $dates = ['start_time', 'last_time'];
 
     /**
@@ -71,7 +55,14 @@ class Discussion extends Model
     protected static $stateUser;
 
     /**
-     * Raise an event when a discussion is deleted.
+     * An array of callables that apply constraints to the visiblePosts query.
+     *
+     * @var callable[]
+     */
+    protected static $visiblePostsScopes = [];
+
+    /**
+     * Boot the model.
      *
      * @return void
      */
@@ -82,28 +73,31 @@ class Discussion extends Model
         static::deleted(function ($discussion) {
             $discussion->raise(new DiscussionWasDeleted($discussion));
 
+            // Delete all of the posts in the discussion. Before we delete them
+            // in a big batch query, we will loop through them and raise a
+            // PostWasDeleted event for each post.
             $posts = $discussion->posts()->allTypes();
 
             foreach ($posts->get() as $post) {
-                $post->setRelation('discussion', $discussion);
-
                 $discussion->raise(new PostWasDeleted($post));
             }
 
             $posts->delete();
 
+            // Delete all of the 'state' records for all of the users who have
+            // read the discussion.
             $discussion->readers()->detach();
         });
     }
 
     /**
-     * Create a new instance.
+     * Start a new discussion. Raises the DiscussionWasStarted event.
      *
-     * @param  string  $title
-     * @param  \Flarum\Core\Models\User  $user
-     * @return static
+     * @param string $title
+     * @param \Flarum\Core\Models\User $user
+     * @return \Flarum\Core\Models\Discussion
      */
-    public static function start($title, $user)
+    public static function start($title, User $user)
     {
         $discussion = new static;
 
@@ -117,13 +111,13 @@ class Discussion extends Model
     }
 
     /**
-     * Rename the discussion.
+     * Rename the discussion. Raises the DiscussionWasRenamed event.
      *
-     * @param  string $title
-     * @param  \Flarum\Core\Models\User  $user
+     * @param string $title
+     * @param \Flarum\Core\Models\User $user
      * @return $this
      */
-    public function rename($title, $user)
+    public function rename($title, User $user)
     {
         if ($this->title !== $title) {
             $oldTitle = $this->title;
@@ -138,7 +132,7 @@ class Discussion extends Model
     /**
      * Set the discussion's start post details.
      *
-     * @param  \Flarum\Core\Models\Post  $post
+     * @param \Flarum\Core\Models\Post $post
      * @return $this
      */
     public function setStartPost(Post $post)
@@ -153,7 +147,7 @@ class Discussion extends Model
     /**
      * Set the discussion's last post details.
      *
-     * @param  \Flarum\Core\Models\Post  $post
+     * @param \Flarum\Core\Models\Post $post
      * @return $this
      */
     public function setLastPost(Post $post)
@@ -173,7 +167,7 @@ class Discussion extends Model
      */
     public function refreshLastPost()
     {
-        if ($lastPost = $this->comments()->orderBy('time', 'desc')->first()) {
+        if ($lastPost = $this->comments()->latest('time')->first()) {
             $this->setLastPost($lastPost);
         }
 
@@ -205,45 +199,23 @@ class Discussion extends Model
     }
 
     /**
-     * Specify that a post was added to this discussion during this request
-     * for later retrieval.
+     * Save a post, attempting to merge it with the discussion's last post.
      *
-     * @param  \Flarum\Core\Models\Post  $post
-     * @return void
-     */
-    public function postWasAdded(Post $post)
-    {
-        $this->addedPosts[] = $post;
-    }
-
-    /**
-     * Specify that a post was removed from this discussion during this
-     * request for later retrieval.
+     * The merge logic is delegated to the new post. (As an example, a
+     * DiscussionRenamedPost will merge if adjacent to another
+     * DiscussionRenamedPost, and delete if the title has been reverted
+     * completely.)
      *
-     * @param  \Flarum\Core\Models\Post  $post
-     * @return void
+     * @param \Flarum\Core\Posts\Post $post The post to save.
+     * @return \Flarum\Core\Posts\Post The resulting post. It may or may not be
+     *     the same post as was originally intended to be saved. It also may not
+     *     exist, if the merge logic resulted in deletion.
      */
-    public function postWasRemoved(Post $post)
+    public function mergePost(Mergable $post)
     {
-        $this->removedPosts[] = $post->id;
-    }
+        $lastPost = $this->posts()->latest('time')->first();
 
-    public function addPost(Post $post)
-    {
-        if ($post instanceof MergeableInterface) {
-            $lastPost = $this->posts()->orderBy('time', 'desc')->first();
-            $post = $post->saveAfter($lastPost);
-        } else {
-            $post->save();
-        }
-
-        if ($post->exists) {
-            $this->postWasAdded($post);
-        } else {
-            $this->postWasRemoved($post);
-        }
-
-        return $post;
+        return $post->saveAfter($lastPost);
     }
 
     /**
@@ -256,13 +228,13 @@ class Discussion extends Model
         return $this->hasMany('Flarum\Core\Models\Post');
     }
 
-    protected static $visiblePostsScopes = [];
-
-    public static function scopeVisiblePosts($scope)
-    {
-        static::$visiblePostsScopes[] = $scope;
-    }
-
+    /**
+     * Define the relationship with the discussion's posts, but only ones which
+     * are visible to the given user.
+     *
+     * @param \Flarum\Core\Models\User $user
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function visiblePosts(User $user)
     {
         $query = $this->posts();
@@ -275,23 +247,27 @@ class Discussion extends Model
     }
 
     /**
-     * Define the relationship with the discussion's comments.
+     * Define the relationship with the discussion's publicly-visible comments.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function comments()
     {
-        return $this->posts()->where('type', 'comment')->whereNull('hide_time');
+        return $this->visiblePosts(new Guest)->where('type', 'comment');
     }
 
     /**
-     * Define the relationship with the discussion's participants.
+     * Query the discussion's participants (a list of unique users who have
+     * posted in the discussion).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function participants()
     {
-        return User::join('posts', 'posts.user_id', '=', 'users.id')->where('posts.discussion_id', $this->id)->select('users.*')->distinct();
+        return User::join('posts', 'posts.user_id', '=', 'users.id')
+            ->where('posts.discussion_id', $this->id)
+            ->select('users.*')
+            ->distinct();
     }
 
     /**
@@ -325,7 +301,7 @@ class Discussion extends Model
     }
 
     /**
-     * Define the relationship with the discussion's last post's author.
+     * Define the relationship with the discussion's most recent author.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -345,35 +321,33 @@ class Discussion extends Model
     }
 
     /**
-     * Define the relationship with the discussion's state for a particular user.
+     * Define the relationship with the discussion's state for a particular
+     * user.
      *
-     * @param  \Flarum\Core\Models\User  $user
+     * If no user is passed (i.e. in the case of eager loading the 'state'
+     * relation), then the static `$stateUser` property is used.
+     *
+     * @see \Flarum\Core\Models\Discussion::setStateUser()
+     *
+     * @param \Flarum\Core\Models\User $user
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function state(User $user = null)
     {
         $user = $user ?: static::$stateUser;
 
-        return $this->hasOne('Flarum\Core\Models\DiscussionState')->where('user_id', $user->id);
+        return $this->hasOne('Flarum\Core\Models\DiscussionState')->where('user_id', $user ? $user->id : null);
     }
 
     /**
      * Get the state model for a user, or instantiate a new one if it does not
      * exist.
      *
-     * @param  \Flarum\Core\Models\User  $user
+     * @param \Flarum\Core\Models\User $user
      * @return \Flarum\Core\Models\DiscussionState
      */
     public function stateFor(User $user)
     {
-        // If the state is already eager-loaded, we'll return that.
-        // Unfortunately we can't check to see if the user ID is the same,
-        // because the user may not have a state entry, in which case the loaded
-        // relation will be null.
-        if (array_key_exists('state', $this->relations)) {
-            return $this->relations['state'];
-        }
-
         $state = $this->state($user)->first();
 
         if (! $state) {
@@ -388,10 +362,22 @@ class Discussion extends Model
     /**
      * Set the user for which the state relationship should be loaded.
      *
-     * @param  \Flarum\Core\Models\User  $user
+     * @param \Flarum\Core\Models\User $user
      */
     public static function setStateUser(User $user)
     {
         static::$stateUser = $user;
+    }
+
+    /**
+     * Constrain which posts are visible to a user.
+     *
+     * @param callable $scope A callback that applies constraints to the posts
+     *     query. It is passed three parameters: the query builder object, the
+     *     user to constrain posts for, and the discussion instance.
+     */
+    public static function addVisiblePostsScope(callable $scope)
+    {
+        static::$visiblePostsScopes[] = $scope;
     }
 }
