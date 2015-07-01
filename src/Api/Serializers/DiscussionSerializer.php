@@ -13,7 +13,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
         $attributes = parent::attributes($discussion);
 
         $user = $this->actor->getUser();
-        $state = $discussion->stateFor($user);
+        $state = $discussion->state;
 
         $attributes += [
             'commentsCount'     => (int) $discussion->comments_count,

@@ -34,6 +34,8 @@ trait Locked
                 return $can;
             }
         }
+
+        return false;
     }
 
     /**
