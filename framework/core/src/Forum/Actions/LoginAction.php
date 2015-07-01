@@ -5,6 +5,7 @@ use Flarum\Forum\Events\UserLoggedIn;
 use Flarum\Core\Repositories\UserRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
+use Zend\Diactoros\Response\JsonResponse;
 
 class LoginAction extends BaseAction
 {
@@ -32,11 +33,8 @@ class LoginAction extends BaseAction
         if (isset($data->userId)) {
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
 
-            $response = $this->success();
-            $response->getBody()->write(json_encode($data));
-
             return $this->withRememberCookie(
-                $response,
+                new JsonResponse($data),
                 $data->token
             );
         } else {
