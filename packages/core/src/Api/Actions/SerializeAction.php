@@ -3,10 +3,10 @@
 use Flarum\Api\Events\WillSerializeData;
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Api\JsonApiResponse;
 use Tobscure\JsonApi\Criteria;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\SerializerInterface;
+use Zend\Diactoros\Response\JsonResponse;
 
 abstract class SerializeAction extends JsonApiAction
 {
@@ -78,9 +78,7 @@ abstract class SerializeAction extends JsonApiAction
         $serializer = new static::$serializer($request->actor, $request->include, $request->link);
 
         $document->setData($this->serialize($serializer, $data));
-        $response = new JsonApiResponse($document);
-
-        return $response;
+        return new JsonResponse($document, 200, ['content-type' => 'application/vnd.api+json']);
     }
 
     /**
