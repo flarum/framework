@@ -17,18 +17,25 @@ use LogicException;
  *
  * @todo Refactor out validation, either into a trait or into a dependency.
  *       The following requirements need to be fulfilled:
- *       - Ability for extensions to alter ruleset.
+ *       - Ability for extensions to alter ruleset (add, modify, remove).
  *       - Ability for extensions to add custom rules to the validator instance.
  *       - Use Flarum's translator with the validator instance.
  */
 abstract class Model extends Eloquent
 {
     /**
-     * Indicates if the model should be timestamped. Turn them off by default.
+     * Indicates if the model should be timestamped. Turn off by default.
      *
      * @var boolean
      */
     public $timestamps = false;
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    public static $dates = [];
 
     /**
      * The validation rules for this model.
@@ -160,6 +167,26 @@ abstract class Model extends Eloquent
         }
 
         return $rules;
+    }
+
+    /**
+     * Get the attributes that should be converted to dates.
+     *
+     * @return array
+     */
+    public function getDates()
+    {
+        return static::$dates;
+    }
+
+    /**
+     * Add an attribute to be converted to a date.
+     *
+     * @param string $attribute
+     */
+    public static function addDate($attribute)
+    {
+        static::$dates[] = $attribute;
     }
 
     /**

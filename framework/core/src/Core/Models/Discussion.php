@@ -47,7 +47,6 @@ class Discussion extends Model
      *
      * @var array
      */
-    protected $dates = ['start_time', 'last_time'];
 
     /**
      * An array of posts that have been added during this request.
@@ -62,6 +61,7 @@ class Discussion extends Model
      * @var \Flarum\Core\Models\Post[]
      */
     public $removedPosts = [];
+    protected static $dates = ['start_time', 'last_time'];
 
     /**
      * The user for which the state relationship should be loaded.
