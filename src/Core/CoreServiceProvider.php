@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core;
 
+use Flarum\Core;
 use Illuminate\Bus\Dispatcher as Bus;
 use Illuminate\Contracts\Container\Container;
 use Flarum\Support\ServiceProvider;
@@ -23,11 +24,13 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
-        $this->addEventHandlers();
-        $this->bootModels();
-        $this->addPostTypes();
-        $this->grantPermissions();
-        $this->mapCommandHandlers();
+        if (Core::isInstalled()) {
+            $this->addEventHandlers();
+            $this->bootModels();
+            $this->addPostTypes();
+            $this->grantPermissions();
+            $this->mapCommandHandlers();
+        }
     }
 
     public function mapCommandHandlers()
