@@ -1,5 +1,7 @@
 <?php namespace Flarum\Core\Users;
 
+use Flarum\Core\Groups\Group;
+
 class Guest extends User
 {
     /**

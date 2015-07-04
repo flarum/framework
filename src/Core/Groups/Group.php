@@ -1,4 +1,4 @@
-<?php namespace Flarum\Core\Users;
+<?php namespace Flarum\Core\Groups;
 
 use Flarum\Core\Model;
 

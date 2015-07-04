@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core\Users;
 
+use Flarum\Core\Groups\Group;
 use Flarum\Core\Model;
 use Flarum\Core\Notifications\Notification;
 use Illuminate\Contracts\Hashing\Hasher;
@@ -487,7 +488,7 @@ class User extends Model
      */
     public function groups()
     {
-        return $this->belongsToMany('Flarum\Core\Users\Group', 'users_groups');
+        return $this->belongsToMany('Flarum\Core\Groups\Group', 'users_groups');
     }
 
     /**
