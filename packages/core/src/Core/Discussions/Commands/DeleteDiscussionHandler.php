@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Discussions\Commands;
 
-use Flarum\Core\Discussions\DiscussionRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepository;
 use Flarum\Core\Discussions\Events\DiscussionWillBeDeleted;
 use Flarum\Core\Support\DispatchesEvents;
 
@@ -9,14 +9,14 @@ class DeleteDiscussionHandler
     use DispatchesEvents;
 
     /**
-     * @var \Flarum\Core\Discussions\DiscussionRepositoryInterface
+     * @var \Flarum\Core\Discussions\DiscussionRepository
      */
     protected $discussions;
 
     /**
-     * @param \Flarum\Core\Discussions\DiscussionRepositoryInterface $discussions
+     * @param \Flarum\Core\Discussions\DiscussionRepository $discussions
      */
-    public function __construct(DiscussionRepositoryInterface $discussions)
+    public function __construct(DiscussionRepository $discussions)
     {
         $this->discussions = $discussions;
     }

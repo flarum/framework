@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Users\Commands;
 
 use Flarum\Core\Users\User;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Users\Events\UserWillBeDeleted;
 use Flarum\Core\Support\DispatchesEvents;
 
@@ -10,14 +10,14 @@ class DeleteUserHandler
     use DispatchesEvents;
 
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      */
-    public function __construct(UserRepositoryInterface $users)
+    public function __construct(UserRepository $users)
     {
         $this->users = $users;
     }

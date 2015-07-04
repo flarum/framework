@@ -2,10 +2,17 @@
 
 use Flarum\Core\Users\User;
 
-class EloquentActivityRepository implements ActivityRepositoryInterface
+class ActivityRepository
 {
     /**
-     * {@inheritdoc}
+     * Find a user's activity.
+     *
+     * @param int $userId
+     * @param User $actor
+     * @param null|int $limit
+     * @param int $offset
+     * @param null|string $type
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function findByUser($userId, User $actor, $limit = null, $offset = 0, $type = null)
     {

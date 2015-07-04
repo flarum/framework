@@ -27,7 +27,7 @@ class NotificationSyncer
     protected $sentTo = [];
 
     /**
-     * @var NotificationRepositoryInterface
+     * @var NotificationRepository
      */
     protected $notifications;
 
@@ -37,11 +37,11 @@ class NotificationSyncer
     protected $mailer;
 
     /**
-     * @param NotificationRepositoryInterface $notifications
+     * @param NotificationRepository $notifications
      * @param NotificationMailer $mailer
      */
     public function __construct(
-        NotificationRepositoryInterface $notifications,
+        NotificationRepository $notifications,
         NotificationMailer $mailer
     ) {
         $this->notifications = $notifications;

@@ -2,7 +2,7 @@
 
 use Flarum\Api\Client;
 use Flarum\Forum\Events\UserLoggedIn;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
@@ -13,7 +13,7 @@ class LoginAction extends Action
     use WritesRememberCookie;
 
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
@@ -23,10 +23,10 @@ class LoginAction extends Action
     protected $apiClient;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      * @param Client $apiClient
      */
-    public function __construct(UserRepositoryInterface $users, Client $apiClient)
+    public function __construct(UserRepository $users, Client $apiClient)
     {
         $this->users = $users;
         $this->apiClient = $apiClient;

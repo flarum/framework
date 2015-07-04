@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -8,7 +8,7 @@ use Tobscure\JsonApi\Document;
 class ShowAction extends SerializeResourceAction
 {
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
@@ -50,9 +50,9 @@ class ShowAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      */
-    public function __construct(UserRepositoryInterface $users)
+    public function __construct(UserRepository $users)
     {
         $this->users = $users;
     }

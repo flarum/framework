@@ -3,7 +3,7 @@
 use Illuminate\Database\Eloquent\Builder;
 use Flarum\Core\Users\User;
 
-class EloquentDiscussionRepository implements DiscussionRepositoryInterface
+class DiscussionRepository
 {
     /**
      * Get a new query builder for the discussions table.

@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Discussions\Search\Gambits;
 
 use Flarum\Core\Discussions\Search\DiscussionSearch;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Search\RegexGambit;
 use Flarum\Core\Search\Search;
 use LogicException;
@@ -14,14 +14,14 @@ class AuthorGambit extends RegexGambit
     protected $pattern = 'author:(.+)';
 
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      */
-    public function __construct(UserRepositoryInterface $users)
+    public function __construct(UserRepository $users)
     {
         $this->users = $users;
     }

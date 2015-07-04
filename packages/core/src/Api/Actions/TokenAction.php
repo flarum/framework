@@ -2,7 +2,7 @@
 
 use Flarum\Api\Commands\GenerateAccessToken;
 use Flarum\Api\Request;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Core\Users\Events\UserEmailChangeWasRequested;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -14,7 +14,7 @@ class TokenAction extends JsonApiAction
 
     protected $bus;
 
-    public function __construct(UserRepositoryInterface $users, Dispatcher $bus)
+    public function __construct(UserRepository $users, Dispatcher $bus)
     {
         $this->users = $users;
         $this->bus = $bus;
