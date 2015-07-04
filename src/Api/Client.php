@@ -1,35 +1,37 @@
-<?php
+<?php namespace Flarum\Api;
 
-namespace Flarum\Api;
-
-use Flarum\Support\Actor;
+use Flarum\Core\Users\User;
 use Illuminate\Contracts\Container\Container;
 
 class Client
 {
+    /**
+     * @var Container
+     */
     protected $container;
 
-    protected $actor;
-
-    public function __construct(Container $container, Actor $actor)
+    /**
+     * @param Container $container
+     */
+    public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->actor = $actor;
     }
 
     /**
      * Execute the given API action class, pass the input and return its response.
      *
+     * @param User $actor
      * @param string $actionClass
      * @param array $input
      * @return object
      */
-    public function send($actionClass, array $input = [])
+    public function send(User $actor, $actionClass, array $input = [])
     {
         /** @var \Flarum\Api\Actions\JsonApiAction $action */
         $action = $this->container->make($actionClass);
 
-        $response = $action->handle(new Request($input, $this->actor));
+        $response = $action->handle(new Request($input, $actor));
 
         return json_decode($response->getBody());
     }

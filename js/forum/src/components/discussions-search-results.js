@@ -9,7 +9,7 @@ export default class DiscussionsSearchResults {
 
   search(string) {
     this.results[string] = [];
-    return app.store.find('discussions', {q: string, page: {limit: 3}, include: 'relevantPosts,relevantPosts.discussion'}).then(results => {
+    return app.store.find('discussions', {filter: {q: string}, page: {limit: 3}, include: 'relevantPosts,relevantPosts.discussion'}).then(results => {
       this.results[string] = results;
     });
   }

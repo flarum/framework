@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Flarum\Core\Commands\PostReplyCommand;
-use Flarum\Core\Commands\ReadDiscussionCommand;
+use Flarum\Core\Posts\Commands\PostReply;
+use Flarum\Core\Discussions\Commands\ReadDiscussion;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -9,7 +9,7 @@ use Illuminate\Contracts\Bus\Dispatcher;
 class CreateAction extends BaseCreateAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
@@ -53,7 +53,7 @@ class CreateAction extends BaseCreateAction
     /**
      * Instantiate the action.
      *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -64,24 +64,23 @@ class CreateAction extends BaseCreateAction
      * Reply to a discussion according to input from the API request.
      *
      * @param JsonApiRequest $request
-     * @return \Flarum\Core\Models\Model
+     * @return \Flarum\Core\Posts\Post
      */
     protected function create(JsonApiRequest $request)
     {
-        $user = $request->actor->getUser();
-
-        $discussionId = $request->get('data.links.discussion.linkage.id');
+        $actor = $request->actor;
+        $discussionId = $request->get('data.relationships.discussion.data.id');
 
         $post = $this->bus->dispatch(
-            new PostReplyCommand($discussionId, $user, $request->get('data'))
+            new PostReply($discussionId, $actor, $request->get('data'))
         );
 
         // After replying, we assume that the user has seen all of the posts
         // in the discussion; thus, we will mark the discussion as read if
         // they are logged in.
-        if ($user->exists) {
+        if ($actor->exists) {
             $this->bus->dispatch(
-                new ReadDiscussionCommand($discussionId, $user, $post->number)
+                new ReadDiscussion($discussionId, $actor, $post->number)
             );
         }
 

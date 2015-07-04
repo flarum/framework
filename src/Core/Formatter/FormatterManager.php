@@ -1,92 +1,143 @@
 <?php namespace Flarum\Core\Formatter;
 
+use Flarum\Core\Model;
 use Illuminate\Contracts\Container\Container;
 use HTMLPurifier;
 use HTMLPurifier_Config;
+use LogicException;
 
 class FormatterManager
 {
-    protected $formatters = [];
-
     /**
-     * The IoC container instance.
-     *
-     * @var \Illuminate\Contracts\Container\Container
+     * @var Container
      */
     protected $container;
 
-    public $config;
+    /**
+     * @var array
+     */
+    protected $formatters = [];
+
+    /**
+     * @var HTMLPurifier_Config
+     */
+    protected $htmlPurifierConfig;
 
     /**
      * Create a new formatter manager instance.
      *
-     * @param  \Illuminate\Contracts\Container\Container  $container
+     * @param Container $container
      */
     public function __construct(Container $container)
     {
         $this->container = $container;
 
-        // Studio does not yet merge autoload_files...
+        // TODO: Studio does not yet merge autoload_files...
         // https://github.com/franzliedke/studio/commit/4f0f4314db4ed3e36c869a5f79b855c97bdd1be7
         require __DIR__.'/../../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.composer.php';
 
-        $this->config = HTMLPurifier_Config::createDefault();
-        $this->config->set('Core.Encoding', 'UTF-8');
-        $this->config->set('Core.EscapeInvalidTags', true);
-        $this->config->set('HTML.Doctype', 'HTML 4.01 Strict');
-        $this->config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br,hr,img[src|alt]');
-        $this->config->set('HTML.Nofollow', true);
+        $this->htmlPurifierConfig = $this->getDefaultHtmlPurifierConfig();
     }
 
-    public function add($name, $formatter, $priority = 0)
+    /**
+     * Get the HTMLPurifier configuration object.
+     *
+     * @return HTMLPurifier_Config
+     */
+    public function getHtmlPurifierConfig()
     {
-        $this->formatters[$name] = [$formatter, $priority];
+        return $this->htmlPurifierConfig;
     }
 
-    public function remove($name)
+    /**
+     * Add a new formatter.
+     *
+     * @param string $formatter
+     */
+    public function add($formatter)
     {
-        unset($this->formatters[$name]);
+        $this->formatters[] = $formatter;
     }
 
-    protected function getFormatters()
+    /**
+     * Format the given text using the collected formatters.
+     *
+     * @param string $text
+     * @param Model|null $model The entity that owns the text.
+     * @return string
+     */
+    public function format($text, Model $model = null)
     {
-        $sorted = [];
+        $formatters = $this->getFormatters();
 
-        foreach ($this->formatters as $array) {
-            list($formatter, $priority) = $array;
-            $sorted[$priority][] = $formatter;
-        }
-
-        ksort($sorted);
-
-        $result = [];
-
-        foreach ($sorted as $formatters) {
-            $result = array_merge($result, $formatters);
-        }
-
-        return $result;
-    }
-
-    public function format($text, $post = null)
-    {
-        $formatters = [];
-        foreach ($this->getFormatters() as $formatter) {
-            $formatters[] = $this->container->make($formatter);
+        foreach ($formatters as $formatter) {
+            $formatter->config($this);
         }
 
         foreach ($formatters as $formatter) {
-            $text = $formatter->beforePurification($text, $post);
+            $text = $formatter->formatBeforePurification($text, $model);
         }
 
-        $purifier = new HTMLPurifier($this->config);
-
-        $text = $purifier->purify($text);
+        $text = $this->purify($text);
 
         foreach ($formatters as $formatter) {
-            $text = $formatter->afterPurification($text, $post);
+            $text = $formatter->formatAfterPurification($text, $model);
         }
 
         return $text;
+    }
+
+    /**
+     * Instantiate the collected formatters.
+     *
+     * @return FormatterInterface[]
+     */
+    protected function getFormatters()
+    {
+        $formatters = [];
+
+        foreach ($this->formatters as $formatter) {
+            $formatter = $this->container->make($formatter);
+
+            if (! $formatter instanceof FormatterInterface) {
+                throw new LogicException('Formatter ' . get_class($formatter)
+                    . ' does not implement ' . FormatterInterface::class);
+            }
+
+            $formatters[] = $formatter;
+        }
+
+        return $formatters;
+    }
+
+    /**
+     * Purify the given text, making sure it is safe to be displayed in web
+     * browsers.
+     *
+     * @param string $text
+     * @return string
+     */
+    protected function purify($text)
+    {
+        $purifier = new HTMLPurifier($this->htmlPurifierConfig);
+
+        return $purifier->purify($text);
+    }
+
+    /**
+     * Get the default HTMLPurifier config settings.
+     *
+     * @return HTMLPurifier_Config
+     */
+    protected function getDefaultHtmlPurifierConfig()
+    {
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Core.Encoding', 'UTF-8');
+        $config->set('Core.EscapeInvalidTags', true);
+        $config->set('HTML.Doctype', 'HTML 4.01 Strict');
+        $config->set('HTML.Allowed', 'p,em,strong,a[href|title],ul,ol,li,code,pre,blockquote,h1,h2,h3,h4,h5,h6,br,hr,img[src|alt]');
+        $config->set('HTML.Nofollow', true);
+
+        return $config;
     }
 }

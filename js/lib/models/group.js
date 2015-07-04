@@ -2,10 +2,9 @@ import Model from 'flarum/model';
 
 class Group extends Model {}
 
-Group.prototype.id = Model.prop('id');
-Group.prototype.nameSingular = Model.prop('nameSingular');
-Group.prototype.namePlural = Model.prop('namePlural');
-Group.prototype.color = Model.prop('color');
-Group.prototype.icon = Model.prop('icon');
+Group.prototype.nameSingular = Model.attribute('nameSingular');
+Group.prototype.namePlural = Model.attribute('namePlural');
+Group.prototype.color = Model.attribute('color');
+Group.prototype.icon = Model.attribute('icon');
 
 export default Group;

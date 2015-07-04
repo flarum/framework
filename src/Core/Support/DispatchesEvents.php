@@ -1,4 +1,4 @@
-<?php  namespace Flarum\Core\Support;
+<?php namespace Flarum\Core\Support;
 
 trait DispatchesEvents
 {

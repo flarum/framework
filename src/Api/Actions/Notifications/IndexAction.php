@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Notifications;
 
-use Flarum\Core\Repositories\NotificationRepositoryInterface;
+use Flarum\Core\Notifications\NotificationRepositoryInterface;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class IndexAction extends SerializeCollectionAction
 {
     /**
-     * @var \Flarum\Core\Repositories\NotificationRepositoryInterface
+     * @var NotificationRepositoryInterface
      */
     protected $notifications;
 
@@ -55,7 +55,7 @@ class IndexAction extends SerializeCollectionAction
     /**
      * Instantiate the action.
      *
-     * @param \Flarum\Core\Repositories\NotificationRepositoryInterface $notifications
+     * @param NotificationRepositoryInterface $notifications
      */
     public function __construct(NotificationRepositoryInterface $notifications)
     {
@@ -66,22 +66,22 @@ class IndexAction extends SerializeCollectionAction
      * Get the notification results, ready to be serialized and assigned to the
      * document response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
+     * @param JsonApiRequest $request
+     * @param Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      * @throws PermissionDeniedException
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        if (! $request->actor->isAuthenticated()) {
+        $actor = $request->actor;
+
+        if ($actor->isGuest()) {
             throw new PermissionDeniedException;
         }
 
-        $user = $request->actor->getUser();
+        $actor->markNotificationsAsRead()->save();
 
-        $user->markNotificationsAsRead()->save();
-
-        return $this->notifications->findByUser($user, $request->limit, $request->offset)
+        return $this->notifications->findByUser($actor, $request->limit, $request->offset)
             ->load($request->include);
     }
 }

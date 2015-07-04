@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Commands\UploadAvatarCommand;
+use Flarum\Core\Users\Commands\UploadAvatar;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class UploadAvatarAction extends SerializeResourceAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
@@ -49,9 +49,7 @@ class UploadAvatarAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -62,17 +60,17 @@ class UploadAvatarAction extends SerializeResourceAction
      * Upload an avatar for a user, and return the user ready to be serialized
      * and assigned to the JsonApi response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Flarum\Core\Models\Discussion
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Users\User
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
-            new UploadAvatarCommand(
+            new UploadAvatar(
                 $request->get('id'),
                 $request->http->getUploadedFiles()['avatar'],
-                $request->actor->getUser()
+                $request->actor
             )
         );
     }

@@ -1,30 +1,26 @@
 <?php namespace Flarum\Api\Serializers;
 
-class UserBasicSerializer extends BaseSerializer
+class UserBasicSerializer extends Serializer
 {
     /**
-     * The resource type.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $type = 'users';
 
     /**
-     * Serialize attributes of a User model for JSON output.
-     *
-     * @param User $user The User model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($user)
+    protected function getDefaultAttributes($user)
     {
-        $attributes = [
+        return [
             'username'  => $user->username,
             'avatarUrl' => $user->avatar_url
         ];
-
-        return $this->extendAttributes($user, $attributes);
     }
 
+    /**
+     * @return callable
+     */
     protected function groups()
     {
         return $this->hasMany('Flarum\Api\Serializers\GroupSerializer');

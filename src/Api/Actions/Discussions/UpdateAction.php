@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Commands\EditDiscussionCommand;
-use Flarum\Core\Commands\ReadDiscussionCommand;
+use Flarum\Core\Discussions\Commands\EditDiscussion;
+use Flarum\Core\Discussions\Commands\ReadDiscussion;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -10,7 +10,7 @@ use Tobscure\JsonApi\Document;
 class UpdateAction extends SerializeResourceAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
@@ -22,11 +22,7 @@ class UpdateAction extends SerializeResourceAction
     /**
      * @inheritdoc
      */
-    public static $include = [
-        'addedPosts' => true,
-        'addedPosts.user' => true,
-        'addedPosts.discussion' => true
-    ];
+    public static $include = [];
 
     /**
      * @inheritdoc
@@ -54,9 +50,7 @@ class UpdateAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -67,24 +61,25 @@ class UpdateAction extends SerializeResourceAction
      * Update a discussion according to input from the API request, and return
      * it ready to be serialized and assigned to the JsonApi response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Discussions\Discussion
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        $user = $request->actor->getUser();
+        $actor = $request->actor;
         $discussionId = $request->get('id');
+        $data = $request->get('data');
 
-        if ($data = array_except($request->get('data'), ['readNumber'])) {
-            $discussion = $this->bus->dispatch(
-                new EditDiscussionCommand($discussionId, $user, $data)
-            );
-        }
+        $discussion = $this->bus->dispatch(
+            new EditDiscussion($discussionId, $actor, $data)
+        );
 
-        if ($readNumber = $request->get('data.readNumber')) {
+        // TODO: Refactor the ReadDiscussion (state) command into EditDiscussion?
+        // That's what extensions will do anyway.
+        if ($readNumber = array_get($data, 'attributes.readNumber')) {
             $state = $this->bus->dispatch(
-                new ReadDiscussionCommand($discussionId, $user, $readNumber)
+                new ReadDiscussion($discussionId, $actor, $readNumber)
             );
 
             $discussion = $state->discussion;

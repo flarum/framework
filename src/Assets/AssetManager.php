@@ -1,6 +1,6 @@
 <?php namespace Flarum\Assets;
 
-use RuntimeException;
+use DomainException;
 
 class AssetManager
 {
@@ -29,7 +29,7 @@ class AssetManager
                 break;
 
             default:
-                throw new RuntimeException('Unsupported asset type: '.$ext);
+                throw new DomainException('Unsupported asset type: '.$ext);
         }
     }
 

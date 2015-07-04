@@ -1,7 +1,7 @@
 <?php namespace Flarum\Forum\Middleware;
 
-use Flarum\Support\Actor;
-use Flarum\Core\Models\AccessToken;
+use Flarum\Api\AccessToken;
+use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Stratigility\MiddlewareInterface;
@@ -9,13 +9,16 @@ use Zend\Stratigility\MiddlewareInterface;
 class LoginWithCookie implements MiddlewareInterface
 {
     /**
-     * @var Actor
+     * @var Container
      */
-    protected $actor;
+    protected $app;
 
-    public function __construct(Actor $actor)
+    /**
+     * @param Container $app
+     */
+    public function __construct(Container $app)
     {
-        $this->actor = $actor;
+        $this->app = $app;
     }
 
     /**
@@ -26,7 +29,7 @@ class LoginWithCookie implements MiddlewareInterface
         if (($token = array_get($request->getCookieParams(), 'flarum_remember')) &&
             ($accessToken = AccessToken::where('id', $token)->first())
         ) {
-            $this->actor->setUser($user = $accessToken->user);
+            $this->app->instance('flarum.actor', $user = $accessToken->user);
 
             $user->updateLastSeen()->save();
         }

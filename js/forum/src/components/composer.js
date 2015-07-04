@@ -208,6 +208,7 @@ class Composer extends Component {
     if (flexible.length) {
       flexible.height(height -
         (flexible.offset().top - this.$().offset().top) -
+        parseInt(flexible.css('padding-bottom')) -
         this.$('.text-editor-controls').outerHeight(true));
     }
   }

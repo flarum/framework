@@ -8,9 +8,9 @@ trait EventGenerator
     protected $pendingEvents = [];
 
     /**
-     * Raise a new event
+     * Raise a new event.
      *
-     * @param $event
+     * @param mixed $event
      */
     public function raise($event)
     {
@@ -18,7 +18,7 @@ trait EventGenerator
     }
 
     /**
-     * Return and reset all pending events
+     * Return and reset all pending events.
      *
      * @return array
      */

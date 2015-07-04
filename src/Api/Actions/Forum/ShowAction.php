@@ -45,9 +45,9 @@ class ShowAction extends SerializeResourceAction
      * Get the forum, ready to be serialized and assigned to the JsonApi
      * response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return array
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Forum
      */
     protected function data(JsonApiRequest $request, Document $document)
     {

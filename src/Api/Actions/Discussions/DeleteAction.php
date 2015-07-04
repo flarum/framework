@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Commands\DeleteDiscussionCommand;
+use Flarum\Core\Discussions\Commands\DeleteDiscussion;
 use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
 use Flarum\Api\Request;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -8,16 +8,12 @@ use Illuminate\Contracts\Bus\Dispatcher;
 class DeleteAction extends BaseDeleteAction
 {
     /**
-     * The command bus.
-     *
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -25,15 +21,16 @@ class DeleteAction extends BaseDeleteAction
     }
 
     /**
-     * Delete a discussion.
-     *
-     * @param \Flarum\Api\Request $request
-     * @return void
+     * {@inheritdoc}
      */
     protected function delete(Request $request)
     {
+        $id = $request->get('id');
+        $actor = $request->actor;
+        $input = $request->all();
+
         $this->bus->dispatch(
-            new DeleteDiscussionCommand($request->get('id'), $request->actor->getUser())
+            new DeleteDiscussion($id, $actor, $input)
         );
     }
 }

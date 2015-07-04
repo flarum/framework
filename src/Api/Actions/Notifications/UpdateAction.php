@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Notifications;
 
-use Flarum\Core\Commands\ReadNotificationCommand;
+use Flarum\Core\Notifications\Commands\ReadNotification;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class UpdateAction extends SerializeResourceAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
@@ -49,9 +49,7 @@ class UpdateAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -62,14 +60,14 @@ class UpdateAction extends SerializeResourceAction
      * Mark a notification as read, and return it ready to be serialized and
      * assigned to the JsonApi response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Notifications\Notification
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
-            new ReadNotificationCommand($request->get('id'), $request->actor->getUser())
+            new ReadNotification($request->get('id'), $request->actor)
         );
     }
 }

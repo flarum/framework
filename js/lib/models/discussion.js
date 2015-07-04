@@ -6,25 +6,25 @@ class Discussion extends Model {
   pushData(newData) {
     super.pushData(newData);
 
-    var links = this.data().links;
-    var posts = links && links.posts;
-    if (posts) {
-      if (newData.removedPosts) {
-        posts.linkage.forEach((linkage, i) => {
-          if (newData.removedPosts.indexOf(linkage.id) !== -1) {
-            posts.linkage.splice(i, 1);
-          }
-        });
-      }
+    // var links = this.data().links;
+    // var posts = links && links.posts;
+    // if (posts) {
+    //   if (newData.removedPosts) {
+    //     posts.linkage.forEach((linkage, i) => {
+    //       if (newData.removedPosts.indexOf(linkage.id) !== -1) {
+    //         posts.linkage.splice(i, 1);
+    //       }
+    //     });
+    //   }
 
-      if (newData.links && newData.links.addedPosts) {
-        newData.links.addedPosts.linkage.forEach(linkage => {
-          if (posts.linkage[posts.linkage.length - 1].id != linkage.id) {
-            posts.linkage.push(linkage);
-          }
-        });
-      }
-    }
+    //   if (newData.links && newData.links.addedPosts) {
+    //     newData.links.addedPosts.linkage.forEach(linkage => {
+    //       if (posts.linkage[posts.linkage.length - 1].id != linkage.id) {
+    //         posts.linkage.push(linkage);
+    //       }
+    //     });
+    //   }
+    // }
   }
 
   unreadCount() {
@@ -40,34 +40,33 @@ class Discussion extends Model {
   }
 }
 
-Discussion.prototype.id = Model.prop('id');
-Discussion.prototype.title = Model.prop('title');
+Discussion.prototype.title = Model.attribute('title');
 Discussion.prototype.slug = computed('title', title => title.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-');
 
-Discussion.prototype.startTime = Model.prop('startTime', Model.date);
-Discussion.prototype.startUser = Model.one('startUser');
-Discussion.prototype.startPost = Model.one('startPost');
+Discussion.prototype.startTime = Model.attribute('startTime', Model.transformDate);
+Discussion.prototype.startUser = Model.hasOne('startUser');
+Discussion.prototype.startPost = Model.hasOne('startPost');
 
-Discussion.prototype.lastTime = Model.prop('lastTime', Model.date);
-Discussion.prototype.lastUser = Model.one('lastUser');
-Discussion.prototype.lastPost = Model.one('lastPost');
-Discussion.prototype.lastPostNumber = Model.prop('lastPostNumber');
+Discussion.prototype.lastTime = Model.attribute('lastTime', Model.transformDate);
+Discussion.prototype.lastUser = Model.hasOne('lastUser');
+Discussion.prototype.lastPost = Model.hasOne('lastPost');
+Discussion.prototype.lastPostNumber = Model.attribute('lastPostNumber');
 
-Discussion.prototype.canReply = Model.prop('canReply');
-Discussion.prototype.canRename = Model.prop('canRename');
-Discussion.prototype.canDelete = Model.prop('canDelete');
+Discussion.prototype.canReply = Model.attribute('canReply');
+Discussion.prototype.canRename = Model.attribute('canRename');
+Discussion.prototype.canDelete = Model.attribute('canDelete');
 
-Discussion.prototype.commentsCount = Model.prop('commentsCount');
+Discussion.prototype.commentsCount = Model.attribute('commentsCount');
 Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1));
 
-Discussion.prototype.posts = Model.many('posts');
-Discussion.prototype.postIds = function() { return this.data().links.posts.linkage.map((link) => link.id); };
-Discussion.prototype.relevantPosts = Model.many('relevantPosts');
-Discussion.prototype.addedPosts = Model.many('addedPosts');
-Discussion.prototype.removedPosts = Model.prop('removedPosts');
+Discussion.prototype.posts = Model.hasMany('posts');
+Discussion.prototype.postIds = function() { return this.data().relationships.posts.data.map((link) => link.id); };
+Discussion.prototype.relevantPosts = Model.hasMany('relevantPosts');
+Discussion.prototype.addedPosts = Model.hasMany('addedPosts');
+Discussion.prototype.removedPosts = Model.attribute('removedPosts');
 
-Discussion.prototype.readTime = Model.prop('readTime', Model.date);
-Discussion.prototype.readNumber = Model.prop('readNumber');
+Discussion.prototype.readTime = Model.attribute('readTime', Model.transformDate);
+Discussion.prototype.readNumber = Model.attribute('readNumber');
 
 Discussion.prototype.isUnread = computed('unreadCount', unreadCount => !!unreadCount);
 

@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Repositories\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepositoryInterface;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -8,7 +8,7 @@ use Tobscure\JsonApi\Document;
 class ShowAction extends SerializeResourceAction
 {
     /**
-     * @var \Flarum\Core\Repositories\UserRepositoryInterface
+     * @var UserRepositoryInterface
      */
     protected $users;
 
@@ -50,9 +50,7 @@ class ShowAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Flarum\Core\Repositories\UserRepositoryInterface $users
+     * @param UserRepositoryInterface $users
      */
     public function __construct(UserRepositoryInterface $users)
     {
@@ -63,9 +61,9 @@ class ShowAction extends SerializeResourceAction
      * Get a single user, ready to be serialized and assigned to the JsonApi
      * response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Flarum\Core\Models\Discussion
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Users\User
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
@@ -75,6 +73,6 @@ class ShowAction extends SerializeResourceAction
             $id = $this->users->getIdForUsername($id);
         }
 
-        return $this->users->findOrFail($id, $request->actor->getUser());
+        return $this->users->findOrFail($id, $request->actor);
     }
 }

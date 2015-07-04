@@ -1,12 +1,17 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Flarum\Core\Models\PasswordToken;
+use Flarum\Core\Users\PasswordToken;
 use Flarum\Support\HtmlAction;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ResetPasswordAction extends HtmlAction
 {
-    public function render(Request $request, $routeParams = [])
+    /**
+     * @param Request $request
+     * @param array $routeParams
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function render(Request $request, array $routeParams = [])
     {
         $token = array_get($routeParams, 'token');
 

@@ -13,17 +13,17 @@ export default function(app) {
 
   function hideAction() {
     this.save({ isHidden: true });
-    this.pushData({ hideTime: new Date(), hideUser: app.session.user() });
+    this.pushAttributes({ hideTime: new Date(), hideUser: app.session.user() });
   }
 
   function restoreAction() {
     this.save({ isHidden: false });
-    this.pushData({ hideTime: null, hideUser: null });
+    this.pushAttributes({ hideTime: null, hideUser: null });
   }
 
   function deleteAction() {
     this.delete();
-    this.discussion().pushData({removedPosts: [this.id()]});
+    // this.discussion().pushAttributes({removedPosts: [this.id()]});
     if (app.current instanceof DiscussionPage) {
       app.current.stream.removePost(this.id());
     }

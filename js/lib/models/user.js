@@ -6,29 +6,28 @@ import Badge from 'flarum/components/badge';
 
 class User extends Model {}
 
-User.prototype.id = Model.prop('id');
-User.prototype.username = Model.prop('username');
-User.prototype.email = Model.prop('email');
-User.prototype.isConfirmed = Model.prop('isConfirmed');
-User.prototype.password = Model.prop('password');
-User.prototype.avatarUrl = Model.prop('avatarUrl');
-User.prototype.bio = Model.prop('bio');
-User.prototype.bioHtml = Model.prop('bioHtml');
-User.prototype.preferences = Model.prop('preferences');
+User.prototype.username = Model.attribute('username');
+User.prototype.email = Model.attribute('email');
+User.prototype.isConfirmed = Model.attribute('isConfirmed');
+User.prototype.password = Model.attribute('password');
+User.prototype.avatarUrl = Model.attribute('avatarUrl');
+User.prototype.bio = Model.attribute('bio');
+User.prototype.bioHtml = Model.attribute('bioHtml');
+User.prototype.preferences = Model.attribute('preferences');
 
-User.prototype.groups = Model.many('groups');
+User.prototype.groups = Model.hasMany('groups');
 
-User.prototype.joinTime = Model.prop('joinTime', Model.date);
-User.prototype.lastSeenTime = Model.prop('lastSeenTime', Model.date);
+User.prototype.joinTime = Model.attribute('joinTime', Model.transformDate);
+User.prototype.lastSeenTime = Model.attribute('lastSeenTime', Model.transformDate);
 User.prototype.online = function() { return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate(); };
-User.prototype.readTime = Model.prop('readTime', Model.date);
-User.prototype.unreadNotificationsCount = Model.prop('unreadNotificationsCount');
+User.prototype.readTime = Model.attribute('readTime', Model.transformDate);
+User.prototype.unreadNotificationsCount = Model.attribute('unreadNotificationsCount');
 
-User.prototype.discussionsCount = Model.prop('discussionsCount');
-User.prototype.commentsCount = Model.prop('commentsCount');
+User.prototype.discussionsCount = Model.attribute('discussionsCount');
+User.prototype.commentsCount = Model.attribute('commentsCount');
 ;
-User.prototype.canEdit = Model.prop('canEdit');
-User.prototype.canDelete = Model.prop('canDelete');
+User.prototype.canEdit = Model.attribute('canEdit');
+User.prototype.canDelete = Model.attribute('canDelete');
 
 User.prototype.color = computed('username', 'avatarUrl', 'avatarColor', function(username, avatarUrl, avatarColor) {
   if (avatarColor) {

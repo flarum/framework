@@ -113,7 +113,7 @@ export default class SettingsPage extends UserPage {
         label: 'Allow others to see when I am online',
         state: this.user().preferences().discloseOnline,
         onchange: (value, component) => {
-          this.user().pushData({lastSeenTime: null});
+          this.user().pushAttributes({lastSeenTime: null});
           this.save('discloseOnline')(value, component);
         }
       })

@@ -1,8 +1,7 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Commands\StartDiscussionCommand;
-use Flarum\Core\Commands\ReadDiscussionCommand;
-use Flarum\Core\Models\Forum;
+use Flarum\Core\Discussions\Commands\StartDiscussion;
+use Flarum\Core\Discussions\Commands\ReadDiscussion;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -12,16 +11,9 @@ class CreateAction extends BaseCreateAction
     /**
      * The command bus.
      *
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
-
-    /**
-     * The default forum instance.
-     *
-     * @var \Flarum\Core\Models\Forum
-     */
-    protected $forum;
 
     /**
      * @inheritdoc
@@ -67,35 +59,33 @@ class CreateAction extends BaseCreateAction
     /**
      * Instantiate the action.
      *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
-     * @param \Flarum\Core\Models\Forum $forum
+     * @param Dispatcher $bus
      */
-    public function __construct(Dispatcher $bus, Forum $forum)
+    public function __construct(Dispatcher $bus)
     {
         $this->bus = $bus;
-        $this->forum = $forum;
     }
 
     /**
      * Create a discussion according to input from the API request.
      *
      * @param JsonApiRequest $request
-     * @return \Flarum\Core\Models\Model
+     * @return \Flarum\Core\Discussions\Discussion
      */
     protected function create(JsonApiRequest $request)
     {
-        $user = $request->actor->getUser();
+        $actor = $request->actor;
 
         $discussion = $this->bus->dispatch(
-            new StartDiscussionCommand($user, $this->forum, $request->get('data'))
+            new StartDiscussion($actor, $request->get('data'))
         );
 
         // After creating the discussion, we assume that the user has seen all
         // of the posts in the discussion; thus, we will mark the discussion
         // as read if they are logged in.
-        if ($user->exists) {
+        if ($actor->exists) {
             $this->bus->dispatch(
-                new ReadDiscussionCommand($discussion->id, $user, 1)
+                new ReadDiscussion($discussion->id, $actor, 1)
             );
         }
 

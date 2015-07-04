@@ -40,6 +40,8 @@ class DatabaseServiceProvider extends ServiceProvider
             $this->app->booting(function() {
                 $resolver = $this->app->make('Illuminate\Database\ConnectionResolverInterface');
                 Model::setConnectionResolver($resolver);
+
+                Model::setEventDispatcher($this->app->make('events'));
             });
         }
     }

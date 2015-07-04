@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Flarum\Core\Commands\DeletePostCommand;
+use Flarum\Core\Posts\Commands\DeletePost;
 use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
 use Flarum\Api\Request;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -8,14 +8,12 @@ use Illuminate\Contracts\Bus\Dispatcher;
 class DeleteAction extends BaseDeleteAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -25,13 +23,13 @@ class DeleteAction extends BaseDeleteAction
     /**
      * Delete a post.
      *
-     * @param \Flarum\Api\Request $request
+     * @param Request $request
      * @return void
      */
     protected function delete(Request $request)
     {
         $this->bus->dispatch(
-            new DeletePostCommand($request->get('id'), $request->actor->getUser())
+            new DeletePost($request->get('id'), $request->actor)
         );
     }
 }

@@ -3,7 +3,7 @@ import avatar from 'flarum/helpers/avatar';
 
 export default class UsersSearchResults {
   search(string) {
-    return app.store.find('users', {q: string, page: {limit: 5}});
+    return app.store.find('users', {filter: {q: string}, page: {limit: 5}});
   }
 
   view(string) {

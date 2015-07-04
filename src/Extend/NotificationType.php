@@ -1,9 +1,10 @@
 <?php namespace Flarum\Extend;
 
 use Illuminate\Contracts\Container\Container;
-use Flarum\Core\Models\Notification;
-use Flarum\Core\Models\User;
+use Flarum\Core\Notifications\Notification;
+use Flarum\Core\Users\User;
 use Flarum\Api\Serializers\NotificationSerializer;
+use ReflectionClass;
 
 class NotificationType implements ExtenderInterface
 {
@@ -35,15 +36,16 @@ class NotificationType implements ExtenderInterface
     public function extend(Container $container)
     {
         $class = $this->class;
+        $type = $class::getType();
 
-        Notification::registerType($class);
+        Notification::setSubjectModel($type, $class);
 
-        User::registerPreference(User::notificationPreferenceKey($class::getType(), 'alert'), 'boolval', in_array('alert', $this->enabled));
+        User::addPreference(User::getNotificationPreferenceKey($type, 'alert'), 'boolval', in_array('alert', $this->enabled));
 
-        if ($class::isEmailable()) {
-            User::registerPreference(User::notificationPreferenceKey($class::getType(), 'email'), 'boolval', in_array('email', $this->enabled));
+        if ((new ReflectionClass($class))->implementsInterface('Flarum\Core\Notifications\MailableBlueprint')) {
+            User::addPreference(User::getNotificationPreferenceKey($type, 'email'), 'boolval', in_array('email', $this->enabled));
         }
 
-        NotificationSerializer::$subjects[$class::getType()] = $this->serializer;
+        NotificationSerializer::setSubjectSerializer($type, $this->serializer);
     }
 }

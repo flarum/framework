@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Core\Repositories\PostRepositoryInterface;
+use Flarum\Core\Posts\PostRepositoryInterface;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class ShowAction extends SerializeResourceAction
 {
     /**
-     * @var \Flarum\Core\Repositories\PostRepositoryInterface
+     * @var PostRepositoryInterface
      */
     protected $posts;
 
@@ -55,9 +55,7 @@ class ShowAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Flarum\Core\Repositories\PostRepositoryInterface $posts
+     * @param PostRepositoryInterface $posts
      */
     public function __construct(PostRepositoryInterface $posts)
     {
@@ -68,12 +66,12 @@ class ShowAction extends SerializeResourceAction
      * Get a single post, ready to be serialized and assigned to the JsonApi
      * response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Posts\Post
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        return $this->posts->findOrFail($request->get('id'), $request->actor->getUser());
+        return $this->posts->findOrFail($request->get('id'), $request->actor);
     }
 }

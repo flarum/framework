@@ -2,30 +2,46 @@
 
 use Flarum\Api\Client;
 use Flarum\Forum\Events\UserLoggedIn;
-use Flarum\Core\Repositories\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
-class LoginAction extends BaseAction
+class LoginAction extends Action
 {
     use WritesRememberCookie;
 
+    /**
+     * @var UserRepositoryInterface
+     */
     protected $users;
 
+    /**
+     * @var Client
+     */
     protected $apiClient;
 
+    /**
+     * @param UserRepositoryInterface $users
+     * @param Client $apiClient
+     */
     public function __construct(UserRepositoryInterface $users, Client $apiClient)
     {
         $this->users = $users;
         $this->apiClient = $apiClient;
     }
 
-    public function handle(Request $request, $routeParams = [])
+    /**
+     * @param Request $request
+     * @param array $routeParams
+     * @return \Psr\Http\Message\ResponseInterface|EmptyResponse
+     */
+    public function handle(Request $request, array $routeParams = [])
     {
         $params = array_only($request->getAttributes(), ['identification', 'password']);
 
-        $data = $this->apiClient->send('Flarum\Api\Actions\TokenAction', $params);
+        $data = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\TokenAction', $params);
 
         // TODO: The client needs to pass through exceptions(?) or the whole
         // response so we can look at the response code. For now if there isn't

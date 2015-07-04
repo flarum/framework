@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Commands\EditUserCommand;
+use Flarum\Core\Users\Commands\EditUser;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -9,14 +9,14 @@ use Tobscure\JsonApi\Document;
 class UpdateAction extends SerializeResourceAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+    public static $serializer = 'Flarum\Api\Serializers\CurrentUserSerializer';
 
     /**
      * @inheritdoc
@@ -49,9 +49,7 @@ class UpdateAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -62,14 +60,14 @@ class UpdateAction extends SerializeResourceAction
      * Update a user according to input from the API request, and return it
      * ready to be serialized and assigned to the JsonApi response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Flarum\Core\Models\Discussion
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Users\User
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
-            new EditUserCommand($request->get('id'), $request->actor->getUser(), $request->get('data'))
+            new EditUser($request->get('id'), $request->actor, $request->get('data'))
         );
     }
 }
