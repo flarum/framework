@@ -5,7 +5,7 @@ use Flarum\Api\JsonApiRequest;
 trait GetsPosts
 {
     /**
-     * @var \Flarum\Core\Posts\PostRepositoryInterface
+     * @var \Flarum\Core\Posts\PostRepository
      */
     protected $posts;
 

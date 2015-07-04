@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Activity;
 
-use Flarum\Core\Users\UserRepositoryInterface;
-use Flarum\Core\Activity\ActivityRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
+use Flarum\Core\Activity\ActivityRepository;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -9,12 +9,12 @@ use Tobscure\JsonApi\Document;
 class IndexAction extends SerializeCollectionAction
 {
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
     /**
-     * @var ActivityRepositoryInterface
+     * @var ActivityRepository
      */
     protected $activity;
 
@@ -58,10 +58,10 @@ class IndexAction extends SerializeCollectionAction
     public static $sort;
 
     /**
-     * @param UserRepositoryInterface $users
-     * @param ActivityRepositoryInterface $activity
+     * @param UserRepository $users
+     * @param ActivityRepository $activity
      */
-    public function __construct(UserRepositoryInterface $users, ActivityRepositoryInterface $activity)
+    public function __construct(UserRepository $users, ActivityRepository $activity)
     {
         $this->users = $users;
         $this->activity = $activity;

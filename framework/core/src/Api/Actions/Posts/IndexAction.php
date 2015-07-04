@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Flarum\Core\Posts\PostRepositoryInterface;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -51,9 +51,9 @@ class IndexAction extends SerializeCollectionAction
     public static $sort;
 
     /**
-     * @param PostRepositoryInterface $posts
+     * @param PostRepository $posts
      */
-    public function __construct(PostRepositoryInterface $posts)
+    public function __construct(PostRepository $posts)
     {
         $this->posts = $posts;
     }

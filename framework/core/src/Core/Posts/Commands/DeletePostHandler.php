@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Posts\Commands;
 
-use Flarum\Core\Posts\PostRepositoryInterface;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Core\Posts\Events\PostWillBeDeleted;
 use Flarum\Core\Support\DispatchesEvents;
 
@@ -9,14 +9,14 @@ class DeletePostHandler
     use DispatchesEvents;
 
     /**
-     * @var PostRepositoryInterface
+     * @var PostRepository
      */
     protected $posts;
 
     /**
-     * @param PostRepositoryInterface $posts
+     * @param PostRepository $posts
      */
-    public function __construct(PostRepositoryInterface $posts)
+    public function __construct(PostRepository $posts)
     {
         $this->posts = $posts;
     }

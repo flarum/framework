@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Users\Commands;
 
 use Flarum\Core\Users\Events\AvatarWillBeSaved;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Support\DispatchesEvents;
 use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
@@ -15,7 +15,7 @@ class UploadAvatarHandler
     use DispatchesEvents;
 
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
@@ -25,10 +25,10 @@ class UploadAvatarHandler
     protected $uploadDir;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      * @param FilesystemInterface $uploadDir
      */
-    public function __construct(UserRepositoryInterface $users, FilesystemInterface $uploadDir)
+    public function __construct(UserRepository $users, FilesystemInterface $uploadDir)
     {
         $this->users = $users;
         $this->uploadDir = $uploadDir;

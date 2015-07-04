@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Posts\Commands;
 
 use Flarum\Core\Posts\Events\PostWillBeSaved;
-use Flarum\Core\Discussions\DiscussionRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepository;
 use Flarum\Core\Posts\CommentPost;
 use Flarum\Core\Support\DispatchesEvents;
 use Flarum\Core\Notifications\NotificationSyncer;
@@ -11,7 +11,7 @@ class PostReplyHandler
     use DispatchesEvents;
 
     /**
-     * @var DiscussionRepositoryInterface
+     * @var DiscussionRepository
      */
     protected $discussions;
 
@@ -21,10 +21,10 @@ class PostReplyHandler
     protected $notifications;
 
     /**
-     * @param DiscussionRepositoryInterface $discussions
+     * @param DiscussionRepository $discussions
      * @param NotificationSyncer $notifications
      */
-    public function __construct(DiscussionRepositoryInterface $discussions, NotificationSyncer $notifications)
+    public function __construct(DiscussionRepository $discussions, NotificationSyncer $notifications)
     {
         $this->discussions = $discussions;
         $this->notifications = $notifications;

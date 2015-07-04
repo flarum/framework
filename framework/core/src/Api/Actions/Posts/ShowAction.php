@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Core\Posts\PostRepositoryInterface;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class ShowAction extends SerializeResourceAction
 {
     /**
-     * @var PostRepositoryInterface
+     * @var PostRepository
      */
     protected $posts;
 
@@ -55,9 +55,9 @@ class ShowAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * @param PostRepositoryInterface $posts
+     * @param PostRepository $posts
      */
-    public function __construct(PostRepositoryInterface $posts)
+    public function __construct(PostRepository $posts)
     {
         $this->posts = $posts;
     }

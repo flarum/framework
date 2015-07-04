@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Notifications;
 
-use Flarum\Core\Notifications\NotificationRepositoryInterface;
+use Flarum\Core\Notifications\NotificationRepository;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class IndexAction extends SerializeCollectionAction
 {
     /**
-     * @var NotificationRepositoryInterface
+     * @var NotificationRepository
      */
     protected $notifications;
 
@@ -55,9 +55,9 @@ class IndexAction extends SerializeCollectionAction
     /**
      * Instantiate the action.
      *
-     * @param NotificationRepositoryInterface $notifications
+     * @param NotificationRepository $notifications
      */
-    public function __construct(NotificationRepositoryInterface $notifications)
+    public function __construct(NotificationRepository $notifications)
     {
         $this->notifications = $notifications;
     }

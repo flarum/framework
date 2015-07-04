@@ -2,10 +2,15 @@
 
 use Flarum\Core\Users\User;
 
-class EloquentNotificationRepository implements NotificationRepositoryInterface
+class NotificationRepository
 {
     /**
-     * {@inheritdoc}
+     * Find a user's notifications.
+     *
+     * @param User $user
+     * @param int|null $limit
+     * @param int $offset
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function findByUser(User $user, $limit = null, $offset = 0)
     {
