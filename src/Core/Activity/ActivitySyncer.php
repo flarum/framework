@@ -8,16 +8,16 @@
 class ActivitySyncer
 {
     /**
-     * @var ActivityRepositoryInterface
+     * @var ActivityRepository
      */
     protected $activity;
 
     /**
      * Create a new instance of the activity syncer.
      *
-     * @param ActivityRepositoryInterface $activity
+     * @param ActivityRepository $activity
      */
-    public function __construct(ActivityRepositoryInterface $activity)
+    public function __construct(ActivityRepository $activity)
     {
         $this->activity = $activity;
     }

@@ -41,11 +41,6 @@ class UsersServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            'Flarum\Core\Users\UserRepositoryInterface',
-            'Flarum\Core\Users\EloquentUserRepository'
-        );
-
         $this->registerAvatarsFilesystem();
         $this->registerGambits();
     }

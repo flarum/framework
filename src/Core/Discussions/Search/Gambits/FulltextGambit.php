@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Discussions\Search\Gambits;
 
 use Flarum\Core\Discussions\Search\DiscussionSearch;
-use Flarum\Core\Posts\PostRepositoryInterface;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Core\Search\Search;
 use Flarum\Core\Search\GambitInterface;
 use LogicException;
@@ -9,14 +9,14 @@ use LogicException;
 class FulltextGambit implements GambitInterface
 {
     /**
-     * @var PostRepositoryInterface
+     * @var PostRepository
      */
     protected $posts;
 
     /**
-     * @param PostRepositoryInterface $posts
+     * @param PostRepository $posts
      */
-    public function __construct(PostRepositoryInterface $posts)
+    public function __construct(PostRepository $posts)
     {
         $this->posts = $posts;
     }

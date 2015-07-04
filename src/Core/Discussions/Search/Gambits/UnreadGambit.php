@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Discussions\Search\Gambits;
 
-use Flarum\Core\Discussions\DiscussionRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepository;
 use Flarum\Core\Discussions\Search\DiscussionSearch;
 use Flarum\Core\Search\RegexGambit;
 use Flarum\Core\Search\Search;
@@ -14,14 +14,14 @@ class UnreadGambit extends RegexGambit
     protected $pattern = 'is:unread';
 
     /**
-     * @var DiscussionRepositoryInterface
+     * @var DiscussionRepository
      */
     protected $discussions;
 
     /**
-     * @param DiscussionRepositoryInterface $discussions
+     * @param DiscussionRepository $discussions
      */
-    public function __construct(DiscussionRepositoryInterface $discussions)
+    public function __construct(DiscussionRepository $discussions)
     {
         $this->discussions = $discussions;
     }

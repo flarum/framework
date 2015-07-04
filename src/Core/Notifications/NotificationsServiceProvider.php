@@ -28,9 +28,5 @@ class NotificationsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            'Flarum\Core\Notifications\NotificationRepositoryInterface',
-            'Flarum\Core\Notifications\EloquentNotificationRepository'
-        );
     }
 }

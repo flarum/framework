@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Discussions\DiscussionRepositoryInterface;
-use Flarum\Core\Posts\PostRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepository;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\Actions\Posts\GetsPosts;
 use Flarum\Api\JsonApiRequest;
@@ -12,7 +12,7 @@ class ShowAction extends SerializeResourceAction
     use GetsPosts;
 
     /**
-     * @var \Flarum\Core\Discussions\DiscussionRepositoryInterface
+     * @var \Flarum\Core\Discussions\DiscussionRepository
      */
     protected $discussions;
 
@@ -64,10 +64,10 @@ class ShowAction extends SerializeResourceAction
     /**
      * Instantiate the action.
      *
-     * @param DiscussionRepositoryInterface $discussions
-     * @param PostRepositoryInterface $posts
+     * @param DiscussionRepository $discussions
+     * @param PostRepository $posts
      */
-    public function __construct(DiscussionRepositoryInterface $discussions, PostRepositoryInterface $posts)
+    public function __construct(DiscussionRepository $discussions, PostRepository $posts)
     {
         $this->discussions = $discussions;
         $this->posts = $posts;

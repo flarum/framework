@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Users\Commands;
 
 use Flarum\Core\Users\Events\AvatarWillBeDeleted;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Support\DispatchesEvents;
 use League\Flysystem\FilesystemInterface;
 
@@ -10,7 +10,7 @@ class DeleteAvatarHandler
     use DispatchesEvents;
 
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
@@ -20,10 +20,10 @@ class DeleteAvatarHandler
     protected $uploadDir;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      * @param FilesystemInterface $uploadDir
      */
-    public function __construct(UserRepositoryInterface $users, FilesystemInterface $uploadDir)
+    public function __construct(UserRepository $users, FilesystemInterface $uploadDir)
     {
         $this->users = $users;
         $this->uploadDir = $uploadDir;

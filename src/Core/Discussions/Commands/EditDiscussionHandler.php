@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Discussions\Commands;
 
-use Flarum\Core\Discussions\DiscussionRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepository;
 use Flarum\Core\Discussions\Events\DiscussionWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
 
@@ -9,14 +9,14 @@ class EditDiscussionHandler
     use DispatchesEvents;
 
     /**
-     * @var DiscussionRepositoryInterface
+     * @var DiscussionRepository
      */
     protected $discussions;
 
     /**
-     * @param DiscussionRepositoryInterface $discussions
+     * @param DiscussionRepository $discussions
      */
-    public function __construct(DiscussionRepositoryInterface $discussions)
+    public function __construct(DiscussionRepository $discussions)
     {
         $this->discussions = $discussions;
     }

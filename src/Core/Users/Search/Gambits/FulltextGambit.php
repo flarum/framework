@@ -1,20 +1,20 @@
 <?php namespace Flarum\Core\Users\Search\Gambits;
 
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Search\Search;
 use Flarum\Core\Search\GambitInterface;
 
 class FulltextGambit implements GambitInterface
 {
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
     /**
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      */
-    public function __construct(UserRepositoryInterface $users)
+    public function __construct(UserRepository $users)
     {
         $this->users = $users;
     }

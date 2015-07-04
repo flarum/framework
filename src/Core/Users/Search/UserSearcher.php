@@ -4,7 +4,7 @@ use Flarum\Core\Search\AppliesParametersToSearch;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
-use Flarum\Core\Users\UserRepositoryInterface;
+use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Users\Events\UserSearchWillBePerformed;
 
 /**
@@ -21,15 +21,15 @@ class UserSearcher
     protected $gambits;
 
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepository
      */
     protected $users;
 
     /**
      * @param GambitManager $gambits
-     * @param UserRepositoryInterface $users
+     * @param UserRepository $users
      */
-    public function __construct(GambitManager $gambits, UserRepositoryInterface $users)
+    public function __construct(GambitManager $gambits, UserRepository $users)
     {
         $this->gambits = $gambits;
         $this->users = $users;

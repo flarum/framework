@@ -60,9 +60,5 @@ class PostsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            'Flarum\Core\Posts\PostRepositoryInterface',
-            'Flarum\Core\Posts\EloquentPostRepository'
-        );
     }
 }

@@ -5,8 +5,8 @@ use Flarum\Core\Search\AppliesParametersToSearch;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
-use Flarum\Core\Discussions\DiscussionRepositoryInterface;
-use Flarum\Core\Posts\PostRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepository;
+use Flarum\Core\Posts\PostRepository;
 use Flarum\Core\Discussions\Events\DiscussionSearchWillBePerformed;
 use Flarum\Core\Search\SearchResults;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,24 +25,24 @@ class DiscussionSearcher
     protected $gambits;
 
     /**
-     * @var DiscussionRepositoryInterface
+     * @var DiscussionRepository
      */
     protected $discussions;
 
     /**
-     * @var PostRepositoryInterface
+     * @var PostRepository
      */
     protected $posts;
 
     /**
      * @param GambitManager $gambits
-     * @param DiscussionRepositoryInterface $discussions
-     * @param PostRepositoryInterface $posts
+     * @param DiscussionRepository $discussions
+     * @param PostRepository $posts
      */
     public function __construct(
         GambitManager $gambits,
-        DiscussionRepositoryInterface $discussions,
-        PostRepositoryInterface $posts
+        DiscussionRepository $discussions,
+        PostRepository $posts
     ) {
         $this->gambits = $gambits;
         $this->discussions = $discussions;

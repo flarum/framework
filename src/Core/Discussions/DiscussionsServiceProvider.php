@@ -43,11 +43,6 @@ class DiscussionsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(
-            'Flarum\Core\Discussions\DiscussionRepositoryInterface',
-            'Flarum\Core\Discussions\EloquentDiscussionRepository'
-        );
-
-        $this->app->bind(
             'Flarum\Core\Discussions\Search\Fulltext\DriverInterface',
             'Flarum\Core\Discussions\Search\Fulltext\MySqlFulltextDriver'
         );
