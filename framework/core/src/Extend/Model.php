@@ -82,7 +82,7 @@ class Model implements ExtenderInterface
         }
 
         foreach ($this->scopeVisible as $callback) {
-            $model::addVisiblePostsScope($callback);
+            $model::addVisibleScope($callback);
         }
 
         foreach ($this->allow as $info) {

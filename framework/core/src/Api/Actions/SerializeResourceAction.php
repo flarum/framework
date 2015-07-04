@@ -7,7 +7,7 @@ abstract class SerializeResourceAction extends SerializeAction
     /**
      * Serialize the data as appropriate.
      *
-     * @param \Tobscure\JsonApi\SerializerInterface $serializer
+     * @param SerializerInterface $serializer
      * @param array $data
      * @return \Tobscure\JsonApi\Elements\Resource
      */

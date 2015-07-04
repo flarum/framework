@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Search\Users\UserSearchCriteria;
-use Flarum\Core\Search\Users\UserSearcher;
+use Flarum\Core\Search\SearchCriteria;
+use Flarum\Core\Users\Search\UserSearcher;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Http\UrlGeneratorInterface;
@@ -10,16 +10,12 @@ use Tobscure\JsonApi\Document;
 class IndexAction extends SerializeCollectionAction
 {
     /**
-     * The user searcher.
-     *
-     * @var \Flarum\Core\Search\Users\UserSearcher
+     * @var UserSearcher
      */
     protected $searcher;
 
     /**
-     * The URL generator.
-     *
-     * @var \Flarum\Http\UrlGeneratorInterface
+     * @var UrlGeneratorInterface
      */
     protected $url;
 
@@ -61,10 +57,8 @@ class IndexAction extends SerializeCollectionAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param  \Flarum\Core\Search\Users\UserSearcher  $searcher
-     * @param  \Flarum\Http\UrlGeneratorInterface  $url
+     * @param UserSearcher $searcher
+     * @param UrlGeneratorInterface $url
      */
     public function __construct(UserSearcher $searcher, UrlGeneratorInterface $url)
     {
@@ -76,15 +70,15 @@ class IndexAction extends SerializeCollectionAction
      * Get the user results, ready to be serialized and assigned to the
      * document response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
+     * @param JsonApiRequest $request
+     * @param Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        $criteria = new UserSearchCriteria(
-            $request->actor->getUser(),
-            $request->get('q'),
+        $criteria = new SearchCriteria(
+            $request->actor,
+            $request->get('filter.q'),
             $request->sort
         );
 
@@ -97,6 +91,6 @@ class IndexAction extends SerializeCollectionAction
             $results->areMoreResults()
         );
 
-        return $results->getUsers();
+        return $results->getResults();
     }
 }

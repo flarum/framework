@@ -46,9 +46,11 @@ export default class ActivityPage extends UserPage {
 
   loadResults(offset) {
     return app.store.find('activity', {
-      users: this.user().id(),
-      page: {offset, limit: this.loadLimit},
-      type: this.props.filter
+      filter: {
+        user: this.user().id(),
+        type: this.props.filter
+      },
+      page: {offset, limit: this.loadLimit}
     })
   }
 

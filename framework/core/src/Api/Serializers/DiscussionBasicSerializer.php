@@ -1,67 +1,67 @@
 <?php namespace Flarum\Api\Serializers;
 
-class DiscussionBasicSerializer extends BaseSerializer
+class DiscussionBasicSerializer extends Serializer
 {
-    protected static $relationships = [];
-
     /**
-     * The resource type.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $type = 'discussions';
 
     /**
-     * Serialize attributes of a Discussion model for JSON output.
-     *
-     * @param Discussion $discussion The Discussion model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($discussion)
+    protected function getDefaultAttributes($discussion)
     {
-        $attributes = [
+        return [
             'title' => $discussion->title
         ];
-
-        if (count($discussion->removedPosts)) {
-            $attributes['removedPosts'] = $discussion->removedPosts;
-        }
-
-        return $this->extendAttributes($discussion, $attributes);
     }
 
-    public function startUser()
+    /**
+     * @return callable
+     */
+    protected function startUser()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
-    public function startPost()
+    /**
+     * @return callable
+     */
+    protected function startPost()
     {
         return $this->hasOne('Flarum\Api\Serializers\PostBasicSerializer');
     }
 
-    public function lastUser()
+    /**
+     * @return callable
+     */
+    protected function lastUser()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
-    public function lastPost()
+    /**
+     * @return callable
+     */
+    protected function lastPost()
     {
         return $this->hasOne('Flarum\Api\Serializers\PostBasicSerializer');
     }
 
-    public function posts()
+    /**
+     * @return callable
+     */
+    protected function posts()
     {
         return $this->hasMany('Flarum\Api\Serializers\PostSerializer');
     }
 
-    public function relevantPosts()
+    /**
+     * @return callable
+     */
+    protected function relevantPosts()
     {
         return $this->hasMany('Flarum\Api\Serializers\PostBasicSerializer');
-    }
-
-    public function addedPosts()
-    {
-        return $this->hasMany('Flarum\Api\Serializers\PostSerializer');
     }
 }

@@ -1,30 +1,23 @@
 <?php namespace Flarum\Api\Serializers;
 
-class GroupSerializer extends BaseSerializer
+class GroupSerializer extends Serializer
 {
     /**
-     * The resource type.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $type = 'groups';
 
     /**
-     * Serialize attributes of a Group model for JSON output.
-     *
-     * @param  Group $group The Group model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($group)
+    protected function getDefaultAttributes($group)
     {
-        $attributes = [
+        return [
             'id'           => (int) $group->id,
             'nameSingular' => $group->name_singular,
             'namePlural'   => $group->name_plural,
             'color'        => $group->color,
             'icon'         => $group->icon,
         ];
-
-        return $this->extendAttributes($group, $attributes);
     }
 }

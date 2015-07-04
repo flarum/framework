@@ -3,17 +3,16 @@ import computed from 'flarum/utils/computed';
 
 class Notification extends Model {}
 
-Notification.prototype.id = Model.prop('id');
-Notification.prototype.contentType = Model.prop('contentType');
-Notification.prototype.subjectId = Model.prop('subjectId');
-Notification.prototype.content = Model.prop('content');
-Notification.prototype.time = Model.prop('time', Model.date);
-Notification.prototype.isRead = Model.prop('isRead');
-Notification.prototype.unreadCount = Model.prop('unreadCount');
+Notification.prototype.contentType = Model.attribute('contentType');
+Notification.prototype.subjectId = Model.attribute('subjectId');
+Notification.prototype.content = Model.attribute('content');
+Notification.prototype.time = Model.attribute('time', Model.date);
+Notification.prototype.isRead = Model.attribute('isRead');
+Notification.prototype.unreadCount = Model.attribute('unreadCount');
 Notification.prototype.additionalUnreadCount = computed('unreadCount', unreadCount => Math.max(0, unreadCount - 1));
 
-Notification.prototype.user = Model.one('user');
-Notification.prototype.sender = Model.one('sender');
-Notification.prototype.subject = Model.one('subject');
+Notification.prototype.user = Model.hasOne('user');
+Notification.prototype.sender = Model.hasOne('sender');
+Notification.prototype.subject = Model.hasOne('subject');
 
 export default Notification;

@@ -12,11 +12,12 @@ abstract class JsonApiAction implements ActionInterface
      * Handle an API request and return an API response, handling any relevant
      * (API-related) exceptions that are thrown.
      *
-     * @param \Flarum\Api\Request $request
+     * @param Request $request
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request)
     {
+        // TODO: Move this error handling code to middleware?
         try {
             return $this->respond($request);
         } catch (ValidationFailureException $e) {
@@ -38,7 +39,7 @@ abstract class JsonApiAction implements ActionInterface
     /**
      * Handle an API request and return an API response.
      *
-     * @param \Flarum\Api\Request $request
+     * @param Request $request
      * @return \Psr\Http\Message\ResponseInterface
      */
     abstract protected function respond(Request $request);

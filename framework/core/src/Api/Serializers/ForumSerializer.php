@@ -1,31 +1,27 @@
 <?php namespace Flarum\Api\Serializers;
 
-class ForumSerializer extends BaseSerializer
+class ForumSerializer extends Serializer
 {
     /**
-     * The resource type.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $type = 'forums';
 
-    protected function id($forum)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getId($forum)
     {
         return 1;
     }
 
     /**
-     * Serialize attributes of a Forum model for JSON output.
-     *
-     * @param  Forum $forum The Forum model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($forum)
+    protected function getDefaultAttributes($forum)
     {
-        $attributes = [
+        return [
             'title' => $forum->title
         ];
-
-        return $this->extendAttributes($forum, $attributes);
     }
 }

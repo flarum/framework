@@ -65,7 +65,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
 
   params() {
     return {
-      near: this.currentNear,
+      page: {near: this.currentNear},
       include: ['posts', 'posts.user', 'posts.user.groups']
     };
   }
@@ -91,7 +91,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     var includedPosts = [];
     if (discussion.payload && discussion.payload.included) {
       discussion.payload.included.forEach(record => {
-        if (record.type === 'posts' && record.links && record.links.discussion) {
+        if (record.type === 'posts' && record.relationships && record.relationships.discussion) {
           includedPosts.push(app.store.getById('posts', record.id));
         }
       });

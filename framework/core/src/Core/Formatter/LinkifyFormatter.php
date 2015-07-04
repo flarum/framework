@@ -1,18 +1,27 @@
 <?php namespace Flarum\Core\Formatter;
 
-use Flarum\Core\Models\Post;
+use Flarum\Core\Model;
 use Misd\Linkify\Linkify;
 
-class LinkifyFormatter extends FormatterAbstract
+class LinkifyFormatter extends TextFormatter
 {
+    /**
+     * @var Linkify
+     */
     protected $linkify;
 
+    /**
+     * @param Linkify $linkify
+     */
     public function __construct(Linkify $linkify)
     {
         $this->linkify = $linkify;
     }
 
-    public function beforePurification($text, Post $post = null)
+    /**
+     * {@inheritdoc}
+     */
+    protected function formatTextBeforePurification($text, Model $post = null)
     {
         return $this->linkify->process($text, ['attr' => ['target' => '_blank']]);
     }

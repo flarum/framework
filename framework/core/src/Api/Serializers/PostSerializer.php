@@ -3,22 +3,19 @@
 class PostSerializer extends PostBasicSerializer
 {
     /**
-     * Serialize attributes of a Post model for JSON output.
-     *
-     * @param  Post  $post The Post model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($post)
+    protected function getDefaultAttributes($post)
     {
-        $attributes = parent::attributes($post);
-        $user = $this->actor->getUser();
+        $attributes = parent::getDefaultAttributes($post);
 
         unset($attributes['content']);
 
-        $canEdit = $post->can($user, 'edit');
+        $canEdit = $post->can($this->actor, 'edit');
 
         if ($post->type === 'comment') {
             $attributes['contentHtml'] = $post->content_html;
+
             if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
@@ -37,27 +34,39 @@ class PostSerializer extends PostBasicSerializer
 
         $attributes += [
             'canEdit'   => $canEdit,
-            'canDelete' => $post->can($user, 'delete')
+            'canDelete' => $post->can($this->actor, 'delete')
         ];
 
-        return $this->extendAttributes($post, $attributes);
+        return $attributes;
     }
 
+    /**
+     * @return callable
+     */
     public function user()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function discussion()
     {
         return $this->hasOne('Flarum\Api\Serializers\DiscussionSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function editUser()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function hideUser()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserSerializer');

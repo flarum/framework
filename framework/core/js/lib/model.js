@@ -6,16 +6,25 @@ export default class Model {
     this.store = store;
   }
 
+  id() {
+    return this.data().id;
+  }
+
   pushData(newData) {
     var data = this.data();
 
     for (var i in newData) {
-      if (i === 'links') {
+      if (i === 'relationships') {
         data[i] = data[i] || {};
         for (var j in newData[i]) {
           if (newData[i][j] instanceof Model) {
-            newData[i][j] = {linkage: {type: newData[i][j].data().type, id: newData[i][j].data().id}};
+            newData[i][j] = {data: {type: newData[i][j].data().type, id: newData[i][j].data().id}};
           }
+          data[i][j] = newData[i][j];
+        }
+      } else if (i === 'attributes') {
+        data[i] = data[i] || {};
+        for (var j in newData[i]) {
           data[i][j] = newData[i][j];
         }
       } else {
@@ -26,19 +35,40 @@ export default class Model {
     this.freshness = new Date();
   }
 
-  save(data) {
-    if (data.links) {
-      for (var i in data.links) {
-        var model = data.links[i];
-        var linkage = model => {
+  pushAttributes(attributes) {
+    var data = {attributes};
+
+    if (attributes.relationships) {
+      data.relationships = attributes.relationships;
+      delete attributes.relationships;
+    }
+
+    this.pushData(data);
+  }
+
+  save(attributes) {
+    var data = {
+      type: this.data().type,
+      id: this.data().id,
+      attributes
+    };
+
+    if (attributes.relationships) {
+      data.relationships = {};
+
+      for (var i in attributes.relationships) {
+        var model = attributes.relationships[i];
+        var relationshipData = model => {
           return {type: model.data().type, id: model.data().id};
         };
         if (model instanceof Array) {
-          data.links[i] = {linkage: model.map(linkage)};
+          data.relationships[i] = {data: model.map(relationshipData)};
         } else {
-          data.links[i] = {linkage: linkage(model)};
+          data.relationships[i] = {data: relationshipData(model)};
         }
       }
+
+      delete attributes.relationships;
     }
 
     // clone the relevant parts of the model's old data so that we can revert
@@ -46,7 +76,7 @@ export default class Model {
     var oldData = {};
     var currentData = this.data();
     for (var i in data) {
-      if (i === 'links') {
+      if (i === 'relationships') {
         oldData[i] = oldData[i] || {};
         for (var j in currentData[i]) {
           oldData[i][j] = currentData[i][j];
@@ -59,7 +89,7 @@ export default class Model {
     this.pushData(data);
 
     return app.request({
-      method: this.exists ? 'PUT' : 'POST',
+      method: this.exists ? 'PATCH' : 'POST',
       url: app.config['api_url']+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
       data: {data},
       background: true,
@@ -84,36 +114,36 @@ export default class Model {
     }).then(() => this.exists = false);
   }
 
-  static prop(name, transform) {
+  static attribute(name, transform) {
     return function() {
-      var data = this.data()[name];
+      var data = this.data().attributes[name];
       return transform ? transform(data) : data;
     }
   }
 
-  static one(name) {
+  static hasOne(name) {
     return function() {
       var data = this.data();
-      if (data.links) {
-        var link = data.links[name];
-        return link && app.store.getById(link.linkage.type, link.linkage.id);
+      if (data.relationships) {
+        var relationship = data.relationships[name];
+        return relationship && app.store.getById(relationship.data.type, relationship.data.id);
       }
     }
   }
 
-  static many(name) {
+  static hasMany(name) {
     return function() {
       var data = this.data();
-      if (data.links) {
-        var link = this.data().links[name];
-        return link && link.linkage.map(function(link) {
-          return app.store.getById(link.type, link.id)
+      if (data.relationships) {
+        var relationship = this.data().relationships[name];
+        return relationship && relationship.data.map(function(link) {
+          return app.store.getById(link.type, link.id);
         });
       }
     }
   }
 
-  static date(data) {
+  static transformDate(data) {
     return data ? new Date(data) : null;
   }
 }

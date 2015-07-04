@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Middleware;
 
-use Flarum\Core\Models\AccessToken;
-use Flarum\Support\Actor;
+use Flarum\Api\AccessToken;
+use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Stratigility\MiddlewareInterface;
@@ -9,20 +9,21 @@ use Zend\Stratigility\MiddlewareInterface;
 class LoginWithHeader implements MiddlewareInterface
 {
     /**
-     * @var Actor
+     * @var Container
      */
-    protected $actor;
+    protected $app;
 
     /**
      * @var string
      */
     protected $prefix = 'Token ';
 
-    // @todo rather than using a singleton, we should have our own HTTP
-    //     Request class and store the actor on that? somehow?
-    public function __construct(Actor $actor)
+    /**
+     * @param Container $app
+     */
+    public function __construct(Container $app)
     {
-        $this->actor = $actor;
+        $this->app = $app;
     }
 
     /**
@@ -35,7 +36,7 @@ class LoginWithHeader implements MiddlewareInterface
             ($token = substr($header, strlen($this->prefix))) &&
             ($accessToken = AccessToken::where('id', $token)->first())
         ) {
-            $this->actor->setUser($user = $accessToken->user);
+            $this->app->instance('flarum.actor', $user = $accessToken->user);
 
             $user->updateLastSeen()->save();
         }

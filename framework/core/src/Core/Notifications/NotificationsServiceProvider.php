@@ -13,19 +13,24 @@ class NotificationsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->extend([
-            (new Extend\EventSubscriber('Flarum\Core\Handlers\Events\DiscussionRenamedNotifier')),
+            (new Extend\EventSubscriber('Flarum\Core\Notifications\Listeners\DiscussionRenamedNotifier')),
 
-            (new Extend\NotificationType('Flarum\Core\Notifications\DiscussionRenamedNotification'))
+            (new Extend\NotificationType('Flarum\Core\Notifications\DiscussionRenamedBlueprint'))
                 ->subjectSerializer('Flarum\Api\Serializers\DiscussionBasicSerializer')
                 ->enableByDefault('alert')
         ]);
     }
 
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
     public function register()
     {
         $this->app->bind(
-            'Flarum\Core\Repositories\NotificationRepositoryInterface',
-            'Flarum\Core\Repositories\EloquentNotificationRepository'
+            'Flarum\Core\Notifications\NotificationRepositoryInterface',
+            'Flarum\Core\Notifications\EloquentNotificationRepository'
         );
     }
 }

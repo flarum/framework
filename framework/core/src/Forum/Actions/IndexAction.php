@@ -7,50 +7,61 @@ use Flarum\Assets\LessCompiler;
 use Flarum\Core;
 use Flarum\Forum\Events\RenderView;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
-use Flarum\Support\Actor;
 use Flarum\Support\HtmlAction;
 use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class IndexAction extends HtmlAction
 {
+    /**
+     * @var Client
+     */
     protected $apiClient;
 
-    protected $actor;
-
-    protected $session;
-
+    /**
+     * @var ConnectionInterface
+     */
     protected $database;
 
+    /**
+     * @var array
+     */
     public static $translations = [];
 
-    public function __construct(Client $apiClient, Actor $actor, ConnectionInterface $database, SessionInterface $session)
+    /**
+     * @param Client $apiClient
+     * @param ConnectionInterface $database
+     */
+    public function __construct(Client $apiClient, ConnectionInterface $database)
     {
         $this->apiClient = $apiClient;
-        $this->actor = $actor;
-        $this->session = $session;
         $this->database = $database;
     }
 
-    public function render(Request $request, $params = [])
+    /**
+     * @param Request $request
+     * @param array $routeParams
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function render(Request $request, array $routeParams = [])
     {
         $config = $this->database->table('config')
             ->whereIn('key', ['base_url', 'api_url', 'forum_title', 'welcome_title', 'welcome_message', 'theme_primary_color'])
             ->lists('value', 'key');
         $session = [];
-        $alert = $this->session->get('alert');
 
-        $response = $this->apiClient->send('Flarum\Api\Actions\Forum\ShowAction');
+        $actor = app('flarum.actor');
+
+        $response = $this->apiClient->send($actor, 'Flarum\Api\Actions\Forum\ShowAction');
 
         $data = [$response->data];
         if (isset($response->included)) {
             $data = array_merge($data, $response->included);
         }
 
-        if (($user = $this->actor->getUser()) && $user->exists) {
+        if ($actor->exists) {
             $session = [
-                'userId' => $user->id,
+                'userId' => $actor->id,
                 'token' => $request->getCookieParams()['flarum_remember'],
             ];
 
@@ -58,7 +69,7 @@ class IndexAction extends HtmlAction
             // the user + their groups, when we already have this information on
             // $this->actor. Can we simply run the CurrentUserSerializer
             // manually?
-            $response = $this->apiClient->send('Flarum\Api\Actions\Users\ShowAction', ['id' => $user->id]);
+            $response = $this->apiClient->send($actor, 'Flarum\Api\Actions\Users\ShowAction', ['id' => $actor->id]);
 
             $data[] = $response->data;
             if (isset($response->included)) {
@@ -66,7 +77,7 @@ class IndexAction extends HtmlAction
             }
         }
 
-        $details = $this->getDetails($request, $params);
+        $details = $this->getDetails($request, $routeParams);
 
         $data = array_merge($data, array_get($details, 'data', []));
         $response = array_get($details, 'response');
@@ -78,8 +89,7 @@ class IndexAction extends HtmlAction
             ->with('layout', 'flarum.forum::forum')
             ->with('data', $data)
             ->with('response', $response)
-            ->with('session', $session)
-            ->with('alert', $alert);
+            ->with('session', $session);
 
         $root = __DIR__.'/../../..';
         $public = public_path().'/assets';
@@ -102,7 +112,7 @@ class IndexAction extends HtmlAction
             $assets->addLess("@$name: $value;");
         }
 
-        $locale = $user->locale ?: Core::config('locale', 'en');
+        $locale = $actor->locale ?: Core::config('locale', 'en');
 
         $localeManager = app('flarum.localeManager');
         $translations = $localeManager->getTranslations($locale);
@@ -119,14 +129,19 @@ class IndexAction extends HtmlAction
             ->with('scripts', [$assets->getJsFile(), $localeCompiler->getFile()]);
     }
 
-    protected function getDetails($request, $params)
+    /**
+     * @param Request $request
+     * @param array $routeParams
+     * @return array
+     */
+    protected function getDetails(Request $request, array $routeParams)
     {
         $queryParams = $request->getQueryParams();
 
         // Only preload data if we're viewing the default index with no filters,
         // otherwise we have to do all kinds of crazy stuff
         if (!count($queryParams) && $request->getUri()->getPath() === '/') {
-            $response = $this->apiClient->send('Flarum\Api\Actions\Discussions\IndexAction');
+            $response = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\Discussions\IndexAction');
 
             return [
                 'response' => $response
@@ -136,6 +151,10 @@ class IndexAction extends HtmlAction
         return [];
     }
 
+    /**
+     * @param $translations
+     * @return array
+     */
     protected static function filterTranslations($translations)
     {
         $filtered = [];

@@ -1,17 +1,19 @@
 <?php namespace Flarum\Forum\Actions;
 
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 class DiscussionAction extends IndexAction
 {
-    protected function getDetails($request, $params)
+    protected function getDetails(Request $request, array $routeParams)
     {
-        $response = $this->apiClient->send('Flarum\Api\Actions\Discussions\ShowAction', [
-            'id' => $params['id'],
-            'near' => $params['near']
+        $response = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\Discussions\ShowAction', [
+            'id' => $routeParams['id'],
+            'near' => $routeParams['near']
         ]);
 
         // TODO: return an object instead of an array?
         return [
-            'title' => $response->data->title,
+            'title' => $response->data->attributes->title,
             'response' => $response
         ];
     }

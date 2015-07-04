@@ -1,10 +1,22 @@
 <?php namespace Flarum\Support;
 
+use Flarum\Extend\ExtenderInterface;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
+use InvalidArgumentException;
 
 class ServiceProvider extends IlluminateServiceProvider
 {
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->extend($this->extenders());
+    }
+
     /**
      * Register the service provider.
      *
@@ -12,19 +24,33 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function register()
     {
-        //
     }
 
-    public function extend()
+    /**
+     * @return ExtenderInterface[]
+     */
+    public function extenders()
     {
-        // @todo don't support func_get_args
-        foreach (func_get_args() as $extenders) {
-            if (! is_array($extenders)) {
-                $extenders = [$extenders];
+        return [];
+    }
+
+    /**
+     * @param ExtenderInterface|ExtenderInterface[] $extenders
+     * @return void
+     */
+    protected function extend($extenders)
+    {
+        if (! is_array($extenders)) {
+            $extenders = [$extenders];
+        }
+
+        foreach ($extenders as $extender) {
+            if (! $extender instanceof ExtenderInterface) {
+                throw new InvalidArgumentException('Argument must be an object of type '
+                    . ExtenderInterface::class);
             }
-            foreach ($extenders as $extender) {
-                $extender->extend($this->app);
-            }
+
+            $extender->extend($this->app);
         }
     }
 }

@@ -1,15 +1,21 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Flarum\Forum\Events\UserLoggedOut;
+use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class LogoutAction extends BaseAction
+class LogoutAction extends Action
 {
     use WritesRememberCookie;
 
-    public function handle(Request $request, $params = [])
+    /**
+     * @param Request $request
+     * @param array $routeParams
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function handle(Request $request, array $routeParams = [])
     {
-        $user = $this->actor->getUser();
+        $user = app('flarum.actor');
 
         if ($user->exists) {
             $user->accessTokens()->delete();

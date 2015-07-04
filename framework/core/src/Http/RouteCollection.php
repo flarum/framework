@@ -43,6 +43,11 @@ class RouteCollection
         return $this->addRoute('PUT', $path, $name, $handler);
     }
 
+    public function patch($path, $name, $handler)
+    {
+        return $this->addRoute('PATCH', $path, $name, $handler);
+    }
+
     public function delete($path, $name, $handler)
     {
         return $this->addRoute('DELETE', $path, $name, $handler);
