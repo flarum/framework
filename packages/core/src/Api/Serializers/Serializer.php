@@ -53,6 +53,18 @@ abstract class Serializer extends SerializerAbstract
     abstract protected function getDefaultAttributes($model);
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getRelationshipFromMethod($name)
+    {
+        if (isset(static::$relationMethods[$name])) {
+            return call_user_func(static::$relationMethods[$name], $this);
+        }
+
+        return parent::getRelationshipFromMethod($name);
+    }
+
+    /**
      * Get a closure that returns a Collection/Resource representing a relation.
      *
      * @param string|Closure $serializer The name of the serializer, or a
@@ -153,26 +165,5 @@ abstract class Serializer extends SerializerAbstract
     public static function setRelationMethod($name, callable $callback)
     {
         static::$relationMethods[get_called_class()][$name] = $callback;
-    }
-
-    /**
-     * Check for and execute custom relationships.
-     *
-     * @param string $method
-     * @param array $parameters
-     * @return mixed
-     * @throws BadMethodCallException
-     */
-    public function __call($method, $parameters)
-    {
-        if (isset(static::$relationMethods[$method])) {
-            array_unshift($parameters, $this);
-
-            return call_user_func_array(static::$relationMethods[$method], $parameters);
-        }
-
-        $className = get_class($this);
-
-        throw new BadMethodCallException("Call to undefined method {$className}::{$method}()");
     }
 }
