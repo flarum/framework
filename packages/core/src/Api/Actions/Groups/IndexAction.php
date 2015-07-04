@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Groups;
 
-use Flarum\Core\Users\Group;
+use Flarum\Core\Groups\Group;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
