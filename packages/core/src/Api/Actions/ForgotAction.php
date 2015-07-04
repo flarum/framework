@@ -2,7 +2,7 @@
 
 use Flarum\Api\Request;
 use Flarum\Core\Repositories\UserRepositoryInterface;
-use Flarum\Core\Commands\RequestPasswordResetCommand;
+use Flarum\Core\Commands\RequestPasswordReset;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Zend\Diactoros\Response\EmptyResponse;
 
@@ -29,7 +29,7 @@ class ForgotAction extends JsonApiAction
         $email = $request->get('email');
 
         $this->bus->dispatch(
-            new RequestPasswordResetCommand($email)
+            new RequestPasswordReset($email)
         );
 
         return new EmptyResponse();

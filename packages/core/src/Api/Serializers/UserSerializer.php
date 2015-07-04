@@ -3,17 +3,13 @@
 class UserSerializer extends UserBasicSerializer
 {
     /**
-     * Serialize attributes of a User model for JSON output.
-     *
-     * @param User $user The User model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($user)
+    protected function getDefaultAttributes($user)
     {
-        $attributes = parent::attributes($user);
+        $attributes = parent::getDefaultAttributes($user);
 
-        $actingUser = $this->actor->getUser();
-        $canEdit = $user->can($actingUser, 'edit');
+        $canEdit = $user->can($this->actor, 'edit');
 
         $attributes += [
             'bioHtml'          => $user->bio_html,
@@ -21,10 +17,10 @@ class UserSerializer extends UserBasicSerializer
             'discussionsCount' => (int) $user->discussions_count,
             'commentsCount'    => (int) $user->comments_count,
             'canEdit'          => $canEdit,
-            'canDelete'        => $user->can($actingUser, 'delete'),
+            'canDelete'        => $user->can($this->actor, 'delete'),
         ];
 
-        if ($user->preference('discloseOnline')) {
+        if ($user->getPreference('discloseOnline')) {
             $attributes += [
                 'lastSeenTime' => $user->last_seen_time ? $user->last_seen_time->toRFC3339String() : null
             ];
@@ -39,6 +35,6 @@ class UserSerializer extends UserBasicSerializer
             ];
         }
 
-        return $this->extendAttributes($user, $attributes);
+        return $attributes;
     }
 }

@@ -79,7 +79,7 @@ export default class NotificationList extends Component {
       this.loading(true);
       m.redraw();
       app.store.find('notifications').then(notifications => {
-        app.session.user().pushData({unreadNotificationsCount: 0});
+        app.session.user().pushAttributes({unreadNotificationsCount: 0});
         this.loading(false);
         app.cache.notifications = notifications.sort((a, b) => b.time() - a.time());
         m.redraw();

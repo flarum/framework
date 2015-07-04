@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Repositories\DiscussionRepositoryInterface;
-use Flarum\Core\Repositories\PostRepositoryInterface;
+use Flarum\Core\Discussions\DiscussionRepositoryInterface;
+use Flarum\Core\Posts\PostRepositoryInterface;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\Actions\Posts\GetsPosts;
 use Flarum\Api\JsonApiRequest;
@@ -12,14 +12,9 @@ class ShowAction extends SerializeResourceAction
     use GetsPosts;
 
     /**
-     * @var \Flarum\Core\Repositories\DiscussionRepositoryInterface
+     * @var \Flarum\Core\Discussions\DiscussionRepositoryInterface
      */
     protected $discussions;
-
-    /**
-     * @var \Flarum\Core\Repositories\PostRepositoryInterface
-     */
-    protected $posts;
 
     /**
      * @inheritdoc
@@ -69,8 +64,8 @@ class ShowAction extends SerializeResourceAction
     /**
      * Instantiate the action.
      *
-     * @param \Flarum\Core\Repositories\DiscussionRepositoryInterface $discussions
-     * @param \Flarum\Core\Repositories\PostRepositoryInterface $posts
+     * @param DiscussionRepositoryInterface $discussions
+     * @param PostRepositoryInterface $posts
      */
     public function __construct(DiscussionRepositoryInterface $discussions, PostRepositoryInterface $posts)
     {
@@ -82,25 +77,29 @@ class ShowAction extends SerializeResourceAction
      * Get a single discussion, ready to be serialized and assigned to the
      * JsonApi response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param JsonApiRequest $request
+     * @param Document $document
+     * @return \Flarum\Core\Discussions\Discussion
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        $user = $request->actor->getUser();
+        $discussionId = $request->get('id');
+        $actor = $request->actor;
 
-        $discussion = $this->discussions->findOrFail($request->get('id'), $user);
+        $discussion = $this->discussions->findOrFail($discussionId, $actor);
 
-        $discussion->posts_ids = $discussion->visiblePosts($user)->orderBy('time')->lists('id');
+        $discussion->posts_ids = $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id');
 
+        // TODO: Refactor to be simpler, and get posts straight from the
+        // discussion's postsVisibleTo relation method.
         if (in_array('posts', $request->include)) {
-            $length = strlen($prefix = 'posts.');
-            $relations = array_filter(array_map(function ($relationship) use ($prefix, $length) {
-                return substr($relationship, 0, $length) === $prefix ? substr($relationship, $length) : false;
+            $prefixLength = strlen($prefix = 'posts.');
+
+            $postRelations = array_filter(array_map(function ($relation) use ($prefix, $prefixLength) {
+                return substr($relation, 0, $prefixLength) === $prefix ? substr($relation, $prefixLength) : false;
             }, $request->include));
 
-            $discussion->posts = $this->getPosts($request, ['discussion_id' => $discussion->id])->load($relations);
+            $discussion->posts = $this->getPosts($request, ['discussion_id' => $discussion->id])->load($postRelations);
         }
 
         return $discussion;

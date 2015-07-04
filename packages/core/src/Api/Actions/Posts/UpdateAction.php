@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Flarum\Core\Commands\EditPostCommand;
+use Flarum\Core\Posts\Commands\EditPost;
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -9,7 +9,7 @@ use Tobscure\JsonApi\Document;
 class UpdateAction extends SerializeResourceAction
 {
     /**
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
 
@@ -49,9 +49,7 @@ class UpdateAction extends SerializeResourceAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
+     * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
     {
@@ -62,14 +60,14 @@ class UpdateAction extends SerializeResourceAction
      * Update a post according to input from the API request, and return it
      * ready to be serialized and assigned to the JsonApi response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
+     * @param JsonApiRequest $request
+     * @param Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
         return $this->bus->dispatch(
-            new EditPostCommand($request->get('id'), $request->actor->getUser(), $request->get('data'))
+            new EditPost($request->get('id'), $request->actor, $request->get('data'))
         );
     }
 }

@@ -1,5 +1,6 @@
 <?php namespace Flarum\Forum;
 
+use Flarum\Core\Users\Guest;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Flarum\Support\ServiceProvider;
@@ -14,6 +15,10 @@ class ForumServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->bind('flarum.actor', function () {
+            return new Guest;
+        });
+
         $this->app->singleton(
             'Flarum\Http\UrlGeneratorInterface',
             function () {
@@ -116,6 +121,7 @@ class ForumServiceProvider extends ServiceProvider
     protected function action($class)
     {
         return function (ServerRequestInterface $httpRequest, $routeParams) use ($class) {
+            /** @var \Flarum\Support\Action $action */
             $action = $this->app->make($class);
 
             return $action->handle($httpRequest, $routeParams);

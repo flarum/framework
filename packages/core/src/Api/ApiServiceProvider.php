@@ -1,5 +1,6 @@
 <?php namespace Flarum\Api;
 
+use Flarum\Core\Users\Guest;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
@@ -14,7 +15,9 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Support\Actor');
+        $this->app->bind('flarum.actor', function () {
+            return new Guest;
+        });
 
         $this->app->singleton(
             'Flarum\Http\UrlGeneratorInterface',
@@ -33,11 +36,6 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->singleton(
-            'Illuminate\Contracts\Debug\ExceptionHandler',
-            'Flarum\Api\ExceptionHandler'
-        );
-
         $this->routes();
     }
 
@@ -94,7 +92,7 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         // Edit a user
-        $routes->put(
+        $routes->patch(
             '/users/{id}',
             'flarum.api.users.update',
             $this->action('Flarum\Api\Actions\Users\UpdateAction')
@@ -142,7 +140,7 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         // Mark a single notification as read
-        $routes->put(
+        $routes->patch(
             '/notifications/{id}',
             'flarum.api.notifications.update',
             $this->action('Flarum\Api\Actions\Notifications\UpdateAction')
@@ -175,7 +173,7 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         // Edit a discussion
-        $routes->put(
+        $routes->patch(
             '/discussions/{id}',
             'flarum.api.discussions.update',
             $this->action('Flarum\Api\Actions\Discussions\UpdateAction')
@@ -202,7 +200,6 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         // Create a post
-        // @todo consider 'discussions/{id}/links/posts'?
         $routes->post(
             '/posts',
             'flarum.api.posts.create',
@@ -217,7 +214,7 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         // Edit a post
-        $routes->put(
+        $routes->patch(
             '/posts/{id}',
             'flarum.api.posts.update',
             $this->action('Flarum\Api\Actions\Posts\UpdateAction')
@@ -258,7 +255,7 @@ class ApiServiceProvider extends ServiceProvider
         );
 
         // Edit a group
-        $routes->put(
+        $routes->patch(
             '/groups/{id}',
             'flarum.api.groups.update',
             $this->action('Flarum\Api\Actions\Groups\UpdateAction')
@@ -276,7 +273,7 @@ class ApiServiceProvider extends ServiceProvider
     {
         return function (ServerRequestInterface $httpRequest, $routeParams) use ($class) {
             $action = app($class);
-            $actor = app('Flarum\Support\Actor');
+            $actor = app('flarum.actor');
 
             $input = array_merge($httpRequest->getQueryParams(), $httpRequest->getAttributes(), $routeParams);
             $request = new Request($input, $actor, $httpRequest);

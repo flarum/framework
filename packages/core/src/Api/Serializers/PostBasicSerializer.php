@@ -1,29 +1,22 @@
 <?php namespace Flarum\Api\Serializers;
 
-class PostBasicSerializer extends BaseSerializer
+class PostBasicSerializer extends Serializer
 {
-    protected static $relationships = [];
-
     /**
-     * The resource type.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $type = 'posts';
 
     /**
-     * Serialize attributes of a Post model for JSON output.
-     *
-     * @param Post $post The Post model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($post)
+    protected function getDefaultAttributes($post)
     {
         $attributes = [
-            'id'      => (int) $post->id,
-            'number'  => (int) $post->number,
-            'time'    => $post->time->toRFC3339String(),
-            'contentType'    => $post->type
+            'id'          => (int) $post->id,
+            'number'      => (int) $post->number,
+            'time'        => $post->time->toRFC3339String(),
+            'contentType' => $post->type
         ];
 
         if ($post->type === 'comment') {
@@ -32,14 +25,20 @@ class PostBasicSerializer extends BaseSerializer
             $attributes['content'] = $post->content;
         }
 
-        return $this->extendAttributes($post, $attributes);
+        return $attributes;
     }
 
+    /**
+     * @return callable
+     */
     public function user()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function discussion()
     {
         return $this->hasOne('Flarum\Api\Serializers\DiscussionBasicSerializer');

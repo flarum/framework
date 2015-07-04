@@ -1,11 +1,9 @@
 <?php namespace Flarum\Api\Serializers;
 
-class NotificationSerializer extends BaseSerializer
+class NotificationSerializer extends Serializer
 {
     /**
-     * The resource type.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $type = 'notifications';
 
@@ -15,44 +13,55 @@ class NotificationSerializer extends BaseSerializer
      *
      * @var array
      */
-    public static $subjects = [
-        'discussionRenamed' => 'Flarum\Api\Serializers\DiscussionBasicSerializer'
-    ];
+    protected static $subjectSerializers = [];
 
     /**
-     * Serialize attributes of an notification model for JSON output.
-     *
-     * @param Notification $notification The notification model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($notification)
+    protected function getDefaultAttributes($notification)
     {
-        $attributes = [
-            'id'   => (int) $notification->id,
+        return [
+            'id'          => (int) $notification->id,
             'contentType' => $notification->type,
-            'content' => $notification->data,
-            'time' => $notification->time->toRFC3339String(),
-            'isRead' => (bool) $notification->is_read,
+            'content'     => $notification->data,
+            'time'        => $notification->time->toRFC3339String(),
+            'isRead'      => (bool) $notification->is_read,
             'unreadCount' => $notification->unread_count
         ];
-
-        return $this->extendAttributes($notification, $attributes);
     }
 
+    /**
+     * @return callable
+     */
     public function user()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function sender()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function subject()
     {
         return $this->hasOne(function ($notification) {
-            return static::$subjects[$notification->type];
+            return static::$subjectSerializers[$notification->type];
         });
+    }
+
+    /**
+     * @param $type
+     * @param $serializer
+     */
+    public static function setSubjectSerializer($type, $serializer)
+    {
+        static::$subjectSerializers[$type] = $serializer;
     }
 }

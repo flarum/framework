@@ -1,25 +1,36 @@
 <?php namespace Flarum\Core\Notifications;
 
-use Flarum\Core\Models\User;
-use Flarum\Core\Models\Forum;
+use Flarum\Core\Users\User;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Mail\Message;
 
 class NotificationMailer
 {
-    public function __construct(Mailer $mailer, Forum $forum)
+    /**
+     * @var Mailer
+     */
+    protected $mailer;
+
+    /**
+     * @param Mailer $mailer
+     */
+    public function __construct(Mailer $mailer)
     {
         $this->mailer = $mailer;
-        $this->forum = $forum;
     }
 
-    public function send(NotificationInterface $notification, User $user)
+    /**
+     * @param MailableBlueprint $blueprint
+     * @param User $user
+     */
+    public function send(MailableBlueprint $blueprint, User $user)
     {
         $this->mailer->send(
-            $notification->getEmailView(),
+            $blueprint->getEmailView(),
             compact('notification', 'user'),
-            function ($message) use ($notification, $user) {
+            function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->username)
-                        ->subject($notification->getEmailSubject());
+                        ->subject($blueprint->getEmailSubject());
             }
         );
     }

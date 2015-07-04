@@ -76,11 +76,11 @@ class PostStream extends mixin(Component, evented) {
   sync() {
     var addedPosts = this.discussion.addedPosts();
     if (addedPosts) addedPosts.forEach(this.pushPost.bind(this));
-    this.discussion.pushData({links: {addedPosts: null}});
+    this.discussion.pushAttributes({links: {addedPosts: null}});
 
     var removedPosts = this.discussion.removedPosts();
     if (removedPosts) removedPosts.forEach(this.removePost.bind(this));
-    this.discussion.pushData({removedPosts: null});
+    this.discussion.pushAttributes({removedPosts: null});
   }
 
   /**
@@ -352,8 +352,8 @@ class PostStream extends mixin(Component, evented) {
     this.clear();
 
     return app.store.find('posts', {
-      discussions: this.discussion.id(),
-      near: number
+      filter: {discussion: this.discussion.id()},
+      page: {near: number}
     }).then(this.setup.bind(this));
   }
 

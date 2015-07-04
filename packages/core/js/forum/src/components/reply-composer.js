@@ -32,7 +32,7 @@ export default class ReplyComposer extends ComposerBody {
   data() {
     return {
       content: this.content(),
-      links: {discussion: this.props.discussion}
+      relationships: {discussion: this.props.discussion}
     };
   }
 
@@ -47,8 +47,8 @@ export default class ReplyComposer extends ComposerBody {
     app.store.createRecord('posts').save(data).then((post) => {
       app.composer.hide();
 
-      discussion.pushData({
-        links: {
+      discussion.pushAttributes({
+        relationships: {
           lastUser: post.user(),
           lastPost: post
         },
@@ -58,7 +58,7 @@ export default class ReplyComposer extends ComposerBody {
         readTime: post.time(),
         readNumber: post.number()
       });
-      discussion.data().links.posts.linkage.push({type: 'posts', id: post.id()});
+      discussion.data().relationships.posts.data.push({type: 'posts', id: post.id()});
 
       // If we're currently viewing the discussion which this reply was made
       // in, then we can add the post to the end of the post stream.

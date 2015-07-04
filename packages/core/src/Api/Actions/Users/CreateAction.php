@@ -1,7 +1,6 @@
 <?php namespace Flarum\Api\Actions\Users;
 
-use Flarum\Core\Models\Forum;
-use Flarum\Core\Commands\RegisterUserCommand;
+use Flarum\Core\Users\Commands\RegisterUser;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -9,18 +8,9 @@ use Illuminate\Contracts\Bus\Dispatcher;
 class CreateAction extends BaseCreateAction
 {
     /**
-     * The command bus.
-     *
-     * @var \Illuminate\Contracts\Bus\Dispatcher
+     * @var Dispatcher
      */
     protected $bus;
-
-    /**
-     * The default forum instance.
-     *
-     * @var \Flarum\Core\Models\Forum
-     */
-    protected $forum;
 
     /**
      * @inheritdoc
@@ -58,27 +48,23 @@ class CreateAction extends BaseCreateAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Illuminate\Contracts\Bus\Dispatcher $bus
-     * @param \Flarum\Core\Models\Forum $forum
+     * @param Dispatcher $bus
      */
-    public function __construct(Dispatcher $bus, Forum $forum)
+    public function __construct(Dispatcher $bus)
     {
         $this->bus = $bus;
-        $this->forum = $forum;
     }
 
     /**
      * Register a user according to input from the API request.
      *
      * @param JsonApiRequest $request
-     * @return \Flarum\Core\Models\Model
+     * @return \Flarum\Core\Users\User
      */
     protected function create(JsonApiRequest $request)
     {
         return $this->bus->dispatch(
-            new RegisterUserCommand($request->actor->getUser(), $this->forum, $request->get('data'))
+            new RegisterUser($request->actor, $request->get('data'))
         );
     }
 }

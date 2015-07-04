@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Serializers;
 
-class ActivitySerializer extends BaseSerializer
+class ActivitySerializer extends Serializer
 {
     /**
      * @inheritdoc
@@ -16,38 +16,46 @@ class ActivitySerializer extends BaseSerializer
     protected static $subjectSerializers = [];
 
     /**
-     * Serialize attributes of an Activity model for JSON output.
-     *
-     * @param Activity $activity The Activity model to serialize.
-     * @return array
+     * {@inheritdoc}
      */
-    protected function attributes($activity)
+    protected function getDefaultAttributes($activity)
     {
-        $attributes = [
+        return [
             'contentType' => $activity->type,
             'time' => $activity->time->toRFC3339String()
         ];
-
-        return $this->extendAttributes($activity, $attributes);
     }
 
+    /**
+     * @return callable
+     */
     public function user()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function sender()
     {
         return $this->hasOne('Flarum\Api\Serializers\UserBasicSerializer');
     }
 
+    /**
+     * @return callable
+     */
     public function subject()
     {
         return $this->hasOne(function ($activity) {
-            return static::$subjects[$activity->type];
+            return static::$subjectSerializers[$activity->type];
         });
     }
 
+    /**
+     * @param $type
+     * @param $serializer
+     */
     public static function setSubjectSerializer($type, $serializer)
     {
         static::$subjectSerializers[$type] = $serializer;

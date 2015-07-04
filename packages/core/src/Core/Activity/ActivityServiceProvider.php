@@ -13,24 +13,29 @@ class ActivityServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->extend([
-            (new Extend\EventSubscriber('Flarum\Core\Handlers\Events\UserActivitySyncer')),
+            (new Extend\EventSubscriber('Flarum\Core\Activity\Listeners\UserActivitySyncer')),
 
-            (new Extend\ActivityType('Flarum\Core\Activity\PostedActivity'))
+            (new Extend\ActivityType('Flarum\Core\Activity\PostedBlueprint'))
                 ->subjectSerializer('Flarum\Api\Serializers\PostBasicSerializer'),
 
-            (new Extend\ActivityType('Flarum\Core\Activity\StartedDiscussionActivity'))
+            (new Extend\ActivityType('Flarum\Core\Activity\StartedDiscussionBlueprint'))
                 ->subjectSerializer('Flarum\Api\Serializers\PostBasicSerializer'),
 
-            (new Extend\ActivityType('Flarum\Core\Activity\JoinedActivity'))
+            (new Extend\ActivityType('Flarum\Core\Activity\JoinedBlueprint'))
                 ->subjectSerializer('Flarum\Api\Serializers\UserBasicSerializer')
         ]);
     }
 
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
     public function register()
     {
         $this->app->bind(
-            'Flarum\Core\Repositories\ActivityRepositoryInterface',
-            'Flarum\Core\Repositories\EloquentActivityRepository'
+            'Flarum\Core\Activity\ActivityRepositoryInterface',
+            'Flarum\Core\Activity\EloquentActivityRepository'
         );
     }
 }

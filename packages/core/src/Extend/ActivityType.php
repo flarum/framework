@@ -1,7 +1,7 @@
 <?php namespace Flarum\Extend;
 
 use Illuminate\Contracts\Container\Container;
-use Flarum\Core\Models\Activity;
+use Flarum\Core\Activity\Activity;
 use Flarum\Api\Serializers\ActivitySerializer;
 
 class ActivityType implements ExtenderInterface

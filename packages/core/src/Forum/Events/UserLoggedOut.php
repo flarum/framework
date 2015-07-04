@@ -1,6 +1,6 @@
 <?php namespace Flarum\Forum\Events;
 
-use Flarum\Core\Models\User;
+use Flarum\Core\Users\User;
 
 class UserLoggedOut
 {

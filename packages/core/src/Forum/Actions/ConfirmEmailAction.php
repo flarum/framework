@@ -1,30 +1,54 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Flarum\Core\Commands\ConfirmEmailCommand;
-use Flarum\Core\Commands\GenerateAccessTokenCommand;
+use Flarum\Core\Users\Commands\ConfirmEmail;
+use Flarum\Api\Commands\GenerateAccessToken;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
+use Flarum\Support\Action;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Zend\Diactoros\Response\HtmlResponse;
 
-class ConfirmEmailAction extends BaseAction
+class ConfirmEmailAction extends Action
 {
     use WritesRememberCookie;
 
-    public function handle(Request $request, $routeParams = [])
+    /**
+     * @var Dispatcher
+     */
+    protected $bus;
+
+    /**
+     * @param Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
+    {
+        $this->bus = $bus;
+    }
+
+    /**
+     * @param Request $request
+     * @param array $routeParams
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function handle(Request $request, array $routeParams = [])
     {
         try {
             $token = array_get($routeParams, 'token');
-            $command = new ConfirmEmailCommand($token);
-            $user = $this->dispatch($command);
+
+            $user = $this->bus->dispatch(
+                new ConfirmEmail($token)
+            );
         } catch (InvalidConfirmationTokenException $e) {
-            return 'Invalid confirmation token';
+            return new HtmlResponse('Invalid confirmation token');
         }
 
-        $token = $this->dispatch(new GenerateAccessTokenCommand($user->id));
+        $token = $this->bus->dispatch(
+            new GenerateAccessToken($user->id)
+        );
 
         return $this->withRememberCookie(
             $this->redirectTo('/'),
             $token->id
         );
-        // TODO: ->with('alert', ['type' => 'success', 'message' => 'Thanks for confirming!']);
     }
 }

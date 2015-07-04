@@ -1,0 +1,44 @@
+<?php namespace Flarum\Core\Notifications;
+
+/**
+ * A notification Blueprint, when instantiated, represents a notification about
+ * something. The blueprint is used by the NotificationSyncer to commit the
+ * notification to the database.
+ */
+interface Blueprint
+{
+    /**
+     * Get the user that sent the notification.
+     *
+     * @return \Flarum\Core\Users\User|null
+     */
+    public function getSender();
+
+    /**
+     * Get the model that is the subject of this activity.
+     *
+     * @return \Flarum\Core\Model|null
+     */
+    public function getSubject();
+
+    /**
+     * Get the data to be stored in the notification.
+     *
+     * @return array|null
+     */
+    public function getData();
+
+    /**
+     * Get the serialized type of this activity.
+     *
+     * @return string
+     */
+    public static function getType();
+
+    /**
+     * Get the name of the model class for the subject of this activity.
+     *
+     * @return string
+     */
+    public static function getSubjectModel();
+}

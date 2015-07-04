@@ -1,7 +1,7 @@
 <?php namespace Flarum\Api\Actions\Discussions;
 
-use Flarum\Core\Search\Discussions\DiscussionSearchCriteria;
-use Flarum\Core\Search\Discussions\DiscussionSearcher;
+use Flarum\Core\Search\SearchCriteria;
+use Flarum\Core\Discussions\Search\DiscussionSearcher;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
 use Flarum\Http\UrlGeneratorInterface;
@@ -10,16 +10,12 @@ use Tobscure\JsonApi\Document;
 class IndexAction extends SerializeCollectionAction
 {
     /**
-     * The discussion searcher.
-     *
-     * @var \Flarum\Core\Search\Discussions\DiscussionSearcher
+     * @var DiscussionSearcher
      */
     protected $searcher;
 
     /**
-     * The URL generator.
-     *
-     * @var \Flarum\Http\UrlGeneratorInterface
+     * @var UrlGeneratorInterface
      */
     protected $url;
 
@@ -67,10 +63,8 @@ class IndexAction extends SerializeCollectionAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Flarum\Core\Search\Discussions\DiscussionSearcher $searcher
-     * @param  \Flarum\Http\UrlGeneratorInterface  $url
+     * @param DiscussionSearcher $searcher
+     * @param UrlGeneratorInterface $url
      */
     public function __construct(DiscussionSearcher $searcher, UrlGeneratorInterface $url)
     {
@@ -82,21 +76,23 @@ class IndexAction extends SerializeCollectionAction
      * Get the discussion results, ready to be serialized and assigned to the
      * document response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
+     * @param JsonApiRequest $request
+     * @param Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        $criteria = new DiscussionSearchCriteria(
-            $request->actor->getUser(),
-            $request->get('q'),
+        $criteria = new SearchCriteria(
+            $request->actor,
+            $request->get('filter.q'),
             $request->sort
         );
 
         $load = array_merge($request->include, ['state']);
+
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $load);
 
+        // TODO: add query params (filter, sort, include) to the pagination URLs
         static::addPaginationLinks(
             $document,
             $request,
@@ -104,6 +100,6 @@ class IndexAction extends SerializeCollectionAction
             $results->areMoreResults()
         );
 
-        return $results->getDiscussions();
+        return $results->getResults();
     }
 }

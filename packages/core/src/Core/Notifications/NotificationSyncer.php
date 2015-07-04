@@ -1,23 +1,49 @@
 <?php namespace Flarum\Core\Notifications;
 
-use Flarum\Core\Repositories\NotificationRepositoryInterface;
-use Flarum\Core\Models\Notification;
-use Flarum\Core\Events\NotificationWillBeSent;
+use Flarum\Core\Notifications\Events\NotificationWillBeSent;
+use Flarum\Core\Users\User;
 use Carbon\Carbon;
-use Closure;
 
+/**
+ * The Notification Syncer commits notification blueprints to the database, and
+ * sends them via email depending on user preference. Where a blueprint
+ * represents a single notification, the syncer associates it with a particular
+ * user(s) and makes it available in their inbox.
+ */
 class NotificationSyncer
 {
+    /**
+     * Whether or not notifications are being limited to one per user.
+     *
+     * @var bool
+     */
     protected $onePerUser = false;
 
+    /**
+     * An internal list of user IDs that notifications have been sent to.
+     *
+     * @var int[]
+     */
     protected $sentTo = [];
 
+    /**
+     * @var NotificationRepositoryInterface
+     */
     protected $notifications;
 
+    /**
+     * @var NotificationMailer
+     */
     protected $mailer;
 
-    public function __construct(NotificationRepositoryInterface $notifications, NotificationMailer $mailer)
-    {
+    /**
+     * @param NotificationRepositoryInterface $notifications
+     * @param NotificationMailer $mailer
+     */
+    public function __construct(
+        NotificationRepositoryInterface $notifications,
+        NotificationMailer $mailer
+    ) {
         $this->notifications = $notifications;
         $this->mailer = $mailer;
     }
@@ -27,68 +53,88 @@ class NotificationSyncer
      * visible to anyone else. If it is being made visible for the first time,
      * attempt to send the user an email.
      *
-     * @param \Flarum\Core\Notifications\NotificationInterface $notification
-     * @param \Flarum\Core\Models\User[] $users
+     * @param Blueprint $blueprint
+     * @param User[] $users
      * @return void
      */
-    public function sync(NotificationInterface $notification, array $users)
+    public function sync(Blueprint $blueprint, array $users)
     {
-        $attributes = $this->getAttributes($notification);
+        $attributes = $this->getAttributes($blueprint);
 
+        // Find all existing notification records in the database matching this
+        // blueprint. We will begin by assuming that they all need to be
+        // deleted in order to match the provided list of users.
         $toDelete = Notification::where($attributes)->get();
         $toUndelete = [];
         $newRecipients = [];
 
+        // For each of the provided users, check to see if they already have
+        // a notification record in the database. If they do, we will make sure
+        // it isn't marked as deleted. If they don't, we will want to create a
+        // new record for them.
         foreach ($users as $user) {
-            $existing = $toDelete->where('user_id', $user->id)->first();
+            $existing = $toDelete->first(function ($i, $notification) use ($user) {
+                return $notification->user_id === $user->id;
+            });
 
-            if (($k = $toDelete->search($existing)) !== false) {
+            if ($existing) {
                 $toUndelete[] = $existing->id;
-                $toDelete->pull($k);
+                $toDelete->forget($toDelete->search($existing));
             } elseif (! $this->onePerUser || ! in_array($user->id, $this->sentTo)) {
                 $newRecipients[] = $user;
                 $this->sentTo[] = $user->id;
             }
         }
 
+        // Delete all of the remaining notification records which weren't
+        // removed from this collection by the above loop. Un-delete the
+        // existing records that we want to keep.
         if (count($toDelete)) {
-            Notification::whereIn('id', $toDelete->lists('id'))->update(['is_deleted' => true]);
+            $this->setDeleted($toDelete->lists('id'), true);
         }
 
         if (count($toUndelete)) {
-            Notification::whereIn('id', $toUndelete)->update(['is_deleted' => false]);
+            $this->setDeleted($toUndelete, false);
         }
 
+        // Create a notification record, and send an email, for all users
+        // receiving this notification for the first time (we know because they
+        // didn't have a record in the database).
         if (count($newRecipients)) {
-            $now = Carbon::now('utc')->toDateTimeString();
-
-            event(new NotificationWillBeSent($notification, $newRecipients));
-
-            Notification::insert(
-                array_map(function ($user) use ($attributes, $notification, $now) {
-                    return $attributes + ['user_id' => $user->id, 'time' => $now];
-                }, $newRecipients)
-            );
-
-            foreach ($newRecipients as $user) {
-                if ($user->shouldEmail($notification::getType())) {
-                    $this->mailer->send($notification, $user);
-                }
-            }
+            $this->sendNotifications($blueprint, $newRecipients);
         }
     }
 
-    public function delete(NotificationInterface $notification)
+    /**
+     * Delete a notification for all users.
+     *
+     * @param Blueprint $blueprint
+     * @return void
+     */
+    public function delete(Blueprint $blueprint)
     {
-        Notification::where($this->getAttributes($notification))->update(['is_deleted' => true]);
+        Notification::where($this->getAttributes($blueprint))->update(['is_deleted' => true]);
     }
 
-    public function restore(NotificationInterface $notification)
+    /**
+     * Restore a notification for all users.
+     *
+     * @param Blueprint $blueprint
+     * @return void
+     */
+    public function restore(Blueprint $blueprint)
     {
-        Notification::where($this->getAttributes($notification))->update(['is_deleted' => false]);
+        Notification::where($this->getAttributes($blueprint))->update(['is_deleted' => false]);
     }
 
-    public function onePerUser(Closure $callback)
+    /**
+     * Limit notifications to one per user for the entire duration of the given
+     * callback.
+     *
+     * @param callable $callback
+     * @return void
+     */
+    public function onePerUser(callable $callback)
     {
         $this->sentTo = [];
         $this->onePerUser = true;
@@ -98,13 +144,75 @@ class NotificationSyncer
         $this->onePerUser = false;
     }
 
-    protected function getAttributes(NotificationInterface $notification)
+    /**
+     * Create a notification record and send an email (depending on user
+     * preference) from a blueprint to a list of recipients.
+     *
+     * @param Blueprint $blueprint
+     * @param User[] $recipients
+     */
+    protected function sendNotifications(Blueprint $blueprint, array $recipients)
+    {
+        $now = Carbon::now('utc')->toDateTimeString();
+
+        event(new NotificationWillBeSent($blueprint, $recipients));
+
+        $attributes = $this->getAttributes($blueprint);
+
+        Notification::insert(
+            array_map(function (User $user) use ($attributes, $now) {
+                return $attributes + [
+                    'user_id' => $user->id,
+                    'time' => $now
+                ];
+            }, $recipients)
+        );
+
+        if ($blueprint instanceof MailableBlueprint) {
+            $this->mailNotifications($blueprint);
+        }
+    }
+
+    /**
+     * Mail a notification to a list of users.
+     *
+     * @param MailableBlueprint $blueprint
+     * @param User[] $recipients
+     */
+    protected function mailNotifications(MailableBlueprint $blueprint, array $recipients)
+    {
+        foreach ($recipients as $user) {
+            if ($user->shouldEmail($blueprint::getType())) {
+                $this->mailer->send($blueprint, $user);
+            }
+        }
+    }
+
+    /**
+     * Set the deleted status of a list of notification records.
+     *
+     * @param int[] $ids
+     * @param bool $isDeleted
+     */
+    protected function setDeleted(array $ids, $isDeleted)
+    {
+        Notification::whereIn('id', $ids)->update(['is_deleted' => $isDeleted]);
+    }
+
+    /**
+     * Construct an array of attributes to be stored in a notification record in
+     * the database, given a notification blueprint.
+     *
+     * @param Blueprint $blueprint
+     * @return array
+     */
+    protected function getAttributes(Blueprint $blueprint)
     {
         return [
-            'type'       => $notification::getType(),
-            'sender_id'  => $notification->getSender()->id,
-            'subject_id' => $notification->getSubject()->id,
-            'data'       => ($data = $notification->getData()) ? json_encode($data) : null
+            'type'       => $blueprint::getType(),
+            'sender_id'  => ($sender = $blueprint->getSender()) ? $sender->id : null,
+            'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
+            'data'       => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];
     }
 }

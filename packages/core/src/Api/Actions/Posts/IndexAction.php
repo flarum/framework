@@ -1,6 +1,6 @@
 <?php namespace Flarum\Api\Actions\Posts;
 
-use Flarum\Core\Repositories\PostRepositoryInterface;
+use Flarum\Core\Posts\PostRepositoryInterface;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Document;
@@ -8,11 +8,6 @@ use Tobscure\JsonApi\Document;
 class IndexAction extends SerializeCollectionAction
 {
     use GetsPosts;
-
-    /**
-     * @var \Flarum\Core\Repositories\PostRepositoryInterface
-     */
-    protected $posts;
 
     /**
      * @inheritdoc
@@ -56,9 +51,7 @@ class IndexAction extends SerializeCollectionAction
     public static $sort;
 
     /**
-     * Instantiate the action.
-     *
-     * @param \Flarum\Core\Repositories\PostRepositoryInterface $posts
+     * @param PostRepositoryInterface $posts
      */
     public function __construct(PostRepositoryInterface $posts)
     {
@@ -69,26 +62,26 @@ class IndexAction extends SerializeCollectionAction
      * Get the post results, ready to be serialized and assigned to the
      * document response.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
+     * @param JsonApiRequest $request
+     * @param Document $document
      * @return \Illuminate\Database\Eloquent\Collection
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
         $postIds = (array) $request->get('ids');
-        $user = $request->actor->getUser();
+        $actor = $request->actor;
 
         if (count($postIds)) {
-            $posts = $this->posts->findByIds($postIds, $user);
+            $posts = $this->posts->findByIds($postIds, $actor);
         } else {
             $where = [];
-            if ($discussionId = $request->get('discussions')) {
+            if ($discussionId = $request->get('filter.discussion')) {
                 $where['discussion_id'] = $discussionId;
             }
-            if ($number = $request->get('number')) {
+            if ($number = $request->get('page.number')) {
                 $where['number'] = $number;
             }
-            if ($userId = $request->get('users')) {
+            if ($userId = $request->get('filter.user')) {
                 $where['user_id'] = $userId;
             }
             $posts = $this->getPosts($request, $where);
