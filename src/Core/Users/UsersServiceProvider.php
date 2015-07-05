@@ -21,6 +21,7 @@ class UsersServiceProvider extends ServiceProvider
 
         User::setHasher($this->app->make('hash'));
         User::setFormatter($this->app->make('flarum.formatter'));
+        User::setValidator($this->app->make('validator'));
 
         User::addPreference('discloseOnline', 'boolval', true);
         User::addPreference('indexProfile', 'boolval', true);

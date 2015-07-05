@@ -19,6 +19,8 @@ class DiscussionsServiceProvider extends ServiceProvider
             new Extend\EventSubscriber('Flarum\Core\Discussions\Listeners\DiscussionMetadataUpdater')
         ]);
 
+        Discussion::setValidator($this->app->make('validator'));
+
         Discussion::allow('*', function (Discussion $discussion, User $user, $action) {
             return $user->hasPermission('discussion.'.$action) ?: null;
         });

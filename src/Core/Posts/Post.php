@@ -4,21 +4,27 @@ use DomainException;
 use Flarum\Core\Posts\Events\PostWasDeleted;
 use Flarum\Core\Model;
 use Flarum\Core\Support\Locked;
-use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Support\EventGenerator;
+use Flarum\Core\Support\ValidatesBeforeSave;
 use Illuminate\Database\Eloquent\Builder;
 
 class Post extends Model
 {
     use EventGenerator;
     use Locked;
+    use ValidatesBeforeSave;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $table = 'posts';
 
     /**
      * The validation rules for this model.
      *
      * @var array
      */
-    public static $rules = [
+    protected $rules = [
         'discussion_id' => 'required|integer',
         'time'          => 'required|date',
         'content'       => 'required',
@@ -29,11 +35,6 @@ class Post extends Model
         'hide_time'     => 'date',
         'hide_user_id'  => 'integer',
     ];
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $table = 'posts';
 
     /**
      * {@inheritdoc}

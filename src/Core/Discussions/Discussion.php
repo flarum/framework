@@ -12,19 +12,28 @@ use Flarum\Core\Users\User;
 use Flarum\Core\Support\EventGenerator;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
+use Flarum\Core\Support\ValidatesBeforeSave;
 
 class Discussion extends Model
 {
     use EventGenerator;
     use Locked;
     use VisibleScope;
+    use ValidatesBeforeSave;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'discussions';
 
     /**
      * The validation rules for this model.
      *
      * @var array
      */
-    public static $rules = [
+    protected $rules = [
         'title'              => 'required',
         'start_time'         => 'required|date',
         'comments_count'     => 'integer',
@@ -36,13 +45,6 @@ class Discussion extends Model
         'last_post_id'       => 'integer',
         'last_post_number'   => 'integer'
     ];
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'discussions';
 
     /**
      * The attributes that should be mutated to dates.

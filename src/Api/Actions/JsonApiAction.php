@@ -1,6 +1,7 @@
 <?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
+use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
@@ -20,9 +21,9 @@ abstract class JsonApiAction implements ActionInterface
         // TODO: Move this error handling code to middleware?
         try {
             return $this->respond($request);
-        } catch (ValidationFailureException $e) {
+        } catch (ValidationException $e) {
             $errors = [];
-            foreach ($e->getErrors()->getMessages() as $field => $messages) {
+            foreach ($e->errors()->toArray() as $field => $messages) {
                 $errors[] = [
                     'detail' => implode("\n", $messages),
                     'path' => $field
