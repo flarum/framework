@@ -90,9 +90,9 @@ class GambitManager
 
         foreach ($bits as $k => $bit) {
             foreach ($gambits as $gambit) {
-                if (! $gambit instanceof GambitInterface) {
+                if (! $gambit instanceof Gambit) {
                     throw new LogicException('Gambit ' . get_class($gambit)
-                        . ' does not implement ' . GambitInterface::class);
+                        . ' does not implement ' . Gambit::class);
                 }
 
                 if ($gambit->apply($search, $bit)) {

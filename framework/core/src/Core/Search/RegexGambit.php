@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Search;
 
-abstract class RegexGambit implements GambitInterface
+abstract class RegexGambit implements Gambit
 {
     /**
      * The regex pattern to match the bit against.

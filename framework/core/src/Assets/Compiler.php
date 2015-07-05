@@ -1,6 +1,6 @@
 <?php namespace Flarum\Assets;
 
-interface CompilerInterface
+interface Compiler
 {
     public function addFile($file);
 

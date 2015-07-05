@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Search;
 
-interface GambitInterface
+interface Gambit
 {
     /**
      * Apply conditions to the searcher for a bit of the search string.

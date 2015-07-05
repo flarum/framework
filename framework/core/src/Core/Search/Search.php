@@ -26,7 +26,7 @@ abstract class Search
     protected $defaultSort = [];
 
     /**
-     * @var GambitInterface[]
+     * @var Gambit[]
      */
     protected $activeGambits = [];
 
@@ -87,7 +87,7 @@ abstract class Search
     /**
      * Get a list of the gambits that are active in this search.
      *
-     * @return GambitInterface[]
+     * @return Gambit[]
      */
     public function getActiveGambits()
     {
@@ -97,10 +97,10 @@ abstract class Search
     /**
      * Add a gambit as being active in this search.
      *
-     * @param GambitInterface $gambit
+     * @param Gambit $gambit
      * @return void
      */
-    public function addActiveGambit(GambitInterface $gambit)
+    public function addActiveGambit(Gambit $gambit)
     {
         $this->activeGambits[] = $gambit;
     }

@@ -6,7 +6,7 @@ use Flarum\Core\Model;
  * A formatter which formats a block of HTML, while leaving the contents
  * of specific tags like <code> and <pre> untouched.
  */
-abstract class TextFormatter implements FormatterInterface
+abstract class TextFormatter implements Formatter
 {
     /**
      * A list of tags to ignore when applying formatting.

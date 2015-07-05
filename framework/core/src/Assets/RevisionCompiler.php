@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Str;
 
-class RevisionCompiler implements CompilerInterface
+class RevisionCompiler implements Compiler
 {
     protected $files = [];
 
