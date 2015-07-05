@@ -27,7 +27,7 @@ abstract class Action
      */
     protected function redirectTo($url)
     {
-        $content = sprintf(<<<'HTML'
+        $content = sprintf('
 <!DOCTYPE html>
 <html>
     <head>
@@ -39,9 +39,7 @@ abstract class Action
     <body>
         Redirecting to <a href="%1$s">%1$s</a>.
     </body>
-</html>
-HTML
-, htmlspecialchars($url, ENT_QUOTES, 'UTF-8'));
+</html>', htmlspecialchars($url, ENT_QUOTES, 'UTF-8'));
 
         $response = new RedirectResponse($url);
         $response->getBody()->write($content);

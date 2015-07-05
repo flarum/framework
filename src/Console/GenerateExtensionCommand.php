@@ -112,8 +112,7 @@ class GenerateExtensionCommand extends Command
             if ($file != '.' && $file != '..') {
                 if (is_dir($src.'/'.$file)) {
                     $this->recursiveCopy($src.'/'.$file, $dst.'/'.$file, $replacements);
-                }
-                else {
+                } else {
                     $contents = file_get_contents($src.'/'.$file);
                     $contents = str_replace(array_keys($replacements), array_values($replacements), $contents);
 

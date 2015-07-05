@@ -4,6 +4,10 @@ use Flarum\Api\AccessToken;
 
 class GenerateAccessTokenHandler
 {
+    /**
+     * @param GenerateAccessToken $command
+     * @return AccessToken
+     */
     public function handle(GenerateAccessToken $command)
     {
         $token = AccessToken::generate($command->userId);
