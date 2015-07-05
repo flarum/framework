@@ -12,12 +12,6 @@ use LogicException;
  * Adds the ability for custom relations to be added to a model during runtime.
  * These relations behave in the same way that you would expect; they can be
  * queried, eager loaded, and accessed as an attribute.
- *
- * @todo Refactor out validation, either into a trait or into a dependency.
- *       The following requirements need to be fulfilled:
- *       - Ability for extensions to alter ruleset (add, modify, remove).
- *       - Ability for extensions to add custom rules to the validator instance.
- *       - Use Flarum's translator with the validator instance.
  */
 abstract class Model extends Eloquent
 {
