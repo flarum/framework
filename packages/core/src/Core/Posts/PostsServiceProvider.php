@@ -19,6 +19,8 @@ class PostsServiceProvider extends ServiceProvider
             new Extend\PostType('Flarum\Core\Posts\DiscussionRenamedPost')
         ]);
 
+        Post::setValidator($this->app->make('validator'));
+
         CommentPost::setFormatter($this->app->make('flarum.formatter'));
 
         Post::allow('*', function ($post, $user, $action) {
