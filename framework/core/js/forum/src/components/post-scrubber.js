@@ -31,7 +31,7 @@ export default class PostScrubber extends Component {
     });
 
     this.count = () => this.props.stream.count();
-    this.index = m.prop(-1);
+    this.index = m.prop(0);
     this.visible = m.prop(1);
     this.description = m.prop();
 
