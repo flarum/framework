@@ -90,7 +90,7 @@ class FormatterManager
     /**
      * Instantiate the collected formatters.
      *
-     * @return FormatterInterface[]
+     * @return Formatter[]
      */
     protected function getFormatters()
     {
@@ -99,9 +99,9 @@ class FormatterManager
         foreach ($this->formatters as $formatter) {
             $formatter = $this->container->make($formatter);
 
-            if (! $formatter instanceof FormatterInterface) {
+            if (! $formatter instanceof Formatter) {
                 throw new LogicException('Formatter ' . get_class($formatter)
-                    . ' does not implement ' . FormatterInterface::class);
+                    . ' does not implement ' . Formatter::class);
             }
 
             $formatters[] = $formatter;

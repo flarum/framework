@@ -2,7 +2,7 @@
 
 use Flarum\Api\Request;
 
-interface ActionInterface
+interface Action
 {
     /**
      * Handle a request to the API, returning an HTTP response.

@@ -8,7 +8,7 @@ class AssetManager
 
     protected $js;
 
-    public function __construct(CompilerInterface $js, CompilerInterface $less)
+    public function __construct(Compiler $js, Compiler $less)
     {
         $this->js = $js;
         $this->less = $less;

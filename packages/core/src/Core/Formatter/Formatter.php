@@ -2,7 +2,7 @@
 
 use Flarum\Core\Model;
 
-interface FormatterInterface
+interface Formatter
 {
     /**
      * Configure the formatter manager before formatting takes place.

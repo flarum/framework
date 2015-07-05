@@ -2,9 +2,9 @@
 
 use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Search\Search;
-use Flarum\Core\Search\GambitInterface;
+use Flarum\Core\Search\Gambit;
 
-class FulltextGambit implements GambitInterface
+class FulltextGambit implements Gambit
 {
     /**
      * @var UserRepository

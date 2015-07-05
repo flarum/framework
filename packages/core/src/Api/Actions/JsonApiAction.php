@@ -7,7 +7,7 @@ use Flarum\Core\Exceptions\ValidationFailureException;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Zend\Diactoros\Response\JsonResponse;
 
-abstract class JsonApiAction implements ActionInterface
+abstract class JsonApiAction implements Action
 {
     /**
      * Handle an API request and return an API response, handling any relevant
