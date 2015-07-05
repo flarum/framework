@@ -163,7 +163,8 @@ class ApiServiceProvider extends ServiceProvider
         $routes->post(
             '/discussions',
             'flarum.api.discussions.create',
-            $this->action('Flarum\Api\Actions\Discussions\CreateAction'));
+            $this->action('Flarum\Api\Actions\Discussions\CreateAction')
+        );
 
         // Show a single discussion
         $routes->get(

@@ -36,9 +36,7 @@ class RevisionCompiler implements Compiler
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
         $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
 
-        if (! ($exists = file_exists($file))
-            || filemtime($file) < $lastModTime) {
-
+        if (! ($exists = file_exists($file)) || filemtime($file) < $lastModTime) {
             if ($exists) {
                 unlink($file);
             }
