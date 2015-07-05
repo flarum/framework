@@ -39,6 +39,7 @@ export default class DiscussionListItem extends Component {
 
     return this.subtree.retain() || m('div.discussion-list-item', {className: this.active() ? 'active' : ''}, [
       controls.length ? DropdownButton.component({
+        icon: 'ellipsis-h',
         items: controls,
         className: 'contextual-controls',
         buttonClass: 'btn btn-default btn-icon btn-sm btn-naked slidable-underneath slidable-underneath-right',
@@ -70,9 +71,8 @@ export default class DiscussionListItem extends Component {
           m('ul.info', listItems(this.infoItems().toArray()))
         ]),
 
-        m('span.count', {onclick: this.markAsRead.bind(this)}, [
-          abbreviateNumber(discussion[displayUnread ? 'unreadCount' : 'repliesCount']()),
-          m('span.label', displayUnread ? 'unread' : 'replies')
+        m('span.count', {onclick: this.markAsRead.bind(this), title: displayUnread ? 'Mark as Read' : ''}, [
+          abbreviateNumber(discussion[displayUnread ? 'unreadCount' : 'repliesCount']())
         ]),
 
         (relevantPosts && relevantPosts.length)
