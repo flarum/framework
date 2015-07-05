@@ -161,8 +161,7 @@ class Application extends Container implements LaravelApplication
      */
     protected function fireListeners(array $listeners)
     {
-        foreach ($listeners as $listener)
-        {
+        foreach ($listeners as $listener) {
             $listener($this);
         }
     }

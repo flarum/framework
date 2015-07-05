@@ -37,7 +37,7 @@ class DatabaseServiceProvider extends ServiceProvider
         $this->app->alias('Illuminate\Database\ConnectionResolverInterface', 'db');
 
         if (Core::isInstalled()) {
-            $this->app->booting(function() {
+            $this->app->booting(function () {
                 $resolver = $this->app->make('Illuminate\Database\ConnectionResolverInterface');
                 Model::setConnectionResolver($resolver);
 
