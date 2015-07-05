@@ -245,7 +245,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
 
     app.history.push('discussion');
 
-    if (app.session.user() && endNumber > discussion.readNumber()) {
+    if (app.session.user() && endNumber > (discussion.readNumber() || 0)) {
       discussion.save({readNumber: endNumber});
       m.redraw();
     }
