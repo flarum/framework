@@ -17,17 +17,34 @@ use Flarum\Core\Users\Events\UserEmailChangeWasRequested;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
+use Flarum\Core\Support\ValidatesBeforeSave;
 
 class User extends Model
 {
     use EventGenerator;
     use Locked;
     use VisibleScope;
+    use ValidatesBeforeSave;
 
     /**
      * {@inheritdoc}
      */
     protected $table = 'users';
+
+    /**
+     * The validation rules for this model.
+     *
+     * @var array
+     */
+    protected $rules = [
+        'username'          => 'required|alpha_dash|unique',
+        'email'             => 'required|email|unique',
+        'password'          => 'required',
+        'join_time'         => 'date',
+        'last_seen_time'    => 'date',
+        'discussions_count' => 'integer',
+        'posts_count'       => 'integer',
+    ];
 
     /**
      * {@inheritdoc}
@@ -45,21 +62,6 @@ class User extends Model
      * @var FormatterManager
      */
     protected static $formatter;
-
-    /**
-     * The validation rules for this model.
-     *
-     * @var array
-     */
-    public static $rules = [
-        'username'          => 'required|alpha_dash|unique',
-        'email'             => 'required|email|unique',
-        'password'          => 'required',
-        'join_time'         => 'date',
-        'last_seen_time'    => 'date',
-        'discussions_count' => 'integer',
-        'posts_count'       => 'integer',
-    ];
 
     /**
      * The hasher with which to hash passwords.
@@ -158,13 +160,13 @@ class User extends Model
     public function requestEmailChange($email)
     {
         if ($email !== $this->email) {
-            $validator = static::$validator->make(
-                compact('email'),
-                $this->expandUniqueRules(array_only(static::$rules, 'email'))
-            );
+            $validator = $this->makeValidator();
+
+            $validator->setRules(array_only($validator->getRules(), 'email'));
+            $validator->setData(compact('email'));
 
             if ($validator->fails()) {
-                $this->throwValidationFailureException($validator);
+                $this->throwValidationException($validator);
             }
 
             $this->raise(new UserEmailChangeWasRequested($this, $email));

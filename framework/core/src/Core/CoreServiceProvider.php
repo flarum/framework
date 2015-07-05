@@ -19,8 +19,6 @@ class CoreServiceProvider extends ServiceProvider
             return get_class($command).'Handler@handle';
         });
 
-        Model::setValidator($this->app['validator']);
-
         Forum::allow('*', function (Forum $forum, User $user, $action) {
             return $user->hasPermission('forum.'.$action) ?: null;
         });
