@@ -3,10 +3,10 @@
 use Flarum\Core\Discussions\Search\DiscussionSearch;
 use Flarum\Core\Posts\PostRepository;
 use Flarum\Core\Search\Search;
-use Flarum\Core\Search\GambitInterface;
+use Flarum\Core\Search\Gambit;
 use LogicException;
 
-class FulltextGambit implements GambitInterface
+class FulltextGambit implements Gambit
 {
     /**
      * @var PostRepository
