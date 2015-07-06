@@ -27,6 +27,20 @@ class Discussion extends Model {
     // }
   }
 
+  removePost(id) {
+    const relationships = this.data().relationships;
+    const posts = relationships && relationships.posts;
+
+    if (posts) {
+      posts.data.some((data, i) => {
+        if (id === data.id) {
+          posts.data.splice(i, 1);
+          return true;
+        }
+      });
+    }
+  }
+
   unreadCount() {
     var user = app.session.user();
     if (user && user.readTime() < this.lastTime()) {

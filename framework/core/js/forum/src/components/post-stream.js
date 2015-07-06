@@ -49,7 +49,7 @@ class PostStream extends mixin(Component, evented) {
     m.redraw(true);
 
     return promise.then(() => {
-      anchorScroll(this.$('.item:'+(backwards ? 'last' : 'first')), () => m.redraw(true));
+      anchorScroll(this.$('.item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
 
       this.scrollToIndex(index, noAnimation, backwards).done(this.unpause.bind(this));
     });
@@ -70,42 +70,14 @@ class PostStream extends mixin(Component, evented) {
   }
 
   /**
-    Update the stream to reflect any posts that have been added/removed from the
-    discussion.
-   */
-  sync() {
-    var addedPosts = this.discussion.addedPosts();
-    if (addedPosts) addedPosts.forEach(this.pushPost.bind(this));
-    this.discussion.pushAttributes({links: {addedPosts: null}});
-
-    var removedPosts = this.discussion.removedPosts();
-    if (removedPosts) removedPosts.forEach(this.removePost.bind(this));
-    this.discussion.pushAttributes({removedPosts: null});
-  }
-
-  /**
     Add a post to the end of the stream. Nothing will be done if the end of the
     stream is not visible.
    */
-  pushPost(post) {
-    if (this.visibleEnd >= this.count() - 1 && this.posts.indexOf(post) === -1) {
-      this.posts.push(post);
       this.visibleEnd++;
     }
   }
 
   /**
-    Search for and remove a specific post from the stream. Nothing will be done
-    if the post is not visible.
-   */
-  removePost(id) {
-    this.posts.some((item, i) => {
-      if (item && item.id() == id) {
-        this.posts.splice(i, 1);
-        this.visibleEnd--;
-        return true;
-      }
-    });
   }
 
   /**
@@ -127,7 +99,6 @@ class PostStream extends mixin(Component, evented) {
     Set up the stream with the given array of posts.
    */
   setup(posts) {
-    this.posts = posts;
     this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
     this.visibleEnd = this.visibleStart + posts.length;
   }
@@ -137,11 +108,6 @@ class PostStream extends mixin(Component, evented) {
    */
   clear(start, end) {
     this.visibleStart = start || 0;
-    this.visibleEnd = Math.min(this.count(), end || this.constructor.loadCount);
-    this.posts = [];
-    for (var i = this.visibleStart; i < this.visibleEnd; i++) {
-      this.posts.push(null);
-    }
   }
 
   /**
@@ -157,7 +123,6 @@ class PostStream extends mixin(Component, evented) {
     var lastTime;
 
     return m('div.discussion-posts.posts', {config: this.onload.bind(this)},
-      this.posts.map((post, i) => {
         var content;
         var attributes = {};
         attributes['data-index'] = this.visibleStart + i;
@@ -172,7 +137,6 @@ class PostStream extends mixin(Component, evented) {
           attributes['data-number'] = post.number();
 
           var dt = post.time() - lastTime;
-          if (dt > 1000 * 60 * 60 * 24 * 4) {
             content = [
               m('div.time-gap', m('span', moment.duration(dt).humanize(), ' later')),
               content
@@ -193,7 +157,6 @@ class PostStream extends mixin(Component, evented) {
       this.visibleEnd === this.count() &&
         (!app.session.user() || this.discussion.canReply()) &&
         !app.composingReplyTo(this.discussion)
-        ? m('div.item', ReplyPlaceholder.component({discussion: this.discussion}))
         : ''
     );
   }
@@ -233,7 +196,6 @@ class PostStream extends mixin(Component, evented) {
     var marginTop = this.getMarginTop();
     var viewportHeight = $(window).height() - marginTop;
     var viewportTop = top + marginTop;
-    var loadAheadDistance = viewportHeight;
 
     if (this.visibleStart > 0) {
       var $item = this.$('.item[data-index='+this.visibleStart+']');
@@ -262,17 +224,7 @@ class PostStream extends mixin(Component, evented) {
     var start = this.visibleEnd;
     var end = this.visibleEnd = this.sanitizeIndex(this.visibleEnd + this.constructor.loadCount);
 
-    for (var i = start; i < end; i++) {
-      this.posts.push(null);
-    }
-
-    // If the posts which are two pages back from the page we're currently
-    // loading still haven't loaded, we can assume that the user is scrolling
-    // pretty fast. Thus, we will unload them.
     var twoPagesAway = start - this.constructor.loadCount * 2;
-    if (twoPagesAway >= 0 && !this.posts[twoPagesAway - this.visibleStart]) {
-      this.posts.splice(0, twoPagesAway + this.constructor.loadCount - this.visibleStart);
-      this.visibleStart = twoPagesAway + this.constructor.loadCount;
       clearTimeout(this.loadPageTimeouts[twoPagesAway]);
     }
 
@@ -286,16 +238,7 @@ class PostStream extends mixin(Component, evented) {
     var end = this.visibleStart;
     var start = this.visibleStart = this.sanitizeIndex(this.visibleStart - this.constructor.loadCount);
 
-    for (var i = start; i < end; i++) {
-      this.posts.unshift(null);
-    }
-
-    // If the posts which are two pages back from the page we're currently
-    // loading still haven't loaded, we can assume that the user is scrolling
-    // pretty fast. Thus, we will unload them.
     var twoPagesAway = start + this.constructor.loadCount * 2;
-    if (twoPagesAway <= this.count() && !this.posts[twoPagesAway - this.visibleStart]) {
-      this.posts.splice(twoPagesAway - this.visibleStart);
       this.visibleEnd = twoPagesAway;
       clearTimeout(this.loadPageTimeouts[twoPagesAway]);
     }
@@ -310,8 +253,6 @@ class PostStream extends mixin(Component, evented) {
     var redraw = () => {
       if (start < this.visibleStart || end > this.visibleEnd) return;
 
-      var anchorIndex = backwards && $(window).scrollTop() > 0 ? this.visibleEnd - 1 : this.visibleStart;
-      anchorScroll(this.$('.item[data-index='+anchorIndex+']'), () => m.redraw(true));
 
       this.unpause();
     };
@@ -332,10 +273,7 @@ class PostStream extends mixin(Component, evented) {
     clearing it.
    */
   loadRange(start, end) {
-    return app.store.find('posts', this.discussion.postIds().slice(start, end)).then(posts => {
-      if (start < this.visibleStart || end > this.visibleEnd) return;
 
-      this.posts.splice.apply(this.posts, [start - this.visibleStart, end - start].concat(posts));
     });
   }
 
@@ -345,7 +283,6 @@ class PostStream extends mixin(Component, evented) {
     resolved immediately.
    */
   loadNearNumber(number) {
-    if (this.posts.some(post => post.number() == number)) {
       return m.deferred().resolve().promise;
     }
 
@@ -372,9 +309,6 @@ class PostStream extends mixin(Component, evented) {
 
     this.clear(start, end);
 
-    var ids = this.discussion.postIds().slice(start, end);
-
-    return app.store.find('posts', ids).then(this.setup.bind(this));
   }
 
   /**
@@ -419,7 +353,6 @@ class PostStream extends mixin(Component, evented) {
     would consider a post to be the first one visible.
    */
   getMarginTop() {
-    return this.$() && $('.global-header').outerHeight() + parseInt(this.$().css('margin-top'));
   }
 
   /**

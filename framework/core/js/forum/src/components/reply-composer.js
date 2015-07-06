@@ -2,7 +2,6 @@ import ItemList from 'flarum/utils/item-list';
 import ComposerBody from 'flarum/components/composer-body';
 import Alert from 'flarum/components/alert';
 import ActionButton from 'flarum/components/action-button';
-import Composer from 'flarum/components/composer';
 import icon from 'flarum/helpers/icon';
 
 export default class ReplyComposer extends ComposerBody {
@@ -44,26 +43,11 @@ export default class ReplyComposer extends ComposerBody {
 
     var data = this.data();
 
-    app.store.createRecord('posts').save(data).then((post) => {
-      app.composer.hide();
-
-      discussion.pushAttributes({
-        relationships: {
-          lastUser: post.user(),
-          lastPost: post
-        },
-        lastTime: post.time(),
-        lastPostNumber: post.number(),
-        commentsCount: discussion.commentsCount() + 1,
-        readTime: post.time(),
-        readNumber: post.number()
-      });
-      discussion.data().relationships.posts.data.push({type: 'posts', id: post.id()});
-
+    app.store.createRecord('posts').save(data).then(post => {
       // If we're currently viewing the discussion which this reply was made
       // in, then we can add the post to the end of the post stream.
-      if (app.current && app.current.discussion && app.current.discussion().id() === discussion.id()) {
-        app.current.stream.pushPost(post);
+      if (app.viewingDiscussion(discussion)) {
+        app.current.stream.update();
         m.route(app.route('discussion.near', {
           id: discussion.id(),
           slug: discussion.slug(),
@@ -89,6 +73,8 @@ export default class ReplyComposer extends ComposerBody {
           })
         );
       }
+
+      app.composer.hide();
     }, errors => {
       this.loading(false);
       m.redraw();

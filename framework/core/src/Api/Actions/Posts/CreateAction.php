@@ -22,13 +22,14 @@ class CreateAction extends BaseCreateAction
      * @inheritdoc
      */
     public static $include = [
-        'user' => true
+        'user' => true,
+        'discussion' => true
     ];
 
     /**
      * @inheritdoc
      */
-    public static $link = [];
+    public static $link = ['discussion.posts'];
 
     /**
      * @inheritdoc
@@ -83,6 +84,9 @@ class CreateAction extends BaseCreateAction
                 new ReadDiscussion($discussionId, $actor, $post->number)
             );
         }
+
+        $discussion = $post->discussion;
+        $discussion->posts_ids = $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id');
 
         return $post;
     }
