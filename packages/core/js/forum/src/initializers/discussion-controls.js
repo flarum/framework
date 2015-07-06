@@ -55,20 +55,21 @@ export default function(app) {
         app.history.back();
       }
     }
-  }
+  };
 
   Discussion.prototype.renameAction = function() {
-    var currentTitle = this.title();
-    var title = prompt('Enter a new title for this discussion:', currentTitle);
+    const currentTitle = this.title();
+    const title = prompt('Enter a new title for this discussion:', currentTitle);
+
     if (title && title !== currentTitle) {
-      this.save({title}).then(discussion => {
-        if (app.current instanceof DiscussionPage) {
-          app.current.stream.sync();
+      this.save({title}).then(() => {
+        if (app.viewingDiscussion(this)) {
+          app.current.stream.update();
         }
         m.redraw();
       });
     }
-  }
+  };
 
   Discussion.prototype.userControls = function(context) {
     var items = new ItemList();

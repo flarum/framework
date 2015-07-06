@@ -130,26 +130,6 @@ class CommentPost extends Post
     }
 
     /**
-     * Define the relationship with the user who edited the post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function editUser()
-    {
-        return $this->belongsTo('Flarum\Core\Users\User', 'edit_user_id');
-    }
-
-    /**
-     * Define the relationship with the user who hid the post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function hideUser()
-    {
-        return $this->belongsTo('Flarum\Core\Users\User', 'hide_user_id');
-    }
-
-    /**
      * Get text formatter instance.
      *
      * @return FormatterManager

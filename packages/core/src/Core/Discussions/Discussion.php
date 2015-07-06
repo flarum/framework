@@ -47,6 +47,13 @@ class Discussion extends Model
     ];
 
     /**
+     * An array of posts that have been modified during this request.
+     *
+     * @var array
+     */
+    protected $modifiedPosts = [];
+
+    /**
      * The attributes that should be mutated to dates.
      *
      * @var array
@@ -140,7 +147,7 @@ class Discussion extends Model
     /**
      * Set the discussion's start post details.
      *
-     * @param \Flarum\Core\Posts\Post $post
+     * @param Post $post
      * @return $this
      */
     public function setStartPost(Post $post)
@@ -155,7 +162,7 @@ class Discussion extends Model
     /**
      * Set the discussion's last post details.
      *
-     * @param \Flarum\Core\Posts\Post $post
+     * @param Post $post
      * @return $this
      */
     public function setLastPost(Post $post)
@@ -214,16 +221,28 @@ class Discussion extends Model
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @param \Flarum\Core\Posts\Post $post The post to save.
-     * @return \Flarum\Core\Posts\Post The resulting post. It may or may not be
-     *     the same post as was originally intended to be saved. It also may not
-     *     exist, if the merge logic resulted in deletion.
+     * @param MergeablePost $post The post to save.
+     * @return Post The resulting post. It may or may not be the same post as
+     *     was originally intended to be saved. It also may not exist, if the
+     *     merge logic resulted in deletion.
      */
     public function mergePost(MergeablePost $post)
     {
         $lastPost = $this->posts()->latest('time')->first();
 
-        return $post->saveAfter($lastPost);
+        $post = $post->saveAfter($lastPost);
+
+        return $this->modifiedPosts[] = $post;
+    }
+
+    /**
+     * Get the posts that have been modified during this request.
+     *
+     * @return array
+     */
+    public function getModifiedPosts()
+    {
+        return $this->modifiedPosts;
     }
 
     /**

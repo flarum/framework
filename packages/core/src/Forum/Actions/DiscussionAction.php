@@ -8,7 +8,7 @@ class DiscussionAction extends IndexAction
     {
         $response = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\Discussions\ShowAction', [
             'id' => $routeParams['id'],
-            'near' => $routeParams['near']
+            'page.near' => $routeParams['near']
         ]);
 
         // TODO: return an object instead of an array?
