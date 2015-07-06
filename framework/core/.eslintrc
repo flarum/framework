@@ -1,7 +1,7 @@
 {
   "parser": "babel-eslint",          // https://github.com/babel/babel-eslint
   "env": {                           // http://eslint.org/docs/user-guide/configuring.html#specifying-environments
-    "browser": true                 // browser global variables
+    "browser": true                  // browser global variables
   },
   "ecmaFeatures": {
     "arrowFunctions": true,
@@ -22,7 +22,10 @@
     "jsx": true
   },
   "globals": {
-    "m": true
+    "m": true,
+    "app": true,
+    "$": true,
+    "moment": true
   },
   "rules": {
 /**
