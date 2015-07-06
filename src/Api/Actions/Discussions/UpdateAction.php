@@ -85,6 +85,17 @@ class UpdateAction extends SerializeResourceAction
             $discussion = $state->discussion;
         }
 
+        if ($posts = $discussion->getModifiedPosts()) {
+            $discussion->posts_ids = $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id');
+
+            $discussion->posts = array_filter($posts, function ($post) {
+                return $post->exists;
+            });
+
+            $request->include = array_merge($request->include, ['posts']);
+            $request->link = array_merge($request->include, ['posts', 'posts.discussion', 'posts.user']);
+        }
+
         return $discussion;
     }
 }

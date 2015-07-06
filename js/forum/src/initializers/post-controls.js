@@ -23,10 +23,7 @@ export default function(app) {
 
   function deleteAction() {
     this.delete();
-    // this.discussion().pushAttributes({removedPosts: [this.id()]});
-    if (app.current instanceof DiscussionPage) {
-      app.current.stream.removePost(this.id());
-    }
+    this.discussion().removePost(this.id());
   }
 
   Post.prototype.userControls = function(context) {
