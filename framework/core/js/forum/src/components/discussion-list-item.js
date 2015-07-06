@@ -39,10 +39,10 @@ export default class DiscussionListItem extends Component {
 
     return this.subtree.retain() || m('div.discussion-list-item', {className: this.active() ? 'active' : ''}, [
       controls.length ? DropdownButton.component({
-        icon: 'ellipsis-h',
+        icon: 'ellipsis-v',
         items: controls,
         className: 'contextual-controls',
-        buttonClass: 'btn btn-default btn-icon btn-sm btn-naked slidable-underneath slidable-underneath-right',
+        buttonClass: 'btn btn-link btn-icon btn-sm slidable-underneath slidable-underneath-right',
         menuClass: 'pull-right'
       }) : '',
 
