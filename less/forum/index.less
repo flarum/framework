@@ -86,12 +86,10 @@
       & .discussion-list-item {
         margin: 0;
         padding: 0;
+        border-radius: 0;
 
         &.active {
           background: @fl-body-control-bg;
-        }
-        & .contextual-controls {
-          display: none;
         }
       }
       & .discussion-summary {
@@ -380,13 +378,15 @@
     padding-left: 15px;
     margin-left: -15px;
     border-radius: @border-radius-base;
+    transition: background 0.1s;
 
     & .contextual-controls {
-      visibility: hidden;
       position: absolute;
-      right: 90px;
-      top: 15px;
+      right: 0;
+      top: 5px;
       z-index: 1;
+      opacity: 0;
+      transition: opacity 0.1s;
 
       & .dropdown-toggle {
         display: block;
@@ -396,12 +396,12 @@
       background: lighten(@fl-body-secondary-color, 3%);
     }
     &:hover .contextual-controls, & .contextual-controls.open {
-      visibility: visible;
+      opacity: 1;
     }
   }
   .discussion-summary {
     padding-left: 52px;
-    padding-right: 65px;
+    padding-right: 75px;
 
     & .author {
       margin-left: -52px;
