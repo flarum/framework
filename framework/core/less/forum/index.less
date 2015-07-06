@@ -96,7 +96,7 @@
       }
       & .discussion-summary {
         padding-left: 52px + 15px;
-        padding-right: 60px + 15px;
+        padding-right: 65px + 15px;
 
         & .title {
           font-size: 14px;
@@ -401,7 +401,7 @@
   }
   .discussion-summary {
     padding-left: 52px;
-    padding-right: 60px;
+    padding-right: 65px;
 
     & .author {
       margin-left: -52px;
@@ -421,18 +421,18 @@
     }
     & .count {
       margin-top: 21px;
-      margin-right: -60px;
+      margin-right: -65px;
       width: 55px;
       color: @fl-body-muted-color;
-      font-size: 15px;
-      padding-left: 24px;
+      font-size: 14px;
+      padding-left: 21px;
 
       &:before {
         .fa();
         content: @fa-var-comment-o;
         float: left;
-        margin-left: -24px;
-        margin-top: 2px;
+        margin-left: -21px;
+        margin-top: 3px;
       }
       .unread& {
         color: @fl-body-heading-color;
@@ -440,6 +440,9 @@
 
         &:before {
           content: @fa-var-comment;
+        }
+        &:hover:before {
+          content: @fa-var-check;
         }
       }
     }
