@@ -29,6 +29,8 @@ class LocaleServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->singleton('flarum.localeManager', 'Flarum\Locale\LocaleManager');
+        $this->app->singleton('Flarum\Locale\LocaleManager');
+
+        $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
     }
 }
