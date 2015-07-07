@@ -16,17 +16,27 @@
 .index-toolbar {
   margin-bottom: 15px;
 }
-.index-toolbar-view {
-  &:extend(.list-inline);
-
+.index-toolbar-view, .index-toolbar-action {
   display: inline-block;
   margin: 0;
+  list-style: none;
+  padding: 0;
+
+  & > li {
+    display: inline-block;
+  }
+}
+.index-toolbar-view {
+  & > li {
+    margin-right: 5px;
+  }
 }
 .index-toolbar-action {
-  &:extend(.list-inline);
-
   float: right;
-  margin: 0;
+
+  & > li {
+    margin-left: 5px;
+  }
 }
 
 @media @phone, @tablet {
