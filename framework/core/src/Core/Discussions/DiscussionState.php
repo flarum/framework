@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
  * Stores information about how much of a discussion a user has read. Can also
  * be used to store other information, if the appropriate columns are added to
  * the database, like a user's subscription status for a discussion.
+ *
+ * @todo document database columns with @property
  */
 class DiscussionState extends Model
 {
