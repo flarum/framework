@@ -44,7 +44,7 @@ export default class ForgotPasswordModal extends FormModal {
 
     m.request({
       method: 'POST',
-      url: app.config['api_url']+'/forgot',
+      url: app.forum.attribute('apiUrl')+'/forgot',
       data: {email: this.email()},
       background: true,
       extract: xhr => {

@@ -20,7 +20,7 @@ export default class ChangePasswordModal extends FormModal {
 
     m.request({
       method: 'POST',
-      url: app.config['api_url']+'/forgot',
+      url: app.forum.attribute('apiUrl')+'/forgot',
       data: {email: app.session.user().email()},
       background: true
     }).then(response => {

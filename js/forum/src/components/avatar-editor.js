@@ -70,7 +70,7 @@ export default class AvatarEditor extends Component {
       m.redraw();
       m.request({
         method: 'POST',
-        url: app.config['api_url']+'/users/'+user.id()+'/avatar',
+        url: app.forum.attribute('apiUrl')+'/users/'+user.id()+'/avatar',
         data: data,
         serialize: data => data,
         background: true,
@@ -91,7 +91,7 @@ export default class AvatarEditor extends Component {
     m.redraw();
     m.request({
       method: 'DELETE',
-      url: app.config['api_url']+'/users/'+user.id()+'/avatar',
+      url: app.forum.attribute('apiUrl')+'/users/'+user.id()+'/avatar',
       config: app.session.authorize.bind(app.session)
     }).then(function(data) {
       self.loading(false);

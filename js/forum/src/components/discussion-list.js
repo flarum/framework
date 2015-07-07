@@ -64,9 +64,9 @@ export default class DiscussionList extends Component {
   }
 
   loadResults(offset) {
-    if (app.preload.response) {
-      var discussions = app.store.pushPayload(app.preload.response);
-      app.preload.response = null;
+    const discussions = app.preloadedDocument();
+
+    if (discussions) {
       return m.deferred().resolve(discussions).promise;
     } else {
       var params = this.params();

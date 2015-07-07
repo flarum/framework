@@ -1,5 +1,7 @@
 <?php namespace Flarum\Api\Serializers;
 
+use Flarum\Core;
+
 class ForumSerializer extends Serializer
 {
     /**
@@ -21,7 +23,12 @@ class ForumSerializer extends Serializer
     protected function getDefaultAttributes($forum)
     {
         return [
-            'title' => $forum->title
+            'title' => $forum->title,
+            'baseUrl' => Core::config('base_url'),
+            'apiUrl' => Core::config('api_url'),
+            'welcomeTitle' => Core::config('welcome_title'),
+            'welcomeMessage' => Core::config('welcome_message'),
+            'themePrimaryColor' => Core::config('theme_primary_color')
         ];
     }
 }
