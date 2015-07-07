@@ -11,6 +11,8 @@
     @foreach ($styles as $file)
       <link rel="stylesheet" href="{{ str_replace(public_path(), '', $file) }}">
     @endforeach
+
+    {!! $head !!}
   </head>
 
   <body>
@@ -37,5 +39,7 @@
         {!! $content !!}
       </noscript>
     @endif
+
+    {!! $foot !!}
   </body>
 </html>

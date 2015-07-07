@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core\Users;
 
+use Flarum\Core;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Model;
 use Flarum\Core\Notifications\Notification;
@@ -282,7 +283,21 @@ class User extends Model
      */
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar_path ? app('Flarum\Http\UrlGeneratorInterface')->toAsset('assets/avatars/'.$this->avatar_path) : null;
+        $urlGenerator = app('Flarum\Http\UrlGeneratorInterface');
+
+        return $this->avatar_path ? $urlGenerator->toAsset('assets/avatars/'.$this->avatar_path) : null;
+    }
+
+    /**
+     * Get the user's locale, falling back to the forum's default if they
+     * haven't set one.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getLocaleAttribute($value)
+    {
+        return $value ?: Core::config('locale', 'en');
     }
 
     /**
