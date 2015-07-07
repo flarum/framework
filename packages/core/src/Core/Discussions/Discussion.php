@@ -14,6 +14,9 @@ use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\ValidatesBeforeSave;
 
+/**
+ * @todo document database columns with @property
+ */
 class Discussion extends Model
 {
     use EventGenerator;
