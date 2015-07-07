@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Discussions\Search\Gambits;
 
 use Flarum\Core\Discussions\Search\DiscussionSearch;
-use Flarum\Core\Posts\PostRepository;
+use Flarum\Core\Discussions\Search\Fulltext\Driver;
 use Flarum\Core\Search\Search;
 use Flarum\Core\Search\Gambit;
 use LogicException;
@@ -9,16 +9,16 @@ use LogicException;
 class FulltextGambit implements Gambit
 {
     /**
-     * @var PostRepository
+     * @var Driver
      */
-    protected $posts;
+    protected $fulltext;
 
     /**
-     * @param PostRepository $posts
+     * @param Driver $fulltext
      */
-    public function __construct(PostRepository $posts)
+    public function __construct(Driver $fulltext)
     {
-        $this->posts = $posts;
+        $this->fulltext = $fulltext;
     }
 
     /**
@@ -30,18 +30,14 @@ class FulltextGambit implements Gambit
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
-        $posts = $this->posts->findByContent($bit, $search->getActor());
+        $relevantPostIds = $this->fulltext->match($bit);
 
-        $discussions = [];
-        foreach ($posts as $post) {
-            $discussions[] = $id = $post->discussion_id;
-            $search->addRelevantPostId($id, $post->id);
-        }
-        $discussions = array_unique($discussions);
+        $discussionIds = array_keys($relevantPostIds);
 
-        // TODO: implement negate (match for - at start of string)
-        $search->getQuery()->whereIn('id', $discussions);
+        $search->setRelevantPostIds($relevantPostIds);
 
-        $search->setDefaultSort(['id' => $discussions]);
+        $search->getQuery()->whereIn('id', $discussionIds);
+
+        $search->setDefaultSort(['id' => $discussionIds]);
     }
 }

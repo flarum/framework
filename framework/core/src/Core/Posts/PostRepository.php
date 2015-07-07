@@ -4,7 +4,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core\Users\User;
 use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Discussions\Search\Fulltext\DriverInterface;
+use Flarum\Core\Discussions\Search\Fulltext\Driver;
 
 // TODO: In some cases, the use of a post repository incurs extra query expense,
 // because for every post retrieved we need to check if the discussion it's in
@@ -28,13 +28,6 @@ use Flarum\Core\Discussions\Search\Fulltext\DriverInterface;
 
 class PostRepository
 {
-    protected $fulltext;
-
-    public function __construct(DriverInterface $fulltext)
-    {
-        $this->fulltext = $fulltext;
-    }
-
     /**
      * Find a post by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
@@ -95,31 +88,6 @@ class PostRepository
         $ids = $this->filterDiscussionVisibleTo($ids, $actor);
 
         $posts = Post::with('discussion')->whereIn('id', (array) $ids)->get();
-
-        return $this->filterVisibleTo($posts, $actor);
-    }
-
-    /**
-     * Find posts by matching a string of words against their content,
-     * optionally making sure they are visible to a certain user.
-     *
-     * @param string $string
-     * @param \Flarum\Core\Users\User|null $actor
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function findByContent($string, User $actor = null)
-    {
-        $ids = $this->fulltext->match($string);
-
-        $ids = $this->filterDiscussionVisibleTo($ids, $actor);
-
-        $query = Post::select('id', 'discussion_id')->whereIn('id', $ids);
-
-        foreach ($ids as $id) {
-            $query->orderByRaw('id != ?', [$id]);
-        }
-
-        $posts = $query->get();
 
         return $this->filterVisibleTo($posts, $actor);
     }

@@ -23,7 +23,10 @@ export default class DiscussionList extends Component {
     }
     params.sort = this.sortMap()[params.sort];
     if (params.q) {
+      params.filter = params.filter || {};
+      params.filter.q = params.q;
       params.include.push('relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user');
+      delete params.q;
     }
     return params;
   }

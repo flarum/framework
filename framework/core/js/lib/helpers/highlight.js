@@ -5,7 +5,7 @@ export default function(string, phrase, length) {
     return string;
   }
 
-  const regexp = regexp instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+  const regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
 
   let highlightedString = string;
   let start = 0;

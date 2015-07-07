@@ -45,7 +45,7 @@ class DiscussionsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(
-            'Flarum\Core\Discussions\Search\Fulltext\DriverInterface',
+            'Flarum\Core\Discussions\Search\Fulltext\Driver',
             'Flarum\Core\Discussions\Search\Fulltext\MySqlFulltextDriver'
         );
 
