@@ -1,4 +1,5 @@
 import Store from 'flarum/store';
+import Forum from 'flarum/models/forum';
 import User from 'flarum/models/user';
 import Discussion from 'flarum/models/discussion';
 import Post from 'flarum/models/post';
@@ -9,10 +10,13 @@ import Notification from 'flarum/models/notification';
 export default function(app) {
   app.store = new Store();
 
-  app.store.models['users'] = User;
-  app.store.models['discussions'] = Discussion;
-  app.store.models['posts'] = Post;
-  app.store.models['groups'] = Group;
-  app.store.models['activity'] = Activity;
-  app.store.models['notifications'] = Notification;
-};
+  app.store.models = {
+    forums: Forum,
+    users: User,
+    discussions: Discussion,
+    posts: Post,
+    groups: Group,
+    activity: Activity,
+    notifications: Notification
+  };
+}

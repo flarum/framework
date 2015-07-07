@@ -58,19 +58,13 @@ class ForumServiceProvider extends ServiceProvider
         );
 
         $routes->get(
-            '/d/{id:\d+}/{slug}',
+            '/d/{id:\d+}/{slug}[/{near}]',
             'flarum.forum.discussion',
             $this->action('Flarum\Forum\Actions\DiscussionAction')
         );
 
         $routes->get(
-            '/d/{id:\d+}/{slug}/{near}',
-            'flarum.forum.discussion.near',
-            $this->action('Flarum\Forum\Actions\DiscussionAction')
-        );
-
-        $routes->get(
-            '/u/{username}',
+            '/u/{username}[/{filter}]',
             'flarum.forum.user',
             $this->action('Flarum\Forum\Actions\IndexAction')
         );

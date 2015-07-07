@@ -2,19 +2,25 @@
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class DiscussionAction extends IndexAction
+class DiscussionAction extends ClientAction
 {
-    protected function getDetails(Request $request, array $routeParams)
+    public function render(Request $request, array $routeParams = [])
     {
-        $response = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\Discussions\ShowAction', [
+        $view = parent::render($request, $routeParams);
+
+        $actor = app('flarum.actor');
+        $action = 'Flarum\Api\Actions\Discussions\ShowAction';
+        $params = [
             'id' => $routeParams['id'],
             'page.near' => $routeParams['near']
-        ]);
-
-        // TODO: return an object instead of an array?
-        return [
-            'title' => $response->data->attributes->title,
-            'response' => $response
         ];
+
+        $document = $this->apiClient->send($actor, $action, $params)->getBody();
+
+        $view->setTitle($document->data->attributes->title);
+        $view->setDocument($document);
+        $view->setContent(app('view')->make('flarum.forum::discussion', compact('document')));
+
+        return $view;
     }
 }
