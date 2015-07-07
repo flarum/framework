@@ -38,7 +38,7 @@ export default class Store {
     }
     return app.request({
       method: 'GET',
-      url: app.config['api_url']+'/'+endpoint,
+      url: app.forum.attribute('apiUrl')+'/'+endpoint,
       data: params,
       background: true,
       config: app.session.authorize.bind(app.session)

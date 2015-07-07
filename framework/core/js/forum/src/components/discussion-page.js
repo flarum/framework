@@ -43,17 +43,13 @@ export default class DiscussionPage extends mixin(Component, evented) {
     var params = this.params();
     params.include = params.include.join(',');
 
-    var discussion;
-    if (app.preload.response) {
+    const discussion = app.preloadedDocument();
+    if (discussion) {
       // We must wrap this in a setTimeout because if we are mounting this
       // component for the first time on page load, then any calls to m.redraw
       // will be ineffective and thus any configs (scroll code) will be run
       // before stuff is drawn to the page.
-      setTimeout(() => {
-        var discussion = app.store.pushPayload(app.preload.response);
-        app.preload.response = null;
-        this.setupDiscussion(discussion);
-      });
+      setTimeout(this.setupDiscussion.bind(this, discussion));
     } else {
       app.store.find('discussions', m.route.param('id'), params).then(this.setupDiscussion.bind(this));
     }

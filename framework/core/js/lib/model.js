@@ -10,6 +10,10 @@ export default class Model {
     return this.data().id;
   }
 
+  attribute(attribute) {
+    return this.data().attributes[attribute];
+  }
+
   pushData(newData) {
     var data = this.data();
 
@@ -90,7 +94,7 @@ export default class Model {
 
     return app.request({
       method: this.exists ? 'PATCH' : 'POST',
-      url: app.config['api_url']+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
+      url: app.forum.attribute('apiUrl')+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
       data: {data},
       background: true,
       config: app.session.authorize.bind(app.session)
@@ -108,7 +112,7 @@ export default class Model {
 
     return app.request({
       method: 'DELETE',
-      url: app.config['api_url']+'/'+this.data().type+'/'+this.data().id,
+      url: app.forum.attribute('apiUrl')+'/'+this.data().type+'/'+this.data().id,
       background: true,
       config: app.session.authorize.bind(app.session)
     }).then(() => this.exists = false);

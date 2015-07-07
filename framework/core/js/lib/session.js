@@ -13,7 +13,7 @@ export default class Session extends mixin(class {}, evented) {
     var self = this;
     m.request({
       method: 'POST',
-      url: app.config['base_url']+'/login',
+      url: app.forum.attribute('baseUrl')+'/login',
       data: {identification, password},
       background: true
     }).then(function(response) {
@@ -32,7 +32,7 @@ export default class Session extends mixin(class {}, evented) {
   }
 
   logout() {
-    window.location = app.config['base_url']+'/logout';
+    window.location = app.forum.attribute('baseUrl')+'/logout?token='+this.token();
   }
 
   authorize(xhr) {

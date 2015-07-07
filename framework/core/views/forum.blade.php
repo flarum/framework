@@ -4,7 +4,7 @@
     <header class="global-header" id="header">
       <div id="back-button"></div>
       <div class="container">
-        <h1 class="header-title"><a href="{{ $config['base_url'] }}" id="home-link">{{ $config['forum_title'] }}</a></h1>
+        <h1 class="header-title"><a href="{{ $forum->attributes->baseUrl }}" id="home-link">{{ $forum->attributes->title }}</a></h1>
         <div id="header-primary" class="header-primary"></div>
         <div id="header-secondary" class="header-secondary"></div>
       </div>

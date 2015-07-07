@@ -61,7 +61,7 @@ export default class NotificationList extends Component {
                 badges && badges.length ? m('ul.badges', listItems(badges)) : '',
                 group.discussion.title()
               )
-              : m('div.notification-group-header', app.config['forum_title']),
+              : m('div.notification-group-header', app.forum.attribute('title')),
             m('ul.notification-group-list', group.notifications.map(notification => {
               var NotificationComponent = app.notificationComponentRegistry[notification.contentType()];
               return NotificationComponent ? m('li', NotificationComponent.component({notification})) : '';

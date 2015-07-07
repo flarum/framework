@@ -33,6 +33,6 @@ class Client
 
         $response = $action->handle(new Request($input, $actor));
 
-        return json_decode($response->getBody());
+        return new Response($response);
     }
 }

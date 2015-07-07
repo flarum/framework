@@ -15,8 +15,17 @@ class App {
     this.initializers.toArray().forEach((initializer) => initializer(this));
   }
 
+  preloadedDocument() {
+    if (app.preload.document) {
+      const results = app.store.pushPayload(app.preload.document);
+      app.preload.document = null;
+
+      return results;
+    }
+  }
+
   setTitle(title) {
-    document.title = (title ? title+' - ' : '')+this.config['forum_title'];
+    document.title = (title ? title+' - ' : '')+this.forum.attribute('title');
   }
 
   request(options) {

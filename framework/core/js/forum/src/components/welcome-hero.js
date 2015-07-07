@@ -17,8 +17,8 @@ export default class WelcomeHero extends Component {
       m('div.container', [
         m('button.close.btn.btn-icon.btn-link', {onclick: () => this.$().slideUp(this.hide.bind(this))}, m('i.fa.fa-times')),
         m('div.container-narrow', [
-          m('h2', app.config['welcome_title']),
-          m('div.subtitle', m.trust(app.config['welcome_message']))
+          m('h2', app.forum.attribute('welcomeTitle')),
+          m('div.subtitle', m.trust(app.forum.attribute('welcomeMessage')))
         ])
       ])
     ])
