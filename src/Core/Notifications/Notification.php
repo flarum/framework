@@ -15,6 +15,8 @@ use Flarum\Core\Model;
  * For example, the 'discussionRenamed' notification type represents that
  * someone renamed a user's discussion. Its subject is a discussion, of which
  * the ID is stored in the `subject_id` column.
+ *
+ * @todo document database columns with @property
  */
 class Notification extends Model
 {

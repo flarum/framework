@@ -14,6 +14,8 @@ use Flarum\Core\Model;
  * in the activity feed, and what *subject* is associated with it. For example,
  * the 'posted' activity type represents that a user made a post. Its subject is
  * a post, of which the ID is stored in the `subject_id` column.
+ *
+ * @todo document database columns with @property
  */
 class Activity extends Model
 {

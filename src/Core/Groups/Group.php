@@ -2,6 +2,9 @@
 
 use Flarum\Core\Model;
 
+/**
+ * @todo document database columns with @property
+ */
 class Group extends Model
 {
     /**

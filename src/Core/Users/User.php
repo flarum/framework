@@ -19,6 +19,9 @@ use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
 use Flarum\Core\Support\ValidatesBeforeSave;
 
+/**
+ * @todo document database columns with @property
+ */
 class User extends Model
 {
     use EventGenerator;

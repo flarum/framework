@@ -8,6 +8,9 @@ use Flarum\Core\Support\EventGenerator;
 use Flarum\Core\Support\ValidatesBeforeSave;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @todo document database columns with @property
+ */
 class Post extends Model
 {
     use EventGenerator;
