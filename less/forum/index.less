@@ -91,6 +91,9 @@
         &.active {
           background: @fl-body-control-bg;
         }
+        & .contextual-controls {
+          top: 5px;
+        }
       }
       & .discussion-summary {
         padding-left: 52px + 15px;
@@ -378,15 +381,15 @@
     padding-left: 15px;
     margin-left: -15px;
     border-radius: @border-radius-base;
-    transition: background 0.1s;
+    transition: background 0.2s;
 
     & .contextual-controls {
       position: absolute;
       right: 0;
-      top: 5px;
+      top: 15px;
       z-index: 1;
       opacity: 0;
-      transition: opacity 0.1s;
+      transition: opacity 0.2s;
 
       & .dropdown-toggle {
         display: block;

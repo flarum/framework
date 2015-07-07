@@ -42,7 +42,7 @@ export default class DiscussionListItem extends Component {
         icon: 'ellipsis-v',
         items: controls,
         className: 'contextual-controls',
-        buttonClass: 'btn btn-link btn-icon btn-sm slidable-underneath slidable-underneath-right',
+        buttonClass: 'btn btn-default btn-naked btn-icon btn-sm slidable-underneath slidable-underneath-right',
         menuClass: 'pull-right'
       }) : '',
 

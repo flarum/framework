@@ -188,7 +188,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
       $(document).off('mousemove', hotEdge);
     };
 
-    var $discussion = $index.find('.discussion-summary.active');
+    var $discussion = $index.find('.discussion-list-item.active');
     if ($discussion.length) {
       var indexTop = $index.offset().top;
       var discussionTop = $discussion.offset().top;
