@@ -1,13 +1,21 @@
-export default function(string, regexp) {
-  if (!regexp) {
+import truncate from '../utils/truncate';
+
+export default function(string, phrase, length) {
+  if (!phrase) {
     return string;
   }
 
-  if (!(regexp instanceof RegExp)) {
-    regexp = new RegExp(regexp, 'gi');
+  const regexp = regexp instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+
+  let highlightedString = string;
+  let start = 0;
+
+  if (length) {
+    start = Math.max(0, string.search(regexp) - length / 2);
+    highlightedString = truncate(highlightedString, length, start);
   }
 
-  return m.trust(
-    $('<div/>').text(string).html().replace(regexp, '<mark>$&</mark>')
-  );
+  highlightedString = $('<div/>').text(highlightedString).html().replace(regexp, '<mark>$&</mark>');
+
+  return m.trust(highlightedString);
 }
