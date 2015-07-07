@@ -1,5 +1,6 @@
 <?php namespace Flarum\Forum\Actions;
 
+use Flarum\Api\AccessToken;
 use Flarum\Forum\Events\UserLoggedOut;
 use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -18,6 +19,10 @@ class LogoutAction extends Action
         $user = app('flarum.actor');
 
         if ($user->exists) {
+            $token = array_get($request->getQueryParams(), 'token');
+
+            AccessToken::where('user_id', $user->id)->findOrFail($token);
+
             $user->accessTokens()->delete();
 
             event(new UserLoggedOut($user));
