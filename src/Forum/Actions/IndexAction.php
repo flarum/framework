@@ -30,7 +30,8 @@ class IndexAction extends ClientAction
 
         $params = [
             'sort' => $sort ? $this->sortMap[$sort] : '',
-            'q' => $q
+            'filter' => ['q' => $q],
+            'include' => $q ? 'startUser,lastUser,relevantPosts,relevantPosts.discussion,relevantPosts.user' : ''
         ];
 
         // FIXME: make sure this is extensible. Support pagination.

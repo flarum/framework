@@ -113,7 +113,8 @@
           font-size: 14px;
         }
         & .relevant-posts {
-          display: none;
+          margin-left: -52px;
+          margin-right: -65px;
         }
         & .count {
           margin-top: 11px;
@@ -242,7 +243,7 @@
     }
   }
   & .relevant-posts {
-    margin-bottom: 20px;
+    padding-bottom: 15px;
 
     @media @phone {
       margin-left: -45px;
@@ -254,6 +255,12 @@
       display: block;
       padding: 10px 15px;
       border-bottom: 2px dotted @fl-body-bg;
+      color: @fl-body-muted-color;
+      transition: border-color 0.2s;
+
+      .discussion-list-item:hover & {
+        border-color: lighten(@fl-body-secondary-color, 3%);
+      }
 
       & .avatar, & time {
         display: none;

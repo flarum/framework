@@ -30,26 +30,13 @@ class DiscussionSearch extends Search
     }
 
     /**
-     * Set the relevant post IDs for a result.
+     * Set the relevant post IDs for the results.
      *
-     * @param int $discussionId
-     * @param int[] $postIds
+     * @param array $relevantPostIds
      * @return void
      */
-    public function setRelevantPostIds($discussionId, array $postIds)
+    public function setRelevantPostIds(array $relevantPostIds)
     {
-        $this->relevantPostIds[$discussionId] = $postIds;
-    }
-
-    /**
-     * Add a relevant post ID for a discussion result.
-     *
-     * @param int $discussionId
-     * @param int $postId
-     * @return void
-     */
-    public function addRelevantPostId($discussionId, $postId)
-    {
-        $this->relevantPostIds[$discussionId][] = $postId;
+        $this->relevantPostIds = $relevantPostIds;
     }
 }
