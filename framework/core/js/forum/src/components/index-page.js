@@ -163,6 +163,15 @@ export default class IndexPage extends Component {
       })
     );
 
+    items.add('refresh',
+      ActionButton.component({
+        title: 'Refresh',
+        icon: 'refresh',
+        className: 'btn btn-default btn-icon',
+        onclick: () => app.cache.discussionList.refresh()
+      })
+    );
+
     return items;
   }
 
