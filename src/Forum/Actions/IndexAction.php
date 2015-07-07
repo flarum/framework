@@ -1,22 +1,23 @@
 <?php namespace Flarum\Forum\Actions;
 
-use Flarum\Api\Client;
-use Flarum\Assets\AssetManager;
-use Flarum\Assets\JsCompiler;
-use Flarum\Assets\LessCompiler;
-use Flarum\Core;
-use Flarum\Forum\Events\RenderView;
-use Flarum\Locale\JsCompiler as LocaleJsCompiler;
-use Flarum\Support\HtmlAction;
-use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexAction extends ClientAction
 {
     /**
-     * @param Request $request
-     * @param array $routeParams
-     * @return \Illuminate\Contracts\View\View
+     * A map of sort query param values to their API sort param.
+     *
+     * @var array
+     */
+    protected $sortMap = [
+        'recent' => '-lastTime',
+        'replies' => '-commentsCount',
+        'newest' => '-startTime',
+        'oldest' => '+startTime'
+    ];
+
+    /**
+     * {@inheritdoc}
      */
     public function render(Request $request, array $routeParams = [])
     {
@@ -24,18 +25,35 @@ class IndexAction extends ClientAction
 
         $queryParams = $request->getQueryParams();
 
-        // Only preload data if we're viewing the default index with no filters,
-        // otherwise we have to do all kinds of crazy stuff
-        if (! count($queryParams) && $request->getUri()->getPath() === '/') {
-            $actor = app('flarum.actor');
-            $action = 'Flarum\Api\Actions\Discussions\IndexAction';
+        $sort = array_pull($queryParams, 'sort');
+        $q = array_pull($queryParams, 'q');
 
-            $document = $this->apiClient->send($actor, $action)->getBody();
+        $params = [
+            'sort' => $sort ? $this->sortMap[$sort] : '',
+            'q' => $q
+        ];
 
-            $view->setDocument($document);
-            $view->setContent(app('view')->make('flarum.forum::index', compact('document')));
-        }
+        // FIXME: make sure this is extensible. Support pagination.
+
+        $document = $this->preload($params);
+
+        $view->setDocument($document);
+        $view->setContent(app('view')->make('flarum.forum::index', compact('document')));
 
         return $view;
+    }
+
+    /**
+     * Get the result of an API request to list discussions.
+     *
+     * @param array $params
+     * @return object
+     */
+    protected function preload(array $params)
+    {
+        $actor = app('flarum.actor');
+        $action = 'Flarum\Api\Actions\Discussions\IndexAction';
+
+        return $this->apiClient->send($actor, $action, $params)->getBody();
     }
 }
