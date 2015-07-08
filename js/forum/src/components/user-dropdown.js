@@ -5,6 +5,7 @@ import DropdownButton from 'flarum/components/dropdown-button';
 import ActionButton from 'flarum/components/action-button';
 import ItemList from 'flarum/utils/item-list';
 import Separator from 'flarum/components/separator';
+import Group from 'flarum/models/group';
 
 export default class UserDropdown extends Component {
   view() {
@@ -40,12 +41,13 @@ export default class UserDropdown extends Component {
       })
     );
 
-    if (user.groups().some((group) => group.id() == 1)) {
+    if (user.groups().some((group) => Number(group.id()) === Group.ADMINISTRATOR_ID)) {
       items.add('administration',
         ActionButton.component({
           icon: 'wrench',
           label: 'Administration',
-          href: app.forum.attribute('baseUrl')+'/admin'
+          href: app.forum.attribute('baseUrl') + '/admin',
+          target: '_blank'
         })
       );
     }
