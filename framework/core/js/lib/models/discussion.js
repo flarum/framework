@@ -3,30 +3,12 @@ import computed from 'flarum/utils/computed';
 import ItemList from 'flarum/utils/item-list';
 
 class Discussion extends Model {
-  pushData(newData) {
-    super.pushData(newData);
-
-    // var links = this.data().links;
-    // var posts = links && links.posts;
-    // if (posts) {
-    //   if (newData.removedPosts) {
-    //     posts.linkage.forEach((linkage, i) => {
-    //       if (newData.removedPosts.indexOf(linkage.id) !== -1) {
-    //         posts.linkage.splice(i, 1);
-    //       }
-    //     });
-    //   }
-
-    //   if (newData.links && newData.links.addedPosts) {
-    //     newData.links.addedPosts.linkage.forEach(linkage => {
-    //       if (posts.linkage[posts.linkage.length - 1].id != linkage.id) {
-    //         posts.linkage.push(linkage);
-    //       }
-    //     });
-    //   }
-    // }
-  }
-
+  /**
+   * Remove a post from the discussion's posts relationship.
+   *
+   * @param {int} id The ID of the post to remove.
+   * @return {void}
+   */
   removePost(id) {
     const relationships = this.data().relationships;
     const posts = relationships && relationships.posts;
