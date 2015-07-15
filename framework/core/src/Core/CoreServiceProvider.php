@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core;
 
-use Flarum\Core\Settings\CachedSettingsRepository;
+use Flarum\Core\Settings\MemoryCacheSettingsRepository;
 use Flarum\Core\Settings\DatabaseSettingsRepository;
 use Flarum\Core\Users\User;
 use Flarum\Support\ServiceProvider;
@@ -34,7 +34,7 @@ class CoreServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('Flarum\Core\Settings\SettingsRepository', function() {
-            return new CachedSettingsRepository(
+            return new MemoryCacheSettingsRepository(
                 new DatabaseSettingsRepository(
                     $this->app->make('Illuminate\Database\ConnectionInterface')
                 )
