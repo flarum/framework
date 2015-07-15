@@ -14,6 +14,7 @@ before_script:
 
 script:
   - vendor/bin/phpcs --standard=PSR2 -np src
+  - vendor/bin/phpspec run
 
 notifications:
   email:
