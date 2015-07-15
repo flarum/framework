@@ -33,11 +33,11 @@ class UserActivitySyncer
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen('Flarum\Core\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
-        $events->listen('Flarum\Core\Events\PostWasHidden', __CLASS__.'@whenPostWasHidden');
-        $events->listen('Flarum\Core\Events\PostWasRestored', __CLASS__.'@whenPostWasRestored');
-        $events->listen('Flarum\Core\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
-        $events->listen('Flarum\Core\Events\UserWasRegistered', __CLASS__.'@whenUserWasRegistered');
+        $events->listen('Flarum\Core\Posts\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
+        $events->listen('Flarum\Core\Posts\Events\PostWasHidden', __CLASS__.'@whenPostWasHidden');
+        $events->listen('Flarum\Core\Posts\Events\PostWasRestored', __CLASS__.'@whenPostWasRestored');
+        $events->listen('Flarum\Core\Posts\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
+        $events->listen('Flarum\Core\Users\Events\UserWasRegistered', __CLASS__.'@whenUserWasRegistered');
     }
 
     /**
