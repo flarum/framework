@@ -368,6 +368,7 @@ class User extends Model
             ->whereIn('type', $this->getAlertableNotificationTypes())
             ->where('time', '>', $this->notification_read_time ?: 0)
             ->where('is_read', 0)
+            ->where('is_deleted', 0)
             ->count($this->getConnection()->raw('DISTINCT type, subject_id'));
     }
 
