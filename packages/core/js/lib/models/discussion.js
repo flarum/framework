@@ -1,16 +1,43 @@
-import Model from 'flarum/model';
+import Model from 'flarum/Model';
+import mixin from 'flarum/utils/mixin';
 import computed from 'flarum/utils/computed';
-import ItemList from 'flarum/utils/item-list';
+import ItemList from 'flarum/utils/ItemList';
+import { slug } from 'flarum/utils/string';
 
-class Discussion extends Model {
+export default class Discussion extends mixin(Model, {
+  title: Model.attribute('title'),
+  slug: computed('title', slug),
+
+  startTime: Model.attribute('startTime', Model.transformDate),
+  startUser: Model.hasOne('startUser'),
+  startPost: Model.hasOne('startPost'),
+
+  lastTime: Model.attribute('lastTime', Model.transformDate),
+  lastUser: Model.hasOne('lastUser'),
+  lastPost: Model.hasOne('lastPost'),
+  lastPostNumber: Model.attribute('lastPostNumber'),
+
+  commentsCount: Model.attribute('commentsCount'),
+  repliesCount: computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1)),
+  posts: Model.hasMany('posts'),
+  relevantPosts: Model.hasMany('relevantPosts'),
+
+  readTime: Model.attribute('readTime', Model.transformDate),
+  readNumber: Model.attribute('readNumber'),
+  isUnread: computed('unreadCount', unreadCount => !!unreadCount),
+
+  canReply: Model.attribute('canReply'),
+  canRename: Model.attribute('canRename'),
+  canDelete: Model.attribute('canDelete')
+}) {
   /**
    * Remove a post from the discussion's posts relationship.
    *
-   * @param {int} id The ID of the post to remove.
-   * @return {void}
+   * @param {Integer} id The ID of the post to remove.
+   * @public
    */
   removePost(id) {
-    const relationships = this.data().relationships;
+    const relationships = this.data.relationships;
     const posts = relationships && relationships.posts;
 
     if (posts) {
@@ -23,47 +50,40 @@ class Discussion extends Model {
     }
   }
 
+  /**
+   * Get the estimated number of unread posts in this discussion for the current
+   * user.
+   *
+   * @return {Integer}
+   * @public
+   */
   unreadCount() {
-    var user = app.session.user();
+    const user = app.session.user;
+
     if (user && user.readTime() < this.lastTime()) {
       return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0))
     }
+
     return 0;
   }
 
+  /**
+   * Get the Badge components that apply to this discussion.
+   *
+   * @return {ItemList}
+   * @public
+   */
   badges() {
     return new ItemList();
   }
+
+  /**
+   * Get a list of all of the post IDs in this discussion.
+   *
+   * @return {Array}
+   * @public
+   */
+  postIds() {
+    return this.data.relationships.posts.data.map(link => link.id);
+  }
 }
-
-Discussion.prototype.title = Model.attribute('title');
-Discussion.prototype.slug = computed('title', title => title.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-');
-
-Discussion.prototype.startTime = Model.attribute('startTime', Model.transformDate);
-Discussion.prototype.startUser = Model.hasOne('startUser');
-Discussion.prototype.startPost = Model.hasOne('startPost');
-
-Discussion.prototype.lastTime = Model.attribute('lastTime', Model.transformDate);
-Discussion.prototype.lastUser = Model.hasOne('lastUser');
-Discussion.prototype.lastPost = Model.hasOne('lastPost');
-Discussion.prototype.lastPostNumber = Model.attribute('lastPostNumber');
-
-Discussion.prototype.canReply = Model.attribute('canReply');
-Discussion.prototype.canRename = Model.attribute('canRename');
-Discussion.prototype.canDelete = Model.attribute('canDelete');
-
-Discussion.prototype.commentsCount = Model.attribute('commentsCount');
-Discussion.prototype.repliesCount = computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1));
-
-Discussion.prototype.posts = Model.hasMany('posts');
-Discussion.prototype.postIds = function() { return this.data().relationships.posts.data.map((link) => link.id); };
-Discussion.prototype.relevantPosts = Model.hasMany('relevantPosts');
-Discussion.prototype.addedPosts = Model.hasMany('addedPosts');
-Discussion.prototype.removedPosts = Model.attribute('removedPosts');
-
-Discussion.prototype.readTime = Model.attribute('readTime', Model.transformDate);
-Discussion.prototype.readNumber = Model.attribute('readNumber');
-
-Discussion.prototype.isUnread = computed('unreadCount', unreadCount => !!unreadCount);
-
-export default Discussion;

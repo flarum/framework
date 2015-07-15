@@ -10,27 +10,27 @@
  * this template. They are distinguished by their ID attributes:
  *
  * - #page
- * - #page-back-button
+ * - #page-navigation
  * - #header
- * - #header-back-button
+ * - #header-navigation
  * - #home-link
- * - #header-primary-controls
- * - #header-secondary-controls
+ * - #header-primary
+ * - #header-secondary
  * - #footer
- * - #footer-primary-controls
- * - #footer-secondary-controls
+ * - #footer-primary
+ * - #footer-secondary
  * - #content
  * - #composer
  */
 ?>
-<div class="global-page" id="page">
+<div id="page" class="global-page">
 
-  <div id="back-control"></div>
+  <div id="page-navigation"></div>
 
   <div class="global-drawer">
 
-    <header class="global-header" id="header">
-      <div id="back-button"></div>
+    <header id="header" class="global-header">
+      <div id="header-navigation"></div>
       <div class="container">
         <h1 class="header-title">
           <a href="{{ $forum->attributes->baseUrl }}" id="home-link">
@@ -42,7 +42,7 @@
       </div>
     </header>
 
-    <footer class="global-footer" id="footer">
+    <footer id="footer" class="global-footer">
       <div class="container">
         <div id="footer-primary" class="footer-primary"></div>
         <div id="footer-secondary" class="footer-secondary"></div>
@@ -53,6 +53,7 @@
 
   <main class="global-content">
     <div id="content"></div>
+
     <div class="composer-container">
       <div class="container">
         <div id="composer"></div>

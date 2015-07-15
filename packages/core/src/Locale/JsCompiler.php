@@ -13,11 +13,14 @@ class JsCompiler extends RevisionCompiler
 
     public function compile()
     {
-        $output = "var app = require('flarum/app')['default']; app.translator.translations = ".json_encode($this->translations).";";
+        $output = "var initLocale = function(app) {
+            app.translator.translations = ".json_encode($this->translations).";";
 
         foreach ($this->files as $filename) {
             $output .= file_get_contents($filename);
         }
+
+        $output .= "};";
 
         return $output;
     }

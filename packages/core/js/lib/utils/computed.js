@@ -1,22 +1,37 @@
-export default function computed() {
-  var args = [].slice.apply(arguments);
-  var keys = args.slice(0, -1);
-  var compute = args.slice(-1)[0];
+/**
+ * The `computed` utility creates a function that will cache its output until
+ * any of the dependent values are dirty.
+ *
+ * @param {...String} dependentKeys The keys of the dependent values.
+ * @param {function} compute The function which computes the value using the
+ *     dependent values.
+ * @return {}
+ */
+export default function computed(...dependentKeys) {
+  const keys = dependentKeys.slice(0, -1);
+  const compute = dependentKeys.slice(-1)[0];
 
-  var values = {};
-  var computed;
+  const dependentValues = {};
+  let computedValue;
+
   return function() {
-    var recompute = false;
-    keys.forEach(function(key) {
-      var value = typeof this[key] === 'function' ? this[key]() : this[key];
-      if (values[key] !== value) {
+    let recompute = false;
+
+    // Read all of the dependent values. If any of them have changed since last
+    // time, then we'll want to recompute our output.
+    keys.forEach(key => {
+      const value = typeof this[key] === 'function' ? this[key]() : this[key];
+
+      if (dependentValues[key] !== value) {
         recompute = true;
-        values[key] = value;
+        dependentValues[key] = value;
       }
-    }.bind(this));
+    });
+
     if (recompute) {
-      computed = compute.apply(this, keys.map((key) => values[key]));
+      computedValue = compute.apply(this, keys.map(key => dependentValues[key]));
     }
-    return computed;
-  }
-};
+
+    return computedValue;
+  };
+}

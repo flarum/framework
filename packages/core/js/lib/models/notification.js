@@ -1,18 +1,18 @@
-import Model from 'flarum/model';
+import Model from 'flarum/Model';
+import mixin from 'flarum/utils/mixin';
 import computed from 'flarum/utils/computed';
 
-class Notification extends Model {}
+export default class Notification extends mixin(Model, {
+  contentType: Model.attribute('contentType'),
+  subjectId: Model.attribute('subjectId'),
+  content: Model.attribute('content'),
+  time: Model.attribute('time', Model.date),
 
-Notification.prototype.contentType = Model.attribute('contentType');
-Notification.prototype.subjectId = Model.attribute('subjectId');
-Notification.prototype.content = Model.attribute('content');
-Notification.prototype.time = Model.attribute('time', Model.date);
-Notification.prototype.isRead = Model.attribute('isRead');
-Notification.prototype.unreadCount = Model.attribute('unreadCount');
-Notification.prototype.additionalUnreadCount = computed('unreadCount', unreadCount => Math.max(0, unreadCount - 1));
+  isRead: Model.attribute('isRead'),
+  unreadCount: Model.attribute('unreadCount'),
+  additionalUnreadCount: computed('unreadCount', unreadCount => Math.max(0, unreadCount - 1)),
 
-Notification.prototype.user = Model.hasOne('user');
-Notification.prototype.sender = Model.hasOne('sender');
-Notification.prototype.subject = Model.hasOne('subject');
-
-export default Notification;
+  user: Model.hasOne('user'),
+  sender: Model.hasOne('sender'),
+  subject: Model.hasOne('subject')
+}) {}

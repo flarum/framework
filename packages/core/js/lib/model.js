@@ -1,153 +1,277 @@
+/**
+ * The `Model` class represents a local data resource. It provides methods to
+ * persist changes via the API.
+ *
+ * @abstract
+ */
 export default class Model {
-  constructor(data, store) {
-    this.data = m.prop(data || {});
+  /**
+   * @param {Object} data A resource object from the API.
+   * @param {Store} store The data store that this model should be persisted to.
+   * @public
+   */
+  constructor(data = {}, store) {
+    /**
+     * The resource object from the API.
+     *
+     * @type {Object}
+     * @public
+     */
+    this.data = data;
+
+    /**
+     * The time at which the model's data was last updated. Watching the value
+     * of this property is a fast way to retain/cache a subtree if data hasn't
+     * changed.
+     *
+     * @type {Date}
+     * @public
+     */
     this.freshness = new Date();
+
+    /**
+     * Whether or not the resource exists on the server.
+     *
+     * @type {Boolean}
+     * @public
+     */
     this.exists = false;
+
+    /**
+     * The data store that this resource should be persisted to.
+     *
+     * @type {Store}
+     * @protected
+     */
     this.store = store;
   }
 
+  /**
+   * Get the model's ID.
+   *
+   * @return {Integer}
+   * @public
+   * @final
+   */
   id() {
-    return this.data().id;
+    return this.data.id;
   }
 
+  /**
+   * Get one of the model's attributes.
+   *
+   * @param {String} attribute
+   * @return {*}
+   * @public
+   * @final
+   */
   attribute(attribute) {
-    return this.data().attributes[attribute];
+    return this.data.attributes[attribute];
   }
 
-  pushData(newData) {
-    var data = this.data();
+  /**
+   * Merge new data into this model locally.
+   *
+   * @param {Object} data A resource object to merge into this model
+   * @public
+   */
+  pushData(data) {
+    // Since most of the top-level items in a resource object are objects
+    // (e.g. relationships, attributes), we'll need to check and perform the
+    // merge at the second level if that's the case.
+    for (const key in data) {
+      if (typeof data[key] === 'object') {
+        this.data[key] = this.data[key] || {};
 
-    for (var i in newData) {
-      if (i === 'relationships') {
-        data[i] = data[i] || {};
-        for (var j in newData[i]) {
-          if (newData[i][j] instanceof Model) {
-            newData[i][j] = {data: {type: newData[i][j].data().type, id: newData[i][j].data().id}};
+        // For every item in a second-level object, we want to check if we've
+        // been handed a Model instance. If so, we will convert it to a
+        // relationship data object.
+        for (const deepKey in data[key]) {
+          if (data[key][deepKey] instanceof Model) {
+            data[key][deepKey] = {data: Model.getRelationshipData(data[key][deepKey])};
           }
-          data[i][j] = newData[i][j];
-        }
-      } else if (i === 'attributes') {
-        data[i] = data[i] || {};
-        for (var j in newData[i]) {
-          data[i][j] = newData[i][j];
+          this.data[key][deepKey] = data[key][deepKey];
         }
       } else {
-        data[i] = newData[i];
+        this.data[key] = data[key];
       }
     }
 
+    // Now that we've updated the data, we can say that the model is fresh.
+    // This is an easy way to invalidate retained subtrees etc.
     this.freshness = new Date();
   }
 
+  /**
+   * Merge new attributes into this model locally.
+   *
+   * @param {Object} attributes The attributes to merge.
+   * @public
+   */
   pushAttributes(attributes) {
-    var data = {attributes};
-
-    if (attributes.relationships) {
-      data.relationships = attributes.relationships;
-      delete attributes.relationships;
-    }
-
-    this.pushData(data);
+    this.pushData({attributes});
   }
 
+  /**
+   * Merge new attributes into this model, both locally and with persistence.
+   *
+   * @param {Object} attributes The attributes to save. If a 'relationships' key
+   *     exists, it will be extracted and relationships will also be saved.
+   * @return {Promise}
+   * @public
+   */
   save(attributes) {
-    var data = {
-      type: this.data().type,
-      id: this.data().id,
+    const data = {
+      type: this.data.type,
+      id: this.data.id,
       attributes
     };
 
+    // If a 'relationships' key exists, extract it from the attributes hash and
+    // set it on the top-level data object instead. We will be sending this data
+    // object to the API for persistence.
     if (attributes.relationships) {
       data.relationships = {};
 
-      for (var i in attributes.relationships) {
-        var model = attributes.relationships[i];
-        var relationshipData = model => {
-          return {type: model.data().type, id: model.data().id};
+      for (const key in attributes.relationships) {
+        const model = attributes.relationships[key];
+
+        data.relationships[key] = {
+          data: model instanceof Array
+            ? model.map(Model.getRelationshipData)
+            : Model.getRelationshipData(model)
         };
-        if (model instanceof Array) {
-          data.relationships[i] = {data: model.map(relationshipData)};
-        } else {
-          data.relationships[i] = {data: relationshipData(model)};
-        }
       }
 
       delete attributes.relationships;
     }
 
-    // clone the relevant parts of the model's old data so that we can revert
-    // back if the save fails
-    var oldData = {};
-    var currentData = this.data();
-    for (var i in data) {
-      if (i === 'relationships') {
-        oldData[i] = oldData[i] || {};
-        for (var j in currentData[i]) {
-          oldData[i][j] = currentData[i][j];
-        }
-      } else {
-        oldData[i] = currentData[i];
-      }
-    }
+    // Before we update the model's data, we should make a copy of the model's
+    // old data so that we can revert back to it if something goes awry during
+    // persistence.
+    const oldData = JSON.parse(JSON.stringify(this.data));
 
     this.pushData(data);
 
     return app.request({
       method: this.exists ? 'PATCH' : 'POST',
-      url: app.forum.attribute('apiUrl')+'/'+this.data().type+(this.exists ? '/'+this.data().id : ''),
-      data: {data},
-      background: true,
-      config: app.session.authorize.bind(app.session)
-    }).then(payload => {
-      this.store.data[payload.data.type][payload.data.id] = this;
-      return this.store.pushPayload(payload);
-    }, response => {
-      this.pushData(oldData);
-      throw response;
-    });
+      url: app.forum.attribute('apiUrl') + '/' + this.data.type + (this.exists ? '/' + this.data.id : ''),
+      data: {data}
+    }).then(
+      // If everything went well, we'll make sure the store knows that this
+      // model exists now (if it didn't already), and we'll push the data that
+      // the API returned into the store.
+      payload => {
+        this.store.data[payload.data.type][payload.data.id] = this;
+        return this.store.pushPayload(payload);
+      },
+
+      // If something went wrong, though... good thing we backed up our model's
+      // old data! We'll revert to that and let others handle the error.
+      response => {
+        this.pushData(oldData);
+        throw response;
+      }
+    );
   }
 
-  delete() {
-    if (!this.exists) { return; }
+  /**
+   * Send a request to delete the resource.
+   *
+   * @param {Object} data Data to send along with the DELETE request.
+   * @return {Promise}
+   * @public
+   */
+  delete(data) {
+    if (!this.exists) return m.deferred.resolve().promise;
 
     return app.request({
       method: 'DELETE',
-      url: app.forum.attribute('apiUrl')+'/'+this.data().type+'/'+this.data().id,
-      background: true,
-      config: app.session.authorize.bind(app.session)
-    }).then(() => this.exists = false);
+      url: app.forum.attribute('apiUrl') + '/' + this.data.type + '/' + this.data.id,
+      data
+    }).then(
+      () => this.exists = false
+    );
   }
 
+  /**
+   * Generate a function which returns the value of the given attribute.
+   *
+   * @param {String} name
+   * @param {function} [transform] A function to transform the attribute value
+   * @return {*}
+   * @public
+   */
   static attribute(name, transform) {
     return function() {
-      var data = this.data().attributes[name];
-      return transform ? transform(data) : data;
-    }
+      const value = this.data.attributes[name];
+
+      return transform ? transform(value) : value;
+    };
   }
 
+  /**
+   * Generate a function which returns the value of the given has-one
+   * relationship.
+   *
+   * @param {String} name
+   * @return {Model|Boolean|undefined} false if no information about the
+   *     relationship exists; undefined if the relationship exists but the model
+   *     has not been loaded; or the model if it has been loaded.
+   * @public
+   */
   static hasOne(name) {
     return function() {
-      var data = this.data();
-      if (data.relationships) {
-        var relationship = data.relationships[name];
+      if (this.data.relationships) {
+        const relationship = this.data.relationships[name];
+
         return relationship && app.store.getById(relationship.data.type, relationship.data.id);
       }
-    }
+    };
   }
 
+  /**
+   * Generate a function which returns the value of the given has-many
+   * relationship.
+   *
+   * @param {String} name
+   * @return {Array|Boolean} false if no information about the relationship
+   *     exists; an array if it does, containing models if they have been
+   *     loaded, and undefined for those that have not.
+   * @public
+   */
   static hasMany(name) {
     return function() {
-      var data = this.data();
-      if (data.relationships) {
-        var relationship = this.data().relationships[name];
-        return relationship && relationship.data.map(function(link) {
-          return app.store.getById(link.type, link.id);
-        });
+      if (this.data.relationships) {
+        const relationship = this.data.relationships[name];
+
+        return relationship && relationship.data.map(data => app.store.getById(data.type, data.id));
       }
-    }
+    };
   }
 
-  static transformDate(data) {
-    return data ? new Date(data) : null;
+  /**
+   * Transform the given value into a Date object.
+   *
+   * @param {String} value
+   * @return {Date|null}
+   * @public
+   */
+  static transformDate(value) {
+    return value ? new Date(value) : null;
+  }
+
+  /**
+   * Get a relationship data object for the given model.
+   *
+   * @param {Model} model
+   * @return {Object}
+   * @protected
+   */
+  static getRelationshipData(model) {
+    return {
+      type: model.data.type,
+      id: model.data.id
+    };
   }
 }

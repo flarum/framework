@@ -1,12 +1,11 @@
-import Model from 'flarum/model';
+import Model from 'flarum/Model';
+import mixin from 'flarum/utils/mixin';
 
-class Activity extends Model {}
+export default class Activity extends mixin(Model, {
+  contentType: Model.attribute('contentType'),
+  content: Model.attribute('content'),
+  time: Model.attribute('time', Model.transformDate),
 
-Activity.prototype.contentType = Model.attribute('contentType');
-Activity.prototype.content = Model.attribute('content');
-Activity.prototype.time = Model.attribute('time', Model.transformDate);
-
-Activity.prototype.user = Model.hasOne('user');
-Activity.prototype.subject = Model.hasOne('subject');
-
-export default Activity;
+  user: Model.hasOne('user'),
+  subject: Model.hasOne('subject')
+}) {}

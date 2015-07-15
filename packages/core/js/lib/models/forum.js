@@ -1,5 +1,3 @@
-import Model from 'flarum/model';
+import Model from 'flarum/Model';
 
-class Forum extends Model {}
-
-export default Forum;
+export default class Forum extends Model {}

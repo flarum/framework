@@ -24,14 +24,19 @@
     @foreach ($scripts as $file)
       <script src="{{ str_replace(public_path(), '', $file) }}"></script>
     @endforeach
+
     <script>
-      var app = require('flarum/app')['default'];
-      app.preload = {
-        data: {!! json_encode($data) !!},
-        document: {!! json_encode($document) !!},
-        session: {!! json_encode($session) !!}
-      };
-      app.boot();
+      var app;
+      System.import('flarum/app').then(function(module) {
+        app = module.default;
+        app.preload = {
+          data: {!! json_encode($data) !!},
+          document: {!! json_encode($document) !!},
+          session: {!! json_encode($session) !!}
+        };
+        initLocale(app);
+        app.boot();
+      });
     </script>
 
     @if ($content)
