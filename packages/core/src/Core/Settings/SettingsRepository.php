@@ -1,9 +1,11 @@
 <?php
 
-namespace Flarum\Core;
+namespace Flarum\Core\Settings;
 
-interface SettingsRepositoryInterface
+interface SettingsRepository
 {
+    public function all();
+
     public function get($key, $default = null);
 
     public function set($key, $value);
