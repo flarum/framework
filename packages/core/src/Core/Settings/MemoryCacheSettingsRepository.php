@@ -2,7 +2,7 @@
 
 namespace Flarum\Core\Settings;
 
-class CachedSettingsRepository implements SettingsRepository
+class MemoryCacheSettingsRepository implements SettingsRepository
 {
     protected $inner;
 
