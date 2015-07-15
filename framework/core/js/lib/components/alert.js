@@ -1,33 +1,56 @@
-import Component from 'flarum/component';
-import ActionButton from 'flarum/components/action-button';
-import listItems from 'flarum/helpers/list-items';
+import Component from 'flarum/Component';
+import Button from 'flarum/components/Button';
+import listItems from 'flarum/helpers/listItems';
+import extract from 'flarum/utils/extract';
 
+/**
+ * The `Alert` component represents an alert box, which contains a message,
+ * some controls, and may be dismissible.
+ *
+ * The alert may have the following special props:
+ *
+ * - `type` The type of alert this is. Will be used to give the alert a class
+ *   name of `alert-{type}`.
+ * - `controls` An array of controls to show in the alert.
+ * - `dismissible` Whether or not the alert can be dismissed.
+ * - `ondismiss` A callback to run when the alert is dismissed.
+ *
+ * All other props will be assigned as attributes on the alert element.
+ */
 export default class Alert extends Component {
   view() {
-    var attrs = {};
-    for (var i in this.props) { attrs[i] = this.props[i]; }
+    const attrs = Object.assign({}, this.props);
 
-    attrs.className = (attrs.className || '') + ' alert-'+attrs.type;
-    delete attrs.type;
+    const type = extract(attrs, 'type');
+    attrs.className = 'alert alert-' + type + ' ' + (attrs.className || '');
 
-    var message = attrs.message;
-    delete attrs.message;
+    const children = extract(attrs, 'children');
+    const controls = extract(attrs, 'controls') || [];
 
-    var controlItems = attrs.controls ? attrs.controls.slice() : [];
-    delete attrs.controls;
+    // If the alert is meant to be dismissible (which is the case by default),
+    // then we will create a dismiss button to append as the final control in
+    // the alert.
+    const dismissible = extract(attrs, 'dismissible');
+    const ondismiss = extract(attrs, 'ondismiss');
+    const dismissControl = [];
 
-    if (attrs.dismissible || attrs.dismissible === undefined) {
-      controlItems.push(ActionButton.component({
+    if (dismissible || dismissible === undefined) {
+      dismissControl.push(Button.component({
         icon: 'times',
-        className: 'btn btn-icon btn-link',
-        onclick: attrs.ondismiss.bind(this)
+        className: 'btn btn-link btn-icon dismiss',
+        onclick: ondismiss
       }));
     }
-    delete attrs.dismissible;
 
-    return m('div.alert', attrs, [
-      m('span.alert-text', message),
-      m('ul.alert-controls', listItems(controlItems))
-    ]);
+    return (
+      <div {...attrs}>
+        <span className="alert-body">
+          {children}
+        </span>
+        <ul className="alert-controls">
+          {listItems(controls.concat(dismissControl))}
+        </ul>
+      </div>
+    );
   }
 }

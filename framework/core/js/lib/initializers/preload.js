@@ -1,9 +1,17 @@
-export default function(app) {
-  app.store.pushPayload({data: app.preload.data});
-  app.forum = app.store.getById('forums', 1);
+import Session from 'flarum/Session';
 
-  if (app.preload.session) {
-    app.session.token(app.preload.session.token);
-    app.session.user(app.store.getById('users', app.preload.session.userId));
-  }
+/**
+ * The `session` initializer creates the application session and preloads it
+ * with data that has been set on the application's `preload` property.
+ *
+ * `app.preload.session` should be the same as the response from the /api/token
+ * endpoint: it should contain `token` and `userId` keys.
+ *
+ * @param {App} app
+ */
+export default function session(app) {
+  app.session = new Session(
+    app.preload.session.token,
+    app.store.getById('users', app.preload.session.userId)
+  );
 }

@@ -1,27 +1,27 @@
-import Model from 'flarum/model';
+import Model from 'flarum/Model';
+import mixin from 'flarum/utils/mixin';
 import computed from 'flarum/utils/computed';
+import { getPlainContent } from 'flarum/utils/string';
 
-class Post extends Model {}
+export default class Post extends mixin(Model, {
+  number: Model.attribute('number'),
+  discussion: Model.hasOne('discussion'),
 
-Post.prototype.number = Model.attribute('number');
-Post.prototype.discussion = Model.hasOne('discussion');
+  time: Model.attribute('time', Model.transformDate),
+  user: Model.hasOne('user'),
+  contentType: Model.attribute('contentType'),
+  content: Model.attribute('content'),
+  contentHtml: Model.attribute('contentHtml'),
+  contentPlain: computed('contentHtml', getPlainContent),
 
-Post.prototype.time = Model.attribute('time', Model.transformDate);
-Post.prototype.user = Model.hasOne('user');
-Post.prototype.contentType = Model.attribute('contentType');
-Post.prototype.content = Model.attribute('content');
-Post.prototype.contentHtml = Model.attribute('contentHtml');
-Post.prototype.contentPlain = computed('contentHtml', contentHtml => $('<div/>').html(contentHtml.replace(/(<\/p>|<br>)/g, '$1 ')).text());
+  editTime: Model.attribute('editTime', Model.transformDate),
+  editUser: Model.hasOne('editUser'),
+  isEdited: computed('editTime', editTime => !!editTime),
 
-Post.prototype.editTime = Model.attribute('editTime', Model.transformDate);
-Post.prototype.editUser = Model.hasOne('editUser');
-Post.prototype.isEdited = computed('editTime', editTime => !!editTime);
+  hideTime: Model.attribute('hideTime', Model.transformDate),
+  hideUser: Model.hasOne('hideUser'),
+  isHidden: computed('hideTime', hideTime => !!hideTime),
 
-Post.prototype.hideTime = Model.attribute('hideTime', Model.transformDate);
-Post.prototype.hideUser = Model.hasOne('hideUser');
-Post.prototype.isHidden = computed('hideTime', hideTime => !!hideTime);
-
-Post.prototype.canEdit = Model.attribute('canEdit');
-Post.prototype.canDelete = Model.attribute('canDelete');
-
-export default Post;
+  canEdit: Model.attribute('canEdit'),
+  canDelete: Model.attribute('canDelete')
+}) {}

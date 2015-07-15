@@ -1,27 +1,39 @@
-import IndexPage from 'flarum/components/index-page';
-import DiscussionPage from 'flarum/components/discussion-page';
-import ActivityPage from 'flarum/components/activity-page';
-import SettingsPage from 'flarum/components/settings-page';
-import NotificationsPage from 'flarum/components/notifications-page';
+import IndexPage from 'flarum/components/IndexPage';
+import DiscussionPage from 'flarum/components/DiscussionPage';
+import ActivityPage from 'flarum/components/ActivityPage';
+import SettingsPage from 'flarum/components/SettingsPage';
+import NotificationsPage from 'flarum/components/NotificationsPage';
 
+/**
+ * The `routes` initializer defines the forum app's routes.
+ *
+ * @param {App} app
+ */
 export default function(app) {
   app.routes = {
-    'index':            ['/', IndexPage.component()],
-    'index.filter':     ['/:filter', IndexPage.component()],
+    'index': { path: '/', component: IndexPage.component() },
+    'index.filter': { path: '/:filter', component: IndexPage.component() },
 
-    'discussion':       ['/d/:id/:slug', DiscussionPage.component()],
-    'discussion.near':  ['/d/:id/:slug/:near', DiscussionPage.component()],
+    'discussion': { path: '/d/:id/:slug', component: DiscussionPage.component() },
+    'discussion.near': { path: '/d/:id/:slug/:near', component: DiscussionPage.component() },
 
-    'user':             ['/u/:username', ActivityPage.component()],
-    'user.activity':    ['/u/:username', ActivityPage.component()],
-    'user.discussions': ['/u/:username/discussions', ActivityPage.component({filter: 'startedDiscussion'})],
-    'user.posts':       ['/u/:username/posts', ActivityPage.component({filter: 'posted'})],
+    'user': { path: '/u/:username', component: ActivityPage.component() },
+    'user.activity': { path: '/u/:username', component: ActivityPage.component() },
+    'user.discussions': { path: '/u/:username/discussions', component: ActivityPage.component({filter: 'startedDiscussion'}) },
+    'user.posts': { path: '/u/:username/posts', component: ActivityPage.component({filter: 'posted'}) },
 
-    'settings':         ['/settings', SettingsPage.component()],
-    'notifications':    ['/notifications', NotificationsPage.component()]
+    'settings': { path: '/settings', component: SettingsPage.component() },
+    'notifications': { path: '/notifications', component: NotificationsPage.component() }
   };
 
-  app.route.discussion = function(discussion, near) {
+  /**
+   * Generate a URL to a discussion.
+   *
+   * @param {Discussion} discussion
+   * @param {Integer} [near]
+   * @return {String}
+   */
+  app.route.discussion = (discussion, near) => {
     return app.route(near ? 'discussion.near' : 'discussion', {
       id: discussion.id(),
       slug: discussion.slug(),
@@ -29,7 +41,13 @@ export default function(app) {
     });
   };
 
-  app.route.post = function(post) {
+  /**
+   * Generate a URL to a post.
+   *
+   * @param {Post} post
+   * @return {String}
+   */
+  app.route.post = post => {
     return app.route('discussion.near', {
       id: post.discussion().id(),
       slug: post.discussion().slug(),
@@ -37,7 +55,13 @@ export default function(app) {
     });
   };
 
-  app.route.user = function(user) {
+  /**
+   * Generate a URL to a user.
+   *
+   * @param {User} user
+   * @return {String}
+   */
+  app.route.user = user => {
     return app.route('user', {
       username: user.username()
     });
