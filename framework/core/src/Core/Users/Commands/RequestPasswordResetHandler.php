@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core\Users\Commands;
 
+use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Users\PasswordToken;
 use Flarum\Core\Users\UserRepository;
 use Illuminate\Contracts\Mail\Mailer;
@@ -16,18 +17,30 @@ class RequestPasswordResetHandler
     protected $users;
 
     /**
+     * @var SettingsRepository
+     */
+    protected $settings;
+
+    /**
      * @var Mailer
      */
     protected $mailer;
 
     /**
+     * @var UrlGeneratorInterface
+     */
+    protected $url;
+
+    /**
      * @param UserRepository $users
+     * @param SettingsRepository $settings
      * @param Mailer $mailer
      * @param UrlGeneratorInterface $url
      */
-    public function __construct(UserRepository $users, Mailer $mailer, UrlGeneratorInterface $url)
+    public function __construct(UserRepository $users, SettingsRepository $settings, Mailer $mailer, UrlGeneratorInterface $url)
     {
         $this->users = $users;
+        $this->settings = $settings;
         $this->mailer = $mailer;
         $this->url = $url;
     }
@@ -53,8 +66,8 @@ class RequestPasswordResetHandler
         // password route be part of core??
         $data = [
             'username' => $user->username,
-            'url' => Core::config('base_url').'/reset/'.$token->id,
-            'forumTitle' => Core::config('forum_title')
+            'url' => $this->settings->get('base_url').'/reset/'.$token->id,
+            'forumTitle' => $this->settings->get('forum_title'),
         ];
 
         $this->mailer->send(['text' => 'flarum::emails.resetPassword'], $data, function (Message $message) use ($user) {
