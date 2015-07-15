@@ -23,7 +23,7 @@ class ImportCommand extends Command
      *
      * @var string
      */
-    protected $name = 'flarum:import';
+    protected $name = 'import';
 
     /**
      * The console command description.
