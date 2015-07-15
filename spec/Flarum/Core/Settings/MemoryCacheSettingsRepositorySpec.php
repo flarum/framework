@@ -6,7 +6,7 @@ use Flarum\Core\Settings\SettingsRepository;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-class CachedSettingsRepositorySpec extends ObjectBehavior
+class MemoryCacheSettingsRepositorySpec extends ObjectBehavior
 {
     function let(SettingsRepository $inner)
     {
@@ -15,7 +15,7 @@ class CachedSettingsRepositorySpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Flarum\Core\Settings\CachedSettingsRepository');
+        $this->shouldHaveType('Flarum\Core\Settings\MemoryCacheSettingsRepository');
     }
 
     function it_retrieves_data_from_inner(SettingsRepository $inner)
