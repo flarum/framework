@@ -1,14 +1,14 @@
-import Component from 'flarum/component';
+import Component from 'flarum/Component';
 
 /**
-
+ * The `Separator` component defines a menu separator item.
  */
 class Separator extends Component {
   view() {
-    return m('span');
+    return <li className="divider"/>;
   }
 }
 
-Separator.wrapperClass = 'divider';
+Separator.isListItem = true;
 
 export default Separator;

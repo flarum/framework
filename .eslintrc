@@ -87,7 +87,6 @@
       "allowKeywords": true
     }],
     "eqeqeq": 2,                     // http://eslint.org/docs/rules/eqeqeq
-    "guard-for-in": 2,               // http://eslint.org/docs/rules/guard-for-in
     "no-caller": 2,                  // http://eslint.org/docs/rules/no-caller
     "no-else-return": 2,             // http://eslint.org/docs/rules/no-else-return
     "no-eq-null": 2,                 // http://eslint.org/docs/rules/no-eq-null
@@ -110,7 +109,6 @@
     "no-proto": 2,                   // http://eslint.org/docs/rules/no-proto
     "no-redeclare": 2,               // http://eslint.org/docs/rules/no-redeclare
     "no-return-assign": 2,           // http://eslint.org/docs/rules/no-return-assign
-    "no-script-url": 2,              // http://eslint.org/docs/rules/no-script-url
     "no-self-compare": 2,            // http://eslint.org/docs/rules/no-self-compare
     "no-sequences": 2,               // http://eslint.org/docs/rules/no-sequences
     "no-throw-literal": 2,           // http://eslint.org/docs/rules/no-throw-literal
@@ -151,7 +149,6 @@
     "no-multiple-empty-lines": [2, { // http://eslint.org/docs/rules/no-multiple-empty-lines
       "max": 2
     }],
-    "no-nested-ternary": 2,          // http://eslint.org/docs/rules/no-nested-ternary
     "no-new-object": 2,              // http://eslint.org/docs/rules/no-new-object
     "no-spaced-func": 2,             // http://eslint.org/docs/rules/no-spaced-func
     "no-trailing-spaces": 2,         // http://eslint.org/docs/rules/no-trailing-spaces

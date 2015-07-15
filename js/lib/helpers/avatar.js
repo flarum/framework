@@ -1,26 +1,36 @@
-export default function avatar(user, args) {
-  args = args || {}
-  args.className = 'avatar '+(args.className || '')
-  var content = ''
+/**
+ * The `avatar` helper displays a user's avatar.
+ *
+ * @param {User} user
+ * @param {Object} attrs Attributes to apply to the avatar element
+ * @return {Object}
+ */
+export default function avatar(user, attrs = {}) {
+  attrs.className = 'avatar ' + (attrs.className || '');
+  let content = '';
 
-  var title = typeof args.title === 'undefined' || args.title
-  if (!title) { delete args.title }
+  // If the `title` attribute is set to null or false, we don't want to give the
+  // avatar a title. On the other hand, if it hasn't been given at all, we can
+  // safely default it to the user's username.
+  const hasTitle = attrs.title === 'undefined' || attrs.title;
+  if (!hasTitle) delete attrs.title;
 
+  // If a user has been passed, then we will set up an avatar using their
+  // uploaded image, or the first letter of their username if they haven't
+  // uploaded one.
   if (user) {
-    var username = user.username() || '?'
+    const username = user.username() || '?';
+    const avatarUrl = user.avatarUrl();
 
-    if (title) { args.title = args.title || username }
+    if (hasTitle) attrs.title = attrs.title || username;
 
-    var avatarUrl = user.avatarUrl()
     if (avatarUrl) {
-      args.src = avatarUrl
-      return m('img', args)
+      return <img {...attrs} src={avatarUrl}/>;
     }
 
-    content = username.charAt(0).toUpperCase()
-    args.style = {background: user.color()}
+    content = username.charAt(0).toUpperCase();
+    attrs.style = {background: user.color()};
   }
 
-  if (!args.title) { delete args.title }
-  return m('span', args, content)
+  return <span {...attrs}>{content}</span>;
 }

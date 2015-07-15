@@ -1,22 +1,22 @@
-import CommentPost from 'flarum/components/comment-post';
-import DiscussionRenamedPost from 'flarum/components/discussion-renamed-post';
-import PostedActivity from 'flarum/components/posted-activity';
-import JoinedActivity from 'flarum/components/joined-activity';
-import DiscussionRenamedNotification from 'flarum/components/discussion-renamed-notification';
+import CommentPost from 'flarum/components/CommentPost';
+import DiscussionRenamedPost from 'flarum/components/DiscussionRenamedPost';
+import PostedActivity from 'flarum/components/PostedActivity';
+import JoinedActivity from 'flarum/components/JoinedActivity';
+import DiscussionRenamedNotification from 'flarum/components/DiscussionRenamedNotification';
 
-export default function(app) {
-  app.postComponentRegistry = {
-    'comment': CommentPost,
-    'discussionRenamed': DiscussionRenamedPost
-  };
+/**
+ * The `components` initializer registers components to display the default post
+ * types, activity types, and notifications type with the application.
+ *
+ * @param {ForumApp} app
+ */
+export default function components(app) {
+  app.postComponents.comment = CommentPost;
+  app.postComponents.discussionRenamed = DiscussionRenamedPost;
 
-  app.activityComponentRegistry = {
-    'posted': PostedActivity,
-    'startedDiscussion': PostedActivity,
-    'joined': JoinedActivity
-  };
+  app.activityComponents.posted = PostedActivity;
+  app.activityComponents.startedDiscussion = PostedActivity;
+  app.activityComponents.joined = JoinedActivity;
 
-  app.notificationComponentRegistry = {
-    'discussionRenamed': DiscussionRenamedNotification
-  };
+  app.notificationComponents.discussionRenamed = DiscussionRenamedNotification;
 }
