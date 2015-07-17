@@ -6,8 +6,6 @@ use Flarum\Core\Support\DispatchesEvents;
 
 class ReadNotificationHandler
 {
-    use DispatchesEvents;
-
     /**
      * @param ReadNotification $command
      * @return Notification
@@ -25,8 +23,6 @@ class ReadNotificationHandler
 
         $notification->read();
         $notification->save();
-
-        $this->dispatchEventsFor($notification);
 
         return $notification;
     }
