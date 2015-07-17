@@ -1,16 +1,21 @@
 <?php
 
-namespace Flarum\Core;
+namespace Flarum\Core\Settings;
 
 use Illuminate\Database\ConnectionInterface;
 
-class DatabaseSettingsRepository implements SettingsRepositoryInterface
+class DatabaseSettingsRepository implements SettingsRepository
 {
     protected $database;
 
     public function __construct(ConnectionInterface $connection)
     {
         $this->database = $connection;
+    }
+
+    public function all()
+    {
+        return $this->database->table('config')->lists('value', 'key');
     }
 
     public function get($key, $default = null)

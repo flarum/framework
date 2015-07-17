@@ -3,7 +3,6 @@
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Flarum\Core\Exceptions\ValidationFailureException;
 use LogicException;
 
 /**

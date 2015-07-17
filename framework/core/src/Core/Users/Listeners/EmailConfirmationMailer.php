@@ -1,5 +1,6 @@
 <?php namespace Flarum\Core\Users\Listeners;
 
+use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Users\Events\UserWasRegistered;
 use Flarum\Core\Users\Events\UserEmailChangeWasRequested;
 use Flarum\Core;
@@ -12,15 +13,22 @@ use Illuminate\Mail\Message;
 class EmailConfirmationMailer
 {
     /**
+     * @var SettingsRepository
+     */
+    protected $settings;
+
+    /**
      * @var Mailer
      */
     protected $mailer;
 
     /**
+     * @param SettingsRepository $settings
      * @param Mailer $mailer
      */
-    public function __construct(Mailer $mailer)
+    public function __construct(SettingsRepository $settings, Mailer $mailer)
     {
+        $this->settings = $settings;
         $this->mailer = $mailer;
     }
 
@@ -90,8 +98,8 @@ class EmailConfirmationMailer
         // email route be part of core??
         return [
             'username' => $user->username,
-            'url' => Core::config('base_url').'/confirm/'.$token->id,
-            'forumTitle' => Core::config('forum_title')
+            'url' => $this->settings->get('base_url').'/confirm/'.$token->id,
+            'forumTitle' => $this->settings->get('forum_title')
         ];
     }
 }
