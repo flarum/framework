@@ -41,7 +41,7 @@ class LoginAction extends Action
     {
         $params = array_only($request->getAttributes(), ['identification', 'password']);
 
-        $data = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\TokenAction', $params);
+        $data = $this->apiClient->send(app('flarum.actor'), 'Flarum\Api\Actions\TokenAction', $params)->getBody();
 
         // TODO: The client needs to pass through exceptions(?) or the whole
         // response so we can look at the response code. For now if there isn't
