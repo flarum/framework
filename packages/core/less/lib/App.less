@@ -31,13 +31,13 @@
 // and center of the header respectively.
 @media @phone {
   .App-primaryControl, .App-titleControl, .App-backControl {
-    position: absolute;
+    position: absolute !important;
     z-index: @zindex-header + 1;
-    top: 0;
+    top: 0 !important;
     margin: 0;
 
     .App.affix &, .Composer & {
-      position: fixed;
+      position: fixed !important;
     }
 
     > .Button {
