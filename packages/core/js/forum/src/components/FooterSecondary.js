@@ -26,7 +26,7 @@ export default class FooterSecondary extends Component {
 
     items.add('poweredBy', (
       <a href="http://flarum.org?r=forum" target="_blank">
-        Powered by Flarum
+        {app.trans('core.powered_by_flarum')}
       </a>
     ));
 

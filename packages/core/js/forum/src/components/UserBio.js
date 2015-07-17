@@ -1,4 +1,5 @@
 import Component from 'flarum/Component';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import classList from 'flarum/utils/classList';
 
 /**
@@ -29,19 +30,19 @@ export default class UserBio extends Component {
     let content;
 
     if (this.editing) {
-      content = <textarea className="FormControl" placeholder="Write something about yourself" rows="3"/>;
+      content = <textarea className="FormControl" placeholder={app.trans('core.bio_placeholder')} rows="3" value={user.bio()}/>;
     } else {
       let subContent;
 
       if (this.loading) {
-        subContent = <p className="UserBio-placeholder">Saving</p>;
+        subContent = <p className="UserBio-placeholder">{LoadingIndicator.component()}</p>;
       } else {
         const bioHtml = user.bioHtml();
 
         if (bioHtml) {
           subContent = m.trust(bioHtml);
         } else if (this.props.editable) {
-          subContent = <p className="UserBio-placeholder">Write something about yourself</p>;
+          subContent = <p className="UserBio-placeholder">{app.trans('core.bio_placeholder')}</p>;
         }
       }
 

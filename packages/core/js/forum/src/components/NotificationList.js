@@ -59,12 +59,12 @@ export default class NotificationList extends Component {
             {Button.component({
               className: 'Button Button--icon Button--link',
               icon: 'check',
-              title: 'Mark All as Read',
+              title: app.trans('core.mark_all_as_read'),
               onclick: this.markAllAsRead.bind(this)
             })}
           </div>
 
-          <h4 className="App-titleControl App-titleControl--text">Notifications</h4>
+          <h4 className="App-titleControl App-titleControl--text">{app.trans('core.notifications')}</h4>
         </div>
 
         <div className="NotificationList-content">
@@ -98,7 +98,7 @@ export default class NotificationList extends Component {
               );
             })
             : !this.loading
-              ? <div className="NotificationList-empty">No Notifications</div>
+              ? <div className="NotificationList-empty">{app.trans('core.no_notifications')}</div>
               : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
         </div>
       </div>

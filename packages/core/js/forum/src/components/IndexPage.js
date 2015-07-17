@@ -139,7 +139,7 @@ export default class IndexPage extends Component {
 
     items.add('newDiscussion',
       Button.component({
-        children: 'Start a Discussion',
+        children: app.trans('core.start_a_discussion'),
         icon: 'edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
@@ -171,7 +171,7 @@ export default class IndexPage extends Component {
     items.add('allDiscussions',
       LinkButton.component({
         href: app.route('index', params),
-        children: 'All Discussions',
+        children: app.trans('core.all_discussions'),
         icon: 'comments-o'
       })
     );
@@ -191,7 +191,7 @@ export default class IndexPage extends Component {
 
     const sortOptions = {};
     for (const i in app.cache.discussionList.sortMap()) {
-      sortOptions[i] = i.substr(0, 1).toUpperCase() + i.substr(1);
+      sortOptions[i] = app.trans('core.sort_' + i);
     }
 
     items.add('sort',
@@ -216,7 +216,7 @@ export default class IndexPage extends Component {
 
     items.add('refresh',
       Button.component({
-        title: 'Refresh',
+        title: app.trans('core.refresh'),
         icon: 'refresh',
         className: 'Button Button--icon',
         onclick: () => app.cache.discussionList.refresh()
@@ -226,7 +226,7 @@ export default class IndexPage extends Component {
     if (app.session.user) {
       items.add('markAllAsRead',
         Button.component({
-          title: 'Mark All as Read',
+          title: app.trans('core.mark_all_as_read'),
           icon: 'check',
           className: 'Button Button--icon',
           onclick: this.markAllAsRead.bind(this)

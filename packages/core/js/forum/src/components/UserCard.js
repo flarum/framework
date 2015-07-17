@@ -89,13 +89,13 @@ export default class UserCard extends Component {
       items.add('lastSeen', (
         <span className={'UserCard-lastSeen' + (online ? ' online' : '')}>
           {online
-            ? [icon('circle'), ' Online']
+            ? [icon('circle'), ' ', app.trans('core.online')]
             : [icon('clock-o'), ' ', humanTime(lastSeenTime)]}
         </span>
       ));
     }
 
-    items.add('joined', ['Joined ', humanTime(user.joinTime())]);
+    items.add('joined', app.trans('core.joined', {ago: humanTime(user.joinTime())}));
 
     return items;
   }

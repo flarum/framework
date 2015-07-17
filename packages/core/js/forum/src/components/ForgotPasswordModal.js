@@ -33,7 +33,7 @@ export default class ForgotPasswordModal extends Modal {
   }
 
   title() {
-    return 'Forgot Password';
+    return app.trans('core.forgot_password');
   }
 
   content() {
@@ -43,9 +43,11 @@ export default class ForgotPasswordModal extends Modal {
       return (
         <div className="Modal-body">
           <div className="Form Form--centered">
-            <p className="helpText">We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.</p>
+            <p className="helpText">{app.trans('core.password_reset_email_sent')}</p>
             <div className="Form-group">
-              <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">Go to {emailProviderName}</a>
+              <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
+                {app.trans('core.go_to', {location: emailProviderName})}
+              </a>
             </div>
           </div>
         </div>
@@ -55,16 +57,16 @@ export default class ForgotPasswordModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">Enter your email address and we will send you a link to reset your password.</p>
+          <p className="helpText">{app.trans('core.forgot_password_help')}</p>
           <div className="Form-group">
-            <input className="FormControl" name="email" type="email" placeholder="Email"
+            <input className="FormControl" name="email" type="email" placeholder={app.trans('core.email')}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
           </div>
           <div className="Form-group">
             <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>
-              Recover Password
+              {app.trans('core.recover_password')}
             </button>
           </div>
         </div>

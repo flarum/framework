@@ -10,16 +10,18 @@ export default class ChangePasswordModal extends Modal {
   }
 
   title() {
-    return 'Change Password';
+    return app.trans('core.change_password');
   }
 
   content() {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">Click the button below and check your email for a link to change your password.</p>
+          <p className="helpText">{app.trans('core.change_password_help')}</p>
           <div className="Form-group">
-            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>Send Password Reset Email</button>
+            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>
+              {app.trans('core.send_password_reset_email')}
+            </button>
           </div>
         </div>
       </div>

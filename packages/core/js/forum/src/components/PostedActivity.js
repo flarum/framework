@@ -15,7 +15,7 @@ export default class PostedActivity extends Activity {
   description() {
     const post = this.props.activity.subject();
 
-    return post.number() === 1 ? 'Started a discussion' : 'Posted a reply';
+    return app.trans(post.number() === 1 ? 'core.started_a_discussion' : 'core.posted_a_reply');
   }
 
   content() {

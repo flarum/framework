@@ -26,10 +26,10 @@ export default class DiscussionComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.placeholder = props.placeholder || 'Write a Post...';
-    props.submitLabel = props.submitLabel || 'Post Discussion';
-    props.confirmExit = props.confirmExit || 'You have not posted your discussion. Do you wish to discard it?';
-    props.titlePlaceholder = props.titlePlaceholder || 'Discussion Title';
+    props.placeholder = props.placeholder || app.trans('core.write_a_post');
+    props.submitLabel = props.submitLabel || app.trans('core.post_discussion');
+    props.confirmExit = props.confirmExit || app.trans('core.confirm_discard_discussion');
+    props.titlePlaceholder = props.titlePlaceholder || app.trans('core.discussion_title');
   }
 
   headerItems() {

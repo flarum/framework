@@ -6,6 +6,6 @@ import Activity from 'flarum/components/Activity';
  */
 export default class JoinedActivity extends Activity {
   description() {
-    return 'Joined the forum';
+    return app.trans('core.joined_the_forum');
   }
 }
