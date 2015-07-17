@@ -5,6 +5,7 @@ use Flarum\Assets\AssetManager;
 use Flarum\Assets\JsCompiler;
 use Flarum\Assets\LessCompiler;
 use Flarum\Core;
+use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Users\User;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
@@ -62,13 +63,19 @@ abstract class ClientAction extends HtmlAction
     protected $locales;
 
     /**
+     * @var SettingsRepository
+     */
+    protected $settings;
+
+    /**
      * @param Client $apiClient
      * @param LocaleManager $locales
      */
-    public function __construct(Client $apiClient, LocaleManager $locales)
+    public function __construct(Client $apiClient, LocaleManager $locales, SettingsRepository $settings)
     {
         $this->apiClient = $apiClient;
         $this->locales = $locales;
+        $this->settings = $settings;
     }
 
     /**
@@ -156,7 +163,7 @@ abstract class ClientAction extends HtmlAction
             $assets->addLess("@$name: $value;");
         }
 
-        $assets->addLess(Core::config('custom_less'));
+        $assets->addLess($this->settings->get('custom_less'));
     }
 
     /**
@@ -168,10 +175,10 @@ abstract class ClientAction extends HtmlAction
     protected function getLessVariables()
     {
         return [
-            'fl-primary-color'   => Core::config('theme_primary_color', '#000'),
-            'fl-secondary-color' => Core::config('theme_secondary_color', '#000'),
-            'fl-dark-mode'       => Core::config('theme_dark_mode') ? 'true' : 'false',
-            'fl-colored-header'  => Core::config('theme_colored_header') ? 'true' : 'false'
+            'fl-primary-color'   => $this->settings->get('theme_primary_color', '#000'),
+            'fl-secondary-color' => $this->settings->get('theme_secondary_color', '#000'),
+            'fl-dark-mode'       => $this->settings->get('theme_dark_mode') ? 'true' : 'false',
+            'fl-colored-header'  => $this->settings->get('theme_colored_header') ? 'true' : 'false'
         ];
     }
 

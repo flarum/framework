@@ -4,15 +4,12 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Flarum\Core\Exceptions\ValidationFailureException;
-use Flarum\Core\Models\User;
-use Flarum\Core\Models\Discussion;
-use Flarum\Core\Models\DiscussionState;
-use Flarum\Core\Models\CommentPost;
+use Flarum\Core\Users\User;
+use Flarum\Core\Discussions\Discussion;
+use Flarum\Core\Discussions\DiscussionState;
+use Flarum\Core\Posts\CommentPost;
 use Flarum\Tags\Tag;
-use Flarum\Core\Events\PostWasPosted;
-use Flarum\Core\Events\UserWasRegistered;
-use Flarum\Core\Activity\JoinedActivity;
+use Flarum\Core\Posts\Events\PostWasPosted;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportCommand extends Command
@@ -23,7 +20,7 @@ class ImportCommand extends Command
      *
      * @var string
      */
-    protected $name = 'flarum:import';
+    protected $name = 'import';
 
     /**
      * The console command description.

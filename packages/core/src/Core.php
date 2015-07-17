@@ -18,10 +18,6 @@ class Core
             return $default;
         }
 
-        if (is_null($value = app('flarum.db')->table('config')->where('key', $key)->pluck('value'))) {
-            $value = $default;
-        }
-
-        return $value;
+        return app('Flarum\Core\Settings\SettingsRepository')->get($key, $default);
     }
 }

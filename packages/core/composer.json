@@ -26,7 +26,8 @@
         "codeception/codeception": "~2.0.0",
         "codeception/mockery-module": "*",
         "laracasts/testdummy": "~2.0",
-        "squizlabs/php_codesniffer": "2.*"
+        "squizlabs/php_codesniffer": "2.*",
+        "phpspec/phpspec": "^2.2"
     },
     "autoload": {
         "psr-4": {
