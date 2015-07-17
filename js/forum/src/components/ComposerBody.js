@@ -58,13 +58,13 @@ export default class ComposerBody extends Component {
     this.editor.props.disabled = this.loading;
 
     return (
-      <div>
-        {avatar(this.props.user, {className: 'composer-avatar'})}
-        <div className="composer-body">
-          <ul className="composer-header">{listItems(this.headerItems().toArray())}</ul>
-          <div className="composer-editor">{this.editor.render()}</div>
+      <div className="ComposerBody">
+        {avatar(this.props.user, {className: 'ComposerBody-avatar'})}
+        <div className="ComposerBody-content">
+          <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
+          <div className="ComposerBody-editor">{this.editor.render()}</div>
         </div>
-        {LoadingIndicator.component({className: 'composer-loading' + (this.loading ? ' active' : '')})}
+        {LoadingIndicator.component({className: 'ComposerBody-loading' + (this.loading ? ' active' : '')})}
       </div>
     );
   }

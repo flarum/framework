@@ -20,8 +20,8 @@ export default class TerminalPost extends Component {
 
     return (
       <span>
-        {username(user)}
-        {lastPost ? 'replied' : 'started'}
+        {username(user)}{' '}
+        {lastPost ? 'replied ' : 'started '}
         {humanTime(time)}
       </span>
     );

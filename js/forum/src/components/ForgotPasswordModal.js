@@ -29,40 +29,44 @@ export default class ForgotPasswordModal extends Modal {
   }
 
   className() {
-    return 'modal-sm forgot-password';
+    return 'ForgotPasswordModal Modal--small';
   }
 
   title() {
     return 'Forgot Password';
   }
 
-  body() {
+  content() {
     if (this.success) {
       const emailProviderName = this.email().split('@')[1];
 
       return (
-        <div className="form-centered">
-          <p className="help-text">We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.</p>
-          <div className="form-group">
-            <a href={'http://' + emailProviderName} className="btn btn-primary btn-block">Go to {emailProviderName}</a>
+        <div className="Modal-body">
+          <div className="Form Form--centered">
+            <p className="helpText">We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.</p>
+            <div className="Form-group">
+              <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">Go to {emailProviderName}</a>
+            </div>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="form-centered">
-        <p className="help-text">Enter your email address and we will send you a link to reset your password.</p>
-        <div className="form-group">
-          <input className="form-control" name="email" type="email" placeholder="Email"
-            value={this.email()}
-            onchange={m.withAttr('value', this.email)}
-            disabled={this.loading} />
-        </div>
-        <div className="form-group">
-          <button type="submit" className="btn btn-primary btn-block" disabled={this.loading}>
-            Recover Password
-          </button>
+      <div className="Modal-body">
+        <div className="Form Form--centered">
+          <p className="helpText">Enter your email address and we will send you a link to reset your password.</p>
+          <div className="Form-group">
+            <input className="FormControl" name="email" type="email" placeholder="Email"
+              value={this.email()}
+              onchange={m.withAttr('value', this.email)}
+              disabled={this.loading} />
+          </div>
+          <div className="Form-group">
+            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>
+              Recover Password
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -92,7 +96,7 @@ export default class ForgotPasswordModal extends Modal {
       },
       response => {
         this.loading = false;
-        this.handleErrors(response.errors);
+        this.handleErrors(response);
       }
     );
   }

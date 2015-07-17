@@ -17,11 +17,11 @@ export default class Activity extends Component {
     const activity = this.props.activity;
 
     return (
-      <div className="activity">
-        {avatar(this.user(), {className: 'activity-icon'})}
+      <div className="Activity">
+        {avatar(this.user(), {className: 'Activity-avatar'})}
 
-        <div className="activity-info">
-          <strong>{this.description()}</strong>
+        <div className="Activity-header">
+          <strong className="Activity-description">{this.description()}</strong>
           {humanTime(activity.time())}
         </div>
 

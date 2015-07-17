@@ -197,8 +197,8 @@ export default class App {
     return m.request(options).then(null, response => {
       if (response instanceof Error) {
         this.alerts.show(this.requestError = new Alert({
-          type: 'warning',
-          message: response.message
+          type: 'error',
+          children: response.message
         }));
       }
 

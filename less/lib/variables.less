@@ -1,127 +1,129 @@
-@fl-primary-color:                  #536F90;
-@fl-secondary-color:                #536F90;
-@fl-dark-mode:                      false;
-@fl-colored-hdr:                    false;
+// ---------------------------------
+// CONFIG
+
+@config-primary-color:             #536F90;
+@config-secondary-color:           #536F90;
+@config-dark-mode:                 false;
+@config-colored-header:            false;
 
 // ---------------------------------
-// HELPERS
+// COLORS
 
-@fl-primary-hue: hue(@fl-primary-color);
-@fl-primary-sat: saturation(@fl-primary-color);
+@primary-hue:                      hue(@primary-color);
+@primary-sat:                      saturation(@primary-color);
 
-@fl-secondary-hue: hue(@fl-secondary-color);
-@fl-secondary-sat: saturation(@fl-secondary-color);
+@secondary-hue:                    hue(@secondary-color);
+@secondary-sat:                    saturation(@secondary-color);
 
-// ---------------------------------
-// BODY
+// Derive the primary/secondary colors from the config variables. In dark mode,
+// we make the user-set colors a bit darker, otherwise they will stand out too
+// much.
+.define-colors(@config-dark-mode);
+.define-colors(false) {
+  @primary-color:                  @config-primary-color;
+  @secondary-color:                @config-secondary-color;
 
-.define-body-variables(@fl-dark-mode);
-.define-body-variables(false) {
-  @fl-body-primary-color:             @fl-primary-color;
-  @fl-body-secondary-color:           hsl(@fl-secondary-hue, min(50%, @fl-secondary-sat), 93%);
+  @body-bg:                        #fff;
+  @text-color:                     #333;
+  @link-color:                     saturate(@primary-color, 10%);
+  @heading-color:                  @text-color;
+  @muted-color:                    hsl(@secondary-hue, min(25%, @secondary-sat), 63%);
+  @muted-more-color:               #bbb;
+  @shadow-color:                   rgba(0, 0, 0, 0.35);
 
-  @fl-body-bg:                        #fff;
-  @fl-body-color:                     #333;
-  @fl-body-muted-color:               hsl(@fl-secondary-hue, min(25%, @fl-secondary-sat), 63%);
-  @fl-body-muted-more-color:          #bbb;
-  @fl-shadow-color:                   rgba(0, 0, 0, 0.35);
+  @control-bg:                     hsl(@secondary-hue, min(50%, @secondary-sat), 93%);
+  @control-color:                  @muted-color;
+  @control-danger-bg:              #fdd;
+  @control-danger-color:           #d66;
+
+  @overlay-bg:                     fade(@secondary-color, 90%);
 }
-.define-body-variables(true) {
-  @fl-body-primary-color:             mix(@fl-primary-color, #000, 80%);
-  @fl-body-secondary-color:           hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 13%);
+.define-colors(true) {
+  @primary-color:                  @config-primary-color;
+  @secondary-color:                @config-secondary-color;
 
-  @fl-body-bg:                        hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 10%);
-  @fl-body-color:                     #ccc;
-  @fl-body-muted-color:               hsl(@fl-secondary-hue, min(20%, @fl-secondary-sat), 35%);
-  @fl-body-muted-more-color:          hsl(@fl-secondary-hue, min(10%, @fl-secondary-sat), 25%);
-  @fl-shadow-color:                   rgba(0, 0, 0, 0.5);
+  @body-bg:                        hsl(@secondary-hue, min(20%, @secondary-sat), 10%);
+  @text-color:                     #ccc;
+  @link-color:                     saturate(@primary-color, 10%);
+  @heading-color:                  @text-color;
+  @muted-color:                    hsl(@secondary-hue, min(20%, @secondary-sat), 35%);
+  @muted-more-color:               hsl(@secondary-hue, min(10%, @secondary-sat), 25%);
+  @shadow-color:                   rgba(0, 0, 0, 0.5);
+
+  @control-bg:                     hsl(@secondary-hue, min(20%, @secondary-sat), 13%);
+  @control-color:                  @muted-color;
+  @control-danger-bg:              #411;
+  @control-danger-color:           #a88;
+
+  @overlay-bg:                     fade(darken(@body-bg, 5%), 90%);
 }
-@fl-body-heading-color:             @fl-body-color;
-@fl-body-control-bg:                @fl-body-secondary-color;
-@fl-body-control-color:             @fl-body-muted-color;
 
-// ---------------------------------
-// DRAWER
+@hero-bg:                          @control-bg;
+@hero-color:                       @control-color;
+@hero-muted-color:                 @control-color;
 
-@fl-drawer-bg:                   @fl-body-primary-color;
-@fl-drawer-color:                #fff;
-@fl-drawer-muted-color:          fade(#fff, 50%);
-@fl-drawer-control-bg:           fade(#000, 10%);
-@fl-drawer-control-color:        #fff;
+@alert-bg:                         yellow;
+@alert-color:                      black;
 
-// ---------------------------------
-// HEADER
+@alert-error-bg:                   red;
+@alert-error-color:                #fff;
 
-.define-hdr-variables(@fl-colored-hdr);
-.define-hdr-variables(false) {
-  @fl-hdr-bg:                   @fl-body-bg;
-  @fl-hdr-color:                contrast(@fl-hdr-bg, #fff, @fl-body-primary-color);
-  @fl-hdr-muted-color:          @fl-body-muted-color;
-  @fl-hdr-control-bg:           @fl-body-control-bg;
-  @fl-hdr-control-color:        @fl-body-control-color;
-
-  @fl-body-hero-bg:             @fl-body-control-bg;
-  @fl-body-hero-color:          @fl-body-control-color;
-  @fl-body-hero-muted-color:    @fl-body-control-color;
+.define-header(@config-colored-header);
+.define-header(false) {
+  @header-bg: @body-bg;
+  @header-color: @primary-color;
+  @header-control-bg: @control-bg;
+  @header-control-color: @control-color;
 }
-.define-hdr-variables(true) {
-  @fl-hdr-bg:                   @fl-drawer-bg;
-  @fl-hdr-color:                @fl-drawer-color;
-  @fl-hdr-muted-color:          @fl-drawer-muted-color;
-  @fl-hdr-control-bg:           @fl-drawer-control-bg;
-  @fl-hdr-control-color:        @fl-drawer-control-color;
-
-  @fl-body-hero-bg:             @fl-body-control-bg;
-  @fl-body-hero-color:          @fl-body-primary-color;
-  @fl-body-hero-muted-color:    @fl-body-control-color;
+.define-header(true) {
+  @header-bg: @primary-color;
+  @header-color: @body-bg;
+  @header-control-bg: fade(#000, 10%);
+  @header-control-color: @body-bg;
 }
 
 // ---------------------------------
 // LAYOUT
 
-@drawer-width: 270px;
-@index-pane-width: 400px;
-@header-height: 56px;
-@mobile-header-height: 46px;
+@drawer-width:                     270px;
+@pane-width:                       400px;
+@header-height:                    56px;
+@header-height-phone:             46px;
+
+@border-radius:                    4px;
+
+@zindex-dropdown:                  1000;
+@zindex-header:                    1010;
+@zindex-composer:                  1020;
+@zindex-pane:                      1030;
+@zindex-modal-background:          1040;
+@zindex-modal:                     1050;
+@zindex-alerts:                    1060;
+@zindex-tooltip:                   1070;
 
 // ---------------------------------
-// BOOTSTRAP
+// BREAKPOINTS
 
-@container-large-desktop: (1040px + @grid-gutter-width);
+@screen-phone-max:                 (@screen-tablet - 1);
 
-@brand-primary:         @fl-body-primary-color;
+@screen-tablet:                    768px;
+@screen-tablet-max:                (@screen-desktop - 1);
 
-@body-bg:               @fl-body-bg;
-@text-color:            @fl-body-color;
-@legend-color:          @fl-body-color;
-@font-size-base:        13px;
-@headings-line-height:  1.428571429;
+@screen-desktop:                   992px;
+@screen-desktop-max:               (@screen-desktop-hd - 1);
 
-@font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@screen-desktop-hd:                1100px;
 
-@padding-base-vertical:     8px;
-@padding-base-horizontal:   13px;
+@phone:                            ~"(max-width: @{screen-phone-max})";
+@tablet:                           ~"(min-width: @{screen-tablet}) and (max-width: @{screen-tablet-max})";
+@desktop:                          ~"(min-width: @{screen-desktop}) and (max-width: @{screen-desktop-max})";
+@desktop-hd:                       ~"(min-width: @{screen-desktop-hd})";
 
-@btn-default-bg:  @fl-body-control-bg;
-@btn-default-color:  @fl-body-control-color;
-
-@input-bg: @fl-body-control-bg;
-@input-border: @fl-body-control-bg;
-@input-border-focus: @fl-body-control-bg;
-@input-color: @fl-body-control-color;
-@input-color-placeholder: @fl-body-control-color;
-
-@zindex-composer: @zindex-navbar-fixed + 4;
-@zindex-pane: @zindex-navbar-fixed + 5;
-@zindex-alerts: @zindex-modal + 10;
-
-@link-color: saturate(@fl-primary-color, 10%);
-@link-hover-color: @link-color;
+@tablet-up:                        ~"(min-width: @{screen-tablet})";
+@desktop-up:                       ~"(min-width: @{screen-desktop})";
 
 // ---------------------------------
-// MEDIA SHORTCODES
+// COMPONENTS
 
-@phone: ~"(max-width: @{screen-xs-max})";
-@tablet: ~"(min-width: @{screen-sm-min}) and (max-width: @{screen-sm-max})";
-@desktop: ~"(min-width: @{screen-md-min}) and (max-width: @{screen-md-max})";
-@desktop-hd: ~"(min-width: @{screen-lg-min})";
+@tooltip-bg:                       rgba(0, 0, 0, 0.9);
+@tooltip-color:                    #fff;

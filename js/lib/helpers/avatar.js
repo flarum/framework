@@ -6,7 +6,7 @@
  * @return {Object}
  */
 export default function avatar(user, attrs = {}) {
-  attrs.className = 'avatar ' + (attrs.className || '');
+  attrs.className = 'Avatar ' + (attrs.className || '');
   let content = '';
 
   // If the `title` attribute is set to null or false, we don't want to give the

@@ -93,6 +93,6 @@ export default class History {
   home() {
     this.stack.splice(1);
 
-    m.route(this.stack[0].url);
+    m.route('/');
   }
 }

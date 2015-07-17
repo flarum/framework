@@ -10,8 +10,8 @@ export default class SplitDropdown extends Dropdown {
   static initProps(props) {
     super.initProps(props);
 
-    props.className += ' split-dropdown';
-    props.menuClassName += ' dropdown-menu-right';
+    props.className += ' Dropdown--split';
+    props.menuClassName += ' Dropdown-menu--right';
   }
 
   getButton() {
@@ -20,16 +20,16 @@ export default class SplitDropdown extends Dropdown {
     // the first child.
     const firstChild = this.getFirstChild();
     const buttonProps = Object.assign({}, firstChild.props);
-    buttonProps.className = (buttonProps.className || '') + ' ' + this.props.buttonClassName;
+    buttonProps.className = (buttonProps.className || '') + ' SplitDropdown-button Button ' + this.props.buttonClassName;
 
     return [
       Button.component(buttonProps),
-      <a href="javascript:;"
-        className={'dropdown-toggle btn-icon ' + this.props.buttonClassName}
+      <button
+        className={'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName}
         data-toggle="dropdown">
-        {icon(this.props.icon)}
-        {icon('caret-down', {className: 'caret'})}
-      </a>
+        {icon(this.props.icon, {className: 'Button-icon'})}
+        {icon('caret-down', {className: 'Button-caret'})}
+      </button>
     ];
   }
 

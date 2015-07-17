@@ -9,7 +9,7 @@ import extract from 'flarum/utils/extract';
  * A badge may have the following special props:
  *
  * - `type` The type of badge this is. This will be used to give the badge a
- *   class name of `badge-{type}`.
+ *   class name of `Badge--{type}`.
  * - `icon` The name of an icon to show inside the badge.
  *
  * All other props will be assigned as attributes on the badge element.
@@ -20,7 +20,8 @@ export default class Badge extends Component {
     const type = extract(attrs, 'type');
     const iconName = extract(attrs, 'icon');
 
-    attrs.className = 'badge badge-' + type + ' ' + (attrs.className || '');
+    attrs.className = 'Badge Badge--' + type + ' ' + (attrs.className || '');
+    attrs.title = extract(attrs, 'label');
 
     // Give the badge a unique key so that when badges are displayed together,
     // and then one is added/removed, Mithril will correctly redraw the series
@@ -29,7 +30,7 @@ export default class Badge extends Component {
 
     return (
       <span {...attrs}>
-        {iconName ? icon(iconName, {className: 'icon'}) : ''}
+        {iconName ? icon(iconName, {className: 'Badge-icon'}) : ''}
       </span>
     );
   }

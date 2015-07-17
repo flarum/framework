@@ -9,7 +9,7 @@ import listItems from 'flarum/helpers/listItems';
 export default class HeaderPrimary extends Component {
   view() {
     return (
-      <ul className="header-controls">
+      <ul className="Header-controls">
         {listItems(this.items().toArray())}
       </ul>
     );

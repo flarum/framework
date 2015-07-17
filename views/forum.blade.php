@@ -9,8 +9,9 @@
  * Flarum's JavaScript client mounts various components into key elements in
  * this template. They are distinguished by their ID attributes:
  *
- * - #page
- * - #page-navigation
+ * - #app
+ * - #app-navigation
+ * - #drawer
  * - #header
  * - #header-navigation
  * - #home-link
@@ -23,38 +24,38 @@
  * - #composer
  */
 ?>
-<div id="page" class="global-page">
+<div id="app" class="App">
 
-  <div id="page-navigation"></div>
+  <div id="app-navigation" class="App-navigation"></div>
 
-  <div class="global-drawer">
+  <div id="drawer" class="App-drawer">
 
-    <header id="header" class="global-header">
-      <div id="header-navigation"></div>
+    <header id="header" class="App-header">
+      <div id="header-navigation" class="Header-navigation"></div>
       <div class="container">
-        <h1 class="header-title">
+        <h1 class="Header-title">
           <a href="{{ $forum->attributes->baseUrl }}" id="home-link">
             {{ $forum->attributes->title }}
           </a>
         </h1>
-        <div id="header-primary" class="header-primary"></div>
-        <div id="header-secondary" class="header-secondary"></div>
+        <div id="header-primary" class="Header-primary"></div>
+        <div id="header-secondary" class="Header-secondary"></div>
       </div>
     </header>
 
-    <footer id="footer" class="global-footer">
+    <footer id="footer" class="App-footer">
       <div class="container">
-        <div id="footer-primary" class="footer-primary"></div>
-        <div id="footer-secondary" class="footer-secondary"></div>
+        <div id="footer-primary" class="Footer-primary"></div>
+        <div id="footer-secondary" class="Footer-secondary"></div>
       </div>
     </footer>
 
   </div>
 
-  <main class="global-content">
+  <main class="App-content">
     <div id="content"></div>
 
-    <div class="composer-container">
+    <div class="App-composer">
       <div class="container">
         <div id="composer"></div>
       </div>

@@ -122,8 +122,8 @@ export default class Pane {
    */
   render() {
     this.$element
-      .toggleClass('pane-pinned', this.pinned)
-      .toggleClass('has-pane', this.active)
-      .toggleClass('pane-showing', this.showing);
+      .toggleClass('panePinned', this.pinned)
+      .toggleClass('hasPane', this.active)
+      .toggleClass('paneShowing', this.showing);
   }
 }

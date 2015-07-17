@@ -18,6 +18,14 @@ export default class LinkButton extends Button {
     props.config = props.config || m.route;
   }
 
+  view() {
+    const vdom = super.view();
+
+    vdom.tag = 'a';
+
+    return vdom;
+  }
+
   /**
    * Determine whether a component with the given props is 'active'.
    *

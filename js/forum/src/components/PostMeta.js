@@ -21,23 +21,23 @@ export default class PostMeta extends Component {
     // When the dropdown menu is shown, select the contents of the permalink
     // input so that the user can quickly copy the URL.
     const selectPermalink = function() {
-      setTimeout(() => $(this).parent().find('.permalink').select());
+      setTimeout(() => $(this).parent().find('.PostMeta-permalink').select());
 
       m.redraw.strategy('none');
     };
 
     return (
-      <div className="dropdown post-meta">
-        <a href="javascript:;" data-toggle="dropdown" className="dropdown-toggle" onclick={selectPermalink}>
+      <div className="Dropdown PostMeta">
+        <a className="Dropdown-toggle" onclick={selectPermalink} data-toggle="dropdown">
           {humanTime(time)}
         </a>
 
-        <div className="dropdown-menu">
-          <span className="number">Post #{post.number()}</span>
+        <div className="Dropdown-menu dropdown-menu">
+          <span className="PostMeta-number">Post #{post.number()}</span>{' '}
           {fullTime(time)}
           {touch
-            ? <a href="btn btn-default permalink" href={permalink}>{permalink}</a>
-            : <input className="form-control permalink" value="permalink" onclick={e => e.stopPropagation()} />}
+            ? <a href="Button PostMeta-permalink" href={permalink}>{permalink}</a>
+            : <input className="FormControl PostMeta-permalink" value={permalink} onclick={e => e.stopPropagation()} />}
         </div>
       </div>
     );

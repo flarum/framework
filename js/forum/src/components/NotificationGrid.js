@@ -58,12 +58,12 @@ export default class NotificationGrid extends Component {
 
   view() {
     return (
-      <table className="notification-grid">
+      <table className="NotificationGrid">
         <thead>
           <tr>
             <td/>
             {this.methods.map(method => (
-              <th className="toggle-group" onclick={this.toggleMethod.bind(this, method.name)}>
+              <th className="NotificationGrid-groupToggle" onclick={this.toggleMethod.bind(this, method.name)}>
                 {icon(method.icon)} {method.label}
               </th>
             ))}
@@ -73,11 +73,11 @@ export default class NotificationGrid extends Component {
         <tbody>
           {this.types.map(type => (
             <tr>
-              <td className="toggle-group" onclick={this.toggleType.bind(this, type.name)}>
+              <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
                 {type.label}
               </td>
               {this.methods.map(method => (
-                <td className="checkbox-cell">
+                <td className="NotificationGrid-checkbox">
                   {this.inputs[this.preferenceKey(type.name, method.name)].render()}
                 </td>
               ))}
@@ -91,13 +91,12 @@ export default class NotificationGrid extends Component {
   config(isInitialized) {
     if (isInitialized) return;
 
-    var self = this;
-    this.$('thead .toggle-group').bind('mouseenter mouseleave', function(e) {
-      var i = parseInt($(this).index()) + 1;
-      self.$('table').find('td:nth-child('+i+')').toggleClass('highlighted', e.type === 'mouseenter');
+    this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function(e) {
+      const i = parseInt($(this).index(), 10) + 1;
+      $(this).parents('table').find('td:nth-child(' + i + ')').toggleClass('highlighted', e.type === 'mouseenter');
     });
 
-    this.$('tbody .toggle-group').bind('mouseenter mouseleave', function(e) {
+    this.$('tbody .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function(e) {
       $(this).parent().find('td').toggleClass('highlighted', e.type === 'mouseenter');
     });
   }

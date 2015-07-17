@@ -16,7 +16,7 @@ import icon from 'flarum/helpers/icon';
 export default class EventPost extends Post {
   attrs() {
     return {
-      className: 'event-post ' + this.props.post.contentType() + '-post'
+      className: 'EventPost EventPost--' + this.props.post.contentType()
     };
   }
 
@@ -25,9 +25,9 @@ export default class EventPost extends Post {
     const username = usernameHelper(user);
 
     return [
-      icon(this.icon(), {className: 'event-post-icon'}),
-      <div class="event-post-info">
-        {user ? <a className="post-user" href={app.route.user(user)} config={m.route}>{username}</a> : username}
+      icon(this.icon(), {className: 'EventPost-icon'}),
+      <div class="EventPost-info">
+        {user ? <a className="EventPost-user" href={app.route.user(user)} config={m.route}>{username}</a> : username}{' '}
         {this.description()}
       </div>
     ];

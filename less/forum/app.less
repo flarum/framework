@@ -1,34 +1,23 @@
-@lib-path: "../lib";
+@import "../lib/lib.less";
 
-@import "@{lib-path}/bootstrap.less";
-
-// We want to specify the @fa-font-path variable AFTER we import font awesome
-// so that it overrides the default definition.
-@import "@{lib-path}/font-awesome/font-awesome.less";
-@fa-font-path: "/assets/fonts";
-
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,600,300);
-
-// Finally, with our vendor CSS loaded, we can import Flarum-specific stuff.
-@import "@{lib-path}/components.less";
-@import "@{lib-path}/buttons.less";
-@import "@{lib-path}/badges.less";
-@import "@{lib-path}/dropdowns.less";
-@import "@{lib-path}/avatars.less";
-@import "@{lib-path}/forms.less";
-@import "@{lib-path}/alerts.less";
-@import "@{lib-path}/modals.less";
-@import "@{lib-path}/layout.less";
-@import "@{lib-path}/side-nav.less";
-@import "@{lib-path}/search.less";
-
-@import "composer.less";
-@import "notifications.less";
-@import "hero.less";
-
-@import "index.less";
-@import "discussion.less";
-@import "user.less";
-@import "settings.less";
-@import "login.less";
-@import "signup.less";
+@import "ActivityPage.less";
+@import "AvatarEditor.less";
+@import "Composer.less";
+@import "DiscussionHero.less";
+@import "DiscussionList.less";
+@import "DiscussionListItem.less";
+@import "DiscussionPage.less";
+@import "Hero.less";
+@import "IndexPage.less";
+@import "LogInModal.less";
+@import "NotificationGrid.less";
+@import "NotificationList.less";
+@import "NotificationsDropdown.less";
+@import "Post.less";
+@import "PostStream.less";
+@import "Scrubber.less";
+@import "SettingsPage.less";
+@import "SignUpModal.less";
+@import "Slidable.less";
+@import "UserCard.less";
+@import "UserPage.less";

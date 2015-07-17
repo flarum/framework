@@ -6,7 +6,7 @@ import Modal from 'flarum/components/Modal';
  */
 export default class ChangePasswordModal extends Modal {
   className() {
-    return 'modal-sm change-password-modal';
+    return 'ChangePasswordModal Modal--small';
   }
 
   title() {
@@ -15,11 +15,11 @@ export default class ChangePasswordModal extends Modal {
 
   content() {
     return (
-      <div className="modal-body">
-        <div className="form-centered">
-          <p className="help-text">Click the button below and check your email for a link to change your password.</p>
-          <div className="form-group">
-            <button type="submit" className="btn btn-primary btn-block" disabled={this.loading}>Send Password Reset Email</button>
+      <div className="Modal-body">
+        <div className="Form Form--centered">
+          <p className="helpText">Click the button below and check your email for a link to change your password.</p>
+          <div className="Form-group">
+            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>Send Password Reset Email</button>
           </div>
         </div>
       </div>

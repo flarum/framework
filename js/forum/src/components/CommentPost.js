@@ -7,7 +7,7 @@ import EditPostComposer from 'flarum/components/EditPostComposer';
 import Composer from 'flarum/components/Composer';
 import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
-import icon from 'flarum/helpers/icon';
+import Button from 'flarum/components/Button';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -38,10 +38,10 @@ export default class CommentPost extends Post {
 
   content() {
     return [
-      <header className="post-header"><ul>{listItems(this.headerItems().toArray())}</ul></header>,
-      <div className="post-body">{m.trust(this.props.post.contentHtml())}</div>,
-      <aside className="post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></aside>,
-      <aside className="post-actions"><ul>{listItems(this.actionItems().toArray())}</ul></aside>
+      <header className="Post-header"><ul>{listItems(this.headerItems().toArray())}</ul></header>,
+      <div className="Post-body">{m.trust(this.props.post.contentHtml())}</div>,
+      <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>,
+      <aside className="Post-actions"><ul>{listItems(this.actionItems().toArray())}</ul></aside>
     ];
   }
 
@@ -50,10 +50,10 @@ export default class CommentPost extends Post {
 
     return {
       className: classList({
-        'comment-post': true,
-        'is-hidden': post.isHidden(),
-        'is-edited': post.isEdited(),
-        'reveal-content': this.revealContent,
+        'CommentPost': true,
+        'hidden': post.isHidden(),
+        'edited': post.isEdited(),
+        'revealContent': this.revealContent,
         'editing': app.composer.component instanceof EditPostComposer &&
           app.composer.component.props.post === post &&
           app.composer.position !== Composer.PositionEnum.MINIMIZED
@@ -89,11 +89,11 @@ export default class CommentPost extends Post {
     // of the post's content.
     if (post.isHidden()) {
       items.add('toggle', (
-        <button
-          className="btn btn-default btn-more"
-          onclick={this.toggleContent.bind(this)}>
-          {icon('ellipsis-h')}
-        </button>
+        Button.component({
+          className: 'Button Button--default Button--more',
+          icon: 'ellipsis-h',
+          onclick: this.toggleContent.bind(this)
+        })
       ));
     }
 

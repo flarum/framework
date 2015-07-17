@@ -11,7 +11,7 @@ import icon from 'flarum/helpers/icon';
  * - All of the props for ComposerBody
  * - `post`
  */
-export default class EditComposer extends ComposerBody {
+export default class EditPostComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
@@ -27,7 +27,7 @@ export default class EditComposer extends ComposerBody {
 
     items.add('title', (
       <h3>
-        {icon('pencil')}
+        {icon('pencil')}{' '}
         <a href={app.route.discussion(post.discussion(), post.number())} config={m.route}>
           Post #{post.number()} in {post.discussion().title()}
         </a>

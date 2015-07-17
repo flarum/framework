@@ -8,16 +8,16 @@ import avatar from 'flarum/helpers/avatar';
 export default class LoadingPost extends Component {
   view() {
     return (
-      <div className="post comment-post loading-post">
-        <header className="post-header">
-          {avatar()}
-          <div className="fake-text"/>
+      <div className="Post CommentPost LoadingPost">
+        <header className="Post-header">
+          {avatar(null, {className: 'PostUser-avatar'})}
+          <div className="fakeText"/>
         </header>
 
-        <div className="post-body">
-          <div className="fake-text"/>
-          <div className="fake-text"/>
-          <div className="fake-text"/>
+        <div className="Post-body">
+          <div className="fakeText"/>
+          <div className="fakeText"/>
+          <div className="fakeText"/>
         </div>
       </div>
     );

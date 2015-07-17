@@ -24,10 +24,9 @@ export default class Button extends Component {
     delete attrs.children;
 
     attrs.className = (attrs.className || '');
-    attrs.href = attrs.href || 'javascript:;';
 
     const iconName = extract(attrs, 'icon');
-    if (iconName) attrs.className += ' has-icon';
+    if (iconName) attrs.className += ' hasIcon';
 
     const disabled = extract(attrs, 'disabled');
     if (disabled) {
@@ -35,7 +34,7 @@ export default class Button extends Component {
       delete attrs.onclick;
     }
 
-    return <a {...attrs}>{this.getButtonContent()}</a>;
+    return <button {...attrs}>{this.getButtonContent()}</button>;
   }
 
   /**
@@ -48,8 +47,8 @@ export default class Button extends Component {
     const iconName = this.props.icon;
 
     return [
-      iconName ? icon(iconName) : '',
-      <span className="label">{this.props.children}</span>
+      iconName ? icon(iconName, {className: 'Button-icon'}) : '',
+      this.props.children ? <span className="Button-label">{this.props.children}</span> : ''
     ];
   }
 }

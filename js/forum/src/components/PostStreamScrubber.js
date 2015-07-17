@@ -72,9 +72,9 @@ export default class PostStreamScrubber extends Component {
     const unreadPercent = Math.min(this.count() - this.index, unreadCount) / this.count();
 
     const viewing = [
-      <span className="index">{retain || formatNumber(this.visibleIndex())}</span>,
+      <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
       ' of ',
-      <span className="count">{formatNumber(this.count())}</span>,
+      <span className="Scrubber-count">{formatNumber(this.count())}</span>,
       ' posts '
     ];
 
@@ -95,34 +95,34 @@ export default class PostStreamScrubber extends Component {
     }
 
     return (
-      <div className={'post-stream-scrubber dropdown ' + (this.disabled() ? 'disabled ' : '') + (this.props.className || '')}>
-        <a href="javascript:;" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <div className={'PostStreamScrubber Dropdown ' + (this.disabled() ? 'disabled ' : '') + (this.props.className || '')}>
+        <button className="Button Dropdown-toggle" data-toggle="dropdown">
           {viewing} {icon('sort')}
-        </a>
+        </button>
 
-        <div className="dropdown-menu">
-          <div className="scrubber">
-            <a href="javascript:;" className="scrubber-first" onclick={this.goToFirst.bind(this)}>
+        <div className="Dropdown-menu dropdown-menu">
+          <div className="Scrubber">
+            <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
               {icon('angle-double-up')} Original Post
             </a>
 
-            <div className="scrubber-scrollbar">
-              <div className="scrubber-before"/>
-              <div className="scrubber-handle">
-                <div className="scrubber-bar"/>
-                <div className="scrubber-info">
+            <div className="Scrubber-scrollbar">
+              <div className="Scrubber-before"/>
+              <div className="Scrubber-handle">
+                <div className="Scrubber-bar"/>
+                <div className="Scrubber-info">
                   <strong>{viewing}</strong>
-                  <span class="description">{retain || this.description}</span>
+                  <span class="Scrubber-description">{retain || this.description}</span>
                 </div>
               </div>
-              <div className="scrubber-after"/>
+              <div className="Scrubber-after"/>
 
-              <div className="scrubber-unread" config={styleUnread}>
+              <div className="Scrubber-unread" config={styleUnread}>
                 {formatNumber(unreadCount)} unread
               </div>
             </div>
 
-            <a href="javascript:;" className="scrubber-last" onclick={this.goToLast.bind(this)}>
+            <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
               {icon('angle-double-down')} Now
             </a>
           </div>
@@ -208,7 +208,7 @@ export default class PostStreamScrubber extends Component {
     // properties to a 'default' state. These values reflect what would be
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
-    const $items = stream.$('> .post-stream-item[data-index]');
+    const $items = stream.$('> .PostStream-item[data-index]');
     let index = $items.first().data('index') || 0;
     let visible = 0;
     let period = '';
@@ -273,7 +273,7 @@ export default class PostStreamScrubber extends Component {
 
     // When any part of the whole scrollbar is clicked, we want to jump to
     // that position.
-    this.$('.scrubber-scrollbar')
+    this.$('.Scrubber-scrollbar')
       .bind('click', this.onclick.bind(this))
 
       // Now we want to make the scrollbar handle draggable. Let's start by
@@ -289,7 +289,7 @@ export default class PostStreamScrubber extends Component {
     this.mouseStart = 0;
     this.indexStart = 0;
 
-    this.$('.scrubber-handle')
+    this.$('.Scrubber-handle')
       .css('cursor', 'move')
       .bind('mousedown touchstart', this.onmousedown.bind(this))
 
@@ -331,8 +331,8 @@ export default class PostStreamScrubber extends Component {
     const visible = this.visible || 1;
 
     const $scrubber = this.$();
-    $scrubber.find('.index').text(formatNumber(this.visibleIndex()));
-    $scrubber.find('.description').text(this.description);
+    $scrubber.find('.Scrubber-index').text(formatNumber(this.visibleIndex()));
+    $scrubber.find('.Scrubber-description').text(this.description);
     $scrubber.toggleClass('disabled', this.disabled());
 
     const heights = {};
@@ -342,7 +342,7 @@ export default class PostStreamScrubber extends Component {
 
     const func = animate ? 'animate' : 'css';
     for (const part in heights) {
-      const $part = $scrubber.find(`.scrubber-${part}`);
+      const $part = $scrubber.find(`.Scrubber-${part}`);
       $part.stop(true, true)[func]({height: heights[part] + '%'}, 'fast');
 
       // jQuery likes to put overflow:hidden, but because the scrollbar handle
@@ -371,7 +371,7 @@ export default class PostStreamScrubber extends Component {
     // minimum percentage per visible post. If this is greater than the actual
     // percentage per post, then we need to adjust the 'before' percentage to
     // account for it.
-    const minPercentVisible = 50 / this.$('.scrubber-scrollbar').outerHeight() * 100;
+    const minPercentVisible = 50 / this.$('.Scrubber-scrollbar').outerHeight() * 100;
     const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
     const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
 
@@ -387,11 +387,11 @@ export default class PostStreamScrubber extends Component {
     // Adjust the height of the scrollbar so that it fills the height of
     // the sidebar and doesn't overlap the footer.
     const scrubber = this.$();
-    const scrollbar = this.$('.scrubber-scrollbar');
+    const scrollbar = this.$('.Scrubber-scrollbar');
 
     scrollbar.css('max-height', $(window).height() -
       scrubber.offset().top + $(window).scrollTop() -
-      parseInt($('.global-page').css('padding-bottom'), 10) -
+      parseInt($('#app').css('padding-bottom'), 10) -
       (scrubber.outerHeight() - scrollbar.outerHeight()));
   }
 
@@ -411,7 +411,7 @@ export default class PostStreamScrubber extends Component {
     // finally convert it into an index. Add this delta index onto
     // the index at which the drag was started, and then scroll there.
     const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
-    const deltaPercent = deltaPixels / this.$('.scrubber-scrollbar').outerHeight() * 100;
+    const deltaPercent = deltaPixels / this.$('.Scrubber-scrollbar').outerHeight() * 100;
     const deltaIndex = deltaPercent / this.percentPerPost().index;
     const newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
 
@@ -441,14 +441,14 @@ export default class PostStreamScrubber extends Component {
 
     // 1. Get the offset of the click from the top of the scrollbar, as a
     //    percentage of the scrollbar's height.
-    const $scrollbar = this.$('.scrubber-scrollbar');
+    const $scrollbar = this.$('.Scrubber-scrollbar');
     const offsetPixels = (e.clientY || e.originalEvent.touches[0].clientY) - $scrollbar.offset().top + $('body').scrollTop();
     let offsetPercent = offsetPixels / $scrollbar.outerHeight() * 100;
 
     // 2. We want the handle of the scrollbar to end up centered on the click
     //    position. Thus, we calculate the height of the handle in percent and
     //    use that to find a new offset percentage.
-    offsetPercent = offsetPercent - parseFloat($scrollbar.find('.scrubber-handle')[0].style.height) / 2;
+    offsetPercent = offsetPercent - parseFloat($scrollbar.find('.Scrubber-handle')[0].style.height) / 2;
 
     // 3. Now we can convert the percentage into an index, and tell the stream-
     //    content component to jump to that index.

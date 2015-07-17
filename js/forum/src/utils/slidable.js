@@ -40,7 +40,7 @@ export default function slidable(element) {
       $(this).css('transform', 'translate(' + x + 'px, 0)');
     };
 
-    $element.find('.slidable-slider').animate({'background-position-x': newPos}, options);
+    $element.find('.Slidable-content').animate({'background-position-x': newPos}, options);
   };
 
   /**
@@ -57,12 +57,12 @@ export default function slidable(element) {
     });
   };
 
-  $element.find('.slidable-slider')
+  $element.find('.Slidable-content')
     .on('touchstart', function(e) {
       // Update the references to the elements underneath the slider, provided
       // they're not disabled.
-      $underneathLeft = $element.find('.slidable-underneath-left:not(.disabled)');
-      $underneathRight = $element.find('.slidable-underneath-right:not(.disabled)');
+      $underneathLeft = $element.find('.Slidable-underneath--left:not(.disabled)');
+      $underneathRight = $element.find('.Slidable-underneath--right:not(.disabled)');
 
       startX = e.originalEvent.targetTouches[0].clientX;
       startY = e.originalEvent.targetTouches[0].clientY;
@@ -89,8 +89,10 @@ export default function slidable(element) {
         // If there are controls underneath the either side, then we'll show/hide
         // them depending on the slider's position. We also make the controls
         // icon get a bit bigger the further they slide.
-        const toggle = ($underneath, active) => {
+        const toggle = ($underneath, side) => {
           if ($underneath.length) {
+            const active = side === 'left' ? pos > 0 : pos < 0;
+
             if (active && $underneath.hasClass('elastic')) {
               pos -= pos * 0.5;
             }
@@ -99,12 +101,12 @@ export default function slidable(element) {
             const scale = Math.max(0, Math.min(1, (Math.abs(pos) - 25) / threshold));
             $underneath.find('.icon').css('transform', 'scale(' + scale + ')');
           } else {
-            pos = Math.min(0, pos);
+            pos = Math[side === 'left' ? 'min' : 'max'](0, pos);
           }
         };
 
-        toggle($underneathLeft, pos > 0);
-        toggle($underneathRight, pos < 0);
+        toggle($underneathLeft, 'left');
+        toggle($underneathRight, 'right');
 
         $(this).css('transform', 'translate(' + pos + 'px, 0)');
         $(this).css('background-position-x', pos + 'px');

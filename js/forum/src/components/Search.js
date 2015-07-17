@@ -75,25 +75,25 @@ export default class Search extends Component {
     }
 
     return (
-      <div className={'search dropdown ' + classList({
+      <div className={'Search Dropdown ' + classList({
         open: this.value() && this.hasFocus,
         active: !!currentSearch,
         loading: !!this.loadingSources
       })}>
-        <div className="search-input">
-          <input className="form-control"
+        <div className="Search-input">
+          <input className="FormControl"
             placeholder="Search Forum"
             value={this.value()}
             oninput={m.withAttr('value', this.value)}
             onfocus={() => this.hasFocus = true}
             onblur={() => this.hasFocus = false}/>
           {this.loadingSources
-            ? LoadingIndicator.component({size: 'tiny', className: 'btn btn-icon btn-link'})
+            ? LoadingIndicator.component({size: 'tiny', className: 'Button Button--icon Button--link'})
             : currentSearch
-              ? <button className="clear btn btn-icon btn-link" onclick={this.clear.bind(this)}>{icon('times-circle')}</button>
+              ? <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>{icon('times-circle')}</button>
               : ''}
         </div>
-        <ul className="dropdown-menu dropdown-menu-right search-results">
+        <ul className="Dropdown-menu Search-results">
           {this.sources.map(source => source.view(this.value()))}
         </ul>
       </div>
@@ -108,12 +108,12 @@ export default class Search extends Component {
 
     const search = this;
 
-    this.$('.search-results')
+    this.$('.Search-results')
       .on('mousedown', e => e.preventDefault())
       .on('click', () => this.$('input').blur())
 
       // Whenever the mouse is hovered over a search result, highlight it.
-      .on('mouseenter', '> li:not(.dropdown-header)', function() {
+      .on('mouseenter', '> li:not(.Dropdown-header)', function() {
         search.setIndex(
           search.selectableItems().index(this)
         );
@@ -169,7 +169,7 @@ export default class Search extends Component {
 
           search.searched.push(query);
           m.redraw();
-        }, 500);
+        }, 250);
       });
   }
 
@@ -215,7 +215,7 @@ export default class Search extends Component {
    * @return {jQuery}
    */
   selectableItems() {
-    return this.$('.search-results > li:not(.dropdown-header)');
+    return this.$('.Search-results > li:not(.Dropdown-header)');
   }
 
   /**
@@ -237,7 +237,7 @@ export default class Search extends Component {
    */
   getItem(index) {
     const $items = this.selectableItems();
-    let $item = $items.filter(`[data-index=${index}]`);
+    let $item = $items.filter(`[data-index="${index}"]`);
 
     if (!$item.length) {
       $item = $items.eq(index);
