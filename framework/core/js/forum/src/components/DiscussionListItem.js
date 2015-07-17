@@ -12,6 +12,7 @@ import PostPreview from 'flarum/components/PostPreview';
 import SubtreeRetainer from 'flarum/utils/SubtreeRetainer';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 import slidable from 'flarum/utils/slidable';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the
@@ -66,7 +67,7 @@ export default class DiscussionListItem extends Component {
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '')}>
           <a href={startUser ? app.route.user(startUser) : '#'}
             className="DiscussionListItem-author"
-            title={'Started by ' + (startUser ? startUser.username() : '[deleted]') + ' ' + humanTime(discussion.startTime())}
+            title={extractText(app.trans('core.discussion_started', {user: startUser, ago: humanTime(discussion.startTime())}))}
             config={function(element) {
               $(element).tooltip({placement: 'right'});
               m.route.apply(this, arguments);
@@ -87,7 +88,7 @@ export default class DiscussionListItem extends Component {
 
           <span className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
-            title={showUnread ? 'Mark as Read' : ''}>
+            title={showUnread ? app.trans('core.mark_as_read') : ''}>
             {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())}
           </span>
 

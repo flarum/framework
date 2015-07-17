@@ -35,7 +35,7 @@ export default class LogInModal extends Modal {
   }
 
   title() {
-    return 'Log In';
+    return app.trans('core.log_in');
   }
 
   content() {
@@ -43,14 +43,14 @@ export default class LogInModal extends Modal {
       <div className="Modal-body">
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" placeholder="Username or Email"
+            <input className="FormControl" name="email" placeholder={app.trans('core.username_or_email')}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
           </div>
 
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder="Password"
+            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.password')}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />
@@ -67,11 +67,11 @@ export default class LogInModal extends Modal {
       </div>,
       <div className="Modal-footer">
         <p className="LogInModal-forgotPassword">
-          <a onclick={this.forgotPassword.bind(this)}>Forgot password?</a>
+          <a onclick={this.forgotPassword.bind(this)}>{app.trans('core.forgot_password_link')}</a>
         </p>
         <p className="LogInModal-signUp">
-          Don't have an account?{' '}
-          <a onclick={this.signUp.bind(this)}>Sign Up</a>
+          {app.trans('core.before_sign_up_link')}{' '}
+          <a onclick={this.signUp.bind(this)}>{app.trans('core.sign_up')}</a>
         </p>
       </div>
     ];
@@ -122,12 +122,12 @@ export default class LogInModal extends Modal {
 
         if (response && response.code === 'confirm_email') {
           this.alert = Alert.component({
-            children: ['You need to confirm your email before you can log in. We\'ve sent a confirmation email to ', <strong>{response.email}</strong>, '. If it doesn\'t arrive soon, check your spam folder.']
+            children: app.trans('core.email_confirmation_required', {email: response.email})
           });
         } else {
           this.alert = Alert.component({
             type: 'error',
-            children: 'Your login details were incorrect.'
+            children: app.trans('core.invalid_login')
           });
         }
 

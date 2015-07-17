@@ -16,9 +16,9 @@ export default class ReplyComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.placeholder = props.placeholder || 'Write a Reply...';
-    props.submitLabel = props.submitLabel || 'Post Reply';
-    props.confirmExit = props.confirmExit || 'You have not posted your reply. Do you wish to discard it?';
+    props.placeholder = props.placeholder || app.trans('core.write_a_reply');
+    props.submitLabel = props.submitLabel || app.trans('core.post_reply');
+    props.confirmExit = props.confirmExit || app.trans('core.confirm_discard_reply');
   }
 
   headerItems() {
@@ -66,7 +66,7 @@ export default class ReplyComposer extends ComposerBody {
           // transition to their new post when clicked.
           let alert;
           const viewButton = Button.component({
-            children: 'View',
+            children: app.trans('core.view'),
             onclick: () => {
               m.route(app.route.post(post));
               app.alerts.dismiss(alert);
@@ -75,7 +75,7 @@ export default class ReplyComposer extends ComposerBody {
           app.alerts.show(
             alert = new Alert({
               type: 'success',
-              message: 'Your reply was posted.',
+              message: app.trans('reply_posted'),
               controls: [viewButton]
             })
           );

@@ -23,7 +23,7 @@ export default class DeleteAccountModal extends Modal {
   }
 
   title() {
-    return 'Delete Account';
+    return app.trans('core.delete_account');
   }
 
   content() {
@@ -31,10 +31,10 @@ export default class DeleteAccountModal extends Modal {
       <div className="Modal-body">
         <div className="Form Form--centered">
           <div className="helpText">
-            <p>Hold up! If you delete your account, there&#39;s no going back. Keep in mind:</p>
+            <p>{app.trans('core.delete_account_help')}</p>
             <ul>
-              <li>Your username will be released, so someone else will be able to sign up with your name.</li>
-              <li>All of your posts will remain, but no longer associated with your account.</li>
+              <li>{app.trans('core.username_will_be_released')}</li>
+              <li>{app.trans('core.posts_will_remain')}</li>
             </ul>
           </div>
           <div className="Form-group">

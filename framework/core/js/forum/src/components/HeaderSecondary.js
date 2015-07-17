@@ -37,7 +37,7 @@ export default class HeaderSecondary extends Component {
     } else {
       items.add('signUp',
         Button.component({
-          children: 'Sign Up',
+          children: app.trans('core.sign_up'),
           className: 'Button Button--link',
           onclick: () => app.modal.show(new SignUpModal())
         })
@@ -45,7 +45,7 @@ export default class HeaderSecondary extends Component {
 
       items.add('logIn',
         Button.component({
-          children: 'Log In',
+          children: app.trans('core.log_in'),
           className: 'Button Button--link',
           onclick: () => app.modal.show(new LogInModal())
         })

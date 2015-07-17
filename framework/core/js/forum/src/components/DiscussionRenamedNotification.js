@@ -21,6 +21,6 @@ export default class DiscussionRenamedNotification extends Notification {
   }
 
   content() {
-    return [username(this.props.notification.sender()), ' changed the title'];
+    return app.trans('core.discussion_renamed_notification', {user: this.props.notification.sender()});
   }
 }

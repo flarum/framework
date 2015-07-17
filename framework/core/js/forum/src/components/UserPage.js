@@ -137,7 +137,7 @@ export default class UserPage extends Component {
     items.add('activity',
       LinkButton.component({
         href: app.route('user.activity', {username: user.username()}),
-        children: 'Activity',
+        children: app.trans('core.activity'),
         icon: 'user'
       })
     );
@@ -145,7 +145,7 @@ export default class UserPage extends Component {
     items.add('discussions',
       LinkButton.component({
         href: app.route('user.discussions', {username: user.username()}),
-        children: ['Discussions', <span className="Button-badge">{user.discussionsCount()}</span>],
+        children: [app.trans('core.discussions'), <span className="Button-badge">{user.discussionsCount()}</span>],
         icon: 'reorder'
       })
     );
@@ -153,7 +153,7 @@ export default class UserPage extends Component {
     items.add('posts',
       LinkButton.component({
         href: app.route('user.posts', {username: user.username()}),
-        children: ['Posts', <span className="Button-badge">{user.commentsCount()}</span>],
+        children: [app.trans('core.posts'), <span className="Button-badge">{user.commentsCount()}</span>],
         icon: 'comment-o'
       })
     );
@@ -163,7 +163,7 @@ export default class UserPage extends Component {
       items.add('settings',
         LinkButton.component({
           href: app.route('settings'),
-          children: 'Settings',
+          children: app.trans('core.settings'),
           icon: 'cog'
         })
       );

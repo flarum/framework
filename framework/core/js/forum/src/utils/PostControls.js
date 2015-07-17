@@ -60,13 +60,13 @@ export default {
       if (post.isHidden()) {
         items.add('restore', Button.component({
           icon: 'reply',
-          children: 'Restore',
+          children: app.trans('core.restore'),
           onclick: this.restoreAction.bind(post)
         }));
       } else {
         items.add('edit', Button.component({
           icon: 'pencil',
-          children: 'Edit',
+          children: app.trans('core.edit'),
           onclick: this.editAction.bind(post)
         }));
       }
@@ -91,13 +91,13 @@ export default {
       if (post.contentType() === 'comment' && !post.isHidden() && post.canEdit()) {
         items.add('hide', Button.component({
           icon: 'times',
-          children: 'Delete',
+          children: app.trans('core.delete'),
           onclick: this.hideAction.bind(post)
         }));
       } else if ((post.contentType() !== 'comment' || post.isHidden()) && post.canDelete()) {
         items.add('delete', Button.component({
           icon: 'times',
-          children: 'Delete Forever',
+          children: app.trans('core.delete_forever'),
           onclick: this.deleteAction.bind(post)
         }));
       }

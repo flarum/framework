@@ -205,7 +205,7 @@ class PostStream extends mixin(Component, evented) {
             if (dt > 1000 * 60 * 60 * 24 * 4) {
               content = [
                 <div className="PostStream-timeGap">
-                  <span>{moment.duration(dt).humanize()} later</span>
+                  <span>{app.trans('core.period_later', {period: moment.duration(dt).humanize()})}</span>
                 </div>,
                 content
               ];

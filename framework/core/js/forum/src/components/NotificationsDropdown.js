@@ -25,7 +25,7 @@ export default class NotificationsDropdown extends Component {
           data-toggle="dropdown"
           onclick={this.onclick.bind(this)}>
           <span className="Button-icon">{unread || icon('bell')}</span>
-          <span className="Button-label">Notifications</span>
+          <span className="Button-label">{app.trans('core.notifications')}</span>
         </a>
         <div className="Dropdown-menu Dropdown-menu--right">
           {this.showing ? NotificationList.component() : ''}

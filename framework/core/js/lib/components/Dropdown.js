@@ -24,7 +24,7 @@ export default class Dropdown extends Component {
     props.buttonClassName = props.buttonClassName || '';
     props.contentClassName = props.contentClassName || '';
     props.icon = props.icon || 'ellipsis-v';
-    props.label = props.label || app.trans('controls');
+    props.label = props.label || app.trans('core.controls');
   }
 
   view() {

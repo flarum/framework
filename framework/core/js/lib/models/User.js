@@ -65,9 +65,11 @@ export default class User extends mixin(Model, {
     const items = new ItemList();
 
     this.groups().forEach(group => {
+      const name = group.nameSingular();
+
       items.add('group' + group.id(),
         Badge.component({
-          label: group.nameSingular(),
+          label: app.trans('core.group_' + name.toLowerCase(), undefined, name),
           icon: group.icon(),
           style: {backgroundColor: group.color()}
         })
