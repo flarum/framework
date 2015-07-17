@@ -37,7 +37,7 @@ export default class DiscussionComposer extends ComposerBody {
 
     items.add('title', (
       <h3>
-        <input className="form-control"
+        <input className="FormControl"
           value={this.title()}
           oninput={m.withAttr('value', this.title)}
           placeholder={this.props.titlePlaceholder}

@@ -8,10 +8,10 @@ export default class Switch extends Checkbox {
   static initProps(props) {
     super.initProps(props);
 
-    props.className += ' switch';
+    props.className = (props.className || '') + ' Checkbox--switch';
   }
 
   getDisplay() {
-    return '';
+    return this.loading ? super.getDisplay() : '';
   }
 }

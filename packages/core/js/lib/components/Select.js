@@ -14,11 +14,11 @@ export default class Select extends Component {
     const {options, onchange, value} = this.props;
 
     return (
-      <span className="select">
-        <select className="form-control" onchange={m.withAttr('value', onchange.bind(this))} value={value}>
+      <span className="Select">
+        <select className="Select-input FormControl" onchange={m.withAttr('value', onchange.bind(this))} value={value}>
           {Object.keys(options).map(key => <option value={key}>{options[key]}</option>)}
         </select>
-        {icon('sort', {className: 'caret'})}
+        {icon('sort', {className: 'Select-caret'})}
       </span>
     );
   }

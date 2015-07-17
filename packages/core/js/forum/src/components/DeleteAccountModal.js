@@ -19,7 +19,7 @@ export default class DeleteAccountModal extends Modal {
   }
 
   className() {
-    return 'modal-sm delete-account-modal';
+    return 'DeleteAccountModal Modal--small';
   }
 
   title() {
@@ -28,24 +28,24 @@ export default class DeleteAccountModal extends Modal {
 
   content() {
     return (
-      <div className="modal-body">
-        <div className="form-centered">
-          <div className="help-text">
+      <div className="Modal-body">
+        <div className="Form Form--centered">
+          <div className="helpText">
             <p>Hold up! If you delete your account, there&#39;s no going back. Keep in mind:</p>
             <ul>
               <li>Your username will be released, so someone else will be able to sign up with your name.</li>
               <li>All of your posts will remain, but no longer associated with your account.</li>
             </ul>
           </div>
-          <div className="form-group">
-            <input className="form-control"
+          <div className="Form-group">
+            <input className="FormControl"
               name="confirm"
-              placeholder="Type &quot;DELETE&quot; to proceed"
+              placeholder="Type 'DELETE' to proceed"
               oninput={m.withAttr('value', this.confirmation)}/>
           </div>
-          <div className="form-group">
+          <div className="Form-group">
             <button type="submit"
-              className="btn btn-primary btn-block"
+              className="Button Button--primary Button--block"
               disabled={this.loading || this.confirmation() !== 'DELETE'}>
               Delete Account
             </button>

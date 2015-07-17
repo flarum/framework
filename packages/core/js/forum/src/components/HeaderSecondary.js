@@ -15,7 +15,7 @@ import listItems from 'flarum/helpers/listItems';
 export default class HeaderSecondary extends Component {
   view() {
     return (
-      <ul className="header-controls">
+      <ul className="Header-controls">
         {listItems(this.items().toArray())}
       </ul>
     );
@@ -38,7 +38,7 @@ export default class HeaderSecondary extends Component {
       items.add('signUp',
         Button.component({
           children: 'Sign Up',
-          className: 'btn btn-link',
+          className: 'Button Button--link',
           onclick: () => app.modal.show(new SignUpModal())
         })
       );
@@ -46,7 +46,7 @@ export default class HeaderSecondary extends Component {
       items.add('logIn',
         Button.component({
           children: 'Log In',
-          className: 'btn btn-link',
+          className: 'Button Button--link',
           onclick: () => app.modal.show(new LogInModal())
         })
       );

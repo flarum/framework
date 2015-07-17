@@ -17,7 +17,7 @@ export default class PostEdited extends Component {
     const title = 'Edited ' + (editUser ? 'by ' + editUser.username() + ' ' : '') + humanTime(post.editTime());
 
     return (
-      <span className="post-edited" title={title}>{icon('pencil')}</span>
+      <span className="PostEdited" title={title}>{icon('pencil')}</span>
     );
   }
 

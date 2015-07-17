@@ -10,7 +10,7 @@ import extract from 'flarum/utils/extract';
  * The alert may have the following special props:
  *
  * - `type` The type of alert this is. Will be used to give the alert a class
- *   name of `alert-{type}`.
+ *   name of `Alert--{type}`.
  * - `controls` An array of controls to show in the alert.
  * - `dismissible` Whether or not the alert can be dismissed.
  * - `ondismiss` A callback to run when the alert is dismissed.
@@ -22,7 +22,7 @@ export default class Alert extends Component {
     const attrs = Object.assign({}, this.props);
 
     const type = extract(attrs, 'type');
-    attrs.className = 'alert alert-' + type + ' ' + (attrs.className || '');
+    attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
 
     const children = extract(attrs, 'children');
     const controls = extract(attrs, 'controls') || [];
@@ -37,17 +37,17 @@ export default class Alert extends Component {
     if (dismissible || dismissible === undefined) {
       dismissControl.push(Button.component({
         icon: 'times',
-        className: 'btn btn-link btn-icon dismiss',
+        className: 'Button Button--link Button--icon Alert-dismiss',
         onclick: ondismiss
       }));
     }
 
     return (
       <div {...attrs}>
-        <span className="alert-body">
+        <span className="Alert-body">
           {children}
         </span>
-        <ul className="alert-controls">
+        <ul className="Alert-controls">
           {listItems(controls.concat(dismissControl))}
         </ul>
       </div>

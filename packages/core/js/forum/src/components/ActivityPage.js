@@ -47,10 +47,10 @@ export default class ActivityPage extends UserPage {
       footer = LoadingIndicator.component();
     } else if (this.moreResults) {
       footer = (
-        <div className="load-more">
+        <div className="ActivityPage-loadMore">
           {Button.component({
             children: 'Load More',
-            className: 'btn btn-default',
+            className: 'Button--default',
             onclick: this.loadMore.bind(this)
           })}
         </div>
@@ -58,8 +58,8 @@ export default class ActivityPage extends UserPage {
     }
 
     return (
-      <div className="user-activity">
-        <ul className="activity-list">
+      <div className="ActivityPage">
+        <ul className="ActivityPage-list">
           {this.activity.map(activity => {
             const ActivityComponent = app.activityComponents[activity.contentType()];
             return ActivityComponent ? <li>{ActivityComponent.component({activity})}</li> : '';

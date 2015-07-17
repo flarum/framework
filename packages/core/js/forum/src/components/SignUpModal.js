@@ -45,39 +45,50 @@ export default class SignUpModal extends Modal {
   }
 
   className() {
-    return 'modal-sm signup-modal' + (this.welcomeUser ? ' signup-modal-success' : '');
+    return 'Modal--small SignUpModal' + (this.welcomeUser ? ' SignUpModal--success' : '');
   }
 
   title() {
     return 'Sign Up';
   }
 
+  content() {
+    return [
+      <div className="Modal-body">
+        {this.body()}
+      </div>,
+      <div className="Modal-footer">
+        {this.footer()}
+      </div>
+    ];
+  }
+
   body() {
     const body = [(
-      <div className="form-centered">
-        <div className="form-group">
-          <input className="form-control" name="username" placeholder="Username"
+      <div className="Form Form--centered">
+        <div className="Form-group">
+          <input className="FormControl" name="username" placeholder="Username"
             value={this.username()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading} />
         </div>
 
-        <div className="form-group">
-          <input className="form-control" name="email" type="email" placeholder="Email"
+        <div className="Form-group">
+          <input className="FormControl" name="email" type="email" placeholder="Email"
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading} />
         </div>
 
-        <div className="form-group">
-          <input className="form-control" name="password" type="password" placeholder="Password"
+        <div className="Form-group">
+          <input className="FormControl" name="password" type="password" placeholder="Password"
             value={this.password()}
             onchange={m.withAttr('value', this.password)}
             disabled={this.loading} />
         </div>
 
-        <div className="form-group">
-          <button className="btn btn-primary btn-block"
+        <div className="Form-group">
+          <button className="Button Button--primary Button--block"
             type="submit"
             disabled={this.loading}>
             Sign Up
@@ -96,17 +107,17 @@ export default class SignUpModal extends Modal {
       };
 
       body.push(
-        <div className="signup-welcome" style={{background: user.color()}} config={fadeIn}>
-          <div className="darken-overlay"/>
+        <div className="SignUpModal-welcome" style={{background: user.color()}} config={fadeIn}>
+          <div className="darkenBackground"/>
           <div className="container">
             {avatar(user)}
             <h3>Welcome, {user.username()}!</h3>
 
             {user.isConfirmed() ? [
               <p>We've sent a confirmation email to <strong>{user.email()}</strong>. If it doesn't arrive soon, check your spam folder.</p>,
-              <p><a href={`http://${emailProviderName}`} className="btn btn-primary">Go to {emailProviderName}</a></p>
+              <p><a href={`http://${emailProviderName}`} className="Button Button--primary">Go to {emailProviderName}</a></p>
             ] : (
-              <p><button className="btn btn-primary" onclick={this.hide.bind(this)}>Dismiss</button></p>
+              <p><button className="Button Button--primary" onclick={this.hide.bind(this)}>Dismiss</button></p>
             )}
           </div>
         </div>
@@ -118,9 +129,9 @@ export default class SignUpModal extends Modal {
 
   footer() {
     return [
-      <p className="log-in-link">
-        Already have an account?
-        <a href="javascript:;" onclick={this.logIn.bind(this)}>Log In</a>
+      <p className="SignUpModal-logIn">
+        Already have an account?{' '}
+        <a onclick={this.logIn.bind(this)}>Log In</a>
       </p>
     ];
   }

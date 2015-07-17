@@ -37,7 +37,7 @@ export default class Post extends Component {
     const controls = PostControls.controls(this.props.post, this).toArray();
     const attrs = this.attrs();
 
-    attrs.className = 'post ' + (attrs.className || '');
+    attrs.className = 'Post ' + (attrs.className || '');
 
     return (
       <article {...attrs}>
@@ -45,9 +45,9 @@ export default class Post extends Component {
           <div>
             {controls.length ? Dropdown.component({
               children: controls,
-              className: 'contextual-controls',
-              buttonClass: 'btn btn-default btn-icon btn-controls btn-naked',
-              menuClass: 'pull-right'
+              className: 'Post-controls',
+              buttonClassName: 'Button Button--icon Button--flat',
+              menuClassName: 'Dropdown-menu--right'
             }) : ''}
 
             {this.content()}

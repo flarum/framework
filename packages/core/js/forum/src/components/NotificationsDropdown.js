@@ -19,15 +19,15 @@ export default class NotificationsDropdown extends Component {
     const unread = user.unreadNotificationsCount();
 
     return (
-      <div className="dropdown btn-group notifications-dropdown">
+      <div className="Dropdown NotificationsDropdown">
         <a href="javascript:;"
-          className={'dropdown-toggle btn btn-default btn-rounded btn-naked btn-icon' + (unread ? ' unread' : '')}
+          className={'Dropdown-toggle Button Button--flat NotificationsDropdown-button' + (unread ? ' unread' : '')}
           data-toggle="dropdown"
           onclick={this.onclick.bind(this)}>
-          <span className="notifications-icon">{unread || icon('bell')}</span>
-          <span className="label">Notifications</span>
+          <span className="Button-icon">{unread || icon('bell')}</span>
+          <span className="Button-label">Notifications</span>
         </a>
-        <div className="dropdown-menu dropdown-menu-right">
+        <div className="Dropdown-menu Dropdown-menu--right">
           {this.showing ? NotificationList.component() : ''}
         </div>
       </div>

@@ -24,7 +24,7 @@ export default class SettingsPage extends UserPage {
 
   content() {
     return (
-      <div className="settings">
+      <div className="SettingsPage">
         <ul>{listItems(this.settingsItems().toArray())}</ul>
       </div>
     );
@@ -41,7 +41,7 @@ export default class SettingsPage extends UserPage {
     items.add('account',
       FieldSet.component({
         label: 'Account',
-        className: 'settings-account',
+        className: 'Settings-account',
         children: this.accountItems().toArray()
       })
     );
@@ -49,7 +49,7 @@ export default class SettingsPage extends UserPage {
     items.add('notifications',
       FieldSet.component({
         label: 'Notifications',
-        className: 'settings-account',
+        className: 'Settings-notifications',
         children: [NotificationGrid.component({user: this.user})]
       })
     );
@@ -57,7 +57,7 @@ export default class SettingsPage extends UserPage {
     items.add('privacy',
       FieldSet.component({
         label: 'Privacy',
-        className: 'settings-privacy',
+        className: 'Settings-privacy',
         children: this.privacyItems().toArray()
       })
     );
@@ -76,7 +76,7 @@ export default class SettingsPage extends UserPage {
     items.add('changePassword',
       Button.component({
         children: 'Change Password',
-        className: 'btn btn-default',
+        className: 'Button',
         onclick: () => app.modal.show(new ChangePasswordModal())
       })
     );
@@ -84,7 +84,7 @@ export default class SettingsPage extends UserPage {
     items.add('changeEmail',
       Button.component({
         children: 'Change Email',
-        className: 'btn btn-default',
+        className: 'Button',
         onclick: () => app.modal.show(new ChangeEmailModal())
       })
     );
@@ -92,7 +92,7 @@ export default class SettingsPage extends UserPage {
     items.add('deleteAccount',
       Button.component({
         children: 'Delete Account',
-        className: 'btn btn-default btn-danger',
+        className: 'Button Button--danger',
         onclick: () => app.modal.show(new DeleteAccountModal())
       })
     );

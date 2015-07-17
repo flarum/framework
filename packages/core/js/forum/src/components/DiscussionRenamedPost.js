@@ -18,6 +18,6 @@ export default class DiscussionRenamedPost extends EventPost {
     const oldTitle = post.content()[0];
     const newTitle = post.content()[1];
 
-    return ['changed the title from ', m('strong.old-title', oldTitle), ' to ', m('strong.new-title', newTitle), '.'];
+    return ['changed the title from ', m('strong.DiscussionRenamedPost-old', oldTitle), ' to ', m('strong.DiscussionRenamedPost-new', newTitle), '.'];
   }
 }

@@ -45,28 +45,27 @@ export default class DiscussionListItem extends Component {
     const isUnread = discussion.isUnread();
     const showUnread = !this.showRepliesCount() && isUnread;
     const jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
-    const relevantPosts = this.props.params.q ? discussion.relevantPosts() : '';
+    const relevantPosts = this.props.params.q ? discussion.relevantPosts() : [];
     const controls = DiscussionControls.controls(discussion, this).toArray();
 
     return this.subtree.retain() || (
-      <div className={'discussion-list-item' + (this.active() ? ' active' : '')}>
+      <div className={'DiscussionListItem ' + (this.active() ? 'active' : '')}>
 
         {controls.length ? Dropdown.component({
           icon: 'ellipsis-v',
           children: controls,
-          className: 'contextual-controls',
-          buttonClassName: 'btn btn-default btn-naked btn-controls slidable-underneath slidable-underneath-right',
-          menuClassName: 'dropdown-menu-right'
+          className: 'DiscussionListItem-controls',
+          buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right'
         }) : ''}
 
-        <a className={'slidable-underneath slidable-underneath-left elastic' + (isUnread ? '' : ' disabled')}
+        <a className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
           onclick={this.markAsRead.bind(this)}>
-          {icon('check', {className: 'icon'})}
+          {icon('check')}
         </a>
 
-        <div className={'discussion-summary slidable-slider' + (isUnread ? ' unread' : '')}>
+        <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '')}>
           <a href={startUser ? app.route.user(startUser) : '#'}
-            className="author"
+            className="DiscussionListItem-author"
             title={'Started by ' + (startUser ? startUser.username() : '[deleted]') + ' ' + humanTime(discussion.startTime())}
             config={function(element) {
               $(element).tooltip({placement: 'right'});
@@ -75,23 +74,25 @@ export default class DiscussionListItem extends Component {
             {avatar(startUser, {title: ''})}
           </a>
 
-          <ul className="badges">{listItems(discussion.badges().toArray())}</ul>
+          <ul className="DiscussionListItem-badges badges">
+            {listItems(discussion.badges().toArray())}
+          </ul>
 
           <a href={app.route.discussion(discussion, jumpTo)}
             config={m.route}
-            className="main">
-            <h3 className="title">{highlight(discussion.title(), this.props.params.q)}</h3>
-            <ul className="info">{listItems(this.infoItems().toArray())}</ul>
+            className="DiscussionListItem-main">
+            <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.props.params.q)}</h3>
+            <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </a>
 
-          <span className="count"
+          <span className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
             title={showUnread ? 'Mark as Read' : ''}>
             {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())}
           </span>
 
           {relevantPosts && relevantPosts.length
-            ? <div className="relevant-posts">
+            ? <div className="DiscussionListItem-relevantPosts">
                 {relevantPosts.map(post => PostPreview.component({post, highlight: this.props.params.q}))}
               </div>
             : ''}
@@ -108,9 +109,9 @@ export default class DiscussionListItem extends Component {
     // This allows the user to drag the row to either side of the screen to
     // reveal controls.
     if ('ontouchstart' in window) {
-      const slidableInstance = slidable(this.$().addClass('slidable'));
+      const slidableInstance = slidable(this.$().addClass('Slidable'));
 
-      this.$('.contextual-controls')
+      this.$('.DiscussionListItem-controls')
         .on('hidden.bs.dropdown', () => slidableInstance.reset());
     }
   }

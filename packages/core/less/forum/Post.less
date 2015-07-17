@@ -1,0 +1,398 @@
+// ------------------------------------
+// Posts
+
+.Post {
+  padding: 30px 0;
+  transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
+  position: relative;
+  top: 0;
+
+  &.editing {
+    top: 5px;
+    opacity: 0.2;
+  }
+}
+.Post-controls {
+  float: right;
+  margin-top: -8px;
+  margin-left: 10px;
+}
+
+.Post-header {
+  margin-bottom: 10px;
+  color: @muted-color;
+
+  &, a {
+    color: @muted-color;
+  }
+  > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    > li {
+      display: inline;
+      margin-right: 10px;
+    }
+  }
+}
+.PostUser {
+  margin: 0;
+  display: inline;
+  font-weight: normal;
+  position: relative;
+
+  h3 {
+    display: inline;
+  }
+  h3, h3 a {
+    color: @heading-color;
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  .UserCard {
+    position: absolute;
+    top: -10px;
+    left: -100px;
+    z-index: @zindex-dropdown;
+    .transition(~"opacity 0.2s, transform 0.2s");
+    transform: scale(0.95);
+    transform-origin: left top;
+    opacity: 0;
+
+    &.in {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+.PostUser-badges {
+  text-align: right;
+  white-space: nowrap;
+  pointer-events: none;
+
+  .Badge {
+    margin-left: -15px;
+    position: relative;
+    pointer-events: auto;
+  }
+}
+
+.Post-body {
+  font-size: 14px;
+  line-height: 1.7;
+  position: relative;
+
+  p, ul, ol, blockquote {
+    margin-bottom: 1em;
+  }
+  a {
+    border-bottom: 1px solid @control-bg;
+    font-weight: 600;
+
+    &:hover, &:focus, &:active {
+      text-decoration: none;
+      border-color: @link-color;
+    }
+  }
+  blockquote {
+    font-size: inherit;
+    border: 0;
+    background: @control-bg;
+    color: @control-color;
+    border-radius: @border-radius;
+    padding: 10px 15px;
+    border-top: 2px dotted @body-bg;
+    border-bottom: 2px dotted @body-bg;
+    margin: 1em 0;
+  }
+  pre {
+    border: 0;
+    padding: 15px;
+    background: darken(@body-bg, 3%);
+    color: #666;
+    font-size: 90%;
+    border-radius: @border-radius;
+  }
+  h1 {
+    font-size: 160%;
+  }
+  h2 {
+    font-size: 120%;
+    font-weight: bold;
+  }
+  h3 {
+    font-size: 100%;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  h4, h5, h6 {
+    font-size: 100%;
+    font-weight: bold;
+  }
+  img {
+    max-width: 100%;
+  }
+}
+
+.Post.hidden {
+  .Post-header, .Post-header a, .Post-user h3, .Post-user h3 a {
+    color: @muted-more-color;
+  }
+  .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    margin-top: -5px;
+    .transition(~"margin-top 0.2s, opacity 0.2s");
+  }
+  &.revealContent {
+    .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+      position: static;
+      visibility: visible;
+      opacity: 0.5;
+      margin-top: 0;
+    }
+  }
+  .Post-header .Button--more {
+    background: fade(@muted-more-color, 30%);
+    color: @muted-more-color;
+  }
+}
+.PostMeta {
+  display: inline;
+}
+.PostMeta .Dropdown-menu {
+  width: 400px;
+  padding: 10px;
+  color: @muted-color;
+
+  @media @phone {
+    padding: 15px !important;
+  }
+}
+.PostMeta-number {
+  color: @text-color;
+  font-weight: bold;
+}
+.PostMeta-time {
+  margin-left: 5px;
+}
+.PostMeta-permalink {
+  margin-top: 10px;
+
+  a& {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.EventPost-icon {
+  float: left;
+}
+.EventPost {
+  &, a {
+    color: @muted-color;
+  }
+  a {
+    font-weight: bold;
+  }
+}
+.EventPost-info {
+  font-size: 15px;
+}
+
+.DiscussionRenamedPost-old, .DiscussionRenamedPost-new {
+  font-weight: normal;
+  font-style: italic;
+}
+
+.Post-footer, .Post-actions {
+  > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  &, a {
+    color: @muted-color;
+  }
+  a {
+    display: inline-block;
+
+    .icon {
+      display: none;
+    }
+  }
+}
+.Post-footer {
+  > ul {
+    > li {
+      margin-bottom: 5px;
+    }
+  }
+  .icon {
+    font-size: 14px;
+    margin-right: 5px;
+  }
+}
+.Post-actions {
+  margin-top: 10px;
+  .transition(opacity 0.2s);
+
+  @media @tablet-up {
+    margin-bottom: -10px;
+    opacity: 0;
+  }
+
+  > ul {
+    > li {
+      margin-right: 10px;
+      display: inline-block;
+    }
+  }
+  .Post:hover & {
+    opacity: 1;
+  }
+}
+.PostStream-timeGap {
+  text-transform: uppercase;
+  font-weight: bold;
+  color: @muted-color;
+  padding: 20px 20px 20px 90px;
+  background: @control-bg;
+  font-size: 12px;
+
+  @media @phone {
+    margin: 0 -15px;
+    padding: 20px 15px;
+  }
+}
+
+.PostPreview {
+  color: @muted-color;
+  padding-left: 50px;
+  line-height: 1.7em;
+
+  .Avatar {
+    float: left;
+    margin-left: -50px;
+    .Avatar--size(32px);
+  }
+  .username {
+    color: @text-color;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  time {
+    margin-right: 5px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+@media @phone {
+  .Post-controls {
+    margin-top: -6px;
+    margin-right: -8px;
+
+    .Dropdown-toggle {
+      opacity: 0.5;
+    }
+  }
+  .Post-header {
+    .Avatar {
+      .Avatar--size(32px);
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+  }
+  .PostUser-badges {
+    position: absolute;
+    top: -12px;
+    left: 6px;
+    width: 32px;
+
+    .Badge {
+      .Badge--size(20px);
+      margin-left: -13px;
+    }
+  }
+  .EventPost {
+    padding-left: 30px;
+  }
+  .EventPost-icon {
+    font-size: 18px;
+    margin-left: -30px;
+    margin-top: 2px;
+  }
+}
+
+@media @tablet-up {
+  .Post {
+    padding-left: 90px;
+
+    .Post-controls {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    &:hover .Post-controls, .Post-controls.open {
+      opacity: 1;
+    }
+  }
+  .PostUser-avatar {
+    margin-left: -90px;
+    float: left;
+    .Avatar--size(64px);
+  }
+  .PostUser-badges {
+    float: left;
+    position: relative;
+    margin-left: -85px;
+    margin-top: -3px;
+    width: 64px;
+  }
+  .EventPost-icon {
+    text-align: right;
+    margin-left: -90px;
+    width: 64px;
+    font-size: 22px;
+  }
+}
+
+.ReplyPlaceholder {
+  font-size: 15px;
+  cursor: text;
+  overflow: hidden;
+  margin-top: 50px;
+  border: 2px dashed @control-bg;
+  color: @muted-color;
+  border-radius: 10px;
+  padding: 20px;
+
+  .Post-header {
+    margin: 0;
+    color: inherit;
+  }
+}
+@media @tablet-up {
+  .ReplyPlaceholder {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 110px;
+    border-color: transparent;
+    transition: border-color 0.2s;
+
+    .Post-header {
+      padding-top: 18px;
+    }
+    .Avatar {
+      margin-top: -18px;
+    }
+    &:hover {
+      border-color: @control-bg;
+    }
+  }
+}

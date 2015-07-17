@@ -29,27 +29,27 @@ export default class UserBio extends Component {
     let content;
 
     if (this.editing) {
-      content = <textarea className="form-control" placeholder="Write something about yourself" rows="3"/>;
+      content = <textarea className="FormControl" placeholder="Write something about yourself" rows="3"/>;
     } else {
       let subContent;
 
       if (this.loading) {
-        subContent = <p className="placeholder">Saving</p>;
+        subContent = <p className="UserBio-placeholder">Saving</p>;
       } else {
         const bioHtml = user.bioHtml();
 
         if (bioHtml) {
           subContent = m.trust(bioHtml);
         } else if (this.props.editable) {
-          subContent = <p className="placeholder">Write something about yourself</p>;
+          subContent = <p className="UserBio-placeholder">Write something about yourself</p>;
         }
       }
 
-      content = <div className="bio-content">{subContent}</div>;
+      content = <div className="UserBio-content">{subContent}</div>;
     }
 
     return (
-      <div className={'bio ' + classList({
+      <div className={'UserBio ' + classList({
           editable: this.isEditable(),
           editing: this.editing
         })}

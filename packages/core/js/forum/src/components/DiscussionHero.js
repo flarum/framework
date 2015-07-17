@@ -12,9 +12,9 @@ import listItems from 'flarum/helpers/listItems';
 export default class DiscussionHero extends Component {
   view() {
     return (
-      <header className="hero discussion-hero">
+      <header className="Hero DiscussionHero">
         <div className="container">
-          <ul className="discussion-hero-items">{listItems(this.items().toArray())}</ul>
+          <ul className="DiscussionHero-items">{listItems(this.items().toArray())}</ul>
         </div>
       </header>
     );
@@ -31,10 +31,10 @@ export default class DiscussionHero extends Component {
     const badges = discussion.badges().toArray();
 
     if (badges.length) {
-      items.add('badges', <ul className="badges">{listItems(badges)}</ul>);
+      items.add('badges', <ul className="DiscussionHero-badges">{listItems(badges)}</ul>);
     }
 
-    items.add('title', <h2 className="discussion-title">{discussion.title()}</h2>);
+    items.add('title', <h2 className="DiscussionHero-title">{discussion.title()}</h2>);
 
     return items;
   }

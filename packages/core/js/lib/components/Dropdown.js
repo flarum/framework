@@ -18,6 +18,8 @@ import listItems from 'flarum/helpers/listItems';
  */
 export default class Dropdown extends Component {
   static initProps(props) {
+    super.initProps(props);
+
     props.className = props.className || '';
     props.buttonClassName = props.buttonClassName || '';
     props.contentClassName = props.contentClassName || '';
@@ -26,11 +28,13 @@ export default class Dropdown extends Component {
   }
 
   view() {
+    const items = listItems(this.props.children);
+
     return (
-      <div className={'dropdown btn-group ' + this.props.className}>
+      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length}>
         {this.getButton()}
-        <ul className={'dropdown-menu ' + this.props.menuClassName}>
-          {listItems(this.props.children)}
+        <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>
+          {items}
         </ul>
       </div>
     );
@@ -44,12 +48,12 @@ export default class Dropdown extends Component {
    */
   getButton() {
     return (
-      <a href="javascript:;"
-        className={'dropdown-toggle ' + this.props.buttonClassName}
+      <button
+        className={'Dropdown-toggle ' + this.props.buttonClassName}
         data-toggle="dropdown"
         onclick={this.props.onclick}>
         {this.getButtonContent()}
-      </a>
+      </button>
     );
   }
 
@@ -61,9 +65,9 @@ export default class Dropdown extends Component {
    */
   getButtonContent() {
     return [
-      icon(this.props.icon),
-      <span className="label">{this.props.label}</span>,
-      icon('caret-down', {className: 'caret'})
+      icon(this.props.icon, {className: 'Button-icon'}),
+      <span className="Button-label">{this.props.label}</span>, ' ',
+      icon('caret-down', {className: 'Button-caret'})
     ];
   }
 }

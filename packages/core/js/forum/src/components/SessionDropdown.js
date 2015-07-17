@@ -1,6 +1,7 @@
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import Dropdown from 'flarum/components/Dropdown';
+import LinkButton from 'flarum/components/LinkButton';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import Separator from 'flarum/components/Separator';
@@ -14,8 +15,9 @@ export default class SessionDropdown extends Dropdown {
   static initProps(props) {
     super.initProps(props);
 
-    props.buttonClassName = 'btn btn-default btn-naked btn-rounded btn-user';
-    props.menuClassName = 'dropdown-menu-right';
+    props.className = 'SessionDropdown';
+    props.buttonClassName = 'Button Button--user Button--flat';
+    props.menuClassName = 'Dropdown-menu--right';
   }
 
   view() {
@@ -29,7 +31,7 @@ export default class SessionDropdown extends Dropdown {
 
     return [
       avatar(user), ' ',
-      <span className="label">{username(user)}</span>
+      <span className="Button-label">{username(user)}</span>
     ];
   }
 
@@ -43,32 +45,31 @@ export default class SessionDropdown extends Dropdown {
     const user = app.session.user;
 
     items.add('profile',
-      Button.component({
+      LinkButton.component({
         icon: 'user',
         children: 'Profile',
-        href: app.route.user(user),
-        config: m.route
+        href: app.route.user(user)
       }),
       100
     );
 
     items.add('settings',
-      Button.component({
+      LinkButton.component({
         icon: 'cog',
         children: 'Settings',
-        href: app.route('settings'),
-        config: m.route
+        href: app.route('settings')
       }),
       50
     );
 
     if (user.groups().some(group => Number(group.id()) === Group.ADMINISTRATOR_ID)) {
       items.add('administration',
-        Button.component({
+        LinkButton.component({
           icon: 'wrench',
           children: 'Administration',
           href: app.forum.attribute('baseUrl') + '/admin',
-          target: '_blank'
+          target: '_blank',
+          config: () => {}
         }),
         0
       );

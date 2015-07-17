@@ -52,20 +52,16 @@ export default class DiscussionList extends Component {
     if (this.loading) {
       loading = LoadingIndicator.component();
     } else if (this.moreResults) {
-      loading = (
-        <div className="load-more">
-          {Button.component({
-            children: 'Load More',
-            className: 'btn btn-default',
-            onclick: this.loadMore.bind(this)
-          })}
-        </div>
-      );
+      loading = Button.component({
+        children: 'Load More',
+        className: 'Button',
+        onclick: this.loadMore.bind(this)
+      });
     }
 
     return (
-      <div className="discussion-list">
-        <ul>
+      <div className="DiscussionList">
+        <ul className="DiscussionList-discussions">
           {this.discussions.map(discussion => {
             return (
               <li key={discussion.id()} data-id={discussion.id()}>
@@ -74,7 +70,9 @@ export default class DiscussionList extends Component {
             );
           })}
         </ul>
-        {loading}
+        <div className="DiscussionList-loadMore">
+          {loading}
+        </div>
       </div>
     );
   }

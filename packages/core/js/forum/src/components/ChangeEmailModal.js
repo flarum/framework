@@ -24,7 +24,7 @@ export default class ChangeEmailModal extends Modal {
   }
 
   className() {
-    return 'modal-sm change-email-modal';
+    return 'ChangeEmailModal Modal--small';
   }
 
   title() {
@@ -36,11 +36,11 @@ export default class ChangeEmailModal extends Modal {
       const emailProviderName = this.email().split('@')[1];
 
       return (
-        <div className="modal-body">
-          <div class="form-centered">
-            <p class="help-text">We've sent a confirmation email to <strong>{this.email()}</strong>. If it doesn't arrive soon, check your spam folder.</p>
-            <div class="form-group">
-              <a href={'http://' + emailProviderName} className="btn btn-primary btn-block">Go to {emailProviderName}</a>
+        <div className="Modal-body">
+          <div class="Form Form--centered">
+            <p class="helpText">We've sent a confirmation email to <strong>{this.email()}</strong>. If it doesn't arrive soon, check your spam folder.</p>
+            <div class="Form-group">
+              <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">Go to {emailProviderName}</a>
             </div>
           </div>
         </div>
@@ -48,17 +48,17 @@ export default class ChangeEmailModal extends Modal {
     }
 
     return (
-      <div className="modal-body">
-        <div class="form-centered">
-          <div class="form-group">
-            <input type="email" name="email" className="form-control"
+      <div className="Modal-body">
+        <div class="Form Form--centered">
+          <div class="Form-group">
+            <input type="email" name="email" className="FormControl"
               placeholder={app.session.user.email()}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading}/>
           </div>
-          <div class="form-group">
-            <button type="submit" className="btn btn-primary btn-block" disabled={this.loading}>Save Changes</button>
+          <div class="Form-group">
+            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>Save Changes</button>
           </div>
         </div>
       </div>

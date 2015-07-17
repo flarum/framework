@@ -14,9 +14,9 @@
     top: @header-height;
     bottom: 0;
     width: @admin-pane-width;
-    box-shadow: 0 2px 6px @fl-shadow-color;
-    background: @fl-body-bg;
-    border-top: 1px solid @fl-body-control-bg;
+    box-shadow: 0 2px 6px @shadow-color;
+    background: @body-bg;
+    border-top: 1px solid @control-bg;
 
     & .dropdown-select .dropdown-menu > li {
       & > a {
@@ -26,14 +26,14 @@
         white-space: normal;
       }
       & > a, & > a:hover, &.active > a {
-        color: @fl-body-muted-color;
+        color: @muted-color;
       }
       &.active > a {
-        background: @fl-body-secondary-color;
+        background: @control-bg;
         font-weight: normal;
 
         & .label, & .icon {
-          color: @fl-body-color;
+          color: @text-color;
         }
         & .label {
           font-weight: bold;

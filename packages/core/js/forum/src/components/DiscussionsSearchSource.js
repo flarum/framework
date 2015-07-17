@@ -1,5 +1,5 @@
 import highlight from 'flarum/helpers/highlight';
-import Button from 'flarum/components/Button';
+import LinkButton from 'flarum/components/LinkButton';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -28,13 +28,12 @@ export default class DiscussionsSearchSource {
     const results = this.results[query] || [];
 
     return [
-      <li className="dropdown-header">Discussions</li>,
+      <li className="Dropdown-header">Discussions</li>,
       <li>
-        {Button.component({
+        {LinkButton.component({
           icon: 'search',
           children: 'Search all discussions for "' + query + '"',
-          href: app.route('index', {q: query}),
-          config: m.route
+          href: app.route('index', {q: query})
         })}
       </li>,
       results.map(discussion => {
@@ -42,10 +41,10 @@ export default class DiscussionsSearchSource {
         const post = relevantPosts && relevantPosts[0];
 
         return (
-          <li className="discussion-search-result" data-index={'discussions' + discussion.id()}>
+          <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()}>
             <a href={app.route.discussion(discussion, post && post.number())} config={m.route}>
-              <div className="title">{highlight(discussion.title(), query)}</div>
-              {post ? <div className="excerpt">{highlight(post.contentPlain(), query, 100)}</div> : ''}
+              <div className="DiscussionSearchResult-title">{highlight(discussion.title(), query)}</div>
+              {post ? <div className="DiscussionSearchResult-excerpt">{highlight(post.contentPlain(), query, 100)}</div> : ''}
             </a>
           </li>
         );

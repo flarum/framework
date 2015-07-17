@@ -37,15 +37,14 @@ export default class AvatarEditor extends Component {
     const user = this.props.user;
 
     return (
-      <div className={'avatar-editor dropdown ' + this.props.className + (this.loading ? ' loading' : '')}>
+      <div className={'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '')}>
         {avatar(user)}
-        <a className="dropdown-toggle"
-          href="javascript:;"
+        <a className="Dropdown-toggle"
           data-toggle="dropdown"
           onclick={this.quickUpload.bind(this)}>
-          {this.loading ? LoadingIndicator.component() : icon('pencil', {className: 'icon'})}
+          {this.loading ? LoadingIndicator.component() : icon('pencil')}
         </a>
-        <ul className="dropdown-menu">
+        <ul className="Dropdown-menu Menu">
           {listItems(this.controlItems().toArray())}
         </ul>
       </div>

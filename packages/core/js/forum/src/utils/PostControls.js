@@ -23,7 +23,7 @@ export default {
     ['user', 'moderation', 'destructive'].forEach(section => {
       const controls = this[section + 'Controls'](post, context).toArray();
       if (controls.length) {
-        items.add(section, controls);
+        controls.forEach(item => items.add(item.itemName, item));
         items.add(section + 'Separator', Separator.component());
       }
     });

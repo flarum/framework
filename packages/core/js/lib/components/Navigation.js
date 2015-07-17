@@ -21,14 +21,12 @@ export default class Navigation extends Component {
     const {history, pane} = app;
 
     return (
-      <div className={'navigation ' + (this.props.className || '')}
+      <div className={'Navigation ButtonGroup ' + (this.props.className || '')}
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}>
-        <div className="btn-group">
-          {history.canGoBack()
-            ? [this.getBackButton(), this.getPaneButton()]
-            : this.getDrawerButton()}
-        </div>
+        {history.canGoBack()
+          ? [this.getBackButton(), this.getPaneButton()]
+          : this.getDrawerButton()}
       </div>
     );
   }
@@ -50,7 +48,7 @@ export default class Navigation extends Component {
     const {history} = app;
 
     return Button.component({
-      className: 'btn btn-default btn-icon navigation-back',
+      className: 'Button Button--icon Navigation-back',
       onclick: history.back.bind(history),
       icon: 'chevron-left'
     });
@@ -68,7 +66,7 @@ export default class Navigation extends Component {
     if (!pane || !pane.active) return '';
 
     return Button.component({
-      className: 'btn btn-default btn-icon navigation-pin' + (pane.pinned ? ' active' : ''),
+      className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
       onclick: pane.togglePinned.bind(pane),
       icon: 'thumb-tack'
     });
@@ -87,9 +85,12 @@ export default class Navigation extends Component {
     const user = app.session.user;
 
     return Button.component({
-      className: 'btn btn-default btn-icon navigation-drawer' +
+      className: 'Button Button--icon Navigation-drawer' +
         (user && user.unreadNotificationsCount() ? ' unread' : ''),
-      onclick: drawer.toggle.bind(drawer),
+      onclick: e => {
+        e.stopPropagation();
+        drawer.show();
+      },
       icon: 'reorder'
     });
   }

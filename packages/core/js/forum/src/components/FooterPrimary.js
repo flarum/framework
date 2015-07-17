@@ -10,7 +10,7 @@ import listItems from 'flarum/helpers/listItems';
 export default class FooterPrimary extends Component {
   view() {
     return (
-      <ul className="footer-controls">
+      <ul className="Footer-controls">
         {listItems(this.items().toArray())}
       </ul>
     );

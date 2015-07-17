@@ -1,4 +1,5 @@
 import Separator from 'flarum/components/Separator';
+import classList from 'flarum/utils/classList';
 
 function isSeparator(item) {
   return item && item.component === Separator;
@@ -28,10 +29,20 @@ function withoutUnnecessarySeparators(items) {
 export default function listItems(items) {
   return withoutUnnecessarySeparators(items).map(item => {
     const isListItem = item.component && item.component.isListItem;
+    const active = item.component && item.component.isActive && item.component.isActive(item.props);
     const className = item.props ? item.props.itemClassName : item.itemClassName;
 
-    return isListItem
-      ? item
-      : <li className={(item.itemName ? 'item-' + item.itemName : '') + ' ' + (className || '')}>{item}</li>;
+    return [
+      isListItem
+        ? item
+        : <li className={classList([
+            (item.itemName ? 'item-' + item.itemName : ''),
+            className,
+            (active ? 'active' : '')
+          ])}>
+            {item}
+          </li>,
+      ' '
+    ];
   });
-};
+}

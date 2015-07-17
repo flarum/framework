@@ -8,6 +8,6 @@ export default class ComposerButton extends Button {
   static initProps(props) {
     super.initProps(props);
 
-    props.className = props.className || 'btn btn-icon btn-link';
+    props.className = props.className || 'Button Button--icon Button--link';
   }
 }
