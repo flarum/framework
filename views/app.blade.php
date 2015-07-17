@@ -39,6 +39,7 @@
           app.boot();
         } catch (e) {
           document.write('<div class="container">Something went wrong.</div>');
+          throw e;
         }
       });
     </script>
