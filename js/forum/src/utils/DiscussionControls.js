@@ -4,6 +4,7 @@ import LogInModal from 'flarum/components/LogInModal';
 import Button from 'flarum/components/Button';
 import Separator from 'flarum/components/Separator';
 import ItemList from 'flarum/utils/ItemList';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `DiscussionControls` utility constructs a list of buttons for a
@@ -54,14 +55,14 @@ export default {
         !app.session.user || discussion.canReply()
           ? Button.component({
             icon: 'reply',
-            children: app.session.user ? 'Reply' : 'Log In to Reply',
+            children: app.session.user ? app.trans('core.reply') : app.trans('core.log_in_to_reply'),
             onclick: this.replyAction.bind(discussion, true, false)
           })
           : Button.component({
             icon: 'reply',
-            children: 'Can\'t Reply',
+            children: app.trans('core.cannot_reply'),
             className: 'disabled',
-            title: 'You don\'t have permission to reply to this discussion.'
+            title: app.trans('core.cannot_reply_help')
           })
       );
     }
@@ -84,7 +85,7 @@ export default {
     if (discussion.canRename()) {
       items.add('rename', Button.component({
         icon: 'pencil',
-        children: 'Rename',
+        children: app.trans('core.rename'),
         onclick: this.renameAction.bind(discussion)
       }));
     }
@@ -107,7 +108,7 @@ export default {
     if (discussion.canDelete()) {
       items.add('delete', Button.component({
         icon: 'times',
-        children: 'Delete',
+        children: app.trans('core.delete'),
         onclick: this.deleteAction.bind(discussion)
       }));
     }
@@ -176,7 +177,7 @@ export default {
    * Delete the discussion after confirming with the user.
    */
   deleteAction() {
-    if (confirm('Are you sure you want to delete this discussion?')) {
+    if (confirm(extractText(app.trans('core.confirm_delete_discussion')))) {
       this.delete();
 
       // If there is a discussion list in the cache, remove this discussion.
@@ -197,7 +198,7 @@ export default {
    */
   renameAction() {
     const currentTitle = this.title();
-    const title = prompt('Enter a new title for this discussion:', currentTitle);
+    const title = prompt(extractText(app.trans('core.prompt_rename_discussion')), currentTitle);
 
     // If the title is different to what it was before, then save it. After the
     // save has completed, update the post stream as there will be a new post

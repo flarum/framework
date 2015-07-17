@@ -49,7 +49,7 @@ export default class SignUpModal extends Modal {
   }
 
   title() {
-    return 'Sign Up';
+    return app.trans('core.sign_up');
   }
 
   content() {
@@ -67,21 +67,21 @@ export default class SignUpModal extends Modal {
     const body = [(
       <div className="Form Form--centered">
         <div className="Form-group">
-          <input className="FormControl" name="username" placeholder="Username"
+          <input className="FormControl" name="username" placeholder={app.trans('core.username')}
             value={this.username()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading} />
         </div>
 
         <div className="Form-group">
-          <input className="FormControl" name="email" type="email" placeholder="Email"
+          <input className="FormControl" name="email" type="email" placeholder={app.trans('core.email')}
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading} />
         </div>
 
         <div className="Form-group">
-          <input className="FormControl" name="password" type="password" placeholder="Password"
+          <input className="FormControl" name="password" type="password" placeholder={app.trans('core.password')}
             value={this.password()}
             onchange={m.withAttr('value', this.password)}
             disabled={this.loading} />
@@ -91,7 +91,7 @@ export default class SignUpModal extends Modal {
           <button className="Button Button--primary Button--block"
             type="submit"
             disabled={this.loading}>
-            Sign Up
+            {app.trans('core.sign_up')}
           </button>
         </div>
       </div>
@@ -111,13 +111,21 @@ export default class SignUpModal extends Modal {
           <div className="darkenBackground"/>
           <div className="container">
             {avatar(user)}
-            <h3>Welcome, {user.username()}!</h3>
+            <h3>{app.trans('core.welcome_user', {user})}</h3>
 
             {user.isConfirmed() ? [
-              <p>We've sent a confirmation email to <strong>{user.email()}</strong>. If it doesn't arrive soon, check your spam folder.</p>,
-              <p><a href={`http://${emailProviderName}`} className="Button Button--primary">Go to {emailProviderName}</a></p>
+              <p>{app.trans('core.confirmation_email_sent', {email: user.email()})}</p>,
+              <p>
+                <a href={`http://${emailProviderName}`} className="Button Button--primary">
+                  {app.trans('core.go_to', {location: emailProviderName})}
+                </a>
+              </p>
             ] : (
-              <p><button className="Button Button--primary" onclick={this.hide.bind(this)}>Dismiss</button></p>
+              <p>
+                <button className="Button Button--primary" onclick={this.hide.bind(this)}>
+                  {app.trans('core.dismiss')}
+                </button>
+              </p>
             )}
           </div>
         </div>
@@ -130,8 +138,8 @@ export default class SignUpModal extends Modal {
   footer() {
     return [
       <p className="SignUpModal-logIn">
-        Already have an account?{' '}
-        <a onclick={this.logIn.bind(this)}>Log In</a>
+        {app.trans('core.before_log_in_link')}{' '}
+        <a onclick={this.logIn.bind(this)}>{app.trans('core.log_in')}</a>
       </p>
     ];
   }

@@ -26,12 +26,6 @@ export default class TextEditor extends Component {
     this.value = m.prop(this.props.value || '');
   }
 
-  static initProps(props) {
-    super.initProps(props);
-
-    props.submitLabel = props.submitLabel || 'Submit';
-  }
-
   view() {
     return (
       <div className="TextEditor">

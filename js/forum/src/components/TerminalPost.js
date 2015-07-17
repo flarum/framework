@@ -20,9 +20,10 @@ export default class TerminalPost extends Component {
 
     return (
       <span>
-        {username(user)}{' '}
-        {lastPost ? 'replied ' : 'started '}
-        {humanTime(time)}
+        {app.trans('core.discussion_' + (lastPost ? 'replied' : 'started'), {
+          user,
+          ago: humanTime(time)
+        })}
       </span>
     );
   }

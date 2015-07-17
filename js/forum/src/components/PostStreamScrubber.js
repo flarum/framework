@@ -71,12 +71,10 @@ export default class PostStreamScrubber extends Component {
     const unreadCount = this.props.stream.discussion.unreadCount();
     const unreadPercent = Math.min(this.count() - this.index, unreadCount) / this.count();
 
-    const viewing = [
-      <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
-      ' of ',
-      <span className="Scrubber-count">{formatNumber(this.count())}</span>,
-      ' posts '
-    ];
+    const viewing = app.trans('core.viewing_posts', {
+      index: <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
+      count: <span className="Scrubber-count">{formatNumber(this.count())}</span>
+    });
 
     function styleUnread(element, isInitialized, context) {
       const $element = $(element);
@@ -103,7 +101,7 @@ export default class PostStreamScrubber extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('angle-double-up')} Original Post
+              {icon('angle-double-up')} {app.trans('core.original_post')}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -118,12 +116,12 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-after"/>
 
               <div className="Scrubber-unread" config={styleUnread}>
-                {formatNumber(unreadCount)} unread
+                {app.trans('core.unread_posts', {count: unreadCount})}
               </div>
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('angle-double-down')} Now
+              {icon('angle-double-down')} {app.trans('core.now')}
             </a>
           </div>
         </div>

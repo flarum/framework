@@ -58,7 +58,7 @@ export default {
     if (user.canEdit()) {
       items.add('edit', Button.component({
         icon: 'pencil',
-        children: 'Edit',
+        children: app.trans('core.edit'),
         onclick: this.editAction.bind(user)
       }));
     }
@@ -81,7 +81,7 @@ export default {
     if (user.canDelete()) {
       items.add('delete', Button.component({
         icon: 'times',
-        children: 'Delete',
+        children: app.trans('core.delete'),
         onclick: this.deleteAction.bind(user)
       }));
     }

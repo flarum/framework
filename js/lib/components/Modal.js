@@ -2,7 +2,6 @@ import Component from 'flarum/Component';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
-import icon from 'flarum/helpers/icon';
 
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses

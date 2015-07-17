@@ -15,8 +15,8 @@ export default class EditPostComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.submitLabel = props.submitLabel || 'Save Changes';
-    props.confirmExit = props.confirmExit || 'You have not saved your changes. Do you wish to discard them?';
+    props.submitLabel = props.submitLabel || app.trans('core.save_changes');
+    props.confirmExit = props.confirmExit || app.trans('core.confirm_discard_edit');
     props.originalContent = props.originalContent || props.post.content();
     props.user = props.user || props.post.user();
   }
@@ -29,7 +29,7 @@ export default class EditPostComposer extends ComposerBody {
       <h3>
         {icon('pencil')}{' '}
         <a href={app.route.discussion(post.discussion(), post.number())} config={m.route}>
-          Post #{post.number()} in {post.discussion().title()}
+          {app.trans('core.editing_post', {number: post.number(), discussion: post.discussion().title()})}
         </a>
       </h3>
     ));

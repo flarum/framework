@@ -21,8 +21,8 @@ export default class NotificationGrid extends Component {
      * @type {Array}
      */
     this.methods = [
-      {name: 'alert', icon: 'bell', label: 'Alert'},
-      {name: 'email', icon: 'envelope-o', label: 'Email'}
+      {name: 'alert', icon: 'bell', label: app.trans('core.alert')},
+      {name: 'email', icon: 'envelope-o', label: app.trans('core.email')}
     ];
 
     /**
@@ -181,7 +181,7 @@ export default class NotificationGrid extends Component {
 
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
-      label: [icon('pencil'), ' Someone renames a discussion I started']
+      label: [icon('pencil'), ' ', app.trans('core.notify_discussion_renamed')]
     });
 
     return items;

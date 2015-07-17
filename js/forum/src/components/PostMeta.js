@@ -33,7 +33,7 @@ export default class PostMeta extends Component {
         </a>
 
         <div className="Dropdown-menu dropdown-menu">
-          <span className="PostMeta-number">Post #{post.number()}</span>{' '}
+          <span className="PostMeta-number">{app.trans('core.post_number', {number: post.number()})}</span>{' '}
           {fullTime(time)}
           {touch
             ? <a href="Button PostMeta-permalink" href={permalink}>{permalink}</a>

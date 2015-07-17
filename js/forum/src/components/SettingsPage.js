@@ -18,7 +18,7 @@ export default class SettingsPage extends UserPage {
     super(...args);
 
     this.init(app.session.user);
-    app.setTitle('Settings');
+    app.setTitle(app.trans('core.settings'));
     app.drawer.hide();
   }
 
@@ -40,7 +40,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('account',
       FieldSet.component({
-        label: 'Account',
+        label: app.trans('core.account'),
         className: 'Settings-account',
         children: this.accountItems().toArray()
       })
@@ -48,7 +48,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('notifications',
       FieldSet.component({
-        label: 'Notifications',
+        label: app.trans('core.notifications'),
         className: 'Settings-notifications',
         children: [NotificationGrid.component({user: this.user})]
       })
@@ -56,7 +56,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('privacy',
       FieldSet.component({
-        label: 'Privacy',
+        label: app.trans('core.privacy'),
         className: 'Settings-privacy',
         children: this.privacyItems().toArray()
       })
@@ -75,7 +75,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('changePassword',
       Button.component({
-        children: 'Change Password',
+        children: app.trans('core.change_password'),
         className: 'Button',
         onclick: () => app.modal.show(new ChangePasswordModal())
       })
@@ -83,7 +83,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('changeEmail',
       Button.component({
-        children: 'Change Email',
+        children: app.trans('core.change_email'),
         className: 'Button',
         onclick: () => app.modal.show(new ChangeEmailModal())
       })
@@ -91,7 +91,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('deleteAccount',
       Button.component({
-        children: 'Delete Account',
+        children: app.trans('core.delete_account'),
         className: 'Button Button--danger',
         onclick: () => app.modal.show(new DeleteAccountModal())
       })
@@ -131,7 +131,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('discloseOnline',
       Switch.component({
-        children: 'Allow others to see when I am online',
+        children: app.trans('disclose_online'),
         state: this.user.preferences().discloseOnline,
         onchange: (value, component) => {
           this.user.pushAttributes({lastSeenTime: null});
