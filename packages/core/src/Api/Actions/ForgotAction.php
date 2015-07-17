@@ -1,8 +1,8 @@
 <?php namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
-use Flarum\Core\Repositories\UserRepositoryInterface;
-use Flarum\Core\Commands\RequestPasswordReset;
+use Flarum\Core\Users\UserRepository;
+use Flarum\Core\Users\Commands\RequestPasswordReset;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Zend\Diactoros\Response\EmptyResponse;
 
@@ -12,7 +12,7 @@ class ForgotAction extends JsonApiAction
 
     protected $bus;
 
-    public function __construct(UserRepositoryInterface $users, Dispatcher $bus)
+    public function __construct(UserRepository $users, Dispatcher $bus)
     {
         $this->users = $users;
         $this->bus = $bus;
