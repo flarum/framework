@@ -38,7 +38,7 @@ class NotificationType implements ExtenderInterface
         $class = $this->class;
         $type = $class::getType();
 
-        Notification::setSubjectModel($type, $class);
+        Notification::setSubjectModel($type, $class::getSubjectModel());
 
         User::addPreference(User::getNotificationPreferenceKey($type, 'alert'), 'boolval', in_array('alert', $this->enabled));
 
