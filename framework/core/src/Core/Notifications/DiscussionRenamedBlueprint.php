@@ -54,6 +54,6 @@ class DiscussionRenamedBlueprint implements Blueprint
      */
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Models\Discussion';
+        return 'Flarum\Core\Discussions\Discussion';
     }
 }
