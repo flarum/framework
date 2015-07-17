@@ -9,7 +9,7 @@ import Modal from 'flarum/components/Modal';
 export default class ModalManager extends Component {
   view() {
     return (
-      <div className="modal">
+      <div className="ModalManager modal fade">
         {this.component && this.component.render()}
       </div>
     );

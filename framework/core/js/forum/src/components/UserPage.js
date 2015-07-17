@@ -33,24 +33,24 @@ export default class UserPage extends Component {
 
   view() {
     return (
-      <div>
+      <div className="UserPage">
         {this.user ? [
           UserCard.component({
             user: this.user,
-            className: 'hero user-hero',
+            className: 'Hero UserHero',
             editable: this.user.canEdit(),
-            controlsButtonClassName: 'btn btn-default'
+            controlsButtonClassName: 'Button'
           }),
           <div className="container">
-            <nav className="side-nav user-nav" config={affixSidebar}>
+            <nav className="sideNav UserPage-nav" config={affixSidebar}>
               <ul>{listItems(this.sidebarItems().toArray())}</ul>
             </nav>
-            <div className="offset-content user-content">
+            <div className="sideNavOffset UserPage-content">
               {this.content()}
             </div>
           </div>
         ] : [
-          LoadingIndicator.component({className: 'loading-indicator-block'})
+          LoadingIndicator.component({className: 'LoadingIndicator--block'})
         ]}
       </div>
     );
@@ -59,8 +59,8 @@ export default class UserPage extends Component {
   config(isInitialized, context) {
     if (isInitialized) return;
 
-    $('body').addClass('user-page');
-    context.onunload = () => $('body').removeClass('user-page');
+    $('#app').addClass('App--user');
+    context.onunload = () => $('#app').removeClass('App--user');
   }
 
   /**
@@ -117,7 +117,8 @@ export default class UserPage extends Component {
     items.add('nav',
       SelectDropdown.component({
         children: this.navItems().toArray(),
-        itemClass: 'title-control'
+        className: 'App-titleControl',
+        buttonClassName: 'Button'
       })
     );
 
@@ -144,7 +145,7 @@ export default class UserPage extends Component {
     items.add('discussions',
       LinkButton.component({
         href: app.route('user.discussions', {username: user.username()}),
-        children: ['Discussions', <span className="count">{user.discussionsCount()}</span>],
+        children: ['Discussions', <span className="Button-badge">{user.discussionsCount()}</span>],
         icon: 'reorder'
       })
     );
@@ -152,7 +153,7 @@ export default class UserPage extends Component {
     items.add('posts',
       LinkButton.component({
         href: app.route('user.posts', {username: user.username()}),
-        children: ['Posts', <span className="count">{user.commentsCount()}</span>],
+        children: ['Posts', <span className="Button-badge">{user.commentsCount()}</span>],
         icon: 'comment-o'
       })
     );

@@ -9,8 +9,8 @@ export default function affixSidebar(element, isInitialized) {
   if (isInitialized) return;
 
   const $sidebar = $(element);
-  const $header = $('.global-header');
-  const $footer = $('.global-footer');
+  const $header = $('#header');
+  const $footer = $('#footer');
 
   // Don't affix the sidebar if it is taller than the viewport (otherwise
   // there would be no way to scroll through its content).

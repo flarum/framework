@@ -53,42 +53,42 @@ export default class NotificationList extends Component {
     }
 
     return (
-      <div className="notification-list">
-        <div className="notifications-header">
-          <div className="primary-control">
+      <div className="NotificationList">
+        <div className="NotificationList-header">
+          <div className="App-primaryControl">
             {Button.component({
-              className: 'btn btn-icon btn-link btn-sm',
+              className: 'Button Button--icon Button--link',
               icon: 'check',
               title: 'Mark All as Read',
               onclick: this.markAllAsRead.bind(this)
             })}
           </div>
 
-          <h4 className="title-control">Notifications</h4>
+          <h4 className="App-titleControl App-titleControl--text">Notifications</h4>
         </div>
 
-        <div className="notifications-content">
+        <div className="NotificationList-content">
           {groups.length
             ? groups.map(group => {
               const badges = group.discussion && group.discussion.badges().toArray();
 
               return (
-                <div className="notification-group">
+                <div className="NotificationGroup">
                   {group.discussion
                     ? (
-                      <a className="notification-group-header"
+                      <a className="NotificationGroup-header"
                         href={app.route.discussion(group.discussion)}
                         config={m.route}>
-                        {badges && badges.length ? <ul className="badges">{listItems(badges)}</ul> : ''}
+                        {badges && badges.length ? <ul className="NotificationGroup-badges">{listItems(badges)}</ul> : ''}
                         {group.discussion.title()}
                       </a>
                     ) : (
-                      <div className="notification-group-header">
+                      <div className="NotificationGroup-header">
                         {app.forum.attribute('title')}
                       </div>
                     )}
 
-                  <ul className="notification-group-list">
+                  <ul className="NotificationGroup-content">
                     {group.notifications.map(notification => {
                       const NotificationComponent = app.notificationComponents[notification.contentType()];
                       return NotificationComponent ? <li>{NotificationComponent.component({notification})}</li> : '';
@@ -98,8 +98,8 @@ export default class NotificationList extends Component {
               );
             })
             : !this.loading
-              ? <div className="no-notifications">No Notifications</div>
-              : LoadingIndicator.component({className: 'loading-indicator-block'})}
+              ? <div className="NotificationList-empty">No Notifications</div>
+              : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
         </div>
       </div>
     );

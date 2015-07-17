@@ -10,16 +10,18 @@ export default class SelectDropdown extends Dropdown {
   static initProps(props) {
     super.initProps(props);
 
-    props.className += ' select-dropdown';
+    props.className += ' Dropdown--select';
   }
 
   getButtonContent() {
     const activeChild = this.props.children.filter(child => child.props.active)[0];
-    const label = activeChild && activeChild.props.label;
+    let label = activeChild && activeChild.props.children;
+
+    if (label instanceof Array) label = label[0];
 
     return [
-      <span className="label">{label}</span>,
-      icon('sort', {className: 'caret'})
+      <span className="Button-label">{label}</span>, ' ',
+      icon('sort', {className: 'Button-caret'})
     ];
   }
 }

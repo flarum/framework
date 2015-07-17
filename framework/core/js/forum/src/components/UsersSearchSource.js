@@ -22,9 +22,9 @@ export default class UsersSearchResults {
     if (!results.length) return '';
 
     return [
-      <li className="dropdown-header">Users</li>,
+      <li className="Dropdown-header">Users</li>,
       results.map(user => (
-        <li className="user-search-result" data-index={'users' + user.id()}>
+        <li className="UserSearchResult" data-index={'users' + user.id()}>
           <a href={app.route.user(user)} config={m.route}>
             {avatar(user)}
             {highlight(user.username(), query)}

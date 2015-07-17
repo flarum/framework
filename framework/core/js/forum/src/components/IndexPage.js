@@ -59,16 +59,16 @@ export default class IndexPage extends Component {
 
   view() {
     return (
-      <div className="index-area">
+      <div className="IndexPage">
         {this.hero()}
         <div className="container">
-          <nav className="side-nav index-nav" config={affixSidebar}>
+          <nav className="IndexPage-nav sideNav" config={affixSidebar}>
             <ul>{listItems(this.sidebarItems().toArray())}</ul>
           </nav>
-          <div className="offset-content index-results">
-            <div className="index-toolbar">
-              <ul className="index-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
-              <ul className="index-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
+          <div className="IndexPage-results sideNavOffset">
+            <div className="IndexPage-toolbar">
+              <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
+              <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
             </div>
             {app.cache.discussionList.render()}
           </div>
@@ -80,10 +80,10 @@ export default class IndexPage extends Component {
   config(isInitialized, context) {
     if (isInitialized) return;
 
-    $('body').addClass('index-page');
+    $('#app').addClass('App--index');
     context.onunload = () => {
-      $('body').removeClass('index-page');
-      $('.global-page').css('min-height', '');
+      $('#app').removeClass('App--index')
+        .css('min-height', '');
     };
 
     app.setTitle('');
@@ -91,10 +91,10 @@ export default class IndexPage extends Component {
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the 'fixed' sidebar doesn't jump around.
-    const heroHeight = this.$('.hero').outerHeight();
+    const heroHeight = this.$('.Hero').outerHeight();
     const scrollTop = app.cache.scrollTop;
 
-    $('.global-page').css('min-height', $(window).height() + heroHeight);
+    $('#app').css('min-height', $(window).height() + heroHeight);
     $(window).scrollTop(scrollTop - (app.cache.heroHeight - heroHeight));
 
     app.cache.heroHeight = heroHeight;
@@ -103,7 +103,7 @@ export default class IndexPage extends Component {
     // have set the `lastDiscussion` property. If this is the case, we want to
     // scroll down to that discussion so that it's in view.
     if (this.lastDiscussion) {
-      const $discussion = this.$('.discussion-summary[data-id=' + this.lastDiscussion.id() + ']');
+      const $discussion = this.$(`.DiscussionListItem[data-id="${this.lastDiscussion.id()}"]`);
 
       if ($discussion.length) {
         const indexTop = $('#header').outerHeight();
@@ -141,8 +141,8 @@ export default class IndexPage extends Component {
       Button.component({
         children: 'Start a Discussion',
         icon: 'edit',
-        className: 'btn btn-primary new-discussion',
-        itemClassName: 'primary-control',
+        className: 'Button Button--primary IndexPage-newDiscussion',
+        itemClassName: 'App-primaryControl',
         onclick: this.newDiscussion.bind(this)
       })
     );
@@ -150,7 +150,8 @@ export default class IndexPage extends Component {
     items.add('nav',
       SelectDropdown.component({
         children: this.navItems(this).toArray(),
-        itemClassName: 'title-control'
+        buttonClassName: 'Button',
+        className: 'App-titleControl'
       })
     );
 
@@ -201,15 +202,6 @@ export default class IndexPage extends Component {
       })
     );
 
-    items.add('refresh',
-      Button.component({
-        title: 'Refresh',
-        icon: 'refresh',
-        className: 'btn btn-default btn-icon',
-        onclick: () => app.cache.discussionList.refresh()
-      })
-    );
-
     return items;
   }
 
@@ -222,12 +214,21 @@ export default class IndexPage extends Component {
   actionItems() {
     const items = new ItemList();
 
+    items.add('refresh',
+      Button.component({
+        title: 'Refresh',
+        icon: 'refresh',
+        className: 'Button Button--icon',
+        onclick: () => app.cache.discussionList.refresh()
+      })
+    );
+
     if (app.session.user) {
       items.add('markAllAsRead',
         Button.component({
           title: 'Mark All as Read',
           icon: 'check',
-          className: 'btn btn-default btn-icon',
+          className: 'Button Button--icon',
           onclick: this.markAllAsRead.bind(this)
         })
       );

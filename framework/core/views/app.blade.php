@@ -28,14 +28,18 @@
     <script>
       var app;
       System.import('flarum/app').then(function(module) {
-        app = module.default;
-        app.preload = {
-          data: {!! json_encode($data) !!},
-          document: {!! json_encode($document) !!},
-          session: {!! json_encode($session) !!}
-        };
-        initLocale(app);
-        app.boot();
+        try {
+          app = module.default;
+          app.preload = {
+            data: {!! json_encode($data) !!},
+            document: {!! json_encode($document) !!},
+            session: {!! json_encode($session) !!}
+          };
+          initLocale(app);
+          app.boot();
+        } catch (e) {
+          document.write('<div class="container">Something went wrong.</div>');
+        }
       });
     </script>
 

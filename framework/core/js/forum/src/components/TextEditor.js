@@ -34,15 +34,15 @@ export default class TextEditor extends Component {
 
   view() {
     return (
-      <div className="text-editor">
-        <textarea className="form-control flexible-height"
+      <div className="TextEditor">
+        <textarea className="FormControl TextEditor-flexible"
           config={this.configTextarea.bind(this)}
           oninput={m.withAttr('value', this.oninput.bind(this))}
           placeholder={this.props.placeholder || ''}
           disabled={!!this.props.disabled}
           value={this.value()}/>
 
-        <ul className="text-editor-controls">
+        <ul className="TextEditor-controls">
           {listItems(this.controlItems().toArray())}
         </ul>
       </div>
@@ -76,7 +76,7 @@ export default class TextEditor extends Component {
       Button.component({
         children: this.props.submitLabel,
         icon: 'check',
-        className: 'btn btn-primary',
+        className: 'Button Button--primary',
         onclick: this.onsubmit.bind(this)
       })
     );

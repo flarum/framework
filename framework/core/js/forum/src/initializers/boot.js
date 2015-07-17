@@ -12,7 +12,7 @@ import FooterPrimary from 'flarum/components/FooterPrimary';
 import FooterSecondary from 'flarum/components/FooterSecondary';
 import Composer from 'flarum/components/Composer';
 import ModalManager from 'flarum/components/ModalManager';
-import Alerts from 'flarum/components/Alerts';
+import AlertManager from 'flarum/components/AlertManager';
 
 /**
  * The `boot` initializer boots up the forum app. It initializes some app
@@ -23,18 +23,18 @@ import Alerts from 'flarum/components/Alerts';
 export default function boot(app) {
   m.startComputation();
 
-  m.mount(document.getElementById('page-navigation'), Navigation.component({className: 'back-control', drawer: true}));
+  m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
   m.mount(document.getElementById('header-navigation'), Navigation.component());
   m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
   m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
   m.mount(document.getElementById('footer-primary'), FooterPrimary.component());
   m.mount(document.getElementById('footer-secondary'), FooterSecondary.component());
 
-  app.pane = new Pane(document.getElementById('page'));
+  app.pane = new Pane(document.getElementById('app'));
   app.drawer = new Drawer();
   app.composer = m.mount(document.getElementById('composer'), Composer.component());
   app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
-  app.alerts = m.mount(document.getElementById('alerts'), Alerts.component());
+  app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
 
   m.route.mode = 'pathname';
   m.route(document.getElementById('content'), '/', mapRoutes(app.routes));
@@ -47,15 +47,22 @@ export default function boot(app) {
     if (e.ctrlKey || e.metaKey || e.which === 2) return;
     e.preventDefault();
     app.history.home();
+    app.drawer.hide();
   });
+
+  const offsetTop = $('#app').offset().top + 1;
 
   // Add a class to the body which indicates that the page has been scrolled
   // down.
-  new ScrollListener(top => $('body').toggleClass('scrolled', top > 0)).start();
+  new ScrollListener(top => $('#app').toggleClass('scrolled', top > offsetTop)).start();
 
   // Initialize FastClick, which makes links and buttons much more responsive on
   // touch devices.
   $(() => FastClick.attach(document.body));
+
+  $('#app').affix({
+    offset: {top: offsetTop}
+  });
 
   app.booted = true;
 }

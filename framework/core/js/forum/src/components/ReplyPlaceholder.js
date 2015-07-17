@@ -22,9 +22,9 @@ export default class ReplyPlaceholder extends Component {
     };
 
     return (
-      <article className="post reply-post" onclick={reply} onmousedown={triggerClick}>
-        <header className="post-header">
-          {avatar(app.session.user)}
+      <article className="Post ReplyPlaceholder" onclick={reply} onmousedown={triggerClick}>
+        <header className="Post-header">
+          {avatar(app.session.user, {className: 'PostUser-avatar'})}{' '}
           Write a Reply...
         </header>
       </article>

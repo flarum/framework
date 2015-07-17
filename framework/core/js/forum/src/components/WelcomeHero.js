@@ -20,15 +20,15 @@ export default class WelcomeHero extends Component {
     };
 
     return (
-      <header className="hero welcome-hero">
+      <header className="Hero WelcomeHero">
         <div class="container">
-          <button className="close btn btn-icon btn-link" onclick={slideUp}>
+          <button className="Hero-close Button Button--icon Button--link" onclick={slideUp}>
             {icon('times')}
           </button>
 
-          <div className="container-narrow">
-            <h2>{app.forum.attribute('welcomeTitle')}</h2>
-            <div className="subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
+          <div className="containerNarrow">
+            <h2 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h2>
+            <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
           </div>
         </div>
       </header>

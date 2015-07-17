@@ -27,7 +27,7 @@ export default class Checkbox extends Component {
   }
 
   view() {
-    let className = 'checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
+    let className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
     if (this.loading) className += ' loading';
     if (this.props.disabled) className += ' disabled';
 
@@ -37,7 +37,7 @@ export default class Checkbox extends Component {
           checked={this.props.state}
           disabled={this.props.disabled}
           onchange={m.withAttr('checked', this.onchange.bind(this))}/>
-        <div className="checkbox-display">
+        <div className="Checkbox-display">
           {this.getDisplay()}
         </div>
         {this.props.children}

@@ -28,32 +28,38 @@ export default class UserCard extends Component {
     const controls = UserControls.controls(user, this).toArray();
 
     return (
-      <div className={'user-card ' + (this.props.className || '')}
+      <div className={'UserCard ' + (this.props.className || '')}
         style={{backgroundColor: user.color()}}>
-        <div className="darken-overlay"/>
+        <div className="darkenBackground">
 
-        <div className="container">
-          {controls.length ? Dropdown.component({
-            children: controls,
-            className: 'contextual-controls',
-            menuClass: 'dropdown-menu-right',
-            buttonClass: this.props.controlsButtonClassName
-          }) : ''}
+          <div className="container">
+            {controls.length ? Dropdown.component({
+              children: controls,
+              className: 'UserCard-controls App-primaryControl',
+              menuClassName: 'Dropdown-menu--right',
+              buttonClassName: this.props.controlsButtonClassName
+            }) : ''}
 
-          <div className="user-profile">
-            <h2 className="user-identity">
-              {this.props.editable
-                ? [AvatarEditor.component({user, className: 'user-avatar'}), username(user)]
-                : (
-                  <a href={app.route.user(user)} config={m.route}>
-                    {avatar(user, {className: 'user-avatar'})}
-                    {username(user)}
-                  </a>
-                )}
-            </h2>
+            <div className="UserCard-profile">
+              <h2 className="UserCard-identity">
+                {this.props.editable
+                  ? [AvatarEditor.component({user, className: 'UserCard-avatar'}), username(user)]
+                  : (
+                    <a href={app.route.user(user)} config={m.route}>
+                      <div className="UserCard-avatar">{avatar(user)}</div>
+                      {username(user)}
+                    </a>
+                  )}
+              </h2>
 
-            <ul className="badges user-badges">{listItems(user.badges().toArray())}</ul>
-            <ul className="user-info">{listItems(this.infoItems().toArray())}</ul>
+              <ul className="UserCard-badges badges">
+                {listItems(user.badges().toArray())}
+              </ul>
+
+              <ul className="UserCard-info">
+                {listItems(this.infoItems().toArray())}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -81,7 +87,7 @@ export default class UserCard extends Component {
       const online = user.isOnline();
 
       items.add('lastSeen', (
-        <span className={'user-last-seen' + (online ? ' online' : '')}>
+        <span className={'UserCard-lastSeen' + (online ? ' online' : '')}>
           {online
             ? [icon('circle'), ' Online']
             : [icon('clock-o'), ' ', humanTime(lastSeenTime)]}

@@ -62,7 +62,7 @@ class Composer extends Component {
   view() {
     const classes = {
       'minimized': this.position === Composer.PositionEnum.MINIMIZED,
-      'full-screen': this.position === Composer.PositionEnum.FULLSCREEN
+      'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN
     };
     classes.visible = this.position === Composer.PositionEnum.NORMAL || classes.minimized || classes.fullScreen;
 
@@ -76,10 +76,10 @@ class Composer extends Component {
     };
 
     return (
-      <div className={'composer ' + classList(classes)}>
-        <div className="composer-handle"/>
-        <ul className="composer-controls">{listItems(this.controlItems().toArray())}</ul>
-        <div className="composer-content" onclick={showIfMinimized}>
+      <div className={'Composer ' + classList(classes)}>
+        <div className="Composer-handle" config={this.configHandle.bind(this)}/>
+        <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
+        <div className="Composer-content" onclick={showIfMinimized}>
           {this.component ? this.component.render() : ''}
         </div>
       </div>
@@ -113,19 +113,7 @@ class Composer extends Component {
       return (this.component && this.component.preventExit()) || null;
     };
 
-    // Add the necessary event handlers to the composer's handle so that it can
-    // be used to resize the composer.
-    const composer = this;
     const handlers = {};
-
-    this.$('.composer-handle').css('cursor', 'row-resize')
-      .bind('dragstart mousedown', e => e.preventDefault())
-      .mousedown(function(e) {
-        composer.mouseStart = e.clientY;
-        composer.heightStart = composer.$().height();
-        composer.handle = $(this);
-        $('body').css('cursor', 'row-resize');
-      });
 
     $(window).on('resize', handlers.onresize = this.updateHeight.bind(this)).resize();
 
@@ -140,6 +128,28 @@ class Composer extends Component {
         .off('mousemove', handlers.onmousemove)
         .off('mouseup', handlers.onmouseup);
     };
+  }
+
+  /**
+   * Add the necessary event handlers to the composer's handle so that it can
+   * be used to resize the composer.
+   *
+   * @param {DOMElement} element
+   * @param {Boolean} isInitialized
+   */
+  configHandle(element, isInitialized) {
+    if (isInitialized) return;
+
+    const composer = this;
+
+    $(element).css('cursor', 'row-resize')
+      .bind('dragstart mousedown', e => e.preventDefault())
+      .mousedown(function(e) {
+        composer.mouseStart = e.clientY;
+        composer.heightStart = composer.$().height();
+        composer.handle = $(this);
+        $('body').css('cursor', 'row-resize');
+      });
   }
 
   /**
@@ -185,15 +195,17 @@ class Composer extends Component {
    * of any flexible elements inside the composer's body.
    */
   updateHeight() {
+    // TODO: update this in a way that is independent of the TextEditor being
+    // present.
     const height = this.computedHeight();
-    const $flexible = this.$('.flexible-height');
+    const $flexible = this.$('.TextEditor-flexible');
 
     this.$().height(height);
 
     if ($flexible.length) {
       const headerHeight = $flexible.offset().top - this.$().offset().top;
       const paddingBottom = parseInt($flexible.css('padding-bottom'), 10);
-      const footerHeight = this.$('.text-editor-controls').outerHeight(true);
+      const footerHeight = this.$('.TextEditor-controls').outerHeight(true);
 
       $flexible.height(height - headerHeight - paddingBottom - footerHeight);
     }
@@ -209,7 +221,7 @@ class Composer extends Component {
                     this.position !== Composer.PositionEnum.MINIMIZED;
 
     const paddingBottom = visible
-      ? this.computedHeight() - parseInt($('#page').css('padding-bottom'), 10)
+      ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10)
       : 0;
     $('#content').css({paddingBottom});
   }
@@ -431,7 +443,7 @@ class Composer extends Component {
           icon: 'minus minimize',
           title: 'Minimize',
           onclick: this.minimize.bind(this),
-          wrapperClass: 'back-control'
+          itemClassName: 'App-backControl'
         }));
 
         items.add('fullScreen', ComposerButton.component({

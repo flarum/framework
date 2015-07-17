@@ -15,6 +15,6 @@ export default class NotificationsPage extends Component {
   }
 
   view() {
-    return <div>{NotificationList.component()}</div>;
+    return <div className="NotificationsPage">{NotificationList.component()}</div>;
   }
 }

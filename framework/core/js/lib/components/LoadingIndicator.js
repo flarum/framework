@@ -12,7 +12,7 @@ export default class LoadingIndicator extends Component {
   view() {
     const attrs = Object.assign({}, this.props);
 
-    attrs.className = 'loading-indicator ' + (attrs.className || '');
+    attrs.className = 'LoadingIndicator ' + (attrs.className || '');
     delete attrs.size;
 
     return <div {...attrs}>{m.trust('&nbsp;')}</div>;

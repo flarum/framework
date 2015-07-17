@@ -1,0 +1,30 @@
+.Navigation-back {
+  z-index: 3 !important; // z-index of an active .btn-group .btn is 2
+  border-radius: @border-radius !important;
+  .transition(border-radius 0.2s);
+}
+.Navigation-pin {
+  opacity: 0;
+  margin-left: -5px !important;
+  border-radius: 0 @border-radius @border-radius 0;
+  .transition(~"opacity 0.2s, margin-left 0.2s");
+
+  .icon {
+    .rotate(45deg);
+  }
+}
+
+@media @desktop-hd {
+  .hasPane.panePinned, .hasPane.paneShowing {
+    .Navigation-back {
+      border-radius: @border-radius 0 0 @border-radius !important;
+    }
+    .Navigation-pin {
+      opacity: 1;
+      margin-left: 1px !important;
+    }
+  }
+  .hasPane.panePinned .Navigation-pin .icon {
+    .rotate(0deg);
+  }
+}

@@ -79,7 +79,7 @@ class PostStream extends mixin(Component, evented) {
     m.redraw(true);
 
     return promise.then(() => {
-      anchorScroll(this.$('.post-stream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
+      anchorScroll(this.$('.PostStream-item:' + (backwards ? 'last' : 'first')), () => m.redraw(true));
 
       this.scrollToIndex(index, noAnimation, backwards).done(this.unpause.bind(this));
     });
@@ -204,7 +204,7 @@ class PostStream extends mixin(Component, evented) {
 
             if (dt > 1000 * 60 * 60 * 24 * 4) {
               content = [
-                <div className="time-gap">
+                <div className="PostStream-timeGap">
                   <span>{moment.duration(dt).humanize()} later</span>
                 </div>,
                 content
@@ -218,7 +218,7 @@ class PostStream extends mixin(Component, evented) {
             content = PostLoading.component();
           }
 
-          return <div className="post-stream-item" {...attrs}>{content}</div>;
+          return <div className="PostStream-item" {...attrs}>{content}</div>;
         })}
 
         {
@@ -228,7 +228,7 @@ class PostStream extends mixin(Component, evented) {
             (!app.session.user || this.discussion.canReply()) &&
             !app.composingReplyTo(this.discussion)
             ? (
-              <div className="post-stream-item" key="reply">
+              <div className="PostStream-item" key="reply">
                 {ReplyPlaceholder.component({discussion: this.discussion})}
               </div>
             ) : ''
@@ -265,7 +265,7 @@ class PostStream extends mixin(Component, evented) {
     const loadAheadDistance = 500;
 
     if (this.visibleStart > 0) {
-      const $item = this.$('.post-stream-item[data-index=' + this.visibleStart + ']');
+      const $item = this.$('.PostStream-item[data-index=' + this.visibleStart + ']');
 
       if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
         this.loadPrevious();
@@ -273,7 +273,7 @@ class PostStream extends mixin(Component, evented) {
     }
 
     if (this.visibleEnd < this.count()) {
-      const $item = this.$('.post-stream-item[data-index=' + (this.visibleEnd - 1) + ']');
+      const $item = this.$('.PostStream-item[data-index=' + (this.visibleEnd - 1) + ']');
 
       if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
         this.loadNext();
@@ -334,7 +334,7 @@ class PostStream extends mixin(Component, evented) {
       if (start < this.visibleStart || end > this.visibleEnd) return;
 
       const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
-      anchorScroll(`.post-stream-item[data-index=${anchorIndex}]`, () => m.redraw(true));
+      anchorScroll(`.PostStream-item[data-index=${anchorIndex}]`, () => m.redraw(true));
 
       this.unpause();
     };
@@ -386,7 +386,7 @@ class PostStream extends mixin(Component, evented) {
    * @return {Promise}
    */
   loadNearNumber(number) {
-    if (this.posts().some(post => post && post.number() === number)) {
+    if (this.posts().some(post => post && Number(post.number()) === Number(number))) {
       return m.deferred().resolve().promise;
     }
 
@@ -431,7 +431,7 @@ class PostStream extends mixin(Component, evented) {
     let startNumber;
     let endNumber;
 
-    this.$('.post-stream-item').each(function() {
+    this.$('.PostStream-item').each(function() {
       const $item = $(this);
       const top = $item.offset().top;
       const height = $item.outerHeight(true);
@@ -472,7 +472,7 @@ class PostStream extends mixin(Component, evented) {
    * @return {jQuery.Deferred}
    */
   scrollToNumber(number, noAnimation) {
-    const $item = this.$(`.post-stream-item[data-number=${number}]`);
+    const $item = this.$(`.PostStream-item[data-number=${number}]`);
 
     return this.scrollToItem($item, noAnimation).done(this.flashItem.bind(this, $item));
   }
@@ -487,7 +487,7 @@ class PostStream extends mixin(Component, evented) {
    * @return {jQuery.Deferred}
    */
   scrollToIndex(index, noAnimation, bottom) {
-    const $item = this.$(`.post-stream-item[data-index=${index}]`);
+    const $item = this.$(`.PostStream-item[data-index=${index}]`);
 
     return this.scrollToItem($item, noAnimation, true, bottom);
   }

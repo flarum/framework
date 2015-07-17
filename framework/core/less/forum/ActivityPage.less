@@ -1,0 +1,76 @@
+.ActivityPage-loadMore .LoadingIndicator {
+  height: 46px;
+}
+.ActivityPage-list {
+  border-left: 3px solid @control-bg;
+  list-style: none;
+  margin: 0 0 0 16px;
+  padding: 0;
+
+  > li {
+    margin-bottom: 30px;
+    padding-left: 32px;
+
+    @media @phone {
+      padding-left: 24px;
+    }
+  }
+}
+.Activity-avatar {
+  .Avatar--size(32px);
+  float: left;
+  margin-left: -50px;
+  .box-shadow(0 0 0 3px @body-bg);
+  margin-top: -5px;
+
+  @media @phone {
+    margin-left: -42px;
+  }
+}
+.Activity-header {
+  color: @muted-color;
+  margin-bottom: 10px;
+}
+.Activity-description {
+  margin-right: 5px;
+}
+.Activity-content {
+  display: block;
+  padding: 15px;
+  background: @control-bg;
+  border-radius: @border-radius;
+  color: @muted-color;
+
+  &, &:hover {
+    text-decoration: none;
+  }
+}
+.PostedActivity-header {
+  margin: 0 0 5px;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    display: inline-block;
+    margin-right: 5px;
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+
+    &, & a {
+      color: @heading-color;
+    }
+    .Activity-content:hover & {
+      text-decoration: underline;
+    }
+  }
+}
+.PostedActivity-body {
+  color: @muted-color;
+
+  & :last-child {
+    margin-bottom: 0;
+  }
+}

@@ -11,7 +11,7 @@ import listItems from 'flarum/helpers/listItems';
  *
  * - `post`
  */
-export default class PostHeaderUser extends Component {
+export default class PostUser extends Component {
   constructor(...args) {
     super(...args);
 
@@ -29,7 +29,7 @@ export default class PostHeaderUser extends Component {
 
     if (!user) {
       return (
-        <div className="post-user">
+        <div className="PostUser">
           <h3>{avatar(user)} {username(user)}</h3>
         </div>
       );
@@ -40,19 +40,19 @@ export default class PostHeaderUser extends Component {
     if (!post.isHidden() && this.cardVisible) {
       card = UserCard.component({
         user,
-        className: 'user-card-popover fade',
-        controlsButtonClassName: 'btn btn-default btn-icon btn-controls btn-naked'
+        className: 'UserCard--popover',
+        controlsButtonClassName: 'Button Button--icon Button--flat'
       });
     }
 
     return (
-      <div className="post-user">
+      <div className="PostUser">
         <h3>
           <a href={app.route.user(user)} config={m.route}>
-            {avatar(user)} {username(user)}
+            {avatar(user, {className: 'PostUser-avatar'})}{' '}{username(user)}
           </a>
         </h3>
-        <ul className="badges">
+        <ul className="PostUser-badges badges">
           {listItems(user.badges().toArray())}
         </ul>
         {card}
@@ -66,11 +66,11 @@ export default class PostHeaderUser extends Component {
     let timeout;
 
     this.$()
-      .on('mouseover', 'h3 a, .user-card', () => {
+      .on('mouseover', 'h3 a, .UserCard', () => {
         clearTimeout(timeout);
         timeout = setTimeout(this.showCard.bind(this), 500);
       })
-      .on('mouseout', 'h3 a, .user-card', () => {
+      .on('mouseout', 'h3 a, .UserCard', () => {
         clearTimeout(timeout);
         timeout = setTimeout(this.hideCard.bind(this), 250);
       });
@@ -84,14 +84,14 @@ export default class PostHeaderUser extends Component {
 
     m.redraw();
 
-    setTimeout(() => this.$('.user-card').addClass('in'));
+    setTimeout(() => this.$('.UserCard').addClass('in'));
   }
 
   /**
    * Hide the user card.
    */
   hideCard() {
-    this.$('.user-card').removeClass('in')
+    this.$('.UserCard').removeClass('in')
       .one('transitionend', () => {
         this.cardVisible = false;
         m.redraw();

@@ -31,50 +31,49 @@ export default class LogInModal extends Modal {
   }
 
   className() {
-    return 'modal-sm login-modal';
+    return 'LogInModal Modal--small';
   }
 
   title() {
     return 'Log In';
   }
 
-  body() {
-    return (
-      <div className="form-centered">
-        <div className="form-group">
-          <input className="form-control" name="email" placeholder="Username or Email"
-            value={this.email()}
-            onchange={m.withAttr('value', this.email)}
-            disabled={this.loading} />
-        </div>
-
-        <div className="form-group">
-          <input className="form-control" name="password" type="password" placeholder="Password"
-            value={this.password()}
-            onchange={m.withAttr('value', this.password)}
-            disabled={this.loading} />
-        </div>
-
-        <div className="form-group">
-          <button className="btn btn-primary btn-block"
-            type="submit"
-            disabled={this.loading}>
-            Log In
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  footer() {
+  content() {
     return [
-      <p className="forgot-password-link">
-        <a href="javascript:;" onclick={this.forgotPassword.bind(this)}>Forgot password?</a>
-      </p>,
-      <p className="sign-up-link">
-        Don't have an account?
-        <a href="javascript:;" onclick={this.signUp.bind(this)}>Sign Up</a>
-      </p>
+      <div className="Modal-body">
+        <div className="Form Form--centered">
+          <div className="Form-group">
+            <input className="FormControl" name="email" placeholder="Username or Email"
+              value={this.email()}
+              onchange={m.withAttr('value', this.email)}
+              disabled={this.loading} />
+          </div>
+
+          <div className="Form-group">
+            <input className="FormControl" name="password" type="password" placeholder="Password"
+              value={this.password()}
+              onchange={m.withAttr('value', this.password)}
+              disabled={this.loading} />
+          </div>
+
+          <div className="Form-group">
+            <button className="Button Button--primary Button--block"
+              type="submit"
+              disabled={this.loading}>
+              Log In
+            </button>
+          </div>
+        </div>
+      </div>,
+      <div className="Modal-footer">
+        <p className="LogInModal-forgotPassword">
+          <a onclick={this.forgotPassword.bind(this)}>Forgot password?</a>
+        </p>
+        <p className="LogInModal-signUp">
+          Don't have an account?{' '}
+          <a onclick={this.signUp.bind(this)}>Sign Up</a>
+        </p>
+      </div>
     ];
   }
 
@@ -84,7 +83,7 @@ export default class LogInModal extends Modal {
    */
   forgotPassword() {
     const email = this.email();
-    const props = email.indexOf('@') !== -1 ? {email} : null;
+    const props = email.indexOf('@') !== -1 ? {email} : undefined;
 
     app.modal.show(new ForgotPasswordModal(props));
   }
@@ -101,7 +100,7 @@ export default class LogInModal extends Modal {
     app.modal.show(new SignUpModal(props));
   }
 
-  focus() {
+  onready() {
     this.$('[name=' + (this.email() ? 'password' : 'email') + ']').select();
   }
 
@@ -123,17 +122,17 @@ export default class LogInModal extends Modal {
 
         if (response && response.code === 'confirm_email') {
           this.alert = Alert.component({
-            message: ['You need to confirm your email before you can log in. We\'ve sent a confirmation email to ', <strong>{response.email}</strong>, '. If it doesn\'t arrive soon, check your spam folder.']
+            children: ['You need to confirm your email before you can log in. We\'ve sent a confirmation email to ', <strong>{response.email}</strong>, '. If it doesn\'t arrive soon, check your spam folder.']
           });
         } else {
           this.alert = Alert.component({
-            type: 'warning',
-            message: 'Your login details were incorrect.'
+            type: 'error',
+            children: 'Your login details were incorrect.'
           });
         }
 
         m.redraw();
-        this.focus();
+        this.onready();
       }
     );
   }

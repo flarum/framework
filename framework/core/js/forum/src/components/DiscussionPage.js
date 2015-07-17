@@ -92,25 +92,27 @@ export default class DiscussionPage extends mixin(Component, evented) {
     const discussion = this.discussion;
 
     return (
-      <div>
+      <div className="DiscussionPage">
         {app.cache.discussionList
-          ? <div className="index-area paned" config={this.configPane.bind(this)}>
+          ? <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
               {app.cache.discussionList.render()}
             </div>
           : ''}
 
-        <div className="discussion-area">
+        <div className="DiscussionPage-discussion">
           {discussion
             ? [
               DiscussionHero.component({discussion}),
               <div className="container">
-                <nav className="discussion-nav">
+                <nav className="DiscussionPage-nav">
                   <ul>{listItems(this.sidebarItems().toArray())}</ul>
                 </nav>
-                {this.stream.render()}
+                <div className="DiscussionPage-stream">
+                  {this.stream.render()}
+                </div>
               </div>
             ]
-            : LoadingIndicator.component({className: 'loading-indicator-block'})}
+            : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
         </div>
       </div>
     );
@@ -119,10 +121,10 @@ export default class DiscussionPage extends mixin(Component, evented) {
   config(isInitialized, context) {
     if (isInitialized) return;
 
-    context.retain = true;
+    // context.retain = true;
 
-    $('body').addClass('discussion-page');
-    context.onunload = () => $('body').removeClass('discussion-page');
+    $('#app').addClass('App--discussion');
+    context.onunload = () => $('#app').removeClass('App--discussion');
   }
 
   /**
@@ -198,7 +200,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
         .filter(record => record.type === 'posts' && record.relationships && record.relationships.discussion)
         .map(record => app.store.getById('posts', record.id))
         .sort((a, b) => a.id() - b.id())
-        .splice(20);
+        .slice(0, 20);
     }
 
     // Set up the post stream for this discussion, along with the first page of
@@ -240,7 +242,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     // If the discussion we are viewing is listed in the discussion list, then
     // we will make sure it is visible in the viewport – if it is not we will
     // scroll the list down to it.
-    const $discussion = $list.find('.discussion-list-item.active');
+    const $discussion = $list.find('.DiscussionListItem.active');
     if ($discussion.length) {
       const listTop = $list.offset().top;
       const listBottom = listTop + $list.outerHeight();
@@ -265,15 +267,15 @@ export default class DiscussionPage extends mixin(Component, evented) {
       SplitDropdown.component({
         children: DiscussionControls.controls(this.discussion, this).toArray(),
         icon: 'ellipsis-v',
-        className: 'primary-control',
-        buttonClassName: 'btn btn-primary'
+        className: 'App-primaryControl',
+        buttonClassName: 'Button--primary'
       })
     );
 
     items.add('scrubber',
       PostStreamScrubber.component({
         stream: this.stream,
-        className: 'title-control'
+        className: 'App-titleControl'
       })
     );
 

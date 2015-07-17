@@ -22,13 +22,13 @@ export default class PostedActivity extends Activity {
     const post = this.props.activity.subject();
 
     return (
-      <a className="activity-content posted-activity-preview"
+      <a className="Activity-content PostedActivity-preview"
         href={app.route.post(post)}
         config={m.route}>
-        <ul className="posted-activity-header">
+        <ul className="PostedActivity-header">
           {listItems(this.headerItems().toArray())}
         </ul>
-        <div className="posted-activity-body">
+        <div className="PostedActivity-body">
           {m.trust(truncate(post.contentPlain(), 200))}
         </div>
       </a>

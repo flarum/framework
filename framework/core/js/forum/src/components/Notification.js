@@ -19,12 +19,12 @@ export default class Notification extends Component {
     const href = this.href();
 
     return (
-      <div className={'notification notification-' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
+      <div className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
         onclick={this.markAsRead.bind(this)}>
         <a href={href} config={href.indexOf('://') === -1 ? m.route : undefined}>
           {avatar(notification.sender())}
-          {icon(this.icon(), {className: 'icon'})}
-          <span className="content">{this.content()}</span>
+          {icon(this.icon(), {className: 'Notification-icon'})}
+          <span className="Notification-content">{this.content()}</span>
           {humanTime(notification.time())}
         </a>
       </div>

@@ -5,7 +5,7 @@ import Component from 'flarum/Component';
  */
 class Separator extends Component {
   view() {
-    return <li className="divider"/>;
+    return <li className="Dropdown-separator"/>;
   }
 }
 
