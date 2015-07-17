@@ -12,12 +12,22 @@ class ExtensionsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+    }
+
+    /**
+     * Boot the service provider.
+     *
+     * @return void
+     */
+    public function boot()
+    {
         // Extensions will not be registered if Flarum is not installed yet
         if (!Core::isInstalled()) {
             return;
         }
 
-        $extensions = json_decode(Core::config('extensions_enabled'), true);
+        $config = $this->app->make('Flarum\Core\Settings\SettingsRepository')->get('extensions_enabled');
+        $extensions = json_decode($config, true);
         $providers = [];
 
         foreach ($extensions as $extension) {
