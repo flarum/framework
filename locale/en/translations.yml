@@ -21,7 +21,7 @@ core:
   controls: Controls
   delete: Delete
   delete_account: Delete Account
-  delete_account_help: "Hold up! If you delete your account, there&#39;s no going back. Keep in mind:"
+  delete_account_help: "Hold up! If you delete your account, there's no going back. Keep in mind:"
   delete_forever: Delete Forever
   deleted: "[deleted]"
   disclose_online: Allow others to see when I am online
