@@ -1,8 +1,8 @@
 <?php namespace Flarum\Core\Users\Listeners;
 
 use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Core\Users\Events\UserWasRegistered;
-use Flarum\Core\Users\Events\UserEmailChangeWasRequested;
+use Flarum\Events\UserWasRegistered;
+use Flarum\Events\UserEmailChangeWasRequested;
 use Flarum\Core;
 use Flarum\Core\Users\EmailToken;
 use Flarum\Core\Users\User;
@@ -42,7 +42,7 @@ class EmailConfirmationMailer
     }
 
     /**
-     * @param UserWasRegistered $event
+     * @param \Flarum\Events\UserWasRegistered $event
      */
     public function whenUserWasRegistered(UserWasRegistered $event)
     {
@@ -56,7 +56,7 @@ class EmailConfirmationMailer
     }
 
     /**
-     * @param UserEmailChangeWasRequested $event
+     * @param \Flarum\Events\UserEmailChangeWasRequested $event
      */
     public function whenUserEmailChangeWasRequested(UserEmailChangeWasRequested $event)
     {

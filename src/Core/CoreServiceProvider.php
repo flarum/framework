@@ -3,6 +3,7 @@
 use Flarum\Core\Settings\MemoryCacheSettingsRepository;
 use Flarum\Core\Settings\DatabaseSettingsRepository;
 use Flarum\Core\Users\User;
+use Flarum\Events\ModelAllow;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 
@@ -21,8 +22,13 @@ class CoreServiceProvider extends ServiceProvider
             return get_class($command).'Handler@handle';
         });
 
-        Forum::allow('*', function (Forum $forum, User $user, $action) {
-            return $user->hasPermission('forum.'.$action) ?: null;
+        $events = $this->app->make('events');
+
+        $events->listen(ModelAllow::class, function (ModelAllow $event) {
+            if ($event->model instanceof Forum &&
+                $event->actor->hasPermission('forum.'.$event->action)) {
+                return true;
+            }
         });
     }
 
@@ -33,7 +39,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Core\Settings\SettingsRepository', function() {
+        $this->app->singleton('Flarum\Core\Settings\SettingsRepository', function () {
             return new MemoryCacheSettingsRepository(
                 new DatabaseSettingsRepository(
                     $this->app->make('Illuminate\Database\ConnectionInterface')

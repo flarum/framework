@@ -5,7 +5,7 @@ use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
 use Flarum\Core\Users\UserRepository;
-use Flarum\Core\Users\Events\UserSearchWillBePerformed;
+use Flarum\Events\UserSearchWillBePerformed;
 
 /**
  * Takes a UserSearchCriteria object, performs a search using gambits,

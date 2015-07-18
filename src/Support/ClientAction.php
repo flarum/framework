@@ -7,6 +7,7 @@ use Flarum\Assets\LessCompiler;
 use Flarum\Core;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Users\User;
+use Flarum\Events\BuildClientView;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -107,7 +108,7 @@ abstract class ClientAction extends HtmlAction
         $translations = $this->locales->getTranslations($actor->locale);
         $keys = $this->translationKeys;
 
-        // TODO: event($this, $view, $keys)
+        event(new BuildClientView($this, $view, $keys));
 
         $translations = $this->filterTranslations($translations, $keys);
 

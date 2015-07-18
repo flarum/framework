@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Notifications\Listeners;
 
-use Flarum\Core\Discussions\Events\DiscussionWasRenamed;
+use Flarum\Events\DiscussionWasRenamed;
 use Flarum\Core\Posts\DiscussionRenamedPost;
 use Flarum\Core\Notifications\DiscussionRenamedBlueprint;
 use Flarum\Core\Notifications\NotificationSyncer;
@@ -30,7 +30,7 @@ class DiscussionRenamedNotifier
     }
 
     /**
-     * @param DiscussionWasRenamed $event
+     * @param \Flarum\Events\DiscussionWasRenamed $event
      */
     public function whenDiscussionWasRenamed(DiscussionWasRenamed $event)
     {

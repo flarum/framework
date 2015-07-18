@@ -2,6 +2,8 @@
 
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Users\User;
+use Flarum\Events\ModelAllow;
+use Flarum\Events\RegisterDiscussionGambits;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 use Illuminate\Contracts\Container\Container;
@@ -15,25 +17,29 @@ class DiscussionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend([
-            new Extend\EventSubscriber('Flarum\Core\Discussions\Listeners\DiscussionMetadataUpdater')
-        ]);
-
         Discussion::setValidator($this->app->make('validator'));
 
-        Discussion::allow('*', function (Discussion $discussion, User $user, $action) {
-            return $user->hasPermission('discussion.'.$action) ?: null;
-        });
+        $events = $this->app->make('events');
 
-        // Allow a user to rename their own discussion.
-        Discussion::allow('rename', function (Discussion $discussion, User $user) {
-            return $discussion->start_user_id == $user->id ?: null;
-            // TODO: add limitations to time etc. according to a config setting
-        });
+        $events->subscribe('Flarum\Core\Discussions\Listeners\DiscussionMetadataUpdater');
 
-        Discussion::allow('delete', function (Discussion $discussion, User $user) {
-            return $discussion->start_user_id == $user->id && $discussion->participants_count == 1 ?: null;
-            // TODO: add limitations to time etc. according to a config setting
+        $events->listen(ModelAllow::class, function (ModelAllow $event) {
+            if ($event->model instanceof Discussion) {
+                if ($event->action === 'rename' &&
+                    $event->model->start_user_id == $event->actor->id) {
+                    return true;
+                }
+
+                if ($event->action === 'delete' &&
+                    $event->model->start_user_id == $event->actor->id &&
+                    $event->model->participants_count == 1) {
+                    return true;
+                }
+
+                if ($event->actor->hasPermission('discussion.'.$event->action)) {
+                    return true;
+                }
+            }
         });
     }
 
@@ -49,21 +55,15 @@ class DiscussionsServiceProvider extends ServiceProvider
             'Flarum\Core\Discussions\Search\Fulltext\MySqlFulltextDriver'
         );
 
-        $this->app->instance('flarum.discussionGambits', [
-            'Flarum\Core\Discussions\Search\Gambits\AuthorGambit',
-            'Flarum\Core\Discussions\Search\Gambits\UnreadGambit'
-        ]);
-
         $this->app->when('Flarum\Core\Discussions\Search\DiscussionSearcher')
             ->needs('Flarum\Core\Search\GambitManager')
             ->give(function (Container $app) {
                 $gambits = new GambitManager($app);
-
-                foreach ($app->make('flarum.discussionGambits') as $gambit) {
-                    $gambits->add($gambit);
-                }
-
                 $gambits->setFulltextGambit('Flarum\Core\Discussions\Search\Gambits\FulltextGambit');
+                $gambits->add('Flarum\Core\Discussions\Search\Gambits\AuthorGambit');
+                $gambits->add('Flarum\Core\Discussions\Search\Gambits\UnreadGambit');
+
+                event(new RegisterDiscussionGambits($gambits));
 
                 return $gambits;
             });

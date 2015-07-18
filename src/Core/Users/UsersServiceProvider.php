@@ -1,6 +1,9 @@
 <?php namespace Flarum\Core\Users;
 
 use Flarum\Core\Search\GambitManager;
+use Flarum\Events\ModelAllow;
+use Flarum\Events\RegisterUserGambits;
+use Flarum\Events\RegisterUserPreferences;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 use Illuminate\Contracts\Container\Container;
@@ -14,25 +17,32 @@ class UsersServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend([
-            new Extend\EventSubscriber('Flarum\Core\Users\Listeners\UserMetadataUpdater'),
-            new Extend\EventSubscriber('Flarum\Core\Users\Listeners\EmailConfirmationMailer')
-        ]);
-
         User::setHasher($this->app->make('hash'));
         User::setFormatter($this->app->make('flarum.formatter'));
         User::setValidator($this->app->make('validator'));
 
-        User::addPreference('discloseOnline', 'boolval', true);
-        User::addPreference('indexProfile', 'boolval', true);
+        $events = $this->app->make('events');
 
-        User::allow('*', function (User $user, User $actor, $action) {
-            return $actor->hasPermission('user.'.$action) ?: null;
+        $events->listen(RegisterUserPreferences::class, function (RegisterUserPreferences $event) {
+            $event->register('discloseOnline', 'boolval', true);
+            $event->register('indexProfile', 'boolval', true);
         });
 
-        User::allow(['edit', 'delete'], function (User $user, User $actor) {
-            return $user->id == $actor->id ?: null;
+        $events->listen(ModelAllow::class, function (ModelAllow $event) {
+            if ($event->model instanceof User) {
+                if (in_array($event->action, ['edit', 'delete']) &&
+                    $event->model->id == $event->actor->id) {
+                    return true;
+                }
+
+                if ($event->actor->hasPermission('user.'.$event->action)) {
+                    return true;
+                }
+            }
         });
+
+        $events->subscribe('Flarum\Core\Users\Listeners\UserMetadataUpdater');
+        $events->subscribe('Flarum\Core\Users\Listeners\EmailConfirmationMailer');
     }
 
     /**
@@ -63,18 +73,13 @@ class UsersServiceProvider extends ServiceProvider
 
     public function registerGambits()
     {
-        $this->app->instance('flarum.userGambits', []);
-
         $this->app->when('Flarum\Core\Users\Search\UserSearcher')
             ->needs('Flarum\Core\Search\GambitManager')
             ->give(function (Container $app) {
                 $gambits = new GambitManager($app);
-
-                foreach ($app->make('flarum.userGambits') as $gambit) {
-                    $gambits->add($gambit);
-                }
-
                 $gambits->setFulltextGambit('Flarum\Core\Users\Search\Gambits\FulltextGambit');
+
+                event(new RegisterUserGambits($gambits));
 
                 return $gambits;
             });

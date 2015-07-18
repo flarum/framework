@@ -1,6 +1,7 @@
 <?php namespace Flarum\Core\Support;
 
-use Illuminate\Contracts\Validation\Factory;
+use Flarum\Events\ModelValidator;
+use Illuminate\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 
@@ -79,13 +80,11 @@ trait ValidatesBeforeSave
      */
     protected function makeValidator()
     {
-        $dirty = $this->getDirty();
+        $rules = $this->expandUniqueRules($this->rules);
 
-        $rules = $this->expandUniqueRules(array_only($this->rules, array_keys($dirty)));
+        $validator = static::$validator->make($this->getAttributes(), $rules);
 
-        $validator = static::$validator->make($dirty, $rules);
-
-        // TODO: event
+        event(new ModelValidator($this, $validator));
 
         return $validator;
     }
