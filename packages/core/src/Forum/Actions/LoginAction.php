@@ -1,7 +1,7 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Flarum\Api\Client;
-use Flarum\Forum\Events\UserLoggedIn;
+use Flarum\Events\UserLoggedIn;
 use Flarum\Core\Users\UserRepository;
 use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;

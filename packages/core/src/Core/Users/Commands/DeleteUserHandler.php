@@ -2,7 +2,7 @@
 
 use Flarum\Core\Users\User;
 use Flarum\Core\Users\UserRepository;
-use Flarum\Core\Users\Events\UserWillBeDeleted;
+use Flarum\Events\UserWillBeDeleted;
 use Flarum\Core\Support\DispatchesEvents;
 
 class DeleteUserHandler

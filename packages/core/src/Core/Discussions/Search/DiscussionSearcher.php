@@ -7,7 +7,7 @@ use Flarum\Core\Search\SearcherInterface;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Discussions\DiscussionRepository;
 use Flarum\Core\Posts\PostRepository;
-use Flarum\Core\Discussions\Events\DiscussionSearchWillBePerformed;
+use Flarum\Events\DiscussionSearchWillBePerformed;
 use Flarum\Core\Search\SearchResults;
 use Illuminate\Database\Eloquent\Collection;
 

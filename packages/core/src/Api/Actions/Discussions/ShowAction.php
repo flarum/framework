@@ -19,12 +19,12 @@ class ShowAction extends SerializeResourceAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
+    public $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'startUser' => false,
         'lastUser' => false,
         'startPost' => false,
@@ -39,27 +39,27 @@ class ShowAction extends SerializeResourceAction
     /**
      * @inheritdoc
      */
-    public static $link = ['posts', 'posts.discussion'];
+    public $link = ['posts', 'posts.discussion'];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = ['time'];
+    public $sortFields = ['time'];
 
     /**
      * @inheritdoc
      */
-    public static $sort = ['time' => 'asc'];
+    public $sort = ['time' => 'asc'];
 
     /**
      * Instantiate the action.

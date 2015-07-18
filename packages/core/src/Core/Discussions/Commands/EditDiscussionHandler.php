@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Discussions\Commands;
 
 use Flarum\Core\Discussions\DiscussionRepository;
-use Flarum\Core\Discussions\Events\DiscussionWillBeSaved;
+use Flarum\Events\DiscussionWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
 
 class EditDiscussionHandler

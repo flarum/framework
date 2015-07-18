@@ -15,39 +15,39 @@ class ShowAction extends SerializeResourceAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\CurrentUserSerializer';
+    public $serializer = 'Flarum\Api\Serializers\CurrentUserSerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'groups' => true
     ];
 
     /**
      * @inheritdoc
      */
-    public static $link = [];
+    public $link = [];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = [];
+    public $sortFields = [];
 
     /**
      * @inheritdoc
      */
-    public static $sort;
+    public $sort;
 
     /**
      * @param UserRepository $users

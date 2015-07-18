@@ -1,6 +1,7 @@
 <?php namespace Flarum\Api\Actions;
 
-use Flarum\Api\Events\WillSerializeData;
+use Flarum\Events\BuildApiAction;
+use Flarum\Events\WillSerializeData;
 use Flarum\Api\Request;
 use Flarum\Api\JsonApiRequest;
 use Tobscure\JsonApi\Criteria;
@@ -15,7 +16,7 @@ abstract class SerializeAction extends JsonApiAction
      *
      * @var string
      */
-    public static $serializer;
+    public $serializer;
 
     /**
      * The relationships that are available to be included (keys), and which
@@ -23,42 +24,42 @@ abstract class SerializeAction extends JsonApiAction
      *
      * @var array
      */
-    public static $include = [];
+    public $include = [];
 
     /**
      * The relationships that are linked by default.
      *
      * @var array
      */
-    public static $link = [];
+    public $link = [];
 
     /**
      * The maximum number of records that can be requested.
      *
      * @var integer
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * The number of records included by default.
      *
      * @var integer
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * The fields that are available to be sorted by.
      *
      * @var array
      */
-    public static $sortFields = [];
+    public $sortFields = [];
 
     /**
      * The default sort field and order to user.
      *
      * @var string
      */
-    public static $sort;
+    public $sort;
 
     /**
      * Handle an API request and return an API response.
@@ -68,14 +69,14 @@ abstract class SerializeAction extends JsonApiAction
      */
     public function respond(Request $request)
     {
-        $request = static::buildJsonApiRequest($request);
+        $request = $this->buildJsonApiRequest($request);
         $document = new Document();
 
         $data = $this->data($request, $document);
 
         event(new WillSerializeData($this, $data, $request));
 
-        $serializer = new static::$serializer($request->actor, $request->include, $request->link);
+        $serializer = new $this->serializer($request->actor, $request->include, $request->link);
 
         $document->setData($this->serialize($serializer, $data));
 
@@ -107,17 +108,19 @@ abstract class SerializeAction extends JsonApiAction
      * @param Request $request
      * @return JsonApiRequest
      */
-    protected static function buildJsonApiRequest(Request $request)
+    protected function buildJsonApiRequest(Request $request)
     {
         $request = new JsonApiRequest($request->input, $request->actor, $request->http);
 
         $criteria = new Criteria($request->input);
 
-        $request->include = static::sanitizeInclude($criteria->getInclude());
-        $request->sort = static::sanitizeSort($criteria->getSort());
+        event(new BuildApiAction($this));
+
+        $request->include = $this->sanitizeInclude($criteria->getInclude());
+        $request->sort = $this->sanitizeSort($criteria->getSort());
         $request->offset = $criteria->getOffset();
-        $request->limit = static::sanitizeLimit($criteria->getLimit());
-        $request->link = static::$link;
+        $request->limit = $this->sanitizeLimit($criteria->getLimit());
+        $request->link = $this->link;
 
         return $request;
     }
@@ -129,9 +132,9 @@ abstract class SerializeAction extends JsonApiAction
      * @param array $include
      * @return array
      */
-    protected static function sanitizeInclude(array $include)
+    protected function sanitizeInclude(array $include)
     {
-        return array_intersect($include, array_keys(static::$include)) ?: array_keys(array_filter(static::$include));
+        return array_intersect($include, array_keys($this->include)) ?: array_keys(array_filter($this->include));
     }
 
     /**
@@ -141,9 +144,9 @@ abstract class SerializeAction extends JsonApiAction
      * @param array $sort
      * @return array
      */
-    protected static function sanitizeSort(array $sort)
+    protected function sanitizeSort(array $sort)
     {
-        return array_intersect_key($sort, array_flip(static::$sortFields)) ?: static::$sort;
+        return array_intersect_key($sort, array_flip($this->sortFields)) ?: $this->sort;
     }
 
     /**
@@ -152,9 +155,9 @@ abstract class SerializeAction extends JsonApiAction
      * @param int $limit
      * @return int
      */
-    protected static function sanitizeLimit($limit)
+    protected function sanitizeLimit($limit)
     {
-        return min($limit, static::$limitMax) ?: static::$limit;
+        return min($limit, $this->limitMax) ?: $this->limit;
     }
 
     /**
@@ -169,10 +172,10 @@ abstract class SerializeAction extends JsonApiAction
      *     is unknown ('last' link is ommitted).
      * @return void
      */
-    protected static function addPaginationLinks(Document $document, JsonApiRequest $request, $url, $total = true)
+    protected function addPaginationLinks(Document $document, JsonApiRequest $request, $url, $total = true)
     {
         $input = [];
-        if ($request->limit != static::$limit) {
+        if ($request->limit != $this->limit) {
             array_set($input, 'page.limit', $request->limit);
         }
 

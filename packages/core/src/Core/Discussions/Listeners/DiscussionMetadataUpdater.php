@@ -1,10 +1,10 @@
 <?php namespace Flarum\Core\Discussions\Listeners;
 
 use Flarum\Core\Posts\Post;
-use Flarum\Core\Posts\Events\PostWasPosted;
-use Flarum\Core\Posts\Events\PostWasDeleted;
-use Flarum\Core\Posts\Events\PostWasHidden;
-use Flarum\Core\Posts\Events\PostWasRestored;
+use Flarum\Events\PostWasPosted;
+use Flarum\Events\PostWasDeleted;
+use Flarum\Events\PostWasHidden;
+use Flarum\Events\PostWasRestored;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionMetadataUpdater
@@ -34,7 +34,7 @@ class DiscussionMetadataUpdater
     }
 
     /**
-     * @param PostWasDeleted $event
+     * @param \Flarum\Events\PostWasDeleted $event
      */
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
