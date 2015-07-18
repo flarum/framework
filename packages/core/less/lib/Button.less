@@ -94,11 +94,14 @@
 
   &:hover,
   &:focus,
-  &.focus,
+  &.focus {
+    background-color: darken(fadein(@background, 5%), 5%);
+  }
+
   &:active,
   &.active,
   .open > .Dropdown-toggle& {
-    background-color: darken(fadein(@background, 5%), 5%);
+    background-color: darken(fadein(@background, 10%), 10%);
   }
 
   &.disabled,
