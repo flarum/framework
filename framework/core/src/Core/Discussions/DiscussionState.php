@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Discussions;
 
-use Flarum\Core\Discussions\Events\DiscussionWasRead;
+use Flarum\Events\DiscussionWasRead;
 use Flarum\Core\Model;
 use Flarum\Core\Support\EventGenerator;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +26,7 @@ class DiscussionState extends Model
     /**
      * {@inheritdoc}
      */
-    protected static $dateAttributes = ['read_time'];
+    protected $dates = ['read_time'];
 
     /**
      * Mark the discussion as being read up to a certain point. Raises the

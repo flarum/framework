@@ -18,12 +18,12 @@ class CreateAction extends BaseCreateAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
+    public $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'posts' => true,
         'startUser' => true,
         'lastUser' => true,
@@ -34,27 +34,27 @@ class CreateAction extends BaseCreateAction
     /**
      * @inheritdoc
      */
-    public static $link = [];
+    public $link = [];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = [];
+    public $sortFields = [];
 
     /**
      * @inheritdoc
      */
-    public static $sort;
+    public $sort;
 
     /**
      * Instantiate the action.

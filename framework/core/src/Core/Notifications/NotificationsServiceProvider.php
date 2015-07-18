@@ -1,7 +1,10 @@
 <?php namespace Flarum\Core\Notifications;
 
+use Flarum\Core\Users\User;
+use Flarum\Events\RegisterNotificationTypes;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
+use ReflectionClass;
 
 class NotificationsServiceProvider extends ServiceProvider
 {
@@ -12,13 +15,46 @@ class NotificationsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend([
-            (new Extend\EventSubscriber('Flarum\Core\Notifications\Listeners\DiscussionRenamedNotifier')),
+        $events = $this->app->make('events');
 
-            (new Extend\NotificationType('Flarum\Core\Notifications\DiscussionRenamedBlueprint'))
-                ->subjectSerializer('Flarum\Api\Serializers\DiscussionBasicSerializer')
-                ->enableByDefault('alert')
-        ]);
+        $events->subscribe('Flarum\Core\Notifications\Listeners\DiscussionRenamedNotifier');
+
+        $this->registerNotificationTypes();
+    }
+
+    /**
+     * Register notification types.
+     *
+     * @return void
+     */
+    public function registerNotificationTypes()
+    {
+        $blueprints = [
+            'Flarum\Core\Notifications\DiscussionRenamedBlueprint' => ['alert']
+        ];
+
+        event(new RegisterNotificationTypes($blueprints));
+
+        foreach ($blueprints as $blueprint => $enabled) {
+            Notification::setSubjectModel(
+                $type = $blueprint::getType(),
+                $blueprint::getSubjectModel()
+            );
+
+            User::addPreference(
+                User::getNotificationPreferenceKey($type, 'alert'),
+                'boolval',
+                in_array('alert', $enabled)
+            );
+
+            if ((new ReflectionClass($blueprint))->implementsInterface('Flarum\Core\Notifications\MailableBlueprint')) {
+                User::addPreference(
+                    User::getNotificationPreferenceKey($type, 'email'),
+                    'boolval',
+                    in_array('email', $enabled)
+                );
+            }
+        }
     }
 
     /**

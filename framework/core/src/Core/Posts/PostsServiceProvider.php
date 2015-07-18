@@ -2,6 +2,9 @@
 
 use Flarum\Core\Discussions\Discussion;
 use Flarum\Core\Users\User;
+use Flarum\Events\ModelAllow;
+use Flarum\Events\RegisterPostTypes;
+use Flarum\Events\ScopePostVisibility;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 
@@ -14,45 +17,73 @@ class PostsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend([
-            new Extend\PostType('Flarum\Core\Posts\CommentPost'),
-            new Extend\PostType('Flarum\Core\Posts\DiscussionRenamedPost')
-        ]);
-
         Post::setValidator($this->app->make('validator'));
 
         CommentPost::setFormatter($this->app->make('flarum.formatter'));
 
-        Post::allow('*', function ($post, $user, $action) {
-            return $post->discussion->can($user, $action.'Posts') ?: null;
+        $this->registerPostTypes();
+
+        $events = $this->app->make('events');
+
+        $events->listen(ModelAllow::class, function (ModelAllow $event) {
+            if ($event->model instanceof Post) {
+                $post = $event->model;
+                $action = $event->action;
+                $actor = $event->actor;
+
+                if ($action === 'view' &&
+                    (! $post->hide_user_id || $post->can($actor, 'edit'))) {
+                    return true;
+                }
+
+                // A post is allowed to be edited if the user has permission to moderate
+                // the discussion which it's in, or if they are the author and the post
+                // hasn't been deleted by someone else.
+                if ($action === 'edit' &&
+                    ($post->discussion->can($actor, 'editPosts') ||
+                        ($post->user_id == $actor->id &&
+                            (! $post->hide_user_id || $post->hide_user_id == $actor->id)))) {
+                    return true;
+                }
+
+                if ($post->discussion->can($actor, $action.'Posts')) {
+                    return true;
+                }
+            }
         });
 
         // When fetching a discussion's posts: if the user doesn't have permission
         // to moderate the discussion, then they can't see posts that have been
         // hidden by someone other than themself.
-        Discussion::addPostVisibilityScope(function ($query, User $user, Discussion $discussion) {
-            if (! $discussion->can($user, 'editPosts')) {
-                $query->where(function ($query) use ($user) {
+        $events->listen(ScopePostVisibility::class, function (ScopePostVisibility $event) {
+            $user = $event->actor;
+
+            if (! $event->discussion->can($user, 'editPosts')) {
+                $event->query->where(function ($query) use ($user) {
                     $query->whereNull('hide_user_id')
-                          ->orWhere('hide_user_id', $user->id);
+                        ->orWhere('hide_user_id', $user->id);
                 });
             }
         });
+    }
 
-        Post::allow('view', function ($post, $user) {
-            return ! $post->hide_user_id || $post->can($user, 'edit') ?: null;
-        });
+    /**
+     * Register post types.
+     *
+     * @return void
+     */
+    public function registerPostTypes()
+    {
+        $models = [
+            'Flarum\Core\Posts\CommentPost',
+            'Flarum\Core\Posts\DiscussionRenamedPost'
+        ];
 
-        // A post is allowed to be edited if the user has permission to moderate
-        // the discussion which it's in, or if they are the author and the post
-        // hasn't been deleted by someone else.
-        Post::allow('edit', function ($post, $user) {
-            if ($post->discussion->can($user, 'editPosts') ||
-                ($post->user_id == $user->id && (! $post->hide_user_id || $post->hide_user_id == $user->id))
-            ) {
-                return true;
-            }
-        });
+        event(new RegisterPostTypes($models));
+
+        foreach ($models as $model) {
+            Post::setModel($model::$type, $model);
+        }
     }
 
     /**

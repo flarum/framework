@@ -1,5 +1,7 @@
 <?php namespace Flarum\Core\Activity;
 
+use Flarum\Core\Users\User;
+use Flarum\Events\RegisterActivityTypes;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 
@@ -12,18 +14,33 @@ class ActivityServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend([
-            (new Extend\EventSubscriber('Flarum\Core\Activity\Listeners\UserActivitySyncer')),
+        $this->registerActivityTypes();
 
-            (new Extend\ActivityType('Flarum\Core\Activity\PostedBlueprint'))
-                ->subjectSerializer('Flarum\Api\Serializers\PostBasicSerializer'),
+        $events = $this->app->make('events');
+        $events->subscribe('Flarum\Core\Activity\Listeners\UserActivitySyncer');
+    }
 
-            (new Extend\ActivityType('Flarum\Core\Activity\StartedDiscussionBlueprint'))
-                ->subjectSerializer('Flarum\Api\Serializers\PostBasicSerializer'),
+    /**
+     * Register activity types.
+     *
+     * @return void
+     */
+    public function registerActivityTypes()
+    {
+        $blueprints = [
+            'Flarum\Core\Activity\PostedBlueprint',
+            'Flarum\Core\Activity\StartedDiscussionBlueprint',
+            'Flarum\Core\Activity\JoinedBlueprint'
+        ];
 
-            (new Extend\ActivityType('Flarum\Core\Activity\JoinedBlueprint'))
-                ->subjectSerializer('Flarum\Api\Serializers\UserBasicSerializer')
-        ]);
+        event(new RegisterActivityTypes($blueprints));
+
+        foreach ($blueprints as $blueprint) {
+            Activity::setSubjectModel(
+                $blueprint::getType(),
+                $blueprint::getSubjectModel()
+            );
+        }
     }
 
     /**

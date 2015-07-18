@@ -1,7 +1,7 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Flarum\Api\AccessToken;
-use Flarum\Forum\Events\UserLoggedOut;
+use Flarum\Events\UserLoggedOut;
 use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;
 

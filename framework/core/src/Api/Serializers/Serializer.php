@@ -1,10 +1,10 @@
 <?php namespace Flarum\Api\Serializers;
 
-use BadMethodCallException;
 use Closure;
 use Flarum\Core\Users\User;
+use Flarum\Events\ApiAttributes;
+use Flarum\Events\ApiRelationship;
 use Tobscure\JsonApi\SerializerAbstract;
-use Flarum\Api\Events\SerializeAttributes;
 
 abstract class Serializer extends SerializerAbstract
 {
@@ -12,13 +12,6 @@ abstract class Serializer extends SerializerAbstract
      * @var User
      */
     public $actor;
-
-    /**
-     * An array of custom relation methods, grouped by subclass.
-     *
-     * @var array
-     */
-    protected static $relationMethods = [];
 
     /**
      * @param User $actor
@@ -39,7 +32,7 @@ abstract class Serializer extends SerializerAbstract
     {
         $attributes = $this->getDefaultAttributes($model);
 
-        event(new SerializeAttributes($this, $model, $attributes));
+        event(new ApiAttributes($this, $model, $attributes));
 
         return $attributes;
     }
@@ -57,11 +50,24 @@ abstract class Serializer extends SerializerAbstract
      */
     protected function getRelationshipFromMethod($name)
     {
-        if (isset(static::$relationMethods[$name])) {
-            return call_user_func(static::$relationMethods[$name], $this);
+        if ($relationship = $this->getCustomRelationship($name)) {
+            return $relationship;
         }
 
         return parent::getRelationshipFromMethod($name);
+    }
+
+    /**
+     * Get a custom relationship.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    protected function getCustomRelationship($name)
+    {
+        return app('events')->until(
+            new ApiRelationship($this, $name)
+        );
     }
 
     /**
@@ -153,17 +159,5 @@ abstract class Serializer extends SerializerAbstract
     public function hasMany($serializer, $relation = null)
     {
         return $this->getRelationship($serializer, $relation, true);
-    }
-
-    /**
-     * Add a custom relation to the model.
-     *
-     * @param string $name The name of the relation.
-     * @param callable $callback The callback to execute. This should return a
-     *     relation closure {@see Serializer::getRelationship()}
-     */
-    public static function setRelationMethod($name, callable $callback)
-    {
-        static::$relationMethods[get_called_class()][$name] = $callback;
     }
 }

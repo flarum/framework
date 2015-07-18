@@ -16,12 +16,12 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\NotificationSerializer';
+    public $serializer = 'Flarum\Api\Serializers\NotificationSerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'sender' => true,
         'subject' => true,
         'subject.discussion' => true
@@ -30,27 +30,27 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $link = [];
+    public $link = [];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 10;
+    public $limit = 10;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = [];
+    public $sortFields = [];
 
     /**
      * @inheritdoc
      */
-    public static $sort;
+    public $sort;
 
     /**
      * Instantiate the action.

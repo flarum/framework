@@ -4,17 +4,18 @@ use Flarum\Core;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Model;
 use Flarum\Core\Notifications\Notification;
+use Flarum\Events\RegisterUserPreferences;
 use Illuminate\Contracts\Hashing\Hasher;
 use Flarum\Core\Formatter\FormatterManager;
-use Flarum\Core\Users\Events\UserWasDeleted;
-use Flarum\Core\Users\Events\UserWasRegistered;
-use Flarum\Core\Users\Events\UserWasRenamed;
-use Flarum\Core\Users\Events\UserEmailWasChanged;
-use Flarum\Core\Users\Events\UserPasswordWasChanged;
-use Flarum\Core\Users\Events\UserBioWasChanged;
-use Flarum\Core\Users\Events\UserAvatarWasChanged;
-use Flarum\Core\Users\Events\UserWasActivated;
-use Flarum\Core\Users\Events\UserEmailChangeWasRequested;
+use Flarum\Events\UserWasDeleted;
+use Flarum\Events\UserWasRegistered;
+use Flarum\Events\UserWasRenamed;
+use Flarum\Events\UserEmailWasChanged;
+use Flarum\Events\UserPasswordWasChanged;
+use Flarum\Events\UserBioWasChanged;
+use Flarum\Events\UserAvatarWasChanged;
+use Flarum\Events\UserWasActivated;
+use Flarum\Events\UserEmailChangeWasRequested;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
@@ -27,7 +28,6 @@ class User extends Model
 {
     use EventGenerator;
     use Locked;
-    use VisibleScope;
     use ValidatesBeforeSave;
 
     /**
@@ -53,7 +53,7 @@ class User extends Model
     /**
      * {@inheritdoc}
      */
-    protected static $dateAttributes = [
+    protected $dates = [
         'join_time',
         'last_seen_time',
         'read_time',
@@ -97,6 +97,8 @@ class User extends Model
         static::deleted(function ($user) {
             $user->raise(new UserWasDeleted($user));
         });
+
+        event(new RegisterUserPreferences);
     }
 
     /**

@@ -21,12 +21,12 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\ActivitySerializer';
+    public $serializer = 'Flarum\Api\Serializers\ActivitySerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'subject' => true,
         'subject.user' => true,
         'subject.discussion' => true
@@ -35,27 +35,27 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $link = ['user'];
+    public $link = ['user'];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = [];
+    public $sortFields = [];
 
     /**
      * @inheritdoc
      */
-    public static $sort;
+    public $sort;
 
     /**
      * @param UserRepository $users
