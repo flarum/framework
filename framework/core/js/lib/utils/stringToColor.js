@@ -34,12 +34,16 @@ function hsvToRgb(h, s, v) {
 export default function stringToColor(string) {
   let num = 0;
 
+  // Convert the username into a number based on the ASCII value of each
+  // character.
   for (let i = 0; i < string.length; i++) {
     num += string.charCodeAt(i);
   }
 
+  // Construct a color using the remainder of that number divided by 360, and
+  // some predefined saturation and value values.
   const hue = num % 360;
   const rgb = hsvToRgb(hue / 360, 0.3, 0.9);
 
   return '' + rgb.r.toString(16) + rgb.g.toString(16) + rgb.b.toString(16);
-};
+}
