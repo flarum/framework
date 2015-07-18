@@ -17,10 +17,22 @@
       margin: 0;
       color: @muted-color;
     }
-    .Button {
-      float: right;
-      margin-top: -11px;
-      margin-right: -11px;
+  }
+  .Button {
+    float: right;
+    margin-top: -11px;
+    margin-right: -11px;
+
+    // The NotificationList may be displayed inside of the drawer as a
+    // dropdown menu – but the drawer may have .light-contents() applied to
+    // it. In this case we will need to reset the button's styles back to
+    // normal.
+    & when (@config-colored-header = true) {
+      .Button--color(@control-color, @control-bg);
+
+      &:hover {
+        color: @link-color;
+      }
     }
   }
 }

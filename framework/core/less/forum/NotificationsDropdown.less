@@ -34,6 +34,10 @@
   font-weight: bold;
   margin: -2px 0;
   background: @primary-color;
-  color: #fff;
+  color: @body-bg;
   font-size: 13px;
+
+  & when (@config-colored-header = true) {
+    background: #fff;
+  }
 }
