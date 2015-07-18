@@ -26,10 +26,11 @@ export default class UserCard extends Component {
   view() {
     const user = this.props.user;
     const controls = UserControls.controls(user, this).toArray();
+    const color = user.color();
 
     return (
       <div className={'UserCard ' + (this.props.className || '')}
-        style={{backgroundColor: user.color()}}>
+        style={color ? {backgroundColor: color} : ''}>
         <div className="darkenBackground">
 
           <div className="container">
