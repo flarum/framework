@@ -131,7 +131,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('discloseOnline',
       Switch.component({
-        children: app.trans('disclose_online'),
+        children: app.trans('core.disclose_online'),
         state: this.user.preferences().discloseOnline,
         onchange: (value, component) => {
           this.user.pushAttributes({lastSeenTime: null});
