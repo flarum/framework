@@ -13,14 +13,18 @@ class JsCompiler extends RevisionCompiler
 
     public function compile()
     {
-        $output = "var initLocale = function(app) {
-            app.translator.translations = ".json_encode($this->translations).";";
+        $output = "System.register('locale', [], function() {
+    return {
+        execute: function() {
+            app.translator.translations = ".json_encode($this->translations).";\n";
 
         foreach ($this->files as $filename) {
             $output .= file_get_contents($filename);
         }
 
-        $output .= "};";
+        $output .= "}
+    };
+});";
 
         return $output;
     }

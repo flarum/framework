@@ -16,4 +16,9 @@ class RegisterLocales
     {
         $this->manager = $manager;
     }
+
+    public function addTranslations($locale, $file)
+    {
+        $this->manager->addTranslations($locale, $file);
+    }
 }
