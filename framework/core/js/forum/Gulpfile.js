@@ -30,7 +30,6 @@ gulp({
     'src/**/*.js',
     '../lib/**/*.js'
   ],
-  bootstrapFiles: [],
   modulePrefix: 'flarum',
   externalHelpers: true,
   outputFile: 'dist/app.js'

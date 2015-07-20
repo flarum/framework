@@ -2,23 +2,24 @@
 
 use Flarum\Support\ClientAction;
 use Flarum\Support\ClientView;
+use Flarum\Forum\Actions\ClientAction as ForumClientAction;
 
 class BuildClientView
 {
     /**
      * @var ClientAction
      */
-    protected $action;
+    public $action;
 
     /**
      * @var ClientView
      */
-    protected $view;
+    public $view;
 
     /**
      * @var array
      */
-    protected $keys;
+    public $keys;
 
     /**
      * @param ClientAction $action
@@ -31,4 +32,26 @@ class BuildClientView
         $this->view = $view;
         $this->keys = &$keys;
     }
-}
+
+    public function forumAssets($files)
+    {
+        if ($this->action instanceof ForumClientAction) {
+            $this->view->getAssets()->addFiles((array) $files);
+        }
+    }
+
+    public function forumBootstrapper($bootstrapper)
+    {
+        if ($this->action instanceof ForumClientAction) {
+            $this->view->addBootstrapper($bootstrapper);
+        }
+    }
+
+    public function forumTranslations(array $keys)
+    {
+        if ($this->action instanceof ForumClientAction) {
+            foreach ($keys as $key) {
+                $this->keys[] = $key;
+            }
+        }
+    }}
