@@ -25,7 +25,7 @@ core:
   delete_forever: Delete Forever
   deleted: "[deleted]"
   disclose_online: Allow others to see when I am online
-  discussion_renamed: "changed the title from {old} to {new}"
+  discussion_renamed_post: "{username} changed the title from {old} to {new}."
   discussion_renamed_notification: "{username} changed the title"
   discussion_replied: "{username} replied {ago}"
   discussion_started: "{username} started {ago}"
