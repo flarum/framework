@@ -167,7 +167,11 @@ class PostStream extends mixin(Component, evented) {
   posts() {
     return this.discussion.postIds()
       .slice(this.visibleStart, this.visibleEnd)
-      .map(id => app.store.getById('posts', id));
+      .map(id => {
+        const post = app.store.getById('posts', id);
+
+        return post && post.discussion() ? post : null;
+      });
   }
 
   view() {
@@ -365,10 +369,10 @@ class PostStream extends mixin(Component, evented) {
     this.discussion.postIds().slice(start, end).forEach(id => {
       const post = app.store.getById('posts', id);
 
-      if (!post) {
-        loadIds.push(id);
-      } else {
+      if (post && post.discussion()) {
         loaded.push(post);
+      } else {
+        loadIds.push(id);
       }
     });
 
