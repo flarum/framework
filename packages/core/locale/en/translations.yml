@@ -93,10 +93,11 @@ core:
   send_password_reset_email: Send Password Reset Email
   settings: Settings
   sign_up: Sign Up
+  sort_latest: Latest
   sort_newest: Newest
   sort_oldest: Oldest
-  sort_recent: Recent
-  sort_replies: Replies
+  sort_relevance: Relevance
+  sort_top: Top
   start_a_discussion: Start a Discussion
   started_a_discussion: Started a discussion
   unread_posts: "{count} unread"
