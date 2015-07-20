@@ -1,23 +1,23 @@
 <?php namespace Flarum\Sticky\Events;
 
-use Flarum\Core\Models\Discussion;
-use Flarum\Core\Models\User;
+use Flarum\Core\Discussions\Discussion;
+use Flarum\Core\Users\User;
 
 class DiscussionWasStickied
 {
     /**
-     * @var \Flarum\Core\Models\Discussion
+     * @var Discussion
      */
     public $discussion;
 
     /**
-     * @var \Flarum\Core\Models\User
+     * @var User
      */
     public $user;
 
     /**
-     * @param \Flarum\Core\Models\Discussion $discussion
-     * @param \Flarum\Core\Models\User $user
+     * @param Discussion $discussion
+     * @param User $user
      */
     public function __construct(Discussion $discussion, User $user)
     {
