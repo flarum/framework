@@ -35,7 +35,11 @@
             document: {!! json_encode($document) !!},
             session: {!! json_encode($session) !!}
           };
-          initLocale(app);
+
+          @foreach ($bootstrappers as $bootstrapper)
+            System.import('{{ $bootstrapper }}');
+          @endforeach
+
           app.boot();
         } catch (e) {
           document.write('<div class="container">Something went wrong.</div>');

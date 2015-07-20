@@ -48,6 +48,13 @@ class ClientView implements Renderable
     protected $layout;
 
     /**
+     * An array of JS modules to import before booting the app.
+     *
+     * @var array
+     */
+    protected $bootstrappers = ['locale'];
+
+    /**
      * An array of strings to append to the page's <head>.
      *
      * @var array
@@ -157,6 +164,16 @@ class ClientView implements Renderable
     }
 
     /**
+     * Add a JavaScript module to be imported before the app is booted.
+     *
+     * @param string $string
+     */
+    public function addBootstrapper($string)
+    {
+        $this->bootstrappers[] = $string;
+    }
+
+    /**
      * Get the view's asset manager.
      *
      * @return AssetManager
@@ -196,6 +213,7 @@ class ClientView implements Renderable
 
         $view->head = implode("\n", $this->headStrings);
         $view->foot = implode("\n", $this->footStrings);
+        $view->bootstrappers = $this->bootstrappers;
 
         return $view->render();
     }
