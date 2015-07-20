@@ -1,7 +1,5 @@
 <?php namespace Flarum\Core;
 
-use Flarum\Core\Settings\MemoryCacheSettingsRepository;
-use Flarum\Core\Settings\DatabaseSettingsRepository;
 use Flarum\Core\Users\User;
 use Flarum\Events\ModelAllow;
 use Flarum\Support\ServiceProvider;
@@ -39,14 +37,6 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Core\Settings\SettingsRepository', function () {
-            return new MemoryCacheSettingsRepository(
-                new DatabaseSettingsRepository(
-                    $this->app->make('Illuminate\Database\ConnectionInterface')
-                )
-            );
-        });
-
         $this->app->singleton('flarum.forum', 'Flarum\Core\Forum');
 
         // TODO: probably use Illuminate's AggregateServiceProvider
