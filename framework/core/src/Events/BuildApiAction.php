@@ -4,7 +4,7 @@ use Flarum\Api\Actions\SerializeAction;
 
 class BuildApiAction
 {
-    protected $action;
+    public $action;
 
     /**
      * @param SerializeAction $action
