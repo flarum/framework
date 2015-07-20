@@ -1,4 +1,5 @@
 import Post from 'flarum/components/Post';
+import { ucfirst } from 'flarum/utils/string';
 import usernameHelper from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 
@@ -16,19 +17,24 @@ import icon from 'flarum/helpers/icon';
 export default class EventPost extends Post {
   attrs() {
     return {
-      className: 'EventPost EventPost--' + this.props.post.contentType()
+      className: 'EventPost ' + ucfirst(this.props.post.contentType()) + 'Post'
     };
   }
 
   content() {
     const user = this.props.post.user();
     const username = usernameHelper(user);
+    const data = Object.assign(this.descriptionData(), {
+      user,
+      username: user
+        ? <a className="EventPost-user" href={app.route.user(user)} config={m.route}>{username}</a>
+        : username
+    });
 
     return [
       icon(this.icon(), {className: 'EventPost-icon'}),
       <div class="EventPost-info">
-        {user ? <a className="EventPost-user" href={app.route.user(user)} config={m.route}>{username}</a> : username}{' '}
-        {this.description()}
+        {app.trans(this.descriptionKey(), data)}
       </div>
     ];
   }
@@ -39,13 +45,24 @@ export default class EventPost extends Post {
    * @return {String}
    */
   icon() {
+    return '';
   }
 
   /**
-   * Get the description of the event.
+   * Get the translation key for the description of the event.
    *
-   * @return {VirtualElement}
+   * @return {String}
    */
-  description() {
+  descriptionKey() {
+    return '';
+  }
+
+  /**
+   * Get the translation data for the description of the event.
+   *
+   * @return {Object}
+   */
+  descriptionData() {
+    return {};
   }
 }
