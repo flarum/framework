@@ -61,7 +61,9 @@ export default class Translator {
     // translation key. This will allow a gender property to determine which
     // translation key is used.
     if (input.user instanceof User) {
-      input.username = username(extract(input, 'user'));
+      const user = extract(input, 'user');
+
+      if (!input.username) input.username = username(user);
     }
 
     // If we've found the appropriate translation string, then we'll sub in the
