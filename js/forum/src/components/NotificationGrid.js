@@ -74,7 +74,7 @@ export default class NotificationGrid extends Component {
           {this.types.map(type => (
             <tr>
               <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
-                {type.label}
+                {icon(type.icon)} {type.label}
               </td>
               {this.methods.map(method => (
                 <td className="NotificationGrid-checkbox">
@@ -181,7 +181,8 @@ export default class NotificationGrid extends Component {
 
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
-      label: [icon('pencil'), ' ', app.trans('core.notify_discussion_renamed')]
+      icon: 'pencil',
+      label: app.trans('core.notify_discussion_renamed')
     });
 
     return items;
