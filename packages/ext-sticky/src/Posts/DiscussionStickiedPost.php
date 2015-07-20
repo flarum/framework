@@ -1,34 +1,32 @@
-<?php namespace Flarum\Sticky;
+<?php namespace Flarum\Sticky\Posts;
 
-use Flarum\Core\Models\Model;
-use Flarum\Core\Models\EventPost;
+use Flarum\Core\Posts\Post;
+use Flarum\Core\Posts\EventPost;
+use Flarum\Core\Posts\MergeablePost;
 
-class DiscussionStickiedPost extends EventPost
+class DiscussionStickiedPost extends EventPost implements MergeablePost
 {
-    /**
-     * The type of post this is, to be stored in the posts table.
-     *
-     * @var string
-     */
     public static $type = 'discussionStickied';
 
-    /**
-     * Merge the post into another post of the same type.
-     *
-     * @param \Flarum\Core\Models\DiscussionRenamedPost $previous
-     * @return \Flarum\Core\Models\Model|null The final model, or null if the
-     *     previous post was deleted.
-     */
-    protected function mergeInto(Model $previous)
+    public function saveAfter(Post $previous)
     {
-        if ($this->user_id === $previous->user_id) {
+        // If the previous post is another 'discussion stickied' post, and it's
+        // by the same user, then we can merge this post into it. If we find
+        // that we've in fact reverted the sticky status, delete it. Otherwise,
+        // update its content.
+        if ($previous instanceof static && $this->user_id === $previous->user_id) {
             if ($previous->content['sticky'] != $this->content['sticky']) {
-                return;
+                $previous->delete();
+            } else {
+                $previous->content = $this->content;
+
+                $previous->save();
             }
 
-            $previous->content = $this->content;
             return $previous;
         }
+
+        $this->save();
 
         return $this;
     }

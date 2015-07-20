@@ -1,8 +1,8 @@
-<?php namespace Flarum\Sticky;
+<?php namespace Flarum\Sticky\Notifications;
 
-use Flarum\Core\Notifications\NotificationAbstract;
+use Flarum\Core\Notifications\Blueprint;
 
-class DiscussionStickiedNotification extends NotificationAbstract
+class DiscussionStickiedBlueprint implements Blueprint
 {
     protected $post;
 
@@ -11,14 +11,14 @@ class DiscussionStickiedNotification extends NotificationAbstract
         $this->post = $post;
     }
 
-    public function getSubject()
-    {
-        return $this->post->discussion;
-    }
-
     public function getSender()
     {
         return $this->post->user;
+    }
+
+    public function getSubject()
+    {
+        return $this->post->discussion;
     }
 
     public function getData()
@@ -33,6 +33,6 @@ class DiscussionStickiedNotification extends NotificationAbstract
 
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Models\Discussion';
+        return 'Flarum\Core\Discussions\Discussion';
     }
 }

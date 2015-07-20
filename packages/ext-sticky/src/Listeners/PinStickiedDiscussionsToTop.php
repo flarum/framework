@@ -1,25 +1,33 @@
-<?php namespace Flarum\Sticky\Handlers;
+<?php namespace Flarum\Sticky\Listeners;
 
-use Flarum\Core\Events\DiscussionSearchWillBePerformed;
-use Flarum\Tags\TagGambit;
+use Flarum\Events\RegisterDiscussionGambits;
+use Flarum\Events\DiscussionSearchWillBePerformed;
+use Flarum\Tags\Gambits\TagGambit;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class StickySearchModifier
+class PinStickiedDiscussionsToTop
 {
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events)
     {
-        $events->listen('Flarum\Core\Events\DiscussionSearchWillBePerformed', __CLASS__.'@reorderSearch');
+        $events->listen(RegisterDiscussionGambits::class, __CLASS__.'@registerStickyGambit');
+        $events->listen(DiscussionSearchWillBePerformed::class, __CLASS__.'@reorderSearch');
+    }
+
+    public function registerStickyGambit(RegisterDiscussionGambits $event)
+    {
+        $event->gambits->add('Flarum\Sticky\Gambits\StickyGambit');
     }
 
     public function reorderSearch(DiscussionSearchWillBePerformed $event)
     {
         if ($event->criteria->sort === null) {
-            $query = $event->searcher->getQuery();
+            $query = $event->search->getQuery();
 
-            if (!is_array($query->orders)) {
+            if (! is_array($query->orders)) {
                 $query->orders = [];
             }
 
-            foreach ($event->searcher->getActiveGambits() as $gambit) {
+            foreach ($event->search->getActiveGambits() as $gambit) {
                 if ($gambit instanceof TagGambit) {
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
                     return;
@@ -29,7 +37,7 @@ class StickySearchModifier
             $query->leftJoin('users_discussions', function ($join) use ($event) {
                 $join->on('users_discussions.discussion_id', '=', 'discussions.id')
                      ->where('discussions.is_sticky', '=', true)
-                     ->where('users_discussions.user_id', '=', $event->criteria->user->id);
+                     ->where('users_discussions.user_id', '=', $event->search->getActor()->id);
             });
             // might be quicker to do a subquery in the order clause than a join?
             array_unshift(

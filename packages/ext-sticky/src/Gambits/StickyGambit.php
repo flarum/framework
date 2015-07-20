@@ -1,9 +1,9 @@
-<?php namespace Flarum\Sticky;
+<?php namespace Flarum\Sticky\Gambits;
 
-use Flarum\Core\Search\SearcherInterface;
-use Flarum\Core\Search\GambitAbstract;
+use Flarum\Core\Search\Search;
+use Flarum\Core\Search\RegexGambit;
 
-class StickyGambit extends GambitAbstract
+class StickyGambit extends RegexGambit
 {
     /**
      * The gambit's regex pattern.
@@ -20,8 +20,8 @@ class StickyGambit extends GambitAbstract
      * @param \Flarum\Core\Search\SearcherInterface $searcher
      * @return void
      */
-    protected function conditions(SearcherInterface $searcher, array $matches, $negate)
+    protected function conditions(Search $search, array $matches, $negate)
     {
-        $searcher->getQuery()->where('is_sticky', ! $negate);
+        $search->getQuery()->where('is_sticky', ! $negate);
     }
 }
