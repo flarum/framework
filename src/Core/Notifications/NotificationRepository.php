@@ -22,7 +22,7 @@ class NotificationRepository
             ->whereIn('type', $user->getAlertableNotificationTypes())
             ->where('is_deleted', false)
             ->groupBy('type', 'subject_id')
-            ->latest('time')
+            ->orderByRaw('MAX(time) DESC')
             ->skip($offset)
             ->take($limit);
 
