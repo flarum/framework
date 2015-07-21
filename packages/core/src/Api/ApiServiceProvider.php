@@ -1,6 +1,11 @@
 <?php namespace Flarum\Api;
 
+use Flarum\Api\Serializers\ActivitySerializer;
+use Flarum\Api\Serializers\NotificationSerializer;
 use Flarum\Core\Users\Guest;
+use Flarum\Events\RegisterApiRoutes;
+use Flarum\Events\RegisterActivityTypes;
+use Flarum\Events\RegisterNotificationTypes;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
@@ -37,6 +42,45 @@ class ApiServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->routes();
+
+        $this->registerActivitySerializers();
+        $this->registerNotificationSerializers();
+    }
+
+    /**
+     * Register activity serializers.
+     */
+    protected function registerActivitySerializers()
+    {
+        $blueprints = [];
+        $serializers = [
+            'posted'            => 'Flarum\Api\Serializers\PostBasicSerializer',
+            'startedDiscussion' => 'Flarum\Api\Serializers\PostBasicSerializer',
+            'joined'            => 'Flarum\Api\Serializers\UserSerializer'
+        ];
+
+        event(new RegisterActivityTypes($blueprints, $serializers));
+
+        foreach ($serializers as $type => $serializer) {
+            ActivitySerializer::setSubjectSerializer($type, $serializer);
+        }
+    }
+
+    /**
+     * Register notification serializers.
+     */
+    protected function registerNotificationSerializers()
+    {
+        $blueprints = [];
+        $serializers = [
+            'discussionRenamed' => 'Flarum\Api\Serializers\DiscussionBasicSerializer'
+        ];
+
+        event(new RegisterNotificationTypes($blueprints, $serializers));
+
+        foreach ($serializers as $type => $serializer) {
+            NotificationSerializer::setSubjectSerializer($type, $serializer);
+        }
     }
 
     protected function routes()
@@ -268,6 +312,8 @@ class ApiServiceProvider extends ServiceProvider
             'flarum.api.groups.delete',
             $this->action('Flarum\Api\Actions\Groups\DeleteAction')
         );
+
+        event(new RegisterApiRoutes($routes));
     }
 
     protected function action($class)

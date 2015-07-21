@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Discussions\Commands;
 
-use Flarum\Core\Discussions\Events\DiscussionWillBeSaved;
+use Flarum\Events\DiscussionWillBeSaved;
 use Flarum\Core\Forum;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Flarum\Core\Discussions\Discussion;

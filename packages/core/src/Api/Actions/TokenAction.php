@@ -4,7 +4,7 @@ use Flarum\Api\Commands\GenerateAccessToken;
 use Flarum\Api\Request;
 use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Exceptions\PermissionDeniedException;
-use Flarum\Core\Users\Events\UserEmailChangeWasRequested;
+use Flarum\Events\UserEmailChangeWasRequested;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Zend\Diactoros\Response\JsonResponse;
 

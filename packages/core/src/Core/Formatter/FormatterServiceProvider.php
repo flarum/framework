@@ -12,9 +12,6 @@ class FormatterServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->extend([
-            new Extend\PostFormatter('Flarum\Core\Formatter\LinkifyFormatter')
-        ]);
     }
 
     /**

@@ -22,39 +22,39 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\UserSerializer';
+    public $serializer = 'Flarum\Api\Serializers\UserSerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'groups' => true
     ];
 
     /**
      * @inheritdoc
      */
-    public static $link = [];
+    public $link = [];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = ['username', 'postsCount', 'discussionsCount', 'lastSeenTime', 'joinTime'];
+    public $sortFields = ['username', 'postsCount', 'discussionsCount', 'lastSeenTime', 'joinTime'];
 
     /**
      * @inheritdoc
      */
-    public static $sort;
+    public $sort;
 
     /**
      * @param UserSearcher $searcher
@@ -84,7 +84,7 @@ class IndexAction extends SerializeCollectionAction
 
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $request->include);
 
-        static::addPaginationLinks(
+        $this->addPaginationLinks(
             $document,
             $request,
             $this->url->toRoute('flarum.api.users.index'),

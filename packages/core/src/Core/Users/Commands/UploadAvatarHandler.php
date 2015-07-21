@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Users\Commands;
 
-use Flarum\Core\Users\Events\AvatarWillBeSaved;
+use Flarum\Events\AvatarWillBeSaved;
 use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Support\DispatchesEvents;
 use Illuminate\Support\Str;

@@ -1,7 +1,7 @@
 <?php namespace Flarum\Locale;
 
+use Flarum\Events\RegisterLocales;
 use Flarum\Support\ServiceProvider;
-use Flarum\Extend;
 
 class LocaleServiceProvider extends ServiceProvider
 {
@@ -12,19 +12,20 @@ class LocaleServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->setupLocale('en');
+        $manager = $this->app->make('flarum.localeManager');
+
+        $this->registerLocale($manager, 'en');
+
+        event(new RegisterLocales($manager));
     }
 
-    public function setupLocale($locale)
+    public function registerLocale(LocaleManager $manager, $locale)
     {
         $dir = __DIR__.'/../../locale/'.$locale;
 
-        $this->extend(
-            (new Extend\Locale($locale))
-                ->translations($dir.'/translations.yml')
-                ->config($dir.'/config.php')
-                ->js($dir.'/config.js')
-        );
+        $manager->addTranslations($locale, $dir.'/translations.yml');
+        $manager->addConfig($locale, $dir.'/config.php');
+        $manager->addJsFile($locale, $dir.'/config.js');
     }
 
     public function register()

@@ -1,6 +1,7 @@
 <?php namespace Flarum\Forum;
 
 use Flarum\Core\Users\Guest;
+use Flarum\Events\RegisterForumRoutes;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Flarum\Support\ServiceProvider;
@@ -110,6 +111,8 @@ class ForumServiceProvider extends ServiceProvider
             'flarum.forum.savePassword',
             $this->action('Flarum\Forum\Actions\SavePasswordAction')
         );
+
+        event(new RegisterForumRoutes($routes));
     }
 
     protected function action($class)
