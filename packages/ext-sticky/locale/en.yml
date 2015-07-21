@@ -1,0 +1,8 @@
+sticky:
+  discussion_stickied_notification: "{username} stickied"
+  discussion_stickied_post: "{username} stickied the discussion."
+  discussion_unstickied_post: "{username} unstickied the discussion."
+  notify_discussion_stickied: Someone stickies a discussion I started
+  stickied: Sticky
+  sticky: Sticky
+  unsticky: Unsticky
