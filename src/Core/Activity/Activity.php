@@ -27,7 +27,7 @@ class Activity extends Model
     /**
      * {@inheritdoc}
      */
-    protected static $dateAttributes = ['time'];
+    protected $dates = ['time'];
 
     /**
      * A map of activity types and the model classes to use for their subjects.

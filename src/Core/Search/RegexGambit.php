@@ -17,7 +17,7 @@ abstract class RegexGambit implements Gambit
         if ($matches = $this->match($bit)) {
             list($negate) = array_splice($matches, 1, 1);
 
-            $this->conditions($searcher, $matches, !! $negate);
+            $this->conditions($search, $matches, !! $negate);
         }
 
         return !! $matches;

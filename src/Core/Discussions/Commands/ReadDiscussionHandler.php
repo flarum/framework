@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Discussions\Commands;
 
 use Flarum\Core\Discussions\DiscussionRepository;
-use Flarum\Core\Discussions\Events\DiscussionStateWillBeSaved;
+use Flarum\Events\DiscussionStateWillBeSaved;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Core\Support\DispatchesEvents;
 

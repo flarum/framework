@@ -36,3 +36,13 @@ export function slug(string) {
 export function getPlainContent(string) {
   return $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 ')).text();
 }
+
+/**
+ * Make a string's first character uppercase.
+ *
+ * @param {String} string
+ * @return {String}
+ */
+export function ucfirst(string) {
+  return string.substr(0, 1).toUpperCase() + string.substr(1);
+}

@@ -1,6 +1,13 @@
 <?php namespace Flarum\Core;
 
+use Flarum\Core\Exceptions\PermissionDeniedException;
+use Flarum\Core\Users\User;
+use Flarum\Events\ModelAllow;
+use Flarum\Events\ModelDates;
+use Flarum\Events\ModelRelationship;
+use Flarum\Events\ScopeModelVisibility;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use LogicException;
@@ -11,6 +18,9 @@ use LogicException;
  * Adds the ability for custom relations to be added to a model during runtime.
  * These relations behave in the same way that you would expect; they can be
  * queried, eager loaded, and accessed as an attribute.
+ *
+ * Also has a scope method `whereVisibleTo` that scopes a query to only include
+ * records that the user has permission to see.
  */
 abstract class Model extends Eloquent
 {
@@ -22,37 +32,62 @@ abstract class Model extends Eloquent
     public $timestamps = false;
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected static $dateAttributes = [];
-
-    /**
-     * An array of custom relation methods, grouped by subclass.
-     *
-     * @var array
-     */
-    protected static $relationMethods = [];
-
-    /**
      * Get the attributes that should be converted to dates.
      *
      * @return array
      */
     public function getDates()
     {
-        return array_merge(static::$dateAttributes, $this->dates);
+        $dates = $this->dates;
+
+        event(new ModelDates($this, $dates));
+
+        return $dates;
     }
 
     /**
-     * Add an attribute to be converted to a date.
+     * Check whether or not a user has permission to perform an action,
+     * according to the collected conditions.
      *
-     * @param string $attribute
+     * @param User $actor
+     * @param string $action
+     * @return bool
      */
-    public static function addDateAttribute($attribute)
+    public function can(User $actor, $action)
     {
-        static::$dateAttributes[] = $attribute;
+        $can = static::$dispatcher->until(new ModelAllow($this, $actor, $action));
+
+        if ($can !== null) {
+            return $can;
+        }
+
+        return false;
+    }
+
+    /**
+     * Assert that the user has a certain permission for this model, throwing
+     * an exception if they don't.
+     *
+     * @param User $actor
+     * @param string $action
+     * @throws PermissionDeniedException
+     */
+    public function assertCan(User $actor, $action)
+    {
+        if (! $this->can($actor, $action)) {
+            throw new PermissionDeniedException;
+        }
+    }
+
+    /**
+     * Scope a query to only include records that are visible to a user.
+     *
+     * @param Builder $query
+     * @param User $actor
+     */
+    public function scopeWhereVisibleTo(Builder $query, User $actor)
+    {
+        event(new ScopeModelVisibility($this, $query, $actor));
     }
 
     /**
@@ -71,40 +106,38 @@ abstract class Model extends Eloquent
         // If a custom relation with this key has been set up, then we will load
         // and return results from the query and hydrate the relationship's
         // value on the "relationships" array.
-        if (isset(static::$relationMethods[get_called_class()][$key])) {
-            return $this->getCustomRelationship($key);
+        if ($relation = $this->getCustomRelation($key)) {
+            if (! $relation instanceof Relation) {
+                throw new LogicException('Relationship method must return an object of type '
+                    . 'Illuminate\Database\Eloquent\Relations\Relation');
+            }
+
+            return $this->relations[$key] = $relation->getResults();
         }
     }
 
     /**
-     * Get a relationship value from a custom relationship method.
+     * Get a custom relation object.
      *
      * @param string $name
      * @return mixed
-     *
-     * @throws \LogicException
      */
-    protected function getCustomRelationship($name)
+    protected function getCustomRelation($name)
     {
-        $relation = static::$relationMethods[get_called_class()][$name]($this);
-
-        if (! $relation instanceof Relation) {
-            throw new LogicException('Relationship method must return an object of type '
-                . 'Illuminate\Database\Eloquent\Relations\Relation');
-        }
-
-        return $this->relations[$name] = $relation->getResults();
+        return static::$dispatcher->until(
+            new ModelRelationship($this, $name)
+        );
     }
 
     /**
-     * Add a custom relation to the model.
-     *
-     * @param string $name The name of the relation.
-     * @param callable $callback The callback to execute. This should return an
-     *     object of type Illuminate\Database\Eloquent\Relations\Relation.
+     * @inheritdoc
      */
-    public static function setRelationMethod($name, callable $callback)
+    public function __call($method, $arguments)
     {
-        static::$relationMethods[get_called_class()][$name] = $callback;
+        if ($relation = $this->getCustomRelation($method)) {
+            return $relation;
+        }
+
+        return parent::__call($method, $arguments);
     }
 }

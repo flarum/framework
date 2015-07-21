@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Posts\Commands;
 
 use Flarum\Core\Posts\PostRepository;
-use Flarum\Core\Posts\Events\PostWillBeDeleted;
+use Flarum\Events\PostWillBeDeleted;
 use Flarum\Core\Support\DispatchesEvents;
 
 class DeletePostHandler

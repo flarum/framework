@@ -25,7 +25,7 @@ core:
   delete_forever: Delete Forever
   deleted: "[deleted]"
   disclose_online: Allow others to see when I am online
-  discussion_renamed: "changed the title from {old} to {new}"
+  discussion_renamed_post: "{username} changed the title from {old} to {new}."
   discussion_renamed_notification: "{username} changed the title"
   discussion_replied: "{username} replied {ago}"
   discussion_started: "{username} started {ago}"
@@ -93,10 +93,11 @@ core:
   send_password_reset_email: Send Password Reset Email
   settings: Settings
   sign_up: Sign Up
+  sort_latest: Latest
   sort_newest: Newest
   sort_oldest: Oldest
-  sort_recent: Recent
-  sort_replies: Replies
+  sort_relevance: Relevance
+  sort_top: Top
   start_a_discussion: Start a Discussion
   started_a_discussion: Started a discussion
   unread_posts: "{count} unread"

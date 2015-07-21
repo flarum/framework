@@ -31,7 +31,7 @@ class Notification extends Model
     /**
      * {@inheritdoc}
      */
-    protected static $dateAttributes = ['time'];
+    protected $dates = ['time'];
 
     /**
      * A map of notification types and the model classes to use for their

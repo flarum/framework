@@ -5,11 +5,11 @@ use Flarum\Core\Activity\PostedBlueprint;
 use Flarum\Core\Activity\StartedDiscussionBlueprint;
 use Flarum\Core\Activity\JoinedBlueprint;
 use Flarum\Core\Posts\Post;
-use Flarum\Core\Posts\Events\PostWasPosted;
-use Flarum\Core\Posts\Events\PostWasDeleted;
-use Flarum\Core\Posts\Events\PostWasHidden;
-use Flarum\Core\Posts\Events\PostWasRestored;
-use Flarum\Core\Users\Events\UserWasRegistered;
+use Flarum\Events\PostWasPosted;
+use Flarum\Events\PostWasDeleted;
+use Flarum\Events\PostWasHidden;
+use Flarum\Events\PostWasRestored;
+use Flarum\Events\UserWasRegistered;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserActivitySyncer
@@ -33,15 +33,15 @@ class UserActivitySyncer
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen('Flarum\Core\Posts\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
-        $events->listen('Flarum\Core\Posts\Events\PostWasHidden', __CLASS__.'@whenPostWasHidden');
-        $events->listen('Flarum\Core\Posts\Events\PostWasRestored', __CLASS__.'@whenPostWasRestored');
-        $events->listen('Flarum\Core\Posts\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
-        $events->listen('Flarum\Core\Users\Events\UserWasRegistered', __CLASS__.'@whenUserWasRegistered');
+        $events->listen('Flarum\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted');
+        $events->listen('Flarum\Events\PostWasHidden', __CLASS__.'@whenPostWasHidden');
+        $events->listen('Flarum\Events\PostWasRestored', __CLASS__.'@whenPostWasRestored');
+        $events->listen('Flarum\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
+        $events->listen('Flarum\Events\UserWasRegistered', __CLASS__.'@whenUserWasRegistered');
     }
 
     /**
-     * @param \Flarum\Core\Posts\Events\PostWasPosted $event
+     * @param \Flarum\Events\PostWasPosted $event
      * @return void
      */
     public function whenPostWasPosted(PostWasPosted $event)
@@ -50,7 +50,7 @@ class UserActivitySyncer
     }
 
     /**
-     * @param \Flarum\Core\Posts\Events\PostWasHidden $event
+     * @param \Flarum\Events\PostWasHidden $event
      * @return void
      */
     public function whenPostWasHidden(PostWasHidden $event)
@@ -59,7 +59,7 @@ class UserActivitySyncer
     }
 
     /**
-     * @param \Flarum\Core\Posts\Events\PostWasRestored $event
+     * @param \Flarum\Events\PostWasRestored $event
      * @return void
      */
     public function whenPostWasRestored(PostWasRestored $event)
@@ -68,7 +68,7 @@ class UserActivitySyncer
     }
 
     /**
-     * @param \Flarum\Core\Posts\Events\PostWasDeleted $event
+     * @param \Flarum\Events\PostWasDeleted $event
      * @return void
      */
     public function whenPostWasDeleted(PostWasDeleted $event)
@@ -77,7 +77,7 @@ class UserActivitySyncer
     }
 
     /**
-     * @param \Flarum\Core\Users\Events\UserWasRegistered $event
+     * @param \Flarum\Events\UserWasRegistered $event
      * @return void
      */
     public function whenUserWasRegistered(UserWasRegistered $event)

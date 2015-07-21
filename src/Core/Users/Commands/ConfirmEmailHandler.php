@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Users\Commands;
 
 use Flarum\Core\Users\UserRepository;
-use Flarum\Core\Users\Events\UserWillBeSaved;
+use Flarum\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Users\EmailToken;

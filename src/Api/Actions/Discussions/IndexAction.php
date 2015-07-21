@@ -22,12 +22,12 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
+    public $serializer = 'Flarum\Api\Serializers\DiscussionSerializer';
 
     /**
      * @inheritdoc
      */
-    public static $include = [
+    public $include = [
         'startUser' => true,
         'lastUser' => true,
         'startPost' => false,
@@ -40,27 +40,27 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public static $link = [];
+    public $link = [];
 
     /**
      * @inheritdoc
      */
-    public static $limitMax = 50;
+    public $limitMax = 50;
 
     /**
      * @inheritdoc
      */
-    public static $limit = 20;
+    public $limit = 20;
 
     /**
      * @inheritdoc
      */
-    public static $sortFields = ['lastTime', 'commentsCount', 'startTime'];
+    public $sortFields = ['lastTime', 'commentsCount', 'startTime'];
 
     /**
      * @inheritdoc
      */
-    public static $sort;
+    public $sort;
 
     /**
      * @param DiscussionSearcher $searcher
@@ -93,7 +93,7 @@ class IndexAction extends SerializeCollectionAction
         $results = $this->searcher->search($criteria, $request->limit, $request->offset, $load);
 
         // TODO: add query params (filter, sort, include) to the pagination URLs
-        static::addPaginationLinks(
+        $this->addPaginationLinks(
             $document,
             $request,
             $request->http ? $this->url->toRoute('flarum.api.discussions.index') : '',

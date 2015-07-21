@@ -42,10 +42,12 @@ class GenerateExtensionCommand extends Command
     public function fire()
     {
         do {
-            $name = $this->ask('Extension name (<vendor>-<name>):');
-        } while (! preg_match('/^([a-z0-9]+)-([a-z0-9-]+)$/i', $name, $match));
+            $vendor = $this->ask('Vendor name:');
+        } while (! preg_match('/^([a-z0-9-]+)$/i', $vendor));
 
-        list(, $vendor, $package) = $match;
+        do {
+            $name = $this->ask('Extension name:');
+        } while (! preg_match('/^([a-z0-9-]+)$/i', $name));
 
         do {
             $title = $this->ask('Title:');
@@ -64,9 +66,8 @@ class GenerateExtensionCommand extends Command
         $dir = public_path().'/extensions/'.$name;
 
         $replacements = [
-            '{{namespace}}' => ucfirst($vendor).'\\'.ucfirst($package),
-            '{{escapedNamespace}}' => ucfirst($vendor).'\\\\'.ucfirst($package),
-            '{{classPrefix}}' => ucfirst($package),
+            '{{namespace}}' => ucfirst($vendor).'\\'.ucfirst($name),
+            '{{escapedNamespace}}' => ucfirst($vendor).'\\\\'.ucfirst($name),
             '{{name}}' => $name
         ];
 
@@ -78,7 +79,7 @@ class GenerateExtensionCommand extends Command
             'name' => $name,
             'title' => $title,
             'description' => $description,
-            'tags' => [],
+            'keywords' => [],
             'version' => '0.1.0',
             'author' => [
                 'name' => $authorName,

@@ -1,5 +1,4 @@
 import Notification from 'flarum/components/Notification';
-import username from 'flarum/helpers/username';
 
 /**
  * The `DiscussionRenamedNotification` component displays a notification which
