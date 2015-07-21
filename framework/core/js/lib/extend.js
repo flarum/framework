@@ -59,17 +59,3 @@ export function override(object, method, newMethod) {
     return newMethod.apply(this, [original.bind(this)].concat(args));
   };
 }
-
-/**
- * Register a notification type.
- *
- * @param {String} name The name of the notification type (equivalent to the
- *     serialized `contentType`)
- * @param {Object} Component The constructor of the component that this
- *     notification type should be rendered with
- * @param {String|Array} label vDOM to render a label in the notification
- *     preferences grid for this notification type
- */
-export function notificationType(name, Component, label) {
-  // TODO
-}

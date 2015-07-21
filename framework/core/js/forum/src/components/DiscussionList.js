@@ -82,8 +82,9 @@ export default class DiscussionList extends Component {
    * discussion results.
    *
    * @return {Object}
+   * @api
    */
-  params() {
+  requestParams() {
     const params = Object.assign({include: ['startUser', 'lastUser']}, this.props.params);
 
     params.sort = this.sortMap()[params.sort];
@@ -111,8 +112,8 @@ export default class DiscussionList extends Component {
     if (this.props.params.q) {
       map.relevance = '';
     }
-    map.recent = '-lastTime';
-    map.replies = '-commentsCount';
+    map.latest = '-lastTime';
+    map.top = '-commentsCount';
     map.newest = '-startTime';
     map.oldest = '+startTime';
 
@@ -150,7 +151,7 @@ export default class DiscussionList extends Component {
       return m.deferred().resolve(preloadedDiscussions).promise;
     }
 
-    const params = this.params();
+    const params = this.requestParams();
     params.page = {offset};
     params.include = params.include.join(',');
 

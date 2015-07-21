@@ -1,12 +1,12 @@
 <?php namespace Flarum\Core\Users\Listeners;
 
 use Flarum\Core\Users\User;
-use Flarum\Core\Posts\Events\PostWasPosted;
-use Flarum\Core\Posts\Events\PostWasDeleted;
-use Flarum\Core\Posts\Events\PostWasHidden;
-use Flarum\Core\Posts\Events\PostWasRestored;
-use Flarum\Core\Discussions\Events\DiscussionWasStarted;
-use Flarum\Core\Discussions\Events\DiscussionWasDeleted;
+use Flarum\Events\PostWasPosted;
+use Flarum\Events\PostWasDeleted;
+use Flarum\Events\PostWasHidden;
+use Flarum\Events\PostWasRestored;
+use Flarum\Events\DiscussionWasStarted;
+use Flarum\Events\DiscussionWasDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserMetadataUpdater
@@ -49,7 +49,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param PostWasRestored $event
+     * @param \Flarum\Events\PostWasRestored $event
      */
     public function whenPostWasRestored(PostWasRestored $event)
     {
@@ -57,7 +57,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param DiscussionWasStarted $event
+     * @param \Flarum\Events\DiscussionWasStarted $event
      */
     public function whenDiscussionWasStarted(DiscussionWasStarted $event)
     {
@@ -65,7 +65,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param DiscussionWasDeleted $event
+     * @param \Flarum\Events\DiscussionWasDeleted $event
      */
     public function whenDiscussionWasDeleted(DiscussionWasDeleted $event)
     {

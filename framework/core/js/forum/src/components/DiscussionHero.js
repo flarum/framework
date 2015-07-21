@@ -31,7 +31,7 @@ export default class DiscussionHero extends Component {
     const badges = discussion.badges().toArray();
 
     if (badges.length) {
-      items.add('badges', <ul className="DiscussionHero-badges">{listItems(badges)}</ul>);
+      items.add('badges', <ul className="DiscussionHero-badges badges">{listItems(badges)}</ul>);
     }
 
     items.add('title', <h2 className="DiscussionHero-title">{discussion.title()}</h2>);

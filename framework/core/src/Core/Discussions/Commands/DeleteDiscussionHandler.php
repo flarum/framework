@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Discussions\Commands;
 
 use Flarum\Core\Discussions\DiscussionRepository;
-use Flarum\Core\Discussions\Events\DiscussionWillBeDeleted;
+use Flarum\Events\DiscussionWillBeDeleted;
 use Flarum\Core\Support\DispatchesEvents;
 
 class DeleteDiscussionHandler

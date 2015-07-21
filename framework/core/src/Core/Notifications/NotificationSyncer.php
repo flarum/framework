@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Notifications;
 
-use Flarum\Core\Notifications\Events\NotificationWillBeSent;
+use Flarum\Events\NotificationWillBeSent;
 use Flarum\Core\Users\User;
 use Carbon\Carbon;
 

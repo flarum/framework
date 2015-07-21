@@ -4,6 +4,7 @@
 // classes in the src directory to be autoloaded.
 require __DIR__.'/vendor/autoload.php';
 
-// Register our service provider with the Flarum application. In here we can
-// register bindings and execute code when the application boots.
-return $this->app->register('{{namespace}}\{{classPrefix}}ServiceProvider');
+// Return the name of our Extension class. Flarum will register it as a service
+// provider, allowing it to register bindings and execute code when the
+// application boots.
+return '{{namespace}}\Extension';

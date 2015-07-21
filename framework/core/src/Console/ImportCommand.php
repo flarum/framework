@@ -9,7 +9,7 @@ use Flarum\Core\Discussions\Discussion;
 use Flarum\Core\Discussions\DiscussionState;
 use Flarum\Core\Posts\CommentPost;
 use Flarum\Tags\Tag;
-use Flarum\Core\Posts\Events\PostWasPosted;
+use Flarum\Events\PostWasPosted;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportCommand extends Command

@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Posts;
 
 use DomainException;
-use Flarum\Core\Posts\Events\PostWasDeleted;
+use Flarum\Events\PostWasDeleted;
 use Flarum\Core\Model;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\EventGenerator;
@@ -42,7 +42,7 @@ class Post extends Model
     /**
      * {@inheritdoc}
      */
-    protected static $dateAttributes = ['time', 'edit_time', 'hide_time'];
+    protected $dates = ['time', 'edit_time', 'hide_time'];
 
     /**
      * A map of post types, as specified in the `type` column, to their
@@ -161,6 +161,7 @@ class Post extends Model
             && isset(static::$models[$attributes['type']])
             && class_exists($class = static::$models[$attributes['type']])
         ) {
+            /** @var Post $instance */
             $instance = new $class;
             $instance->exists = true;
             $instance->setRawAttributes($attributes, true);

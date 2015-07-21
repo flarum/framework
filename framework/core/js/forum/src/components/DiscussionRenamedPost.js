@@ -13,15 +13,18 @@ export default class DiscussionRenamedPost extends EventPost {
     return 'pencil';
   }
 
-  description() {
+  descriptionKey() {
+    return 'core.discussion_renamed_post';
+  }
+
+  descriptionData() {
     const post = this.props.post;
     const oldTitle = post.content()[0];
     const newTitle = post.content()[1];
 
-    return app.trans('core.discussion_renamed', {
-      user: this.props.post.user(),
+    return {
       old: <strong className="DiscussionRenamedPost-old">{oldTitle}</strong>,
       new: <strong className="DiscussionRenamedPost-new">{newTitle}</strong>
-    });
+    };
   }
 }

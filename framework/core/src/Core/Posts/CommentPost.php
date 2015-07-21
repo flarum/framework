@@ -2,10 +2,10 @@
 
 use DomainException;
 use Flarum\Core\Formatter\FormatterManager;
-use Flarum\Core\Posts\Events\PostWasPosted;
-use Flarum\Core\Posts\Events\PostWasRevised;
-use Flarum\Core\Posts\Events\PostWasHidden;
-use Flarum\Core\Posts\Events\PostWasRestored;
+use Flarum\Events\PostWasPosted;
+use Flarum\Events\PostWasRevised;
+use Flarum\Events\PostWasHidden;
+use Flarum\Events\PostWasRestored;
 use Flarum\Core\Users\User;
 
 /**

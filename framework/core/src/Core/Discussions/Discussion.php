@@ -1,10 +1,10 @@
 <?php namespace Flarum\Core\Discussions;
 
 use Flarum\Core\Model;
-use Flarum\Core\Discussions\Events\DiscussionWasDeleted;
-use Flarum\Core\Discussions\Events\DiscussionWasStarted;
-use Flarum\Core\Discussions\Events\DiscussionWasRenamed;
-use Flarum\Core\Posts\Events\PostWasDeleted;
+use Flarum\Events\DiscussionWasDeleted;
+use Flarum\Events\DiscussionWasStarted;
+use Flarum\Events\DiscussionWasRenamed;
+use Flarum\Events\PostWasDeleted;
 use Flarum\Core\Posts\Post;
 use Flarum\Core\Posts\MergeablePost;
 use Flarum\Core\Users\Guest;
@@ -21,13 +21,10 @@ class Discussion extends Model
 {
     use EventGenerator;
     use Locked;
-    use VisibleScope;
     use ValidatesBeforeSave;
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
+     * {@inheritdoc}
      */
     protected $table = 'discussions';
 
@@ -57,11 +54,9 @@ class Discussion extends Model
     protected $modifiedPosts = [];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
+     * {@inheritdoc}
      */
-    protected static $dateAttributes = ['start_time', 'last_time'];
+    protected $dates = ['start_time', 'last_time'];
 
     /**
      * The user for which the state relationship should be loaded.

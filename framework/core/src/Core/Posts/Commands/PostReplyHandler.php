@@ -1,6 +1,6 @@
 <?php namespace Flarum\Core\Posts\Commands;
 
-use Flarum\Core\Posts\Events\PostWillBeSaved;
+use Flarum\Events\PostWillBeSaved;
 use Flarum\Core\Discussions\DiscussionRepository;
 use Flarum\Core\Posts\CommentPost;
 use Flarum\Core\Support\DispatchesEvents;
