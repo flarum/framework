@@ -54,6 +54,11 @@
   position: relative;
   width: auto;
   margin: 10px;
+  max-width: 600px;
+
+  .Modal--small & {
+    max-width: 400px;
+  }
 }
 
 // Actual modal
@@ -62,12 +67,7 @@
   background-color: @body-bg;
   background-clip: padding-box;
   margin: 0 auto;
-  max-width: 600px;
   overflow: hidden;
-
-  .Modal--small & {
-    max-width: 400px;
-  }
 }
 
 // Measure scrollbar width for padding body during modal show/hide
@@ -108,7 +108,7 @@
     text-align: left;
   }
 
-  :last-child {
+  > :last-child {
     margin-bottom: 0;
   }
 }
