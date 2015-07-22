@@ -1,10 +1,10 @@
-<?php namespace Flarum\Likes;
+<?php namespace Flarum\Likes\Notifications;
 
-use Flarum\Core\Models\Post;
-use Flarum\Core\Models\User;
-use Flarum\Core\Notifications\NotificationAbstract;
+use Flarum\Core\Posts\Post;
+use Flarum\Core\Users\User;
+use Flarum\Core\Notifications\Blueprint;
 
-class PostLikedNotification extends NotificationAbstract
+class PostLikedBlueprint implements Blueprint
 {
     public $post;
 
@@ -26,6 +26,11 @@ class PostLikedNotification extends NotificationAbstract
         return $this->user;
     }
 
+    public function getData()
+    {
+        return null;
+    }
+
     public static function getType()
     {
         return 'postLiked';
@@ -33,6 +38,6 @@ class PostLikedNotification extends NotificationAbstract
 
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Models\Post';
+        return 'Flarum\Core\Posts\Post';
     }
 }

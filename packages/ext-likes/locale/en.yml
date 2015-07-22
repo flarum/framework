@@ -1,2 +1,11 @@
-flarum-likes:
-  # hello_world: Hello, world!
+likes:
+  post_liked_notification: "{username} liked your post #{number}"
+  post_likes_modal_title: Users Who Like This
+  post_liked_by_self: "{users} like this."
+  post_liked_by:
+    one: "{users} likes this."
+    other: "{users} like this."
+  unlike_action: Unlike
+  like_action: Like
+  notify_post_liked: Someone likes my post
+  others: "{count} others"

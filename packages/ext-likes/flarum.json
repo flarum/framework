@@ -1,16 +1,21 @@
 {
-    "name": "flarum-likes",
+    "name": "likes",
     "title": "Likes",
     "description": "Allows users to like posts.",
-    "tags": [],
+    "keywords": ["discussions"],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
-        "email": "toby@flarum.org'"
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
     },
     "license": "MIT",
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
+    },
+    "support": {
+        "source": "https://github.com/flarum/likes",
+        "issues": "https://github.com/flarum/likes/issues"
     }
 }
