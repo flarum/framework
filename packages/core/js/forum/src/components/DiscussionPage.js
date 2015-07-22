@@ -53,6 +53,8 @@ export default class DiscussionPage extends mixin(Component, evented) {
     // button.
     app.history.push('discussion');
     app.current = this;
+    app.drawer.hide();
+    app.modal.close();
 
     app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this));
   }
