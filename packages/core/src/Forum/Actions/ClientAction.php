@@ -131,4 +131,15 @@ abstract class ClientAction extends BaseClientAction
         'core.write_a_post',
         'core.write_a_reply'
     ];
+
+    protected function getAssets()
+    {
+        $assets = parent::getAssets();
+
+        $assets->addJs(function () {
+            return app('flarum.formatter')->getJS();
+        });
+
+        return $assets;
+    }
 }
