@@ -1,16 +1,21 @@
 {
-    "name": "flarum-tags",
+    "name": "tags",
     "title": "Tags",
     "description": "Organise discussions into a heirarchy of tags and categories.",
-    "tags": [],
+    "keywords": ["discussions"],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
-        "email": "toby.zerner@gmail.com"
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
     },
     "license": "MIT",
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
+    },
+    "support": {
+        "source": "https://github.com/flarum/tags",
+        "issues": "https://github.com/flarum/tags/issues"
     }
 }

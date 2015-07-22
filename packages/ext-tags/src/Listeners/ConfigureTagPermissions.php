@@ -1,0 +1,31 @@
+<?php namespace Flarum\Tags\Listeners;
+
+use Flarum\Events\ScopeModelVisibility;
+use Flarum\Events\ModelAllow;
+use Flarum\Tags\Tag;
+
+class ConfigureTagPermissions
+{
+    public function subscribe($events)
+    {
+        $events->listen(ScopeModelVisibility::class, __CLASS__.'@scopeTagVisibility');
+        $events->listen(ModelAllow::class, __CLASS__.'@allowStartDiscussion');
+    }
+
+    public function scopeTagVisibility(ScopeModelVisibility $event)
+    {
+        if ($event->model instanceof Tag) {
+            $event->query->whereNotIn('id', Tag::getNotVisibleTo($event->actor));
+        }
+    }
+
+    public function allowStartDiscussion(ModelAllow $event)
+    {
+        if ($event->model instanceof Tag) {
+            if (! $event->model->is_restricted ||
+                $event->actor->hasPermission('tag' . $event->model->id . '.startDiscussion')) {
+                return true;
+            }
+        }
+    }
+}

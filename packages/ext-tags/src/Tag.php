@@ -1,15 +1,10 @@
 <?php namespace Flarum\Tags;
 
-use Flarum\Core\Models\Model;
-use Flarum\Core\Models\Discussion;
-use Flarum\Core\Support\Locked;
-use Flarum\Core\Support\VisibleScope;
+use Flarum\Core\Model;
+use Flarum\Core\Discussions\Discussion;
 
 class Tag extends Model
 {
-    use Locked;
-    use VisibleScope;
-
     protected $table = 'tags';
 
     protected $dates = ['last_time'];
@@ -21,12 +16,12 @@ class Tag extends Model
 
     public function lastDiscussion()
     {
-        return $this->belongsTo('Flarum\Core\Models\Discussion', 'last_discussion_id');
+        return $this->belongsTo('Flarum\Core\Discussions\Discussion', 'last_discussion_id');
     }
 
     public function discussions()
     {
-        return $this->belongsToMany('Flarum\Core\Models\Discussion', 'discussions_tags');
+        return $this->belongsToMany('Flarum\Core\Discussions\Discussion', 'discussions_tags');
     }
 
     /**
@@ -36,7 +31,7 @@ class Tag extends Model
      */
     public function refreshLastDiscussion()
     {
-        if ($lastDiscussion = $this->discussions()->orderBy('last_time', 'desc')->first()) {
+        if ($lastDiscussion = $this->discussions()->latest('last_time')->first()) {
             $this->setLastDiscussion($lastDiscussion);
         }
 
@@ -46,7 +41,7 @@ class Tag extends Model
     /**
      * Set the tag's last discussion details.
      *
-     * @param \Flarum\Core\Models\Discussion $discussion
+     * @param Discussion $discussion
      * @return $this
      */
     public function setLastDiscussion(Discussion $discussion)
@@ -60,13 +55,15 @@ class Tag extends Model
     public static function getNotVisibleTo($user)
     {
         static $tags;
+
         if (! $tags) {
             $tags = static::all();
         }
 
         $ids = [];
+
         foreach ($tags as $tag) {
-            if ($tag->is_restricted && ! $user->hasPermission('tag'.$tag->id.'.view')) {
+            if ($tag->is_restricted && ! $user->hasPermission('tag' . $tag->id . '.view')) {
                 $ids[] = $tag->id;
             }
         }

@@ -1,0 +1,13 @@
+tags:
+  discussion_tagged_post:
+    one: "{username} {action} tag."
+    other: "{username} {action} tags."
+  added_tags: "added the {tags}"
+  removed_tags: "removed the {tags}"
+  tag_new_discussion_title: Start a Discussion About...
+  edit_discussion_tags_title: "Edit Tags for {title}"
+  edit_discussion_tags_link: Edit Tags
+  discussion_tags_placeholder: Choose one or more topics
+  confirm: Confirm
+  more: More...
+  tag_cloud_title: Tags
