@@ -23,7 +23,6 @@ class CreatePostsTable extends Migration
             $table->integer('user_id')->unsigned()->nullable();
             $table->string('type', 100)->nullable();
             $table->text('content')->nullable();
-            $table->text('content_html')->nullable();
 
             $table->dateTime('edit_time')->nullable();
             $table->integer('edit_user_id')->unsigned()->nullable();

@@ -1,7 +1,7 @@
 <?php namespace Flarum\Core\Posts;
 
 use DomainException;
-use Flarum\Core\Formatter\FormatterManager;
+use Flarum\Core\Formatter\Formatter;
 use Flarum\Events\PostWasPosted;
 use Flarum\Events\PostWasRevised;
 use Flarum\Events\PostWasHidden;
@@ -21,7 +21,7 @@ class CommentPost extends Post
     /**
      * The text formatter instance.
      *
-     * @var FormatterManager
+     * @var Formatter
      */
     protected static $formatter;
 
@@ -59,7 +59,6 @@ class CommentPost extends Post
     {
         if ($this->content !== $content) {
             $this->content = $content;
-            $this->content_html = static::formatContent($this);
 
             $this->edit_time = time();
             $this->edit_user_id = $actor->id;
@@ -114,25 +113,40 @@ class CommentPost extends Post
     }
 
     /**
-     * Get the content formatted as HTML.
+     * Parse the content before it is saved to the database.
+     *
+     * @param string $value
+     */
+    public function getContentAttribute($value)
+    {
+        return static::$formatter->unparse($value);
+    }
+
+    /**
+     * Parse the content before it is saved to the database.
+     *
+     * @param string $value
+     */
+    public function setContentAttribute($value)
+    {
+        $this->attributes['content'] = static::$formatter->parse($value);
+    }
+
+    /**
+     * Get the content rendered as HTML.
      *
      * @param string $value
      * @return string
      */
     public function getContentHtmlAttribute($value)
     {
-        if (! $value) {
-            $this->content_html = $value = static::formatContent($this);
-            $this->save();
-        }
-
-        return $value;
+        return static::$formatter->render($this->attributes['content']);
     }
 
     /**
-     * Get text formatter instance.
+     * Get the text formatter instance.
      *
-     * @return FormatterManager
+     * @return Formatter
      */
     public static function getFormatter()
     {
@@ -140,23 +154,12 @@ class CommentPost extends Post
     }
 
     /**
-     * Set text formatter instance.
+     * Set the text formatter instance.
      *
-     * @param FormatterManager $formatter
+     * @param Formatter $formatter
      */
-    public static function setFormatter(FormatterManager $formatter)
+    public static function setFormatter(Formatter $formatter)
     {
         static::$formatter = $formatter;
-    }
-
-    /**
-     * Format a string of post content using the set formatter.
-     *
-     * @param CommentPost $post
-     * @return string
-     */
-    protected static function formatContent(CommentPost $post)
-    {
-        return static::$formatter->format($post->content, $post);
     }
 }

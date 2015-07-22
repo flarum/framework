@@ -21,6 +21,6 @@ class FormatterServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\FormatterManager');
+        $this->app->singleton('flarum.formatter', 'Flarum\Core\Formatter\Formatter');
     }
 }

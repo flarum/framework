@@ -15,7 +15,7 @@ export default class User extends mixin(Model, {
 
   avatarUrl: Model.attribute('avatarUrl'),
   bio: Model.attribute('bio'),
-  bioHtml: Model.attribute('bioHtml'),
+  bioHtml: computed('bio', bio => '<p>' + $('<div/>').text(bio).html() + '</p>'),
   preferences: Model.attribute('preferences'),
   groups: Model.hasMany('groups'),
 

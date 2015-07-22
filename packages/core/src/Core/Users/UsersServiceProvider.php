@@ -18,7 +18,6 @@ class UsersServiceProvider extends ServiceProvider
     public function boot()
     {
         User::setHasher($this->app->make('hash'));
-        User::setFormatter($this->app->make('flarum.formatter'));
         User::setValidator($this->app->make('validator'));
 
         $events = $this->app->make('events');
