@@ -19,7 +19,7 @@ export default class ItemList {
    *     priority will be positioned before items with a lower priority.
    * @public
    */
-  add(key, content, priority) {
+  add(key, content, priority = 0) {
     this[key] = new Item(content, priority);
   }
 
@@ -52,10 +52,18 @@ export default class ItemList {
       if (this.hasOwnProperty(i) && this[i] instanceof Item) {
         this[i].content.itemName = i;
         items.push(this[i]);
+        this[i].key = items.length;
       }
     }
 
-    return items.sort((a, b) => b.priority - a.priority).map(item => item.content);
+    return items.sort((a, b) => {
+      if (a.priority === b.priority) {
+        return a.key - b.key;
+      } else if (a.priority > b.priority) {
+        return -1;
+      }
+      return 1;
+    }).map(item => item.content);
   }
 }
 
