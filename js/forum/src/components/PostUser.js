@@ -30,7 +30,7 @@ export default class PostUser extends Component {
     if (!user) {
       return (
         <div className="PostUser">
-          <h3>{avatar(user)} {username(user)}</h3>
+          <h3>{avatar(user, {className: 'PostUser-avatar'})} {username(user)}</h3>
         </div>
       );
     }

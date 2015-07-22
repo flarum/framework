@@ -4,7 +4,7 @@ interface Compiler
 {
     public function addFile($file);
 
-    public function addString($string);
+    public function addString(callable $callback);
 
     public function getFile();
 }

@@ -229,8 +229,7 @@ class PostStream extends mixin(Component, evented) {
           // If we're viewing the end of the discussion, the user can reply, and
           // is not already doing so, then show a 'write a reply' placeholder.
           this.viewingEnd &&
-            (!app.session.user || this.discussion.canReply()) &&
-            !app.composingReplyTo(this.discussion)
+            (!app.session.user || this.discussion.canReply())
             ? (
               <div className="PostStream-item" key="reply">
                 {ReplyPlaceholder.component({discussion: this.discussion})}
@@ -517,8 +516,12 @@ class PostStream extends mixin(Component, evented) {
       const scrollBottom = scrollTop + $(window).height();
 
       // If the item is already in the viewport, we may not need to scroll.
+      // If we're scrolling to the bottom of an item, then we'll make sure the
+      // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = bottom ? itemBottom : ($item.is(':first-child') ? 0 : itemTop);
+        const top = bottom
+          ? itemBottom - $(window).height() + app.composer.computedHeight()
+          : ($item.is(':first-child') ? 0 : itemTop);
 
         if (noAnimation) {
           $container.scrollTop(top);

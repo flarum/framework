@@ -6,6 +6,7 @@ import PostEdited from 'flarum/components/PostEdited';
 import EditPostComposer from 'flarum/components/EditPostComposer';
 import Composer from 'flarum/components/Composer';
 import ItemList from 'flarum/utils/ItemList';
+import formatText from 'flarum/utils/formatText';
 import listItems from 'flarum/helpers/listItems';
 import Button from 'flarum/components/Button';
 
@@ -33,16 +34,30 @@ export default class CommentPost extends Post {
     // Create an instance of the component that displays the post's author so
     // that we can force the post to rerender when the user card is shown.
     this.postUser = new PostUser({post: this.props.post});
-    this.subtree.check(() => this.postUser.cardVisible);
+    this.subtree.check(
+      () => this.postUser.cardVisible,
+      () => this.props.post.editedContent,
+      () => this.isEditing()
+    );
   }
 
   content() {
+    const content = this.isEditing()
+      ? formatText(this.props.post.editedContent)
+      : this.props.post.contentHtml();
+
     return [
       <header className="Post-header"><ul>{listItems(this.headerItems().toArray())}</ul></header>,
-      <div className="Post-body">{m.trust(this.props.post.contentHtml())}</div>,
+      <div className="Post-body">{m.trust(content)}</div>,
       <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>,
       <aside className="Post-actions"><ul>{listItems(this.actionItems().toArray())}</ul></aside>
     ];
+  }
+
+  isEditing() {
+    return app.composer.component instanceof EditPostComposer &&
+      app.composer.component.props.post === this.props.post &&
+      app.composer.position !== Composer.PositionEnum.MINIMIZED;
   }
 
   attrs() {
@@ -54,9 +69,7 @@ export default class CommentPost extends Post {
         'hidden': post.isHidden(),
         'edited': post.isEdited(),
         'revealContent': this.revealContent,
-        'editing': app.composer.component instanceof EditPostComposer &&
-          app.composer.component.props.post === post &&
-          app.composer.position !== Composer.PositionEnum.MINIMIZED
+        'editing': this.isEditing()
       })
     };
   }
