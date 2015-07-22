@@ -9,9 +9,7 @@ import Notification from 'flarum/models/Notification';
 
 /**
  * The `store` initializer creates the application's data store and registers
- * the default resource types to their models. It then preloads any data on the
- * application's `preload` property into the store. Finally, it sets the
- * application's `forum` instance to the one that was preloaded.
+ * the default resource types to their models.
  *
  * @param {App} app
  */
@@ -25,8 +23,4 @@ export default function store(app) {
     activity: Activity,
     notifications: Notification
   });
-
-  app.store.pushPayload({data: app.preload.data});
-
-  app.forum = app.store.getById('forums', 1);
 }
