@@ -22,7 +22,6 @@ class CreateUsersTable extends Migration
             $table->string('password', 100);
             $table->string('locale', 10)->default('en');
             $table->text('bio')->nullable();
-            $table->text('bio_html')->nullable();
             $table->string('avatar_path', 100)->nullable();
             $table->binary('preferences')->nullable();
             $table->dateTime('join_time')->nullable();

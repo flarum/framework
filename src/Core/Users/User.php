@@ -61,13 +61,6 @@ class User extends Model
     ];
 
     /**
-     * The text formatter instance.
-     *
-     * @var FormatterManager
-     */
-    protected static $formatter;
-
-    /**
      * The hasher with which to hash passwords.
      *
      * @var \Illuminate\Contracts\Hashing\Hasher
@@ -215,27 +208,10 @@ class User extends Model
     public function changeBio($bio)
     {
         $this->bio = $bio;
-        $this->bio_html = null;
 
         $this->raise(new UserBioWasChanged($this));
 
         return $this;
-    }
-
-    /**
-     * Get the user's bio formatted as HTML.
-     *
-     * @param string $value
-     * @return string
-     */
-    public function getBioHtmlAttribute($value)
-    {
-        if ($value === null) {
-            $this->bio_html = $value = static::formatBio($this);
-            $this->save();
-        }
-
-        return $value;
     }
 
     /**
@@ -563,27 +539,6 @@ class User extends Model
     public static function setHasher(Hasher $hasher)
     {
         static::$hasher = $hasher;
-    }
-
-    /**
-     * Set the text formatter instance.
-     *
-     * @param FormatterManager $formatter
-     */
-    public static function setFormatter(FormatterManager $formatter)
-    {
-        static::$formatter = $formatter;
-    }
-
-    /**
-     * Get the formatted content of a user's bio.
-     *
-     * @param User $user
-     * @return string
-     */
-    protected static function formatBio(User $user)
-    {
-        return static::$formatter->format($user->bio, $user);
     }
 
     /**

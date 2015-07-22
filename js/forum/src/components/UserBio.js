@@ -35,7 +35,7 @@ export default class UserBio extends Component {
       let subContent;
 
       if (this.loading) {
-        subContent = <p className="UserBio-placeholder">{LoadingIndicator.component()}</p>;
+        subContent = <p className="UserBio-placeholder">{LoadingIndicator.component({size: 'tiny'})}</p>;
       } else {
         const bioHtml = user.bioHtml();
 
