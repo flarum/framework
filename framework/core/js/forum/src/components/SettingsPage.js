@@ -19,7 +19,6 @@ export default class SettingsPage extends UserPage {
 
     this.init(app.session.user);
     app.setTitle(app.trans('core.settings'));
-    app.drawer.hide();
   }
 
   content() {

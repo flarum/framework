@@ -48,6 +48,8 @@ export default class IndexPage extends Component {
 
     app.history.push('index');
     app.current = this;
+    app.drawer.hide();
+    app.modal.close();
   }
 
   onunload() {
