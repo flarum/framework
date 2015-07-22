@@ -10,8 +10,8 @@ class IndexAction extends ClientAction
      * @var array
      */
     protected $sortMap = [
-        'recent' => '-lastTime',
-        'replies' => '-commentsCount',
+        'latest' => '-lastTime',
+        'top' => '-commentsCount',
         'newest' => '-startTime',
         'oldest' => '+startTime'
     ];
@@ -30,8 +30,7 @@ class IndexAction extends ClientAction
 
         $params = [
             'sort' => $sort ? $this->sortMap[$sort] : '',
-            'filter' => ['q' => $q],
-            'include' => $q ? 'startUser,lastUser,relevantPosts,relevantPosts.discussion,relevantPosts.user' : ''
+            'filter' => ['q' => $q]
         ];
 
         // FIXME: make sure this is extensible. Support pagination.
