@@ -133,9 +133,8 @@ export default class Search extends Component {
             break;
 
           case 13: // Return
-            this.$('input').blur();
             m.route(this.getItem(this.index).find('a').attr('href'));
-            app.drawer.hide();
+            this.$('input').blur();
             break;
 
           case 27: // Escape
