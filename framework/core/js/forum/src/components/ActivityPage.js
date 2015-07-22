@@ -50,7 +50,7 @@ export default class ActivityPage extends UserPage {
         <div className="ActivityPage-loadMore">
           {Button.component({
             children: app.trans('core.load_more'),
-            className: 'Button--default',
+            className: 'Button',
             onclick: this.loadMore.bind(this)
           })}
         </div>
