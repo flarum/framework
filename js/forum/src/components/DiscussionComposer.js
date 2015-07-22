@@ -42,7 +42,7 @@ export default class DiscussionComposer extends ComposerBody {
           oninput={m.withAttr('value', this.title)}
           placeholder={this.props.titlePlaceholder}
           disabled={!!this.props.disabled}
-          onkeydown={this.onkeydown}/>
+          onkeydown={this.onkeydown.bind(this)}/>
       </h3>
     ));
 
