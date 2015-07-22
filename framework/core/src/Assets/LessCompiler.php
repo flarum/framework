@@ -17,8 +17,8 @@ class LessCompiler extends RevisionCompiler
             $parser->parseFile($file);
         }
 
-        foreach ($this->strings as $string) {
-            $parser->parse($string);
+        foreach ($this->strings as $callback) {
+            $parser->parse($callback());
         }
 
         return $parser->getCss();

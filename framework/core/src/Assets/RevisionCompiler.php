@@ -19,9 +19,9 @@ class RevisionCompiler implements Compiler
         $this->files[] = $file;
     }
 
-    public function addString($string)
+    public function addString(callable $callback)
     {
-        $this->strings[] = $string;
+        $this->strings[] = $callback;
     }
 
     public function getFile()
@@ -63,8 +63,8 @@ class RevisionCompiler implements Compiler
             $output .= $this->format(file_get_contents($file));
         }
 
-        foreach ($this->strings as $string) {
-            $output .= $this->format($string);
+        foreach ($this->strings as $callback) {
+            $output .= $this->format($callback());
         }
 
         return $output;

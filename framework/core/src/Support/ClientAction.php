@@ -160,11 +160,17 @@ abstract class ClientAction extends HtmlAction
      */
     protected function addCustomizations(AssetManager $assets)
     {
-        foreach ($this->getLessVariables() as $name => $value) {
-            $assets->addLess("@$name: $value;");
-        }
+        $assets->addLess(function () {
+            $less = '';
 
-        $assets->addLess($this->settings->get('custom_less'));
+            foreach ($this->getLessVariables() as $name => $value) {
+                $less .= "@$name: $value;";
+            }
+
+            $less .= $this->settings->get('custom_less');
+
+            return $less;
+        });
     }
 
     /**

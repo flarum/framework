@@ -29,7 +29,7 @@ class AssetManager
                 break;
 
             default:
-                throw new DomainException('Unsupported asset type: '.$ext);
+                throw new DomainException('Unsupported asset type: ' . $ext);
         }
     }
 
@@ -38,14 +38,14 @@ class AssetManager
         array_walk($files, [$this, 'addFile']);
     }
 
-    public function addLess($string)
+    public function addLess(callable $callback)
     {
-        $this->less->addString($string);
+        $this->less->addString($callback);
     }
 
-    public function addJs($strings)
+    public function addJs(callable $callback)
     {
-        $this->js->addString($string);
+        $this->js->addString($callback);
     }
 
     public function getCssFile()
