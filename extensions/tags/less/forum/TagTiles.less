@@ -1,0 +1,115 @@
+.TagTiles {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+
+  @media @phone {
+    margin: -15px -15px 0;
+  }
+
+  > li {
+    height: 200px;
+    overflow: hidden;
+
+    @media @tablet-up {
+      float: left;
+      width: 50%;
+
+      &:first-child {
+        border-top-left-radius: @border-radius;
+      }
+      &:nth-child(2) {
+        border-top-right-radius: @border-radius;
+      }
+      &:nth-last-child(2):nth-child(even), &:last-child {
+        border-bottom-right-radius: @border-radius;
+      }
+      &:nth-last-child(2):nth-child(odd), &:last-child:nth-child(odd) {
+        border-bottom-left-radius: @border-radius;
+      }
+    }
+  }
+}
+
+.TagTile {
+  position: relative;
+  background: @control-bg;
+
+  &, a {
+    color: @control-color;
+  }
+  &.colored {
+    &, a {
+      color: #fff;
+    }
+  }
+}
+.TagTile-info, .TagTile-lastDiscussion {
+  padding: 20px;
+  text-decoration: none !important;
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.TagTile-info {
+  top: 0;
+  bottom: 45px;
+  padding-right: 20px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: fade(#000, 5%);
+  }
+  &:active {
+    background: fade(#000, 15%);
+  }
+}
+.TagTile-name {
+  font-size: 20px;
+  margin: 0 0 10px;
+  font-weight: normal;
+}
+.TagTile-description {
+  font-size: 14px;
+  opacity: 0.5;
+  margin: 0 0 10px;
+}
+.TagTile-children {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 12px;
+
+  a {
+    margin-right: 15px;
+  }
+}
+.TagTile-lastDiscussion {
+  bottom: 0;
+  height: 45px;
+  padding-top: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 21px;
+  opacity: 0.5;
+
+  &, &:hover, &:active {
+    background: fade(#000, 10%);
+  }
+
+  &:hover .TagTile-lastDiscussion-title {
+    text-decoration: underline;
+  }
+
+  time {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: bold;
+    float: right;
+  }
+}
+.TagTile-lastDiscussion-title {
+  margin-right: 10px;
+}

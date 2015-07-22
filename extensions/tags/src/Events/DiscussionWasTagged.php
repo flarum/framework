@@ -1,17 +1,17 @@
 <?php namespace Flarum\Tags\Events;
 
-use Flarum\Core\Models\Discussion;
-use Flarum\Core\Models\User;
+use Flarum\Core\Discussions\Discussion;
+use Flarum\Core\Users\User;
 
 class DiscussionWasTagged
 {
     /**
-     * @var \Flarum\Core\Models\Discussion
+     * @var Discussion
      */
     public $discussion;
 
     /**
-     * @var \Flarum\Core\Models\User
+     * @var User
      */
     public $user;
 
@@ -21,9 +21,9 @@ class DiscussionWasTagged
     public $oldTags;
 
     /**
-     * @param \Flarum\Core\Models\Discussion $discussion
-     * @param \Flarum\Core\Models\User $user
-     * @param \Flarum\Categories\Category $oldCategory
+     * @param Discussion $discussion
+     * @param User $user
+     * @param \Flarum\Tags\Tag[] $oldTags
      */
     public function __construct(Discussion $discussion, User $user, array $oldTags)
     {

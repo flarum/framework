@@ -1,0 +1,37 @@
+@import "TagCloud.less";
+@import "TagDiscussionModal.less";
+@import "TagIcon.less";
+@import "TagLabel.less";
+@import "TagTiles.less";
+
+.DiscussionHero {
+  .item-title {
+    display: block;
+    margin-top: 15px;
+  }
+}
+.TagLinkButton.child {
+  @media @tablet-up {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  margin-left: 10px;
+
+  .TagIcon {
+    display: none;
+  }
+}
+.DiscussionComposer-changeTags {
+  margin-right: 15px;
+  vertical-align: 2px;
+}
+.DiscussionListItem-info > .item-tags {
+  margin-right: 4px;
+}
+@media @tablet-up {
+  .IndexPage .DiscussionListItem-info > .item-tags {
+    float: right;
+    margin-top: -14px;
+    margin-right: 0;
+  }
+}
