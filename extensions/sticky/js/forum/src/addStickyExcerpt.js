@@ -17,7 +17,7 @@ export default function addStickyControl() {
       if (startPost) {
         const excerpt = <span>{truncate(startPost.contentPlain(), 200)}</span>;
 
-        items.add('excerpt', excerpt, 100);
+        items.add('excerpt', excerpt, -100);
       }
     }
   });

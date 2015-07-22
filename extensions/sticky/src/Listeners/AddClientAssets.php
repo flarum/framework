@@ -20,8 +20,8 @@ class AddClientAssets
     public function addAssets(BuildClientView $event)
     {
         $event->forumAssets([
-            __DIR__.'/../../js/dist/extension.js',
-            __DIR__.'/../../less/extension.less'
+            __DIR__.'/../../js/forum/dist/extension.js',
+            __DIR__.'/../../less/forum/extension.less'
         ]);
 
         $event->forumBootstrapper('sticky/main');
