@@ -5,6 +5,7 @@ use Flarum\Events\DiscussionWasDeleted;
 use Flarum\Events\DiscussionWasStarted;
 use Flarum\Events\DiscussionWasRenamed;
 use Flarum\Events\PostWasDeleted;
+use Flarum\Events\ScopePostVisibility;
 use Flarum\Core\Posts\Post;
 use Flarum\Core\Posts\MergeablePost;
 use Flarum\Core\Users\Guest;
@@ -64,13 +65,6 @@ class Discussion extends Model
      * @var User
      */
     protected static $stateUser;
-
-    /**
-     * An array of callables that apply constraints to the postsVisibleTo query.
-     *
-     * @var callable[]
-     */
-    protected static $postVisibilityScopes = [];
 
     /**
      * Boot the model.
@@ -262,11 +256,9 @@ class Discussion extends Model
      */
     public function postsVisibleTo(User $user)
     {
-        $query = $this->posts();
+        $query = $this->posts()->getQuery();
 
-        foreach (static::$postVisibilityScopes as $scope) {
-            $scope($query, $user, $this);
-        }
+        event(new ScopePostVisibility($this, $query, $user));
 
         return $query;
     }
@@ -392,17 +384,5 @@ class Discussion extends Model
     public static function setStateUser(User $user)
     {
         static::$stateUser = $user;
-    }
-
-    /**
-     * Constrain which posts are visible to a user.
-     *
-     * @param callable $scope A callback that applies constraints to the posts
-     *     query. It is passed three parameters: the query builder object, the
-     *     user to constrain posts for, and the discussion instance.
-     */
-    public static function addPostVisibilityScope(callable $scope)
-    {
-        static::$postVisibilityScopes[] = $scope;
     }
 }
