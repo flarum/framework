@@ -86,6 +86,10 @@ class GambitManager
     {
         $bits = $this->explode($query);
 
+        if (! $bits) {
+            return '';
+        }
+
         $gambits = array_map([$this->container, 'make'], $this->gambits);
 
         foreach ($bits as $k => $bit) {
