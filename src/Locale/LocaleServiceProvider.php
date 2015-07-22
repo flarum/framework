@@ -21,11 +21,11 @@ class LocaleServiceProvider extends ServiceProvider
 
     public function registerLocale(LocaleManager $manager, $locale)
     {
-        $dir = __DIR__.'/../../locale/'.$locale;
+        $path = __DIR__.'/../../locale/'.$locale;
 
-        $manager->addTranslations($locale, $dir.'/translations.yml');
-        $manager->addConfig($locale, $dir.'/config.php');
-        $manager->addJsFile($locale, $dir.'/config.js');
+        $manager->addTranslations($locale, $path.'.yml');
+        $manager->addConfig($locale, $path.'.php');
+        $manager->addJsFile($locale, $path.'.js');
     }
 
     public function register()
