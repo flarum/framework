@@ -12,6 +12,7 @@ export default class NotificationsPage extends Component {
     app.current = this;
     app.history.push('notifications');
     app.drawer.hide();
+    app.modal.close();
   }
 
   view() {

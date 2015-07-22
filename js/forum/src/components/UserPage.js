@@ -29,6 +29,7 @@ export default class UserPage extends Component {
     app.history.push('user');
     app.current = this;
     app.drawer.hide();
+    app.modal.close();
   }
 
   view() {
