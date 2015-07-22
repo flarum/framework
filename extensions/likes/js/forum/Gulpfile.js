@@ -1,5 +1,5 @@
 var gulp = require('flarum-gulp');
 
 gulp({
-  modulePrefix: 'flarum-likes'
+  modulePrefix: 'likes'
 });

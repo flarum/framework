@@ -1,0 +1,50 @@
+<?php namespace Flarum\Likes\Listeners;
+
+use Flarum\Events\ApiAttributes;
+use Flarum\Events\ApiRelationship;
+use Flarum\Events\BuildApiAction;
+use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Api\Serializers\PostSerializer;
+use Flarum\Api\Actions\Discussions;
+use Flarum\Api\Actions\Posts;
+
+class AddApiAttributes
+{
+    public function subscribe(Dispatcher $events)
+    {
+        $events->listen(ApiAttributes::class, __CLASS__.'@addAttributes');
+        $events->listen(ApiRelationship::class, __CLASS__.'@addRelationship');
+        $events->listen(BuildApiAction::class, __CLASS__.'@includeLikes');
+    }
+
+    public function addAttributes(ApiAttributes $event)
+    {
+        if ($event->serializer instanceof PostSerializer) {
+            $event->attributes['canLike'] = (bool) $event->model->can($event->actor, 'like');
+        }
+    }
+
+    public function addRelationship(ApiRelationship $event)
+    {
+        if ($event->serializer instanceof PostSerializer &&
+            $event->relationship === 'likes') {
+            return $event->serializer->hasMany('Flarum\Api\Serializers\UserBasicSerializer', 'likes');
+        }
+    }
+
+    public function includeLikes(BuildApiAction $event)
+    {
+        $action = $event->action;
+
+        if ($action instanceof Discussions\ShowAction) {
+            $event->addInclude('posts.likes');
+        }
+
+        if ($action instanceof Posts\IndexAction ||
+            $action instanceof Posts\ShowAction ||
+            $action instanceof Posts\CreateAction ||
+            $action instanceof Posts\UpdateAction) {
+            $event->addInclude('likes');
+        }
+    }
+}
