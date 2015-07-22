@@ -7,6 +7,13 @@ import Modal from 'flarum/components/Modal';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
+  constructor(...args) {
+    super(...args);
+
+    this.showing = false;
+    this.component = null;
+  }
+
   view() {
     return (
       <div className="ModalManager modal fade">
@@ -15,8 +22,10 @@ export default class ModalManager extends Component {
     );
   }
 
-  config(isInitialized) {
+  config(isInitialized, context) {
     if (isInitialized) return;
+
+    context.retain = true;
 
     this.$()
       .on('hidden.bs.modal', this.clear.bind(this))
@@ -36,6 +45,7 @@ export default class ModalManager extends Component {
 
     clearTimeout(this.hideTimeout);
 
+    this.showing = true;
     this.component = component;
 
     m.redraw(true);
@@ -50,12 +60,17 @@ export default class ModalManager extends Component {
    * @public
    */
   close() {
+    if (!this.showing) return;
+
     // Don't hide the modal immediately, because if the consumer happens to call
     // the `show` method straight after to show another modal dialog, it will
     // cause Bootstrap's modal JS to misbehave. Instead we will wait for a tiny
     // bit to give the `show` method the opportunity to prevent this from going
     // ahead.
-    this.hideTimeout = setTimeout(() => this.$().modal('hide'));
+    this.hideTimeout = setTimeout(() => {
+      this.$().modal('hide');
+      this.showing = false;
+    });
   }
 
   /**
