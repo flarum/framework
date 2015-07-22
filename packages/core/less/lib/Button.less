@@ -139,6 +139,19 @@
     color: @link-color;
   }
 }
+.Button--text {
+  background: transparent !important;
+  padding: 0;
+  color: @muted-color !important;
+
+  &:hover {
+    text-decoration: underline;
+  }
+  &:active,
+  &.active {
+    .box-shadow(none);
+  }
+}
 .Button--primary {
   .Button--color(@body-bg, @primary-color);
   font-weight: bold;
