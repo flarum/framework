@@ -20,7 +20,7 @@ class DiscussionRepository
      * certain user, or throw an exception.
      *
      * @param integer $id
-     * @param \Flarum\Core\Users\User $user
+     * @param User $user
      * @return \Flarum\Core\Discussions\Discussion
      */
     public function findOrFail($id, User $user = null)
@@ -33,7 +33,7 @@ class DiscussionRepository
     /**
      * Get the IDs of discussions which a user has read completely.
      *
-     * @param \Flarum\Core\Users\User $user
+     * @param User $user
      * @return array
      */
     public function getReadIds(User $user)
@@ -48,7 +48,7 @@ class DiscussionRepository
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder $query
-     * @param \Flarum\Core\Users\User $user
+     * @param User $user
      * @return Builder
      */
     protected function scopeVisibleTo(Builder $query, User $user = null)

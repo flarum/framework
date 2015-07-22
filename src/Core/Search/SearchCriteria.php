@@ -4,8 +4,8 @@ use Flarum\Core\Users\User;
 
 /**
  * Represents the criteria that will determine the entire result set of a
- * search. The limit and offset are not included because they only
- * determine which part of the entire result set will be returned.
+ * search. The limit and offset are not included because they only determine
+ * which part of the entire result set will be returned.
  */
 class SearchCriteria
 {
