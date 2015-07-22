@@ -12,7 +12,7 @@ class UserSerializer extends UserBasicSerializer
         $canEdit = $user->can($this->actor, 'edit');
 
         $attributes += [
-            'bioHtml'          => $user->bio_html,
+            'bio'              => $user->bio,
             'joinTime'         => $user->join_time ? $user->join_time->toRFC3339String() : null,
             'discussionsCount' => (int) $user->discussions_count,
             'commentsCount'    => (int) $user->comments_count,
@@ -28,7 +28,6 @@ class UserSerializer extends UserBasicSerializer
 
         if ($canEdit) {
             $attributes += [
-                'bio'         => $user->bio,
                 'isActivated' => $user->is_activated,
                 'email'       => $user->email,
                 'isConfirmed' => $user->is_confirmed
