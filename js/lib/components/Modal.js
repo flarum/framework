@@ -36,7 +36,7 @@ export default class Modal extends Component {
     return (
       <div className={'Modal modal-dialog ' + this.className()}>
         <div className="Modal-content">
-          <div className="Modal-close Page-backControl">
+          <div className="Modal-close App-backControl">
             {Button.component({
               icon: 'times',
               onclick: this.hide.bind(this),
@@ -46,7 +46,7 @@ export default class Modal extends Component {
 
           <form onsubmit={this.onsubmit.bind(this)}>
             <div className="Modal-header">
-              <h3 className="Page-titleControl Page-titleControl--text">{this.title()}</h3>
+              <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
             </div>
 
             {alert ? <div className="Modal-alert">{this.alert}</div> : ''}
