@@ -144,8 +144,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
       // before stuff is drawn to the page.
       setTimeout(this.init.bind(this, preloadedDiscussion));
     } else {
-      const params = this.params();
-      params.include = params.include.join(',');
+      const params = this.requestParams();
 
       app.store.find('discussions', m.route.param('id'), params)
         .then(this.init.bind(this));
@@ -165,10 +164,9 @@ export default class DiscussionPage extends mixin(Component, evented) {
    *
    * @return {Object}
    */
-  params() {
+  requestParams() {
     return {
-      page: {near: this.near},
-      include: ['posts', 'posts.user', 'posts.user.groups']
+      page: {near: this.near}
     };
   }
 
