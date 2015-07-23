@@ -1,6 +1,6 @@
 <?php namespace {{namespace}};
 
-use Flarum\Support\Extension;
+use Flarum\Support\Extension as BaseExtension;
 use Illuminate\Events\Dispatcher;
 
 class Extension extends BaseExtension
