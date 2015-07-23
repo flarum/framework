@@ -3,6 +3,10 @@
 use Illuminate\Contracts\Cache\Repository;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
+use Flarum\Events\FormatterConfigurator;
+use Flarum\Events\FormatterParser;
+use Flarum\Events\FormatterRenderer;
+use Flarum\Core\Posts\CommentPost;
 
 class Formatter
 {
@@ -38,6 +42,8 @@ class Formatter
 
         $configurator->Emoticons->add(':)', '😀');
 
+        event(new FormatterConfigurator($configurator));
+
         return $configurator;
     }
 
@@ -50,14 +56,23 @@ class Formatter
         });
     }
 
-    protected function getParser()
+    protected function getParser(CommentPost $post)
     {
-        return $this->getComponent('parser');
+        $parser = $this->getComponent('parser');
+        $parser->registeredVars['post'] = $post;
+
+        event(new FormatterParser($parser, $post));
+
+        return $parser;
     }
 
-    protected function getRenderer()
+    protected function getRenderer(CommentPost $post)
     {
-        return $this->getComponent('renderer');
+        $renderer = $this->getComponent('renderer');
+
+        event(new FormatterRenderer($renderer, $post));
+
+        return $renderer;
     }
 
     public function getJS()
@@ -72,16 +87,16 @@ class Formatter
         ])['js'];
     }
 
-    public function parse($text)
+    public function parse($text, CommentPost $post)
     {
-        $parser = $this->getParser();
+        $parser = $this->getParser($post);
 
         return $parser->parse($text);
     }
 
-    public function render($xml)
+    public function render($xml, CommentPost $post)
     {
-        $renderer = $this->getRenderer();
+        $renderer = $this->getRenderer($post);
 
         return $renderer->render($xml);
     }

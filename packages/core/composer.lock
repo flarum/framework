@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "danielstjules/stringy",
-            "version": "1.9.0",
+            "version": "1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielstjules/Stringy.git",
-                "reference": "3cf18e9e424a6dedc38b7eb7ef580edb0929461b"
+                "reference": "4749c205db47ee5b32e8d1adf6d9aff8db6caf3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielstjules/Stringy/zipball/3cf18e9e424a6dedc38b7eb7ef580edb0929461b",
-                "reference": "3cf18e9e424a6dedc38b7eb7ef580edb0929461b",
+                "url": "https://api.github.com/repos/danielstjules/Stringy/zipball/4749c205db47ee5b32e8d1adf6d9aff8db6caf3b",
+                "reference": "4749c205db47ee5b32e8d1adf6d9aff8db6caf3b",
                 "shasum": ""
             },
             "require": {
@@ -60,7 +60,7 @@
                 "utility",
                 "utils"
             ],
-            "time": "2015-02-10 06:19:18"
+            "time": "2015-07-23 00:54:12"
         },
         {
             "name": "dflydev/fig-cookies",
@@ -553,12 +553,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/s9e/TextFormatter.git",
-                "reference": "6260b224c4e993dcce4367229ee4af4efd8db197"
+                "reference": "27c94f07c964ff0ea0c0c86078ab0fe3d811e391"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/6260b224c4e993dcce4367229ee4af4efd8db197",
-                "reference": "6260b224c4e993dcce4367229ee4af4efd8db197",
+                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/27c94f07c964ff0ea0c0c86078ab0fe3d811e391",
+                "reference": "27c94f07c964ff0ea0c0c86078ab0fe3d811e391",
                 "shasum": ""
             },
             "require": {
@@ -604,7 +604,7 @@
                 "parser",
                 "shortcodes"
             ],
-            "time": "2015-07-21 17:04:09"
+            "time": "2015-07-22 14:20:26"
         },
         {
             "name": "tobscure/json-api",
