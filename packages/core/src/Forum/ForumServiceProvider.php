@@ -67,19 +67,19 @@ class ForumServiceProvider extends ServiceProvider
         $routes->get(
             '/u/{username}[/{filter}]',
             'flarum.forum.user',
-            $this->action('Flarum\Forum\Actions\IndexAction')
+            $this->action('Flarum\Forum\Actions\ClientAction')
         );
 
         $routes->get(
             '/settings',
             'flarum.forum.settings',
-            $this->action('Flarum\Forum\Actions\IndexAction')
+            $this->action('Flarum\Forum\Actions\ClientAction')
         );
 
         $routes->get(
             '/notifications',
             'flarum.forum.notifications',
-            $this->action('Flarum\Forum\Actions\IndexAction')
+            $this->action('Flarum\Forum\Actions\ClientAction')
         );
 
         $routes->get(
