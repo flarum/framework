@@ -30,8 +30,12 @@ class AddUserMentionsFormatter
         $tag = $configurator->tags->add($tagName);
         $tag->attributes->add('username');
         $tag->attributes->add('id')->filterChain->append('#uint');
+        $tag->attributes['id']->required = false;
+
         $tag->template = '<a href="{$PROFILE_URL}{@username}" class="UserMention">@<xsl:value-of select="@username"/></a>';
-        $tag->filterChain->prepend([static::class, 'addId'])->addParameterByName('userRepository');
+        $tag->filterChain->prepend([static::class, 'addId'])
+            ->addParameterByName('userRepository')
+            ->setJS('function() { return true; }');
 
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
     }
@@ -49,8 +53,10 @@ class AddUserMentionsFormatter
 
     public static function addId($tag, UserRepository $users)
     {
-        $tag->setAttribute('id', $users->getIdForUsername($tag->getAttribute('username')));
+        if ($id = $users->getIdForUsername($tag->getAttribute('username'))) {
+            $tag->setAttribute('id', $id);
 
-        return true;
+            return true;
+        }
     }
 }
