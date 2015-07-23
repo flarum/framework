@@ -1,5 +1,6 @@
 <?php namespace Flarum\Sticky\Notifications;
 
+use Flarum\Sticky\Posts\DiscussionStickiedPost;
 use Flarum\Core\Notifications\Blueprint;
 
 class DiscussionStickiedBlueprint implements Blueprint
