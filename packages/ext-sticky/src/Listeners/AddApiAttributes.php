@@ -21,6 +21,7 @@ class AddApiAttributes
             $event->attributes['canSticky'] = (bool) $event->model->can($event->actor, 'sticky');
         }
     }
+
     public function includeStartPost(BuildApiAction $event)
     {
         if ($event->action instanceof DiscussionsIndexAction) {
