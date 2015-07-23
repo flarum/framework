@@ -1,9 +1,10 @@
-<?php namespace Flarum\Mentions;
+<?php namespace Flarum\Mentions\Notifications;
 
-use Flarum\Core\Models\Post;
-use Flarum\Core\Notifications\NotificationAbstract;
+use Flarum\Core\Posts\Post;
+use Flarum\Core\Notifications\Blueprint;
+use Flarum\Core\Notifications\MailableBlueprint;
 
-class PostMentionedNotification extends NotificationAbstract
+class PostMentionedBlueprint implements Blueprint, MailableBlueprint
 {
     public $post;
 
@@ -27,7 +28,7 @@ class PostMentionedNotification extends NotificationAbstract
 
     public function getData()
     {
-        return ['replyNumber' => $this->reply->number];
+        return ['replyNumber' => (int) $this->reply->number];
     }
 
     public function getEmailView()
@@ -47,11 +48,6 @@ class PostMentionedNotification extends NotificationAbstract
 
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Models\Post';
-    }
-
-    public static function isEmailable()
-    {
-        return true;
+        return Post::class;
     }
 }
