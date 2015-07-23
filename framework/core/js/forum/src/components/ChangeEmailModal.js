@@ -38,7 +38,7 @@ export default class ChangeEmailModal extends Modal {
       return (
         <div className="Modal-body">
           <div class="Form Form--centered">
-            <p class="helpText">{m.trust(app.trans('core.confirmation_email_sent', {email: this.email()}))}</p>
+            <p class="helpText">{m.trust(app.trans('core.confirmation_email_sent', {email: <strong>{this.email()}</strong>}))}</p>
             <div class="Form-group">
               <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
                 {app.trans('core.go_to', {location: emailProviderName})}

@@ -17,7 +17,7 @@ core:
   confirm_discard_discussion: You have not posted your discussion. Do you wish to discard it?
   confirm_discard_edit: You have not saved your changes. Do you wish to discard them?
   confirm_discard_reply: You have not posted your reply. Do you wish to discard it?
-  confirmation_email_sent: "We've sent a confirmation email to <strong>{email}</strong>. If it doesn't arrive soon, check your spam folder."
+  confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
   controls: Controls
   delete: Delete
   delete_account: Delete Account
@@ -35,7 +35,7 @@ core:
   edit: Edit
   editing_post: "Post #{number} in {discussion}"
   email: Email
-  email_confirmation_required: "You need to confirm your email before you can log in. We've sent a confirmation email to <strong>{email}</strong>. If it doesn't arrive soon, check your spam folder."
+  email_confirmation_required: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
   exit_full_screen: Exit Full Screen
   forgot_password: Forgot Password
   forgot_password_help: Enter your email address and we will send you a link to reset your password.
