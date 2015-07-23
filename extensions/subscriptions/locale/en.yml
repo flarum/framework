@@ -1,2 +1,13 @@
-flarum-subscriptions:
-  # hello_world: Hello, world!
+subscriptions:
+  following: Following
+  ignoring: Ignoring
+  follow: Follow
+  unfollow: Unfollow
+  ignore: Ignore
+  notify_new_post: Someone posts in a discussion I'm following
+  new_post_notification: "{username} posted"
+  not_following: Not Following
+  not_following_description: Be notified when @mentioned.
+  following_description: Be notified of all replies.
+  ignoring_description: Never be notified. Hide from the discussion list.
+  unignore: Unignore

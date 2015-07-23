@@ -1,14 +1,15 @@
-<?php namespace Flarum\Subscriptions\Handlers;
+<?php namespace Flarum\Subscriptions\Listeners;
 
-use Flarum\Subscriptions\NewPostNotification;
-use Flarum\Core\Events\PostWasPosted;
-use Flarum\Core\Events\PostWasHidden;
-use Flarum\Core\Events\PostWasRestored;
-use Flarum\Core\Events\PostWasDeleted;
+use Flarum\Subscriptions\Notifications\NewPostBlueprint;
+use Flarum\Events\RegisterNotificationTypes;
+use Flarum\Events\PostWasPosted;
+use Flarum\Events\PostWasHidden;
+use Flarum\Events\PostWasRestored;
+use Flarum\Events\PostWasDeleted;
 use Flarum\Core\Notifications\NotificationSyncer;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class NewPostNotifier
+class NotifyNewPosts
 {
     protected $notifications;
 
@@ -17,20 +18,26 @@ class NewPostNotifier
         $this->notifications = $notifications;
     }
 
-    /**
-     * Register the listeners for the subscriber.
-     *
-     * @param \Illuminate\Contracts\Events\Dispatcher $events
-     */
     public function subscribe(Dispatcher $events)
     {
+        $events->listen(RegisterNotificationTypes::class, __CLASS__.'@addNotificationType');
+
         // Register with '1' as priority so this runs before discussion metadata
         // is updated, as we need to compare the user's last read number to that
         // of the previous post.
-        $events->listen('Flarum\Core\Events\PostWasPosted', __CLASS__.'@whenPostWasPosted', 1);
-        $events->listen('Flarum\Core\Events\PostWasHidden', __CLASS__.'@whenPostWasHidden');
-        $events->listen('Flarum\Core\Events\PostWasRestored', __CLASS__.'@whenPostWasRestored');
-        $events->listen('Flarum\Core\Events\PostWasDeleted', __CLASS__.'@whenPostWasDeleted');
+        $events->listen(PostWasPosted::class, __CLASS__.'@whenPostWasPosted', 1);
+        $events->listen(PostWasHidden::class, __CLASS__.'@whenPostWasHidden');
+        $events->listen(PostWasRestored::class, __CLASS__.'@whenPostWasRestored');
+        $events->listen(PostWasDeleted::class, __CLASS__.'@whenPostWasDeleted');
+    }
+
+    public function addNotificationType(RegisterNotificationTypes $event)
+    {
+        $event->register(
+            NewPostBlueprint::class,
+            'Flarum\Api\Serializers\DiscussionBasicSerializer',
+            ['alert', 'email']
+        );
     }
 
     public function whenPostWasPosted(PostWasPosted $event)
@@ -67,6 +74,6 @@ class NewPostNotifier
 
     protected function getNotification($post)
     {
-        return new NewPostNotification($post);
+        return new NewPostBlueprint($post);
     }
 }
