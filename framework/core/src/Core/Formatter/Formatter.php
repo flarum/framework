@@ -22,27 +22,10 @@ class Formatter
         $configurator = new Configurator;
         $configurator->rootRules->enableAutoLineBreaks();
 
-        $configurator->BBCodes->addFromRepository('B');
-        $configurator->BBCodes->addFromRepository('I');
-        $configurator->BBCodes->addFromRepository('U');
-        $configurator->BBCodes->addFromRepository('S');
-        $configurator->BBCodes->addFromRepository('COLOR');
-        $configurator->BBCodes->addFromRepository('URL');
-        $configurator->BBCodes->addFromRepository('EMAIL');
-        $configurator->BBCodes->addFromRepository('CODE');
-        $configurator->BBCodes->addFromRepository('QUOTE');
-        $configurator->BBCodes->addFromRepository('LIST');
-        $configurator->BBCodes->addFromRepository('*');
-        $configurator->BBCodes->addFromRepository('SPOILER');
+        event(new FormatterConfigurator($configurator));
 
         $configurator->Autoemail;
         $configurator->Autolink;
-
-        $configurator->Litedown;
-
-        $configurator->Emoticons->add(':)', '😀');
-
-        event(new FormatterConfigurator($configurator));
 
         return $configurator;
     }
