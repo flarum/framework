@@ -1,9 +1,9 @@
 Hey {{ $user->username }}!
 
-{{ $notification->sender->username }} replied to your post (#{{ $notification->post->number }}) in {{ $notification->post->discussion->title }}.
+{{ $blueprint->sender->username }} replied to your post (#{{ $blueprint->post->number }}) in {{ $blueprint->post->discussion->title }}.
 
-{{ \Flarum\Core::config('base_url') }}/d/{{ $notification->reply->discussion_id }}/-/{{ $notification->reply->number }}
+{{ \Flarum\Core::config('base_url') }}/d/{{ $blueprint->reply->discussion_id }}/-/{{ $blueprint->reply->number }}
 
 ---
 
-{{ strip_tags($notification->post->contentHtml) }}
+{{ strip_tags($blueprint->post->contentHtml) }}

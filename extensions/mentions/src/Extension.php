@@ -7,6 +7,8 @@ class Extension extends BaseExtension
 {
     public function boot(Dispatcher $events)
     {
+        $this->loadViewsFrom(__DIR__.'/../views', 'mentions');
+
         $events->subscribe('Flarum\Mentions\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Mentions\Listeners\AddModelRelationships');
         $events->subscribe('Flarum\Mentions\Listeners\AddApiRelationships');
