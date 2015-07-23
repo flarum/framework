@@ -33,7 +33,9 @@ class AddClientAssets
             'mentions.user_mentioned_notification',
             'mentions.post_mentioned_by',
             'mentions.you',
-            'mentions.reply_link'
+            'mentions.reply_link',
+            'mentions.notify_post_mentioned',
+            'mentions.notify_user_mentioned'
         ]);
     }
 }

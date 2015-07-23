@@ -34,12 +34,13 @@ app.initializers.add('mentions', function() {
     items.add('postMentioned', {
       name: 'postMentioned',
       icon: 'reply',
-      label: 'Someone replies to my post'
+      label: app.trans('mentions.notify_post_mentioned')
     });
+
     items.add('userMentioned', {
       name: 'userMentioned',
       icon: 'at',
-      label: 'Someone mentions me in a post'
+      label: app.trans('mentions.notify_user_mentioned')
     });
   });
 });

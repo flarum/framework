@@ -6,3 +6,5 @@ mentions:
   post_mentioned_by: "{users} replied to this."
   you: You
   reply_link: Reply
+  notify_post_mentioned: Someone replies to my post
+  notify_user_mentioned: Someone mentions me in a post
