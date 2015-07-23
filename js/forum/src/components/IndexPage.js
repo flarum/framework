@@ -175,7 +175,8 @@ export default class IndexPage extends Component {
         href: app.route('index', params),
         children: app.trans('core.all_discussions'),
         icon: 'comments-o'
-      })
+      }),
+      100
     );
 
     return items;
