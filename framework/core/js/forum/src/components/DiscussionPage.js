@@ -276,7 +276,8 @@ export default class DiscussionPage extends mixin(Component, evented) {
       PostStreamScrubber.component({
         stream: this.stream,
         className: 'App-titleControl'
-      })
+      }),
+      -100
     );
 
     return items;
