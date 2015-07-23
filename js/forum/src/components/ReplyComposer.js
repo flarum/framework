@@ -49,7 +49,12 @@ export default class ReplyComposer extends ComposerBody {
       if (content === discussion.replyContent) return;
 
       discussion.replyContent = content;
+
+      const anchorToBottom = $(window).scrollTop() + $(window).height() >= $(document).height();
       m.redraw();
+      if (anchorToBottom) {
+        $(window).scrollTop($(document).height());
+      }
     }, 50);
 
     context.onunload = () => clearInterval(updateInterval);
