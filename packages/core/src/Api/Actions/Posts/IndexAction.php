@@ -78,7 +78,7 @@ class IndexAction extends SerializeCollectionAction
             if ($discussionId = $request->get('filter.discussion')) {
                 $where['discussion_id'] = $discussionId;
             }
-            if ($number = $request->get('page.number')) {
+            if ($number = $request->get('filter.number')) {
                 $where['number'] = $number;
             }
             if ($userId = $request->get('filter.user')) {
