@@ -47,7 +47,7 @@ export default class Button extends Component {
     const iconName = this.props.icon;
 
     return [
-      iconName ? icon(iconName, {className: 'Button-icon'}) : '',
+      iconName ? icon(iconName, {className: 'Button-icon'}) : '', ' ',
       this.props.children ? <span className="Button-label">{this.props.children}</span> : ''
     ];
   }
