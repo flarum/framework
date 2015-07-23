@@ -73,8 +73,6 @@ class GenerateExtensionCommand extends Command
 
         $this->copyStub($dir, $replacements);
 
-        rename($dir.'/src/ServiceProvider.php', $dir.'/src/'.ucfirst($package).'ServiceProvider.php');
-
         $manifest = [
             'name' => $name,
             'title' => $title,
