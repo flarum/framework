@@ -114,7 +114,7 @@ class PostStream extends mixin(Component, evented) {
 
     this.visibleEnd = this.count();
 
-    this.loadRange(this.visibleStart, this.visibleEnd);
+    this.loadRange(this.visibleStart, this.visibleEnd).then(() => m.redraw());
   }
 
   /**
