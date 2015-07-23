@@ -1,5 +1,5 @@
 import Component from 'flarum/Component';
-import icon from 'flarum/helpers/icon';
+import Button from 'flarum/components/Button';
 
 /**
  * The `WelcomeHero` component displays a hero that welcomes the user to the
@@ -22,9 +22,11 @@ export default class WelcomeHero extends Component {
     return (
       <header className="Hero WelcomeHero">
         <div class="container">
-          <button className="Hero-close Button Button--icon Button--link" onclick={slideUp}>
-            {icon('times')}
-          </button>
+          {Button.component({
+            icon: 'times',
+            onclick: slideUp,
+            className: 'Hero-close Button Button--icon Button--link'
+          })}
 
           <div className="containerNarrow">
             <h2 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h2>
