@@ -34,7 +34,8 @@ class AddClientAssets
             'likes.unlike_action',
             'likes.like_action',
             'likes.notify_post_liked',
-            'likes.others'
+            'likes.others',
+            'likes.you'
         ]);
     }
 }
