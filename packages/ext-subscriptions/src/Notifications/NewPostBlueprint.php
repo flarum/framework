@@ -1,10 +1,11 @@
-<?php namespace Flarum\Subscriptions;
+<?php namespace Flarum\Subscriptions\Notifications;
 
-use Flarum\Core\Models\Post;
-use Flarum\Core\Models\User;
-use Flarum\Core\Notifications\NotificationAbstract;
+use Flarum\Core\Posts\Post;
+use Flarum\Core\Users\User;
+use Flarum\Core\Notifications\Blueprint;
+use Flarum\Core\Notifications\MailableBlueprint;
 
-class NewPostNotification extends NotificationAbstract
+class NewPostBlueprint implements Blueprint, MailableBlueprint
 {
     public $post;
 
@@ -30,7 +31,7 @@ class NewPostNotification extends NotificationAbstract
 
     public function getEmailView()
     {
-        return ['text' => 'flarum-subscriptions::emails.newPost'];
+        return ['text' => 'subscriptions::emails.newPost'];
     }
 
     public function getEmailSubject()
@@ -45,11 +46,6 @@ class NewPostNotification extends NotificationAbstract
 
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Models\Discussion';
-    }
-
-    public static function isEmailable()
-    {
-        return true;
+        return 'Flarum\Core\Discussions\Discussion';
     }
 }
