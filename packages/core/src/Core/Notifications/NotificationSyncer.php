@@ -17,14 +17,14 @@ class NotificationSyncer
      *
      * @var bool
      */
-    protected $onePerUser = false;
+    protected static $onePerUser = false;
 
     /**
      * An internal list of user IDs that notifications have been sent to.
      *
      * @var int[]
      */
-    protected $sentTo = [];
+    protected static $sentTo = [];
 
     /**
      * @var NotificationRepository
@@ -80,9 +80,9 @@ class NotificationSyncer
             if ($existing) {
                 $toUndelete[] = $existing->id;
                 $toDelete->forget($toDelete->search($existing));
-            } elseif (! $this->onePerUser || ! in_array($user->id, $this->sentTo)) {
+            } elseif (! static::$onePerUser || ! in_array($user->id, static::$sentTo)) {
                 $newRecipients[] = $user;
-                $this->sentTo[] = $user->id;
+                static::$sentTo[] = $user->id;
             }
         }
 
@@ -136,12 +136,12 @@ class NotificationSyncer
      */
     public function onePerUser(callable $callback)
     {
-        $this->sentTo = [];
-        $this->onePerUser = true;
+        static::$sentTo = [];
+        static::$onePerUser = true;
 
         $callback();
 
-        $this->onePerUser = false;
+        static::$onePerUser = false;
     }
 
     /**
@@ -169,7 +169,7 @@ class NotificationSyncer
         );
 
         if ($blueprint instanceof MailableBlueprint) {
-            $this->mailNotifications($blueprint);
+            $this->mailNotifications($blueprint, $recipients);
         }
     }
 
