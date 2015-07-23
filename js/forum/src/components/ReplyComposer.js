@@ -101,7 +101,7 @@ export default class ReplyComposer extends ComposerBody {
           app.alerts.show(
             alert = new Alert({
               type: 'success',
-              message: app.trans('reply_posted'),
+              message: app.trans('core.reply_posted'),
               controls: [viewButton]
             })
           );
