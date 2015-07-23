@@ -37,11 +37,13 @@ class CommentPost extends Post
     {
         $post = new static;
 
-        $post->content       = $content;
         $post->time          = time();
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
         $post->type          = static::$type;
+
+        // Set content last, as the parsing may rely on other post attributes.
+        $post->content = $content;
 
         $post->raise(new PostWasPosted($post));
 
@@ -113,13 +115,24 @@ class CommentPost extends Post
     }
 
     /**
-     * Parse the content before it is saved to the database.
+     * Unparse the parsed content.
      *
      * @param string $value
+     * @return string
      */
     public function getContentAttribute($value)
     {
         return static::$formatter->unparse($value);
+    }
+
+    /**
+     * Get the parsed/raw content.
+     *
+     * @return string
+     */
+    public function getParsedContentAttribute()
+    {
+        return $this->attributes['content'];
     }
 
     /**
@@ -129,7 +142,7 @@ class CommentPost extends Post
      */
     public function setContentAttribute($value)
     {
-        $this->attributes['content'] = static::$formatter->parse($value);
+        $this->attributes['content'] = static::$formatter->parse($value, $this);
     }
 
     /**
@@ -140,7 +153,7 @@ class CommentPost extends Post
      */
     public function getContentHtmlAttribute($value)
     {
-        return static::$formatter->render($this->attributes['content']);
+        return static::$formatter->render($this->attributes['content'], $this);
     }
 
     /**
