@@ -1,6 +1,5 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
-import DiscussionPage from 'flarum/components/DiscussionPage';
 import CommentPost from 'flarum/components/CommentPost';
 import punctuate from 'flarum/helpers/punctuate';
 import username from 'flarum/helpers/username';
@@ -9,10 +8,6 @@ import icon from 'flarum/helpers/icon';
 import PostLikesModal from 'likes/components/PostLikesModal';
 
 export default function() {
-  extend(DiscussionPage.prototype, 'params', function(params) {
-    params.include.push('posts.likes');
-  });
-
   extend(CommentPost.prototype, 'footerItems', function(items) {
     const post = this.props.post;
     const likes = post.likes();
