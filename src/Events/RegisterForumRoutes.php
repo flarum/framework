@@ -18,7 +18,7 @@ class RegisterForumRoutes
         $this->routes = $routes;
     }
 
-    public function get($url, $name, $action = 'Flarum\Forum\Actions\IndexAction')
+    public function get($url, $name, $action = 'Flarum\Forum\Actions\ClientAction')
     {
         $this->route('get', $url, $name, $action);
     }
