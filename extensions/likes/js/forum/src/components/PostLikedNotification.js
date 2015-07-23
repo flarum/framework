@@ -1,4 +1,6 @@
 import Notification from 'flarum/components/Notification';
+import username from 'flarum/helpers/username';
+import punctuate from 'flarum/helpers/punctuate';
 
 export default class PostLikedNotification extends Notification {
   icon() {
@@ -19,7 +21,7 @@ export default class PostLikedNotification extends Notification {
       user,
       username: auc ? punctuate([
         username(user),
-        app.trans('core.others', {count: auc})
+        app.trans('likes.others', {count: auc})
       ]) : undefined,
       number: post.number()
     });

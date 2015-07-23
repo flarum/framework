@@ -9,3 +9,4 @@ likes:
   like_action: Like
   notify_post_liked: Someone likes my post
   others: "{count} others"
+  you: You
