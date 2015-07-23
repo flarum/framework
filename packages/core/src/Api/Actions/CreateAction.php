@@ -9,7 +9,7 @@ abstract class CreateAction extends SerializeResourceAction
     /**
      * Set a 201 Created status code on the response.
      *
-     * @param \Flarum\Api\Request $request
+     * @param Request $request
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function respond(Request $request)
@@ -20,8 +20,8 @@ abstract class CreateAction extends SerializeResourceAction
     /**
      * Get the newly created resource to be serialized and assigned to the response document.
      *
-     * @param \Flarum\Api\JsonApiRequest $request
-     * @param \Tobscure\JsonApi\Document $document
+     * @param JsonApiRequest $request
+     * @param Document $document
      * @return array
      */
     protected function data(JsonApiRequest $request, Document $document)
@@ -33,7 +33,7 @@ abstract class CreateAction extends SerializeResourceAction
      * Create the resource.
      *
      * @param JsonApiRequest $request
-     * @return \Flarum\Core\Models\Model
+     * @return \Flarum\Core\Model
      */
     abstract protected function create(JsonApiRequest $request);
 }
