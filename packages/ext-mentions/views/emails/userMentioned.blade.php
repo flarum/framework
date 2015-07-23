@@ -1,9 +1,9 @@
 Hey {{ $user->username }}!
 
-{{ $notification->post->user->username }} mentioned you in a post in {{ $notification->post->discussion->title }}.
+{{ $blueprint->post->user->username }} mentioned you in a post in {{ $blueprint->post->discussion->title }}.
 
-{{ \Flarum\Core::config('base_url') }}/d/{{ $notification->post->discussion_id }}/-/{{ $notification->post->number }}
+{{ \Flarum\Core::config('base_url') }}/d/{{ $blueprint->post->discussion_id }}/-/{{ $blueprint->post->number }}
 
 ---
 
-{{ strip_tags($notification->post->contentHtml) }}
+{{ strip_tags($blueprint->post->contentHtml) }}
