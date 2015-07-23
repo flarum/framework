@@ -22,10 +22,11 @@ class Formatter
         $configurator = new Configurator;
         $configurator->rootRules->enableAutoLineBreaks();
 
-        event(new FormatterConfigurator($configurator));
-
         $configurator->Autoemail;
         $configurator->Autolink;
+        $configurator->tags->onDuplicate('replace');
+
+        event(new FormatterConfigurator($configurator));
 
         return $configurator;
     }
