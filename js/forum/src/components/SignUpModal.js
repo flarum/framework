@@ -69,7 +69,7 @@ export default class SignUpModal extends Modal {
         <div className="Form-group">
           <input className="FormControl" name="username" placeholder={app.trans('core.username')}
             value={this.username()}
-            onchange={m.withAttr('value', this.email)}
+            onchange={m.withAttr('value', this.username)}
             disabled={this.loading} />
         </div>
 
@@ -108,25 +108,26 @@ export default class SignUpModal extends Modal {
 
       body.push(
         <div className="SignUpModal-welcome" style={{background: user.color()}} config={fadeIn}>
-          <div className="darkenBackground"/>
-          <div className="container">
-            {avatar(user)}
-            <h3>{app.trans('core.welcome_user', {user})}</h3>
+          <div className="darkenBackground">
+            <div className="container">
+              {avatar(user)}
+              <h3>{app.trans('core.welcome_user', {user})}</h3>
 
-            {user.isConfirmed() ? [
-              <p>{app.trans('core.confirmation_email_sent', {email: user.email()})}</p>,
-              <p>
-                <a href={`http://${emailProviderName}`} className="Button Button--primary">
-                  {app.trans('core.go_to', {location: emailProviderName})}
-                </a>
-              </p>
-            ] : (
-              <p>
-                <button className="Button Button--primary" onclick={this.hide.bind(this)}>
-                  {app.trans('core.dismiss')}
-                </button>
-              </p>
-            )}
+              {!user.isConfirmed() ? [
+                <p>{app.trans('core.confirmation_email_sent', {email: <strong>{user.email()}</strong>})}</p>,
+                <p>
+                  <a href={`http://${emailProviderName}`} className="Button Button--primary">
+                    {app.trans('core.go_to', {location: emailProviderName})}
+                  </a>
+                </p>
+              ] : (
+                <p>
+                  <button className="Button Button--primary" onclick={this.hide.bind(this)}>
+                    {app.trans('core.dismiss')}
+                  </button>
+                </p>
+              )}
+            </div>
           </div>
         </div>
       );
