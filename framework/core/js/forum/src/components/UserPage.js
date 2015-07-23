@@ -89,8 +89,7 @@ export default class UserPage extends Component {
    * Given a username, load the user's profile from the store, or make a request
    * if we don't have it yet. Then initialize the profile page with that user.
    *
-   * @param {[type]} username [description]
-   * @return {[type]}
+   * @param {String} username
    */
   loadUser(username) {
     const lowercaseUsername = username.toLowerCase();
