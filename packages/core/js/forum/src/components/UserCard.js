@@ -27,6 +27,7 @@ export default class UserCard extends Component {
     const user = this.props.user;
     const controls = UserControls.controls(user, this).toArray();
     const color = user.color();
+    const badges = user.badges().toArray();
 
     return (
       <div className={'UserCard ' + (this.props.className || '')}
@@ -53,9 +54,11 @@ export default class UserCard extends Component {
                   )}
               </h2>
 
-              <ul className="UserCard-badges badges">
-                {listItems(user.badges().toArray())}
-              </ul>
+              {badges.length ? (
+                <ul className="UserCard-badges badges">
+                  {listItems(badges)}
+                </ul>
+              ) : ''}
 
               <ul className="UserCard-info">
                 {listItems(this.infoItems().toArray())}
