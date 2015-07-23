@@ -2,7 +2,7 @@
 
 use Flarum\Support\ClientAction as BaseClientAction;
 
-abstract class ClientAction extends BaseClientAction
+class ClientAction extends BaseClientAction
 {
     /**
      * {@inheritdoc}
