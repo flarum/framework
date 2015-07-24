@@ -182,10 +182,10 @@ abstract class ClientAction extends HtmlAction
     protected function getLessVariables()
     {
         return [
-            'fl-primary-color'   => $this->settings->get('theme_primary_color', '#000'),
-            'fl-secondary-color' => $this->settings->get('theme_secondary_color', '#000'),
-            'fl-dark-mode'       => $this->settings->get('theme_dark_mode') ? 'true' : 'false',
-            'fl-colored-header'  => $this->settings->get('theme_colored_header') ? 'true' : 'false'
+            'config-primary-color'   => $this->settings->get('theme_primary_color', '#000'),
+            'config-secondary-color' => $this->settings->get('theme_secondary_color', '#000'),
+            'config-dark-mode'       => $this->settings->get('theme_dark_mode') ? 'true' : 'false',
+            'config-colored-header'  => $this->settings->get('theme_colored_header') ? 'true' : 'false'
         ];
     }
 
