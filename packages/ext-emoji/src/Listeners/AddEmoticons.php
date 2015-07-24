@@ -24,6 +24,5 @@ class AddEmoticons
         $event->configurator->Emoticons->add(':O', '&#x1f62e;');
         $event->configurator->Emoticons->add('B)', '&#x1f60e;');
         $event->configurator->Emoticons->add('>:(', '&#x1f621;');
-        $event->configurator->Emoticons->add(':/', '&#x1f615;');
     }
 }
