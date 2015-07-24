@@ -553,12 +553,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/s9e/TextFormatter.git",
-                "reference": "27c94f07c964ff0ea0c0c86078ab0fe3d811e391"
+                "reference": "a0e976766fa55e793e5b820fa09cac9b9761ef00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/27c94f07c964ff0ea0c0c86078ab0fe3d811e391",
-                "reference": "27c94f07c964ff0ea0c0c86078ab0fe3d811e391",
+                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/a0e976766fa55e793e5b820fa09cac9b9761ef00",
+                "reference": "a0e976766fa55e793e5b820fa09cac9b9761ef00",
                 "shasum": ""
             },
             "require": {
@@ -604,7 +604,7 @@
                 "parser",
                 "shortcodes"
             ],
-            "time": "2015-07-22 14:20:26"
+            "time": "2015-07-23 18:29:08"
         },
         {
             "name": "tobscure/json-api",
