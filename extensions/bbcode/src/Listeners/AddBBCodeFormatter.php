@@ -7,7 +7,7 @@ class AddBBCodeFormatter
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, __CLASS__.'@addBBCodeFormatter');
+        $events->listen(FormatterConfigurator::class, [$this, 'addBBCodeFormatter']);
     }
 
     public function addBBCodeFormatter(FormatterConfigurator $event)
