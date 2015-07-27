@@ -358,6 +358,7 @@ class PostStream extends mixin(Component, evented) {
         redraw();
         this.pagesLoading--;
       });
+      this.loadPageTimeouts[start] = null;
     }, this.pagesLoading ? 1000 : 0);
 
     this.pagesLoading++;
