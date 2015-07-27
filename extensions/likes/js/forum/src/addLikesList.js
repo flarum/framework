@@ -30,7 +30,7 @@ export default function() {
       // If there are more users that we've run out of room to display, add a "x
       // others" name to the end of the list. Clicking on it will display a modal
       // with a full list of names.
-      if (likes.length > limit + 1) {
+      if (likes.length > limit) {
         names.push(
           <a href="#" onclick={e => {
             e.preventDefault();
