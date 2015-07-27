@@ -1,5 +1,7 @@
 var gulp = require('flarum-gulp');
 
 gulp({
-  modulePrefix: 'subscriptions'
+  modules: {
+    'subscriptions': 'src/**/*.js'
+  }
 });
