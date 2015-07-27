@@ -61,11 +61,11 @@ class User extends Model
     ];
 
     /**
-     * An cache of permissions, and whether or not this user has them.
+     * An array of permissions that this user has.
      *
-     * @var array
+     * @var array|null
      */
-    protected $hasPermission = [];
+    protected $permissions = null;
 
     /**
      * The hasher with which to hash passwords.
@@ -322,15 +322,11 @@ class User extends Model
             return true;
         }
 
-        if (! array_key_exists('permissions', $this->relations)) {
-            $this->setRelation('permissions', $this->permissions()->get());
+        if (is_null($this->permissions)) {
+            $this->permissions = $this->permissions()->lists('permission');
         }
 
-        if (! isset($this->hasPermissions[$permission])) {
-            $this->hasPermission[$permission] = (bool) $this->permissions->contains('permission', $permission);
-        }
-
-        return $this->hasPermission[$permission];
+        return in_array($permission, $this->permissions);
     }
 
     /**
