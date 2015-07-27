@@ -25,11 +25,12 @@ gulp({
     bowerDir + '/spin.js/jquery.spin.js',
     bowerDir + '/fastclick/lib/fastclick.js'
   ],
-  moduleFiles: [
-    'src/**/*.js',
-    '../lib/**/*.js'
-  ],
-  modulePrefix: 'flarum',
+  modules: {
+    'flarum': [
+      'src/**/*.js',
+      '../lib/**/*.js'
+    ]
+  },
   externalHelpers: true,
   outputFile: 'dist/app.js'
 });
