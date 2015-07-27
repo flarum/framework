@@ -19,8 +19,8 @@ export default function addSubscriptionControls() {
   });
 
   extend(DiscussionList.prototype, 'requestParams', function(params) {
-    if (params.filter === 'following') {
-      params.q = (params.q || '') + ' is:following';
+    if (this.props.params.filter === 'following') {
+      params.filter.q = (params.filter.q || '') + ' is:following';
     }
   });
 }
