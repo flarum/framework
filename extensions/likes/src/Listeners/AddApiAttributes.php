@@ -12,9 +12,9 @@ class AddApiAttributes
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ApiAttributes::class, __CLASS__.'@addAttributes');
-        $events->listen(ApiRelationship::class, __CLASS__.'@addRelationship');
-        $events->listen(BuildApiAction::class, __CLASS__.'@includeLikes');
+        $events->listen(ApiAttributes::class, [$this, 'addAttributes']);
+        $events->listen(ApiRelationship::class, [$this, 'addRelationship']);
+        $events->listen(BuildApiAction::class, [$this, 'includeLikes']);
     }
 
     public function addAttributes(ApiAttributes $event)

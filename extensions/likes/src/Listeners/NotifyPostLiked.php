@@ -20,9 +20,9 @@ class NotifyPostLiked
 
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterNotificationTypes::class, __CLASS__.'@registerNotificationType');
-        $events->listen(PostWasLiked::class, __CLASS__.'@whenPostWasLiked');
-        $events->listen(PostWasUnliked::class, __CLASS__.'@whenPostWasUnliked');
+        $events->listen(RegisterNotificationTypes::class, [$this, 'registerNotificationType']);
+        $events->listen(PostWasLiked::class, [$this, 'whenPostWasLiked']);
+        $events->listen(PostWasUnliked::class, [$this, 'whenPostWasUnliked']);
     }
 
     public function registerNotificationType(RegisterNotificationTypes $event)
