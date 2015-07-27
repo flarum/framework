@@ -36,7 +36,7 @@ export default class PostMeta extends Component {
           <span className="PostMeta-number">{app.trans('core.post_number', {number: post.number()})}</span>{' '}
           {fullTime(time)}
           {touch
-            ? <a href="Button PostMeta-permalink" href={permalink}>{permalink}</a>
+            ? <a className="Button PostMeta-permalink" href={permalink}>{permalink}</a>
             : <input className="FormControl PostMeta-permalink" value={permalink} onclick={e => e.stopPropagation()} />}
         </div>
       </div>
