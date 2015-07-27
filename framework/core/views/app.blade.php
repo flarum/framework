@@ -26,26 +26,23 @@
     @endforeach
 
     <script>
-      var app;
-      System.import('flarum/app').then(function(module) {
-        try {
-          app = module.default;
-          app.preload = {
-            data: {!! json_encode($data) !!},
-            document: {!! json_encode($document) !!},
-            session: {!! json_encode($session) !!}
-          };
+      try {
+        var app = System.get('flarum/app').default;
+        app.preload = {
+          data: {!! json_encode($data) !!},
+          document: {!! json_encode($document) !!},
+          session: {!! json_encode($session) !!}
+        };
 
-          @foreach ($bootstrappers as $bootstrapper)
-            System.import('{{ $bootstrapper }}');
-          @endforeach
+        @foreach ($bootstrappers as $bootstrapper)
+          System.import('{{ $bootstrapper }}');
+        @endforeach
 
-          app.boot();
-        } catch (e) {
-          document.write('<div class="container">Something went wrong.</div>');
-          throw e;
-        }
-      });
+        app.boot();
+      } catch (e) {
+        document.write('<div class="container">Something went wrong.</div>');
+        throw e;
+      }
     </script>
 
     @if ($content)
