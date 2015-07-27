@@ -22,10 +22,10 @@ class NotifyDiscussionStickied
 
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterPostTypes::class, __CLASS__.'@registerPostType');
-        $events->listen(RegisterNotificationTypes::class, __CLASS__.'@registerNotificationType');
-        $events->listen(DiscussionWasStickied::class, __CLASS__.'@whenDiscussionWasStickied');
-        $events->listen(DiscussionWasUnstickied::class, __CLASS__.'@whenDiscussionWasUnstickied');
+        $events->listen(RegisterPostTypes::class, [$this, 'registerPostType']);
+        $events->listen(RegisterNotificationTypes::class, [$this, 'registerNotificationType']);
+        $events->listen(DiscussionWasStickied::class, [$this, 'whenDiscussionWasStickied']);
+        $events->listen(DiscussionWasUnstickied::class, [$this, 'whenDiscussionWasUnstickied']);
     }
 
     public function registerPostType(RegisterPostTypes $event)
