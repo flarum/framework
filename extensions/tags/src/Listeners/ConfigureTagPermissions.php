@@ -8,8 +8,8 @@ class ConfigureTagPermissions
 {
     public function subscribe($events)
     {
-        $events->listen(ScopeModelVisibility::class, __CLASS__.'@scopeTagVisibility');
-        $events->listen(ModelAllow::class, __CLASS__.'@allowStartDiscussion');
+        $events->listen(ScopeModelVisibility::class, [$this, 'scopeTagVisibility']);
+        $events->listen(ModelAllow::class, [$this, 'allowStartDiscussion']);
     }
 
     public function scopeTagVisibility(ScopeModelVisibility $event)

@@ -7,7 +7,7 @@ class AddTagGambit
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterDiscussionGambits::class, __CLASS__.'@registerTagGambit');
+        $events->listen(RegisterDiscussionGambits::class, [$this, 'registerTagGambit']);
     }
 
     public function registerTagGambit(RegisterDiscussionGambits $event)
