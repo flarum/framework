@@ -38,11 +38,17 @@ abstract class Model extends Eloquent
      */
     public function getDates()
     {
-        $dates = $this->dates;
+        static $dates = [];
 
-        event(new ModelDates($this, $dates));
+        $class = get_class($this);
 
-        return $dates;
+        if (! isset($dates[$class])) {
+            event(new ModelDates($this, $this->dates));
+
+            $dates[$class] = $this->dates;
+        }
+
+        return $dates[$class];
     }
 
     /**
