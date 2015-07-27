@@ -1,7 +1,6 @@
 import { extend, override } from 'flarum/extend';
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionList from 'flarum/components/DiscussionList';
-import extract from 'flarum/utils/extract';
 
 import TagHero from 'tags/components/TagHero';
 
@@ -45,9 +44,8 @@ export default function() {
   extend(DiscussionList.prototype, 'requestParams', function(params) {
     params.include.push('tags');
 
-    if (params.tags) {
-      params.filter = params.filter || {};
-      params.filter.q = (params.filter.q || '') + ' tag:' + extract(params, 'tags');
+    if (this.props.params.tags) {
+      params.filter.q = (params.filter.q || '') + ' tag:' + this.props.params.tags;
     }
   });
 }
