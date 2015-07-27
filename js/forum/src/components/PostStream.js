@@ -301,7 +301,11 @@ class PostStream extends mixin(Component, evented) {
     const twoPagesAway = start - this.constructor.loadCount * 2;
     if (twoPagesAway > this.visibleStart && twoPagesAway >= 0) {
       this.visibleStart = twoPagesAway + this.constructor.loadCount + 1;
-      clearTimeout(this.loadPageTimeouts[twoPagesAway]);
+
+      if (this.loadPageTimeouts[twoPagesAway]) {
+        clearTimeout(this.loadPageTimeouts[twoPagesAway]);
+        this.pagesLoading--;
+      }
     }
 
     this.loadPage(start, end);
@@ -319,7 +323,11 @@ class PostStream extends mixin(Component, evented) {
     const twoPagesAway = start + this.constructor.loadCount * 2;
     if (twoPagesAway < this.visibleEnd && twoPagesAway <= this.count()) {
       this.visibleEnd = twoPagesAway;
-      clearTimeout(this.loadPageTimeouts[twoPagesAway]);
+
+      if (this.loadPageTimeouts[twoPagesAway]) {
+        clearTimeout(this.loadPageTimeouts[twoPagesAway]);
+        this.pagesLoading--;
+      }
     }
 
     this.loadPage(start, end, true);
