@@ -7,7 +7,6 @@ gulp({
   files: [
     nodeDir + '/babel-core/external-helpers.js',
 
-    bowerDir + '/es6-promise-polyfill/promise.js',
     bowerDir + '/es6-micro-loader/dist/system-polyfill.js',
 
     bowerDir + '/mithril/mithril.js',

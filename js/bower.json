@@ -9,7 +9,6 @@
     "color-thief": "v2.0",
     "mithril": "lhorie/mithril.js#next",
     "es6-micro-loader": "caridy/es6-micro-loader#v0.2.1",
-    "es6-promise-polyfill": "~1.0.0",
     "fastclick": "~1.0.6"
   }
 }
