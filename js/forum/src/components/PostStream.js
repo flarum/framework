@@ -343,14 +343,14 @@ class PostStream extends mixin(Component, evented) {
     };
     redraw();
 
-    this.pagesLoading++;
-
     this.loadPageTimeouts[start] = setTimeout(() => {
       this.loadRange(start, end).then(() => {
         redraw();
         this.pagesLoading--;
       });
     }, this.pagesLoading ? 1000 : 0);
+
+    this.pagesLoading++;
   }
 
   /**
