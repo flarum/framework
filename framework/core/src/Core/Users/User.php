@@ -61,6 +61,13 @@ class User extends Model
     ];
 
     /**
+     * An cache of permissions, and whether or not this user has them.
+     *
+     * @var array
+     */
+    protected $hasPermission = [];
+
+    /**
      * The hasher with which to hash passwords.
      *
      * @var \Illuminate\Contracts\Hashing\Hasher
@@ -319,7 +326,11 @@ class User extends Model
             $this->setRelation('permissions', $this->permissions()->get());
         }
 
-        return (bool) $this->permissions->contains('permission', $permission);
+        if (! isset($this->hasPermissions[$permission])) {
+            $this->hasPermission[$permission] = (bool) $this->permissions->contains('permission', $permission);
+        }
+
+        return $this->hasPermission[$permission];
     }
 
     /**
