@@ -1,5 +1,7 @@
 var gulp = require('flarum-gulp');
 
 gulp({
-  modulePrefix: 'tags'
+  modules: {
+    'tags': 'src/**/*.js'
+  }
 });
