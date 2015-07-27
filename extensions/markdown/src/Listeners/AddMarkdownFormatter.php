@@ -7,7 +7,7 @@ class AddMarkdownFormatter
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, __CLASS__.'@addMarkdownFormatter');
+        $events->listen(FormatterConfigurator::class, [$this, 'addMarkdownFormatter']);
     }
 
     public function addMarkdownFormatter(FormatterConfigurator $event)
