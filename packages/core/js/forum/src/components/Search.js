@@ -93,13 +93,11 @@ export default class Search extends Component {
               ? <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>{icon('times-circle')}</button>
               : ''}
         </div>
-        {this.value() && this.hasFocus
-          ? (
-            <ul className="Dropdown-menu Search-results">
-              {this.sources.map(source => source.view(this.value()))}
-            </ul>
-          )
-          : ''}
+        <ul className="Dropdown-menu Search-results">
+          {this.value() && this.hasFocus
+            ? this.sources.map(source => source.view(this.value()))
+            : ''}
+        </ul>
       </div>
     );
   }
