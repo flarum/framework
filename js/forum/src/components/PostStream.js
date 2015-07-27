@@ -304,6 +304,7 @@ class PostStream extends mixin(Component, evented) {
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
+        this.loadPageTimeouts[twoPagesAway] = null;
         this.pagesLoading--;
       }
     }
@@ -326,6 +327,7 @@ class PostStream extends mixin(Component, evented) {
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
+        this.loadPageTimeouts[twoPagesAway] = null;
         this.pagesLoading--;
       }
     }
