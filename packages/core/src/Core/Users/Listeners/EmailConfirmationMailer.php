@@ -37,8 +37,8 @@ class EmailConfirmationMailer
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(UserWasRegistered::class, __CLASS__.'@whenUserWasRegistered');
-        $events->listen(UserEmailChangeWasRequested::class, __CLASS__.'@whenUserEmailChangeWasRequested');
+        $events->listen(UserWasRegistered::class, [$this, 'whenUserWasRegistered']);
+        $events->listen(UserEmailChangeWasRequested::class, [$this, 'whenUserEmailChangeWasRequested']);
     }
 
     /**

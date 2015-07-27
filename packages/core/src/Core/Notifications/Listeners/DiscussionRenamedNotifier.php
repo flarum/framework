@@ -26,7 +26,7 @@ class DiscussionRenamedNotifier
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(DiscussionWasRenamed::class, __CLASS__.'@whenDiscussionWasRenamed');
+        $events->listen(DiscussionWasRenamed::class, [$this, 'whenDiscussionWasRenamed']);
     }
 
     /**
