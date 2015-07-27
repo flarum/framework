@@ -6,7 +6,7 @@ class PersistSubscriptionData
 {
     public function subscribe($events)
     {
-        $events->listen(DiscussionWillBeSaved::class, __CLASS__.'@whenDiscussionWillBeSaved');
+        $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
     }
 
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)

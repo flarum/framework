@@ -7,8 +7,8 @@ class HideIgnoredDiscussions
 {
     public function subscribe($events)
     {
-        $events->listen(RegisterDiscussionGambits::class, __CLASS__.'@addGambit');
-        $events->listen(DiscussionSearchWillBePerformed::class, __CLASS__.'@filterIgnored');
+        $events->listen(RegisterDiscussionGambits::class, [$this, 'addGambit']);
+        $events->listen(DiscussionSearchWillBePerformed::class, [$this, 'filterIgnored']);
     }
 
     public function addGambit(RegisterDiscussionGambits $event)

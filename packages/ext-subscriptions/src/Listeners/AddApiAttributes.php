@@ -8,7 +8,7 @@ class AddApiAttributes
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ApiAttributes::class, __CLASS__.'@addAttributes');
+        $events->listen(ApiAttributes::class, [$this, 'addAttributes']);
     }
 
     public function addAttributes(ApiAttributes $event)
