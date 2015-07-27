@@ -16,9 +16,9 @@ class AddUserMentionsFormatter
 
     public function subscribe($events)
     {
-        $events->listen(FormatterConfigurator::class, __CLASS__.'@configure');
-        $events->listen(FormatterParser::class, __CLASS__.'@parse');
-        $events->listen(FormatterRenderer::class, __CLASS__.'@render');
+        $events->listen(FormatterConfigurator::class, [$this, 'configure']);
+        $events->listen(FormatterParser::class, [$this, 'parse']);
+        $events->listen(FormatterRenderer::class, [$this, 'render']);
     }
 
     public function configure(FormatterConfigurator $event)

@@ -24,13 +24,13 @@ class UpdateUserMentionsMetadata
 
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterNotificationTypes::class, __CLASS__.'@registerNotificationType');
+        $events->listen(RegisterNotificationTypes::class, );
 
-        $events->listen(PostWasPosted::class, __CLASS__.'@whenPostWasPosted');
-        $events->listen(PostWasRevised::class, __CLASS__.'@whenPostWasRevised');
-        $events->listen(PostWasHidden::class, __CLASS__.'@whenPostWasHidden');
-        $events->listen(PostWasRestored::class, __CLASS__.'@whenPostWasRestored');
-        $events->listen(PostWasDeleted::class, __CLASS__.'@whenPostWasDeleted');
+        $events->listen(PostWasPosted::class, );
+        $events->listen(PostWasRevised::class, );
+        $events->listen(PostWasHidden::class, );
+        $events->listen(PostWasRestored::class, );
+        $events->listen(PostWasDeleted::class, );
     }
 
     public function registerNotificationType(RegisterNotificationTypes $event)

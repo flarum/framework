@@ -8,8 +8,8 @@ class AddPostMentionsFormatter
 {
     public function subscribe($events)
     {
-        $events->listen(FormatterConfigurator::class, __CLASS__.'@configure');
-        $events->listen(FormatterRenderer::class, __CLASS__.'@render');
+        $events->listen(FormatterConfigurator::class, [$this, 'configure']);
+        $events->listen(FormatterRenderer::class, [$this, 'render']);
     }
 
     public function configure(FormatterConfigurator $event)
