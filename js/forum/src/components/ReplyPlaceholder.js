@@ -2,7 +2,7 @@ import Component from 'flarum/Component';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
-import formatText from 'flarum/utils/formatText';
+import Formatter from 'flarum/utils/Formatter';
 
 /**
  * The `ReplyPlaceholder` component displays a placeholder for a reply, which,
@@ -26,7 +26,7 @@ export default class ReplyPlaceholder extends Component {
             </div>
           </header>
           <div className="Post-body">
-            {m.trust(formatText(this.props.discussion.replyContent))}
+            {m.trust(Formatter.format(this.props.discussion.replyContent))}
           </div>
         </article>
       );
