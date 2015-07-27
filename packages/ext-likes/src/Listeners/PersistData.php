@@ -12,8 +12,8 @@ class PersistData
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWillBeSaved::class, __CLASS__.'@whenPostWillBeSaved');
-        $events->listen(PostWasDeleted::class, __CLASS__.'@whenPostWasDeleted');
+        $events->listen(PostWillBeSaved::class, [$this, 'whenPostWillBeSaved']);
+        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
     }
 
     public function whenPostWillBeSaved(PostWillBeSaved $event)

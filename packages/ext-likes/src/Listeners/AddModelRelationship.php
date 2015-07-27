@@ -8,7 +8,7 @@ class AddModelRelationship
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ModelRelationship::class, __CLASS__.'@addRelationship');
+        $events->listen(ModelRelationship::class, [$this, 'addRelationship']);
     }
 
     public function addRelationship(ModelRelationship $event)
