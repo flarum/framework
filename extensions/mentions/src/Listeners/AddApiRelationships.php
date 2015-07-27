@@ -11,8 +11,8 @@ class AddApiRelationships
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ApiRelationship::class, __CLASS__.'@addRelationships');
-        $events->listen(BuildApiAction::class, __CLASS__.'@includeRelationships');
+        $events->listen(ApiRelationship::class, [$this, 'addRelationships']);
+        $events->listen(BuildApiAction::class, [$this, 'includeRelationships']);
     }
 
     public function addRelationships(ApiRelationship $event)
