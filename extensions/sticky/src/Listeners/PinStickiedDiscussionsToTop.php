@@ -9,8 +9,8 @@ class PinStickiedDiscussionsToTop
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterDiscussionGambits::class, __CLASS__.'@registerStickyGambit');
-        $events->listen(DiscussionSearchWillBePerformed::class, __CLASS__.'@reorderSearch');
+        $events->listen(RegisterDiscussionGambits::class, [$this, 'registerStickyGambit']);
+        $events->listen(DiscussionSearchWillBePerformed::class, [$this, 'reorderSearch']);
     }
 
     public function registerStickyGambit(RegisterDiscussionGambits $event)

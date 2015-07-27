@@ -10,8 +10,8 @@ class AddApiAttributes
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ApiAttributes::class, __CLASS__.'@addAttributes');
-        $events->listen(BuildApiAction::class, __CLASS__.'@includeStartPost');
+        $events->listen(ApiAttributes::class, [$this, 'addAttributes']);
+        $events->listen(BuildApiAction::class, [$this, 'includeStartPost']);
     }
 
     public function addAttributes(ApiAttributes $event)
