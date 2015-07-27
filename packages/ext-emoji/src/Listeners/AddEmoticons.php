@@ -7,7 +7,7 @@ class AddEmoticons
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, __CLASS__.'@addEmoticons');
+        $events->listen(FormatterConfigurator::class, [$this, 'addEmoticons']);
     }
 
     public function addEmoticons(FormatterConfigurator $event)
