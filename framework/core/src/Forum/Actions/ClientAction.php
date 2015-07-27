@@ -12,7 +12,7 @@ class ClientAction extends BaseClientAction
     /**
      * {@inheritdoc}
      */
-    protected $layout = 'flarum.forum::forum';
+    protected $layout = __DIR__.'/../../../views/forum.blade.php';
 
     /**
      * {@inheritdoc}
@@ -132,10 +132,14 @@ class ClientAction extends BaseClientAction
         'core.write_a_reply'
     ];
 
+    /**
+     * @inheritdoc
+     */
     protected function getAssets()
     {
         $assets = parent::getAssets();
 
+        // Add the formatter JavaScript payload.
         $assets->addJs(function () {
             return app('flarum.formatter')->getJS();
         });

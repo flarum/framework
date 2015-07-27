@@ -41,7 +41,7 @@ class ClientView implements Renderable
     protected $content;
 
     /**
-     * The name of the client layout view to display.
+     * The path to the client layout view to display.
      *
      * @var string
      */
@@ -144,6 +144,16 @@ class ClientView implements Renderable
     }
 
     /**
+     * Set the name of the client layout view to display.
+     *
+     * @param string $layout
+     */
+    public function setLayout($layout)
+    {
+        $this->layout = $layout;
+    }
+
+    /**
      * Add a string to be appended to the page's <head>.
      *
      * @param string $string
@@ -205,7 +215,7 @@ class ClientView implements Renderable
         $view->title = ($this->title ? $this->title . ' - ' : '') . $forum->data->attributes->title;
         $view->document = $this->document;
         $view->forum = $forum->data;
-        $view->layout = $this->layout;
+        $view->layout = app('view')->file($this->layout, ['forum' => $forum->data]);
         $view->content = $this->content;
 
         $view->styles = [$this->assets->getCssFile()];
