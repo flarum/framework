@@ -85,14 +85,12 @@ export default class DiscussionList extends Component {
    * @api
    */
   requestParams() {
-    const params = Object.assign({include: ['startUser', 'lastUser']}, this.props.params);
+    const params = {include: ['startUser', 'lastUser'], filter: {}};
 
-    params.sort = this.sortMap()[params.sort];
+    params.sort = this.sortMap()[this.props.params.sort];
 
-    if (params.q) {
-      params.filter = params.filter || {};
-      params.filter.q = params.q;
-      delete params.q;
+    if (this.props.params.q) {
+      params.filter.q = this.props.params.q;
 
       params.include.push('relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user');
     }
