@@ -20,15 +20,15 @@ class NotifyNewPosts
 
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterNotificationTypes::class, __CLASS__.'@addNotificationType');
+        $events->listen(RegisterNotificationTypes::class, [$this, 'addNotificationType']);
 
         // Register with '1' as priority so this runs before discussion metadata
         // is updated, as we need to compare the user's last read number to that
         // of the previous post.
-        $events->listen(PostWasPosted::class, __CLASS__.'@whenPostWasPosted', 1);
-        $events->listen(PostWasHidden::class, __CLASS__.'@whenPostWasHidden');
-        $events->listen(PostWasRestored::class, __CLASS__.'@whenPostWasRestored');
-        $events->listen(PostWasDeleted::class, __CLASS__.'@whenPostWasDeleted');
+        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted'], 1);
+        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
+        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
+        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
     }
 
     public function addNotificationType(RegisterNotificationTypes $event)
