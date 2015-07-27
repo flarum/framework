@@ -14,10 +14,10 @@ class AddApiAttributes
 {
     public function subscribe($events)
     {
-        $events->listen(ApiRelationship::class, __CLASS__.'@addTagsRelationship');
-        $events->listen(WillSerializeData::class, __CLASS__.'@loadTagsRelationship');
-        $events->listen(BuildApiAction::class, __CLASS__.'@includeTagsRelationship');
-        $events->listen(ApiAttributes::class, __CLASS__.'@addAttributes');
+        $events->listen(ApiRelationship::class, [$this, 'addTagsRelationship']);
+        $events->listen(WillSerializeData::class, [$this, 'loadTagsRelationship']);
+        $events->listen(BuildApiAction::class, [$this, 'includeTagsRelationship']);
+        $events->listen(ApiAttributes::class, [$this, 'addAttributes']);
     }
 
     public function addTagsRelationship(ApiRelationship $event)

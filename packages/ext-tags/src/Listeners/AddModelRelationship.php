@@ -8,7 +8,7 @@ class AddModelRelationship
 {
     public function subscribe($events)
     {
-        $events->listen(ModelRelationship::class, __CLASS__.'@addTagsRelationship');
+        $events->listen(ModelRelationship::class, [$this, 'addTagsRelationship']);
     }
 
     public function addTagsRelationship(ModelRelationship $event)

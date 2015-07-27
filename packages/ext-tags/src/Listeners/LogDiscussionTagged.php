@@ -9,8 +9,8 @@ class LogDiscussionTagged
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterPostTypes::class, __CLASS__.'@registerPostType');
-        $events->listen(DiscussionWasTagged::class, __CLASS__.'@whenDiscussionWasTagged');
+        $events->listen(RegisterPostTypes::class, [$this, 'registerPostType']);
+        $events->listen(DiscussionWasTagged::class, [$this, 'whenDiscussionWasTagged']);
     }
 
     public function registerPostType(RegisterPostTypes $event)

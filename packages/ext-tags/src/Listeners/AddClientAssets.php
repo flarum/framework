@@ -9,9 +9,9 @@ class AddClientAssets
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterLocales::class, __CLASS__.'@addLocale');
-        $events->listen(BuildClientView::class, __CLASS__.'@addAssets');
-        $events->listen(RegisterForumRoutes::class, __CLASS__.'@addRoutes');
+        $events->listen(RegisterLocales::class, [$this, 'addLocale']);
+        $events->listen(BuildClientView::class, [$this, 'addAssets']);
+        $events->listen(RegisterForumRoutes::class, [$this, 'addRoutes']);
     }
 
     public function addLocale(RegisterLocales $event)

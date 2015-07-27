@@ -15,14 +15,14 @@ class UpdateTagMetadata
 {
     public function subscribe($events)
     {
-        $events->listen(DiscussionWasStarted::class, __CLASS__.'@whenDiscussionWasStarted');
-        $events->listen(DiscussionWasTagged::class, __CLASS__.'@whenDiscussionWasTagged');
-        $events->listen(DiscussionWasDeleted::class, __CLASS__.'@whenDiscussionWasDeleted');
+        $events->listen(DiscussionWasStarted::class, [$this, 'whenDiscussionWasStarted']);
+        $events->listen(DiscussionWasTagged::class, [$this, 'whenDiscussionWasTagged']);
+        $events->listen(DiscussionWasDeleted::class, [$this, 'whenDiscussionWasDeleted']);
 
-        $events->listen(PostWasPosted::class, __CLASS__.'@whenPostWasPosted');
-        $events->listen(PostWasDeleted::class, __CLASS__.'@whenPostWasDeleted');
-        $events->listen(PostWasHidden::class, __CLASS__.'@whenPostWasHidden');
-        $events->listen(PostWasRestored::class, __CLASS__.'@whenPostWasRestored');
+        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
+        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
+        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
     }
 
     public function whenDiscussionWasStarted(DiscussionWasStarted $event)

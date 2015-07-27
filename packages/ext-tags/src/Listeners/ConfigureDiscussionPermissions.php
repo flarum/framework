@@ -9,8 +9,8 @@ class ConfigureDiscussionPermissions
 {
     public function subscribe($events)
     {
-        $events->listen(ScopeModelVisibility::class, __CLASS__.'@scopeDiscussionVisibility');
-        $events->listen(ModelAllow::class, __CLASS__.'@allowDiscussionPermissions');
+        $events->listen(ScopeModelVisibility::class, [$this, 'scopeDiscussionVisibility']);
+        $events->listen(ModelAllow::class, [$this, 'allowDiscussionPermissions']);
     }
 
     public function scopeDiscussionVisibility(ScopeModelVisibility $event)
