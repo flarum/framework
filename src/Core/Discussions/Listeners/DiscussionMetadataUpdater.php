@@ -14,10 +14,10 @@ class DiscussionMetadataUpdater
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWasPosted::class, __CLASS__.'@whenPostWasPosted');
-        $events->listen(PostWasDeleted::class, __CLASS__.'@whenPostWasDeleted');
-        $events->listen(PostWasHidden::class, __CLASS__.'@whenPostWasHidden');
-        $events->listen(PostWasRestored::class, __CLASS__.'@whenPostWasRestored');
+        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
+        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
+        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
     }
 
     /**
