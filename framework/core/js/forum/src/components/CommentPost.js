@@ -6,7 +6,7 @@ import PostEdited from 'flarum/components/PostEdited';
 import EditPostComposer from 'flarum/components/EditPostComposer';
 import Composer from 'flarum/components/Composer';
 import ItemList from 'flarum/utils/ItemList';
-import formatText from 'flarum/utils/formatText';
+import Formatter from 'flarum/utils/Formatter';
 import listItems from 'flarum/helpers/listItems';
 import Button from 'flarum/components/Button';
 
@@ -43,7 +43,7 @@ export default class CommentPost extends Post {
 
   content() {
     const content = this.isEditing()
-      ? formatText(this.props.post.editedContent)
+      ? Formatter.format(this.props.post.editedContent)
       : this.props.post.contentHtml();
 
     return [
