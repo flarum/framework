@@ -5,10 +5,6 @@ export default function tagLabel(tag, attrs = {}) {
   attrs.className = 'TagLabel ' + (attrs.className || '');
 
   const link = extract(attrs, 'link');
-  if (link) {
-    attrs.href = app.route('tag', {tags: tag.slug()});
-    attrs.config = m.route;
-  }
 
   if (tag) {
     const color = tag.color();
@@ -19,6 +15,8 @@ export default function tagLabel(tag, attrs = {}) {
 
     if (link) {
       attrs.title = tag.description() || '';
+      attrs.href = app.route('tag', {tags: tag.slug()});
+      attrs.config = m.route;
     }
   } else {
     attrs.className += ' untagged';
