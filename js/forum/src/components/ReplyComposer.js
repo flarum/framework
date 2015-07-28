@@ -13,6 +13,14 @@ import icon from 'flarum/helpers/icon';
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
+  constructor(...args) {
+    super(...args);
+
+    this.editor.props.preview = () => {
+      m.route(app.route.discussion(this.props.discussion, 'reply'));
+    };
+  }
+
   static initProps(props) {
     super.initProps(props);
 
@@ -92,6 +100,7 @@ export default class ReplyComposer extends ComposerBody {
           // transition to their new post when clicked.
           let alert;
           const viewButton = Button.component({
+            className: 'Button Button--link',
             children: app.trans('core.view'),
             onclick: () => {
               m.route(app.route.post(post));
