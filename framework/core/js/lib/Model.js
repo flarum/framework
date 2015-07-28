@@ -227,6 +227,8 @@ export default class Model {
 
         return relationship && app.store.getById(relationship.data.type, relationship.data.id);
       }
+
+      return false;
     };
   }
 
@@ -247,6 +249,8 @@ export default class Model {
 
         return relationship && relationship.data.map(data => app.store.getById(data.type, data.id));
       }
+
+      return false;
     };
   }
 
