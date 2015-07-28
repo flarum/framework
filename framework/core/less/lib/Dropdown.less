@@ -145,7 +145,7 @@
   .Dropdown.open {
     z-index: @zindex-modal;
   }
-  .Dropdown-menu {
+  .Dropdown .Dropdown-menu {
     margin: 0;
     position: fixed;
     left: 0 !important;
@@ -191,7 +191,7 @@
         }
       }
     }
-    .open & {
+    .open& {
       -webkit-transform: none;
               transform: none;
       visibility: visible;
