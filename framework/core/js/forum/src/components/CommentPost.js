@@ -1,3 +1,5 @@
+/*global s9e*/
+
 import Post from 'flarum/components/Post';
 import classList from 'flarum/utils/classList';
 import PostUser from 'flarum/components/PostUser';
@@ -6,7 +8,6 @@ import PostEdited from 'flarum/components/PostEdited';
 import EditPostComposer from 'flarum/components/EditPostComposer';
 import Composer from 'flarum/components/Composer';
 import ItemList from 'flarum/utils/ItemList';
-import Formatter from 'flarum/utils/Formatter';
 import listItems from 'flarum/helpers/listItems';
 import Button from 'flarum/components/Button';
 
@@ -42,13 +43,13 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    const content = this.isEditing()
-      ? Formatter.format(this.props.post.editedContent)
-      : this.props.post.contentHtml();
-
     return [
       <header className="Post-header"><ul>{listItems(this.headerItems().toArray())}</ul></header>,
-      <div className="Post-body">{m.trust(content)}</div>,
+      <div className="Post-body">
+        {this.isEditing()
+          ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
+          : m.trust(this.props.post.contentHtml())}
+      </div>,
       <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>,
       <aside className="Post-actions"><ul>{listItems(this.actionItems().toArray())}</ul></aside>
     ];
@@ -72,6 +73,25 @@ export default class CommentPost extends Post {
         'editing': this.isEditing()
       })
     };
+  }
+
+  configPreview(element, isInitialized, context) {
+    if (isInitialized) return;
+
+    // Every 50ms, if the composer content has changed, then update the post's
+    // body with a preview.
+    let preview;
+    const updateInterval = setInterval(() => {
+      const content = app.composer.component.content();
+
+      if (preview === content) return;
+
+      preview = content;
+
+      s9e.TextFormatter.preview(preview || '', element);
+    }, 50);
+
+    context.onunload = () => clearInterval(updateInterval);
   }
 
   /**

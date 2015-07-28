@@ -42,32 +42,6 @@ export default class ReplyComposer extends ComposerBody {
     return items;
   }
 
-  config(isInitialized, context) {
-    super.config(isInitialized, context);
-
-    if (isInitialized) return;
-
-    // Every 50ms, if the content has changed, then update the post's
-    // editedContent property and redraw. This will cause the preview in the
-    // post's component to update.
-    const updateInterval = setInterval(() => {
-      const discussion = this.props.discussion;
-      const content = this.content();
-
-      if (content === discussion.replyContent) return;
-
-      discussion.replyContent = content;
-
-      const anchorToBottom = $(window).scrollTop() + $(window).height() >= $(document).height();
-      m.redraw();
-      if (anchorToBottom) {
-        $(window).scrollTop($(document).height());
-      }
-    }, 50);
-
-    context.onunload = () => clearInterval(updateInterval);
-  }
-
   /**
    * Get the data to submit to the server when the reply is saved.
    *

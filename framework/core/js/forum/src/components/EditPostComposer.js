@@ -31,27 +31,6 @@ export default class EditPostComposer extends ComposerBody {
     props.post.editedContent = props.originalContent;
   }
 
-  config(isInitialized, context) {
-    super.config(isInitialized, context);
-
-    if (isInitialized) return;
-
-    // Every 50ms, if the content has changed, then update the post's
-    // editedContent property and redraw. This will cause the preview in the
-    // post's component to update.
-    const updateInterval = setInterval(() => {
-      const post = this.props.post;
-      const content = this.content();
-
-      if (content === post.editedContent) return;
-
-      post.editedContent = content;
-      m.redraw();
-    }, 50);
-
-    context.onunload = () => clearInterval(updateInterval);
-  }
-
   headerItems() {
     const items = super.headerItems();
     const post = this.props.post;
