@@ -88,6 +88,8 @@ class Composer extends Component {
   }
 
   config(isInitialized, context) {
+    this.updateHeight();
+
     if (isInitialized) return;
 
     // Since this component is a part of the global UI that persists between
