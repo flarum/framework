@@ -83,6 +83,8 @@ export default function addPostMentionPreviews() {
         }
       };
 
+      $this.on('touchstart', e => e.preventDefault());
+
       $this.parent().hover(
         () => {
           clearTimeout(timeout);
@@ -94,11 +96,11 @@ export default function addPostMentionPreviews() {
           timeout = setTimeout(hidePreview, 250);
         }
       )
-        .on('touchstart', e => e.preventDefault())
         .on('touchend', e => {
           showPreview();
           e.stopPropagation();
         });
+
       $(document).on('touchend', hidePreview);
     });
   });
