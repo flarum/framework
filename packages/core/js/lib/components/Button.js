@@ -28,8 +28,7 @@ export default class Button extends Component {
     const iconName = extract(attrs, 'icon');
     if (iconName) attrs.className += ' hasIcon';
 
-    const disabled = extract(attrs, 'disabled');
-    if (disabled) {
+    if (attrs.disabled) {
       attrs.className += ' disabled';
       delete attrs.onclick;
     }
