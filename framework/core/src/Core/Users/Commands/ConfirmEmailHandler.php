@@ -43,8 +43,6 @@ class ConfirmEmailHandler
             $user->activate();
         }
 
-        event(new UserWillBeSaved($user, $command));
-
         $user->save();
         $this->dispatchEventsFor($user);
 
