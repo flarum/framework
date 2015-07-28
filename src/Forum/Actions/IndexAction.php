@@ -29,7 +29,7 @@ class IndexAction extends ClientAction
         $q = array_pull($queryParams, 'q');
 
         $params = [
-            'sort' => $sort ? $this->sortMap[$sort] : '',
+            'sort' => $sort && isset($this->sortMap[$sort]) ? $this->sortMap[$sort] : '',
             'filter' => ['q' => $q]
         ];
 
