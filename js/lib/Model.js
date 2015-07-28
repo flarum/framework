@@ -225,7 +225,9 @@ export default class Model {
       if (this.data.relationships) {
         const relationship = this.data.relationships[name];
 
-        return relationship && app.store.getById(relationship.data.type, relationship.data.id);
+        if (relationship) {
+          return app.store.getById(relationship.data.type, relationship.data.id);
+        }
       }
 
       return false;
@@ -247,7 +249,9 @@ export default class Model {
       if (this.data.relationships) {
         const relationship = this.data.relationships[name];
 
-        return relationship && relationship.data.map(data => app.store.getById(data.type, data.id));
+        if (relationship) {
+          return relationship.data.map(data => app.store.getById(data.type, data.id));
+        }
       }
 
       return false;
