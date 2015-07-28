@@ -38,7 +38,8 @@ class AddClientAssets
             'tags.discussion_tags_placeholder',
             'tags.confirm',
             'tags.more',
-            'tags.tag_cloud_title'
+            'tags.tag_cloud_title',
+            'tags.deleted'
         ]);
     }
 
