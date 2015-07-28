@@ -50,19 +50,20 @@ export default function boot(app) {
     app.drawer.hide();
   });
 
-  const offsetTop = $('#app').offset().top + 1;
-
   // Add a class to the body which indicates that the page has been scrolled
   // down.
-  new ScrollListener(top => $('#app').toggleClass('scrolled', top > offsetTop)).start();
+  new ScrollListener(top => {
+    const $app = $('#app');
+    const offset = $app.offset().top;
+
+    $app
+      .toggleClass('affix', top >= offset)
+      .toggleClass('scrolled', top > offset);
+  }).start();
 
   // Initialize FastClick, which makes links and buttons much more responsive on
   // touch devices.
   $(() => FastClick.attach(document.body));
-
-  $('#app').affix({
-    offset: {top: offsetTop}
-  });
 
   app.booted = true;
 }
