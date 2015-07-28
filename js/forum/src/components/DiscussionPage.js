@@ -97,7 +97,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
       <div className="DiscussionPage">
         {app.cache.discussionList
           ? <div className="DiscussionPage-list" config={this.configPane.bind(this)}>
-              {app.cache.discussionList.render()}
+              {!$('.App-navigation').is(':visible') ? app.cache.discussionList.render() : ''}
             </div>
           : ''}
 
