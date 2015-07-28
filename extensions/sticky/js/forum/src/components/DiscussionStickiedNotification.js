@@ -6,6 +6,8 @@ export default class DiscussionStickiedNotification extends Notification {
   }
 
   href() {
+    const notification = this.props.notification;
+
     return app.route.discussion(notification.subject(), notification.content().postNumber);
   }
 
