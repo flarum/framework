@@ -61,13 +61,9 @@ abstract class Model extends Eloquent
      */
     public function can(User $actor, $action)
     {
-        $can = static::$dispatcher->until(new ModelAllow($this, $actor, $action));
+        $allowed = static::$dispatcher->until(new ModelAllow($this, $actor, $action));
 
-        if ($can !== null) {
-            return $can;
-        }
-
-        return false;
+        return $allowed ?: false;
     }
 
     /**
