@@ -533,7 +533,7 @@ class PostStream extends mixin(Component, evented) {
 
     if ($item.length) {
       const itemTop = $item.offset().top - this.getMarginTop();
-      const itemBottom = itemTop + $item.height();
+      const itemBottom = $item.offset().top + $item.height();
       const scrollTop = $(document).scrollTop();
       const scrollBottom = scrollTop + $(window).height();
 
