@@ -73,6 +73,7 @@ class Composer extends Component {
 
     const showIfMinimized = () => {
       if (this.position === Composer.PositionEnum.MINIMIZED) this.show();
+      m.redraw.strategy('none');
     };
 
     return (

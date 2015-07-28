@@ -44,11 +44,22 @@ class PostStream extends mixin(Component, evented) {
   /**
    * Load and scroll to a post with a certain number.
    *
-   * @param {Integer} number
+   * @param {Integer|String} number The post number to go to. If 'reply', go to
+   *     the last post and scroll the reply preview into view.
    * @param {Boolean} noAnimation
    * @return {Promise}
    */
   goToNumber(number, noAnimation) {
+    // If we want to go to the reply preview, then we will go to the end of the
+    // discussion and scroll to the very bottom of the page.
+    if (number === 'reply') {
+      return this.goToLast().then(() => {
+        $('html,body').stop(true).animate({
+          scrollTop: $(document).height() - $(window).height()
+        }, 'fast');
+      });
+    }
+
     this.paused = true;
 
     const promise = this.loadNearNumber(number);
@@ -475,7 +486,7 @@ class PostStream extends mixin(Component, evented) {
    * @return {Integer}
    */
   getMarginTop() {
-    return this.$() && $('.global-header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
+    return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
   }
 
   /**

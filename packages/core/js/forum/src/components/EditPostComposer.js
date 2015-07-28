@@ -12,6 +12,14 @@ import icon from 'flarum/helpers/icon';
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody {
+  constructor(...args) {
+    super(...args);
+
+    this.editor.props.preview = () => {
+      m.route(app.route.post(this.props.post));
+    };
+  }
+
   static initProps(props) {
     super.initProps(props);
 
