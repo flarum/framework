@@ -13,7 +13,7 @@ export default function addPostMentionPreviews() {
 
     const discussion = this.props.post.discussion();
 
-    this.$('.UserMention').each(function() {
+    this.$('.UserMention, .PostMention').each(function() {
       m.route.call(this, this, false, {}, {attrs: {href: this.getAttribute('href')}});
     });
 
@@ -51,7 +51,7 @@ export default function addPostMentionPreviews() {
         // hasn't yet been loaded, we will need to do that.
         if (!visible) {
           // Position the preview so that it appears above the mention.
-          // (The offsetParent should be .post-body.)
+          // (The offsetParent should be .Post-body.)
           const positionPreview = () => {
             $preview.show().css('top', $this.offset().top - $this.offsetParent().offset().top - $preview.outerHeight(true));
           };
@@ -94,7 +94,7 @@ export default function addPostMentionPreviews() {
           timeout = setTimeout(hidePreview, 250);
         }
       )
-        .on('click', e => e.preventDefault())
+        .on('touchstart', e => e.preventDefault())
         .on('touchend', e => {
           showPreview();
           e.stopPropagation();
