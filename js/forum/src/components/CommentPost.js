@@ -81,7 +81,7 @@ export default class CommentPost extends Post {
     // Every 50ms, if the composer content has changed, then update the post's
     // body with a preview.
     let preview;
-    const updateInterval = setInterval(() => {
+    const updatePreview = () => {
       const content = app.composer.component.content();
 
       if (preview === content) return;
@@ -89,8 +89,10 @@ export default class CommentPost extends Post {
       preview = content;
 
       s9e.TextFormatter.preview(preview || '', element);
-    }, 50);
+    };
+    updatePreview();
 
+    const updateInterval = setInterval(updatePreview, 50);
     context.onunload = () => clearInterval(updateInterval);
   }
 
