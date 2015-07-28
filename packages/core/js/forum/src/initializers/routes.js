@@ -14,6 +14,7 @@ export default function(app) {
     'index': { path: '/', component: IndexPage.component() },
     'index.filter': { path: '/:filter', component: IndexPage.component() },
 
+    'discussion.id': { path: '/d/:id', component: DiscussionPage.component() },
     'discussion': { path: '/d/:id/:slug', component: DiscussionPage.component() },
     'discussion.near': { path: '/d/:id/:slug/:near', component: DiscussionPage.component() },
 
