@@ -75,6 +75,16 @@ export default class TextEditor extends Component {
       })
     );
 
+    if (this.props.preview) {
+      items.add('preview',
+        Button.component({
+          icon: 'eye',
+          className: 'Button Button--icon',
+          onclick: this.props.preview
+        })
+      );
+    }
+
     return items;
   }
 

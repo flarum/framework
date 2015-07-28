@@ -123,8 +123,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
   config(isInitialized, context) {
     if (isInitialized) return;
 
-    // context.retain = true;
-
     $('#app').addClass('App--discussion');
     context.onunload = () => $('#app').removeClass('App--discussion');
   }
