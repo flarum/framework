@@ -93,7 +93,7 @@ export default function slidable(element) {
           if ($underneath.length) {
             const active = side === 'left' ? pos > 0 : pos < 0;
 
-            if (active && $underneath.hasClass('elastic')) {
+            if (active && $underneath.hasClass('Slidable-underneath--elastic')) {
               pos -= pos * 0.5;
             }
             $underneath.toggle(active);
@@ -126,7 +126,7 @@ export default function slidable(element) {
       const activate = $underneath => {
         $underneath.click();
 
-        if ($underneath.hasClass('elastic')) {
+        if ($underneath.hasClass('Slidable-underneath--elastic')) {
           reset();
         } else {
           animatePos((pos > 0 ? 1 : -1) * $element.width());
