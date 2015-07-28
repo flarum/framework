@@ -27,8 +27,8 @@ core:
   disclose_online: Allow others to see when I am online
   discussion_renamed_post: "{username} changed the title from {old} to {new}."
   discussion_renamed_notification: "{username} changed the title"
-  discussion_replied: "{username} replied {ago}"
-  discussion_started: "{username} started {ago}"
+  discussion_replied: "Last reply {ago} by {username}"
+  discussion_started: "Started {ago} by {username}"
   discussion_title: Discussion Title
   discussions: Discussions
   dismiss: Dismiss
