@@ -63,7 +63,9 @@ class Formatter
     {
         $configurator = $this->getConfigurator();
         $configurator->enableJavaScript();
-        $configurator->javascript->setMinifier('ClosureCompilerService');
+        $configurator->javascript->exportMethods = ['preview'];
+        $minifier = $configurator->javascript->setMinifier('ClosureCompilerService');
+        $minifier->keepGoing = true;
 
         return $configurator->finalize([
             'returnParser'   => false,
