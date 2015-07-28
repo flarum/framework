@@ -34,25 +34,28 @@ export default class Post extends Component {
   }
 
   view() {
-    const controls = PostControls.controls(this.props.post, this).toArray();
     const attrs = this.attrs();
 
     attrs.className = 'Post ' + (attrs.className || '');
 
     return (
       <article {...attrs}>
-        {this.subtree.retain() || (
-          <div>
-            {controls.length ? Dropdown.component({
-              children: controls,
-              className: 'Post-controls',
-              buttonClassName: 'Button Button--icon Button--flat',
-              menuClassName: 'Dropdown-menu--right'
-            }) : ''}
+        {this.subtree.retain() || (() => {
+          const controls = PostControls.controls(this.props.post, this).toArray();
 
-            {this.content()}
-          </div>
-        )}
+          return (
+            <div>
+              {controls.length ? Dropdown.component({
+                children: controls,
+                className: 'Post-controls',
+                buttonClassName: 'Button Button--icon Button--flat',
+                menuClassName: 'Dropdown-menu--right'
+              }) : ''}
+
+              {this.content()}
+            </div>
+          );
+        })()}
       </article>
     );
   }
@@ -63,6 +66,7 @@ export default class Post extends Component {
    * @return {Object}
    */
   attrs() {
+    return {};
   }
 
   /**
@@ -71,5 +75,6 @@ export default class Post extends Component {
    * @return {Object}
    */
   content() {
+    return '';
   }
 }
