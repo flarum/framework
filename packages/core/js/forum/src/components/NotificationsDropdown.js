@@ -27,7 +27,7 @@ export default class NotificationsDropdown extends Component {
           <span className="Button-icon">{unread || icon('bell')}</span>
           <span className="Button-label">{app.trans('core.notifications')}</span>
         </a>
-        <div className="Dropdown-menu Dropdown-menu--right">
+        <div className="Dropdown-menu Dropdown-menu--right" onclick={this.menuClick.bind(this)}>
           {this.showing ? NotificationList.component() : ''}
         </div>
       </div>
@@ -40,5 +40,11 @@ export default class NotificationsDropdown extends Component {
     } else {
       this.showing = true;
     }
+  }
+
+  menuClick(e) {
+    // Don't close the notifications dropdown if the user is opening a link in a
+    // new tab or window.
+    if (e.shiftKey || e.metaKey || e.ctrlKey || e.which === 2) e.stopPropagation();
   }
 }
