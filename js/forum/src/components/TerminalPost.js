@@ -1,6 +1,5 @@
 import Component from 'flarum/Component';
 import humanTime from 'flarum/helpers/humanTime';
-import username from 'flarum/helpers/username';
 
 /**
  * Displays information about a the first or last post in a discussion.
