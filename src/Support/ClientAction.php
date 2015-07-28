@@ -71,6 +71,7 @@ abstract class ClientAction extends HtmlAction
     /**
      * @param Client $apiClient
      * @param LocaleManager $locales
+     * @param SettingsRepository $settings
      */
     public function __construct(Client $apiClient, LocaleManager $locales, SettingsRepository $settings)
     {
