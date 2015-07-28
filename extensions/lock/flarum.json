@@ -1,0 +1,21 @@
+{
+    "name": "lock",
+    "title": "Lock",
+    "description": "End a discussion and don't let anyone add further replies.",
+    "keywords": ["discussions"],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    },
+    "support": {
+        "source": "https://github.com/flarum/lock",
+        "issues": "https://github.com/flarum/lock/issues"
+    }
+}

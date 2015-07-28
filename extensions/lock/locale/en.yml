@@ -1,0 +1,8 @@
+lock:
+  discussion_locked_notification: "{username} locked"
+  discussion_locked_post: "{username} locked the discussion."
+  discussion_unlocked_post: "{username} unlocked the discussion."
+  notify_discussion_locked: Someone locks a discussion I started
+  locked: Locked
+  lock: Lock
+  unlock: Unlock
