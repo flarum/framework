@@ -27,23 +27,18 @@ export default class IndexPage extends Component {
       this.lastDiscussion = app.current.discussion;
     }
 
-    const params = this.params();
-
-    if (app.cache.discussionList) {
-      // Compare the requested parameters (sort, search query) to the ones that
-      // are currently present in the cached discussion list. If they differ, we
-      // will clear the cache and set up a new discussion list component with
-      // the new parameters.
-      Object.keys(params).some(key => {
-        if (app.cache.discussionList.props.params[key] !== params[key]) {
-          app.cache.discussionList = null;
-          return true;
-        }
-      });
+    // If the user is coming from the discussion list, then they have either
+    // just switched one of the parameters (filter, sort, search) or they
+    // probably want to refresh the results. We will clear the discussion list
+    // cache so that results are reloaded.
+    if (app.current instanceof IndexPage) {
+      app.cache.discussionList = null;
     }
 
     if (!app.cache.discussionList) {
-      app.cache.discussionList = new DiscussionList({params});
+      app.cache.discussionList = new DiscussionList({
+        params: this.params()
+      });
     }
 
     app.history.push('index');
