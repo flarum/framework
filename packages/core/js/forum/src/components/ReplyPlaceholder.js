@@ -1,8 +1,9 @@
+/*global s9e*/
+
 import Component from 'flarum/Component';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
-import Formatter from 'flarum/utils/Formatter';
 
 /**
  * The `ReplyPlaceholder` component displays a placeholder for a reply, which,
@@ -25,9 +26,7 @@ export default class ReplyPlaceholder extends Component {
               </h3>
             </div>
           </header>
-          <div className="Post-body">
-            {m.trust(Formatter.format(this.props.discussion.replyContent))}
-          </div>
+          <div className="Post-body" config={this.configPreview.bind(this)}/>
         </article>
       );
     }
@@ -49,5 +48,30 @@ export default class ReplyPlaceholder extends Component {
         </header>
       </article>
     );
+  }
+
+  configPreview(element, isInitialized, context) {
+    if (isInitialized) return;
+
+    // Every 50ms, if the composer content has changed, then update the post's
+    // body with a preview.
+    let preview;
+    const updateInterval = setInterval(() => {
+      const content = app.composer.component.content();
+
+      if (preview === content) return;
+
+      preview = content;
+
+      const anchorToBottom = $(window).scrollTop() + $(window).height() >= $(document).height();
+
+      s9e.TextFormatter.preview(preview || '', element);
+
+      if (anchorToBottom) {
+        $(window).scrollTop($(document).height());
+      }
+    }, 50);
+
+    context.onunload = () => clearInterval(updateInterval);
   }
 }
