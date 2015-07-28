@@ -1,6 +1,6 @@
 <?php namespace Flarum\Lock\Notifications;
 
-use Flarum\Sticky\Posts\DiscussionLockedPost;
+use Flarum\Lock\Posts\DiscussionLockedPost;
 use Flarum\Core\Notifications\Blueprint;
 
 class DiscussionLockedBlueprint implements Blueprint

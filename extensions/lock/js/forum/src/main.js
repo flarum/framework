@@ -21,7 +21,7 @@ addLockControl();
 extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
   items.add('discussionLocked', {
     name: 'discussionLocked',
-    icon: 'thumb-tack',
+    icon: 'lock',
     label: app.trans('lock.notify_discussion_locked')
   });
 });
