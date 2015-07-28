@@ -88,6 +88,9 @@
         font-size: 16px;
       }
     }
+    &.pinned + li:not(.pinned) {
+      border-top: 2px solid @control-bg;
+    }
     &.child {
       padding-left: 48px;
     }
