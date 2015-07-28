@@ -68,6 +68,7 @@ export default function slidable(element) {
       startY = e.originalEvent.targetTouches[0].clientY;
 
       couldBeSliding = true;
+      pos = 0;
     })
 
     .on('touchmove', function(e) {
@@ -142,6 +143,7 @@ export default function slidable(element) {
       }
 
       couldBeSliding = false;
+      isSliding = false;
     });
 
   return {reset};
