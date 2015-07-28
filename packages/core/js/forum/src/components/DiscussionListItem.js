@@ -44,6 +44,10 @@ export default class DiscussionListItem extends Component {
   }
 
   view() {
+    const retain = this.subtree.retain();
+
+    if (retain) return retain;
+
     const discussion = this.props.discussion;
     const startUser = discussion.startUser();
     const isUnread = discussion.isUnread();
@@ -52,7 +56,7 @@ export default class DiscussionListItem extends Component {
     const relevantPosts = this.props.params.q ? discussion.relevantPosts() : [];
     const controls = DiscussionControls.controls(discussion, this).toArray();
 
-    return this.subtree.retain() || (
+    return (
       <div className={'DiscussionListItem ' + (this.active() ? 'active' : '')}>
 
         {controls.length ? Dropdown.component({
