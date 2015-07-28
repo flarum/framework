@@ -115,7 +115,8 @@ abstract class Serializer extends SerializerAbstract
                 } elseif ($many) {
                     $relationIds = $relation.'_ids';
                     $data = isset($model->$relationIds) ? $model->$relationIds : $model->$relation()->lists('id');
-                } else {
+                }
+                if (! $many && empty($data)) {
                     $relationId = $relation.'_id';
                     $data = $model->$relationId;
                 }
