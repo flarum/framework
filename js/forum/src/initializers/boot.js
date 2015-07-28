@@ -47,7 +47,6 @@ export default function boot(app) {
     if (e.ctrlKey || e.metaKey || e.which === 2) return;
     e.preventDefault();
     app.history.home();
-    app.drawer.hide();
   });
 
   // Add a class to the body which indicates that the page has been scrolled
