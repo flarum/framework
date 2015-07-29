@@ -13,11 +13,18 @@ class GroupSerializer extends Serializer
     protected function getDefaultAttributes($group)
     {
         return [
-            'id'           => (int) $group->id,
             'nameSingular' => $group->name_singular,
             'namePlural'   => $group->name_plural,
             'color'        => $group->color,
             'icon'         => $group->icon,
         ];
+    }
+
+    /**
+     * @return callable
+     */
+    protected function permissions()
+    {
+        return $this->hasMany('Flarum\Api\Serializers\PermissionSerializer');
     }
 }
