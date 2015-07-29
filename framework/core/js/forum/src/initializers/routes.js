@@ -11,20 +11,20 @@ import NotificationsPage from 'flarum/components/NotificationsPage';
  */
 export default function(app) {
   app.routes = {
-    'index': { path: '/', component: IndexPage.component() },
-    'index.filter': { path: '/:filter', component: IndexPage.component() },
+    'index': {path: '/', component: IndexPage.component()},
+    'index.filter': {path: '/:filter', component: IndexPage.component()},
 
-    'discussion.id': { path: '/d/:id', component: DiscussionPage.component() },
-    'discussion': { path: '/d/:id/:slug', component: DiscussionPage.component() },
-    'discussion.near': { path: '/d/:id/:slug/:near', component: DiscussionPage.component() },
+    'discussion.id': {path: '/d/:id', component: DiscussionPage.component()},
+    'discussion': {path: '/d/:id/:slug', component: DiscussionPage.component()},
+    'discussion.near': {path: '/d/:id/:slug/:near', component: DiscussionPage.component()},
 
-    'user': { path: '/u/:username', component: ActivityPage.component() },
-    'user.activity': { path: '/u/:username', component: ActivityPage.component() },
-    'user.discussions': { path: '/u/:username/discussions', component: ActivityPage.component({filter: 'startedDiscussion'}) },
-    'user.posts': { path: '/u/:username/posts', component: ActivityPage.component({filter: 'posted'}) },
+    'user': {path: '/u/:username', component: ActivityPage.component()},
+    'user.activity': {path: '/u/:username', component: ActivityPage.component()},
+    'user.discussions': {path: '/u/:username/discussions', component: ActivityPage.component({filter: 'startedDiscussion'})},
+    'user.posts': {path: '/u/:username/posts', component: ActivityPage.component({filter: 'posted'})},
 
-    'settings': { path: '/settings', component: SettingsPage.component() },
-    'notifications': { path: '/notifications', component: NotificationsPage.component() }
+    'settings': {path: '/settings', component: SettingsPage.component()},
+    'notifications': {path: '/notifications', component: NotificationsPage.component()}
   };
 
   /**
