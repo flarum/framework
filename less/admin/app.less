@@ -1,24 +1,6 @@
-@lib-path: "../lib";
+@import "../lib/lib.less";
 
-@import "@{lib-path}/bootstrap.less";
-
-// We want to specify the @fa-font-path variable AFTER we import font awesome
-// so that it overrides the default definition.
-@import "@{lib-path}/font-awesome/font-awesome.less";
-@fa-font-path: "/assets/fonts";
-
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,300,600);
-
-// Finally, with our vendor CSS loaded, we can import Flarum-specific stuff.
-@import "@{lib-path}/components.less";
-@import "@{lib-path}/buttons.less";
-@import "@{lib-path}/badges.less";
-@import "@{lib-path}/dropdowns.less";
-@import "@{lib-path}/avatars.less";
-@import "@{lib-path}/forms.less";
-@import "@{lib-path}/alerts.less";
-@import "@{lib-path}/modals.less";
-@import "@{lib-path}/layout.less";
-@import "@{lib-path}/side-nav.less";
-
-@import "layout.less";
+@import "AdminNav.less";
+@import "DashboardPage.less";
+@import "BasicsPage.less";
+@import "PermissionsPage.less";

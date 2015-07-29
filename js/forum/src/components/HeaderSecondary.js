@@ -8,7 +8,7 @@ import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
 
 /**
- * The `HeaderSecondary` component displays secondary footer controls, such as
+ * The `HeaderSecondary` component displays secondary header controls, such as
  * the search box and the user menu. On the default skin, these are shown on the
  * right side of the header.
  */
