@@ -1,0 +1,86 @@
+.PermissionsPage-groups {
+  background: @control-bg;
+  padding: 30px 0;
+}
+.Group {
+  width: 90px;
+  display: inline-block;
+  text-align: center;
+  color: @text-color;
+  font-weight: bold;
+}
+.Group-name {
+  display: block;
+  margin-top: 5px;
+}
+.Group-icon {
+  font-size: 14px;
+}
+.Group--add {
+  border: 1px dashed @muted-color;
+  color: @muted-color;
+  width: auto;
+  margin-left: 10px;
+  font-weight: normal;
+}
+
+
+.PermissionsPage-permissions {
+  padding: 30px 0;
+}
+
+.PermissionGrid {
+  td, th {
+    padding: 10px 0;
+    text-align: left;
+  }
+  td {
+    color: @muted-color;
+  }
+  thead th {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 12px;
+    color: @muted-color;
+    width: 140px;
+  }
+  tbody {
+    th {
+      padding-right: 50px;
+    }
+    tr:last-child {
+      td, th {
+        padding-bottom: 15px !important;
+      }
+    }
+    select {
+      background: transparent;
+      padding: 0 30px 0 0;
+      height: auto;
+      border: 0;
+      width: 100%;
+    }
+    .Button {
+      text-decoration: none;
+    }
+    td:not(:hover) {
+      .Select-caret, .GroupsButton-caret {
+        display: none;
+      }
+    }
+  }
+}
+.PermissionGrid-section {
+  td, th {
+    padding-top: 15px;
+    border-top: 1px solid @control-bg;
+  }
+}
+.PermissionGrid-child {
+  td, th {
+    padding: 5px 0;
+  }
+  th {
+    font-weight: normal;
+  }
+}
