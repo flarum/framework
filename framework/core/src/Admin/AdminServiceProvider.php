@@ -4,6 +4,7 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\RedirectResponse;
 
 class AdminServiceProvider extends ServiceProvider
 {
@@ -47,7 +48,7 @@ class AdminServiceProvider extends ServiceProvider
         $routes->get(
             '/',
             'flarum.admin.index',
-            $this->action('Flarum\Admin\Actions\IndexAction')
+            $this->action('Flarum\Admin\Actions\ClientAction')
         );
     }
 

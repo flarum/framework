@@ -93,55 +93,19 @@ input[type="search"] {
   -webkit-appearance: none;
 }
 
-// Checkboxes and radios
-//
-// Indent the labels to position radios/checkboxes as hanging controls.
+.checkbox {
+  display: block;
+  padding-left: 20px;
+  margin-bottom: 5px;
+  cursor: pointer;
 
-// .radio,
-// .checkbox {
-//   position: relative;
-//   display: block;
-//   margin-top: 10px;
-//   margin-bottom: 10px;
-
-//   label {
-//     min-height: @line-height-computed; // Ensure the input doesn't jump when there is no text
-//     padding-left: 20px;
-//     margin-bottom: 0;
-//     font-weight: normal;
-//     cursor: pointer;
-//   }
-// }
-// .radio input[type="radio"],
-// .radio-inline input[type="radio"],
-// .checkbox input[type="checkbox"],
-// .checkbox-inline input[type="checkbox"] {
-//   position: absolute;
-//   margin-left: -20px;
-//   margin-top: 4px \9;
-// }
-
-// .radio + .radio,
-// .checkbox + .checkbox {
-//   margin-top: -5px; // Move up sibling radios or checkboxes for tighter spacing
-// }
-
-// // Radios and checkboxes on same line
-// .radio-inline,
-// .checkbox-inline {
-//   position: relative;
-//   display: inline-block;
-//   padding-left: 20px;
-//   margin-bottom: 0;
-//   vertical-align: middle;
-//   font-weight: normal;
-//   cursor: pointer;
-// }
-// .radio-inline + .radio-inline,
-// .checkbox-inline + .checkbox-inline {
-//   margin-top: 0;
-//   margin-left: 10px; // space out consecutive inline controls
-// }
+  input[type=checkbox],
+  input[type=radio] {
+    margin-left: -20px;
+    margin-top: 2px;
+    float: left;
+  }
+}
 
 .fade {
   opacity: 0;

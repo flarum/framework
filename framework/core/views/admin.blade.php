@@ -1,17 +1,30 @@
-<div class="global-page" id="page">
-  <div id="back-control"></div>
-  <div class="global-drawer">
-    <header class="global-header" id="header">
-      <div id="back-button"></div>
+<div id="app" class="App">
+
+  <div id="app-navigation" class="App-navigation"></div>
+
+  <div id="drawer" class="App-drawer">
+
+    <header id="header" class="App-header">
+      <div id="header-navigation" class="Header-navigation"></div>
       <div class="container">
-        <h1 class="header-title"><a href="#" onclick="app.history.home()">Flarum Demo Forum</a></h1>
-        <div id="header-primary" class="header-primary"></div>
-        <div id="header-secondary" class="header-secondary"></div>
+        <h1 class="Header-title">
+          <a href="{{ $forum->attributes->baseUrl }}">
+            {{ $forum->attributes->title }}
+          </a>
+        </h1>
+        <div id="header-primary" class="Header-primary"></div>
+        <div id="header-secondary" class="Header-secondary"></div>
       </div>
     </header>
+
   </div>
-  <main class="global-content">
-    <div class="side-nav admin-nav title-control" id="admin-nav"></div>
-    <div class="admin-content" id="content"></div>
+
+  <main class="App-content">
+    <div class="container">
+      <div id="admin-navigation" class="App-nav sideNav"></div>
+    </div>
+
+    <div id="content" class="sideNavOffset"></div>
   </main>
+
 </div>
