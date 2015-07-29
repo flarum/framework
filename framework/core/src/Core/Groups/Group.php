@@ -36,4 +36,14 @@ class Group extends Model
     {
         return $this->belongsToMany('Flarum\Core\Users\User', 'users_groups');
     }
+
+    /**
+     * Define the relationship with the group's permissions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function permissions()
+    {
+        return $this->hasMany('Flarum\Core\Groups\Permission');
+    }
 }
