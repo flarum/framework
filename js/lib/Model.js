@@ -155,7 +155,7 @@ export default class Model {
 
     return app.request({
       method: this.exists ? 'PATCH' : 'POST',
-      url: app.forum.attribute('apiUrl') + '/' + this.data.type + (this.exists ? '/' + this.data.id : ''),
+      url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
       data: {data}
     }).then(
       // If everything went well, we'll make sure the store knows that this
@@ -187,11 +187,21 @@ export default class Model {
 
     return app.request({
       method: 'DELETE',
-      url: app.forum.attribute('apiUrl') + '/' + this.data.type + '/' + this.data.id,
+      url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
       data
     }).then(
       () => this.exists = false
     );
+  }
+
+  /**
+   * Construct a path to the API endpoint for this resource.
+   *
+   * @return {String}
+   * @protected
+   */
+  apiEndpoint() {
+    return '/' + this.data.type + (this.exists ? '/' + this.data.id : '');
   }
 
   /**

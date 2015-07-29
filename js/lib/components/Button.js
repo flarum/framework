@@ -1,6 +1,7 @@
 import Component from 'flarum/Component';
 import icon from 'flarum/helpers/icon';
 import extract from 'flarum/utils/extract';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 
 /**
  * The `Button` component defines an element which, when clicked, performs an
@@ -11,6 +12,7 @@ import extract from 'flarum/utils/extract';
  * - `disabled` Whether or not the button is disabled. If truthy, the button
  *   will be given a 'disabled' class name, and any `onclick` handler will be
  *   removed.
+ * - `loading` Whether or not the button should be in a disabled loading state.
  *
  * All other props will be assigned as attributes on the button element.
  *
@@ -28,8 +30,9 @@ export default class Button extends Component {
     const iconName = extract(attrs, 'icon');
     if (iconName) attrs.className += ' hasIcon';
 
-    if (attrs.disabled) {
-      attrs.className += ' disabled';
+    const loading = extract(attrs, 'loading');
+    if (attrs.disabled || loading) {
+      attrs.className += ' disabled' + (loading ? ' loading' : '');
       delete attrs.onclick;
     }
 
@@ -47,7 +50,8 @@ export default class Button extends Component {
 
     return [
       iconName ? icon(iconName, {className: 'Button-icon'}) : '', ' ',
-      this.props.children ? <span className="Button-label">{this.props.children}</span> : ''
+      this.props.children ? <span className="Button-label">{this.props.children}</span> : '',
+      this.props.loading ? LoadingIndicator.component({size: 'tiny', className: 'LoadingIndicator--inline'}) : ''
     ];
   }
 }

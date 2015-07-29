@@ -2,11 +2,23 @@
 
 class LocaleManager
 {
+    protected $locales = [];
+
     protected $translations = [];
 
     protected $js = [];
 
     protected $config = [];
+
+    public function addLocale($locale, $name)
+    {
+        $this->locales[$locale] = $name;
+    }
+
+    public function getLocales()
+    {
+        return $this->locales;
+    }
 
     public function addTranslations($locale, $translations)
     {

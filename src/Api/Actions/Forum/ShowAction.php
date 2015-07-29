@@ -2,6 +2,7 @@
 
 use Flarum\Api\Actions\SerializeResourceAction;
 use Flarum\Api\JsonApiRequest;
+use Flarum\Core\Groups\Group;
 use Tobscure\JsonApi\Document;
 
 class ShowAction extends SerializeResourceAction
@@ -14,7 +15,9 @@ class ShowAction extends SerializeResourceAction
     /**
      * @inheritdoc
      */
-    public $include = [];
+    public $include = [
+        'groups' => true
+    ];
 
     /**
      * @inheritdoc
@@ -51,6 +54,10 @@ class ShowAction extends SerializeResourceAction
      */
     protected function data(JsonApiRequest $request, Document $document)
     {
-        return app('flarum.forum');
+        $forum = app('flarum.forum');
+
+        $forum->groups = Group::all();
+
+        return $forum;
     }
 }
