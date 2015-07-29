@@ -66,6 +66,7 @@ class Formatter
         $configurator->javascript->exportMethods = ['preview'];
         $minifier = $configurator->javascript->setMinifier('ClosureCompilerService');
         $minifier->keepGoing = true;
+        $minifier->cacheDir = storage_path() . '/app';
 
         return $configurator->finalize([
             'returnParser'   => false,
