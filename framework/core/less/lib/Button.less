@@ -86,6 +86,20 @@
       pointer-events: none; // Future-proof disabling of clicks on `<a>` elements
     }
   }
+
+  .Button-label {
+    .transition(margin-right 0.1s);
+  }
+  .LoadingIndicator {
+    color: inherit;
+    margin: 0 -10px 0 -15px;
+    float: right;
+  }
+  &.loading {
+    .Button-label {
+      margin-right: 20px;
+    }
+  }
 }
 
 .Button--color(@color; @background) {
@@ -155,6 +169,8 @@
 .Button--primary {
   .Button--color(@body-bg, @primary-color);
   font-weight: bold;
+  padding-left: 20px;
+  padding-right: 20px;
 
   .Button-icon {
     display: none;

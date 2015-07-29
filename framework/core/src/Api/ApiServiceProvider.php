@@ -94,6 +94,13 @@ class ApiServiceProvider extends ServiceProvider
             $this->action('Flarum\Api\Actions\Forum\ShowAction')
         );
 
+        // Save forum information
+        $routes->patch(
+            '/forum',
+            'flarum.api.forum.update',
+            $this->action('Flarum\Api\Actions\Forum\UpdateAction')
+        );
+
         // Retrieve authentication token
         $routes->post(
             '/token',
