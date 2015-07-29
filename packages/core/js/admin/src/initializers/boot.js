@@ -1,38 +1,54 @@
-import ScrollListener from 'flarum/utils/scroll-listener';
-import mapRoutes from 'flarum/utils/map-routes';
+/*global FastClick*/
 
-import BackButton from 'flarum/components/back-button';
-import HeaderPrimary from 'flarum/components/header-primary';
-import HeaderSecondary from 'flarum/components/header-secondary';
-import Modal from 'flarum/components/modal';
-import Alerts from 'flarum/components/alerts';
-import AdminNav from 'flarum/components/admin-nav';
+import ScrollListener from 'flarum/utils/ScrollListener';
+import Drawer from 'flarum/utils/Drawer';
+import mapRoutes from 'flarum/utils/mapRoutes';
 
-export default function(app) {
-  var id = id => document.getElementById(id);
+import Navigation from 'flarum/components/Navigation';
+import HeaderPrimary from 'flarum/components/HeaderPrimary';
+import HeaderSecondary from 'flarum/components/HeaderSecondary';
+import AdminNav from 'flarum/components/AdminNav';
+import ModalManager from 'flarum/components/ModalManager';
+import AlertManager from 'flarum/components/AlertManager';
 
+/**
+ * The `boot` initializer boots up the admin app. It initializes some app
+ * globals, mounts components to the page, and begins routing.
+ *
+ * @param {ForumApp} app
+ */
+export default function boot(app) {
+  m.startComputation();
+
+  m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
+  m.mount(document.getElementById('header-navigation'), Navigation.component());
+  m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
+  m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
+  m.mount(document.getElementById('admin-navigation'), AdminNav.component());
+
+  app.drawer = new Drawer();
+  app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
+  app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
   app.history = {
-    back: function() {
-      window.location = 'http://flarum.dev';
-    },
-    canGoBack: function() {
-      return true;
-    }
+    canGoBack: () => true,
+    back: () => window.location = '/'
   };
 
-  m.mount(id('back-control'), BackButton.component({ className: 'back-control', drawer: true }));
-  m.mount(id('back-button'), BackButton.component());
-
-  m.mount(id('header-primary'), HeaderPrimary.component());
-  m.mount(id('header-secondary'), HeaderSecondary.component());
-
-  m.mount(id('admin-nav'), AdminNav.component());
-
-  app.modal = m.mount(id('modal'), Modal.component());
-  app.alerts = m.mount(id('alerts'), Alerts.component());
-
   m.route.mode = 'hash';
-  m.route(id('content'), '/', mapRoutes(app.routes));
+  m.route(document.getElementById('content'), '/', mapRoutes(app.routes));
 
-  new ScrollListener(top => $('body').toggleClass('scrolled', top > 0)).start();
+  m.endComputation();
+
+  // Add a class to the body which indicates that the page has been scrolled
+  // down.
+  new ScrollListener(top => {
+    const $app = $('#app');
+    const offset = $app.offset().top;
+
+    $app
+      .toggleClass('affix', top >= offset)
+      .toggleClass('scrolled', top > offset);
+  }).start();
+
+  app.booted = true;
 }
