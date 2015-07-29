@@ -35,7 +35,7 @@
         };
 
         @foreach ($bootstrappers as $bootstrapper)
-          System.import('{{ $bootstrapper }}');
+          System.get('{{ $bootstrapper }}');
         @endforeach
 
         app.boot();
