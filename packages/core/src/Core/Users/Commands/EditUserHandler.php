@@ -65,7 +65,7 @@ class EditUserHandler
             }
         }
 
-        event(new UserWillBeSaved($actor, $actor, $data));
+        event(new UserWillBeSaved($user, $actor, $data));
 
         $user->save();
         $this->dispatchEventsFor($user);
