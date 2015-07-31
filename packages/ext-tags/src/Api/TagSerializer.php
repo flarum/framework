@@ -1,4 +1,4 @@
-<?php namespace Flarum\Tags;
+<?php namespace Flarum\Tags\Api;
 
 use Flarum\Api\Serializers\Serializer;
 
@@ -8,7 +8,7 @@ class TagSerializer extends Serializer
 
     protected function getDefaultAttributes($tag)
     {
-        return [
+        $attributes = [
             'name'               => $tag->name,
             'description'        => $tag->description,
             'slug'               => $tag->slug,
@@ -23,11 +23,17 @@ class TagSerializer extends Serializer
             'lastTime'           => $tag->last_time ? $tag->last_time->toRFC3339String() : null,
             'canStartDiscussion' => $tag->can($this->actor, 'startDiscussion')
         ];
+
+        if ($this->actor->isAdmin()) {
+            $attributes['isRestricted'] = (bool) $tag->is_restricted;
+        }
+
+        return $attributes;
     }
 
     protected function parent()
     {
-        return $this->hasOne('Flarum\Tags\TagSerializer');
+        return $this->hasOne('Flarum\Tags\Api\TagSerializer');
     }
 
     protected function lastDiscussion()

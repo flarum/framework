@@ -20,5 +20,6 @@ export default class Tag extends mixin(Model, {
   lastTime: Model.attribute('lastTime', Model.transformDate),
   lastDiscussion: Model.hasOne('lastDiscussion'),
 
+  isRestricted: Model.attribute('isRestricted'),
   canStartDiscussion: Model.attribute('canStartDiscussion')
 }) {}
