@@ -15,7 +15,7 @@ class PasswordToken extends Model
     /**
      * {@inheritdoc}
      */
-    public $dates = ['created_at'];
+    protected $dates = ['created_at'];
 
     /**
      * Use a custom primary key for this model.
