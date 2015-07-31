@@ -3,6 +3,7 @@
 use Flarum\Support\ClientAction;
 use Flarum\Support\ClientView;
 use Flarum\Forum\Actions\ClientAction as ForumClientAction;
+use Flarum\Admin\Actions\ClientAction as AdminClientAction;
 
 class BuildClientView
 {
@@ -54,4 +55,19 @@ class BuildClientView
                 $this->keys[] = $key;
             }
         }
-    }}
+    }
+
+    public function adminAssets($files)
+    {
+        if ($this->action instanceof AdminClientAction) {
+            $this->view->getAssets()->addFiles((array) $files);
+        }
+    }
+
+    public function adminBootstrapper($bootstrapper)
+    {
+        if ($this->action instanceof AdminClientAction) {
+            $this->view->addBootstrapper($bootstrapper);
+        }
+    }
+}
