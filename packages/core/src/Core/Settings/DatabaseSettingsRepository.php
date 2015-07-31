@@ -29,6 +29,10 @@ class DatabaseSettingsRepository implements SettingsRepository
 
     public function set($key, $value)
     {
-        $this->database->table('config')->where('key', $key)->update(['value' => $value]);
+        $query = $this->database->table('config')->where('key', $key);
+
+        $method = $query->exists() ? 'update' : 'insert';
+
+        $query->$method(compact('key', 'value'));
     }
 }

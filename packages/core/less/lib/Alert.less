@@ -15,6 +15,13 @@
     color: @alert-error-color;
   }
 }
+.Alert--success {
+  background: @alert-success-bg;
+
+  &, a, a:hover, button, button:hover {
+    color: @alert-success-color;
+  }
+}
 .Alert-controls {
   list-style-type: none;
   padding: 0;
@@ -39,6 +46,7 @@
 
     > .Button {
       margin: -10px;
+      vertical-align: 0;
     }
   }
 }

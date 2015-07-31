@@ -8,8 +8,8 @@ class Group extends mixin(Model, {
   icon: Model.attribute('icon')
 }) {}
 
-Group.ADMINISTRATOR_ID = 1;
-Group.GUEST_ID = 2;
-Group.MEMBER_ID = 3;
+Group.ADMINISTRATOR_ID = '1';
+Group.GUEST_ID = '2';
+Group.MEMBER_ID = '3';
 
 export default Group;
