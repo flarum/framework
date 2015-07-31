@@ -40,7 +40,7 @@ class SavePasswordAction extends Action
         }
 
         $this->bus->dispatch(
-            new EditUser($token->user_id, $token->user, ['password' => $password])
+            new EditUser($token->user_id, $token->user, ['attributes' => ['password' => $password]])
         );
 
         $token->delete();
