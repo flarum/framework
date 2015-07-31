@@ -157,12 +157,14 @@
   background: transparent !important;
   padding: 0;
   color: inherit !important;
+  line-height: inherit;
 
   &:hover {
     text-decoration: underline;
   }
   &:active,
-  &.active {
+  &.active,
+  .open > &.Dropdown-toggle {
     .box-shadow(none);
   }
 }
@@ -204,6 +206,7 @@
   .Button-icon {
     font-size: 16px;
     vertical-align: -1px;
+    margin: 0;
   }
 }
 .SessionDropdown .Dropdown-toggle {
@@ -213,6 +216,9 @@
     margin: -2px 5px -2px -5px;
     .Avatar--size(24px);
   }
+}
+.Button-icon {
+  margin-right: 3px;
 }
 .Button-icon,
 .Button-caret {

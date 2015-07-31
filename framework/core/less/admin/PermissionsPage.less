@@ -8,28 +8,39 @@
   text-align: center;
   color: @text-color;
   font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .Group-name {
   display: block;
   margin-top: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .Group-icon {
   font-size: 14px;
+  margin-top: 2px;
 }
 .Group--add {
-  border: 1px dashed @muted-color;
   color: @muted-color;
   width: auto;
   margin-left: 10px;
   font-weight: normal;
+
+  .Group-icon {
+    margin-top: 8px;
+  }
 }
 
 
 .PermissionsPage-permissions {
-  padding: 30px 0;
+  padding: 30px 0 200px;
+  overflow: auto;
 }
 
 .PermissionGrid {
+  white-space: nowrap;
+
   td, th {
     padding: 10px 0;
     text-align: left;
@@ -42,7 +53,11 @@
     font-weight: bold;
     font-size: 12px;
     color: @muted-color;
-    width: 140px;
+    min-width: 140px;
+
+    &:not(:hover) .PermissionGrid-removeScope {
+      display: none;
+    }
   }
   tbody {
     th {
@@ -62,12 +77,28 @@
     }
     .Button {
       text-decoration: none;
-    }
-    td:not(:hover) {
-      .Select-caret, .GroupsButton-caret {
-        display: none;
+
+      .Badge {
+        margin: -3px 0;
+        vertical-align: 0;
       }
     }
+    td:not(:hover) .Select-caret,
+    td:not(:hover) .Dropdown:not(.open) .Button-caret {
+      display: none;
+    }
+    .open .Dropdown-toggle {
+      .box-shadow(none);
+    }
+  }
+}
+.PermissionGrid-removeScope {
+  margin: -1px 0;
+}
+.PermissionDropdown {
+  .Badge {
+    margin: -3px 3px -3px 0;
+    vertical-align: 1px;
   }
 }
 .PermissionGrid-section {

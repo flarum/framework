@@ -62,7 +62,7 @@ export default class SessionDropdown extends Dropdown {
       50
     );
 
-    if (user.groups().some(group => Number(group.id()) === Group.ADMINISTRATOR_ID)) {
+    if (user.groups().some(group => group.id() === Group.ADMINISTRATOR_ID)) {
       items.add('administration',
         LinkButton.component({
           icon: 'wrench',

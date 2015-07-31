@@ -189,9 +189,10 @@ export default class Model {
       method: 'DELETE',
       url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
       data
-    }).then(
-      () => this.exists = false
-    );
+    }).then(() => {
+      this.exists = false;
+      this.store.remove(this);
+    });
   }
 
   /**
@@ -214,7 +215,7 @@ export default class Model {
    */
   static attribute(name, transform) {
     return function() {
-      const value = this.data.attributes[name];
+      const value = this.data.attributes && this.data.attributes[name];
 
       return transform ? transform(value) : value;
     };

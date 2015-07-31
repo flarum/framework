@@ -10,9 +10,10 @@ import listItems from 'flarum/helpers/listItems';
  *
  * - `buttonClassName` A class name to apply to the dropdown toggle button.
  * - `menuClassName` A class name to apply to the dropdown menu.
- * - `icon` The name of an icon to show in the dropdown toggle button. Defaults
- *   to 'ellipsis-v'.
+ * - `icon` The name of an icon to show in the dropdown toggle button.
+ * - `caretIcon` The name of an icon to show on the right of the button.
  * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
+ * - `onhide`
  *
  * The children will be displayed as a list inside of the dropdown menu.
  */
@@ -23,8 +24,8 @@ export default class Dropdown extends Component {
     props.className = props.className || '';
     props.buttonClassName = props.buttonClassName || '';
     props.contentClassName = props.contentClassName || '';
-    props.icon = props.icon || 'ellipsis-v';
     props.label = props.label || app.trans('core.controls');
+    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
   }
 
   view() {
@@ -38,6 +39,29 @@ export default class Dropdown extends Component {
         </ul>
       </div>
     );
+  }
+
+  config(isInitialized) {
+    if (isInitialized) return;
+
+    // When opening the dropdown menu, work out if the menu goes beyond the
+    // bottom of the viewport. If it does, we will apply class to make it show
+    // above the toggle button instead of below it.
+    this.$().on('shown.bs.dropdown', () => {
+      const $menu = this.$('.Dropdown-menu').removeClass('Dropdown-menu--top');
+
+      $menu.toggleClass(
+        'Dropdown-menu--top',
+        $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height()
+      );
+    });
+
+    this.$().on('hide.bs.dropdown', () => {
+      if (this.props.onhide) {
+        this.props.onhide();
+        m.redraw();
+      }
+    });
   }
 
   /**
@@ -65,9 +89,9 @@ export default class Dropdown extends Component {
    */
   getButtonContent() {
     return [
-      icon(this.props.icon, {className: 'Button-icon'}),
+      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
       <span className="Button-label">{this.props.label}</span>, ' ',
-      icon('caret-down', {className: 'Button-caret'})
+      this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
     ];
   }
 }

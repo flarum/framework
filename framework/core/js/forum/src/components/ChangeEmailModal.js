@@ -37,9 +37,9 @@ export default class ChangeEmailModal extends Modal {
 
       return (
         <div className="Modal-body">
-          <div class="Form Form--centered">
-            <p class="helpText">{m.trust(app.trans('core.confirmation_email_sent', {email: <strong>{this.email()}</strong>}))}</p>
-            <div class="Form-group">
+          <div className="Form Form--centered">
+            <p className="helpText">{m.trust(app.trans('core.confirmation_email_sent', {email: <strong>{this.email()}</strong>}))}</p>
+            <div className="Form-group">
               <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
                 {app.trans('core.go_to', {location: emailProviderName})}
               </a>
@@ -51,15 +51,15 @@ export default class ChangeEmailModal extends Modal {
 
     return (
       <div className="Modal-body">
-        <div class="Form Form--centered">
-          <div class="Form-group">
+        <div className="Form Form--centered">
+          <div className="Form-group">
             <input type="email" name="email" className="FormControl"
               placeholder={app.session.user.email()}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading}/>
           </div>
-          <div class="Form-group">
+          <div className="Form-group">
             <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>
               {app.trans('core.save_changes')}
             </button>

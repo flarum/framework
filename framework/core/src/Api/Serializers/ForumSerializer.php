@@ -32,6 +32,7 @@ class ForumSerializer extends Serializer
         ];
 
         if ($this->actor->isAdmin()) {
+            $attributes['adminUrl'] = Core::config('admin_url');
         }
 
         return $attributes;
