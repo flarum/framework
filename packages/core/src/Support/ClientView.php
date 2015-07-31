@@ -27,13 +27,6 @@ class ClientView implements Renderable
     protected $title;
 
     /**
-     * An API response that should be preloaded into the page.
-     *
-     * @var null|array|object
-     */
-    protected $document;
-
-    /**
      * The SEO content of the page, displayed in <noscript> tags.
      *
      * @var string
@@ -46,6 +39,20 @@ class ClientView implements Renderable
      * @var string
      */
     protected $layout;
+
+    /**
+     * An API response that should be preloaded into the page.
+     *
+     * @var null|array|object
+     */
+    protected $document;
+
+    /**
+     * Other variables to preload into the page.
+     *
+     * @var array
+     */
+    protected $variables = [];
 
     /**
      * An array of JS modules to import before booting the app.
@@ -123,17 +130,6 @@ class ClientView implements Renderable
     }
 
     /**
-     * Set an API response to be preloaded into the page. This should be a
-     * JSON-API document.
-     *
-     * @param null|array|object $document
-     */
-    public function setDocument($document)
-    {
-        $this->document = $document;
-    }
-
-    /**
      * Set the SEO content of the page, to be displayed in <noscript> tags.
      *
      * @param null|string $content
@@ -174,6 +170,28 @@ class ClientView implements Renderable
     }
 
     /**
+     * Set an API response to be preloaded into the page. This should be a
+     * JSON-API document.
+     *
+     * @param null|array|object $document
+     */
+    public function setDocument($document)
+    {
+        $this->document = $document;
+    }
+
+    /**
+     * Set a variable to be preloaded into the app.
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setVariable($name, $value)
+    {
+        $this->variables[$name] = $value;
+    }
+
+    /**
      * Add a JavaScript module to be imported before the app is booted.
      *
      * @param string $string
@@ -210,10 +228,16 @@ class ClientView implements Renderable
             $data = array_merge($data, $this->getDataFromDocument($user));
         }
 
-        $view->data = $data;
-        $view->session = $this->getSession();
+        $view->app = [
+            'preload' => [
+                'data' => $data,
+                'session' => $this->getSession(),
+                'document' => $this->document
+            ]
+        ] + $this->variables;
+        $view->bootstrappers = $this->bootstrappers;
+
         $view->title = ($this->title ? $this->title . ' - ' : '') . $forum->data->attributes->title;
-        $view->document = $this->document;
         $view->forum = $forum->data;
         $view->layout = app('view')->file($this->layout, ['forum' => $forum->data]);
         $view->content = $this->content;
@@ -223,7 +247,6 @@ class ClientView implements Renderable
 
         $view->head = implode("\n", $this->headStrings);
         $view->foot = implode("\n", $this->footStrings);
-        $view->bootstrappers = $this->bootstrappers;
 
         return $view->render();
     }
