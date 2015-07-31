@@ -23,6 +23,7 @@ class StartDiscussionHandler
 
     /**
      * @param Dispatcher $bus
+     * @param Forum $forum
      */
     public function __construct(Dispatcher $bus, Forum $forum)
     {
