@@ -49,7 +49,8 @@ export default class Post extends Component {
                 children: controls,
                 className: 'Post-controls',
                 buttonClassName: 'Button Button--icon Button--flat',
-                menuClassName: 'Dropdown-menu--right'
+                menuClassName: 'Dropdown-menu--right',
+                icon: 'ellipsis-v'
               }) : ''}
 
               {this.content()}

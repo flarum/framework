@@ -9,7 +9,7 @@
   display: none;
   min-width: 160px;
   padding: 8px 0;
-  margin: 7px 0 0;
+  margin: 7px 0;
   background: @body-bg;
   border-radius: @border-radius;
   .box-shadow(0 2px 6px @shadow-color);
@@ -42,8 +42,10 @@
       &.hasIcon {
         padding-left: 40px;
       }
-      &:hover, &:focus {
+      &:hover {
         background: @control-bg;
+      }
+      &:focus {
         outline: none;
       }
 
@@ -52,6 +54,11 @@
         margin-left: -25px;
         margin-top: 2px;
       }
+
+      &.disabled {
+        opacity: 0.5;
+        background: none;
+      }
     }
     &.active {
       > a, > button {
@@ -59,6 +66,10 @@
       }
     }
   }
+}
+.Dropdown-menu--top {
+  top: auto;
+  bottom: 100%;
 }
 .Dropdown-menu--right {
   left: auto;

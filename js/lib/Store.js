@@ -140,6 +140,15 @@ export default class Store {
   }
 
   /**
+   * Remove the given model from the store.
+   *
+   * @param {Model} model
+   */
+  remove(model) {
+    delete this.data[model.data.type][model.id()];
+  }
+
+  /**
    * Create a new record of the given type.
    *
    * @param {String} type The resource type
