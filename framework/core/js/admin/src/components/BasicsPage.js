@@ -2,6 +2,8 @@ import Component from 'flarum/Component';
 import FieldSet from 'flarum/components/FieldSet';
 import Select from 'flarum/components/Select';
 import Button from 'flarum/components/Button';
+import Alert from 'flarum/components/Alert';
+import saveConfig from 'flarum/utils/saveConfig';
 
 export default class BasicsPage extends Component {
   constructor(...args) {
@@ -19,11 +21,11 @@ export default class BasicsPage extends Component {
     ];
     this.values = {};
 
-    const config = app.forum.attribute('config');
+    const config = app.config;
     this.fields.forEach(key => this.values[key] = m.prop(config[key]));
 
     this.localeOptions = {};
-    const locales = app.forum.attribute('availableLocales');
+    const locales = app.locales;
     for (const i in locales) {
       this.localeOptions[i] = `${locales[i]} (${i})`;
     }
@@ -113,7 +115,7 @@ export default class BasicsPage extends Component {
   }
 
   changed() {
-    const config = app.forum.attribute('config');
+    const config = app.config;
 
     return this.fields.some(key => this.values[key]() !== config[key]);
   }
@@ -124,14 +126,19 @@ export default class BasicsPage extends Component {
     if (this.loading) return;
 
     this.loading = true;
+    app.alerts.dismiss(this.successAlert);
 
     const config = {};
 
     this.fields.forEach(key => config[key] = this.values[key]());
 
-    app.forum.save({config}).finally(() => {
-      this.loading = false;
-      m.redraw();
-    });
+    saveConfig(config)
+      .then(() => {
+        app.alerts.show(this.successAlert = new Alert({type: 'success', children: 'Your changes were saved.'}));
+      })
+      .finally(() => {
+        this.loading = false;
+        m.redraw();
+      });
   }
 }

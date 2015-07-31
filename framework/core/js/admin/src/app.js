@@ -8,8 +8,8 @@ const app = new App();
 
 app.initializers.add('store', store);
 app.initializers.add('routes', routes);
-app.initializers.add('preload', preload, -100);
 
+app.initializers.add('preload', preload, -100);
 app.initializers.add('boot', boot, -100);
 
 export default app;

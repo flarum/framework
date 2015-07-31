@@ -1,7 +1,6 @@
 <?php namespace Flarum\Api\Serializers;
 
 use Flarum\Core;
-use Flarum\Core\Groups\Permission;
 
 class ForumSerializer extends Serializer
 {
@@ -33,9 +32,6 @@ class ForumSerializer extends Serializer
         ];
 
         if ($this->actor->isAdmin()) {
-            $attributes['config'] = app('Flarum\Core\Settings\SettingsRepository')->all();
-            $attributes['availableLocales'] = app('flarum.localeManager')->getLocales();
-            $attributes['permissions'] = Permission::map();
         }
 
         return $attributes;

@@ -28,11 +28,8 @@
     <script>
       try {
         var app = System.get('flarum/app').default;
-        app.preload = {
-          data: {!! json_encode($data) !!},
-          document: {!! json_encode($document) !!},
-          session: {!! json_encode($session) !!}
-        };
+
+        babelHelpers._extends(app, {!! json_encode($app) !!});
 
         @foreach ($bootstrappers as $bootstrapper)
           System.get('{{ $bootstrapper }}');
