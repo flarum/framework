@@ -52,47 +52,6 @@ abstract class Model extends Eloquent
     }
 
     /**
-     * Check whether or not a user has permission to perform an action,
-     * according to the collected conditions.
-     *
-     * @param User $actor
-     * @param string $action
-     * @return bool
-     */
-    public function can(User $actor, $action)
-    {
-        $allowed = static::$dispatcher->until(new ModelAllow($this, $actor, $action));
-
-        return $allowed ?: false;
-    }
-
-    /**
-     * Assert that the user has a certain permission for this model, throwing
-     * an exception if they don't.
-     *
-     * @param User $actor
-     * @param string $action
-     * @throws PermissionDeniedException
-     */
-    public function assertCan(User $actor, $action)
-    {
-        if (! $this->can($actor, $action)) {
-            throw new PermissionDeniedException;
-        }
-    }
-
-    /**
-     * Scope a query to only include records that are visible to a user.
-     *
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function scopeWhereVisibleTo(Builder $query, User $actor)
-    {
-        event(new ScopeModelVisibility($this, $query, $actor));
-    }
-
-    /**
      * Get an attribute from the model. If nothing is found, attempt to load
      * a custom relation method with this key.
      *

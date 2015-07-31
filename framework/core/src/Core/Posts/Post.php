@@ -4,6 +4,7 @@ use DomainException;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Core\Model;
 use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
 use Flarum\Core\Support\ValidatesBeforeSave;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +16,7 @@ class Post extends Model
 {
     use EventGenerator;
     use Locked;
+    use VisibleScope;
     use ValidatesBeforeSave;
 
     /**
