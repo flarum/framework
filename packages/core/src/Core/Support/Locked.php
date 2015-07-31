@@ -11,5 +11,33 @@ use Illuminate\Contracts\Events\Dispatcher;
  */
 trait Locked
 {
+    /**
+     * Check whether or not a user has permission to perform an action,
+     * according to the collected conditions.
+     *
+     * @param User $actor
+     * @param string $action
+     * @return bool
+     */
+    public function can(User $actor, $action)
+    {
+        $allowed = static::$dispatcher->until(new ModelAllow($this, $actor, $action));
 
+        return $allowed ?: false;
+    }
+
+    /**
+     * Assert that the user has a certain permission for this model, throwing
+     * an exception if they don't.
+     *
+     * @param User $actor
+     * @param string $action
+     * @throws PermissionDeniedException
+     */
+    public function assertCan(User $actor, $action)
+    {
+        if (! $this->can($actor, $action)) {
+            throw new PermissionDeniedException;
+        }
+    }
 }

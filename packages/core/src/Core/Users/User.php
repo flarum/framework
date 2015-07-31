@@ -29,6 +29,7 @@ class User extends Model
     use EventGenerator;
     use Locked;
     use ValidatesBeforeSave;
+    use VisibleScope;
 
     /**
      * {@inheritdoc}
