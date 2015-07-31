@@ -13,6 +13,11 @@ class PasswordToken extends Model
     protected $table = 'password_tokens';
 
     /**
+     * {@inheritdoc}
+     */
+    public $dates = ['created_at'];
+
+    /**
      * Use a custom primary key for this model.
      *
      * @var bool
