@@ -60,8 +60,8 @@ export default class TagDiscussionModal extends Modal {
       // Look through the list of selected tags for any tags which have the tag
       // we just removed as their parent. We'll need to remove them too.
       this.selected
-        .filter(selected => selected.parent() && selected.parent() === tag)
-        .forEach(this.removeTag);
+        .filter(selected => selected.parent() === tag)
+        .forEach(this.removeTag.bind(this));
     }
   }
 

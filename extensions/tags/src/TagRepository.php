@@ -1,11 +1,28 @@
 <?php namespace Flarum\Tags;
 
 use Illuminate\Database\Eloquent\Builder;
-use Flarum\Core\Models\User;
+use Flarum\Core\Users\User;
 use Flarum\Tags\Tag;
 
 class TagRepository
 {
+    /**
+     * Find a tag by ID, optionally making sure it is visible to a certain
+     * user, or throw an exception.
+     *
+     * @param int $id
+     * @param User $actor
+     * @return Tag
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function findOrFail($id, User $actor = null)
+    {
+        $query = Tag::where('id', $id);
+
+        return $this->scopeVisibleTo($query, $actor)->firstOrFail();
+    }
+
     /**
      * Find all tags, optionally making sure they are visible to a
      * certain user.
@@ -13,7 +30,7 @@ class TagRepository
      * @param User|null $user
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function find(User $user = null)
+    public function all(User $user = null)
     {
         $query = Tag::newQuery();
 

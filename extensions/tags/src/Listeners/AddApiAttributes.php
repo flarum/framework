@@ -4,6 +4,7 @@ use Flarum\Events\ApiRelationship;
 use Flarum\Events\WillSerializeData;
 use Flarum\Events\BuildApiAction;
 use Flarum\Events\ApiAttributes;
+use Flarum\Events\RegisterApiRoutes;
 use Flarum\Api\Actions\Forum;
 use Flarum\Api\Actions\Discussions;
 use Flarum\Api\Serializers\ForumSerializer;
@@ -18,18 +19,19 @@ class AddApiAttributes
         $events->listen(WillSerializeData::class, [$this, 'loadTagsRelationship']);
         $events->listen(BuildApiAction::class, [$this, 'includeTagsRelationship']);
         $events->listen(ApiAttributes::class, [$this, 'addAttributes']);
+        $events->listen(RegisterApiRoutes::class, [$this, 'addRoutes']);
     }
 
     public function addTagsRelationship(ApiRelationship $event)
     {
         if ($event->serializer instanceof ForumSerializer &&
             $event->relationship === 'tags') {
-            return $event->serializer->hasMany('Flarum\Tags\TagSerializer', 'tags');
+            return $event->serializer->hasMany('Flarum\Tags\Api\TagSerializer', 'tags');
         }
 
         if ($event->serializer instanceof DiscussionSerializer &&
             $event->relationship === 'tags') {
-            return $event->serializer->hasMany('Flarum\Tags\TagSerializer', 'tags');
+            return $event->serializer->hasMany('Flarum\Tags\Api\TagSerializer', 'tags');
         }
     }
 
@@ -68,5 +70,10 @@ class AddApiAttributes
         if ($event->serializer instanceof DiscussionSerializer) {
             $event->attributes['canTag'] = $event->model->can($event->actor, 'tag');
         }
+    }
+
+    public function addRoutes(RegisterApiRoutes $event)
+    {
+        $event->patch('/tags/{id}', 'tags.update', 'Flarum\Tags\Api\UpdateAction');
     }
 }

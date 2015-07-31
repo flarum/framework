@@ -41,6 +41,13 @@ class AddClientAssets
             'tags.tag_cloud_title',
             'tags.deleted'
         ]);
+
+        $event->adminAssets([
+            __DIR__.'/../../js/admin/dist/extension.js',
+            __DIR__.'/../../less/admin/extension.less'
+        ]);
+
+        $event->adminBootstrapper('tags/main');
     }
 
     public function addRoutes(RegisterForumRoutes $event)
