@@ -1,16 +1,38 @@
 <?php namespace Flarum\Core\Groups;
 
 use Flarum\Core\Model;
+use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\VisibleScope;
+use Flarum\Core\Support\EventGenerator;
+use Flarum\Core\Support\ValidatesBeforeSave;
+use Flarum\Events\GroupWasDeleted;
+use Flarum\Events\GroupWasCreated;
+use Flarum\Events\GroupWasRenamed;
 
 /**
  * @todo document database columns with @property
  */
 class Group extends Model
 {
+    use ValidatesBeforeSave;
+    use EventGenerator;
+    use Locked;
+    use VisibleScope;
+
     /**
      * {@inheritdoc}
      */
     protected $table = 'groups';
+
+    /**
+     * The validation rules for this model.
+     *
+     * @var array
+     */
+    protected $rules = [
+        'name_singular' => 'required',
+        'name_plural'   => 'required'
+    ];
 
     /**
      * The ID of the administrator group.
@@ -28,6 +50,60 @@ class Group extends Model
     const MEMBER_ID = 3;
 
     /**
+     * Boot the model.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($group) {
+            $group->raise(new GroupWasDeleted($group));
+
+            $group->permissions()->delete();
+        });
+    }
+
+    /**
+     * Create a new group.
+     *
+     * @param string $nameSingular
+     * @param string $namePlural
+     * @param string $color
+     * @param string $icon
+     * @return static
+     */
+    public static function build($nameSingular, $namePlural, $color, $icon)
+    {
+        $group = new static;
+
+        $group->name_singular = $nameSingular;
+        $group->name_plural   = $namePlural;
+        $group->color         = $color;
+        $group->icon          = $icon;
+
+        $group->raise(new GroupWasCreated($group));
+
+        return $group;
+    }
+
+    /**
+     * Rename the group.
+     *
+     * @param string $nameSingular
+     * @param string $namePlural
+     * @return $this
+     */
+    public function rename($nameSingular, $namePlural)
+    {
+        $this->name_singular = $nameSingular;
+        $this->name_plural   = $namePlural;
+
+        return $this;
+    }
+
+    /**
      * Define the relationship with the group's users.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -40,7 +116,7 @@ class Group extends Model
     /**
      * Define the relationship with the group's permissions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function permissions()
     {
