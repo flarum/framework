@@ -13,6 +13,11 @@ class EmailToken extends Model
     protected $table = 'email_tokens';
 
     /**
+     * {@inheritdoc}
+     */
+    protected $dates = ['created_at'];
+
+    /**
      * Use a custom primary key for this model.
      *
      * @var bool
