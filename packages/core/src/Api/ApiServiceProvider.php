@@ -299,13 +299,6 @@ class ApiServiceProvider extends ServiceProvider
             $this->action('Flarum\Api\Actions\Groups\CreateAction')
         );
 
-        // Show a single group
-        $routes->get(
-            '/groups/{id}',
-            'flarum.api.groups.show',
-            $this->action('Flarum\Api\Actions\Groups\ShowAction')
-        );
-
         // Edit a group
         $routes->patch(
             '/groups/{id}',

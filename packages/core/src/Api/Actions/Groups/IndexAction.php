@@ -13,36 +13,6 @@ class IndexAction extends SerializeCollectionAction
     public $serializer = 'Flarum\Api\Serializers\GroupSerializer';
 
     /**
-     * @inheritdoc
-     */
-    public $include = [];
-
-    /**
-     * @inheritdoc
-     */
-    public $link = [];
-
-    /**
-     * @inheritdoc
-     */
-    public $limitMax = 50;
-
-    /**
-     * @inheritdoc
-     */
-    public $limit = 20;
-
-    /**
-     * @inheritdoc
-     */
-    public $sortFields = [];
-
-    /**
-     * @inheritdoc
-     */
-    public $sort;
-
-    /**
      * Get the groups, ready to be serialized and assigned to the document
      * response.
      *

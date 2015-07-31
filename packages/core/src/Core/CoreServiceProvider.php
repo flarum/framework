@@ -39,11 +39,12 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->app->singleton('flarum.forum', 'Flarum\Core\Forum');
 
-        // TODO: probably use Illuminate's AggregateServiceProvider
+        // FIXME: probably use Illuminate's AggregateServiceProvider
         // functionality, because it includes the 'provides' stuff.
         $this->app->register('Flarum\Core\Activity\ActivityServiceProvider');
         $this->app->register('Flarum\Core\Discussions\DiscussionsServiceProvider');
         $this->app->register('Flarum\Core\Formatter\FormatterServiceProvider');
+        $this->app->register('Flarum\Core\Groups\GroupsServiceProvider');
         $this->app->register('Flarum\Core\Notifications\NotificationsServiceProvider');
         $this->app->register('Flarum\Core\Posts\PostsServiceProvider');
         $this->app->register('Flarum\Core\Users\UsersServiceProvider');
