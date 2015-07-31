@@ -5,7 +5,6 @@ use Flarum\Events\ModelAllow;
 use Flarum\Events\RegisterUserGambits;
 use Flarum\Events\RegisterUserPreferences;
 use Flarum\Support\ServiceProvider;
-use Flarum\Extend;
 use Illuminate\Contracts\Container\Container;
 
 class UsersServiceProvider extends ServiceProvider
