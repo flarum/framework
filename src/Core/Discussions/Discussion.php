@@ -22,6 +22,7 @@ class Discussion extends Model
 {
     use EventGenerator;
     use Locked;
+    use VisibleScope;
     use ValidatesBeforeSave;
 
     /**
