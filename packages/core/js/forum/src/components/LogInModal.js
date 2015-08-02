@@ -2,6 +2,7 @@ import Modal from 'flarum/components/Modal';
 import ForgotPasswordModal from 'flarum/components/ForgotPasswordModal';
 import SignUpModal from 'flarum/components/SignUpModal';
 import Alert from 'flarum/components/Alert';
+import Button from 'flarum/components/Button';
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.
@@ -57,11 +58,12 @@ export default class LogInModal extends Modal {
           </div>
 
           <div className="Form-group">
-            <button className="Button Button--primary Button--block"
-              type="submit"
-              disabled={this.loading}>
-              Log In
-            </button>
+            {Button.component({
+              className: 'Button Button--primary Button--block',
+              type: 'submit',
+              loading: this.loading,
+              children: app.trans('core.log_in')
+            })}
           </div>
         </div>
       </div>,
