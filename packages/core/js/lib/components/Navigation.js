@@ -1,5 +1,6 @@
 import Component from 'flarum/Component';
 import Button from 'flarum/components/Button';
+import LinkButton from 'flarum/components/LinkButton';
 
 /**
  * The `Navigation` component displays a set of navigation buttons. Typically
@@ -47,10 +48,16 @@ export default class Navigation extends Component {
   getBackButton() {
     const {history} = app;
 
-    return Button.component({
+    return LinkButton.component({
       className: 'Button Button--icon Navigation-back',
-      onclick: history.back.bind(history),
-      icon: 'chevron-left'
+      href: history.backUrl(),
+      icon: 'chevron-left',
+      config: () => {},
+      onclick: e => {
+        if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
+        e.preventDefault();
+        history.back();
+      }
     });
   }
 
