@@ -37,7 +37,6 @@ export default class CommentPost extends Post {
     this.postUser = new PostUser({post: this.props.post});
     this.subtree.check(
       () => this.postUser.cardVisible,
-      () => this.props.post.editedContent,
       () => this.isEditing()
     );
   }
