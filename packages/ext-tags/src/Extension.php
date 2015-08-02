@@ -7,6 +7,8 @@ class Extension extends BaseExtension
 {
     public function boot(Dispatcher $events)
     {
+        Tag::setValidator($this->app->make('validator'));
+
         $events->subscribe('Flarum\Tags\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Tags\Listeners\AddModelRelationship');
         $events->subscribe('Flarum\Tags\Listeners\ConfigureDiscussionPermissions');

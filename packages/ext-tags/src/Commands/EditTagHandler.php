@@ -34,6 +34,22 @@ class EditTagHandler
 
         $attributes = array_get($data, 'attributes', []);
 
+        if (isset($attributes['name'])) {
+            $tag->name = $attributes['name'];
+        }
+
+        if (isset($attributes['slug'])) {
+            $tag->slug = $attributes['slug'];
+        }
+
+        if (isset($attributes['description'])) {
+            $tag->description = $attributes['description'];
+        }
+
+        if (isset($attributes['color'])) {
+            $tag->color = $attributes['color'];
+        }
+
         if (isset($attributes['isRestricted'])) {
             $tag->is_restricted = (bool) $attributes['isRestricted'];
         }

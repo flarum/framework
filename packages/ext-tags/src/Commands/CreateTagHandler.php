@@ -1,0 +1,44 @@
+<?php namespace Flarum\Tags\Commands;
+
+use Flarum\Tags\Tag;
+use Flarum\Core\Forum;
+use Flarum\Events\TagWillBeSaved;
+
+class CreateTagHandler
+{
+    /**
+     * @var Forum
+     */
+    protected $forum;
+
+    /**
+     * @param Forum $forum
+     */
+    public function __construct(Forum $forum)
+    {
+        $this->forum = $forum;
+    }
+
+    /**
+     * @param CreateTag $command
+     * @return Tag
+     */
+    public function handle(CreateTag $command)
+    {
+        $actor = $command->actor;
+        $data = $command->data;
+
+        $this->forum->assertCan($actor, 'createTag');
+
+        $tag = Tag::build(
+            array_get($data, 'attributes.name'),
+            array_get($data, 'attributes.slug'),
+            array_get($data, 'attributes.description'),
+            array_get($data, 'attributes.color')
+        );
+
+        $tag->save();
+
+        return $tag;
+    }
+}
