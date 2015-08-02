@@ -31,7 +31,10 @@ export default function boot(app) {
   app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
   app.history = {
     canGoBack: () => true,
-    back: () => window.location = '/'
+    backUrl: () => app.forum.attribute('baseUrl'),
+    back: function() {
+      window.location = this.backUrl();
+    }
   };
 
   m.route.mode = 'hash';

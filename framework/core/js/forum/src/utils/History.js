@@ -86,6 +86,17 @@ export default class History {
   }
 
   /**
+   * Get the URL of the previous page.
+   *
+   * @public
+   */
+  backUrl() {
+    const secondTop = this.stack[this.stack.length - 2];
+
+    return secondTop.url;
+  }
+
+  /**
    * Go to the first route in the history stack.
    *
    * @public
