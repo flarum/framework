@@ -24,9 +24,19 @@ class RegisterApiRoutes
         $this->route('get', $url, $name, $action);
     }
 
+    public function post($url, $name, $action)
+    {
+        $this->route('post', $url, $name, $action);
+    }
+
     public function patch($url, $name, $action)
     {
         $this->route('patch', $url, $name, $action);
+    }
+
+    public function delete($url, $name, $action)
+    {
+        $this->route('delete', $url, $name, $action);
     }
 
     protected function route($method, $url, $name, $action)
