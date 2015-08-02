@@ -1,5 +1,4 @@
 import Component from 'flarum/Component';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 
@@ -19,13 +18,6 @@ export default class Modal extends Component {
      * @type {Alert}
      */
     this.alert = null;
-
-    /**
-     * Whether or not the form is processing.
-     *
-     * @type {Boolean}
-     */
-    this.loading = false;
   }
 
   view() {
@@ -54,10 +46,6 @@ export default class Modal extends Component {
             {this.content()}
           </form>
         </div>
-
-        {LoadingIndicator.component({
-          className: 'Modal-loading ' + (this.loading ? 'active' : '')
-        })}
       </div>
     );
   }

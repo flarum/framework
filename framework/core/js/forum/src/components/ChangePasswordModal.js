@@ -1,4 +1,5 @@
 import Modal from 'flarum/components/Modal';
+import Button from 'flarum/components/Button';
 
 /**
  * The `ChangePasswordModal` component shows a modal dialog which allows the
@@ -19,9 +20,12 @@ export default class ChangePasswordModal extends Modal {
         <div className="Form Form--centered">
           <p className="helpText">{app.trans('core.change_password_help')}</p>
           <div className="Form-group">
-            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>
-              {app.trans('core.send_password_reset_email')}
-            </button>
+            {Button.component({
+              className: 'Button Button--primary Button--block',
+              type: 'submit',
+              loading: this.loading,
+              children: app.trans('core.send_password_reset_email')
+            })}
           </div>
         </div>
       </div>

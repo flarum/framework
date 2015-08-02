@@ -1,4 +1,5 @@
 import Modal from 'flarum/components/Modal';
+import Button from 'flarum/components/Button';
 
 /**
  * The `DeleteAccountModal` component shows a modal dialog which allows the user
@@ -44,11 +45,13 @@ export default class DeleteAccountModal extends Modal {
               oninput={m.withAttr('value', this.confirmation)}/>
           </div>
           <div className="Form-group">
-            <button type="submit"
-              className="Button Button--primary Button--block"
-              disabled={this.loading || this.confirmation() !== 'DELETE'}>
-              Delete Account
-            </button>
+            {Button.component({
+              className: 'Button Button--primary Button--block',
+              type: 'submit',
+              loading: this.loading,
+              disabled: this.confirmation() !== 'DELETE',
+              children: app.trans('core.delete_account')
+            })}
           </div>
         </div>
       </div>
