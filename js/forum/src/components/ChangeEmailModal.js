@@ -1,4 +1,5 @@
 import Modal from 'flarum/components/Modal';
+import Button from 'flarum/components/Button';
 
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
@@ -60,9 +61,12 @@ export default class ChangeEmailModal extends Modal {
               disabled={this.loading}/>
           </div>
           <div className="Form-group">
-            <button type="submit" className="Button Button--primary Button--block" disabled={this.loading}>
-              {app.trans('core.save_changes')}
-            </button>
+            {Button.component({
+              className: 'Button Button--primary Button--block',
+              type: 'submit',
+              loading: this.loading,
+              children: app.trans('core.save_changes')
+            })}
           </div>
         </div>
       </div>

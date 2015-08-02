@@ -1,6 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import LogInModal from 'flarum/components/LogInModal';
 import avatar from 'flarum/helpers/avatar';
+import Button from 'flarum/components/Button';
 
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.
@@ -88,11 +89,12 @@ export default class SignUpModal extends Modal {
         </div>
 
         <div className="Form-group">
-          <button className="Button Button--primary Button--block"
-            type="submit"
-            disabled={this.loading}>
-            {app.trans('core.sign_up')}
-          </button>
+          {Button.component({
+            className: 'Button Button--primary Button--block',
+            type: 'submit',
+            loading: this.loading,
+            children: app.trans('core.sign_up')
+          })}
         </div>
       </div>
     )];

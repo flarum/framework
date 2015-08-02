@@ -63,7 +63,7 @@ export default class EditGroupModal extends Modal {
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary EditGroupModal-save',
-              loading: this._loading,
+              loading: this.loading,
               children: 'Save Changes'
             })}
             {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
@@ -80,7 +80,7 @@ export default class EditGroupModal extends Modal {
   onsubmit(e) {
     e.preventDefault();
 
-    this._loading = true;
+    this.loading = true;
 
     this.group.save({
       nameSingular: this.nameSingular(),
@@ -90,7 +90,7 @@ export default class EditGroupModal extends Modal {
     }).then(
       () => this.hide(),
       () => {
-        this._loading = false;
+        this.loading = false;
         m.redraw();
       }
     );
