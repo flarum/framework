@@ -74,6 +74,9 @@ class AddApiAttributes
 
     public function addRoutes(RegisterApiRoutes $event)
     {
+        $event->post('/tags', 'tags.create', 'Flarum\Tags\Api\CreateAction');
+        $event->post('/tags/order', 'tags.order', 'Flarum\Tags\Api\OrderAction');
         $event->patch('/tags/{id}', 'tags.update', 'Flarum\Tags\Api\UpdateAction');
+        $event->delete('/tags/{id}', 'tags.delete', 'Flarum\Tags\Api\DeleteAction');
     }
 }

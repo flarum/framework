@@ -2,17 +2,62 @@
 
 use Flarum\Core\Model;
 use Flarum\Core\Discussions\Discussion;
+use Flarum\Core\Groups\Permission;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\Locked;
+use Flarum\Core\Support\ValidatesBeforeSave;
 
 class Tag extends Model
 {
+    use ValidatesBeforeSave;
     use VisibleScope;
     use Locked;
 
     protected $table = 'tags';
 
     protected $dates = ['last_time'];
+
+    protected $rules = [
+        'name' => 'required',
+        'slug' => 'required'
+    ];
+
+    /**
+     * Boot the model.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($tag) {
+            $tag->discussions()->detach();
+
+            Permission::where('permission', 'like', "tag{$tag->id}.%")->delete();
+        });
+    }
+
+    /**
+     * Create a new tag.
+     *
+     * @param string $name
+     * @param string $slug
+     * @param string $description
+     * @param string $color
+     * @return static
+     */
+    public static function build($name, $slug, $description, $color)
+    {
+        $tag = new static;
+
+        $tag->name        = $name;
+        $tag->slug        = $slug;
+        $tag->description = $description;
+        $tag->color       = $color;
+
+        return $tag;
+    }
 
     public function parent()
     {

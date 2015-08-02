@@ -46,6 +46,7 @@ export default class TagsPage extends Component {
                           <div className="TagTile-children">
                             {children.map(child =>
                               <a href={app.route.tag(child)} config={function(element, isInitialized) {
+                                if (isInitialized) return;
                                 $(element).on('click', e => e.stopPropagation());
                                 m.route.apply(this, arguments);
                               }}>
