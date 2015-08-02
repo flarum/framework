@@ -47,7 +47,7 @@ class Permission extends Model
         $permissions = [];
 
         foreach (static::get() as $permission) {
-            $permissions[$permission->permission][] = $permission->group_id;
+            $permissions[$permission->permission][] = (string) $permission->group_id;
         }
 
         return $permissions;
