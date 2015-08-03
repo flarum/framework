@@ -1,0 +1,68 @@
+.ExtensionsPage-header {
+  padding: 20px 0;
+  background: @control-bg;
+}
+
+.ExtensionsPage-list {
+  padding: 30px 0;
+}
+
+.ExtensionList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  .clearfix();
+
+  > li {
+    float: left;
+    width: 350px;
+    height: 80px;
+  }
+}
+.ExtensionListItem.disabled .ExtensionListItem-content {
+  opacity: 0.5;
+  color: @muted-color;
+}
+.ExtensionListItem-controls {
+  float: right;
+  margin-top: -5px;
+  visibility: hidden;
+  z-index: 1;
+
+  .ExtensionListItem:hover &, &.open {
+    visibility: visible;
+  }
+}
+.ExtensionListItem {
+  padding-left: 42px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
+.ExtensionListItem-icon {
+  float: left;
+  margin-left: -42px;
+}
+.ExtensionListItem-title {
+  font-size: 14px;
+  margin: 3px 0 5px;
+
+  small {
+    color: @muted-more-color;
+    font-size: 11px;
+    font-weight: normal;
+    margin-left: 5px;
+  }
+}
+.ExtensionListItem-description {
+  font-size: 12px;
+  color: @muted-color;
+}
+
+.ExtensionIcon {
+  width: 28px;
+  height: 28px;
+  background: @control-bg;
+  color: @control-color;
+  border-radius: 6px;
+  display: inline-block;
+}
