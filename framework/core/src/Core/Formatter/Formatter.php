@@ -31,6 +31,12 @@ class Formatter
         return $configurator;
     }
 
+    public function flush()
+    {
+        $this->cache->forget('flarum.formatter.parser');
+        $this->cache->forget('flarum.formatter.renderer');
+    }
+
     protected function getComponent($key)
     {
         $cacheKey = 'flarum.formatter.' . $key;

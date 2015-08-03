@@ -24,7 +24,7 @@
   }
 
   > li {
-    > a, > button {
+    > a, > button, > span {
       padding: 8px 15px;
       display: block;
       width: 100%;
@@ -42,12 +42,6 @@
       &.hasIcon {
         padding-left: 40px;
       }
-      &:hover {
-        background: @control-bg;
-      }
-      &:focus {
-        outline: none;
-      }
 
       .Button-icon {
         float: left;
@@ -58,6 +52,14 @@
       &.disabled {
         opacity: 0.5;
         background: none;
+      }
+    }
+    > a, > button {
+      &:hover {
+        background: @control-bg;
+      }
+      &:focus {
+        outline: none;
       }
     }
     &.active {
