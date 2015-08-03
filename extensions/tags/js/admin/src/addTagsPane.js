@@ -7,6 +7,8 @@ import TagsPage from 'tags/components/TagsPage';
 export default function() {
   app.routes.tags = {path: '/tags', component: TagsPage.component()};
 
+  app.extensionSettings.tags = () => m.route(app.route('tags'));
+
   extend(AdminNav.prototype, 'items', items => {
     items.add('tags', AdminLinkButton.component({
       href: app.route('tags'),
