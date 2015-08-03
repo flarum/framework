@@ -37,6 +37,14 @@ class UpdateConfigAction extends Action
             $this->settings->set($k, $v);
         }
 
+        $assetPath = public_path('assets');
+        $manifest = file_get_contents($assetPath . '/rev-manifest.json');
+        $revisions = json_decode($manifest, true);
+
+        foreach ($revisions as $file => $revision) {
+            @unlink($assetPath . '/' . substr_replace($file, '-' . $revision, strrpos($file, '.'), 0));
+        }
+
         return $this->success();
     }
 }
