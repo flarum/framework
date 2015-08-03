@@ -55,10 +55,6 @@
   width: auto;
   margin: 10px;
   max-width: 600px;
-
-  .Modal--small & {
-    max-width: 400px;
-  }
 }
 
 // Actual modal
@@ -194,7 +190,10 @@
     .box-shadow(0 7px 15px @shadow-color);
   }
   .Modal--small {
-    width: 375px;
+    max-width: 375px;
+  }
+  .Modal--large {
+    max-width: 800px;
   }
   .Modal-header {
     text-align: center;
