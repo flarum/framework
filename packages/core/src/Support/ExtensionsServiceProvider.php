@@ -9,6 +9,8 @@ class ExtensionsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->bind('flarum.extensions', 'Flarum\Support\ExtensionManager');
+
         $config = $this->app->make('Flarum\Core\Settings\SettingsRepository')->get('extensions_enabled');
         $extensions = json_decode($config, true);
         $providers = [];

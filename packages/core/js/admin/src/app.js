@@ -12,4 +12,6 @@ app.initializers.add('routes', routes);
 app.initializers.add('preload', preload, -100);
 app.initializers.add('boot', boot, -100);
 
+app.extensionSettings = {};
+
 export default app;

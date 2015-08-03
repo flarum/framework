@@ -313,6 +313,19 @@ class ApiServiceProvider extends ServiceProvider
             $this->action('Flarum\Api\Actions\Groups\DeleteAction')
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Extensions
+        |--------------------------------------------------------------------------
+        */
+
+        // Toggle an extension
+        $routes->patch(
+            '/extensions/{name}',
+            'flarum.api.extensions.update',
+            $this->action('Flarum\Api\Actions\Extensions\UpdateAction')
+        );
+
         event(new RegisterApiRoutes($routes));
     }
 
