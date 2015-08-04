@@ -1,7 +1,6 @@
 <?php namespace Flarum\Core\Notifications;
 
 use Flarum\Core\Model;
-use Flarum\Core\Support\MappedMorphToTrait;
 
 /**
  * Models a notification record in the database.
@@ -21,8 +20,6 @@ use Flarum\Core\Support\MappedMorphToTrait;
  */
 class Notification extends Model
 {
-    use MappedMorphToTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -114,7 +111,7 @@ class Notification extends Model
      */
     public function subject()
     {
-        return $this->mappedMorphTo(static::$subjectModels, 'subject', 'type', 'subject_id');
+        return $this->morphTo('subject', 'subjectModel', 'subject_id');
     }
 
     /**

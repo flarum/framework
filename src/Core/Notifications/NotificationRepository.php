@@ -26,8 +26,7 @@ class NotificationRepository
             ->skip($offset)
             ->take($limit);
 
-        return Notification::with('subject')
-            ->select('notifications.*', 'p.unread_count')
+        return Notification::select('notifications.*', 'p.unread_count')
             ->mergeBindings($primaries->getQuery())
             ->join(app('flarum.db')->raw('('.$primaries->toSql().') p'), 'notifications.id', '=', 'p.id')
             ->latest('time')
