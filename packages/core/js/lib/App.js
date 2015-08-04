@@ -215,8 +215,8 @@ export default class App {
   alertErrors(errors) {
     errors.forEach(error => {
       this.alerts.show(new Alert({
-        type: 'warning',
-        message: error.detail
+        type: 'error',
+        children: error.detail
       }));
     });
   }
