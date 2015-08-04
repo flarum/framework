@@ -13,9 +13,12 @@ export default class NotificationsPage extends Component {
     app.history.push('notifications');
     app.drawer.hide();
     app.modal.close();
+
+    this.list = new NotificationList();
+    this.list.load();
   }
 
   view() {
-    return <div className="NotificationsPage">{NotificationList.component()}</div>;
+    return <div className="NotificationsPage">{this.list.render()}</div>;
   }
 }
