@@ -13,10 +13,11 @@ import icon from 'flarum/helpers/icon';
  */
 export default class SelectDropdown extends Dropdown {
   static initProps(props) {
+    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'sort';
+
     super.initProps(props);
 
     props.className += ' Dropdown--select';
-    props.caretIcon = props.caretIcon || 'sort';
   }
 
   getButtonContent() {
