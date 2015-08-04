@@ -23,7 +23,8 @@ class CreateAction extends BaseCreateAction
      */
     public $include = [
         'user' => true,
-        'discussion' => true
+        'discussion' => true,
+        'discussion.lastUser' => true
     ];
 
     /**
