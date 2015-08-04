@@ -51,7 +51,7 @@ class PostStream extends mixin(Component, evented) {
    */
   goToNumber(number, noAnimation) {
     // If we want to go to the reply preview, then we will go to the end of the
-    // discussion and scroll to the very bottom of the page.
+    // discussion and then scroll to the very bottom of the page.
     if (number === 'reply') {
       return this.goToLast().then(() => {
         $('html,body').stop(true).animate({
