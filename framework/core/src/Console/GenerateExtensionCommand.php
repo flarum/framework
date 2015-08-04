@@ -92,7 +92,7 @@ class GenerateExtensionCommand extends Command
 
         file_put_contents($dir.'/flarum.json', json_encode($manifest, JSON_PRETTY_PRINT));
 
-        passthru("cd $dir; composer install; cd js/forum; npm install; gulp");
+        passthru("cd $dir; composer install; cd js/forum; npm install; gulp; cd ../admin; npm install; gulp");
 
         $this->info('Extension "'.$name.'" generated!');
     }

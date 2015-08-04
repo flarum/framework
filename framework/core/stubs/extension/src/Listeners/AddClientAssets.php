@@ -29,5 +29,16 @@ class AddClientAssets
         $event->forumTranslations([
             // '{{name}}.hello_world'
         ]);
+
+        $event->adminAssets([
+            __DIR__.'/../../js/admin/dist/extension.js',
+            __DIR__.'/../../less/admin/extension.less'
+        ]);
+
+        $event->adminBootstrapper('{{name}}/main');
+
+        $event->adminTranslations([
+            // '{{name}}.hello_world'
+        ]);
     }
 }
