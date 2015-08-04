@@ -5,7 +5,7 @@ export default function saveConfig(config) {
 
   return app.request({
     method: 'POST',
-    url: app.forum.attribute('adminUrl') + '/config',
+    url: app.forum.attribute('apiUrl') + '/config',
     data: {config}
   }).catch(error => {
     app.config = oldConfig;

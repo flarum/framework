@@ -79,6 +79,7 @@ class RevisionCompiler implements Compiler
     {
         if (file_exists($file = $this->getRevisionFile())) {
             $manifest = json_decode(file_get_contents($file), true);
+
             return array_get($manifest, $this->filename);
         }
     }
@@ -94,5 +95,16 @@ class RevisionCompiler implements Compiler
         $manifest[$this->filename] = $revision;
 
         return file_put_contents($this->getRevisionFile(), json_encode($manifest));
+    }
+
+    public function flush()
+    {
+        $revision = $this->getRevision();
+
+        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+
+        $file = $this->path . '/' . substr_replace($this->filename, '-' . $revision, -strlen($ext) - 1, 0);
+
+        @unlink($file);
     }
 }

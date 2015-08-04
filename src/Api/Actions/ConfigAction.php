@@ -1,12 +1,13 @@
-<?php namespace Flarum\Admin\Actions;
+<?php namespace Flarum\Api\Actions;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Flarum\Api\Request;
 use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Support\Action;
 use Flarum\Core\Groups\Permission;
+use Flarum\Core\Exceptions\PermissionDeniedException;
+use Zend\Diactoros\Response\EmptyResponse;
 use Exception;
 
-class UpdateConfigAction extends Action
+class ConfigAction implements Action
 {
     /**
      * @var SettingsRepository
@@ -26,7 +27,11 @@ class UpdateConfigAction extends Action
      */
     public function handle(Request $request, array $routeParams = [])
     {
-        $config = array_get($request->getAttributes(), 'config', []);
+        if (! $request->actor->isAdmin()) {
+            throw new PermissionDeniedException;
+        }
+
+        $config = $request->get('config', []);
 
         // TODO: throw HTTP status 400 or 422
         if (! is_array($config)) {
@@ -35,16 +40,16 @@ class UpdateConfigAction extends Action
 
         foreach ($config as $k => $v) {
             $this->settings->set($k, $v);
+
+            if (strpos($k, 'theme_') === 0) {
+                $forum = app('Flarum\Forum\Actions\ClientAction');
+                $forum->flushAssets();
+
+                $admin = app('Flarum\Admin\Actions\ClientAction');
+                $admin->flushAssets();
+            }
         }
 
-        $assetPath = public_path('assets');
-        $manifest = file_get_contents($assetPath . '/rev-manifest.json');
-        $revisions = json_decode($manifest, true);
-
-        foreach ($revisions as $file => $revision) {
-            @unlink($assetPath . '/' . substr_replace($file, '-' . $revision, strrpos($file, '.'), 0));
-        }
-
-        return $this->success();
+        return new EmptyResponse(204);
     }
 }
