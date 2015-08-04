@@ -18,8 +18,6 @@ export default class NotificationList extends Component {
      * @type {Boolean}
      */
     this.loading = false;
-
-    this.load();
   }
 
   view() {
