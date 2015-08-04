@@ -5,6 +5,7 @@ import app from 'flarum/app';
 import DiscussionList from 'flarum/components/DiscussionList';
 import DiscussionPage from 'flarum/components/DiscussionPage';
 import IndexPage from 'flarum/components/IndexPage';
+import Button from 'flarum/components/Button';
 
 app.initializers.add('pusher', () => {
   const loadPusher = m.deferred();
@@ -52,16 +53,20 @@ app.initializers.add('pusher', () => {
 
       if (count) {
         vdom.children.unshift(
-          <button className="Button Button--block DiscussionList-update"
-            onclick={() => {
-              app.pushedUpdates = [];
-              this.refresh();
-            }}
-            config={(element, isInitialized) => {
-              if (!isInitialized) $(element).hide().fadeIn();
-            }}>
-            {app.trans('pusher.show_updated_discussions', {count})}
-          </button>
+          Button.component({
+            className: 'Button Button--block DiscussionList-update',
+            onclick: () => {
+              this.refresh(false).then(() => {
+                this.loadingUpdated = false;
+                app.pushedUpdates = [];
+                app.setTitleCount(0);
+                m.redraw();
+              });
+              this.loadingUpdated = true;
+            },
+            loading: this.loadingUpdated,
+            children: app.trans('pusher.show_updated_discussions', {count})
+          })
         );
       }
     }
