@@ -61,8 +61,8 @@ export default class TagsPage extends Component {
                         <a className="TagTile-lastDiscussion"
                           href={app.route.discussion(lastDiscussion, lastDiscussion.lastPostNumber())}
                           config={m.route}>
-                          {humanTime(lastDiscussion.lastTime())}
                           <span className="TagTile-lastDiscussion-title">{lastDiscussion.title()}</span>
+                          {humanTime(lastDiscussion.lastTime())}
                         </a>
                       ) : (
                         <span className="TagTile-lastDiscussion"/>
@@ -93,13 +93,5 @@ export default class TagsPage extends Component {
         </div>
       </div>
     );
-  }
-
-  config() {
-    IndexPage.prototype.config.apply(this, arguments);
-  }
-
-  onunload() {
-    IndexPage.prototype.onunload.apply(this, arguments);
   }
 }
