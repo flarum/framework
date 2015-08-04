@@ -260,6 +260,14 @@ class Composer extends Component {
           $composer.show()
             .css({height: oldHeight})
             .animate({bottom: 0, height: newHeight}, 'fast', this.component.focus.bind(this.component));
+
+          if ($composer.css('position') === 'absolute') {
+            $composer.css('top', $(window).scrollTop());
+
+            this.$backdrop = $('<div/>')
+              .addClass('composer-backdrop')
+              .appendTo('body');
+          }
         } else {
           this.component.focus();
         }
@@ -268,20 +276,24 @@ class Composer extends Component {
       case Composer.PositionEnum.MINIMIZED:
         // If the composer has been minimized, we will animate it shrinking down
         // to its new smaller size.
-        $composer.css({height: oldHeight})
+        $composer.css({top: 'auto', height: oldHeight})
           .animate({height: newHeight}, 'fast');
+
+        if (this.$backdrop) this.$backdrop.remove();
         break;
 
       case Composer.PositionEnum.HIDDEN:
         // If the composer has been hidden, then we will animate it sliding down
         // beyond the edge of the viewport. Once the animation is complete, we
         // un-draw the composer's component.
-        $composer.css({height: oldHeight})
+        $composer.css({top: 'auto', height: oldHeight})
           .animate({bottom: -newHeight}, 'fast', () => {
             $composer.hide();
             this.clear();
             m.redraw();
           });
+
+        if (this.$backdrop) this.$backdrop.remove();
         break;
 
       case Composer.PositionEnum.FULLSCREEN:
