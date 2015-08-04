@@ -12,6 +12,8 @@ export default class NotificationsDropdown extends Component {
      * @type {Boolean}
      */
     this.showing = false;
+
+    this.list = new NotificationList();
   }
 
   view() {
@@ -28,7 +30,7 @@ export default class NotificationsDropdown extends Component {
           <span className="Button-label">{app.trans('core.notifications')}</span>
         </a>
         <div className="Dropdown-menu Dropdown-menu--right" onclick={this.menuClick.bind(this)}>
-          {this.showing ? NotificationList.component() : ''}
+          {this.showing ? this.list.render() : ''}
         </div>
       </div>
     );
@@ -39,6 +41,7 @@ export default class NotificationsDropdown extends Component {
       m.route(app.route('notifications'));
     } else {
       this.showing = true;
+      this.list.load();
     }
   }
 
