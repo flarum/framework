@@ -1,0 +1,16 @@
+{
+    "name": "pusher",
+    "title": "Pusher",
+    "description": "See new discussions and posts in real-time using Pusher.",
+    "keywords": [],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby.zerner@gmail.com"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    }
+}
