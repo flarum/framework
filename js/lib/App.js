@@ -107,6 +107,9 @@ export default class App {
      * @private
      */
     this.requestError = null;
+
+    this.title = '';
+    this.titleCount = 0;
   }
 
   /**
@@ -139,10 +142,29 @@ export default class App {
    * Set the <title> of the page.
    *
    * @param {String} title
+   * @param {Boolean} [separator] Whether or not to separate the given title and
+   *     the forum's title.
    * @public
    */
   setTitle(title) {
-    document.title = (title ? title + ' - ' : '') + this.forum.attribute('title');
+    this.title = title;
+    this.updateTitle();
+  }
+
+  /**
+   * Set a number to display in the <title> of the page.
+   *
+   * @param {Integer} count
+   */
+  setTitleCount(count) {
+    this.titleCount = count;
+    this.updateTitle();
+  }
+
+  updateTitle() {
+    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
+      (this.title ? this.title + ' - ' : '') +
+      this.forum.attribute('title');
   }
 
   /**

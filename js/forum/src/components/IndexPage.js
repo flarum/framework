@@ -96,6 +96,7 @@ export default class IndexPage extends Component {
     };
 
     app.setTitle('');
+    app.setTitleCount(0);
 
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
