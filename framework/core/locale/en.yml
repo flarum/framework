@@ -20,8 +20,6 @@ core:
   confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
   controls: Controls
   delete: Delete
-  delete_account: Delete Account
-  delete_account_help: "Hold up! If you delete your account, there's no going back. Keep in mind:"
   delete_forever: Delete Forever
   deleted: "[deleted]"
   disclose_online: Allow others to see when I am online
@@ -75,7 +73,6 @@ core:
   post_reply: Post Reply
   posted_a_reply: Posted a reply
   posts: Posts
-  posts_will_remain: "All of your posts will remain, but no longer associated with your account."
   powered_by_flarum: Powered by Flarum
   privacy: Privacy
   profile: Profile
@@ -104,7 +101,6 @@ core:
   upload: Upload
   username: Username
   username_or_email: Username or Email
-  username_will_be_released: "Your username will be released, so someone else will be able to sign up with your name."
   users: Users
   view: View
   viewing_posts:

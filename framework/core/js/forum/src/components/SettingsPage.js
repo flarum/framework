@@ -6,7 +6,6 @@ import FieldSet from 'flarum/components/FieldSet';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 import ChangePasswordModal from 'flarum/components/ChangePasswordModal';
 import ChangeEmailModal from 'flarum/components/ChangeEmailModal';
-import DeleteAccountModal from 'flarum/components/DeleteAccountModal';
 import listItems from 'flarum/helpers/listItems';
 
 /**
@@ -85,14 +84,6 @@ export default class SettingsPage extends UserPage {
         children: app.trans('core.change_email'),
         className: 'Button',
         onclick: () => app.modal.show(new ChangeEmailModal())
-      })
-    );
-
-    items.add('deleteAccount',
-      Button.component({
-        children: app.trans('core.delete_account'),
-        className: 'Button Button--danger',
-        onclick: () => app.modal.show(new DeleteAccountModal())
       })
     );
 
