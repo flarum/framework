@@ -1,3 +1,6 @@
+.Search {
+  position: relative;
+}
 @media @tablet-up {
   .Search {
     input:focus, &.active input, .Search-results {
@@ -10,6 +13,10 @@
   overflow: auto;
   left: auto;
   right: 0;
+
+  @media @phone {
+    left: 0;
+  }
 
   > li > a {
     white-space: normal;

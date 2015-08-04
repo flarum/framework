@@ -113,6 +113,7 @@
     background: @body-bg;
 
     &:not(.minimized) {
+      position: absolute;
       top: 0;
       height: 100vh !important;
       padding-top: @header-height-phone;
@@ -120,6 +121,7 @@
       &:before {
         content: " ";
         .header-background();
+        position: absolute;
         opacity: 0;
 
         .visible& {
@@ -128,13 +130,27 @@
       }
 
       & .Composer-controls {
+        position: static;
         z-index: @zindex-header + 1;
 
         li:not(.App-backControl) {
           display: none;
         }
+        .App-backControl {
+          position: absolute !important;
+        }
       }
     }
+  }
+  .composer-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: @zindex-composer - 1;
+    background-color: @overlay-bg;
+    opacity: 0.9;
   }
   .ComposerBody-content {
     .minimized & {
