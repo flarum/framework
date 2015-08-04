@@ -14,9 +14,5 @@ export default function components(app) {
   app.postComponents.comment = CommentPost;
   app.postComponents.discussionRenamed = DiscussionRenamedPost;
 
-  app.activityComponents.posted = PostedActivity;
-  app.activityComponents.startedDiscussion = PostedActivity;
-  app.activityComponents.joined = JoinedActivity;
-
   app.notificationComponents.discussionRenamed = DiscussionRenamedNotification;
 }

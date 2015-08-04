@@ -43,7 +43,7 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public $sortFields = [];
+    public $sortFields = ['time'];
 
     /**
      * @inheritdoc
@@ -83,6 +83,9 @@ class IndexAction extends SerializeCollectionAction
             }
             if ($userId = $request->get('filter.user')) {
                 $where['user_id'] = $userId;
+            }
+            if ($type = $request->get('filter.type')) {
+                $where['type'] = $type;
             }
             $posts = $this->getPosts($request, $where);
         }

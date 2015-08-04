@@ -134,11 +134,11 @@ export default class UserPage extends Component {
     const items = new ItemList();
     const user = this.user;
 
-    items.add('activity',
+    items.add('posts',
       LinkButton.component({
-        href: app.route('user.activity', {username: user.username()}),
-        children: app.trans('core.activity'),
-        icon: 'user'
+        href: app.route('user.posts', {username: user.username()}),
+        children: [app.trans('core.posts'), <span className="Button-badge">{user.commentsCount()}</span>],
+        icon: 'comment-o'
       })
     );
 
@@ -147,14 +147,6 @@ export default class UserPage extends Component {
         href: app.route('user.discussions', {username: user.username()}),
         children: [app.trans('core.discussions'), <span className="Button-badge">{user.discussionsCount()}</span>],
         icon: 'reorder'
-      })
-    );
-
-    items.add('posts',
-      LinkButton.component({
-        href: app.route('user.posts', {username: user.username()}),
-        children: [app.trans('core.posts'), <span className="Button-badge">{user.commentsCount()}</span>],
-        icon: 'comment-o'
       })
     );
 

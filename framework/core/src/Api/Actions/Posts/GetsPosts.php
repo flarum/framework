@@ -22,7 +22,7 @@ trait GetsPosts
             $offset = $this->posts->getIndexForNumber($where['discussion_id'], $near, $actor);
             $offset = max(0, $offset - $request->limit / 2);
         } else {
-            $offset = 0;
+            $offset = $request->offset;
         }
 
         return $this->posts->findWhere(
