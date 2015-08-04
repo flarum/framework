@@ -5,6 +5,7 @@ use Flarum\Core\Activity\PostedBlueprint;
 use Flarum\Core\Activity\StartedDiscussionBlueprint;
 use Flarum\Core\Activity\JoinedBlueprint;
 use Flarum\Core\Posts\Post;
+use Flarum\Core\Users\Guest;
 use Flarum\Events\PostWasPosted;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Events\PostWasHidden;
@@ -95,9 +96,11 @@ class UserActivitySyncer
      */
     protected function postBecameVisible(Post $post)
     {
-        $blueprint = $this->postedBlueprint($post);
+        if ($post->isVisibleTo(new Guest)) {
+            $blueprint = $this->postedBlueprint($post);
 
-        $this->activity->sync($blueprint, [$post->user]);
+            $this->activity->sync($blueprint, [$post->user]);
+        }
     }
 
     /**
