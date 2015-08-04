@@ -123,12 +123,17 @@ export default class DiscussionList extends Component {
    *
    * @public
    */
-  refresh() {
-    this.loading = true;
-    this.discussions = [];
+  refresh(clear = true) {
+    if (clear) {
+      this.loading = true;
+      this.discussions = [];
+    }
 
-    this.loadResults().then(
-      this.parseResults.bind(this),
+    return this.loadResults().then(
+      results => {
+        this.discussions = [];
+        this.parseResults(results);
+      },
       () => {
         this.loading = false;
         m.redraw();
