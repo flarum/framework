@@ -21,7 +21,9 @@ class UpdateAction extends SerializeResourceAction
     /**
      * @inheritdoc
      */
-    public $include = [];
+    public $include = [
+        'editUser' => true,
+    ];
 
     /**
      * @inheritdoc
