@@ -11,7 +11,19 @@ app.initializers.add('pusher', () => {
   const loadPusher = m.deferred();
 
   $.getScript('//js.pusher.com/3.0/pusher.min.js', () => {
-    loadPusher.resolve(new Pusher(app.forum.attribute('pusherKey')).subscribe('public'));
+    const socket = new Pusher(app.forum.attribute('pusherKey'), {
+      authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
+      auth: {
+        headers: {
+          'Authorization': 'Token ' + app.session.token
+        }
+      }
+    });
+
+    loadPusher.resolve({
+      main: socket.subscribe('public'),
+      user: app.session.user ? socket.subscribe('private-user' + app.session.user.id()) : null
+    });
   });
 
   app.pusher = loadPusher.promise;
@@ -20,8 +32,8 @@ app.initializers.add('pusher', () => {
   extend(DiscussionList.prototype, 'config', function(x, isInitialized, context) {
     if (isInitialized) return;
 
-    app.pusher.then(channel => {
-      channel.bind('newPost', data => {
+    app.pusher.then(channels => {
+      channels.main.bind('newPost', data => {
         const params = this.props.params;
 
         if (!params.q && !params.sort) {
@@ -43,7 +55,7 @@ app.initializers.add('pusher', () => {
         }
       });
 
-      context.onunload = () => channel.unbind();
+      context.onunload = () => channels.main.unbind();
     });
   });
 
@@ -75,8 +87,8 @@ app.initializers.add('pusher', () => {
   extend(DiscussionPage.prototype, 'config', function(x, isInitialized, context) {
     if (isInitialized) return;
 
-    app.pusher.then(channel => {
-      channel.bind('newPost', data => {
+    app.pusher.then(channels => {
+      channels.main.bind('newPost', data => {
         if (this.discussion && this.discussion.id() === data.discussionId && this.stream) {
           const oldCount = this.discussion.commentsCount();
 
@@ -92,11 +104,23 @@ app.initializers.add('pusher', () => {
         }
       });
 
-      context.onunload = () => channel.unbind();
+      context.onunload = () => channels.main.unbind();
     });
   });
 
   extend(IndexPage.prototype, 'actionItems', items => {
     delete items.refresh;
+  });
+
+  app.pusher.then(channels => {
+    if (channels.user) {
+      channels.user.bind('notification', () => {
+        app.session.user.pushAttributes({
+          unreadNotificationsCount: app.session.user.unreadNotificationsCount() + 1
+        });
+        delete app.cache.notifications;
+        m.redraw();
+      });
+    }
   });
 });
