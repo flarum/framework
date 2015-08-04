@@ -92,10 +92,10 @@ export default class ReplyComposer extends ComposerBody {
 
         app.composer.hide();
       },
-      errors => {
+      response => {
         this.loading = false;
         m.redraw();
-        app.alertErrors(errors);
+        app.alertErrors(response.errors);
       }
     );
   }

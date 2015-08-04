@@ -18,7 +18,7 @@ abstract class JsonApiAction implements Action
      */
     public function handle(Request $request)
     {
-        // TODO: Move this error handling code to middleware?
+        // TODO: This is gross. Move this error handling code to middleware?
         try {
             return $this->respond($request);
         } catch (ValidationException $e) {
@@ -28,6 +28,12 @@ abstract class JsonApiAction implements Action
                     'detail' => implode("\n", $messages),
                     'path' => $field
                 ];
+            }
+            return new JsonResponse(['errors' => $errors], 422);
+        } catch (\Flarum\Core\Exceptions\ValidationException $e) {
+            $errors = [];
+            foreach ($e->getMessages() as $path => $detail) {
+                $errors[] = compact('path', 'detail');
             }
             return new JsonResponse(['errors' => $errors], 422);
         } catch (PermissionDeniedException $e) {
