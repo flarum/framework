@@ -32,6 +32,11 @@ app.initializers.add('pusher', () => {
 
           if ((!app.current.discussion || data.discussionId !== app.current.discussion.id()) && app.pushedUpdates.indexOf(data.discussionId) === -1) {
             app.pushedUpdates.push(data.discussionId);
+
+            if (app.current instanceof IndexPage) {
+              app.setTitleCount(app.pushedUpdates.length);
+            }
+
             m.redraw();
           }
         }
@@ -68,7 +73,17 @@ app.initializers.add('pusher', () => {
     app.pusher.then(channel => {
       channel.bind('newPost', data => {
         if (this.discussion && this.discussion.id() === data.discussionId && this.stream) {
-          app.store.find('discussions', this.discussion.id()).then(() => this.stream.update());
+          const oldCount = this.discussion.commentsCount();
+
+          app.store.find('discussions', this.discussion.id()).then(() => {
+            this.stream.update();
+
+            if (!document.hasFocus()) {
+              app.setTitleCount(Math.max(0, this.discussion.commentsCount() - oldCount));
+
+              $(window).one('focus', () => app.setTitleCount(0));
+            }
+          });
         }
       });
 
