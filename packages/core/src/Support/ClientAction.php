@@ -119,6 +119,17 @@ abstract class ClientAction extends HtmlAction
     }
 
     /**
+     * Flush the client's assets so that they will be regenerated from scratch
+     * on the next render.
+     *
+     * @return void
+     */
+    public function flushAssets()
+    {
+        $this->getAssets()->flush();
+    }
+
+    /**
      * Set up the asset manager, preloaded with a JavaScript compiler and a LESS
      * compiler. Automatically add the files necessary to boot a Flarum client,
      * as well as any configured LESS customizations.

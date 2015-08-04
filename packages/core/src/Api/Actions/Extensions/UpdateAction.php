@@ -32,12 +32,10 @@ class UpdateAction extends JsonApiAction
 
         app('flarum.formatter')->flush();
 
-        $assetPath = public_path('assets');
-        $manifest = file_get_contents($assetPath . '/rev-manifest.json');
-        $revisions = json_decode($manifest, true);
+        $forum = app('Flarum\Forum\Actions\ClientAction');
+        $forum->flushAssets();
 
-        foreach ($revisions as $file => $revision) {
-            @unlink($assetPath . '/' . substr_replace($file, '-' . $revision, strrpos($file, '.'), 0));
-        }
+        $admin = app('Flarum\Admin\Actions\ClientAction');
+        $admin->flushAssets();
     }
 }

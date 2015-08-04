@@ -1,19 +1,23 @@
-<?php namespace Flarum\Admin\Actions;
+<?php namespace Flarum\Api\Actions;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Flarum\Support\Action;
+use Flarum\Api\Request;
 use Flarum\Core\Groups\Permission;
+use Flarum\Core\Exceptions\PermissionDeniedException;
+use Zend\Diactoros\Response\EmptyResponse;
 
-class UpdatePermissionAction extends Action
+class PermissionAction implements Action
 {
     /**
      * {@inheritdoc}
      */
     public function handle(Request $request, array $routeParams = [])
     {
-        $input = $request->getAttributes();
-        $permission = array_get($input, 'permission');
-        $groupIds = array_get($input, 'groupIds');
+        if (! $request->actor->isAdmin()) {
+            throw new PermissionDeniedException;
+        }
+
+        $permission = $request->get('permission');
+        $groupIds = $request->get('groupIds');
 
         Permission::where('permission', $permission)->delete();
 
@@ -24,6 +28,6 @@ class UpdatePermissionAction extends Action
             ];
         }, $groupIds));
 
-        return $this->success();
+        return new EmptyResponse(204);
     }
 }

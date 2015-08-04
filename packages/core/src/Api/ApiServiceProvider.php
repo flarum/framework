@@ -315,7 +315,7 @@ class ApiServiceProvider extends ServiceProvider
 
         /*
         |--------------------------------------------------------------------------
-        | Extensions
+        | Administration
         |--------------------------------------------------------------------------
         */
 
@@ -324,6 +324,20 @@ class ApiServiceProvider extends ServiceProvider
             '/extensions/{name}',
             'flarum.api.extensions.update',
             $this->action('Flarum\Api\Actions\Extensions\UpdateAction')
+        );
+
+        // Update config settings
+        $routes->post(
+            '/config',
+            'flarum.api.config',
+            $this->action('Flarum\Api\Actions\ConfigAction')
+        );
+
+        // Update a permission
+        $routes->post(
+            '/permission',
+            'flarum.api.permission',
+            $this->action('Flarum\Api\Actions\PermissionAction')
         );
 
         event(new RegisterApiRoutes($routes));
