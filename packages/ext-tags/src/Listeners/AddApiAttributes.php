@@ -70,6 +70,15 @@ class AddApiAttributes
         if ($event->serializer instanceof DiscussionSerializer) {
             $event->attributes['canTag'] = $event->model->can($event->actor, 'tag');
         }
+
+        if ($event->serializer instanceof ForumSerializer) {
+            $settings = app('Flarum\Core\Settings\SettingsRepository');
+
+            $event->attributes['minPrimaryTags'] = $settings->get('tags.min_primary_tags');
+            $event->attributes['maxPrimaryTags'] = $settings->get('tags.max_primary_tags');
+            $event->attributes['minSecondaryTags'] = $settings->get('tags.min_secondary_tags');
+            $event->attributes['maxSecondaryTags'] = $settings->get('tags.max_secondary_tags');
+        }
     }
 
     public function addRoutes(RegisterApiRoutes $event)

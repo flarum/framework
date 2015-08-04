@@ -7,7 +7,12 @@ tags:
   tag_new_discussion_title: Choose Tags for Your Discussion
   edit_discussion_tags_title: "Edit Tags for {title}"
   edit_discussion_tags_link: Edit Tags
-  discussion_tags_placeholder: Choose one or more topics
+  choose_primary_tags:
+    one: Choose a primary tag
+    other: "Choose {count} primary tags"
+  choose_secondary_tags:
+    one: Choose 1 more tag
+    other: "Choose {count} more tags"
   confirm: Confirm
   more: More...
   tag_cloud_title: Tags
