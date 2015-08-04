@@ -349,7 +349,13 @@ class ApiServiceProvider extends ServiceProvider
             $action = app($class);
             $actor = app('flarum.actor');
 
-            $input = array_merge($httpRequest->getQueryParams(), $httpRequest->getAttributes(), $routeParams);
+            $input = array_merge(
+                $httpRequest->getQueryParams(),
+                $httpRequest->getAttributes(),
+                $httpRequest->getParsedBody(),
+                $routeParams
+            );
+
             $request = new Request($input, $actor, $httpRequest);
 
             return $action->handle($request);
