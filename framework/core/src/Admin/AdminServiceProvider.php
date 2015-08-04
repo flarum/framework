@@ -50,18 +50,6 @@ class AdminServiceProvider extends ServiceProvider
             'flarum.admin.index',
             $this->action('Flarum\Admin\Actions\ClientAction')
         );
-
-        $routes->post(
-            '/config',
-            'flarum.admin.updateConfig',
-            $this->action('Flarum\Admin\Actions\UpdateConfigAction')
-        );
-
-        $routes->post(
-            '/permission',
-            'flarum.admin.updatePermission',
-            $this->action('Flarum\Admin\Actions\UpdatePermissionAction')
-        );
     }
 
     protected function action($class)

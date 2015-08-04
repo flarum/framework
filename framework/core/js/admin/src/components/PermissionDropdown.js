@@ -91,7 +91,7 @@ export default class PermissionDropdown extends Dropdown {
 
     app.request({
       method: 'POST',
-      url: app.forum.attribute('adminUrl') + '/permission',
+      url: app.forum.attribute('apiUrl') + '/permission',
       data: {permission, groupIds}
     });
   }
