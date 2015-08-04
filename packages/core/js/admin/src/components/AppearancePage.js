@@ -69,6 +69,13 @@ export default class AppearancePage extends Component {
   onsubmit(e) {
     e.preventDefault();
 
+    const hex = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
+
+    if (!hex.test(this.primaryColor()) || !hex.test(this.secondaryColor())) {
+      alert('Please enter a hexadecimal color code.');
+      return;
+    }
+
     this.loading = true;
 
     saveConfig({
