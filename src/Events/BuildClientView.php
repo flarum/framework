@@ -70,4 +70,13 @@ class BuildClientView
             $this->view->addBootstrapper($bootstrapper);
         }
     }
+
+    public function adminTranslations(array $keys)
+    {
+        if ($this->action instanceof AdminClientAction) {
+            foreach ($keys as $key) {
+                $this->keys[] = $key;
+            }
+        }
+    }
 }
