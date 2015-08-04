@@ -3,6 +3,7 @@ import DiscussionPage from 'flarum/components/DiscussionPage';
 import Button from 'flarum/components/Button';
 import highlight from 'flarum/helpers/highlight';
 import classList from 'flarum/utils/classList';
+import extractText from 'flarum/utils/extractText';
 
 import tagLabel from 'tags/helpers/tagLabel';
 import tagIcon from 'tags/helpers/tagIcon';
@@ -24,6 +25,19 @@ export default class TagDiscussionModal extends Modal {
     } else if (this.props.discussion) {
       this.props.discussion.tags().map(this.addTag.bind(this));
     }
+
+    this.minPrimary = app.forum.attribute('minPrimaryTags');
+    this.maxPrimary = app.forum.attribute('maxPrimaryTags');
+    this.minSecondary = app.forum.attribute('minSecondaryTags');
+    this.maxSecondary = app.forum.attribute('maxSecondaryTags');
+  }
+
+  primaryCount() {
+    return this.selected.filter(tag => tag.isPrimary()).length;
+  }
+
+  secondaryCount() {
+    return this.selected.filter(tag => !tag.isPrimary()).length;
   }
 
   /**
@@ -75,17 +89,46 @@ export default class TagDiscussionModal extends Modal {
       : app.trans('tags.tag_new_discussion_title');
   }
 
+  getInstruction(primaryCount, secondaryCount) {
+    if (primaryCount < this.minPrimary) {
+      return app.trans('tags.choose_primary_tags', {count: this.minPrimary - primaryCount});
+    } else if (secondaryCount < this.minSecondary) {
+      return app.trans('tags.choose_secondary_tags', {count: this.minSecondary - secondaryCount});
+    }
+
+    return '';
+  }
+
   content() {
     let tags = this.tags;
     const filter = this.filter().toLowerCase();
+    const primaryCount = this.primaryCount();
+    const secondaryCount = this.secondaryCount();
 
+    // Filter out all child tags whose parents have not been selected. This
+    // makes it impossible to select a child if its parent hasn't been selected.
+    tags = tags.filter(tag => {
+      const parent = tag.parent();
+      return parent === false || this.selected.indexOf(parent) !== -1;
+    });
+
+    // If the number of selected primary/secondary tags is at the maximum, then
+    // we'll filter out all other tags of that type.
+    if (primaryCount >= app.forum.attribute('maxPrimaryTags')) {
+      tags = tags.filter(tag => !tag.isPrimary() || this.selected.indexOf(tag) !== -1);
+    }
+
+    if (secondaryCount >= app.forum.attribute('maxSecondaryTags')) {
+      tags = tags.filter(tag => tag.isPrimary() || this.selected.indexOf(tag) !== -1);
+    }
+
+    // If the user has entered text in the filter input, then filter by tags
+    // whose name matches what they've entered.
     if (filter) {
       tags = tags.filter(tag => tag.name().substr(0, filter.length).toLowerCase() === filter);
     }
 
-    if (tags.indexOf(this.index) === -1) {
-      this.index = tags[0];
-    }
+    if (tags.indexOf(this.index) === -1) this.index = tags[0];
 
     return [
       <div className="Modal-body">
@@ -103,7 +146,7 @@ export default class TagDiscussionModal extends Modal {
                 )}
               </span>
               <input className="FormControl"
-                placeholder={!this.selected.length ? app.trans('tags.discussion_tags_placeholder') : ''}
+                placeholder={extractText(this.getInstruction(primaryCount, secondaryCount))}
                 value={this.filter()}
                 oninput={m.withAttr('value', this.filter)}
                 onkeydown={this.onkeydown.bind(this)}
@@ -115,7 +158,7 @@ export default class TagDiscussionModal extends Modal {
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary',
-              disabled: !this.selected.length,
+              disabled: primaryCount < this.minPrimary || secondaryCount < this.minSecondary,
               icon: 'check',
               children: app.trans('tags.confirm')
             })}
@@ -125,12 +168,9 @@ export default class TagDiscussionModal extends Modal {
 
       <div className="Modal-footer">
         <ul className="TagDiscussionModal-list SelectTagList">
-          {tags.map(tag => {
-            if (!filter && tag.parent() && this.selected.indexOf(tag.parent()) === -1) {
-              return '';
-            }
-
-            return (
+          {tags
+            .filter(tag => filter || !tag.parent() || this.selected.indexOf(tag.parent()) !== -1)
+            .map(tag => (
               <li data-index={tag.id()}
                 className={classList({
                   pinned: tag.position() !== null,
@@ -154,8 +194,7 @@ export default class TagDiscussionModal extends Modal {
                     </span>
                   ) : ''}
               </li>
-            );
-          })}
+            ))}
         </ul>
       </div>
     ];

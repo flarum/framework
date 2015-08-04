@@ -1,5 +1,6 @@
 import Model from 'flarum/Model';
 import mixin from 'flarum/utils/mixin';
+import computed from 'flarum/utils/computed';
 
 export default class Tag extends mixin(Model, {
   name: Model.attribute('name'),
@@ -21,5 +22,7 @@ export default class Tag extends mixin(Model, {
   lastDiscussion: Model.hasOne('lastDiscussion'),
 
   isRestricted: Model.attribute('isRestricted'),
-  canStartDiscussion: Model.attribute('canStartDiscussion')
+  canStartDiscussion: Model.attribute('canStartDiscussion'),
+
+  isPrimary: computed('position', 'parent', (position, parent) => position !== null && parent === false)
 }) {}
