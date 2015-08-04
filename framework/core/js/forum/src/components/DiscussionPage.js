@@ -184,6 +184,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     this.discussion = discussion;
 
     app.setTitle(discussion.title());
+    app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
     // posts. Some of these posts are included because they are on the first
