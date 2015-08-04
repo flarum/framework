@@ -23,25 +23,18 @@ class PushNewPosts
 
     public function pushNewPost(PostWasPosted $event)
     {
-        $guest = new Guest;
-        $discussion = Discussion::whereVisibleTo($guest)->find($event->post->discussion_id);
+        if ($event->post->isVisibleTo(new Guest)) {
+            $pusher = new Pusher(
+                $this->settings->get('pusher.app_key'),
+                $this->settings->get('pusher.app_secret'),
+                $this->settings->get('pusher.app_id')
+            );
 
-        if ($discussion) {
-            $post = $discussion->postsVisibleTo($guest)->find($event->post->id);
-
-            if ($post) {
-                $pusher = new Pusher(
-                    $this->settings->get('pusher.app_key'),
-                    $this->settings->get('pusher.app_secret'),
-                    $this->settings->get('pusher.app_id')
-                );
-
-                $pusher->trigger('public', 'newPost', [
-                    'postId' => $post->id,
-                    'discussionId' => $discussion->id,
-                    'tagIds' => $discussion->tags()->lists('id')
-                ]);
-            }
+            $pusher->trigger('public', 'newPost', [
+                'postId' => $event->post->id,
+                'discussionId' => $event->post->discussion->id,
+                'tagIds' => $event->post->discussion->tags()->lists('id')
+            ]);
         }
     }
 }
