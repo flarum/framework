@@ -3,6 +3,7 @@
 use DomainException;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Core\Model;
+use Flarum\Core\Users\User;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
@@ -94,6 +95,25 @@ class Post extends Model
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
+    }
+
+    /**
+     * Determine whether or not this post is visible to the given user.
+     *
+     * @param User $user
+     * @return boolean
+     */
+    public function isVisibleTo(User $user)
+    {
+        $discussion = $this->discussion()->whereVisibleTo($user)->first();
+
+        if ($discussion) {
+            $this->setRelation('discussion', $discussion);
+
+            return (bool) $discussion->postsVisibleTo($user)->find($this->id)->count();
+        }
+
+        return false;
     }
 
     /**
