@@ -41,7 +41,6 @@ class CoreServiceProvider extends ServiceProvider
 
         // FIXME: probably use Illuminate's AggregateServiceProvider
         // functionality, because it includes the 'provides' stuff.
-        $this->app->register('Flarum\Core\Activity\ActivityServiceProvider');
         $this->app->register('Flarum\Core\Discussions\DiscussionsServiceProvider');
         $this->app->register('Flarum\Core\Formatter\FormatterServiceProvider');
         $this->app->register('Flarum\Core\Groups\GroupsServiceProvider');

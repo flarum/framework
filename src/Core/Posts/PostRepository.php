@@ -85,9 +85,20 @@ class PostRepository
      */
     public function findByIds(array $ids, User $actor = null)
     {
-        $ids = $this->filterDiscussionVisibleTo($ids, $actor);
+        $visibleIds = $this->filterDiscussionVisibleTo($ids, $actor);
 
-        $posts = Post::with('discussion')->whereIn('id', (array) $ids)->get();
+        $posts = Post::with('discussion')->whereIn('id', $visibleIds)->get();
+
+        $posts->sort(function ($a, $b) use ($ids) {
+            $aPos = array_search($a->id, $ids);
+            $bPos = array_search($b->id, $ids);
+
+            if ($aPos === $bPos) {
+                return 0;
+            }
+
+            return $aPos < $bPos ? -1 : 1;
+        });
 
         return $this->filterVisibleTo($posts, $actor);
     }
