@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Pusher\\": "src/"
+        }
+    },
+    "require": {
+        "pusher/pusher-php-server": "^2.2"
+    }
+}
