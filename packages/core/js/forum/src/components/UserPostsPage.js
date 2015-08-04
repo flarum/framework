@@ -1,12 +1,13 @@
 import UserPage from 'flarum/components/UserPage';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import Button from 'flarum/components/Button';
+import PostedActivity from 'flarum/components/PostedActivity';
 
 /**
- * The `ActivityPage` component shows a user's activity feed inside of their
+ * The `UserPostsPage` component shows a user's activity feed inside of their
  * profile.
  */
-export default class ActivityPage extends UserPage {
+export default class UserPostsPage extends UserPage {
   constructor(...args) {
     super(...args);
 
@@ -25,10 +26,11 @@ export default class ActivityPage extends UserPage {
     this.moreResults = false;
 
     /**
-     * The Activity models in the feed.
-     * @type {Activity[]}
+     * The Post models in the feed.
+     *
+     * @type {Post[]}
      */
-    this.activity = [];
+    this.posts = [];
 
     /**
      * The number of activity items to load per request.
@@ -47,7 +49,7 @@ export default class ActivityPage extends UserPage {
       footer = LoadingIndicator.component();
     } else if (this.moreResults) {
       footer = (
-        <div className="ActivityPage-loadMore">
+        <div className="UserPostsPage-loadMore">
           {Button.component({
             children: app.trans('core.load_more'),
             className: 'Button',
@@ -58,11 +60,10 @@ export default class ActivityPage extends UserPage {
     }
 
     return (
-      <div className="ActivityPage">
-        <ul className="ActivityPage-list">
-          {this.activity.map(activity => {
-            const ActivityComponent = app.activityComponents[activity.contentType()];
-            return ActivityComponent ? <li>{ActivityComponent.component({activity})}</li> : '';
+      <div className="UserPostsPage">
+        <ul className="UserPostsPage-list ActivityList">
+          {this.posts.map(post => {
+            return <li>{PostedActivity.component({post})}</li>;
           })}
         </ul>
         {footer}
@@ -87,7 +88,7 @@ export default class ActivityPage extends UserPage {
    */
   refresh() {
     this.loading = true;
-    this.activity = [];
+    this.posts = [];
 
     // Redraw, but only if we're not in the middle of a route change.
     m.startComputation();
@@ -104,12 +105,13 @@ export default class ActivityPage extends UserPage {
    * @protected
    */
   loadResults(offset) {
-    return app.store.find('activity', {
+    return app.store.find('posts', {
       filter: {
         user: this.user.id(),
-        type: this.props.filter
+        type: 'comment'
       },
-      page: {offset, limit: this.loadLimit}
+      page: {offset, limit: this.loadLimit},
+      sort: '-time'
     });
   }
 
@@ -120,19 +122,19 @@ export default class ActivityPage extends UserPage {
    */
   loadMore() {
     this.loading = true;
-    this.loadResults(this.activity.length).then(this.parseResults.bind(this));
+    this.loadResults(this.posts.length).then(this.parseResults.bind(this));
   }
 
   /**
    * Parse results and append them to the activity feed.
    *
-   * @param {Activity[]} results
-   * @return {Activity[]}
+   * @param {Post[]} results
+   * @return {Post[]}
    */
   parseResults(results) {
     this.loading = false;
 
-    [].push.apply(this.activity, results);
+    [].push.apply(this.posts, results);
 
     this.moreResults = results.length >= this.loadLimit;
     m.redraw();

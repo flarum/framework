@@ -12,14 +12,20 @@ import { truncate } from 'flarum/utils/string';
  * - All of the props for Activity
  */
 export default class PostedActivity extends Activity {
-  description() {
-    const post = this.props.activity.subject();
+  user() {
+    return this.props.post.user();
+  }
 
-    return app.trans(post.number() === 1 ? 'core.started_a_discussion' : 'core.posted_a_reply');
+  time() {
+    return this.props.post.time();
+  }
+
+  description() {
+    return app.trans(this.props.post.number() === 1 ? 'core.started_a_discussion' : 'core.posted_a_reply');
   }
 
   content() {
-    const post = this.props.activity.subject();
+    const post = this.props.post;
 
     return (
       <a className="Activity-content PostedActivity-preview"
@@ -43,7 +49,7 @@ export default class PostedActivity extends Activity {
   headerItems() {
     const items = new ItemList();
 
-    items.add('title', <h3>{this.props.activity.subject().discussion().title()}</h3>);
+    items.add('title', <h3>{this.props.post.discussion().title()}</h3>);
 
     return items;
   }

@@ -22,7 +22,7 @@ export default class Activity extends Component {
 
         <div className="Activity-header">
           <strong className="Activity-description">{this.description()}</strong>
-          {humanTime(activity.time())}
+          {humanTime(this.time())}
         </div>
 
         {this.content()}
@@ -34,9 +34,18 @@ export default class Activity extends Component {
    * Get the user whose avatar should be displayed.
    *
    * @return {User}
+   * @abstract
    */
   user() {
-    return this.props.activity.user();
+  }
+
+  /**
+   * Get the time of the activity.
+   *
+   * @return {Date}
+   * @abstract
+   */
+  time() {
   }
 
   /**
