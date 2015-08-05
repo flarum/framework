@@ -7,6 +7,7 @@ use Flarum\Events\RegisterDiscussionGambits;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 use Illuminate\Contracts\Container\Container;
+use Carbon\Carbon;
 
 class DiscussionsServiceProvider extends ServiceProvider
 {
@@ -20,24 +21,25 @@ class DiscussionsServiceProvider extends ServiceProvider
         Discussion::setValidator($this->app->make('validator'));
 
         $events = $this->app->make('events');
+        $settings = $this->app->make('Flarum\Core\Settings\SettingsRepository');
 
         $events->subscribe('Flarum\Core\Discussions\Listeners\DiscussionMetadataUpdater');
 
-        $events->listen(ModelAllow::class, function (ModelAllow $event) {
+        $events->listen(ModelAllow::class, function (ModelAllow $event) use ($settings) {
             if ($event->model instanceof Discussion) {
-                if ($event->action === 'rename' &&
-                    $event->model->start_user_id == $event->actor->id) {
-                    return true;
-                }
-
-                if ($event->action === 'delete' &&
-                    $event->model->start_user_id == $event->actor->id &&
-                    $event->model->participants_count == 1) {
-                    return true;
-                }
-
                 if ($event->actor->hasPermission('discussion.'.$event->action)) {
                     return true;
+                }
+
+                if (($event->action === 'rename' || $event->action === 'delete') &&
+                    $event->model->start_user_id == $event->actor->id) {
+                    $allowRenaming = $settings->get('allow_renaming');
+
+                    if ($allowRenaming === '-1' ||
+                        ($allowRenaming === 'reply' && $event->model->participants_count == 1) ||
+                        ($event->model->start_time->diffInMinutes(Carbon::now()) < $allowRenaming)) {
+                        return true;
+                    }
                 }
             }
         });
