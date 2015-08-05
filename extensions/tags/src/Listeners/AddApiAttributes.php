@@ -60,8 +60,13 @@ class AddApiAttributes
         }
 
         if ($event->action instanceof Discussions\IndexAction ||
-            $event->action instanceof Discussions\ShowAction) {
+            $event->action instanceof Discussions\ShowAction ||
+            $event->action instanceof Discussions\CreateAction) {
             $event->addInclude('tags');
+        }
+
+        if ($event->action instanceof Discussions\CreateAction) {
+            $event->addInclude('tags.lastDiscussion');
         }
     }
 
