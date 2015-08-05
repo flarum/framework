@@ -28,7 +28,8 @@ class ForumSerializer extends Serializer
             'apiUrl' => Core::config('api_url'),
             'welcomeTitle' => Core::config('welcome_title'),
             'welcomeMessage' => Core::config('welcome_message'),
-            'themePrimaryColor' => Core::config('theme_primary_color')
+            'themePrimaryColor' => Core::config('theme_primary_color'),
+            'canStartDiscussion' => $forum->can($this->actor, 'startDiscussion')
         ];
 
         if ($this->actor->isAdmin()) {
