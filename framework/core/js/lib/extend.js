@@ -22,7 +22,7 @@ export function extend(object, method, callback) {
   const original = object[method];
 
   object[method] = function(...args) {
-    const value = original.apply(this, args);
+    const value = original ? original.apply(this, args) : undefined;
 
     callback.apply(this, [value].concat(args));
 
