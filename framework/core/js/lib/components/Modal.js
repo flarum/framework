@@ -109,10 +109,10 @@ export default class Modal extends Component {
     const errors = response && response.errors;
 
     if (errors) {
-      this.alert(new Alert({
-        type: 'warning',
-        message: errors.map((error, k) => [error.detail, k < errors.length - 1 ? m('br') : ''])
-      }));
+      this.alert = new Alert({
+        type: 'error',
+        children: errors.map((error, k) => [error.detail, k < errors.length - 1 ? m('br') : ''])
+      });
     }
 
     m.redraw();

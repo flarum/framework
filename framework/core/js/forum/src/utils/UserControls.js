@@ -1,5 +1,7 @@
 import Button from 'flarum/components/Button';
 import Separator from 'flarum/components/Separator';
+import EditUserModal from 'flarum/components/EditUserModal';
+import DeleteUserModal from 'flarum/components/DeleteUserModal';
 import ItemList from 'flarum/utils/ItemList';
 
 /**
@@ -93,13 +95,13 @@ export default {
    * Delete the user.
    */
   deleteAction() {
-    // TODO
+    app.modal.show(new DeleteUserModal({user: this}));
   },
 
   /**
    * Edit the user.
    */
   editAction() {
-    // TODO
+    app.modal.show(new EditUserModal({user: this}));
   }
 };

@@ -29,8 +29,7 @@ class UserSerializer extends UserBasicSerializer
         if ($canEdit) {
             $attributes += [
                 'isActivated' => $user->is_activated,
-                'email'       => $user->email,
-                'isConfirmed' => $user->is_confirmed
+                'email'       => $user->email
             ];
         }
 
