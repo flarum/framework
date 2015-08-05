@@ -2,10 +2,10 @@ import UserPage from 'flarum/components/UserPage';
 import DiscussionList from 'flarum/components/DiscussionList';
 
 /**
- * The `UserDiscussionsPage` component shows a user's activity feed inside of their
- * profile.
+ * The `DiscussionsUserPage` component shows a discussion list inside of a user
+ * page.
  */
-export default class UserDiscussionsPage extends UserPage {
+export default class DiscussionsUserPage extends UserPage {
   constructor(...args) {
     super(...args);
 
@@ -14,7 +14,7 @@ export default class UserDiscussionsPage extends UserPage {
 
   content() {
     return (
-      <div className="UserPostsPage">
+      <div className="DiscussionsUserPage">
         {DiscussionList.component({
           params: {
             q: 'author:' + this.user.username()
