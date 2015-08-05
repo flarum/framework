@@ -3,10 +3,19 @@
 use Flarum\Core\Users\User;
 use Flarum\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
+use Flarum\Core\Settings\SettingsRepository;
+use Flarum\Core\Exceptions\PermissionDeniedException;
 
 class RegisterUserHandler
 {
     use DispatchesEvents;
+
+    protected $settings;
+
+    public function __construct(SettingsRepository $settings)
+    {
+        $this->settings = $settings;
+    }
 
     /**
      * @param RegisterUser $command
@@ -14,10 +23,12 @@ class RegisterUserHandler
      */
     public function handle(RegisterUser $command)
     {
+        if (! $this->settings->get('allow_sign_up')) {
+            throw new PermissionDeniedException;
+        }
+
         $actor = $command->actor;
         $data = $command->data;
-
-        // TODO: check whether or not registration is open (config)
 
         $user = User::register(
             array_get($data, 'attributes.username'),
