@@ -1,0 +1,16 @@
+{
+    "name": "suspend",
+    "title": "Suspend",
+    "description": "Suspend users so they can't post.",
+    "keywords": [],
+    "version": "0.1.0",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby.zerner@gmail.com"
+    },
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "flarum": ">0.1.0"
+    }
+}
