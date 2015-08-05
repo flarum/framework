@@ -29,6 +29,7 @@ class ForumSerializer extends Serializer
             'welcomeTitle' => Core::config('welcome_title'),
             'welcomeMessage' => Core::config('welcome_message'),
             'themePrimaryColor' => Core::config('theme_primary_color'),
+            'canView' => $forum->can($this->actor, 'view'),
             'canStartDiscussion' => $forum->can($this->actor, 'startDiscussion')
         ];
 
