@@ -17,6 +17,7 @@ use Flarum\Events\UserBioWasChanged;
 use Flarum\Events\UserAvatarWasChanged;
 use Flarum\Events\UserWasActivated;
 use Flarum\Events\UserEmailChangeWasRequested;
+use Flarum\Events\GetUserGroups;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
@@ -559,6 +560,8 @@ class User extends Model
         if ($this->is_activated) {
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->lists('id'));
         }
+
+        event(new GetUserGroups($this, $groupIds));
 
         return Permission::whereIn('group_id', $groupIds);
     }
