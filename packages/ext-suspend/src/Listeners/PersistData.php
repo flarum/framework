@@ -1,7 +1,9 @@
 <?php namespace Flarum\Suspend\Listeners;
 
 use Flarum\Events\UserWillBeSaved;
+use Flarum\Events\ModelAllow;
 use Flarum\Events\GetUserGroups;
+use Flarum\Core\Users\User;
 use Flarum\Core\Groups\Group;
 use Carbon\Carbon;
 
@@ -10,6 +12,7 @@ class PersistData
     public function subscribe($events)
     {
         $events->listen(UserWillBeSaved::class, [$this, 'whenUserWillBeSaved']);
+        $events->listen(ModelAllow::class, [$this, 'disallowAdminSuspension']);
         $events->listen(GetUserGroups::class, [$this, 'revokePermissions']);
     }
 
@@ -25,6 +28,15 @@ class PersistData
             $user->assertCan($actor, 'suspend');
 
             $user->suspend_until = new Carbon($suspendUntil);
+        }
+    }
+
+    public function disallowAdminSuspension(ModelAllow $event)
+    {
+        if ($event->model instanceof User && $event->action === 'suspend') {
+            if ($event->model->isAdmin() || $event->model->id === $event->actor->id) {
+                return false;
+            }
         }
     }
 
