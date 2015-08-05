@@ -1,7 +1,7 @@
 import Button from 'flarum/components/Button';
 import Separator from 'flarum/components/Separator';
 import EditUserModal from 'flarum/components/EditUserModal';
-import DeleteUserModal from 'flarum/components/DeleteUserModal';
+import UserPage from 'flarum/components/UserPage';
 import ItemList from 'flarum/utils/ItemList';
 
 /**
@@ -80,7 +80,7 @@ export default {
   destructiveControls(user) {
     const items = new ItemList();
 
-    if (user.canDelete()) {
+    if (user.id() !== '1' && user.canDelete()) {
       items.add('delete', Button.component({
         icon: 'times',
         children: app.trans('core.delete'),
@@ -95,7 +95,15 @@ export default {
    * Delete the user.
    */
   deleteAction() {
-    app.modal.show(new DeleteUserModal({user: this}));
+    if (confirm('Are you sure you want to delete this user? All of the user\'s posts will be deleted.')) {
+      this.delete().then(() => {
+        if (app.current instanceof UserPage && app.current.user === this) {
+          app.history.back();
+        } else {
+          window.location.reload();
+        }
+      });
+    }
   },
 
   /**

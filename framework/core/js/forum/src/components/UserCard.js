@@ -39,7 +39,8 @@ export default class UserCard extends Component {
               children: controls,
               className: 'UserCard-controls App-primaryControl',
               menuClassName: 'Dropdown-menu--right',
-              buttonClassName: this.props.controlsButtonClassName
+              buttonClassName: this.props.controlsButtonClassName,
+              icon: 'ellipsis-v'
             }) : ''}
 
             <div className="UserCard-profile">
