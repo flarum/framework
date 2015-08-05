@@ -146,14 +146,16 @@ export default class IndexPage extends Component {
    */
   sidebarItems() {
     const items = new ItemList();
+    const canStartDiscussion = app.forum.canStartDiscussion() || !app.session.user;
 
     items.add('newDiscussion',
       Button.component({
-        children: app.trans('core.start_a_discussion'),
+        children: canStartDiscussion ? app.trans('core.start_a_discussion') : 'Can\'t Start Discussion',
         icon: 'edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
-        onclick: this.newDiscussion.bind(this)
+        onclick: this.newDiscussion.bind(this),
+        disabled: !canStartDiscussion
       })
     );
 
