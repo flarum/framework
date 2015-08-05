@@ -4,10 +4,10 @@ import Button from 'flarum/components/Button';
 import PostedActivity from 'flarum/components/PostedActivity';
 
 /**
- * The `UserPostsPage` component shows a user's activity feed inside of their
+ * The `PostsUserPage` component shows a user's activity feed inside of their
  * profile.
  */
-export default class UserPostsPage extends UserPage {
+export default class PostsUserPage extends UserPage {
   constructor(...args) {
     super(...args);
 
@@ -49,7 +49,7 @@ export default class UserPostsPage extends UserPage {
       footer = LoadingIndicator.component();
     } else if (this.moreResults) {
       footer = (
-        <div className="UserPostsPage-loadMore">
+        <div className="PostsUserPage-loadMore">
           {Button.component({
             children: app.trans('core.load_more'),
             className: 'Button',
@@ -60,8 +60,8 @@ export default class UserPostsPage extends UserPage {
     }
 
     return (
-      <div className="UserPostsPage">
-        <ul className="UserPostsPage-list ActivityList">
+      <div className="PostsUserPage">
+        <ul className="PostsUserPage-list ActivityList">
           {this.posts.map(post => {
             return <li>{PostedActivity.component({post})}</li>;
           })}
