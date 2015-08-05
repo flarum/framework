@@ -35,13 +35,15 @@ export default class HeaderSecondary extends Component {
       items.add('notifications', NotificationsDropdown.component());
       items.add('session', SessionDropdown.component());
     } else {
-      items.add('signUp',
-        Button.component({
-          children: app.trans('core.sign_up'),
-          className: 'Button Button--link',
-          onclick: () => app.modal.show(new SignUpModal())
-        })
-      );
+      if (app.forum.attribute('allowSignUp')) {
+        items.add('signUp',
+          Button.component({
+            children: app.trans('core.sign_up'),
+            className: 'Button Button--link',
+            onclick: () => app.modal.show(new SignUpModal())
+          })
+        );
+      }
 
       items.add('logIn',
         Button.component({

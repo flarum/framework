@@ -30,7 +30,8 @@ class ForumSerializer extends Serializer
             'welcomeMessage' => Core::config('welcome_message'),
             'themePrimaryColor' => Core::config('theme_primary_color'),
             'canView' => $forum->can($this->actor, 'view'),
-            'canStartDiscussion' => $forum->can($this->actor, 'startDiscussion')
+            'canStartDiscussion' => $forum->can($this->actor, 'startDiscussion'),
+            'allowSignUp' => (bool) Core::config('allow_sign_up')
         ];
 
         if ($this->actor->isAdmin()) {
