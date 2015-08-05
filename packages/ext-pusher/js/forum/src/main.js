@@ -55,7 +55,7 @@ app.initializers.add('pusher', () => {
         }
       });
 
-      context.onunload = () => channels.main.unbind();
+      extend(context, 'onunload', () => channels.main.unbind());
     });
   });
 
@@ -104,7 +104,7 @@ app.initializers.add('pusher', () => {
         }
       });
 
-      context.onunload = () => channels.main.unbind();
+      extend(context, 'onunload', () => channels.main.unbind());
     });
   });
 
