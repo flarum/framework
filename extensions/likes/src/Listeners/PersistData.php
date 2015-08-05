@@ -29,11 +29,13 @@ class PersistData
                 throw new PermissionDeniedException;
             }
 
-            if ($liked) {
+            $currentlyLiked = $post->likes()->where('user_id', $actor->id)->exists();
+
+            if ($liked && ! $currentlyLiked) {
                 $post->likes()->attach($actor->id);
 
                 $post->raise(new PostWasLiked($post, $actor));
-            } else {
+            } elseif ($currentlyLiked) {
                 $post->likes()->detach($actor->id);
 
                 $post->raise(new PostWasUnliked($post, $actor));
