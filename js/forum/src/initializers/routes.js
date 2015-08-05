@@ -1,7 +1,7 @@
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionPage from 'flarum/components/DiscussionPage';
-import UserPostsPage from 'flarum/components/UserPostsPage';
-import UserDiscussionsPage from 'flarum/components/UserDiscussionsPage';
+import PostsUserPage from 'flarum/components/PostsUserPage';
+import DiscussionsUserPage from 'flarum/components/DiscussionsUserPage';
 import SettingsPage from 'flarum/components/SettingsPage';
 import NotificationsPage from 'flarum/components/NotificationsPage';
 
@@ -19,9 +19,9 @@ export default function(app) {
     'discussion': {path: '/d/:id/:slug', component: DiscussionPage.component()},
     'discussion.near': {path: '/d/:id/:slug/:near', component: DiscussionPage.component()},
 
-    'user': {path: '/u/:username', component: UserPostsPage.component()},
-    'user.posts': {path: '/u/:username', component: UserPostsPage.component()},
-    'user.discussions': {path: '/u/:username/discussions', component: UserDiscussionsPage.component()},
+    'user': {path: '/u/:username', component: PostsUserPage.component()},
+    'user.posts': {path: '/u/:username', component: PostsUserPage.component()},
+    'user.discussions': {path: '/u/:username/discussions', component: DiscussionsUserPage.component()},
 
     'settings': {path: '/settings', component: SettingsPage.component()},
     'notifications': {path: '/notifications', component: NotificationsPage.component()}
