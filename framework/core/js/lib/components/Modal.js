@@ -89,7 +89,7 @@ export default class Modal extends Component {
    * Focus on the first input when the modal is ready to be used.
    */
   onready() {
-    this.$('form :input:first').select();
+    this.$('form :input:first').focus().select();
   }
 
   /**
