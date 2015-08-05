@@ -56,7 +56,7 @@ class ShowAction extends SerializeResourceAction
     {
         $forum = app('flarum.forum');
 
-        $forum->groups = Group::all();
+        $forum->groups = Group::whereVisibleTo($request->actor)->get();
 
         return $forum;
     }

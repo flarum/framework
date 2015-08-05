@@ -14,6 +14,10 @@ trait VisibleScope
      */
     public function scopeWhereVisibleTo(Builder $query, User $actor)
     {
-        event(new ScopeModelVisibility($this, $query, $actor));
+        if (! app('flarum.forum')->can($actor, 'view')) {
+            $query->whereRaw('FALSE');
+        } else {
+            event(new ScopeModelVisibility($this, $query, $actor));
+        }
     }
 }
