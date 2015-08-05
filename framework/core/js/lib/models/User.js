@@ -100,4 +100,18 @@ export default class User extends mixin(Model, {
     };
     image.src = this.avatarUrl();
   }
+
+  /**
+   * Update the user's preferences.
+   *
+   * @param {Object} newPreferences
+   * @return {Promise}
+   */
+  savePreferences(newPreferences) {
+    const preferences = this.preferences();
+
+    Object.assign(preferences, newPreferences);
+
+    return this.save({preferences});
+  }
 }
