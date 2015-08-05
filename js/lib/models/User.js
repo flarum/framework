@@ -10,7 +10,7 @@ import Badge from 'flarum/components/Badge';
 export default class User extends mixin(Model, {
   username: Model.attribute('username'),
   email: Model.attribute('email'),
-  isConfirmed: Model.attribute('isConfirmed'),
+  isActivated: Model.attribute('isActivated'),
   password: Model.attribute('password'),
 
   avatarUrl: Model.attribute('avatarUrl'),

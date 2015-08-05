@@ -29,11 +29,6 @@ class UsersServiceProvider extends ServiceProvider
 
         $events->listen(ModelAllow::class, function (ModelAllow $event) {
             if ($event->model instanceof User) {
-                if ($event->action === 'edit' &&
-                    $event->model->id == $event->actor->id) {
-                    return true;
-                }
-
                 if ($event->actor->hasPermission('user.'.$event->action)) {
                     return true;
                 }
