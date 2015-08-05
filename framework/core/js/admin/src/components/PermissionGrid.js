@@ -184,11 +184,6 @@ export default class PermissionGrid extends Component {
       permission: 'discussion.delete'
     });
 
-    items.add('suspendUsers', {
-      label: 'Suspend users',
-      permission: 'user.suspend'
-    });
-
     return items;
   }
 

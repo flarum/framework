@@ -39,7 +39,7 @@ export default class UserPage extends Component {
           UserCard.component({
             user: this.user,
             className: 'Hero UserHero',
-            editable: this.user.canEdit(),
+            editable: this.user.canEdit() || this.user === app.session.user,
             controlsButtonClassName: 'Button'
           }),
           <div className="container">

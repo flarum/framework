@@ -4,7 +4,7 @@ import classList from 'flarum/utils/classList';
 
 /**
  * The `UserBio` component displays a user's bio, optionally letting the user
- * edit it (if they have permission).
+ * edit it.
  */
 export default class UserBio extends Component {
   constructor(...args) {
@@ -51,7 +51,7 @@ export default class UserBio extends Component {
 
     return (
       <div className={'UserBio ' + classList({
-          editable: this.isEditable(),
+          editable: this.props.editable,
           editing: this.editing
         })}
         onclick={this.edit.bind(this)}>
@@ -61,19 +61,10 @@ export default class UserBio extends Component {
   }
 
   /**
-   * Check whether or not the bio can be edited.
-   *
-   * @return {Boolean}
-   */
-  isEditable() {
-    return this.props.user.canEdit() && this.props.editable;
-  }
-
-  /**
    * Edit the bio.
    */
   edit() {
-    if (!this.isEditable()) return;
+    if (!this.props.editable) return;
 
     this.editing = true;
     m.redraw();
