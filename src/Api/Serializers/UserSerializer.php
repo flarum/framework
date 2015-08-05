@@ -26,7 +26,7 @@ class UserSerializer extends UserBasicSerializer
             ];
         }
 
-        if ($canEdit) {
+        if ($canEdit || $this->actor->id === $user->id) {
             $attributes += [
                 'isActivated' => $user->is_activated,
                 'email'       => $user->email
