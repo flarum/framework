@@ -90,7 +90,7 @@ export default class Dropdown extends Component {
   getButtonContent() {
     return [
       this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
-      <span className="Button-label">{this.props.label}</span>, ' ',
+      <span className="Button-label">{this.props.label}</span>,
       this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
     ];
   }
