@@ -98,13 +98,10 @@ export default class SettingsPage extends UserPage {
    */
   preferenceSaver(key) {
     return (value, component) => {
-      const preferences = this.user.preferences();
-      preferences[key] = value;
-
       if (component) component.loading = true;
       m.redraw();
 
-      this.user.save({preferences}).then(() => {
+      this.user.savePreferences({[key]: value}).then(() => {
         if (component) component.loading = false;
         m.redraw();
       });

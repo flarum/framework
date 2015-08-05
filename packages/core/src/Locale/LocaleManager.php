@@ -20,6 +20,11 @@ class LocaleManager
         return $this->locales;
     }
 
+    public function hasLocale($locale)
+    {
+        return isset($this->locales[$locale]);
+    }
+
     public function addTranslations($locale, $translations)
     {
         if (! isset($this->translations[$locale])) {

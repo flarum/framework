@@ -27,7 +27,7 @@ export default class SelectDropdown extends Dropdown {
     if (label instanceof Array) label = label[0];
 
     return [
-      <span className="Button-label">{label}</span>, ' ',
+      <span className="Button-label">{label}</span>,
       icon(this.props.caretIcon, {className: 'Button-caret'})
     ];
   }

@@ -89,16 +89,20 @@ abstract class ClientAction extends HtmlAction
     {
         $actor = app('flarum.actor');
         $assets = $this->getAssets();
-        $locale = $this->getLocaleCompiler($actor);
+        $locale = $this->getLocale($actor, $request);
+        $localeCompiler = $this->getLocaleCompiler($locale);
 
         $view = new ClientView(
             $this->apiClient,
             $request,
             $actor,
             $assets,
-            $locale,
+            $localeCompiler,
             $this->layout
         );
+
+        $view->setVariable('locales', $this->locales->getLocales());
+        $view->setVariable('locale', $locale);
 
         // Now that we've set up the ClientView instance, we can fire an event
         // to give extensions the opportunity to add their own assets and
@@ -106,14 +110,14 @@ abstract class ClientAction extends HtmlAction
         // which translations should be included in the locale file. Afterwards,
         // we will filter all of the translations for the actor's locale and
         // compile only the ones we need.
-        $translations = $this->locales->getTranslations($actor->locale);
+        $translations = $this->locales->getTranslations($locale);
         $keys = $this->translationKeys;
 
         event(new BuildClientView($this, $view, $keys));
 
         $translations = $this->filterTranslations($translations, $keys);
 
-        $locale->setTranslations($translations);
+        $localeCompiler->setTranslations($translations);
 
         return $view;
     }
@@ -202,15 +206,13 @@ abstract class ClientAction extends HtmlAction
     }
 
     /**
-     * Set up the locale compiler for the given user's locale.
+     * Set up the locale compiler for the given locale.
      *
-     * @param User $actor
+     * @param string $locale
      * @return LocaleJsCompiler
      */
-    protected function getLocaleCompiler(User $actor)
+    protected function getLocaleCompiler($locale)
     {
-        $locale = $actor->locale;
-
         $compiler = new LocaleJsCompiler($this->getAssetDirectory(), "$this->clientName-$locale.js");
 
         foreach ($this->locales->getJsFiles($locale) as $file) {
@@ -218,6 +220,28 @@ abstract class ClientAction extends HtmlAction
         }
 
         return $compiler;
+    }
+
+    /**
+     * Get the name of the locale to use.
+     *
+     * @param User $actor
+     * @param Request $request
+     * @return string
+     */
+    protected function getLocale(User $actor, Request $request)
+    {
+        if ($actor->exists) {
+            $locale = $actor->getPreference('locale');
+        } else {
+            $locale = array_get($request->getCookieParams(), 'locale');
+        }
+
+        if (! $locale || ! $this->locales->hasLocale($locale)) {
+            return $this->settings->get('default_locale', 'en');
+        }
+
+        return $locale;
     }
 
     /**

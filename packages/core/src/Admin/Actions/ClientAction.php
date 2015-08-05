@@ -31,7 +31,6 @@ class ClientAction extends BaseClientAction
         $view = parent::render($request, $routeParams);
 
         $view->setVariable('config', $this->settings->all());
-        $view->setVariable('locales', app('flarum.localeManager')->getLocales());
         $view->setVariable('permissions', Permission::map());
         $view->setVariable('extensions', app('flarum.extensions')->getInfo());
 

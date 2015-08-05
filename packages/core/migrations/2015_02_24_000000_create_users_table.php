@@ -20,7 +20,6 @@ class CreateUsersTable extends Migration
             $table->string('email', 150)->unique();
             $table->boolean('is_activated')->default(0);
             $table->string('password', 100);
-            $table->string('locale', 10)->default('en');
             $table->text('bio')->nullable();
             $table->string('avatar_path', 100)->nullable();
             $table->binary('preferences')->nullable();

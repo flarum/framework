@@ -24,6 +24,7 @@ class UsersServiceProvider extends ServiceProvider
         $events->listen(RegisterUserPreferences::class, function (RegisterUserPreferences $event) {
             $event->register('discloseOnline', 'boolval', true);
             $event->register('indexProfile', 'boolval', true);
+            $event->register('locale');
         });
 
         $events->listen(ModelAllow::class, function (ModelAllow $event) {
