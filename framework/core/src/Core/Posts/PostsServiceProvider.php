@@ -7,6 +7,7 @@ use Flarum\Events\RegisterPostTypes;
 use Flarum\Events\ScopePostVisibility;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
+use Carbon\Carbon;
 
 class PostsServiceProvider extends ServiceProvider
 {
@@ -24,8 +25,9 @@ class PostsServiceProvider extends ServiceProvider
         $this->registerPostTypes();
 
         $events = $this->app->make('events');
+        $settings = $this->app->make('Flarum\Core\Settings\SettingsRepository');
 
-        $events->listen(ModelAllow::class, function (ModelAllow $event) {
+        $events->listen(ModelAllow::class, function (ModelAllow $event) use ($settings) {
             if ($event->model instanceof Post) {
                 $post = $event->model;
                 $action = $event->action;
@@ -39,11 +41,19 @@ class PostsServiceProvider extends ServiceProvider
                 // A post is allowed to be edited if the user has permission to moderate
                 // the discussion which it's in, or if they are the author and the post
                 // hasn't been deleted by someone else.
-                if ($action === 'edit' &&
-                    ($post->discussion->can($actor, 'editPosts') ||
-                        ($post->user_id == $actor->id &&
-                            (! $post->hide_user_id || $post->hide_user_id == $actor->id)))) {
-                    return true;
+                if ($action === 'edit') {
+                    if ($post->discussion->can($actor, 'editPosts')) {
+                        return true;
+                    }
+                    if ($post->user_id == $actor->id && (! $post->hide_user_id || $post->hide_user_id == $actor->id)) {
+                        $allowEditing = $settings->get('allow_post_editing');
+
+                        if ($allowEditing === '-1' ||
+                            ($allowEditing === 'reply' && $event->model->number == $event->model->discussion->last_post_number) ||
+                            ($event->model->time->diffInMinutes(Carbon::now()) < $allowEditing)) {
+                            return true;
+                        }
+                    }
                 }
 
                 if ($post->discussion->can($actor, $action.'Posts')) {
