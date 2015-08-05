@@ -84,6 +84,24 @@ app.initializers.add('pusher', () => {
     }
   });
 
+  // Prevent any newly-created discussions from triggering the discussion list
+  // update button showing.
+  // TODO: Might be better pause the response to the push updates while the
+  // composer is loading? idk
+  extend(DiscussionList.prototype, 'addDiscussion', function(returned, discussion) {
+    const index = app.pushedUpdates.indexOf(discussion.id());
+
+    if (index !== -1) {
+      app.pushedUpdates.splice(index, 1);
+    }
+
+    if (app.current instanceof IndexPage) {
+      app.setTitleCount(app.pushedUpdates.length);
+    }
+
+    m.redraw();
+  });
+
   extend(DiscussionPage.prototype, 'config', function(x, isInitialized, context) {
     if (isInitialized) return;
 
