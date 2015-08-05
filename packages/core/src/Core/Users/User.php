@@ -8,6 +8,7 @@ use Flarum\Events\RegisterUserPreferences;
 use Illuminate\Contracts\Hashing\Hasher;
 use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Events\UserWasDeleted;
+use Flarum\Events\PostWasDeleted;
 use Flarum\Events\UserWasRegistered;
 use Flarum\Events\UserWasRenamed;
 use Flarum\Events\UserEmailWasChanged;
@@ -95,8 +96,31 @@ class User extends Model
     {
         parent::boot();
 
+        // Don't allow the root admin to be deleted.
+        static::deleting(function (User $user) {
+            if ($user->id == 1) {
+                throw new DomainException('Cannot delete the root admin');
+            }
+        });
+
         static::deleted(function ($user) {
             $user->raise(new UserWasDeleted($user));
+
+            // Delete all of the posts by the user. Before we delete them
+            // in a big batch query, we will loop through them and raise a
+            // PostWasDeleted event for each post.
+            $posts = $user->posts()->allTypes();
+
+            foreach ($posts->get() as $post) {
+                $user->raise(new PostWasDeleted($post));
+            }
+
+            $posts->delete();
+
+            $user->read()->detach();
+            $user->groups()->detach();
+            $user->accessTokens()->delete();
+            $user->notifications()->delete();
         });
 
         event(new RegisterUserPreferences);
@@ -479,13 +503,23 @@ class User extends Model
     }
 
     /**
-     * Define the relationship with the user's activity.
+     * Define the relationship with the user's posts.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function activity()
+    public function posts()
     {
-        return $this->hasMany('Flarum\Core\Activity\Activity');
+        return $this->hasMany('Flarum\Core\Posts\Post');
+    }
+
+    /**
+     * Define the relationship with the user's read discussions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function read()
+    {
+        return $this->belongsToMany('Flarum\Core\Discussions\Discussion', 'users_discussions');
     }
 
     /**
