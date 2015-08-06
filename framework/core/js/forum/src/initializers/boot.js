@@ -8,8 +8,6 @@ import mapRoutes from 'flarum/utils/mapRoutes';
 import Navigation from 'flarum/components/Navigation';
 import HeaderPrimary from 'flarum/components/HeaderPrimary';
 import HeaderSecondary from 'flarum/components/HeaderSecondary';
-import FooterPrimary from 'flarum/components/FooterPrimary';
-import FooterSecondary from 'flarum/components/FooterSecondary';
 import Composer from 'flarum/components/Composer';
 import ModalManager from 'flarum/components/ModalManager';
 import AlertManager from 'flarum/components/AlertManager';
@@ -21,14 +19,25 @@ import AlertManager from 'flarum/components/AlertManager';
  * @param {ForumApp} app
  */
 export default function boot(app) {
+  // Get the configured default route and update that route's path to be '/'.
+  // Push the homepage as the first route, so that the user will always be
+  // able to click on the 'back' button to go home, regardless of which page
+  // they started on.
+  const defaultRoute = app.forum.attribute('defaultRoute');
+
+  for (const i in app.routes) {
+    if (app.routes[i].path === defaultRoute) {
+      app.routes[i].path = '/';
+      app.history.push(i, '/');
+    }
+  }
+
   m.startComputation();
 
   m.mount(document.getElementById('app-navigation'), Navigation.component({className: 'App-backControl', drawer: true}));
   m.mount(document.getElementById('header-navigation'), Navigation.component());
   m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
   m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
-  m.mount(document.getElementById('footer-primary'), FooterPrimary.component());
-  m.mount(document.getElementById('footer-secondary'), FooterSecondary.component());
 
   app.pane = new Pane(document.getElementById('app'));
   app.drawer = new Drawer();
