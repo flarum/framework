@@ -82,7 +82,7 @@ export default class BasicsPage extends Component {
                     m.redraw(true);
                     this.$('.BasicsPage-homePage input').select();
                   }}/>
-                  Custom <input className="FormControl" value={this.values.default_route()} onchange={m.withAttr('value', this.values.default_route)} style={this.values.default_route() !== '/all' ? 'margin-top: 5px' : 'display:none'}/>
+                  Custom <input className="FormControl" value={this.values.default_route()} oninput={m.withAttr('value', this.values.default_route)} style={this.values.default_route() !== '/all' ? 'margin-top: 5px' : 'display:none'}/>
                 </label>
               ]
             })}
