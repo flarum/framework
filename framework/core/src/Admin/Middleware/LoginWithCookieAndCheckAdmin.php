@@ -27,7 +27,7 @@ class LoginWithCookieAndCheckAdmin implements MiddlewareInterface
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
         if (($token = array_get($request->getCookieParams(), 'flarum_remember')) &&
-            ($accessToken = AccessToken::where('id', $token)->first()) &&
+            ($accessToken = AccessToken::valid($token)) &&
             $accessToken->user->isAdmin()
         ) {
             $this->app->instance('flarum.actor', $accessToken->user);

@@ -1,12 +1,14 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Flarum\Api\Client;
+use Flarum\Api\AccessToken;
 use Flarum\Events\UserLoggedIn;
 use Flarum\Core\Users\UserRepository;
 use Flarum\Support\Action;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
+use DateTime;
 
 class LoginAction extends Action
 {
@@ -47,6 +49,10 @@ class LoginAction extends Action
         // response so we can look at the response code. For now if there isn't
         // any useful data we just assume it's a 401.
         if (isset($data->userId)) {
+            // Extend the token's expiry to 2 weeks so that we can set a
+            // remember cookie
+            AccessToken::where('id', $data->token)->update(['expires_at' => new DateTime('+2 weeks')]);
+
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
 
             return $this->withRememberCookie(
