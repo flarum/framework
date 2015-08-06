@@ -344,8 +344,6 @@ export default class IndexPage extends Component {
    * @return {Promise}
    */
   composeNewDiscussion(deferred) {
-    // TODO: check global permissions
-
     const component = new DiscussionComposer({user: app.session.user});
 
     app.composer.load(component);
