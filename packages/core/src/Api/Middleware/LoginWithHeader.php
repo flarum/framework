@@ -34,7 +34,7 @@ class LoginWithHeader implements MiddlewareInterface
         $header = $request->getHeaderLine('authorization');
         if (starts_with($header, $this->prefix) &&
             ($token = substr($header, strlen($this->prefix))) &&
-            ($accessToken = AccessToken::where('id', $token)->first())
+            ($accessToken = AccessToken::valid($token))
         ) {
             $this->app->instance('flarum.actor', $user = $accessToken->user);
 

@@ -5,6 +5,7 @@ use Flarum\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Users\EmailToken;
+use DateTime;
 
 class ConfirmEmailHandler
 {
@@ -32,7 +33,7 @@ class ConfirmEmailHandler
     {
         $token = EmailToken::find($command->token);
 
-        if (! $token) {
+        if (! $token || $token->created_at < new DateTime('-1 day')) {
             throw new InvalidConfirmationTokenException;
         }
 
