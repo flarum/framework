@@ -7,11 +7,11 @@ export default function addPostMentionPreviews() {
   extend(CommentPost.prototype, 'config', function() {
     const contentHtml = this.props.post.contentHtml();
 
-    if (contentHtml === this.oldPostContentHtml) return;
+    if (contentHtml === this.oldPostContentHtml || this.isEditing()) return;
 
     this.oldPostContentHtml = contentHtml;
 
-    const discussion = this.props.post.discussion();
+    const parentPost = this.props.post;
 
     this.$('.UserMention, .PostMention').each(function() {
       m.route.call(this, this, false, {}, {attrs: {href: this.getAttribute('href')}});
@@ -19,7 +19,7 @@ export default function addPostMentionPreviews() {
 
     this.$('.PostMention').each(function() {
       const $this = $(this);
-      const number = $this.data('number');
+      const id = $this.data('id');
       let timeout;
 
       // Wrap the mention link in a wrapper element so that we can insert a
@@ -29,7 +29,7 @@ export default function addPostMentionPreviews() {
       $this.wrap($wrapper).after($preview);
 
       const getPostElement = () => {
-        return $(`.PostStream-item[data-number="${number}"]`);
+        return $(`.PostStream-item[data-id="${id}"]`);
       };
 
       const showPreview = () => {
@@ -57,18 +57,23 @@ export default function addPostMentionPreviews() {
           };
 
           const showPost = post => {
-            m.render($preview[0], <li>{PostPreview.component({post})}</li>);
+            const discussion = post.discussion();
+
+            m.render($preview[0], [
+              discussion !== parentPost.discussion()
+                ? <li><span className="PostMention-preview-discussion">{discussion.title()}</span></li>
+                : '',
+              <li>{PostPreview.component({post})}</li>
+            ]);
             positionPreview();
           };
 
-          const post = discussion.posts().filter(p => p && p.number() === number)[0];
+          const post = app.store.getById('posts', id);
           if (post) {
             showPost(post);
           } else {
             m.render($preview[0], LoadingIndicator.component());
-            app.store.find('posts', {
-              filter: {discussion: discussion.id(), number}
-            }).then(posts => showPost(posts[0]));
+            app.store.find('posts', id).then(showPost);
             positionPreview();
           }
 
