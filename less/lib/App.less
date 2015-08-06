@@ -2,7 +2,6 @@
   position: relative !important;
   padding-top: @header-height;
   overflow-x: hidden;
-  min-height: 100vh;
 
   @media @phone {
     padding-top: @header-height-phone;
@@ -253,8 +252,8 @@
     vertical-align: top;
     font-size: 18px;
     font-weight: normal;
-    margin: 0;
-    line-height: 36px;
+    margin: 0 15px 0 0;
+    line-height: 34px;
   }
   .Header-secondary {
     float: right;
@@ -281,88 +280,5 @@
     width: 100%;
     min-height: 100vh;
     padding-bottom: 50px;
-  }
-}
-
-// ------------------------------------
-// Footer
-
-.Footer-controls {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  > li {
-    display: inline-block;
-    vertical-align: middle;
-  }
-}
-
-// On phones, the footer is displayed at the bottom of the drawer. The
-// footer's primary controls don't display, but the secondary ones do.
-// @todo Maybe we should reverse the naming of primary/secondary then?
-@media @phone {
-  .App-footer {
-    position: fixed;
-    left: 15px;
-    bottom: 15px;
-    width: @drawer-width;
-    margin: 0;
-    z-index: 1;
-
-    .container {
-      padding: 0;
-    }
-  }
-  .Footer-primary {
-    display: none;
-  }
-  .Footer-secondary {
-    float: none;
-
-    > li {
-      margin-right: 15px;
-    }
-  }
-}
-
-// On other devices, we put the footer at the bottom of the page by absolutely
-// positioning it, relative to the page which we pad out at the bottom. We
-// show the primary controls on the left, and the secondary controls on the
-// right.
-@media @tablet-up {
-  .App {
-    padding-bottom: 100px;
-    position: relative;
-  }
-  .App-footer {
-    position: absolute;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-
-    &, a {
-      color: @muted-more-color;
-    }
-    a {
-      &:hover,
-      &:focus {
-        color: @link-color;
-      }
-    }
-  }
-  .Footer-primary {
-    display: inline-block;
-
-    .Footer-controls > li {
-      margin-right: 15px;
-    }
-  }
-  .Footer-secondary {
-    float: right;
-
-    .Footer-controls > li {
-      margin-left: 15px;
-    }
   }
 }

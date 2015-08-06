@@ -17,9 +17,6 @@
  * - #home-link
  * - #header-primary
  * - #header-secondary
- * - #footer
- * - #footer-primary
- * - #footer-secondary
  * - #content
  * - #composer
  */
@@ -42,13 +39,6 @@
         <div id="header-secondary" class="Header-secondary"></div>
       </div>
     </header>
-
-    <footer id="footer" class="App-footer">
-      <div class="container">
-        <div id="footer-primary" class="Footer-primary"></div>
-        <div id="footer-secondary" class="Footer-secondary"></div>
-      </div>
-    </footer>
 
   </div>
 
