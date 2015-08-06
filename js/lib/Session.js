@@ -1,13 +1,8 @@
-import mixin from 'flarum/utils/mixin';
-import evented from 'flarum/utils/evented';
-
 /**
  * The `Session` class defines the current user session. It stores a reference
  * to the current authenticated user, and provides methods to log in/out.
- *
- * @extends evented
  */
-export default class Session extends mixin(class {}, evented) {
+export default class Session {
   constructor(token, user) {
     super();
 
@@ -35,31 +30,12 @@ export default class Session extends mixin(class {}, evented) {
    * @return {Promise}
    */
   login(identification, password) {
-    const deferred = m.deferred();
-
-    app.request({
+    return app.request({
       method: 'POST',
       url: app.forum.attribute('baseUrl') + '/login',
       data: {identification, password}
-    }).then(
-      // FIXME: reload the page on success. Somehow serialize what the user's
-      // intention was, and then perform that intention after the page reloads.
-      response => {
-        this.token = response.token;
-
-        app.store.find('users', response.userId).then(user => {
-          this.user = user;
-          this.trigger('loggedIn', user);
-          deferred.resolve(user);
-        });
-      },
-
-      response => {
-        deferred.reject(response);
-      }
-    );
-
-    return deferred.promise;
+    })
+      .then(() => window.location.reload());
   }
 
   /**

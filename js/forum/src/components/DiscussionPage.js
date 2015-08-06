@@ -55,8 +55,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
     app.current = this;
     app.drawer.hide();
     app.modal.close();
-
-    app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this));
   }
 
   onunload(e) {
@@ -81,7 +79,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
     // discussion, minimize the composer – unless it's empty, in which case
     // we'll just close it.
     app.pane.disable();
-    app.session.off('loggedIn', this.loggedInHandler);
 
     if (app.composingReplyTo(this.discussion) && !app.composer.component.content()) {
       app.composer.hide();
