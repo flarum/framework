@@ -4,7 +4,9 @@ import Button from 'flarum/components/Button';
 import Dropdown from 'flarum/components/Dropdown';
 import Separator from 'flarum/components/Separator';
 import AddExtensionModal from 'flarum/components/AddExtensionModal';
+import LoadingModal from 'flarum/components/LoadingModal';
 import ItemList from 'flarum/utils/ItemList';
+import icon from 'flarum/helpers/icon';
 
 export default class ExtensionsPage extends Component {
   view() {
@@ -36,7 +38,9 @@ export default class ExtensionsPage extends Component {
                       menuClassName: 'Dropdown-menu--right'
                     })}
                     <div className="ExtensionListItem-content">
-                      <span className="ExtensionListItem-icon ExtensionIcon"/>
+                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
+                        {extension.icon ? icon(extension.icon.name) : ''}
+                      </span>
                       <h4 className="ExtensionListItem-title">
                         {extension.title}{' '}
                         <small className="ExtensionListItem-version">{extension.version}</small>
@@ -65,7 +69,7 @@ export default class ExtensionsPage extends Component {
     }
 
     items.add('toggle', Button.component({
-      icon: enabled ? 'times' : 'check',
+      icon: 'power-off',
       children: enabled ? 'Disable' : 'Enable',
       onclick: () => {
         app.request({
@@ -73,22 +77,24 @@ export default class ExtensionsPage extends Component {
           method: 'PATCH',
           data: {enabled: !enabled}
         }).then(() => window.location.reload());
+
+        app.modal.show(new LoadingModal());
       }
     }));
 
-    if (!enabled) {
-      items.add('uninstall', Button.component({
-        icon: 'trash-o',
-        children: 'Uninstall'
-      }));
-    }
+    // if (!enabled) {
+    //   items.add('uninstall', Button.component({
+    //     icon: 'trash-o',
+    //     children: 'Uninstall'
+    //   }));
+    // }
 
-    items.add('separator2', Separator.component());
+    // items.add('separator2', Separator.component());
 
-    items.add('support', LinkButton.component({
-      icon: 'support',
-      children: 'Support'
-    }));
+    // items.add('support', LinkButton.component({
+    //   icon: 'support',
+    //   children: 'Support'
+    // }));
 
     return items;
   }
