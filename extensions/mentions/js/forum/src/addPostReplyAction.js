@@ -10,7 +10,7 @@ export default function() {
     if (post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
 
     function insertMention(component, quote) {
-      const mention = '@' + post.user().username() + '#' + post.number() + ' ';
+      const mention = '@' + post.user().username() + '#' + post.id() + ' ';
 
       // If the composer is empty, then assume we're starting a new reply.
       // In which case we don't want the user to have to confirm if they

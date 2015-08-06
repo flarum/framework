@@ -1,7 +1,6 @@
 <?php namespace Flarum\Mentions\Listeners;
 
 use Flarum\Events\FormatterConfigurator;
-use Flarum\Events\FormatterRenderer;
 use Flarum\Core\Posts\CommentPost;
 
 class AddPostMentionsFormatter
@@ -9,7 +8,6 @@ class AddPostMentionsFormatter
     public function subscribe($events)
     {
         $events->listen(FormatterConfigurator::class, [$this, 'configure']);
-        $events->listen(FormatterRenderer::class, [$this, 'render']);
     }
 
     public function configure(FormatterConfigurator $event)
@@ -21,32 +19,28 @@ class AddPostMentionsFormatter
         $tag = $configurator->tags->add($tagName);
 
         $tag->attributes->add('username');
-        $tag->attributes->add('number');
+        $tag->attributes->add('number')->filterChain->append('#uint');
+        $tag->attributes->add('discussionid')->filterChain->append('#uint');
         $tag->attributes->add('id')->filterChain->append('#uint');
-        $tag->attributes['id']->required = false;
+        $tag->attributes['number']->required = false;
+        $tag->attributes['discussionid']->required = false;
 
-        $tag->template = '<a href="{$DISCUSSION_URL}{@number}" class="PostMention" data-number="{@number}"><xsl:value-of select="@username"/></a>';
-        $tag->filterChain->prepend([static::class, 'addId'])
-            ->addParameterByName('post')
+        $tag->template = '<a href="/d/{@discussionid}/-/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@username"/></a>';
+
+        $tag->filterChain
+            ->prepend([static::class, 'addId'])
             ->setJS('function() { return true; }');
 
-        $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)#(?<number>\d+)/i', $tagName);
+        $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)#(?<id>\d+)/i', $tagName);
     }
 
-    public function render(FormatterRenderer $event)
+    public static function addId($tag)
     {
-        // TODO: use URL generator
-        $event->renderer->setParameter('DISCUSSION_URL', '/d/' . $event->post->discussion_id . '/-/');
-    }
+        $post = CommentPost::find($tag->getAttribute('id'));
 
-    public static function addId($tag, CommentPost $post)
-    {
-        $id = CommentPost::where('discussion_id', $post->discussion_id)
-            ->where('number', $tag->getAttribute('number'))
-            ->pluck('id');
-
-        if ($id) {
-            $tag->setAttribute('id', $id);
+        if ($post) {
+            $tag->setAttribute('discussionid', (int) $post->discussion_id);
+            $tag->setAttribute('number', (int) $post->number);
 
             return true;
         }
