@@ -21,31 +21,27 @@
     <div id="modal"></div>
     <div id="alerts"></div>
 
-    @foreach ($scripts as $file)
-      <script src="{{ str_replace(public_path(), '', $file) }}"></script>
-    @endforeach
-
-    <script>
-      try {
-        var app = System.get('flarum/app').default;
-
-        babelHelpers._extends(app, {!! json_encode($app) !!});
-
-        @foreach ($bootstrappers as $bootstrapper)
-          System.get('{{ $bootstrapper }}');
+    @if (! $noJs)
+        @foreach ($scripts as $file)
+          <script src="{{ str_replace(public_path(), '', $file) }}"></script>
         @endforeach
 
-        app.boot();
-      } catch (e) {
-        document.write('<div class="container">Something went wrong.</div>');
-        throw e;
-      }
-    </script>
+        <script>
+          try {
+            var app = System.get('flarum/app').default;
 
-    @if ($content)
-      <noscript>
-        {!! $content !!}
-      </noscript>
+            babelHelpers._extends(app, {!! json_encode($app) !!});
+
+            @foreach ($bootstrappers as $bootstrapper)
+              System.get('{{ $bootstrapper }}');
+            @endforeach
+
+            app.boot();
+          } catch (e) {
+            window.location = window.location + '?nojs=1';
+            throw e;
+          }
+        </script>
     @endif
 
     {!! $foot !!}

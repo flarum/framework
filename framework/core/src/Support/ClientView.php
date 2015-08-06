@@ -237,10 +237,19 @@ class ClientView implements Renderable
         ] + $this->variables;
         $view->bootstrappers = $this->bootstrappers;
 
+        $noJs = array_get($this->request->getQueryParams(), 'nojs');
+
         $view->title = ($this->title ? $this->title . ' - ' : '') . $forum->data->attributes->title;
         $view->forum = $forum->data;
-        $view->layout = app('view')->file($this->layout, ['forum' => $forum->data]);
-        $view->content = $this->content;
+        $view->layout = app('view')->file($this->layout, [
+            'forum' => $forum->data,
+            'content' => app('view')->file(__DIR__.'/../../views/content.blade.php', [
+                'content' => $this->content,
+                'noJs' => $noJs,
+                'forum' => $forum->data
+            ])
+        ]);
+        $view->noJs = $noJs;
 
         $view->styles = [$this->assets->getCssFile()];
         $view->scripts = [$this->assets->getJsFile(), $this->locale->getFile()];

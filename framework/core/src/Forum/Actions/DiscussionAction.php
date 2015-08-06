@@ -11,18 +11,50 @@ class DiscussionAction extends ClientAction
     {
         $view = parent::render($request, $routeParams);
 
+        $queryParams = $request->getQueryParams();
+        $page = max(1, array_get($queryParams, 'page'));
+
         $params = [
             'id' => array_get($routeParams, 'id'),
-            'page.near' => array_get($routeParams, 'near')
+            'page' => [
+                'near' => array_get($routeParams, 'near'),
+                'offset' => ($page - 1) * 20,
+                'limit' => 20
+            ]
         ];
-
-        // FIXME: make sure this is extensible. 404s, pagination.
 
         $document = $this->preload($params);
 
+        $getResource = function ($link) use ($document) {
+            return array_first($document->included, function ($key, $value) use ($link) {
+                return $value->type === $link->type && $value->id === $link->id;
+            });
+        };
+
+        $url = function ($newQueryParams) use ($queryParams, $document) {
+            $newQueryParams = array_merge($queryParams, $newQueryParams);
+            $queryString = [];
+
+            foreach ($newQueryParams as $k => $v) {
+                $queryString[] = $k . '=' . $v;
+            }
+
+            return app('Flarum\Http\UrlGeneratorInterface')
+                ->toRoute('flarum.forum.discussion', ['id' => $document->data->id]) .
+                ($queryString ? '?' . implode('&', $queryString) : '');
+        };
+
+        $posts = [];
+
+        foreach ($document->included as $resource) {
+            if ($resource->type === 'posts' && isset($resource->relationships->discussion) && isset($resource->attributes->contentHtml)) {
+                $posts[] = $resource;
+            }
+        }
+
         $view->setTitle($document->data->attributes->title);
         $view->setDocument($document);
-        $view->setContent(app('view')->make('flarum.forum::discussion', compact('document')));
+        $view->setContent(app('view')->make('flarum.forum::discussion', compact('document', 'page', 'getResource', 'posts', 'url')));
 
         return $view;
     }

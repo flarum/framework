@@ -45,6 +45,8 @@
   <main class="App-content">
     <div id="content"></div>
 
+    {!! $content !!}
+
     <div class="App-composer">
       <div class="container">
         <div id="composer"></div>
