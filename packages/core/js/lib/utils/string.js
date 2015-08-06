@@ -34,8 +34,14 @@ export function slug(string) {
  * @return {String}
  */
 export function getPlainContent(string) {
-  return $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 ')).text();
+  const dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;'));
+
+  dom.find(getPlainContent.removeSelectors.join(',')).remove();
+
+  return dom.text();
 }
+
+getPlainContent.removeSelectors = ['blockquote'];
 
 /**
  * Make a string's first character uppercase.
