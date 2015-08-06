@@ -13,4 +13,9 @@ class Response
     {
         return json_decode($this->response->getBody());
     }
+
+    public function getStatusCode()
+    {
+        return $this->response->getStatusCode();
+    }
 }
