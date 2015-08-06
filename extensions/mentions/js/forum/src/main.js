@@ -1,6 +1,7 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import NotificationGrid from 'flarum/components/NotificationGrid';
+import { getPlainContent } from 'flarum/utils/string';
 
 import addPostMentionPreviews from 'mentions/addPostMentionPreviews';
 import addMentionedByList from 'mentions/addMentionedByList';
@@ -43,4 +44,6 @@ app.initializers.add('mentions', function() {
       label: app.trans('mentions.notify_user_mentioned')
     });
   });
+
+  getPlainContent.removeSelectors.push('a.PostMention');
 });
