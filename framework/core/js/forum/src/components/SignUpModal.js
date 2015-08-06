@@ -118,7 +118,7 @@ export default class SignUpModal extends Modal {
               {!user.isConfirmed() ? [
                 <p>{app.trans('core.confirmation_email_sent', {email: <strong>{user.email()}</strong>})}</p>,
                 <p>
-                  <a href={`http://${emailProviderName}`} className="Button Button--primary">
+                  <a href={`http://${emailProviderName}`} className="Button Button--primary" target="_blank">
                     {app.trans('core.go_to', {location: emailProviderName})}
                   </a>
                 </p>
