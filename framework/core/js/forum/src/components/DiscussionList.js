@@ -37,12 +37,6 @@ export default class DiscussionList extends Component {
     this.discussions = [];
 
     this.refresh();
-
-    app.session.on('loggedIn', this.loggedInHandler = this.refresh.bind(this));
-  }
-
-  onunload() {
-    app.session.off('loggedIn', this.loggedInHandler);
   }
 
   view() {
