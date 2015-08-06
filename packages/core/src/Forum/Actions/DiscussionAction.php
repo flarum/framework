@@ -1,6 +1,7 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Flarum\Http\RouteNotFoundException;
 
 class DiscussionAction extends ClientAction
 {
@@ -70,6 +71,13 @@ class DiscussionAction extends ClientAction
         $actor = app('flarum.actor');
         $action = 'Flarum\Api\Actions\Discussions\ShowAction';
 
-        return $this->apiClient->send($actor, $action, $params)->getBody();
+        $response = $this->apiClient->send($actor, $action, $params);
+        $statusCode = $response->getStatusCode();
+
+        if ($statusCode === 404) {
+            throw new RouteNotFoundException;
+        }
+
+        return $response->getBody();
     }
 }
