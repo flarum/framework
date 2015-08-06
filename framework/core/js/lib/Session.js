@@ -4,8 +4,6 @@
  */
 export default class Session {
   constructor(token, user) {
-    super();
-
     /**
      * The current authenticated user.
      *
