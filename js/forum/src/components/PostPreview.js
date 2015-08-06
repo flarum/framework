@@ -16,7 +16,7 @@ export default class PostPreview extends Component {
   view() {
     const post = this.props.post;
     const user = post.user();
-    const excerpt = highlight(post.contentPlain(), this.props.highlight, 200);
+    const excerpt = highlight(post.contentPlain(), this.props.highlight, 300);
 
     return (
       <a className="PostPreview" href={app.route.post(post)} config={m.route} onclick={this.props.onclick}>

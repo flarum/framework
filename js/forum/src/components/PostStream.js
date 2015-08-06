@@ -211,6 +211,7 @@ class PostStream extends mixin(Component, evented) {
             attrs.config = fadeIn;
             attrs['data-time'] = time.toISOString();
             attrs['data-number'] = post.number();
+            attrs['data-id'] = post.id();
 
             // If the post before this one was more than 4 hours ago, we will
             // display a 'time gap' indicating how long it has been in between

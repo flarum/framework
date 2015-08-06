@@ -26,7 +26,7 @@ class ShowAction extends SerializeResourceAction
         'user.groups' => true,
         'editUser' => true,
         'hideUser' => true,
-        'discussion' => false
+        'discussion' => true
     ];
 
     /**
