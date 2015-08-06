@@ -174,13 +174,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
    * @param {Discussion} discussion
    */
   init(discussion) {
-    // If the slug in the URL doesn't match up, we'll redirect so we have the
-    // correct one.
-    if (m.route.param('id') === discussion.id() && m.route.param('slug') !== discussion.slug()) {
-      m.route(app.route.discussion(discussion, m.route.param('near')), null, true);
-      return;
-    }
-
     this.discussion = discussion;
 
     app.setTitle(discussion.title());
@@ -207,7 +200,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     // the specific post that was routed to.
     this.stream = new PostStream({discussion, includedPosts});
     this.stream.on('positionChanged', this.positionChanged.bind(this));
-    this.stream.goToNumber(m.route.param('near') || 1, true);
+    this.stream.goToNumber(m.route.param('near') || includedPosts[0].number(), true);
 
     this.trigger('loaded', discussion);
   }
