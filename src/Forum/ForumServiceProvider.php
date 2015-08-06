@@ -53,7 +53,7 @@ class ForumServiceProvider extends ServiceProvider
         $this->app->instance('flarum.forum.routes', $routes = new RouteCollection);
 
         $routes->get(
-            '/',
+            '/all',
             'flarum.forum.index',
             $this->action('Flarum\Forum\Actions\IndexAction')
         );
@@ -113,6 +113,14 @@ class ForumServiceProvider extends ServiceProvider
         );
 
         event(new RegisterForumRoutes($routes));
+
+        $settings = $this->app->make('Flarum\Core\Settings\SettingsRepository');
+
+        $routes->get(
+            '/',
+            'flarum.forum.default',
+            $routes->getRouteData()[0]['GET'][$settings->get('default_route')]
+        );
     }
 
     protected function action($class)

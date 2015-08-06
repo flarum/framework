@@ -12,7 +12,7 @@ import NotificationsPage from 'flarum/components/NotificationsPage';
  */
 export default function(app) {
   app.routes = {
-    'index': {path: '/', component: IndexPage.component()},
+    'index': {path: '/all', component: IndexPage.component()},
     'index.filter': {path: '/:filter', component: IndexPage.component()},
 
     'discussion.id': {path: '/d/:id', component: DiscussionPage.component()},

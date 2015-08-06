@@ -10,7 +10,7 @@
  * rather than the previous discussion.
  */
 export default class History {
-  constructor() {
+  constructor(defaultRoute) {
     /**
      * The stack of routes that have been navigated to.
      *
@@ -18,11 +18,6 @@ export default class History {
      * @protected
      */
     this.stack = [];
-
-    // Push the homepage as the first route, so that the user will always be
-    // able to click on the 'back' button to go home, regardless of which page
-    // they started on.
-    this.push('index', '/');
   }
 
   /**
