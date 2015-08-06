@@ -2,7 +2,9 @@
 
 use Flarum\Core\Users\PasswordToken;
 use Flarum\Support\HtmlAction;
+use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use DateTime;
 
 class ResetPasswordAction extends HtmlAction
 {
@@ -16,6 +18,10 @@ class ResetPasswordAction extends HtmlAction
         $token = array_get($routeParams, 'token');
 
         $token = PasswordToken::findOrFail($token);
+
+        if ($token->created_at < new DateTime('-1 day')) {
+            throw new InvalidConfirmationTokenException;
+        }
 
         return view('flarum::reset')->with('token', $token->id);
     }
