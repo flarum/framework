@@ -41,7 +41,7 @@ class ConfigAction implements Action
         foreach ($config as $k => $v) {
             $this->settings->set($k, $v);
 
-            if (strpos($k, 'theme_') === 0) {
+            if (strpos($k, 'theme_') === 0 || $k === 'custom_less') {
                 $forum = app('Flarum\Forum\Actions\ClientAction');
                 $forum->flushAssets();
 
