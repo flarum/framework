@@ -27,18 +27,18 @@ class IndexAction extends ClientAction
 
         $sort = array_pull($queryParams, 'sort');
         $q = array_pull($queryParams, 'q');
+        $page = array_pull($queryParams, 'page', 1);
 
         $params = [
             'sort' => $sort && isset($this->sortMap[$sort]) ? $this->sortMap[$sort] : '',
-            'filter' => ['q' => $q]
+            'filter' => compact('q'),
+            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
-
-        // FIXME: make sure this is extensible. Support pagination.
 
         $document = $this->preload($params);
 
         $view->setDocument($document);
-        $view->setContent(app('view')->make('flarum.forum::index', compact('document')));
+        $view->setContent(app('view')->make('flarum.forum::index', compact('document', 'page', 'forum')));
 
         return $view;
     }
