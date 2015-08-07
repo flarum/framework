@@ -69,7 +69,7 @@ export default function addPostMentionPreviews() {
           };
 
           const post = app.store.getById('posts', id);
-          if (post) {
+          if (post && post.discussion()) {
             showPost(post);
           } else {
             m.render($preview[0], LoadingIndicator.component());
