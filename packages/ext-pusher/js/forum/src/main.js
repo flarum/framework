@@ -36,7 +36,7 @@ app.initializers.add('pusher', () => {
       channels.main.bind('newPost', data => {
         const params = this.props.params;
 
-        if (!params.q && !params.sort) {
+        if (!params.q && !params.sort && !params.filter) {
           if (params.tags) {
             const tag = app.store.getBy('tags', 'slug', params.tags);
 
