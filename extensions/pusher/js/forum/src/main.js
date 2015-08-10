@@ -43,8 +43,10 @@ app.initializers.add('pusher', () => {
             if (data.tagIds.indexOf(tag.id()) === -1) return;
           }
 
-          if ((!app.current.discussion || data.discussionId !== app.current.discussion.id()) && app.pushedUpdates.indexOf(data.discussionId) === -1) {
-            app.pushedUpdates.push(data.discussionId);
+          const id = String(data.discussionId);
+
+          if ((!app.current.discussion || id !== app.current.discussion.id()) && app.pushedUpdates.indexOf(id) === -1) {
+            app.pushedUpdates.push(id);
 
             if (app.current instanceof IndexPage) {
               app.setTitleCount(app.pushedUpdates.length);
@@ -107,7 +109,9 @@ app.initializers.add('pusher', () => {
 
     app.pusher.then(channels => {
       channels.main.bind('newPost', data => {
-        if (this.discussion && this.discussion.id() === data.discussionId && this.stream) {
+        const id = String(data.discussionId);
+
+        if (this.discussion && this.discussion.id() === id && this.stream) {
           const oldCount = this.discussion.commentsCount();
 
           app.store.find('discussions', this.discussion.id()).then(() => {
