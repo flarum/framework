@@ -10,7 +10,7 @@
     "require": {
         "php": ">=5.4.0",
         "illuminate/support": "5.0.*",
-        "tobscure/json-api": "dev-master",
+        "tobscure/json-api": "^0.1.1",
         "oyejorge/less.php": "~1.5",
         "intervention/image": "^2.3.0",
         "s9e/text-formatter": "dev-release/php5.3",
