@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreateActivityTable extends Migration
@@ -14,7 +14,7 @@ class CreateActivityTable extends Migration
      */
     public function up()
     {
-        Schema::create('activity', function (Blueprint $table) {
+        $this->schema->create('activity', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->string('type', 100);
@@ -31,6 +31,6 @@ class CreateActivityTable extends Migration
      */
     public function down()
     {
-        Schema::drop('activity');
+        $this->schema->drop('activity');
     }
 }

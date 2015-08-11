@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreateUsersGroupsTable extends Migration
@@ -14,7 +14,7 @@ class CreateUsersGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_groups', function (Blueprint $table) {
+        $this->schema->create('users_groups', function (Blueprint $table) {
         
             $table->integer('user_id')->unsigned();
             $table->integer('group_id')->unsigned();
@@ -29,6 +29,6 @@ class CreateUsersGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('users_groups');
+        $this->schema->drop('users_groups');
     }
 }
