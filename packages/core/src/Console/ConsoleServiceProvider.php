@@ -11,7 +11,7 @@ class ConsoleServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->commands('Flarum\Console\InstallCommand');
+        //$this->commands('Flarum\Console\InstallCommand');
         $this->commands('Flarum\Console\SeedCommand');
         $this->commands('Flarum\Console\ImportCommand');
         $this->commands('Flarum\Console\GenerateExtensionCommand');
