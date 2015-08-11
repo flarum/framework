@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0d4b9771622dc53634ebec14bfa1f8ef",
+    "hash": "6570cb23f32b6f8ecef5911d9b6cc2dc",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -553,12 +553,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/s9e/TextFormatter.git",
-                "reference": "63c51c977f36ae75fa8756b6ee7ec155b0f99498"
+                "reference": "737d99ff24fd37558703639103e42387d67f5a18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/63c51c977f36ae75fa8756b6ee7ec155b0f99498",
-                "reference": "63c51c977f36ae75fa8756b6ee7ec155b0f99498",
+                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/737d99ff24fd37558703639103e42387d67f5a18",
+                "reference": "737d99ff24fd37558703639103e42387d67f5a18",
                 "shasum": ""
             },
             "require": {
@@ -604,27 +604,27 @@
                 "parser",
                 "shortcodes"
             ],
-            "time": "2015-07-27 20:23:11"
+            "time": "2015-08-11 18:41:09"
         },
         {
             "name": "tobscure/json-api",
-            "version": "dev-master",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tobscure/json-api.git",
-                "reference": "95c049696443da6dd3467dd4e5a6012ac44fe548"
+                "reference": "bd316b03c63d6e2bbd56c0714eccc644f31881d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tobscure/json-api/zipball/95c049696443da6dd3467dd4e5a6012ac44fe548",
-                "reference": "95c049696443da6dd3467dd4e5a6012ac44fe548",
+                "url": "https://api.github.com/repos/tobscure/json-api/zipball/bd316b03c63d6e2bbd56c0714eccc644f31881d4",
+                "reference": "bd316b03c63d6e2bbd56c0714eccc644f31881d4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=5.5.9"
             },
             "require-dev": {
-                "squizlabs/php_codesniffer": "1.5.3"
+                "phpunit/phpunit": "^4.8.0"
             },
             "type": "library",
             "extra": {
@@ -651,22 +651,23 @@
             "keywords": [
                 "api",
                 "json",
+                "jsonapi",
                 "standard"
             ],
-            "time": "2015-07-21 21:35:56"
+            "time": "2015-08-07 07:12:01"
         },
         {
             "name": "zendframework/zend-diactoros",
-            "version": "1.1.2",
+            "version": "1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-diactoros.git",
-                "reference": "bac9f86a4dbf282a3029602411ae655225bc370b"
+                "reference": "e2f5c12916c74da384058d0dfbc7fbc0b03d1181"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/bac9f86a4dbf282a3029602411ae655225bc370b",
-                "reference": "bac9f86a4dbf282a3029602411ae655225bc370b",
+                "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/e2f5c12916c74da384058d0dfbc7fbc0b03d1181",
+                "reference": "e2f5c12916c74da384058d0dfbc7fbc0b03d1181",
                 "shasum": ""
             },
             "require": {
@@ -703,7 +704,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2015-07-12 17:59:47"
+            "time": "2015-08-10 20:04:20"
         }
     ],
     "packages-dev": [
@@ -1341,16 +1342,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v2.7.2",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "8cf484449130cabfd98dcb4694ca9945802a21ed"
+                "reference": "d6cf02fe73634c96677e428f840704bfbcaec29e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/8cf484449130cabfd98dcb4694ca9945802a21ed",
-                "reference": "8cf484449130cabfd98dcb4694ca9945802a21ed",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/d6cf02fe73634c96677e428f840704bfbcaec29e",
+                "reference": "d6cf02fe73634c96677e428f840704bfbcaec29e",
                 "shasum": ""
             },
             "require": {
@@ -1394,11 +1395,11 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-09 16:07:40"
+            "time": "2015-07-28 15:18:12"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.7.2",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
@@ -1456,7 +1457,7 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v2.7.2",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Finder.git",
@@ -1505,7 +1506,7 @@
         },
         {
             "name": "symfony/process",
-            "version": "v2.7.2",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
@@ -1554,16 +1555,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.7.2",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "4bfbe0ed3909bfddd75b70c094391ec1f142f860"
+                "reference": "71340e996171474a53f3d29111d046be4ad8a0ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/4bfbe0ed3909bfddd75b70c094391ec1f142f860",
-                "reference": "4bfbe0ed3909bfddd75b70c094391ec1f142f860",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/71340e996171474a53f3d29111d046be4ad8a0ff",
+                "reference": "71340e996171474a53f3d29111d046be4ad8a0ff",
                 "shasum": ""
             },
             "require": {
@@ -1599,13 +1600,12 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-01 11:25:50"
+            "time": "2015-07-28 14:07:07"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "tobscure/json-api": 20,
         "s9e/text-formatter": 20
     },
     "prefer-stable": false,
