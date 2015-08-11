@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreateConfigTable extends Migration
@@ -14,7 +14,7 @@ class CreateConfigTable extends Migration
      */
     public function up()
     {
-        Schema::create('config', function (Blueprint $table) {
+        $this->schema->create('config', function (Blueprint $table) {
         
             $table->string('key', 100)->primary();
             $table->binary('value')->nullable();
@@ -28,6 +28,6 @@ class CreateConfigTable extends Migration
      */
     public function down()
     {
-        Schema::drop('config');
+        $this->schema->drop('config');
     }
 }

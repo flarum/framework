@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreateAccessTokensTable extends Migration
@@ -13,7 +13,7 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
+        $this->schema->create('access_tokens', function (Blueprint $table) {
             $table->string('id', 100)->primary();
             $table->integer('user_id')->unsigned();
             $table->timestamp('created_at');
@@ -28,6 +28,6 @@ class CreateAccessTokensTable extends Migration
      */
     public function down()
     {
-        Schema::drop('access_tokens');
+        $this->schema->drop('access_tokens');
     }
 }

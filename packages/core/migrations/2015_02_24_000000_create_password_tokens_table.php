@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreatePasswordTokensTable extends Migration
@@ -13,7 +13,7 @@ class CreatePasswordTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('password_tokens', function (Blueprint $table) {
+        $this->schema->create('password_tokens', function (Blueprint $table) {
             $table->string('id', 100)->primary();
             $table->integer('user_id')->unsigned();
             $table->timestamp('created_at');
@@ -27,6 +27,6 @@ class CreatePasswordTokensTable extends Migration
      */
     public function down()
     {
-        Schema::drop('password_tokens');
+        $this->schema->drop('password_tokens');
     }
 }
