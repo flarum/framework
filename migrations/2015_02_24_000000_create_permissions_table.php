@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreatePermissionsTable extends Migration
@@ -14,7 +14,7 @@ class CreatePermissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('permissions', function ($table) {
+        $this->schema->create('permissions', function (Blueprint $table) {
         
             $table->integer('group_id')->unsigned();
             $table->string('permission', 100);
@@ -29,6 +29,6 @@ class CreatePermissionsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('permissions');
+        $this->schema->drop('permissions');
     }
 }

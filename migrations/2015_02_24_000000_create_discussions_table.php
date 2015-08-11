@@ -1,7 +1,7 @@
 <?php
 
+use Flarum\Install\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 class CreateDiscussionsTable extends Migration
@@ -14,7 +14,7 @@ class CreateDiscussionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('discussions', function (Blueprint $table) {
+        $this->schema->create('discussions', function (Blueprint $table) {
 
             $table->increments('id');
             $table->string('title', 200);
@@ -40,6 +40,6 @@ class CreateDiscussionsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('discussions');
+        $this->schema->drop('discussions');
     }
 }
