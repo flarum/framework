@@ -70,7 +70,7 @@ class PostRepository
             $query->orderBy($field, $order);
         }
 
-        $ids = $query->lists('id');
+        $ids = $query->lists('id')->all();
 
         return $this->findByIds($ids, $actor);
     }
