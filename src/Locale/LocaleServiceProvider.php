@@ -34,5 +34,11 @@ class LocaleServiceProvider extends ServiceProvider
         $this->app->singleton('Flarum\Locale\LocaleManager');
 
         $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
+
+        $this->app->bind('translator', function ($app) {
+            $locales = $app->make('flarum.localeManager');
+
+            return new Translator($locales->getTranslations('en'), $locales->getConfig('en')['plural']);
+        });
     }
 }
