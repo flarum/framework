@@ -27,28 +27,16 @@ class LocaleManager
 
     public function addTranslations($locale, $translations)
     {
-        if (! isset($this->translations[$locale])) {
-            $this->translations[$locale] = [];
-        }
-
         $this->translations[$locale][] = $translations;
     }
 
     public function addJsFile($locale, $js)
     {
-        if (! isset($this->js[$locale])) {
-            $this->js[$locale] = [];
-        }
-
         $this->js[$locale][] = $js;
     }
 
     public function addConfig($locale, $config)
     {
-        if (! isset($this->config[$locale])) {
-            $this->config[$locale] = [];
-        }
-
         $this->config[$locale][] = $config;
     }
 
@@ -78,5 +66,20 @@ class LocaleManager
         }
 
         return $files;
+    }
+
+    public function getConfig($locale)
+    {
+        if (empty($this->config[$locale])) {
+            return [];
+        }
+
+        $config = [];
+
+        foreach ($this->config[$locale] as $file) {
+            $config = array_merge($config, include $file);
+        }
+
+        return $config;
     }
 }

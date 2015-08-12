@@ -9,7 +9,19 @@
     ],
     "require": {
         "php": ">=5.4.0",
+        "illuminate/bus": "5.1.*",
+        "illuminate/cache": "5.1.*",
+        "illuminate/config": "5.1.*",
+        "illuminate/container": "5.1.*",
+        "illuminate/contracts": "5.1.*",
+        "illuminate/database": "5.1.*",
+        "illuminate/events": "5.1.*",
+        "illuminate/filesystem": "5.1.*",
+        "illuminate/hashing": "5.1.*",
+        "illuminate/mail": "5.1.*",
         "illuminate/support": "5.1.*",
+        "illuminate/validation": "5.1.*",
+        "illuminate/view": "5.1.*",
         "tobscure/json-api": "^0.1.1",
         "oyejorge/less.php": "~1.5",
         "intervention/image": "^2.3.0",
@@ -20,13 +32,15 @@
         "dflydev/fig-cookies": "^1.0"
     },
     "require-dev": {
-        "fzaninotto/faker": "1.4.0",
         "squizlabs/php_codesniffer": "2.*",
         "phpspec/phpspec": "^2.2"
     },
     "autoload": {
         "psr-4": {
             "Flarum\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     }
 }

@@ -1,11 +1,9 @@
 <?php namespace Flarum\Locale;
 
+use Symfony\Component\Translation\TranslatorInterface;
 use Closure;
 
-/**
- * @todo implement Symfony\Component\Translation\TranslatorInterface
- */
-class Translator
+class Translator implements TranslatorInterface
 {
     protected $translations;
 
@@ -17,27 +15,46 @@ class Translator
         $this->plural = $plural;
     }
 
-    public function plural($count)
+    protected function plural($count)
     {
-        return {$this->plural}($count);
+        $plural = $this->plural;
+
+        return $plural($count);
     }
 
-    public function translate($key, array $input = [])
+    public function getLocale()
     {
-        $translation = array_get($this->translations, $key);
+        //
+    }
 
-        if (is_array($translation) && isset($input['count'])) {
-            $translation = $translation[$this->plural($input['count'])];
+    public function setLocale($locale)
+    {
+        //
+    }
+
+    public function trans($id, array $parameters = [], $domain = null, $locale = null)
+    {
+        $translation = array_get($this->translations, $id);
+
+        if (is_array($translation) && isset($parameters['count'])) {
+            $translation = $translation[$this->plural($parameters['count'])];
         }
 
         if (is_string($translation)) {
-            foreach ($input as $k => $v) {
+            foreach ($parameters as $k => $v) {
                 $translation = str_replace('{'.$k.'}', $v, $translation);
             }
 
             return $translation;
-        } else {
-            return $key;
         }
+
+        return $id;
+    }
+
+    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
+    {
+        $parameters['count'] = $number;
+
+        return $this->trans($id, $parameters, $domain, $locale);
     }
 }
