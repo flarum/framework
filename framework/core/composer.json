@@ -9,11 +9,11 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "5.0.*",
+        "illuminate/support": "5.1.*",
         "tobscure/json-api": "^0.1.1",
         "oyejorge/less.php": "~1.5",
         "intervention/image": "^2.3.0",
-        "s9e/text-formatter": "dev-release/php5.3",
+        "s9e/text-formatter": "dev-release/php5.3@dev",
         "psr/http-message": "^1.0",
         "zendframework/zend-diactoros": "^1.1",
         "nikic/fast-route": "^0.6",
@@ -28,6 +28,5 @@
         "psr-4": {
             "Flarum\\": "src/"
         }
-    },
-    "minimum-stability": "stable"
+    }
 }
