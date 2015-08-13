@@ -21,5 +21,11 @@ class ExtensionsServiceProvider extends ServiceProvider
                 $providers[$extension] = $this->app->register($providerName);
             }
         }
+
+        $events = $this->app->make('events');
+
+        foreach ($providers as $provider) {
+            $provider->listen($events);
+        }
     }
 }
