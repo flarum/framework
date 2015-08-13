@@ -5,7 +5,7 @@ use Illuminate\Events\Dispatcher;
 
 class Extension extends BaseExtension
 {
-    public function boot(Dispatcher $events)
+    public function listen(Dispatcher $events)
     {
         $events->subscribe('Flarum\Likes\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Likes\Listeners\AddModelRelationship');
