@@ -2,7 +2,7 @@
     "name": "lock",
     "title": "Lock",
     "description": "End a discussion and don't let anyone add further replies.",
-    "keywords": ["discussions"],
+    "keywords": ["moderation"],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
@@ -17,5 +17,10 @@
     "support": {
         "source": "https://github.com/flarum/lock",
         "issues": "https://github.com/flarum/lock/issues"
+    },
+    "icon": {
+      "name": "lock",
+      "backgroundColor": "#ddd",
+      "color": "#666"
     }
 }
