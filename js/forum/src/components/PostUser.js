@@ -92,7 +92,7 @@ export default class PostUser extends Component {
    */
   hideCard() {
     this.$('.UserCard').removeClass('in')
-      .one('transitionend', () => {
+      .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
         this.cardVisible = false;
         m.redraw();
       });
