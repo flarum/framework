@@ -39,7 +39,6 @@ class AddClientAssets
             'tags.choose_secondary_tags',
             'tags.confirm',
             'tags.more',
-            'tags.tag_cloud_title',
             'tags.deleted'
         ]);
 

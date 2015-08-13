@@ -3,6 +3,7 @@ import IndexPage from 'flarum/components/IndexPage';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
 
+import tagLabel from 'tags/helpers/tagLabel';
 import sortTags from 'tags/utils/sortTags';
 
 export default class TagsPage extends Component {
@@ -74,19 +75,14 @@ export default class TagsPage extends Component {
 
             {cloud.length ? (
               <div className="TagCloud">
-                <h4 className="TagCloud-title">{app.trans('tags.tag_cloud_title')}</h4>
-                <div className="TagCloud-content">
-                  {cloud.map(tag => {
-                    const color = tag.color();
+                {cloud.map(tag => {
+                  const color = tag.color();
 
-                    return [
-                      <a href={app.route.tag(tag)} config={m.route} style={color ? {color} : ''}>
-                        {tag.name()}
-                      </a>,
-                      ' '
-                    ];
-                  })}
-                </div>
+                  return [
+                    tagLabel(tag, {link: true}),
+                    ' '
+                  ];
+                })}
               </div>
             ) : ''}
           </div>
