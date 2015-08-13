@@ -5,10 +5,8 @@ use Illuminate\Events\Dispatcher;
 
 class Extension extends BaseExtension
 {
-    public function boot(Dispatcher $events)
+    public function listen(Dispatcher $events)
     {
-        Tag::setValidator($this->app->make('validator'));
-
         $events->subscribe('Flarum\Tags\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Tags\Listeners\AddModelRelationship');
         $events->subscribe('Flarum\Tags\Listeners\ConfigureDiscussionPermissions');
@@ -18,5 +16,10 @@ class Extension extends BaseExtension
         $events->subscribe('Flarum\Tags\Listeners\LogDiscussionTagged');
         $events->subscribe('Flarum\Tags\Listeners\UpdateTagMetadata');
         $events->subscribe('Flarum\Tags\Listeners\AddTagGambit');
+    }
+
+    public function boot()
+    {
+        Tag::setValidator($this->app->make('validator'));
     }
 }
