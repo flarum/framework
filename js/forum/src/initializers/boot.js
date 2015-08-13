@@ -45,8 +45,13 @@ export default function boot(app) {
   app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
   app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
 
+  const basePath = app.forum.attribute('basePath');
   m.route.mode = 'pathname';
-  m.route(document.getElementById('content'), '/', mapRoutes(app.routes));
+  m.route(
+    document.getElementById('content'),
+    basePath + '/',
+    mapRoutes(app.routes, basePath)
+  );
 
   m.endComputation();
 

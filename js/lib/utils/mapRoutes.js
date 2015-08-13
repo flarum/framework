@@ -4,9 +4,10 @@
  *
  * @see https://lhorie.github.io/mithril/mithril.route.html#defining-routes
  * @param {Object} routes
+ * @param {String} [basePath]
  * @return {Object}
  */
-export default function mapRoutes(routes) {
+export default function mapRoutes(routes, basePath = '') {
   const map = {};
 
   for (const key in routes) {
@@ -14,7 +15,7 @@ export default function mapRoutes(routes) {
 
     if (route.component) route.component.props.routeName = key;
 
-    map[route.path] = route.component;
+    map[basePath + route.path] = route.component;
   }
 
   return map;
