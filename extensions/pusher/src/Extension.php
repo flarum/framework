@@ -5,25 +5,10 @@ use Illuminate\Events\Dispatcher;
 
 class Extension extends BaseExtension
 {
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot(Dispatcher $events)
+    public function listen(Dispatcher $events)
     {
         $events->subscribe('Flarum\Pusher\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Pusher\Listeners\PushNewPosts');
         $events->subscribe('Flarum\Pusher\Listeners\AddApiAttributes');
-    }
-
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
     }
 }
