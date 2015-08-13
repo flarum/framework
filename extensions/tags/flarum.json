@@ -17,5 +17,10 @@
     "support": {
         "source": "https://github.com/flarum/tags",
         "issues": "https://github.com/flarum/tags/issues"
+    },
+    "icon": {
+      "name": "tags",
+      "backgroundColor": "#F28326",
+      "color": "#fff"
     }
 }
