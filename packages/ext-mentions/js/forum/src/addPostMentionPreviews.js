@@ -93,7 +93,7 @@ export default function addPostMentionPreviews() {
       $this.parent().hover(
         () => {
           clearTimeout(timeout);
-          timeout = setTimeout(showPreview, 500);
+          timeout = setTimeout(showPreview, 250);
         },
         () => {
           clearTimeout(timeout);
