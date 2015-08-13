@@ -3,6 +3,7 @@ import Button from 'flarum/components/Button';
 import LogInModal from 'flarum/components/LogInModal';
 import SignUpModal from 'flarum/components/SignUpModal';
 import SessionDropdown from 'flarum/components/SessionDropdown';
+import SelectDropdown from 'flarum/components/SelectDropdown';
 import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
 import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
@@ -30,6 +31,31 @@ export default class HeaderSecondary extends Component {
     const items = new ItemList();
 
     items.add('search', app.search.render());
+
+    if (Object.keys(app.locales).length > 1) {
+      const locales = [];
+
+      for (const locale in app.locales) {
+        locales.push(Button.component({
+          active: app.locale === locale,
+          children: app.locales[locale],
+          icon: app.locale === locale ? 'check' : true,
+          onclick: () => {
+            if (app.session.user) {
+              app.session.user.savePreferences({locale}).then(() => window.location.reload());
+            } else {
+              document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
+              window.location.reload();
+            }
+          }
+        }));
+      }
+
+      items.add('locale', SelectDropdown.component({
+        children: locales,
+        buttonClassName: 'Button Button--link'
+      }));
+    }
 
     if (app.session.user) {
       items.add('notifications', NotificationsDropdown.component());
