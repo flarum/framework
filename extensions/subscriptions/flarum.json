@@ -17,5 +17,10 @@
     "support": {
         "source": "https://github.com/flarum/subscriptions",
         "issues": "https://github.com/flarum/subscriptions/issues"
+    },
+    "icon": {
+      "name": "star",
+      "backgroundColor": "#ffea7b",
+      "color": "#de8e00"
     }
 }
