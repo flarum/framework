@@ -50,6 +50,10 @@ class EditTagHandler
             $tag->color = $attributes['color'];
         }
 
+        if (isset($attributes['isHidden'])) {
+            $tag->is_hidden = (bool) $attributes['isHidden'];
+        }
+
         if (isset($attributes['isRestricted'])) {
             $tag->is_restricted = (bool) $attributes['isRestricted'];
         }
