@@ -4,9 +4,9 @@ use Closure;
 use Flarum\Core\Users\User;
 use Flarum\Events\ApiAttributes;
 use Flarum\Events\ApiRelationship;
-use Tobscure\JsonApi\SerializerAbstract;
+use Tobscure\JsonApi\AbstractSerializer;
 
-abstract class Serializer extends SerializerAbstract
+abstract class Serializer extends AbstractSerializer
 {
     /**
      * @var User
