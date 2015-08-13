@@ -142,7 +142,7 @@ class CommentPost extends Post
      */
     public function setContentAttribute($value)
     {
-        $this->attributes['content'] = static::$formatter->parse($value, $this);
+        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this) : null;
     }
 
     /**
