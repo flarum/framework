@@ -2,7 +2,7 @@
     "name": "sticky",
     "title": "Sticky",
     "description": "Pin discussions to the top of the list.",
-    "keywords": ["discussions"],
+    "keywords": ["moderation"],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
@@ -17,5 +17,10 @@
     "support": {
         "source": "https://github.com/flarum/sticky",
         "issues": "https://github.com/flarum/sticky/issues"
+    },
+    "icon": {
+      "name": "thumb-tack",
+      "backgroundColor": "#D13E32",
+      "color": "#fff"
     }
 }
