@@ -12,5 +12,14 @@
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
+    },
+    "support": {
+        "source": "https://github.com/flarum/suspend",
+        "issues": "https://github.com/flarum/suspend/issues"
+    },
+    "icon": {
+      "name": "ban",
+      "backgroundColor": "#ddd",
+      "color": "#666"
     }
 }
