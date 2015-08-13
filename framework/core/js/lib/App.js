@@ -254,8 +254,9 @@ export default class App {
   route(name, params = {}) {
     const url = this.routes[name].path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
     const queryString = m.route.buildQueryString(params);
+    const prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
 
-    return url + (queryString ? '?' + queryString : '');
+    return prefix + url + (queryString ? '?' + queryString : '');
   }
 
   /**
