@@ -197,7 +197,7 @@ class PostStream extends mixin(Component, evented) {
     this.viewingEnd = this.visibleEnd === this.count();
 
     return (
-      <div className="post-stream">
+      <div className="PostStream">
         {this.posts().map((post, i) => {
           let content;
           const attrs = {'data-index': this.visibleStart + i};
