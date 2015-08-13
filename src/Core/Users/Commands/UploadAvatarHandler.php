@@ -48,7 +48,9 @@ class UploadAvatarHandler
         // Make sure the current user is allowed to edit the user profile.
         // This will let admins and the user themselves pass through, and
         // throw an exception otherwise.
-        $user->assertCan($actor, 'edit');
+        if ($actor->id !== $user->id) {
+            $user->assertCan($actor, 'edit');
+        }
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'avatar');
         $command->file->moveTo($tmpFile);
