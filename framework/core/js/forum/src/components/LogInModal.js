@@ -117,10 +117,7 @@ export default class LogInModal extends Modal {
     const password = this.password();
 
     app.session.login(email, password).then(
-      () => {
-        this.hide();
-        if (this.props.onlogin) this.props.onlogin();
-      },
+      null,
       response => {
         this.loading = false;
 
