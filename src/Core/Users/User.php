@@ -349,7 +349,7 @@ class User extends Model
         }
 
         if (is_null($this->permissions)) {
-            $this->permissions = $this->permissions()->lists('permission');
+            $this->permissions = $this->permissions()->lists('permission')->all();
         }
 
         return in_array($permission, $this->permissions);
