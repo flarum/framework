@@ -2,7 +2,7 @@
     "name": "markdown",
     "title": "Markdown",
     "description": "Allow posts to be formatted with Markdown.",
-    "keywords": [],
+    "keywords": ["discussions"],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
@@ -12,5 +12,10 @@
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
+    },
+    "icon": {
+      "name": "font",
+      "backgroundColor": "#AB90D8",
+      "color": "#fff"
     }
 }
