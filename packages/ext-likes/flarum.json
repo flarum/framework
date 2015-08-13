@@ -17,5 +17,10 @@
     "support": {
         "source": "https://github.com/flarum/likes",
         "issues": "https://github.com/flarum/likes/issues"
+    },
+    "icon": {
+      "name": "thumbs-o-up",
+      "backgroundColor": "#3A649D",
+      "color": "#fff"
     }
 }
