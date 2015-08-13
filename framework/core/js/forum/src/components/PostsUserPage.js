@@ -1,7 +1,7 @@
 import UserPage from 'flarum/components/UserPage';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import Button from 'flarum/components/Button';
-import PostedActivity from 'flarum/components/PostedActivity';
+import CommentPost from 'flarum/components/CommentPost';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
@@ -61,10 +61,15 @@ export default class PostsUserPage extends UserPage {
 
     return (
       <div className="PostsUserPage">
-        <ul className="PostsUserPage-list ActivityList">
-          {this.posts.map(post => {
-            return <li>{PostedActivity.component({post})}</li>;
-          })}
+        <ul className="PostsUserPage-list">
+          {this.posts.map(post => (
+            <li>
+              <div className="PostsUserPage-discussion">
+                In <a href={app.route.post(post)} config={m.route}>{post.discussion().title()}</a>
+              </div>
+              {CommentPost.component({post, showDiscussionTitle: true})}
+            </li>
+          ))}
         </ul>
         {footer}
       </div>
