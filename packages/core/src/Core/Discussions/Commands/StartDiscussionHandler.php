@@ -6,6 +6,7 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Flarum\Core\Discussions\Discussion;
 use Flarum\Core\Posts\Commands\PostReply;
 use Flarum\Core\Support\DispatchesEvents;
+use Exception;
 
 class StartDiscussionHandler
 {
@@ -57,9 +58,15 @@ class StartDiscussionHandler
 
         // Now that the discussion has been created, we can add the first post.
         // We will do this by running the PostReply command.
-        $post = $this->bus->dispatch(
-            new PostReply($discussion->id, $actor, $data)
-        );
+        try {
+            $post = $this->bus->dispatch(
+                new PostReply($discussion->id, $actor, $data)
+            );
+        } catch (Exception $e) {
+            $discussion->delete();
+
+            throw $e;
+        }
 
         // Before we dispatch events, refresh our discussion instance's
         // attributes as posting the reply will have changed some of them (e.g.
