@@ -23,33 +23,6 @@ export default class HeaderPrimary extends Component {
    * @return {ItemList}
    */
   items() {
-    const items = new ItemList();
-
-    if (Object.keys(app.locales).length > 1) {
-      const locales = [];
-
-      for (const locale in app.locales) {
-        locales.push(Button.component({
-          active: app.locale === locale,
-          children: app.locales[locale],
-          icon: app.locale === locale ? 'check' : true,
-          onclick: () => {
-            if (app.session.user) {
-              app.session.user.savePreferences({locale}).then(() => window.location.reload());
-            } else {
-              document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
-              window.location.reload();
-            }
-          }
-        }));
-      }
-
-      items.add('locale', SelectDropdown.component({
-        children: locales,
-        buttonClassName: 'Button Button--link'
-      }));
-    }
-
-    return items;
+    return new ItemList();
   }
 }
