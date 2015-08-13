@@ -5,10 +5,8 @@ use Illuminate\Events\Dispatcher;
 
 class Extension extends BaseExtension
 {
-    public function boot(Dispatcher $events)
+    public function listen(Dispatcher $events)
     {
-        $this->loadViewsFrom(__DIR__.'/../views', 'mentions');
-
         $events->subscribe('Flarum\Mentions\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Mentions\Listeners\AddModelRelationships');
         $events->subscribe('Flarum\Mentions\Listeners\AddApiRelationships');
@@ -16,5 +14,10 @@ class Extension extends BaseExtension
         $events->subscribe('Flarum\Mentions\Listeners\AddPostMentionsFormatter');
         $events->subscribe('Flarum\Mentions\Listeners\UpdateUserMentionsMetadata');
         $events->subscribe('Flarum\Mentions\Listeners\UpdatePostMentionsMetadata');
+    }
+
+    public function boot()
+    {
+        $this->loadViewsFrom(__DIR__.'/../views', 'mentions');
     }
 }
