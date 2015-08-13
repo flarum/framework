@@ -35,10 +35,10 @@ export default function(app) {
    * @return {String}
    */
   app.route.discussion = (discussion, near) => {
-    return app.route(near ? 'discussion.near' : 'discussion', {
+    return app.route(near > 1 ? 'discussion.near' : 'discussion', {
       id: discussion.id(),
       slug: discussion.slug(),
-      near: near
+      near: near > 1 ? near : undefined
     });
   };
 
