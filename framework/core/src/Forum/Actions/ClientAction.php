@@ -1,6 +1,9 @@
 <?php namespace Flarum\Forum\Actions;
 
 use Flarum\Support\ClientAction as BaseClientAction;
+use Flarum\Api\Client;
+use Flarum\Core\Settings\SettingsRepository;
+use Flarum\Locale\LocaleManager;
 
 class ClientAction extends BaseClientAction
 {
@@ -8,11 +11,6 @@ class ClientAction extends BaseClientAction
      * {@inheritdoc}
      */
     protected $clientName = 'forum';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $layout = __DIR__.'/../../../views/forum.blade.php';
 
     /**
      * {@inheritdoc}
@@ -127,6 +125,16 @@ class ClientAction extends BaseClientAction
         'core.write_a_post',
         'core.write_a_reply'
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(Client $apiClient, LocaleManager $locales, SettingsRepository $settings)
+    {
+        parent::__construct($apiClient, $locales, $settings);
+
+        $this->layout = __DIR__.'/../../../views/forum.blade.php';
+    }
 
     /**
      * @inheritdoc
