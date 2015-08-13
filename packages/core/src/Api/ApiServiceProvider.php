@@ -43,27 +43,7 @@ class ApiServiceProvider extends ServiceProvider
     {
         $this->routes();
 
-        $this->registerActivitySerializers();
         $this->registerNotificationSerializers();
-    }
-
-    /**
-     * Register activity serializers.
-     */
-    protected function registerActivitySerializers()
-    {
-        $blueprints = [];
-        $serializers = [
-            'posted'            => 'Flarum\Api\Serializers\PostBasicSerializer',
-            'startedDiscussion' => 'Flarum\Api\Serializers\PostBasicSerializer',
-            'joined'            => 'Flarum\Api\Serializers\UserSerializer'
-        ];
-
-        event(new RegisterActivityTypes($blueprints, $serializers));
-
-        foreach ($serializers as $type => $serializer) {
-            ActivitySerializer::setSubjectSerializer($type, $serializer);
-        }
     }
 
     /**
