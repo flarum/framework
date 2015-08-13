@@ -34,7 +34,7 @@ class PostsServiceProvider extends ServiceProvider
                 $actor = $event->actor;
 
                 if ($action === 'view' &&
-                    (! $post->hide_user_id || $post->can($actor, 'edit'))) {
+                    (! $post->hide_user_id || $post->hide_user_id == $actor->id || $post->can($actor, 'edit'))) {
                     return true;
                 }
 
