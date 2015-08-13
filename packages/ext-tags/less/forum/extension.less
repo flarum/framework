@@ -38,3 +38,20 @@
     }
   }
 }
+@media @desktop-up {
+  .TagsPage {
+    .sideNav {
+      .sideNav--horizontal();
+      float: none;
+      width: auto;
+      padding-top: 0;
+
+      &:after {
+        display: none;
+      }
+    }
+    .sideNavOffset {
+      margin: 15px 0 0;
+    }
+  }
+}
