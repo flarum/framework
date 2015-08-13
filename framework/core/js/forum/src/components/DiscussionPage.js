@@ -65,8 +65,10 @@ export default class DiscussionPage extends mixin(Component, evented) {
       if (m.route.param('id') === this.discussion.id()) {
         e.preventDefault();
 
-        if (Number(m.route.param('near')) !== Number(this.near)) {
-          this.stream.goToNumber(m.route.param('near') || 1);
+        const near = Number(m.route.param('near')) || 1;
+
+        if (near !== Number(this.near)) {
+          this.stream.goToNumber(near);
         }
 
         this.near = null;
