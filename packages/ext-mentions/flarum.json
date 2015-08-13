@@ -17,5 +17,10 @@
     "support": {
         "source": "https://github.com/flarum/mentions",
         "issues": "https://github.com/flarum/mentions/issues"
+    },
+    "icon": {
+      "name": "at",
+      "backgroundColor": "#539EC1",
+      "color": "#fff"
     }
 }
