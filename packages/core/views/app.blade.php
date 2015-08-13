@@ -9,7 +9,7 @@
     <meta name="theme-color" content="{{ $forum->attributes->themePrimaryColor }}">
 
     @foreach ($styles as $file)
-      <link rel="stylesheet" href="{{ str_replace(public_path(), '', $file) }}">
+      <link rel="stylesheet" href="{{ $forum->attributes->baseUrl . str_replace(public_path(), '', $file) }}">
     @endforeach
 
     {!! $head !!}
@@ -23,7 +23,7 @@
 
     @if (! $noJs)
         @foreach ($scripts as $file)
-          <script src="{{ str_replace(public_path(), '', $file) }}"></script>
+          <script src="{{ $forum->attributes->baseUrl . str_replace(public_path(), '', $file) }}"></script>
         @endforeach
 
         <script>
