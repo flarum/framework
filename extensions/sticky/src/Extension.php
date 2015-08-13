@@ -1,11 +1,11 @@
 <?php namespace Flarum\Sticky;
 
 use Flarum\Support\Extension as BaseExtension;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Events\Dispatcher;
 
 class Extension extends BaseExtension
 {
-    public function boot(Dispatcher $events)
+    public function listen(Dispatcher $events)
     {
         $events->subscribe('Flarum\Sticky\Listeners\AddClientAssets');
         $events->subscribe('Flarum\Sticky\Listeners\AddApiAttributes');
