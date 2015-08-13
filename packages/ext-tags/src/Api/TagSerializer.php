@@ -20,6 +20,7 @@ class TagSerializer extends Serializer
             'position'           => $tag->position === null ? null : (int) $tag->position,
             'defaultSort'        => $tag->default_sort,
             'isChild'            => (bool) $tag->parent_id,
+            'isHidden'           => (bool) $tag->is_hidden,
             'lastTime'           => $tag->last_time ? $tag->last_time->toRFC3339String() : null,
             'canStartDiscussion' => $tag->can($this->actor, 'startDiscussion')
         ];

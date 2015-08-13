@@ -45,9 +45,10 @@ class Tag extends Model
      * @param string $slug
      * @param string $description
      * @param string $color
+     * @param bool $isHidden
      * @return static
      */
-    public static function build($name, $slug, $description, $color)
+    public static function build($name, $slug, $description, $color, $isHidden)
     {
         $tag = new static;
 
@@ -55,6 +56,7 @@ class Tag extends Model
         $tag->slug        = $slug;
         $tag->description = $description;
         $tag->color       = $color;
+        $tag->is_hidden   = $isHidden;
 
         return $tag;
     }

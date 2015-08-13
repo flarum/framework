@@ -34,7 +34,8 @@ class CreateTagHandler
             array_get($data, 'attributes.name'),
             array_get($data, 'attributes.slug'),
             array_get($data, 'attributes.description'),
-            array_get($data, 'attributes.color')
+            array_get($data, 'attributes.color'),
+            array_get($data, 'attributes.isHidden')
         );
 
         $tag->save();

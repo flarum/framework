@@ -10,12 +10,12 @@ export default class Tag extends mixin(Model, {
   color: Model.attribute('color'),
   backgroundUrl: Model.attribute('backgroundUrl'),
   backgroundMode: Model.attribute('backgroundMode'),
-  iconUrl: Model.attribute('iconUrl'),
 
   position: Model.attribute('position'),
   parent: Model.hasOne('parent'),
   defaultSort: Model.attribute('defaultSort'),
   isChild: Model.attribute('isChild'),
+  isHidden: Model.attribute('isHidden'),
 
   discussionsCount: Model.attribute('discussionsCount'),
   lastTime: Model.attribute('lastTime', Model.transformDate),

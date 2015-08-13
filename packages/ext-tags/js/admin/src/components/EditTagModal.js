@@ -1,5 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
+import Switch from 'flarum/components/Switch';
 import { slug } from 'flarum/utils/string';
 
 import tagLabel from 'tags/helpers/tagLabel';
@@ -18,6 +19,7 @@ export default class EditTagModal extends Modal {
     this.slug = m.prop(this.tag.slug() || '');
     this.description = m.prop(this.tag.description() || '');
     this.color = m.prop(this.tag.color() || '');
+    this.isHidden = m.prop(this.tag.isHidden() || '');
   }
 
   className() {
@@ -61,10 +63,19 @@ export default class EditTagModal extends Modal {
           </div>
 
           <div className="Form-group">
+            <div>
+              <label className="checkbox">
+                <input type="checkbox" value="1" checked={this.isHidden()} onchange={m.withAttr('checked', this.isHidden)}/>
+                Hide from All Discussions
+              </label>
+            </div>
+          </div>
+
+          <div className="Form-group">
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary EditTagModal-save',
-              loading: this._loading,
+              loading: this.loading,
               children: 'Save Changes'
             })}
             {this.tag.exists ? (
@@ -81,17 +92,18 @@ export default class EditTagModal extends Modal {
   onsubmit(e) {
     e.preventDefault();
 
-    this._loading = true;
+    this.loading = true;
 
     this.tag.save({
       name: this.name(),
       slug: this.slug(),
       description: this.description(),
-      color: this.color()
+      color: this.color(),
+      isHidden: this.isHidden()
     }).then(
       () => this.hide(),
       () => {
-        this._loading = false;
+        this.loading = false;
         m.redraw();
       }
     );
