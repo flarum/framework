@@ -25,6 +25,7 @@ class ForumSerializer extends Serializer
         $attributes = [
             'title' => Core::config('forum_title'),
             'baseUrl' => Core::config('base_url'),
+            'basePath' => Core::config('base_path'),
             'apiUrl' => Core::config('api_url'),
             'welcomeTitle' => Core::config('welcome_title'),
             'welcomeMessage' => Core::config('welcome_message'),
