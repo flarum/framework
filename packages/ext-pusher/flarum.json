@@ -12,5 +12,14 @@
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
+    },
+    "support": {
+        "source": "https://github.com/flarum/pusher",
+        "issues": "https://github.com/flarum/pusher/issues"
+    },
+    "icon": {
+      "name": "arrow-right",
+      "backgroundColor": "#803A9D",
+      "color": "#fff"
     }
 }
