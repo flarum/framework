@@ -115,7 +115,7 @@ export default class SignUpModal extends Modal {
               {avatar(user)}
               <h3>{app.trans('core.welcome_user', {user})}</h3>
 
-              {!user.isConfirmed() ? [
+              {!user.isActivated() ? [
                 <p>{app.trans('core.confirmation_email_sent', {email: <strong>{user.email()}</strong>})}</p>,
                 <p>
                   <a href={`http://${emailProviderName}`} className="Button Button--primary" target="_blank">
