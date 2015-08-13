@@ -2,7 +2,7 @@
     "name": "bbcode",
     "title": "BBCode",
     "description": "Allow posts to be formatted with BBCode.",
-    "keywords": [],
+    "keywords": ["discussions"],
     "version": "0.1.0",
     "author": {
         "name": "Toby Zerner",
@@ -12,5 +12,10 @@
     "require": {
         "php": ">=5.4.0",
         "flarum": ">0.1.0"
+    },
+    "icon": {
+      "name": "bold",
+      "backgroundColor": "#3F8A32",
+      "color": "#fff"
     }
 }
