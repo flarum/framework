@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class CreateMentionsPostsTable extends Migration
 {
@@ -12,7 +12,7 @@ class CreateMentionsPostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('mentions_posts', function (Blueprint $table) {
+        $this->schema->create('mentions_posts', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('mentions_id')->unsigned();
             $table->primary(['post_id', 'mentions_id']);
@@ -26,6 +26,6 @@ class CreateMentionsPostsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('mentions_posts');
+        $this->schema->drop('mentions_posts');
     }
 }
