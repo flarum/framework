@@ -558,7 +558,7 @@ class User extends Model
         // standard 'member' group, as well as any other groups they've been
         // assigned to.
         if ($this->is_activated) {
-            $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->lists('id'));
+            $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->lists('id')->all());
         }
 
         event(new GetUserGroups($this, $groupIds));
