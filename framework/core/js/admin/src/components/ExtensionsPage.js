@@ -82,12 +82,20 @@ export default class ExtensionsPage extends Component {
       }
     }));
 
-    // if (!enabled) {
-    //   items.add('uninstall', Button.component({
-    //     icon: 'trash-o',
-    //     children: 'Uninstall'
-    //   }));
-    // }
+    if (!enabled) {
+      items.add('uninstall', Button.component({
+        icon: 'trash-o',
+        children: 'Uninstall',
+        onclick: () => {
+          app.request({
+            url: app.forum.attribute('apiUrl') + '/extensions/' + extension.name,
+            method: 'DELETE',
+          }).then(() => window.location.reload());
+
+          app.modal.show(new LoadingModal());
+        }
+      }));
+    }
 
     // items.add('separator2', Separator.component());
 

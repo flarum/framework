@@ -42,4 +42,11 @@ class MemoryCacheSettingsRepository implements SettingsRepository
 
         $this->inner->set($key, $value);
     }
+
+    public function delete($key)
+    {
+        unset($this->cache[$key]);
+
+        $this->inner->delete($key);
+    }
 }
