@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class CreateDiscussionsTagsTable extends Migration
 {
@@ -12,7 +12,7 @@ class CreateDiscussionsTagsTable extends Migration
      */
     public function up()
     {
-        Schema::create('discussions_tags', function (Blueprint $table) {
+        $this->schema->create('discussions_tags', function (Blueprint $table) {
             $table->integer('discussion_id')->unsigned();
             $table->integer('tag_id')->unsigned();
             $table->primary(['discussion_id', 'tag_id']);
@@ -26,6 +26,6 @@ class CreateDiscussionsTagsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('discussions_tags');
+        $this->schema->drop('discussions_tags');
     }
 }

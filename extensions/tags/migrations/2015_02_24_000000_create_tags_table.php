@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
+use Flarum\Tags\Tag;
 
 class CreateTagsTable extends Migration
 {
@@ -12,7 +13,7 @@ class CreateTagsTable extends Migration
      */
     public function up()
     {
-        Schema::create('tags', function (Blueprint $table) {
+        $this->schema->create('tags', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 100);
             $table->string('slug', 100);
@@ -31,8 +32,15 @@ class CreateTagsTable extends Migration
             $table->integer('discussions_count')->unsigned()->default(0);
             $table->integer('last_time')->unsigned()->nullable();
             $table->integer('last_discussion_id')->unsigned()->nullable();
-
         });
+
+        Tag::unguard();
+        Tag::insert([
+            'name' => 'General',
+            'slug' => 'general',
+            'color' => '#888',
+            'position' => '0'
+        ]);
     }
 
     /**
@@ -42,6 +50,6 @@ class CreateTagsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('tags');
+        $this->schema->drop('tags');
     }
 }
