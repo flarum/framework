@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class CreateUsersTagsTable extends Migration
 {
@@ -12,7 +12,7 @@ class CreateUsersTagsTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_tags', function (Blueprint $table) {
+        $this->schema->create('users_tags', function (Blueprint $table) {
             $table->integer('user_id')->unsigned();
             $table->integer('tag_id')->unsigned();
             $table->dateTime('read_time')->nullable();
@@ -28,6 +28,6 @@ class CreateUsersTagsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('users_tags');
+        $this->schema->drop('users_tags');
     }
 }
