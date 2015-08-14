@@ -33,7 +33,7 @@ class AddTagGambit
             return $query->select(app('flarum.db')->raw(1))
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::where('is_hidden', 1)->lists('id'))
-                ->whereRaw('discussion_id = discussions.id');
+                ->whereRaw('discussion_id = ' . app('flarum.db')->getQueryGrammar()->wrap('discussions.id'));
         });
     }
 }
