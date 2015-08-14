@@ -1,37 +1,28 @@
 <?php namespace Flarum\Console;
 
-use Illuminate\Console\Command;
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
 class GenerateExtensionCommand extends Command
 {
-
     /**
-     * The console command name.
-     *
-     * @var string
+     * @var Container
      */
-    protected $name = 'generate:extension';
+    protected $container;
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generate a Flarum extension skeleton.';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct(Application $app)
+    public function __construct(Container $container)
     {
-        parent::__construct();
+        $this->container = $container;
 
-        $this->app = $app;
+        parent::__construct();
+    }
+
+    protected function configure()
+    {
+        $this
+            ->setName('generate:extension')
+            ->setDescription("Generate a Flarum extension skeleton.");
     }
 
     /**
@@ -39,7 +30,7 @@ class GenerateExtensionCommand extends Command
      *
      * @return mixed
      */
-    public function fire()
+    protected function fire()
     {
         do {
             $vendor = $this->ask('Vendor name:');

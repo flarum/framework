@@ -1,6 +1,10 @@
 <?php namespace Flarum\Install\Console;
 
 use Flarum\Console\Command;
+use Flarum\Core\Model;
+use Flarum\Core\Users\User;
+use Flarum\Core\Groups\Group;
+use Flarum\Core\Groups\Permission;
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,10 +26,6 @@ class InstallCommand extends Command
     public function __construct(Container $container)
     {
         $this->container = $container;
-
-        $this->container->bind('Illuminate\Database\Schema\Builder', function($container) {
-            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
-        });
 
         parent::__construct();
     }
@@ -72,7 +72,19 @@ class InstallCommand extends Command
 
         $this->runMigrations();
 
+        $this->writeSettings();
+
+        $this->container->register('Flarum\Core\CoreServiceProvider');
+
+        $resolver = $this->container->make('Illuminate\Database\ConnectionResolverInterface');
+        Model::setConnectionResolver($resolver);
+        Model::setEventDispatcher($this->container->make('events'));
+
+        $this->seedGroups();
+        $this->seedPermissions();
+
         $this->createAdminUser();
+
     }
 
     protected function storeConfiguration()
@@ -87,8 +99,8 @@ class InstallCommand extends Command
                 'database'  => $dbConfig['database'],
                 'username'  => $dbConfig['username'],
                 'password'  => $dbConfig['password'],
-                'charset'   => 'utf8',
-                'collation' => 'utf8_unicode_ci',
+                'charset'   => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
                 'prefix'    => $dbConfig['prefix'],
                 'strict'    => false
             ],
@@ -105,22 +117,78 @@ class InstallCommand extends Command
 
     protected function runMigrations()
     {
-        $migrationDir = base_path('core/migrations');
+        $this->container->bind('Illuminate\Database\Schema\Builder', function($container) {
+            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        });
 
-        $files = glob("$migrationDir/*_*.php") or [];
-        sort($files);
+        $migrator = $this->container->make('Flarum\Migrations\Migrator');
+        $migrator->getRepository()->createRepository();
 
-        foreach ($files as $file) {
-            require $file;
+        $migrator->run(base_path('core/migrations'));
 
-            $migrationClass = studly_case(substr(basename($file), 18));
-            $migrationClass = str_replace('.php', '', $migrationClass);
-            $migration = $this->container->make($migrationClass);
-
-            $this->info("Migrating $migrationClass");
-
-            $migration->up();
+        foreach ($migrator->getNotes() as $note) {
+            $this->info($note);
         }
+    }
+
+    protected function writeSettings()
+    {
+        $data = $this->dataSource->getSettings();
+        $settings = $this->container->make('Flarum\Core\Settings\SettingsRepository');
+
+        $this->info('Writing default settings');
+
+        foreach ($data as $k => $v) {
+            $settings->set($k, $v);
+        }
+    }
+
+    protected function seedGroups()
+    {
+        Group::unguard();
+
+        $groups = [
+            ['Admin', 'Admins', '#B72A2A', 'wrench'],
+            ['Guest', 'Guests', null, null],
+            ['Member', 'Members', null, null],
+            ['Mod', 'Mods', '#80349E', 'bolt']
+        ];
+
+        foreach ($groups as $group) {
+            Group::create([
+                'name_singular' => $group[0],
+                'name_plural' => $group[1],
+                'color' => $group[2],
+                'icon' => $group[3]
+            ]);
+        }
+    }
+
+    protected function seedPermissions()
+    {
+        $permissions = [
+            // Guests can view the forum
+            [2, 'forum.view'],
+
+            // Members can create and reply to discussions
+            [3, 'forum.startDiscussion'],
+            [3, 'discussion.reply'],
+
+            // Moderators can edit + delete stuff
+            [4, 'discussion.delete'],
+            [4, 'discussion.deletePosts'],
+            [4, 'discussion.editPosts'],
+            [4, 'discussion.rename'],
+        ];
+
+        foreach ($permissions as &$permission) {
+            $permission = [
+                'group_id'   => $permission[0],
+                'permission' => $permission[1]
+            ];
+        }
+
+        Permission::insert($permissions);
     }
 
     protected function createAdminUser()
@@ -130,7 +198,14 @@ class InstallCommand extends Command
 
         $this->info('Creating admin user '.$admin['username']);
 
-        $db->table('users')->insert($admin);
+        User::unguard();
+
+        $user = new User($admin);
+        $user->is_activated = 1;
+        $user->join_time = time();
+        $user->save();
+
+        $user->groups()->sync([1]);
     }
 
     /**

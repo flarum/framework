@@ -43,6 +43,35 @@ class DataFromUser implements ProvidesData
         ];
     }
 
+    public function getSettings()
+    {
+        $baseUrl = rtrim($this->ask('Base URL:'), '/');
+        $title = $this->ask('Forum title:');
+
+        return [
+            'admin_url' => $baseUrl . '/admin',
+            'allow_post_editing' => 'reply',
+            'allow_renaming' => '10',
+            'allow_sign_up' => '1',
+            'api_url' => $baseUrl . '/api',
+            'base_url' => $baseUrl,
+            'custom_less' => '',
+            'default_locale' => 'en',
+            'default_route' => '/all',
+            'extensions_enabled' => '[]',
+            'forum_title' => $title,
+            'forum_description' => '',
+            'mail_driver' => 'mail',
+            'mail_from' => 'noreply@' . preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
+            'theme_colored_header' => '0',
+            'theme_dark_mode' => '0',
+            'theme_primary_color' => '#29415E',
+            'theme_secondary_color' => '#29415E',
+            'welcome_message' => 'This is beta software and you should not use it in production.',
+            'welcome_title' => 'Welcome to ' . $title,
+        ];
+    }
+
     protected function ask($question, $default = null)
     {
         $question = new Question("<question>$question</question> ", $default);

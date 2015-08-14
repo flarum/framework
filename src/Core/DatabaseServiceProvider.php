@@ -6,6 +6,7 @@ use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
 use PDO;
+use Flarum\Migrations\DatabaseMigrationRepository;
 
 class DatabaseServiceProvider extends ServiceProvider
 {
@@ -44,5 +45,10 @@ class DatabaseServiceProvider extends ServiceProvider
                 Model::setEventDispatcher($this->app->make('events'));
             });
         }
+
+
+        $this->app->singleton('Flarum\Migrations\MigrationRepositoryInterface', function ($app) {
+            return new DatabaseMigrationRepository($app['db'], 'migrations');
+        });
     }
 }
