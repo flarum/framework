@@ -38,7 +38,9 @@
 
             app.boot();
           } catch (e) {
-            window.location = window.location + '?nojs=1';
+            @if (! $forum->attributes->debug)
+                window.location = window.location + '?nojs=1';
+            @endif
             throw e;
           }
         </script>

@@ -26,6 +26,7 @@ class ForumSerializer extends Serializer
             'title' => Core::config('forum_title'),
             'baseUrl' => Core::config('base_url'),
             'basePath' => parse_url(Core::config('base_url'), PHP_URL_PATH) ?: '',
+            'debug' => Core::inDebugMode(),
             'apiUrl' => Core::config('api_url'),
             'welcomeTitle' => Core::config('welcome_title'),
             'welcomeMessage' => Core::config('welcome_message'),
