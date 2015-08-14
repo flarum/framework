@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class AddSubscriptionToUsersDiscussionsTable extends Migration
 {
@@ -12,7 +12,7 @@ class AddSubscriptionToUsersDiscussionsTable extends Migration
      */
     public function up()
     {
-        app('db')->getSchemaBuilder()->table('users_discussions', function (Blueprint $table) {
+        $this->schema->table('users_discussions', function (Blueprint $table) {
             $table->enum('subscription', ['follow', 'ignore'])->nullable();
         });
     }
@@ -24,7 +24,7 @@ class AddSubscriptionToUsersDiscussionsTable extends Migration
      */
     public function down()
     {
-        app('db')->getSchemaBuilder()->table('users_discussions', function (Blueprint $table) {
+        $this->schema->table('users_discussions', function (Blueprint $table) {
             $table->dropColumn('subscription');
         });
     }
