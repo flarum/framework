@@ -1,4 +1,4 @@
-<?php namespace Flarum\Install;
+<?php namespace Flarum\Migrations;
 
 use Illuminate\Database\Schema\Builder;
 

@@ -1,8 +1,7 @@
 <?php
 
-use Flarum\Install\Migration;
+use Flarum\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class CreateUsersGroupsTable extends Migration
 {
@@ -15,7 +14,6 @@ class CreateUsersGroupsTable extends Migration
     public function up()
     {
         $this->schema->create('users_groups', function (Blueprint $table) {
-        
             $table->integer('user_id')->unsigned();
             $table->integer('group_id')->unsigned();
             $table->primary(['user_id', 'group_id']);

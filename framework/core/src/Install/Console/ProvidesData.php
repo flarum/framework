@@ -5,4 +5,6 @@ interface ProvidesData
     public function getDatabaseConfiguration();
 
     public function getAdminUser();
+
+    public function getSettings();
 }
