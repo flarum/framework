@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class AddStickyToDiscussions extends Migration
 {
@@ -12,7 +12,7 @@ class AddStickyToDiscussions extends Migration
      */
     public function up()
     {
-        Schema::table('discussions', function (Blueprint $table) {
+        $this->schema->table('discussions', function (Blueprint $table) {
             $table->boolean('is_sticky')->default(0);
         });
     }
@@ -24,7 +24,7 @@ class AddStickyToDiscussions extends Migration
      */
     public function down()
     {
-        Schema::table('discussions', function (Blueprint $table) {
+        $this->schema->table('discussions', function (Blueprint $table) {
             $table->dropColumn('is_sticky');
         });
     }
