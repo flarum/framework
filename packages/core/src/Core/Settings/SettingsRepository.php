@@ -9,4 +9,6 @@ interface SettingsRepository
     public function get($key, $default = null);
 
     public function set($key, $value);
+
+    public function delete($key);
 }

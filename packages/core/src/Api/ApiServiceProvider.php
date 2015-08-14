@@ -306,6 +306,13 @@ class ApiServiceProvider extends ServiceProvider
             $this->action('Flarum\Api\Actions\Extensions\UpdateAction')
         );
 
+        // Uninstall an extension
+        $routes->delete(
+            '/extensions/{name}',
+            'flarum.api.extensions.delete',
+            $this->action('Flarum\Api\Actions\Extensions\DeleteAction')
+        );
+
         // Update config settings
         $routes->post(
             '/config',
