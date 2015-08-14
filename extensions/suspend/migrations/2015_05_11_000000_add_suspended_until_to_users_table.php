@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class AddSuspendedUntilToUsersTable extends Migration
 {
@@ -12,7 +12,7 @@ class AddSuspendedUntilToUsersTable extends Migration
      */
     public function up()
     {
-        app('db')->getSchemaBuilder()->table('users', function (Blueprint $table) {
+        $this->schema->table('users', function (Blueprint $table) {
             $table->dateTime('suspended_until')->nullable();
         });
     }
@@ -24,7 +24,7 @@ class AddSuspendedUntilToUsersTable extends Migration
      */
     public function down()
     {
-        app('db')->getSchemaBuilder()->table('users', function (Blueprint $table) {
+        $this->schema->table('users', function (Blueprint $table) {
             $table->dropColumn('suspended_until');
         });
     }
