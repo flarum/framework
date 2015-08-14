@@ -83,6 +83,8 @@ export default class UserPage extends Component {
     this.user = user;
 
     app.setTitle(user.username());
+
+    m.redraw();
   }
 
   /**

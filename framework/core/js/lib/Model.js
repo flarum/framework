@@ -86,11 +86,11 @@ export default class Model {
         // For every item in a second-level object, we want to check if we've
         // been handed a Model instance. If so, we will convert it to a
         // relationship data object.
-        for (const deepKey in data[key]) {
-          if (data[key][deepKey] instanceof Model) {
-            data[key][deepKey] = {data: Model.getRelationshipData(data[key][deepKey])};
+        for (const innerKey in data[key]) {
+          if (data[key][innerKey] instanceof Model) {
+            data[key][innerKey] = {data: Model.getRelationshipData(data[key][innerKey])};
           }
-          this.data[key][deepKey] = data[key][deepKey];
+          this.data[key][innerKey] = data[key][innerKey];
         }
       } else {
         this.data[key] = data[key];
@@ -162,6 +162,7 @@ export default class Model {
       // model exists now (if it didn't already), and we'll push the data that
       // the API returned into the store.
       payload => {
+        this.store.data[payload.data.type] = this.store.data[payload.data.type] || {};
         this.store.data[payload.data.type][payload.data.id] = this;
         return this.store.pushPayload(payload);
       },
