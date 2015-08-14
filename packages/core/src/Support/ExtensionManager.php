@@ -3,6 +3,7 @@
 use Flarum\Support\ServiceProvider;
 use Flarum\Core\Settings\SettingsRepository;
 use Illuminate\Contracts\Container\Container;
+use Flarum\Migrations\Migrator;
 
 class ExtensionManager
 {
@@ -43,8 +44,7 @@ class ExtensionManager
 
             $class->install();
 
-            // run migrations
-            // vendor publish
+            $this->migrate($extension);
 
             $this->setEnabled($enabled);
         }
@@ -69,7 +69,24 @@ class ExtensionManager
 
         $class->uninstall();
 
-        // run migrations
+        $this->migrate($extension, false);
+    }
+
+    protected function migrate($extension, $up = true)
+    {
+        $migrationDir = base_path('../extensions/' . $extension . '/migrations');
+
+        $this->app->bind('Illuminate\Database\Schema\Builder', function($container) {
+            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        });
+
+        $migrator = $this->app->make('Flarum\Migrations\Migrator');
+
+        if ($up) {
+            $migrator->run($migrationDir, $extension);
+        } else {
+            $migrator->reset($migrationDir, $extension);
+        }
     }
 
     protected function getEnabled()

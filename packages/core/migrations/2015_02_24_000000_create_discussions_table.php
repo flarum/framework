@@ -1,8 +1,7 @@
 <?php
 
-use Flarum\Install\Migration;
+use Flarum\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class CreateDiscussionsTable extends Migration
 {
@@ -15,7 +14,6 @@ class CreateDiscussionsTable extends Migration
     public function up()
     {
         $this->schema->create('discussions', function (Blueprint $table) {
-
             $table->increments('id');
             $table->string('title', 200);
             $table->integer('comments_count')->unsigned()->default(0);

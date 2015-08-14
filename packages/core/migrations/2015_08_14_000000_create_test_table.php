@@ -3,9 +3,8 @@
 use Flarum\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateConfigTable extends Migration
+class CreateTestTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -13,9 +12,8 @@ class CreateConfigTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('config', function (Blueprint $table) {
-            $table->string('key', 100)->primary();
-            $table->binary('value')->nullable();
+        $this->schema->create('test', function (Blueprint $table) {
+            $table->increments('id');
         });
     }
 
@@ -26,6 +24,6 @@ class CreateConfigTable extends Migration
      */
     public function down()
     {
-        $this->schema->drop('config');
+        $this->schema->drop('test');
     }
 }
