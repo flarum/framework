@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Flarum\Migrations\Migration;
 
 class CreatePostsLikesTable extends Migration
 {
@@ -12,7 +12,7 @@ class CreatePostsLikesTable extends Migration
      */
     public function up()
     {
-        app('db')->getSchemaBuilder()->create('posts_likes', function (Blueprint $table) {
+        $this->schema->create('posts_likes', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->primary(['post_id', 'user_id']);
@@ -26,6 +26,6 @@ class CreatePostsLikesTable extends Migration
      */
     public function down()
     {
-        app('db')->getSchemaBuilder()->drop('posts_likes');
+        $this->schema->drop('posts_likes');
     }
 }
