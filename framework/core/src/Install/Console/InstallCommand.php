@@ -59,11 +59,18 @@ class InstallCommand extends Command
 
     protected function init()
     {
-        if ($this->input->getOption('defaults')) {
-            $this->dataSource = new DefaultData();
-        } else {
-            $this->dataSource = new DataFromUser($this->input, $this->output, $this->getHelperSet()->get('question'));
+        if ($this->dataSource === null) {
+            if ($this->input->getOption('defaults')) {
+                $this->dataSource = new DefaultData();
+            } else {
+                $this->dataSource = new DataFromUser($this->input, $this->output, $this->getHelperSet()->get('question'));
+            }
         }
+    }
+
+    public function setDataSource(ProvidesData $dataSource)
+    {
+        $this->dataSource = $dataSource;
     }
 
     protected function install()
@@ -85,6 +92,7 @@ class InstallCommand extends Command
 
         $this->createAdminUser();
 
+        $this->enableBundledExtensions();
     }
 
     protected function storeConfiguration()
@@ -106,9 +114,13 @@ class InstallCommand extends Command
             ],
         ];
 
-        $this->info('Writing config');
+        $this->info('Testing config');
 
         $this->container->instance('flarum.config', $config);
+        $this->container->make('flarum.db');
+
+        $this->info('Writing config');
+
         file_put_contents(
             base_path('../config.php'),
             '<?php return '.var_export($config, true).';'
@@ -206,6 +218,23 @@ class InstallCommand extends Command
         $user->save();
 
         $user->groups()->sync([1]);
+    }
+
+    protected function enableBundledExtensions()
+    {
+        $extensions = $this->container->make('Flarum\Support\ExtensionManager');
+
+        $migrator = $extensions->getMigrator();
+
+        foreach ($extensions->getInfo() as $extension) {
+            $this->info('Enabling extension: '.$extension->name);
+
+            $extensions->enable($extension->name);
+
+            foreach ($migrator->getNotes() as $note) {
+                $this->info($note);
+            }
+        }
     }
 
     /**
