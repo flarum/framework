@@ -11,10 +11,13 @@ class ExtensionManager
 
     protected $app;
 
-    public function __construct(SettingsRepository $config, Container $app)
+    protected $migrator;
+
+    public function __construct(SettingsRepository $config, Container $app, Migrator $migrator)
     {
         $this->config = $config;
         $this->app = $app;
+        $this->migrator = $migrator;
     }
 
     public function getInfo()
@@ -80,13 +83,16 @@ class ExtensionManager
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
-        $migrator = $this->app->make('Flarum\Migrations\Migrator');
-
         if ($up) {
-            $migrator->run($migrationDir, $extension);
+            $this->migrator->run($migrationDir, $extension);
         } else {
-            $migrator->reset($migrationDir, $extension);
+            $this->migrator->reset($migrationDir, $extension);
         }
+    }
+
+    public function getMigrator()
+    {
+        return $this->migrator;
     }
 
     protected function getEnabled()
