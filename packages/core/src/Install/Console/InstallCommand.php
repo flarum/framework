@@ -136,7 +136,7 @@ class InstallCommand extends Command
         $migrator = $this->container->make('Flarum\Migrations\Migrator');
         $migrator->getRepository()->createRepository();
 
-        $migrator->run(base_path('core/migrations'));
+        $migrator->run(__DIR__ . '/../../../migrations');
 
         foreach ($migrator->getNotes() as $note) {
             $this->info($note);
