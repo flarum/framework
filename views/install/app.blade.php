@@ -60,7 +60,7 @@
       }
       .FormField input {
         background: #EDF2F7;
-        margin-bottom: 1px;
+        margin: 0 0 1px;
         border: 2px solid transparent;
         transition: background 0.2s, border-color 0.2s, color 0.2s;
         width: 100%;
