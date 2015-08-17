@@ -51,7 +51,9 @@ class DeleteAvatarHandler
 
         event(new AvatarWillBeDeleted($user, $actor));
 
-        $this->uploadDir->delete($avatarPath);
+        if ($this->uploadDir->has($avatarPath)) {
+            $this->uploadDir->delete($avatarPath);
+        }
 
         $user->save();
         $this->dispatchEventsFor($user);
