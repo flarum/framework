@@ -30,6 +30,7 @@
         "zendframework/zend-diactoros": "^1.1",
         "nikic/fast-route": "^0.6",
         "dflydev/fig-cookies": "^1.0",
+        "symfony/console": "^2.7",
         "symfony/yaml": "^2.7"
     },
     "require-dev": {
