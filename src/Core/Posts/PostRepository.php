@@ -89,7 +89,7 @@ class PostRepository
 
         $posts = Post::with('discussion')->whereIn('id', $visibleIds)->get();
 
-        $posts->sort(function ($a, $b) use ($ids) {
+        $posts = $posts->sort(function ($a, $b) use ($ids) {
             $aPos = array_search($a->id, $ids);
             $bPos = array_search($b->id, $ids);
 
