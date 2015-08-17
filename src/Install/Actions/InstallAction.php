@@ -59,7 +59,7 @@ class InstallAction extends Action
             'email'    => array_get($input, 'adminEmail'),
         ]);
 
-        $baseUrl = rtrim((string) $request->getUri(), '/');
+        $baseUrl = rtrim((string) $request->getAttribute('originalUri'), '/');
 
         $data->setSetting('admin_url', $baseUrl . '/admin');
         $data->setSetting('api_url', $baseUrl . '/api');
