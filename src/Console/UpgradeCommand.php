@@ -52,5 +52,19 @@ class UpgradeCommand extends Command
         foreach ($migrator->getNotes() as $note) {
             $this->info($note);
         }
+
+        $extensions = $this->container->make('Flarum\Support\ExtensionManager');
+
+        $migrator = $extensions->getMigrator();
+
+        foreach ($extensions->getInfo() as $extension) {
+            $this->info('Upgrading extension: '.$extension->name);
+
+            $extensions->enable($extension->name);
+
+            foreach ($migrator->getNotes() as $note) {
+                $this->info($note);
+            }
+        }
     }
 }
