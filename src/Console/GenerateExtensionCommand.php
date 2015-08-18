@@ -3,6 +3,7 @@
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Question\Question;
 
 class GenerateExtensionCommand extends Command
 {
@@ -33,12 +34,12 @@ class GenerateExtensionCommand extends Command
     protected function fire()
     {
         do {
-            $vendor = $this->ask('Vendor name:');
-        } while (! preg_match('/^([a-z0-9-]+)$/i', $vendor));
-
-        do {
             $name = $this->ask('Extension name:');
         } while (! preg_match('/^([a-z0-9-]+)$/i', $name));
+
+        do {
+            $namespace = $this->ask('Namespace:');
+        } while (! preg_match('/^([a-z0-9_\\\\]+)$/i', $namespace));
 
         do {
             $title = $this->ask('Title:');
@@ -57,8 +58,8 @@ class GenerateExtensionCommand extends Command
         $dir = public_path().'/extensions/'.$name;
 
         $replacements = [
-            '{{namespace}}' => ucfirst($vendor).'\\'.ucfirst($name),
-            '{{escapedNamespace}}' => ucfirst($vendor).'\\\\'.ucfirst($name),
+            '{{namespace}}' => $namespace,
+            '{{escapedNamespace}}' => str_replace('\\', '\\\\', $namespace),
             '{{name}}' => $name
         ];
 
@@ -86,6 +87,13 @@ class GenerateExtensionCommand extends Command
         passthru("cd $dir; composer install; cd js/forum; npm install; gulp; cd ../admin; npm install; gulp");
 
         $this->info('Extension "'.$name.'" generated!');
+    }
+
+    protected function ask($question, $default = null)
+    {
+        $question = new Question("<question>$question</question> ", $default);
+
+        return $this->getHelperSet()->get('question')->ask($this->input, $this->output, $question);
     }
 
     protected function copyStub($destination, $replacements = [])
