@@ -24,7 +24,7 @@ class LogDiscussionTagged
             $event->discussion->id,
             $event->user->id,
             array_pluck($event->oldTags, 'id'),
-            $event->discussion->tags()->lists('id')
+            $event->discussion->tags()->lists('id')->all()
         );
 
         $event->discussion->mergePost($post);
