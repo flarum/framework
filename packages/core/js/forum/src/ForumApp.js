@@ -46,13 +46,6 @@ export default class ForumApp extends App {
     this.postComponents = {};
 
     /**
-     * A map of activity types to their components.
-     *
-     * @type {Object}
-     */
-    this.activityComponents = {};
-
-    /**
      * A map of notification types to their components.
      *
      * @type {Object}
