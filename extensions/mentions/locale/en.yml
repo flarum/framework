@@ -1,6 +1,6 @@
 mentions:
   reply_to_post: "Reply to #{number}"
-  post_mentioned_notification: "{username} replied to your post #{number}"
+  post_mentioned_notification: "{username} replied to your post"
   others: "{count} others"
   user_mentioned_notification: "{username} mentioned you"
   post_mentioned_by: "{users} replied to this."
