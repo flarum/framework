@@ -1,5 +1,5 @@
 likes:
-  post_liked_notification: "{username} liked your post #{number}"
+  post_liked_notification: "{username} liked your post"
   post_likes_modal_title: Users Who Like This
   post_liked_by_self: "{users} like this."
   post_liked_by:
