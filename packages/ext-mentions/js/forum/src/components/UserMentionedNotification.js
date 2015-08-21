@@ -1,5 +1,4 @@
 import Notification from 'flarum/components/Notification';
-import username from 'flarum/helpers/username';
 
 export default class UserMentionedNotification extends Notification {
   icon() {
@@ -16,5 +15,9 @@ export default class UserMentionedNotification extends Notification {
     const user = this.props.notification.sender();
 
     return app.trans('mentions.user_mentioned_notification', {user});
+  }
+
+  excerpt() {
+    return this.props.notification.subject().contentPlain();
   }
 }
