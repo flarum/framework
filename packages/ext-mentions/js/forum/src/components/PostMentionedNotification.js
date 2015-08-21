@@ -1,6 +1,7 @@
 import Notification from 'flarum/components/Notification';
 import username from 'flarum/helpers/username';
 import punctuate from 'flarum/helpers/punctuate';
+import { truncate } from 'flarum/utils/string';
 
 export default class PostMentionedNotification extends Notification {
   icon() {
@@ -18,7 +19,6 @@ export default class PostMentionedNotification extends Notification {
 
   content() {
     const notification = this.props.notification;
-    const post = notification.subject();
     const auc = notification.additionalUnreadCount();
     const user = notification.sender();
 
@@ -27,8 +27,11 @@ export default class PostMentionedNotification extends Notification {
       username: auc ? punctuate([
         username(user),
         app.trans('mentions.others', {count: auc})
-      ]) : undefined,
-      number: post.number()
+      ]) : undefined
     });
+  }
+
+  excerpt() {
+    return truncate(this.props.notification.subject().contentPlain(), 100);
   }
 }
