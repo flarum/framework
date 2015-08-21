@@ -26,6 +26,9 @@ export default class Notification extends Component {
           {icon(this.icon(), {className: 'Notification-icon'})}
           <span className="Notification-content">{this.content()}</span>
           {humanTime(notification.time())}
+          <div className="Notification-excerpt">
+            {this.excerpt()}
+          </div>
         </a>
       </div>
     );
@@ -56,6 +59,15 @@ export default class Notification extends Component {
    * @abstract
    */
   content() {
+  }
+
+  /**
+   * Get the excerpt of the notification.
+   *
+   * @return {VirtualElement}
+   * @abstract
+   */
+  excerpt() {
   }
 
   /**
