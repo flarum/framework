@@ -22,6 +22,7 @@
         "illuminate/support": "5.1.*",
         "illuminate/validation": "5.1.*",
         "illuminate/view": "5.1.*",
+        "league/flysystem": "^1.0.11",
         "tobscure/json-api": "^0.1.1",
         "oyejorge/less.php": "~1.5",
         "intervention/image": "^2.3.0",
