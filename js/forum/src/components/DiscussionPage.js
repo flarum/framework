@@ -62,7 +62,9 @@ export default class DiscussionPage extends mixin(Component, evented) {
     // cancel the unloading of this controller and instead prompt the post
     // stream to jump to the new 'near' param.
     if (this.discussion) {
-      if (m.route.param('id') === this.discussion.id()) {
+      const idParam = m.route.param('id');
+
+      if (idParam && idParam.split('-')[0] === this.discussion.id()) {
         e.preventDefault();
 
         const near = Number(m.route.param('near')) || 1;
@@ -143,7 +145,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
     } else {
       const params = this.requestParams();
 
-      app.store.find('discussions', m.route.param('id'), params)
+      app.store.find('discussions', m.route.param('id').split('-')[0], params)
         .then(this.init.bind(this));
     }
 
