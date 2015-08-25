@@ -3,7 +3,7 @@ Hey {{ $user->username }}!
 {{ $blueprint->post->user->username }} made a post in a discussion you're following: {{ $blueprint->post->discussion->title }}
 
 To view the new activity, check out the following link:
-{{ \Flarum\Core::config('base_url') }}/d/{{ $blueprint->post->discussion_id }}/-/{{ $blueprint->post->number }}
+{{ \Flarum\Core::config('base_url') }}/d/{{ $blueprint->post->discussion_id }}/{{ $blueprint->post->number }}
 
 ---
 
