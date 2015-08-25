@@ -8,8 +8,7 @@ $url = app('Flarum\Http\UrlGeneratorInterface');
         @foreach ($document->data as $discussion)
             <li>
                 <a href="{{ $url->toRoute('flarum.forum.discussion', [
-                    'id' => $discussion->id,
-                    'slug' => $discussion->attributes->title
+                    'id' => $discussion->id . '-' . $discussion->attributes->title
                 ]) }}">
                     {{ $discussion->attributes->title }}
                 </a>
