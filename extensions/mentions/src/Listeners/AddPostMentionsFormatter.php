@@ -25,7 +25,7 @@ class AddPostMentionsFormatter
         $tag->attributes['number']->required = false;
         $tag->attributes['discussionid']->required = false;
 
-        $tag->template = '<a href="/d/{@discussionid}/-/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@username"/></a>';
+        $tag->template = '<a href="/d/{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@username"/></a>';
 
         $tag->filterChain
             ->prepend([static::class, 'addId'])
