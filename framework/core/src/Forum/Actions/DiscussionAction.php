@@ -16,7 +16,7 @@ class DiscussionAction extends ClientAction
         $page = max(1, array_get($queryParams, 'page'));
 
         $params = [
-            'id' => array_get($routeParams, 'id'),
+            'id' => (int) array_get($routeParams, 'id'),
             'page' => [
                 'near' => array_get($routeParams, 'near'),
                 'offset' => ($page - 1) * 20,

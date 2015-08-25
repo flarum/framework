@@ -57,7 +57,7 @@ class ForumServiceProvider extends ServiceProvider
         );
 
         $routes->get(
-            '/d/{id:\d+}[/{slug}[/{near}]]',
+            '/d/{id:\d+(?:-[^/]*)?}[/{near}]',
             'flarum.forum.discussion',
             $this->action('Flarum\Forum\Actions\DiscussionAction')
         );
