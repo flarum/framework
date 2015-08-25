@@ -15,9 +15,8 @@ export default function(app) {
     'index': {path: '/all', component: IndexPage.component()},
     'index.filter': {path: '/:filter', component: IndexPage.component()},
 
-    'discussion.id': {path: '/d/:id', component: DiscussionPage.component()},
-    'discussion': {path: '/d/:id/:slug', component: DiscussionPage.component()},
-    'discussion.near': {path: '/d/:id/:slug/:near', component: DiscussionPage.component()},
+    'discussion': {path: '/d/:id', component: DiscussionPage.component()},
+    'discussion.near': {path: '/d/:id/:near', component: DiscussionPage.component()},
 
     'user': {path: '/u/:username', component: PostsUserPage.component()},
     'user.posts': {path: '/u/:username', component: PostsUserPage.component()},
@@ -36,8 +35,7 @@ export default function(app) {
    */
   app.route.discussion = (discussion, near) => {
     return app.route(near > 1 ? 'discussion.near' : 'discussion', {
-      id: discussion.id(),
-      slug: discussion.slug(),
+      id: discussion.id() + '-' + discussion.slug(),
       near: near > 1 ? near : undefined
     });
   };
@@ -49,11 +47,7 @@ export default function(app) {
    * @return {String}
    */
   app.route.post = post => {
-    return app.route('discussion.near', {
-      id: post.discussion().id(),
-      slug: post.discussion().slug(),
-      near: post.number()
-    });
+    return app.route.discussion(post.discussion(), post.number());
   };
 
   /**
