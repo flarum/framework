@@ -77,6 +77,7 @@ export default class Search extends Component {
     return (
       <div className={'Search ' + classList({
         open: this.value() && this.hasFocus,
+        focused: this.hasFocus,
         active: !!currentSearch,
         loading: !!this.loadingSources
       })}>
