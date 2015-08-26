@@ -2,6 +2,7 @@ import ItemList from 'flarum/utils/ItemList';
 import Alert from 'flarum/components/Alert';
 import Translator from 'flarum/Translator';
 import extract from 'flarum/utils/extract';
+import patchMithril from 'flarum/utils/patchMithril';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -9,6 +10,8 @@ import extract from 'flarum/utils/extract';
  */
 export default class App {
   constructor() {
+    patchMithril(window);
+
     /**
      * The forum model for this application.
      *
