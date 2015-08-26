@@ -30,4 +30,15 @@ class Core
 
         return app('Flarum\Core\Settings\SettingsRepository')->get($key, $default);
     }
+
+    public static function url($name = null)
+    {
+        $url = static::config('url');
+
+        if ($name) {
+            $url .= '/' . static::config("paths.$name");
+        }
+
+        return $url;
+    }
 }

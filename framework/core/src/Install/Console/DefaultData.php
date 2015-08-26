@@ -21,6 +21,8 @@ class DefaultData implements ProvidesData
         'prefix'    => '',
     ];
 
+    protected $baseUrl = 'http://flarum.dev';
+
     protected $adminUser = [
         'username'              => 'admin',
         'password'              => 'admin',
@@ -28,12 +30,9 @@ class DefaultData implements ProvidesData
     ];
 
     protected $settings = [
-        'admin_url' => 'http://flarum.dev/admin',
         'allow_post_editing' => 'reply',
         'allow_renaming' => '10',
         'allow_sign_up' => '1',
-        'api_url' => 'http://flarum.dev/api.php',
-        'base_url' => 'http://flarum.dev',
         'custom_less' => '',
         'default_locale' => 'en',
         'default_route' => '/all',
@@ -58,6 +57,16 @@ class DefaultData implements ProvidesData
     public function setDatabaseConfiguration(array $databaseConfiguration)
     {
         $this->databaseConfiguration = $databaseConfiguration;
+    }
+
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
+    }
+
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
     }
 
     public function getAdminUser()

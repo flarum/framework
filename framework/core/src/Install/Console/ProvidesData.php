@@ -14,6 +14,8 @@ interface ProvidesData
 {
     public function getDatabaseConfiguration();
 
+    public function getBaseUrl();
+
     public function getAdminUser();
 
     public function getSettings();

@@ -34,10 +34,10 @@ class ForumSerializer extends Serializer
     {
         $attributes = [
             'title' => Core::config('forum_title'),
-            'baseUrl' => Core::config('base_url'),
-            'basePath' => parse_url(Core::config('base_url'), PHP_URL_PATH) ?: '',
+            'baseUrl' => Core::url(),
+            'basePath' => parse_url(Core::url(), PHP_URL_PATH) ?: '',
             'debug' => Core::inDebugMode(),
-            'apiUrl' => Core::config('api_url'),
+            'apiUrl' => Core::url('api'),
             'welcomeTitle' => Core::config('welcome_title'),
             'welcomeMessage' => Core::config('welcome_message'),
             'themePrimaryColor' => Core::config('theme_primary_color'),
@@ -48,7 +48,7 @@ class ForumSerializer extends Serializer
         ];
 
         if ($this->actor->isAdmin()) {
-            $attributes['adminUrl'] = Core::config('admin_url');
+            $attributes['adminUrl'] = Core::url('admin');
         }
 
         return $attributes;
