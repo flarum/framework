@@ -6,19 +6,12 @@ import TagDiscussionModal from 'tags/components/TagDiscussionModal';
 import tagsLabel from 'tags/helpers/tagsLabel';
 
 export default function() {
-  override(IndexPage.prototype, 'composeNewDiscussion', function(original, deferred) {
+  extend(IndexPage.prototype, 'composeNewDiscussion', function(promise) {
     const tag = app.store.getBy('tags', 'slug', this.params().tags);
 
-    app.modal.show(
-      new TagDiscussionModal({
-        selectedTags: tag ? [tag] : [],
-        onsubmit: tags => {
-          original(deferred).then(component => component.tags = tags);
-        }
-      })
-    );
-
-    return deferred.promise;
+    if (tag) {
+      promise.then(component => component.tags = [tag]);
+    }
   });
 
   // Add tag-selection abilities to the discussion composer.
@@ -40,9 +33,25 @@ export default function() {
   extend(DiscussionComposer.prototype, 'headerItems', function(items) {
     items.add('tags', (
       <a className="DiscussionComposer-changeTags" onclick={this.chooseTags.bind(this)}>
-        {tagsLabel(this.tags)}
+        {this.tags.length
+          ? tagsLabel(this.tags)
+          : <span className="TagLabel untagged">Choose Tags</span>}
       </a>
     ), 10);
+  });
+
+  override(DiscussionComposer.prototype, 'onsubmit', function(original) {
+    if (!this.tags.length) {
+      app.modal.show(
+        new TagDiscussionModal({
+          selectedTags: [],
+          onsubmit: tags => {
+            this.tags = tags;
+            original();
+          }
+        })
+      );
+    }
   });
 
   // Add the selected tags as data to submit to the server.
