@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -215,7 +215,8 @@ class Application extends Container implements ApplicationContract
     public function afterLoadingEnvironment(Closure $callback)
     {
         return $this->afterBootstrapping(
-            'Illuminate\Foundation\Bootstrap\DetectEnvironment', $callback
+            'Illuminate\Foundation\Bootstrap\DetectEnvironment',
+            $callback
         );
     }
 
