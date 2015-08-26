@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -13,6 +13,7 @@ namespace Flarum\Support;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\RedirectResponse;
+use Flarum\Core;
 
 abstract class Action
 {
@@ -37,6 +38,8 @@ abstract class Action
      */
     protected function redirectTo($url)
     {
+        $url = Core::config('base_url') . $url;
+
         $content = sprintf('
 <!DOCTYPE html>
 <html>
