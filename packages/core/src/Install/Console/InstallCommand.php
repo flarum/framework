@@ -206,7 +206,6 @@ class InstallCommand extends Command
     protected function createAdminUser()
     {
         $admin = $this->dataSource->getAdminUser();
-        $db = $this->getDatabaseConnection();
 
         $this->info('Creating admin user '.$admin['username']);
 
@@ -235,13 +234,5 @@ class InstallCommand extends Command
                 $this->info($note);
             }
         }
-    }
-
-    /**
-     * @return \Illuminate\Database\ConnectionInterface
-     */
-    protected function getDatabaseConnection()
-    {
-        return $this->container->make('Illuminate\Database\ConnectionInterface');
     }
 }

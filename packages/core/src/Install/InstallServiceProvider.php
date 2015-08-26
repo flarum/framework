@@ -1,7 +1,6 @@
 <?php namespace Flarum\Install;
 
 use Flarum\Http\RouteCollection;
-use Flarum\Http\UrlGenerator;
 use Flarum\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
