@@ -1,4 +1,14 @@
-<?php namespace Flarum\Console;
+<?php 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;
@@ -14,7 +24,6 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportCommand extends Command
 {
-
     /**
      * The console command name.
      *

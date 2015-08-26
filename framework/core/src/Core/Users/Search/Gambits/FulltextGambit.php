@@ -1,4 +1,14 @@
-<?php namespace Flarum\Core\Users\Search\Gambits;
+<?php 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Core\Users\Search\Gambits;
 
 use Flarum\Core\Users\UserRepository;
 use Flarum\Core\Search\Search;

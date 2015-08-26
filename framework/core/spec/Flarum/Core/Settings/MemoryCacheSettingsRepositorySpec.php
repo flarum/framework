@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace spec\Flarum\Core\Settings;
 
 use Flarum\Core\Settings\SettingsRepository;
@@ -8,17 +17,17 @@ use Prophecy\Argument;
 
 class MemoryCacheSettingsRepositorySpec extends ObjectBehavior
 {
-    function let(SettingsRepository $inner)
+    public function let(SettingsRepository $inner)
     {
         $this->beConstructedWith($inner);
     }
 
-    function it_is_initializable()
+    public function it_is_initializable()
     {
         $this->shouldHaveType('Flarum\Core\Settings\MemoryCacheSettingsRepository');
     }
 
-    function it_retrieves_data_from_inner(SettingsRepository $inner)
+    public function it_retrieves_data_from_inner(SettingsRepository $inner)
     {
         $settings = ['a' => 1, 'b' => 2];
         $inner->all()->willReturn($settings);
@@ -38,13 +47,13 @@ class MemoryCacheSettingsRepositorySpec extends ObjectBehavior
         $this->get('d', 'foobar')->shouldReturn('foobar');
     }
 
-    function it_passes_new_data_to_inner(SettingsRepository $inner)
+    public function it_passes_new_data_to_inner(SettingsRepository $inner)
     {
         $this->set('a', 1);
         $inner->set('a', 1)->shouldHaveBeenCalled();
     }
 
-    function it_caches_new_data(SettingsRepository $inner)
+    public function it_caches_new_data(SettingsRepository $inner)
     {
         $this->set('b', 2);
         $this->get('b')->shouldReturn(2);

@@ -1,4 +1,14 @@
-<?php namespace Flarum\Console;
+<?php 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Console;
 
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +51,7 @@ class UpgradeCommand extends Command
 
     protected function upgrade()
     {
-        $this->container->bind('Illuminate\Database\Schema\Builder', function($container) {
+        $this->container->bind('Illuminate\Database\Schema\Builder', function ($container) {
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
