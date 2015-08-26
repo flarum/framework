@@ -32,7 +32,7 @@ class DefaultData implements ProvidesData
         'allow_post_editing' => 'reply',
         'allow_renaming' => '10',
         'allow_sign_up' => '1',
-        'api_url' => 'http://flarum.dev/api',
+        'api_url' => 'http://flarum.dev/api.php',
         'base_url' => 'http://flarum.dev',
         'custom_less' => '',
         'default_locale' => 'en',
