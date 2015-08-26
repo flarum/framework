@@ -76,7 +76,7 @@ class RequestPasswordResetHandler
         // password route be part of core??
         $data = [
             'username' => $user->username,
-            'url' => $this->settings->get('base_url').'/reset/'.$token->id,
+            'url' => Core::url().'/reset/'.$token->id,
             'forumTitle' => $this->settings->get('forum_title'),
         ];
 

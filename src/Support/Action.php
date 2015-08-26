@@ -38,7 +38,7 @@ abstract class Action
      */
     protected function redirectTo($url)
     {
-        $url = Core::config('base_url') . $url;
+        $url = Core::url() . $url;
 
         $content = sprintf('
 <!DOCTYPE html>
