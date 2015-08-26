@@ -130,7 +130,7 @@ export default class DiscussionListItem extends Component {
    * @return {Boolean}
    */
   active() {
-    return m.route.param('id') === this.props.discussion.id();
+    return m.route.param('id').split('-')[0] === this.props.discussion.id();
   }
 
   /**
