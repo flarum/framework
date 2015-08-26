@@ -49,9 +49,8 @@ class RouterMiddleware
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        $serverParams = $request->getServerParams();
-        $uri = array_get($serverParams, 'PATH_INFO', $request->getUri()->getPath()) ?: '/';
         $method = $request->getMethod();
+        $uri = $request->getUri()->getPath() ?: '/';
 
         $routeInfo = $this->getDispatcher()->dispatch($method, $uri);
 
