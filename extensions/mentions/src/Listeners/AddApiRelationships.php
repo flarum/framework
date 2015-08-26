@@ -37,14 +37,14 @@ class AddApiRelationships
         if ($event->action instanceof Discussions\ShowAction) {
             $event->addInclude('posts.mentionedBy');
             $event->addInclude('posts.mentionedBy.user');
-            $event->addLink('posts.mentionedBy.discussion');
+            $event->addInclude('posts.mentionedBy.discussion');
         }
 
         if ($event->action instanceof Posts\ShowAction ||
             $event->action instanceof Posts\IndexAction) {
             $event->addInclude('mentionedBy');
             $event->addInclude('mentionedBy.user');
-            $event->addLink('mentionedBy.discussion');
+            $event->addInclude('mentionedBy.discussion');
         }
 
         if ($event->action instanceof Posts\CreateAction) {
