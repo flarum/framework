@@ -106,7 +106,7 @@ class InstallCommand extends Command
 
             $this->enableBundledExtensions();
         } catch (Exception $e) {
-            @unlink(base_path('../config.php'));
+            @unlink($this->getConfigFile());
 
             throw $e;
         }
@@ -139,7 +139,7 @@ class InstallCommand extends Command
         $this->info('Writing config');
 
         file_put_contents(
-            base_path('../config.php'),
+            $this->getConfigFile(),
             '<?php return '.var_export($config, true).';'
         );
     }
@@ -251,5 +251,10 @@ class InstallCommand extends Command
                 $this->info($note);
             }
         }
+    }
+    
+    protected function getConfigFile()
+    {
+        return base_path('../config.php');
     }
 }
