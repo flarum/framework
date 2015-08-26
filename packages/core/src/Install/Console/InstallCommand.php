@@ -129,6 +129,11 @@ class InstallCommand extends Command
                 'prefix'    => $dbConfig['prefix'],
                 'strict'    => false
             ],
+            'url'   => $this->dataSource->getBaseUrl(),
+            'paths' => [
+                'api'   => 'api',
+                'admin' => 'admin',
+            ],
         ];
 
         $this->info('Testing config');

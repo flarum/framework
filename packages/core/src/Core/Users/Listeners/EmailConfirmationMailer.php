@@ -108,7 +108,7 @@ class EmailConfirmationMailer
         // email route be part of core??
         return [
             'username' => $user->username,
-            'url' => $this->settings->get('base_url').'/confirm/'.$token->id,
+            'url' => Core::url().'/confirm/'.$token->id,
             'forumTitle' => $this->settings->get('forum_title')
         ];
     }

@@ -24,6 +24,8 @@ class DataFromUser implements ProvidesData
 
     protected $questionHelper;
 
+    protected $baseUrl;
+
 
     public function __construct(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
     {
@@ -44,6 +46,11 @@ class DataFromUser implements ProvidesData
         ];
     }
 
+    public function getBaseUrl()
+    {
+        return $this->baseUrl = rtrim($this->ask('Base URL:'), '/');
+    }
+
     public function getAdminUser()
     {
         return [
@@ -55,16 +62,13 @@ class DataFromUser implements ProvidesData
 
     public function getSettings()
     {
-        $baseUrl = rtrim($this->ask('Base URL:'), '/');
         $title = $this->ask('Forum title:');
+        $baseUrl = $this->baseUrl ?: 'http://localhost';
 
         return [
-            'admin_url' => $baseUrl . '/admin',
             'allow_post_editing' => 'reply',
             'allow_renaming' => '10',
             'allow_sign_up' => '1',
-            'api_url' => $baseUrl . '/api.php',
-            'base_url' => $baseUrl,
             'custom_less' => '',
             'default_locale' => 'en',
             'default_route' => '/all',
