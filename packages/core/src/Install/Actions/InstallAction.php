@@ -72,7 +72,7 @@ class InstallAction extends Action
         $baseUrl = rtrim((string) $request->getAttribute('originalUri'), '/');
 
         $data->setSetting('admin_url', $baseUrl . '/admin');
-        $data->setSetting('api_url', $baseUrl . '/api');
+        $data->setSetting('api_url', $baseUrl . '/api.php');
         $data->setSetting('base_url', $baseUrl);
         $data->setSetting('forum_title', array_get($input, 'forumTitle'));
         $data->setSetting('mail_from', 'noreply@' . preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)));

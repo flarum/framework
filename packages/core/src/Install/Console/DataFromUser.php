@@ -63,7 +63,7 @@ class DataFromUser implements ProvidesData
             'allow_post_editing' => 'reply',
             'allow_renaming' => '10',
             'allow_sign_up' => '1',
-            'api_url' => $baseUrl . '/api',
+            'api_url' => $baseUrl . '/api.php',
             'base_url' => $baseUrl,
             'custom_less' => '',
             'default_locale' => 'en',
