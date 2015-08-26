@@ -32,7 +32,6 @@ class Formatter
 
         event(new FormatterConfigurator($configurator));
 
-
         return $configurator;
     }
 
@@ -63,6 +62,12 @@ class Formatter
 
     protected function getRenderer(CommentPost $post)
     {
+        spl_autoload_register(function ($class) {
+            if (file_exists($file = storage_path() . '/app/' . $class . '.php')) {
+                include $file;
+            }
+        });
+
         $renderer = $this->getComponent('renderer');
 
         event(new FormatterRenderer($renderer, $post));
