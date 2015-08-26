@@ -2,8 +2,11 @@
   position: relative;
 }
 @media @tablet-up {
-  .Search {
-    input:focus, &.active input, .Search-results {
+  .Search.focused {
+    margin-left: -400px;
+    .transition(all 0.4s);
+
+    input, .Search-results {
       width: 400px;
     }
   }
@@ -51,9 +54,9 @@
   input {
     float: left;
     width: 225px;
-    padding-left: 36px;
-    padding-right: 36px;
-    .transition(~"all 0.4s");
+    padding-left: 32px;
+    padding-right: 32px;
+    .transition(all 0.4s);
   }
   .Button {
     float: left;
