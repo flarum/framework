@@ -22,6 +22,9 @@ class Formatter
         $configurator = new Configurator;
         $configurator->rootRules->enableAutoLineBreaks();
 
+        $configurator->rendering->engine = 'PHP';
+        $configurator->rendering->engine->cacheDir = storage_path() . '/app';
+
         $configurator->Escaper;
         $configurator->Autoemail;
         $configurator->Autolink;
