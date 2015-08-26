@@ -33,10 +33,10 @@ class Core
 
     public static function url($name = null)
     {
-        $url = static::config('url');
+        $url = app('flarum.config')['url'];
 
         if ($name) {
-            $url .= '/' . static::config("paths.$name");
+            $url .= '/' . app('flarum.config')['paths'][$name];
         }
 
         return $url;
