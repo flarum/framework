@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -20,6 +20,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Exception;
 
 class InstallCommand extends Command
 {
@@ -85,24 +86,30 @@ class InstallCommand extends Command
 
     protected function install()
     {
-        $this->storeConfiguration();
+        try {
+            $this->storeConfiguration();
 
-        $this->runMigrations();
+            $this->runMigrations();
 
-        $this->writeSettings();
+            $this->writeSettings();
 
-        $this->container->register('Flarum\Core\CoreServiceProvider');
+            $this->container->register('Flarum\Core\CoreServiceProvider');
 
-        $resolver = $this->container->make('Illuminate\Database\ConnectionResolverInterface');
-        Model::setConnectionResolver($resolver);
-        Model::setEventDispatcher($this->container->make('events'));
+            $resolver = $this->container->make('Illuminate\Database\ConnectionResolverInterface');
+            Model::setConnectionResolver($resolver);
+            Model::setEventDispatcher($this->container->make('events'));
 
-        $this->seedGroups();
-        $this->seedPermissions();
+            $this->seedGroups();
+            $this->seedPermissions();
 
-        $this->createAdminUser();
+            $this->createAdminUser();
 
-        $this->enableBundledExtensions();
+            $this->enableBundledExtensions();
+        } catch (Exception $e) {
+            @unlink(base_path('../config.php'));
+
+            throw $e;
+        }
     }
 
     protected function storeConfiguration()
