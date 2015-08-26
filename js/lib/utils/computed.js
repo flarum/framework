@@ -5,7 +5,7 @@
  * @param {...String} dependentKeys The keys of the dependent values.
  * @param {function} compute The function which computes the value using the
  *     dependent values.
- * @return {}
+ * @return {Function}
  */
 export default function computed(...dependentKeys) {
   const keys = dependentKeys.slice(0, -1);
