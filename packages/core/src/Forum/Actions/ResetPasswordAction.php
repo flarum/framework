@@ -14,10 +14,24 @@ use Flarum\Core\Users\PasswordToken;
 use Flarum\Support\HtmlAction;
 use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Contracts\View\Factory;
 use DateTime;
 
 class ResetPasswordAction extends HtmlAction
 {
+    /**
+     * @var Factory
+     */
+    protected $view;
+
+    /**
+     * @param Factory $view
+     */
+    public function __construct(Factory $view)
+    {
+        $this->view = $view;
+    }
+
     /**
      * @param Request $request
      * @param array $routeParams
@@ -33,6 +47,6 @@ class ResetPasswordAction extends HtmlAction
             throw new InvalidConfirmationTokenException;
         }
 
-        return view('flarum::reset')->with('token', $token->id);
+        return $this->view->make('flarum::reset')->with('token', $token->id);
     }
 }
