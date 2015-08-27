@@ -1,6 +1,6 @@
 <h2>Install Flarum</h2>
 
-<p>Set up your forum by filling out your details below. If you have any trouble, get help on the <a href="http://flarum.org" target="_blank">Flarum website</a>.</p>
+<p>Set up your forum by filling out your details below. If you have any trouble, get help on the <a href="http://flarum.org/docs/troubleshooting" target="_blank">Flarum website</a>.</p>
 
 <form>
   <div id="error" style="display:none"></div>
