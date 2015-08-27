@@ -57,6 +57,21 @@ class IndexAction extends HtmlAction
             }
         }
 
+        $paths = [
+            public_path(),
+            public_path().'/assets',
+            storage_path()
+        ];
+
+        foreach ($paths as $path) {
+            if (! is_writable($path)) {
+                $errors[] = [
+                    'message' => 'The <strong>'.realpath($path).'</strong> directory is not writable.',
+                    'detail' => 'Please chmod this directory '.($path !== public_path() ? ' and its contents' : '').' to 0755.'
+                ];
+            }
+        }
+
         if (count($errors)) {
             $view->content = $this->view->make('flarum.install::errors');
             $view->content->errors = $errors;
