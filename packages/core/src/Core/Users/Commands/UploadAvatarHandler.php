@@ -65,7 +65,7 @@ class UploadAvatarHandler
         $tmpFile = tempnam(sys_get_temp_dir(), 'avatar');
         $command->file->moveTo($tmpFile);
 
-        $manager = new ImageManager(['driver' => 'imagick']);
+        $manager = new ImageManager();
         $manager->make($tmpFile)->fit(100, 100)->save();
 
         event(new AvatarWillBeSaved($user, $actor, $tmpFile));
