@@ -28,7 +28,7 @@ class ClientAction extends BaseClientAction
      * {@inheritdoc}
      */
     protected $translationKeys = [
-
+        'core.log_out'
     ];
 
     /**
