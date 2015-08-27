@@ -51,6 +51,8 @@ export default function() {
           }
         })
       );
+    } else {
+      original();
     }
   });
 
