@@ -11,6 +11,7 @@
 namespace Flarum\Api\Serializers;
 
 use Flarum\Core;
+use Flarum\Core\Application;
 
 class ForumSerializer extends Serializer
 {
@@ -49,6 +50,7 @@ class ForumSerializer extends Serializer
 
         if ($this->actor->isAdmin()) {
             $attributes['adminUrl'] = Core::url('admin');
+            $attributes['version'] = Application::VERSION;
         }
 
         return $attributes;

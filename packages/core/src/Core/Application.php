@@ -23,11 +23,11 @@ use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 class Application extends Container implements ApplicationContract
 {
     /**
-     * The Laravel framework version.
+     * The Flarum version.
      *
      * @var string
      */
-    const VERSION = '5.1.9 (LTS)';
+    const VERSION = '0.1.0-beta';
 
     /**
      * The base path for the Laravel installation.
