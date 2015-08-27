@@ -13,24 +13,10 @@ namespace Flarum\Forum\Actions;
 use Flarum\Core\Users\PasswordToken;
 use Flarum\Core\Users\Commands\EditUser;
 use Flarum\Support\Action;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class SavePasswordAction extends Action
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
-    }
-
     /**
      * @param Request $request
      * @param array $routeParams
@@ -49,9 +35,8 @@ class SavePasswordAction extends Action
             return $this->redirectTo('/reset/'.$token->id); // TODO: Use UrlGenerator
         }
 
-        $this->bus->dispatch(
-            new EditUser($token->user_id, $token->user, ['attributes' => ['password' => $password]])
-        );
+        $token->user->changePassword($password);
+        $token->user->save();
 
         $token->delete();
 
