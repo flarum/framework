@@ -128,6 +128,34 @@
         -webkit-animation-name: fadeIn;
         animation-name: fadeIn;
       }
+
+      .Errors {
+        margin-top: 50px;
+      }
+      .Errors .Error:first-child {
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+      }
+      .Errors .Error:last-child {
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+      }
+      .Error {
+        background: #EDF2F7;
+        margin: 0 0 1px;
+        padding: 20px 25px;
+        text-align: left;
+      }
+      .Error-message {
+        font-size: 16px;
+        color: #3C5675;
+        font-weight: normal;
+        margin: 0;
+      }
+      .Error-detail {
+        font-size: 13px;
+        margin: 5px 0 0;
+      }
     </style>
   </head>
 
