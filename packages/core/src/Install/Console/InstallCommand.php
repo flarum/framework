@@ -248,16 +248,22 @@ class InstallCommand extends Command
         $migrator = $extensions->getMigrator();
 
         foreach ($extensions->getInfo() as $extension) {
-            $this->info('Enabling extension: '.$extension->name);
+            $name = $extensions->name;
 
-            $extensions->enable($extension->name);
+            if ($name === 'pusher') {
+                continue;
+            }
+
+            $this->info('Enabling extension: '.$name);
+
+            $extensions->enable($name);
 
             foreach ($migrator->getNotes() as $note) {
                 $this->info($note);
             }
         }
     }
-    
+
     protected function getConfigFile()
     {
         return base_path('../config.php');
