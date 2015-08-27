@@ -248,7 +248,7 @@ class InstallCommand extends Command
         $migrator = $extensions->getMigrator();
 
         foreach ($extensions->getInfo() as $extension) {
-            $name = $extensions->name;
+            $name = $extension->name;
 
             if ($name === 'pusher') {
                 continue;
