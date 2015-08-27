@@ -40,8 +40,29 @@ class IndexAction extends HtmlAction
 
         $view->logo = $this->view->make('flarum.install::logo');
 
-        $view->content = $this->view->make('flarum.install::install');
-        $view->content->input = [];
+        $errors = [];
+
+        if (version_compare(PHP_VERSION, '5.5.0', '<')) {
+            $errors[] = [
+                'message' => '<strong>PHP 5.5+</strong> is required.',
+                'detail' => 'You are running version '.PHP_VERSION.'.'
+            ];
+        }
+
+        foreach (['mbstring', 'pdo_mysql'] as $extension) {
+            if (! extension_loaded($extension)) {
+                $errors[] = [
+                    'message' => 'The <strong>'.$extension.'</strong> extension is required.'
+                ];
+            }
+        }
+
+        if (count($errors)) {
+            $view->content = $this->view->make('flarum.install::errors');
+            $view->content->errors = $errors;
+        } else {
+            $view->content = $this->view->make('flarum.install::install');
+        }
 
         return $view;
     }
