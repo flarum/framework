@@ -67,7 +67,7 @@ class IndexAction extends HtmlAction
             if (! is_writable($path)) {
                 $errors[] = [
                     'message' => 'The <strong>'.realpath($path).'</strong> directory is not writable.',
-                    'detail' => 'Please chmod this directory '.($path !== public_path() ? ' and its contents' : '').' to 0755.'
+                    'detail' => 'Please chmod this directory '.($path !== public_path() ? ' and its contents' : '').' to 0775.'
                 ];
             }
         }
