@@ -30,7 +30,7 @@ class CreateTagsTable extends Migration
             $table->boolean('is_hidden')->default(0);
 
             $table->integer('discussions_count')->unsigned()->default(0);
-            $table->integer('last_time')->unsigned()->nullable();
+            $table->dateTime('last_time')->nullable();
             $table->integer('last_discussion_id')->unsigned()->nullable();
         });
 
