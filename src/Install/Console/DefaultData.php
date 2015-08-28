@@ -15,7 +15,7 @@ class DefaultData implements ProvidesData
     protected $databaseConfiguration = [
         'driver'    => 'mysql',
         'host'      => 'localhost',
-        'database'  => 'flarum_console',
+        'database'  => 'flarum',
         'username'  => 'root',
         'password'  => 'root',
         'prefix'    => '',
