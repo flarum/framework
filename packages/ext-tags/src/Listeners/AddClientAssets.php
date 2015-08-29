@@ -29,6 +29,7 @@ class AddClientAssets
         $event->forumBootstrapper('tags/main');
 
         $event->forumTranslations([
+            'tags.tags',
             'tags.discussion_tagged_post',
             'tags.added_tags',
             'tags.removed_tags',
