@@ -22,7 +22,7 @@ class HideIgnoredDiscussions
             // might be better as `id IN (subquery)`?
             $actor = $event->search->getActor();
             $event->search->getQuery()->whereNotExists(function ($query) use ($actor) {
-                $query->select(app('flarum.db')->raw(1))
+                $query->selectRaw(1)
                       ->from('users_discussions')
                       ->whereRaw('discussion_id = discussions.id')
                       ->where('user_id', $actor->id)
