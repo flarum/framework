@@ -2,6 +2,7 @@
 
 use Flarum\Events\RegisterDiscussionGambits;
 use Flarum\Events\DiscussionSearchWillBePerformed;
+use Illuminate\Database\Query\Expression;
 
 class HideIgnoredDiscussions
 {
@@ -24,7 +25,7 @@ class HideIgnoredDiscussions
             $event->search->getQuery()->whereNotExists(function ($query) use ($actor) {
                 $query->selectRaw(1)
                       ->from('users_discussions')
-                      ->whereRaw('discussion_id = discussions.id')
+                      ->where('discussions.id', new Expression('discussion_id'))
                       ->where('user_id', $actor->id)
                       ->where('subscription', 'ignore');
             });
