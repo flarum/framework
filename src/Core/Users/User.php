@@ -306,7 +306,7 @@ class User extends Model
     {
         $urlGenerator = app('Flarum\Http\UrlGeneratorInterface');
 
-        return $this->avatar_path ? $urlGenerator->toAsset('assets/avatars/'.$this->avatar_path) : null;
+        return $this->avatar_path ? $urlGenerator->toAsset('avatars/'.$this->avatar_path) : null;
     }
 
     /**
