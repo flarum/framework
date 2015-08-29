@@ -4,6 +4,7 @@ use Flarum\Events\ScopeModelVisibility;
 use Flarum\Events\ModelAllow;
 use Flarum\Core\Discussions\Discussion;
 use Flarum\Tags\Tag;
+use Illuminate\Database\Query\Expression;
 
 class ConfigureDiscussionPermissions
 {
@@ -21,7 +22,7 @@ class ConfigureDiscussionPermissions
                 return $query->select(app('flarum.db')->raw(1))
                     ->from('discussions_tags')
                     ->whereIn('tag_id', Tag::getNotVisibleTo($event->actor))
-                    ->whereRaw('discussion_id = ' . app('flarum.db')->getQueryGrammar()->wrap('discussions.id'));
+                    ->where('discussions.id', new Expression('discussion_id'));
             });
         }
     }

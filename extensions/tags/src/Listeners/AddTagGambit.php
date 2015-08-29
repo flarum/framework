@@ -5,6 +5,7 @@ use Flarum\Events\DiscussionSearchWillBePerformed;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Tags\Gambits\TagGambit;
 use Flarum\Tags\Tag;
+use Illuminate\Database\Query\Expression;
 
 class AddTagGambit
 {
@@ -33,7 +34,7 @@ class AddTagGambit
             return $query->select(app('flarum.db')->raw(1))
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::where('is_hidden', 1)->lists('id'))
-                ->whereRaw('discussion_id = ' . app('flarum.db')->getQueryGrammar()->wrap('discussions.id'));
+                ->where('discussions.id', new Expression('discussion_id'));
         });
     }
 }
