@@ -45,7 +45,7 @@ class IndexAction extends HtmlAction
         if (version_compare(PHP_VERSION, '5.5.0', '<')) {
             $errors[] = [
                 'message' => '<strong>PHP 5.5+</strong> is required.',
-                'detail' => 'You are running version '.PHP_VERSION.'.'
+                'detail' => 'You are running version '.PHP_VERSION.'. Talk to your hosting provider about upgrading to the latest PHP version.'
             ];
         }
 
