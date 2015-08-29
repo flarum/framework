@@ -39,10 +39,15 @@ class PinStickiedDiscussionsToTop
                      ->where('discussions.is_sticky', '=', true)
                      ->where('users_discussions.user_id', '=', $event->search->getActor()->id);
             });
+
             // might be quicker to do a subquery in the order clause than a join?
+            $prefix = app('Illuminate\Database\ConnectionInterface')->getTablePrefix();
             array_unshift(
                 $query->orders,
-                ['type' => 'raw', 'sql' => '(is_sticky AND (users_discussions.read_number IS NULL OR discussions.last_post_number > users_discussions.read_number)) desc']
+                [
+                    'type' => 'raw',
+                    'sql' => "(is_sticky AND ({$prefix}users_discussions.read_number IS NULL OR {$prefix}discussions.last_post_number > {$prefix}users_discussions.read_number)) desc"
+                ]
             );
         }
     }
