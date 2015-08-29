@@ -2,6 +2,7 @@
 
 use Flarum\Core\Search\Search;
 use Flarum\Core\Search\RegexGambit;
+use Illuminate\Database\Query\Expression;
 
 class SubscriptionGambit extends RegexGambit
 {
@@ -16,7 +17,7 @@ class SubscriptionGambit extends RegexGambit
         $search->getQuery()->$method(function ($query) use ($actor, $matches) {
             $query->select(app('flarum.db')->raw(1))
                   ->from('users_discussions')
-                  ->whereRaw('discussion_id = discussions.id')
+                  ->where('discussions.id', new Expression('discussion_id'))
                   ->where('user_id', $actor->id)
                   ->where('subscription', $matches[1] === 'follow' ? 'follow' : 'ignore');
         });
