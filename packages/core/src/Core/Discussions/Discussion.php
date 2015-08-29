@@ -46,7 +46,7 @@ class Discussion extends Model
      * @var array
      */
     protected $rules = [
-        'title'              => 'required',
+        'title'              => 'required|max:80',
         'start_time'         => 'required|date',
         'comments_count'     => 'integer',
         'participants_count' => 'integer',
