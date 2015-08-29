@@ -52,10 +52,13 @@ export default class TextEditor extends Component {
   configTextarea(element, isInitialized) {
     if (isInitialized) return;
 
-    $(element).bind('keydown', 'meta+return', () => {
+    var handler = () => {
       this.onsubmit();
       m.redraw();
-    });
+    };
+
+    $(element).bind('keydown', 'meta+return', handler);
+    $(element).bind('keydown', 'ctrl+return', handler);
   }
 
   /**
