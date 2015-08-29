@@ -13,7 +13,7 @@ export default function() {
   extend(IndexPage.prototype, 'navItems', function(items) {
     items.add('tags', LinkButton.component({
       icon: 'th-large',
-      children: 'Tags',
+      children: app.trans('tags.tags'),
       href: app.route('tags')
     }), -10);
 
