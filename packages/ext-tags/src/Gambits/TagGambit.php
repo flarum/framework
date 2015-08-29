@@ -3,6 +3,7 @@
 use Flarum\Tags\TagRepository;
 use Flarum\Core\Search\Search;
 use Flarum\Core\Search\RegexGambit;
+use Illuminate\Database\Query\Expression;
 
 class TagGambit extends RegexGambit
 {
@@ -32,7 +33,7 @@ class TagGambit extends RegexGambit
                     $query->orWhereNotExists(function ($query) {
                         $query->select(app('flarum.db')->raw(1))
                               ->from('discussions_tags')
-                              ->whereRaw('discussion_id = discussions.id');
+                              ->where('discussions.id', new Expression('discussion_id'));
                     });
                 } else {
                     $id = $this->tags->getIdForSlug($slug);
@@ -40,7 +41,8 @@ class TagGambit extends RegexGambit
                     $query->orWhereExists(function ($query) use ($id) {
                         $query->select(app('flarum.db')->raw(1))
                               ->from('discussions_tags')
-                              ->whereRaw('discussion_id = discussions.id AND tag_id = ?', [$id]);
+                              ->where('discussions.id', new Expression('discussion_id'))
+                              ->where('tag_id', $id);
                     });
                 }
             }
