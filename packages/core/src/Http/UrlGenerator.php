@@ -11,6 +11,8 @@
 
 namespace Flarum\Http;
 
+use Flarum\Core;
+
 class UrlGenerator implements UrlGeneratorInterface
 {
     protected $routes;
@@ -26,12 +28,11 @@ class UrlGenerator implements UrlGeneratorInterface
         $path = $this->routes->getPath($name, $parameters);
         $path = ltrim($path, '/');
 
-        // TODO: Prepend real base URL
-        return "/$path";
+        return Core::url() . "/$path";
     }
 
     public function toAsset($path)
     {
-        return "/$path";
+        return Core::url() . "/assets/$path";
     }
 }
