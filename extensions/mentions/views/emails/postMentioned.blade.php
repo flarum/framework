@@ -6,4 +6,4 @@ Hey {{ $user->username }}!
 
 ---
 
-{{ strip_tags($blueprint->post->contentHtml) }}
+{{ strip_tags($blueprint->reply->contentHtml) }}
