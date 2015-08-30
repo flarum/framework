@@ -14,8 +14,8 @@ before_script:
   - php composer.phar install
 
 script:
-  - composer.phar style
-  - composer.phar test
+  - php composer.phar style
+  - php composer.phar test
 
 notifications:
   email:
