@@ -1,6 +1,5 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
-import Switch from 'flarum/components/Switch';
 import { slug } from 'flarum/utils/string';
 
 import tagLabel from 'tags/helpers/tagLabel';
