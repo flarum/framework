@@ -1,4 +1,4 @@
-/*global s9e*/
+/*global s9e, hljs*/
 
 import Post from 'flarum/components/Post';
 import classList from 'flarum/utils/classList';
@@ -60,7 +60,7 @@ export default class CommentPost extends Post {
     const contentHtml = this.isEditing() ? '' : this.props.post.contentHtml();
 
     if (context.contentHtml !== contentHtml) {
-      if(typeof hljs === 'undefined') {
+      if (typeof hljs === 'undefined') {
         this.loadHljs();
       } else {
         this.$('pre code').each(function(i, elm) {
