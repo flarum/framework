@@ -32,6 +32,7 @@ use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\VisibleScope;
 use Flarum\Core\Support\EventGenerator;
 use Flarum\Core\Support\ValidatesBeforeSave;
+use Flarum\Core\Exceptions\ValidationException;
 
 /**
  * @todo document database columns with @property
@@ -149,6 +150,8 @@ class User extends Model
     {
         $user = new static;
 
+        $this->assertValidPassword($password);
+
         $user->username  = $username;
         $user->email     = $email;
         $user->password  = $password;
@@ -225,11 +228,27 @@ class User extends Model
      */
     public function changePassword($password)
     {
+        $this->assertValidPassword($password);
+
         $this->password = $password;
 
         $this->raise(new UserPasswordWasChanged($this));
 
         return $this;
+    }
+
+    /**
+     * Validate password input.
+     *
+     * @param string $password
+     * @return void
+     * @throws \Flarum\Core\Exceptions\ValidationException
+     */
+    protected function assertValidPassword($password)
+    {
+        if (strlen($password) < 8) {
+            throw new ValidationException(['password' => 'Password must be at least 8 characters']);
+        }
     }
 
     /**
