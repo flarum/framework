@@ -41,7 +41,12 @@ export function getPlainContent(string) {
   return dom.text();
 }
 
-getPlainContent.removeSelectors = ['blockquote'];
+/**
+ * An array of DOM selectors to remove when getting plain content.
+ *
+ * @type {Array}
+ */
+getPlainContent.removeSelectors = ['blockquote', 'script'];
 
 /**
  * Make a string's first character uppercase.
