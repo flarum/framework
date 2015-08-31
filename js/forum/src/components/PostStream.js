@@ -181,7 +181,7 @@ class PostStream extends mixin(Component, evented) {
       .map(id => {
         const post = app.store.getById('posts', id);
 
-        return post && post.discussion() ? post : null;
+        return post && post.discussion() && post.user() !== false ? post : null;
       });
   }
 
