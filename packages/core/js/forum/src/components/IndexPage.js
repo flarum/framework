@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
+import { extend } from 'flarum/extend';
+import Page from 'flarum/components/Page';
 import ItemList from 'flarum/utils/ItemList';
-import affixSidebar from 'flarum/utils/affixSidebar';
 import listItems from 'flarum/helpers/listItems';
 import DiscussionList from 'flarum/components/DiscussionList';
 import WelcomeHero from 'flarum/components/WelcomeHero';
@@ -16,22 +16,22 @@ import SelectDropdown from 'flarum/components/SelectDropdown';
  * The `IndexPage` component displays the index page, including the welcome
  * hero, the sidebar, and the discussion list.
  */
-export default class IndexPage extends Component {
+export default class IndexPage extends Page {
   constructor(...args) {
     super(...args);
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will
     // scroll down so that this discussion is in view.
-    if (app.current instanceof DiscussionPage) {
-      this.lastDiscussion = app.current.discussion;
+    if (app.previous instanceof DiscussionPage) {
+      this.lastDiscussion = app.previous.discussion;
     }
 
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
     // cache so that results are reloaded.
-    if (app.current instanceof IndexPage) {
+    if (app.previous instanceof IndexPage) {
       app.cache.discussionList = null;
     }
 
@@ -55,9 +55,8 @@ export default class IndexPage extends Component {
     }
 
     app.history.push('index');
-    app.current = this;
-    app.drawer.hide();
-    app.modal.close();
+
+    this.bodyClass = 'App--index';
   }
 
   onunload() {
@@ -71,7 +70,7 @@ export default class IndexPage extends Component {
       <div className="IndexPage">
         {this.hero()}
         <div className="container">
-          <nav className="IndexPage-nav sideNav" config={affixSidebar}>
+          <nav className="IndexPage-nav sideNav">
             <ul>{listItems(this.sidebarItems().toArray())}</ul>
           </nav>
           <div className="IndexPage-results sideNavOffset">
@@ -87,13 +86,11 @@ export default class IndexPage extends Component {
   }
 
   config(isInitialized, context) {
+    super.config(...arguments);
+
     if (isInitialized) return;
 
-    $('#app').addClass('App--index');
-    context.onunload = () => {
-      $('#app').removeClass('App--index')
-        .css('min-height', '');
-    };
+    extend(context, 'onunload', () => $('#app').css('min-height', ''));
 
     app.setTitle('');
     app.setTitleCount(0);

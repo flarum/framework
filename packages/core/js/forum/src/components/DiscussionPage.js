@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import ItemList from 'flarum/utils/ItemList';
 import DiscussionHero from 'flarum/components/DiscussionHero';
 import PostStream from 'flarum/components/PostStream';
@@ -6,15 +6,13 @@ import PostStreamScrubber from 'flarum/components/PostStreamScrubber';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import listItems from 'flarum/helpers/listItems';
-import mixin from 'flarum/utils/mixin';
-import evented from 'flarum/utils/evented';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
-export default class DiscussionPage extends mixin(Component, evented) {
+export default class DiscussionPage extends Page {
   constructor(...args) {
     super(...args);
 
@@ -43,18 +41,14 @@ export default class DiscussionPage extends mixin(Component, evented) {
       app.pane.enable();
       app.pane.hide();
 
-      if (app.current instanceof DiscussionPage) {
+      if (app.previous instanceof DiscussionPage) {
         m.redraw.strategy('diff');
       }
     }
 
-    // Push onto the history stack, but use a generalised key so that navigating
-    // to a few different discussions won't override the behaviour of the back
-    // button.
     app.history.push('discussion');
-    app.current = this;
-    app.drawer.hide();
-    app.modal.close();
+
+    this.bodyClass = 'App--discussion';
   }
 
   onunload(e) {
@@ -119,13 +113,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
         </div>
       </div>
     );
-  }
-
-  config(isInitialized, context) {
-    if (isInitialized) return;
-
-    $('#app').addClass('App--discussion');
-    context.onunload = () => $('#app').removeClass('App--discussion');
   }
 
   /**
@@ -197,8 +184,6 @@ export default class DiscussionPage extends mixin(Component, evented) {
     this.stream = new PostStream({discussion, includedPosts});
     this.stream.on('positionChanged', this.positionChanged.bind(this));
     this.stream.goToNumber(m.route.param('near') || includedPosts[0].number(), true);
-
-    this.trigger('loaded', discussion);
   }
 
   /**
