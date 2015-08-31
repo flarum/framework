@@ -68,9 +68,13 @@ class UpgradeCommand extends Command
         $migrator = $extensions->getMigrator();
 
         foreach ($extensions->getInfo() as $extension) {
+            if (! $extensions->isEnabled($extension->name)) {
+                continue;
+            }
+
             $this->info('Upgrading extension: '.$extension->name);
 
-            $extensions->enable($extension->name);
+            $extensions->migrate($extension->name);
 
             foreach ($migrator->getNotes() as $note) {
                 $this->info($note);

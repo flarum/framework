@@ -48,14 +48,10 @@ class ExtensionManager
 
     public function enable($extension)
     {
-        $enabled = $this->getEnabled();
-
-        if (! in_array($extension, $enabled)) {
+        if (! $this->isEnabled($extension)) {
             $enabled[] = $extension;
 
             $class = $this->load($extension);
-
-            $class->install();
 
             $this->migrate($extension);
 
@@ -80,12 +76,10 @@ class ExtensionManager
 
         $class = $this->load($extension);
 
-        $class->uninstall();
-
         $this->migrate($extension, false);
     }
 
-    protected function migrate($extension, $up = true)
+    public function migrate($extension, $up = true)
     {
         $migrationDir = base_path('../extensions/' . $extension . '/migrations');
 
@@ -117,6 +111,11 @@ class ExtensionManager
         $enabled = array_values(array_unique($enabled));
 
         $this->config->set('extensions_enabled', json_encode($enabled));
+    }
+
+    public function isEnabled($extension)
+    {
+        return in_array($extension, $this->getEnabled());
     }
 
     protected function load($extension)
