@@ -95,9 +95,7 @@ export default class PostsUserPage extends UserPage {
     this.loading = true;
     this.posts = [];
 
-    // Redraw, but only if we're not in the middle of a route change.
-    m.startComputation();
-    m.endComputation();
+    m.lazyRedraw();
 
     this.loadResults().then(this.parseResults.bind(this));
   }

@@ -149,12 +149,7 @@ export default class DiscussionPage extends mixin(Component, evented) {
         .then(this.init.bind(this));
     }
 
-    // Since this may be called during the component's constructor, i.e. in the
-    // middle of a redraw, forcing another redraw would not bode well. Instead
-    // we start/end a computation so Mithril will only redraw if it isn't
-    // already doing so.
-    m.startComputation();
-    m.endComputation();
+    m.lazyRedraw();
   }
 
   /**
