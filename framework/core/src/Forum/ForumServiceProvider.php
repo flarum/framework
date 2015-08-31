@@ -67,13 +67,13 @@ class ForumServiceProvider extends ServiceProvider
         );
 
         $routes->get(
-            '/d/{id:\d+(?:-[^/]*)?}[/{near}]',
+            '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
             'flarum.forum.discussion',
             $this->action('Flarum\Forum\Actions\DiscussionAction')
         );
 
         $routes->get(
-            '/u/{username}[/{filter}]',
+            '/u/{username}[/{filter:[^/]*}]',
             'flarum.forum.user',
             $this->action('Flarum\Forum\Actions\ClientAction')
         );
