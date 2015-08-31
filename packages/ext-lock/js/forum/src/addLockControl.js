@@ -5,7 +5,7 @@ import Button from 'flarum/components/Button';
 
 export default function addLockControl() {
   extend(DiscussionControls, 'moderationControls', function(items, discussion) {
-    if (discussion.canSticky()) {
+    if (discussion.canLock()) {
       items.add('lock', Button.component({
         children: app.trans(discussion.isLocked() ? 'lock.unlock' : 'lock.lock'),
         icon: 'lock',
