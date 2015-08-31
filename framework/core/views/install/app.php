@@ -162,11 +162,11 @@
   <body>
     <div class="container">
       <h1>
-        {!! $logo !!}
+        <?php include 'logo.svg'; ?>
       </h1>
 
       <div class="animated fadeIn">
-        {!! $content !!}
+        <?php echo $content; ?>
       </div>
     </div>
   </body>
