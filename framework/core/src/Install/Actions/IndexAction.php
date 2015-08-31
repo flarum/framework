@@ -47,7 +47,7 @@ class IndexAction extends HtmlAction
             ];
         }
 
-        foreach (['mbstring', 'pdo_mysql', 'openssl', 'json', 'gd', 'dom'] as $extension) {
+        foreach (['mbstring', 'pdo_mysql', 'openssl', 'json', 'gd', 'dom', 'fileinfo'] as $extension) {
             if (! extension_loaded($extension)) {
                 $errors[] = [
                     'message' => 'The <strong>'.$extension.'</strong> extension is required.'
