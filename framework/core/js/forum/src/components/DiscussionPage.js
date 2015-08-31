@@ -61,9 +61,9 @@ export default class DiscussionPage extends Page {
       if (idParam && idParam.split('-')[0] === this.discussion.id()) {
         e.preventDefault();
 
-        const near = Number(m.route.param('near')) || 1;
+        const near = m.route.param('near') || '1';
 
-        if (near !== Number(this.near)) {
+        if (near !== String(this.near)) {
           this.stream.goToNumber(near);
         }
 
