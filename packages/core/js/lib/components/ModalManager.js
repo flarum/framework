@@ -81,7 +81,7 @@ export default class ModalManager extends Component {
   clear() {
     this.component = null;
 
-    m.redraw();
+    m.lazyRedraw();
   }
 
   /**
