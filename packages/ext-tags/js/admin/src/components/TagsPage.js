@@ -77,9 +77,7 @@ export default class TagsPage extends Component {
     );
   }
 
-  config(isInitialized) {
-    if (isInitialized) return;
-
+  config() {
     this.$('ol, ul')
       .sortable({connectWith: 'primary'})
       .on('sortupdate', (e, ui) => {
