@@ -32,6 +32,11 @@
       <label>MySQL Database</label>
       <input name="mysqlDatabase">
     </div>
+    
+    <div class="FormField">
+      <label>Table Prefix</label>
+      <input type="tablePrefix">
+    </div>
   </div>
 
   <div class="FormGroup">

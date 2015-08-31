@@ -17,7 +17,6 @@ use Zend\Diactoros\Response\JsonResponse;
 use Zend\Diactoros\Response;
 use Flarum\Install\Console\InstallCommand;
 use Flarum\Install\Console\DefaultData;
-use Flarum\Core\Users\User;
 use Flarum\Api\Commands\GenerateAccessToken;
 use Flarum\Forum\Actions\WritesRememberCookie;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -60,7 +59,7 @@ class InstallAction extends Action
             'database'  => array_get($input, 'mysqlDatabase'),
             'username'  => array_get($input, 'mysqlUsername'),
             'password'  => array_get($input, 'mysqlPassword'),
-            'prefix'    => '',
+            'prefix'    => array_get($input, 'tablePrefix'),
         ]);
 
         $data->setAdminUser([
