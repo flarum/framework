@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import ItemList from 'flarum/utils/ItemList';
 import affixSidebar from 'flarum/utils/affixSidebar';
 import UserCard from 'flarum/components/UserCard';
@@ -15,7 +15,7 @@ import listItems from 'flarum/helpers/listItems';
  *
  * @abstract
  */
-export default class UserPage extends Component {
+export default class UserPage extends Page {
   constructor(...args) {
     super(...args);
 
@@ -27,9 +27,8 @@ export default class UserPage extends Component {
     this.user = null;
 
     app.history.push('user');
-    app.current = this;
-    app.drawer.hide();
-    app.modal.close();
+
+    this.bodyClass = 'App--user';
   }
 
   view() {
@@ -55,13 +54,6 @@ export default class UserPage extends Component {
         ]}
       </div>
     );
-  }
-
-  config(isInitialized, context) {
-    if (isInitialized) return;
-
-    $('#app').addClass('App--user');
-    context.onunload = () => $('#app').removeClass('App--user');
   }
 
   /**
