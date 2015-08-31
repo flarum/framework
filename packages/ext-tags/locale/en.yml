@@ -6,6 +6,7 @@ tags:
   added_tags: "added the {tags}"
   removed_tags: "removed the {tags}"
   tag_new_discussion_title: Choose Tags for Your Discussion
+  tag_new_discussion_link: Choose Tags
   edit_discussion_tags_title: "Edit Tags for {title}"
   edit_discussion_tags_link: Edit Tags
   choose_primary_tags:

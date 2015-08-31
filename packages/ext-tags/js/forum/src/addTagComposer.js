@@ -35,7 +35,7 @@ export default function() {
       <a className="DiscussionComposer-changeTags" onclick={this.chooseTags.bind(this)}>
         {this.tags.length
           ? tagsLabel(this.tags)
-          : <span className="TagLabel untagged">Choose Tags</span>}
+          : <span className="TagLabel untagged">{app.trans('tags.tag_new_discussion_link')}</span>}
       </a>
     ), 10);
   });

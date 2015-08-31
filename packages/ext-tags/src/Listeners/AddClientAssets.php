@@ -34,6 +34,7 @@ class AddClientAssets
             'tags.added_tags',
             'tags.removed_tags',
             'tags.tag_new_discussion_title',
+            'tags.tag_new_discussion_link',
             'tags.edit_discussion_tags_title',
             'tags.edit_discussion_tags_link',
             'tags.choose_primary_tags',
