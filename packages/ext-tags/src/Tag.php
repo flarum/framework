@@ -56,7 +56,7 @@ class Tag extends Model
         $tag->slug        = $slug;
         $tag->description = $description;
         $tag->color       = $color;
-        $tag->is_hidden   = $isHidden;
+        $tag->is_hidden   = (bool) $isHidden;
 
         return $tag;
     }

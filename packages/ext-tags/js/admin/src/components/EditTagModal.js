@@ -19,7 +19,7 @@ export default class EditTagModal extends Modal {
     this.slug = m.prop(this.tag.slug() || '');
     this.description = m.prop(this.tag.description() || '');
     this.color = m.prop(this.tag.color() || '');
-    this.isHidden = m.prop(this.tag.isHidden() || '');
+    this.isHidden = m.prop(this.tag.isHidden() || false);
   }
 
   className() {
