@@ -45,6 +45,7 @@ export default function() {
 
     if (tags.length) {
       items.add('tag', Dropdown.component({
+        className: 'Dropdown--restrictByTag',
         buttonClassName: 'Button Button--text',
         label: 'Restrict by Tag',
         icon: 'plus',
