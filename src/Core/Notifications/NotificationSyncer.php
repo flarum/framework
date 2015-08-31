@@ -100,7 +100,7 @@ class NotificationSyncer
         // removed from this collection by the above loop. Un-delete the
         // existing records that we want to keep.
         if (count($toDelete)) {
-            $this->setDeleted($toDelete->lists('id'), true);
+            $this->setDeleted($toDelete->lists('id')->all(), true);
         }
 
         if (count($toUndelete)) {
