@@ -43,7 +43,7 @@ class Post extends Model
     protected $rules = [
         'discussion_id' => 'required|integer',
         'time'          => 'required|date',
-        'content'       => 'required',
+        'content'       => 'required|max:65535',
         'number'        => 'integer',
         'user_id'       => 'integer',
         'edit_time'     => 'date',
