@@ -54,6 +54,49 @@ export default class CommentPost extends Post {
     ];
   }
 
+  config(isInitialized, context) {
+    super.config(...arguments);
+
+    const contentHtml = this.isEditing() ? '' : this.props.post.contentHtml();
+
+    if (context.contentHtml !== contentHtml) {
+      if(typeof hljs === 'undefined') {
+        this.loadHljs();
+      } else {
+        this.$('pre code').each(function(i, elm) {
+          hljs.highlightBlock(elm);
+        });
+      }
+    }
+
+    context.contentHtml = contentHtml;
+  }
+
+  /**
+   * Load the highlight.js library and initialize highlighting when done.
+   *
+   * @private
+   */
+  loadHljs() {
+    const head = document.getElementsByTagName('head')[0];
+
+    const stylesheet = document.createElement('link');
+    stylesheet.type = 'text/css';
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/default.min.css';
+    head.appendChild(stylesheet);
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.onload = () => {
+      hljs._ = {};
+      hljs.initHighlighting();
+    };
+    script.async = true;
+    script.src = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/highlight.min.js';
+    head.appendChild(script);
+  }
+
   isEditing() {
     return app.composer.component instanceof EditPostComposer &&
       app.composer.component.props.post === this.props.post &&
