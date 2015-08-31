@@ -82,6 +82,8 @@ $(function() {
 
         $button.prop('disabled', false).text('Install Flarum');
       });
+
+    return false;
   });
 });
 </script>
