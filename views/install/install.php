@@ -2,7 +2,7 @@
 
 <p>Set up your forum by filling out your details below. If you have any trouble, get help on the <a href="http://flarum.org/docs/installation" target="_blank">Flarum website</a>.</p>
 
-<form>
+<form method="post">
   <div id="error" style="display:none"></div>
 
   <div class="FormGroup">
@@ -82,6 +82,8 @@ $(function() {
 
         $button.prop('disabled', false).text('Install Flarum');
       });
+
+    return false;
   });
 });
 </script>
