@@ -14,6 +14,7 @@ use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\Question;
+use Flarum\Core\Application;
 
 class GenerateExtensionCommand extends Command
 {
@@ -83,12 +84,17 @@ class GenerateExtensionCommand extends Command
             'version' => '0.1.0',
             'author' => [
                 'name' => $authorName,
-                'email' => $authorEmail
+                'email' => $authorEmail,
+                'homepage' => ''
             ],
             'license' => $license,
             'require' => [
-                'php' => '>=5.4.0',
-                'flarum' => '>0.1.0'
+                'flarum' => '>'.Application::VERSION
+            ],
+            'icon' => [
+                'name' => '',
+                'backgroundColor' => '',
+                'color' => ''
             ]
         ];
 
