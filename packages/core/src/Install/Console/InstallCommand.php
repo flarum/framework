@@ -15,7 +15,7 @@ use Flarum\Core\Model;
 use Flarum\Core\Users\User;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Groups\Permission;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -30,13 +30,13 @@ class InstallCommand extends Command
     protected $dataSource;
 
     /**
-     * @var Container
+     * @var Application
      */
-    protected $container;
+    protected $application;
 
-    public function __construct(Container $container)
+    public function __construct(Application $application)
     {
-        $this->container = $container;
+        $this->application = $application;
 
         parent::__construct();
     }
@@ -93,11 +93,11 @@ class InstallCommand extends Command
 
             $this->writeSettings();
 
-            $this->container->register('Flarum\Core\CoreServiceProvider');
+            $this->application->register('Flarum\Core\CoreServiceProvider');
 
-            $resolver = $this->container->make('Illuminate\Database\ConnectionResolverInterface');
+            $resolver = $this->application->make('Illuminate\Database\ConnectionResolverInterface');
             Model::setConnectionResolver($resolver);
-            Model::setEventDispatcher($this->container->make('events'));
+            Model::setEventDispatcher($this->application->make('events'));
 
             $this->seedGroups();
             $this->seedPermissions();
@@ -138,8 +138,8 @@ class InstallCommand extends Command
 
         $this->info('Testing config');
 
-        $this->container->instance('flarum.config', $config);
-        $this->container->make('flarum.db');
+        $this->application->instance('flarum.config', $config);
+        $this->application->make('flarum.db');
 
         $this->info('Writing config');
 
@@ -151,11 +151,11 @@ class InstallCommand extends Command
 
     protected function runMigrations()
     {
-        $this->container->bind('Illuminate\Database\Schema\Builder', function ($container) {
+        $this->application->bind('Illuminate\Database\Schema\Builder', function ($container) {
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
-        $migrator = $this->container->make('Flarum\Migrations\Migrator');
+        $migrator = $this->application->make('Flarum\Migrations\Migrator');
         $migrator->getRepository()->createRepository();
 
         $migrator->run(__DIR__ . '/../../../migrations');
@@ -168,7 +168,7 @@ class InstallCommand extends Command
     protected function writeSettings()
     {
         $data = $this->dataSource->getSettings();
-        $settings = $this->container->make('Flarum\Core\Settings\SettingsRepository');
+        $settings = $this->application->make('Flarum\Core\Settings\SettingsRepository');
 
         $this->info('Writing default settings');
 
@@ -243,7 +243,7 @@ class InstallCommand extends Command
 
     protected function enableBundledExtensions()
     {
-        $extensions = $this->container->make('Flarum\Support\ExtensionManager');
+        $extensions = $this->application->make('Flarum\Support\ExtensionManager');
 
         $migrator = $extensions->getMigrator();
 
