@@ -21,7 +21,6 @@ export default class SubtreeRetainer {
    * @param {...callbacks} callbacks Functions returning data to keep track of.
    */
   constructor(...callbacks) {
-    this.invalidate();
     this.callbacks = callbacks;
     this.data = {};
   }
