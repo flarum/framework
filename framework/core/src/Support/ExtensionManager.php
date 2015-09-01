@@ -49,6 +49,8 @@ class ExtensionManager
     public function enable($extension)
     {
         if (! $this->isEnabled($extension)) {
+            $enabled = $this->getEnabled();
+
             $enabled[] = $extension;
 
             $class = $this->load($extension);
