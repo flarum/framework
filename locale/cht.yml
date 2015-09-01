@@ -1,0 +1,111 @@
+core:
+  account: 帳戶
+  activity: 活動
+  administration: 管理
+  alert: 警告
+  all_discussions: 全部討論
+  before_log_in_link: 已有帳戶？
+  before_sign_up_link: 還沒有帳戶？
+  bio_placeholder: 自我介紹
+  cannot_reply: 不能回覆
+  cannot_reply_help: 你沒有權限回覆這個討論
+  change_email: 更改電郵
+  change_password: 更改密碼
+  change_password_help: 按下面按鈕及檢查你電郵中的連接以更改密碼。
+  close: 關閉
+  confirm_delete_discussion: 你確定要刪除這個討論嗎？
+  confirm_discard_discussion: 還沒有發表討論，是否捨棄？
+  confirm_discard_edit: 還沒有儲存變更，是否捨棄？
+  confirm_discard_reply: 還沒有發表回覆，是否捨棄？
+  confirmation_email_sent: "我們已發送電郵至 {email} 。如不在收件匣，請檢查垃圾郵件信箱。"
+  controls: 控制
+  delete: 刪除
+  delete_forever: 永久刪除
+  deleted: "[已刪除]"
+  disclose_online: 允許他人看見我在線
+  discussion_renamed_post: "{username} 已更改討論標題 {old} 成 {new}。"
+  discussion_renamed_notification: "{username} 已更改標題"
+  discussion_replied: "由 {username} 最後回覆於 {ago}"
+  discussion_started: "由 {username} 開始於 {ago}"
+  discussion_title: 討論標題
+  discussions: 討論
+  dismiss: 離開
+  edit: 編輯
+  editing_post: "帖子 #{number} 在 {discussion}"
+  email: 電郵
+  email_confirmation_required: "登入前你須要核實你的電郵地址。我們已發送核實電郵至 {email}。如不在收件匣，請檢查垃圾郵件信箱。"
+  exit_full_screen: 離開全屏幕
+  forgot_password: 忘記密碼
+  forgot_password_help: 我們會發送重設密碼連接至你輸入的電郵地址。
+  forgot_password_link: 忘記密碼？
+  full_screen: 全屏幕
+  go_to: "轉至 {location}"
+  group_admin: 管理員
+  group_admins: 管理員
+  group_guest: 遊客
+  group_guests: 遊客
+  group_member: 會員
+  group_members: 會員
+  group_mod: Mod
+  group_mods: Mods
+  invalid_login: 你的登入資料不正確。
+  joined: "{ago} 加入"
+  joined_the_forum: 加入論壇
+  load_more: 載入更多
+  log_in: 登入
+  log_in_to_reply: 登入及回覆
+  log_out: 登出
+  mark_all_as_read: 標示全部為已閱
+  mark_as_read: 標示為已閱
+  minimize: 最小化
+  no_notifications: 沒有通知
+  notifications: 通知
+  notify_discussion_renamed: 某人變更了你發表的討論
+  now: 現在
+  online: 在線
+  original_post: 原文
+  password: 密碼
+  password_reset_email_sent: 已發送重設密碼連接至你輸入的電郵地址。請稍後檢查你的電郵信箱，如不在收件匣，請檢查垃圾郵件信箱。
+  period_later: "{period} 之後"
+  post_discussion: 發表討論
+  post_edited: "{username} 編輯於 {ago}"
+  post_number: "帖子 #{number}"
+  post_reply: 發表回覆
+  posted_a_reply: 已發表回覆
+  posts: 帖子
+  powered_by_flarum: Powered by Flarum
+  privacy: 私隱
+  profile: 個人檔案
+  prompt_rename_discussion: 輸入新的討論主題:
+  recover_password: 回覆密碼
+  refresh: 更新
+  remove: 移除
+  rename: 更名
+  reply: 回覆
+  reply_posted: 你的回覆已發表。
+  restore: 回復
+  save_changes: 儲存變更
+  search_all_discussions: '搜尋所有討論關於 "{query}"'
+  search_forum: 搜尋論壇
+  send_password_reset_email: 發送重設密碼電郵
+  settings: 設定
+  sign_up: 註冊
+  sort_latest: 由新到舊
+  sort_newest: 由新到舊
+  sort_oldest: 由舊到新
+  sort_relevance: 關聯
+  sort_top: 最頂
+  start_a_discussion: 開始一個討論
+  started_a_discussion: 已開始一個討論
+  unread_posts: "{count} 未閱"
+  upload: 上載
+  username: 用戶名
+  username_or_email: 用戶名或電郵
+  users: 用戶
+  view: 檢視
+  viewing_posts:
+    one: "{index} 中的 {count} 帖子"
+    other: "{index} 中的 {count} 帖子"
+  welcome_user: "歡迎, {username}!"
+  write_a_post: 發表新帖...
+  write_a_reply: 發表回覆...
