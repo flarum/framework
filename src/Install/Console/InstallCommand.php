@@ -16,6 +16,7 @@ use Flarum\Core\Users\User;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Groups\Permission;
 use Illuminate\Contracts\Foundation\Application;
+use PDO;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -139,7 +140,13 @@ class InstallCommand extends Command
         $this->info('Testing config');
 
         $this->application->instance('flarum.config', $config);
-        $this->application->make('flarum.db');
+        /* @var $db \Illuminate\Database\ConnectionInterface */
+        $db = $this->application->make('flarum.db');
+        $version = $db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+        if (version_compare($version, '5.5.0', '<')) {
+            throw new Exception('MySQL version too low. You need at least MySQL 5.5.');
+        }
 
         $this->info('Writing config');
 
