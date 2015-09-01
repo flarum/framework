@@ -37,10 +37,12 @@ class DiscussionMetadataUpdater
     {
         $discussion = $event->post->discussion;
 
-        $discussion->comments_count++;
-        $discussion->setLastPost($event->post);
-        $discussion->refreshParticipantsCount();
-        $discussion->save();
+        if ($discussion && $discussion->exists) {
+            $discussion->comments_count++;
+            $discussion->setLastPost($event->post);
+            $discussion->refreshParticipantsCount();
+            $discussion->save();
+        }
     }
 
     /**
@@ -66,10 +68,12 @@ class DiscussionMetadataUpdater
     {
         $discussion = $event->post->discussion;
 
-        $discussion->refreshCommentsCount();
-        $discussion->refreshParticipantsCount();
-        $discussion->refreshLastPost();
-        $discussion->save();
+        if ($discussion && $discussion->exists) {
+            $discussion->refreshCommentsCount();
+            $discussion->refreshParticipantsCount();
+            $discussion->refreshLastPost();
+            $discussion->save();
+        }
     }
 
     /**
@@ -79,7 +83,7 @@ class DiscussionMetadataUpdater
     {
         $discussion = $post->discussion;
 
-        if ($discussion->exists) {
+        if ($discussion && $discussion->exists) {
             $discussion->refreshCommentsCount();
             $discussion->refreshParticipantsCount();
 
