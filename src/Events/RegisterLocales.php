@@ -27,8 +27,23 @@ class RegisterLocales
         $this->manager = $manager;
     }
 
+    public function addLocale($locale, $name)
+    {
+        $this->manager->addLocale($locale, $name);
+    }
+
     public function addTranslations($locale, $file)
     {
         $this->manager->addTranslations($locale, $file);
+    }
+
+    public function addJsFile($locale, $file)
+    {
+        $this->manager->addJsFile($locale, $file);
+    }
+
+    public function addConfig($locale, $file)
+    {
+        $this->manager->addConfig($locale, $file);
     }
 }
