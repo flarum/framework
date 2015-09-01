@@ -49,7 +49,7 @@ class ExtensionManager
     public function enable($extension)
     {
         if (! $this->isEnabled($extension)) {
-            $enabled[] = $extension;
+            $enabled = array_merge($this->getEnabled(), [$extension]);
 
             $class = $this->load($extension);
 
