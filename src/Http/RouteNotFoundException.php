@@ -15,8 +15,11 @@ use Exception;
 
 class RouteNotFoundException extends Exception
 {
-    public function __construct($message = null, $code = 404, Exception $previous = null)
+    public function __construct($message = "", $code = 404, Exception $previous = null)
     {
-        parent::__construct($message, $code, $previous);
+        // Pass the message and integer code to the parent
+        parent::__construct($message, (int)$code, $previous);
+		// @link http://bugs.php.net/39615 Save the unmodified code
+		$this->code = $code;
     }
 }
