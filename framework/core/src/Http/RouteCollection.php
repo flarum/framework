@@ -90,11 +90,8 @@ class RouteCollection
     public function getPath($name, array $parameters = [])
     {
         $parts = $this->reverse[$name][0];
-
         array_walk($parts, [$this, 'fixPathPart'], $parameters);
-        $path = implode('', $parts);
-
-        $path = '/' . ltrim($path, '/');
+        $path = '/' . ltrim(implode('', $parts), '/');
         return $path;
     }
 }
