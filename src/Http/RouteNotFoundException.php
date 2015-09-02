@@ -19,7 +19,7 @@ class RouteNotFoundException extends Exception
     {
         // Pass the message and integer code to the parent
         parent::__construct($message, (int)$code, $previous);
-		// @link http://bugs.php.net/39615 Save the unmodified code
-		$this->code = $code;
+        // @link http://bugs.php.net/39615 Save the unmodified code
+        $this->code = $code;
     }
 }
