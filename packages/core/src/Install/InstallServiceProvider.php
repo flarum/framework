@@ -11,6 +11,10 @@
 namespace Flarum\Install;
 
 use Flarum\Http\RouteCollection;
+use Flarum\Install\Prerequisites\PhpExtensions;
+use Flarum\Install\Prerequisites\PhpVersion;
+use Flarum\Install\Prerequisites\WritablePaths;
+use Flarum\Install\Prerequisites\Composite;
 use Flarum\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -24,6 +28,17 @@ class InstallServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register('Flarum\Locale\LocaleServiceProvider');
+
+        $this->app->bind(
+            'Flarum\Install\Prerequisites\Prerequisite',
+            function() {
+                return new Composite(
+                    new PhpVersion(),
+                    new PhpExtensions(),
+                    new WritablePaths()
+                );
+            }
+        );
     }
 
     /**
