@@ -13,14 +13,13 @@ namespace Flarum\Install\Prerequisites;
 class Composite implements Prerequisite
 {
     /**
-     * @var AbstractPrerequisite[]
+     * @var Prerequisite[]
      */
     protected $prerequisites = [];
 
     public function __construct(Prerequisite $first)
     {
-        foreach (func_get_args() as $prerequisite)
-        {
+        foreach (func_get_args() as $prerequisite) {
             $this->prerequisites[] = $prerequisite;
         }
     }
@@ -38,7 +37,7 @@ class Composite implements Prerequisite
 
     public function getErrors()
     {
-        return collect($this->prerequisites)->map(function(Prerequisite $prerequisite) {
+        return collect($this->prerequisites)->map(function (Prerequisite $prerequisite) {
             return $prerequisite->getErrors();
         })->reduce('array_merge', []);
     }
