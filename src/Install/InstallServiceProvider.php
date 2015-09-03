@@ -31,7 +31,7 @@ class InstallServiceProvider extends ServiceProvider
 
         $this->app->bind(
             'Flarum\Install\Prerequisites\Prerequisite',
-            function() {
+            function () {
                 return new Composite(
                     new PhpVersion(),
                     new PhpExtensions(),
