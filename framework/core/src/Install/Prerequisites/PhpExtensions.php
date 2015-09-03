@@ -17,7 +17,7 @@ class PhpExtensions extends AbstractPrerequisite
         foreach (['mbstring', 'pdo_mysql', 'openssl', 'json', 'gd', 'dom', 'fileinfo'] as $extension) {
             if (! extension_loaded($extension)) {
                 $this->errors[] = [
-                    'message' => "The <strong>$extension</strong> extension is required.",
+                    'message' => "The $extension extension is required.",
                 ];
             }
         }
