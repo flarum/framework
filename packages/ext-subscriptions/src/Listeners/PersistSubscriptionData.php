@@ -1,6 +1,7 @@
 <?php namespace Flarum\Subscriptions\Listeners;
 
 use Flarum\Events\DiscussionWillBeSaved;
+use Flarum\Core\Exceptions\PermissionDeniedException;
 
 class PersistSubscriptionData
 {
@@ -17,6 +18,10 @@ class PersistSubscriptionData
         if (isset($data['attributes']['subscription'])) {
             $actor = $event->actor;
             $subscription = $data['attributes']['subscription'];
+
+            if (! $actor->exists) {
+                throw new PermissionDeniedException;
+            }
 
             $state = $discussion->stateFor($actor);
 
