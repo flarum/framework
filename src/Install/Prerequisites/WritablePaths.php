@@ -24,8 +24,8 @@ class WritablePaths extends AbstractPrerequisite
         foreach ($paths as $path) {
             if (! is_writable($path)) {
                 $this->errors[] = [
-                    'message' => 'The <strong>'.realpath($path).'</strong> directory is not writable.',
-                    'detail' => 'Please chmod this directory '.($path !== public_path() ? ' and its contents' : '').' to 0775.'
+                    'message' => 'The '.realpath($path).' directory is not writable.',
+                    'detail' => 'Please chmod this directory'.($path !== public_path() ? ' and its contents' : '').' to 0775.'
                 ];
             }
         }

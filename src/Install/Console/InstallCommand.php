@@ -62,11 +62,22 @@ class InstallCommand extends Command
     {
         $this->init();
 
-        $this->info('Installing Flarum...');
+        $prerequisites = $this->getPrerequisites();
+        $prerequisites->check();
+        $errors = $prerequisites->getErrors();
 
-        $this->install();
+        if (empty($errors)) {
+            $this->info('Installing Flarum...');
 
-        $this->info('DONE.');
+            $this->install();
+
+            $this->info('DONE.');
+        } else {
+            $this->output->writeln(
+                '<error>Please fix the following errors before we can continue with the installation.</error>'
+            );
+            $this->showErrors($errors);
+        }
     }
 
     protected function init()
@@ -274,5 +285,24 @@ class InstallCommand extends Command
     protected function getConfigFile()
     {
         return base_path('../config.php');
+    }
+
+    /**
+     * @return \Flarum\Install\Prerequisites\Prerequisite
+     */
+    protected function getPrerequisites()
+    {
+        return $this->application->make('Flarum\Install\Prerequisites\Prerequisite');
+    }
+
+    protected function showErrors($errors)
+    {
+        foreach ($errors as $error) {
+            $this->info($error['message']);
+
+            if (isset($error['detail'])) {
+                $this->output->writeln('<comment>' . $error['detail'] . '</comment>');
+            }
+        }
     }
 }
