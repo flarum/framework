@@ -37,13 +37,12 @@ class DataFromUser implements ProvidesData
     public function getDatabaseConfiguration()
     {
         return [
-            'driver'                => 'mysql',
-            'host'                  => $this->ask('Database host:'),
-            'database'              => $this->ask('Database name:'),
-            'username'              => $this->ask('Database user:'),
-            'password'              => $this->secret('Database password:'),
-            'password_confirmation' => $this->secret('Database password (confirmation):'),
-            'prefix'                => $this->ask('Prefix:'),
+            'driver'   => 'mysql',
+            'host'     => $this->ask('Database host:'),
+            'database' => $this->ask('Database name:'),
+            'username' => $this->ask('Database user:'),
+            'password' => $this->secret('Database password:'),
+            'prefix'   => $this->ask('Prefix:'),
         ];
     }
 

@@ -129,10 +129,6 @@ class InstallCommand extends Command
     {
         $dbConfig = $this->dataSource->getDatabaseConfiguration();
 
-        if ($dbConfig['password'] !== $dbConfig['password_confirmation']) {
-            throw new Exception('The password did not match it\'s confirmation.');
-        }
-
         $config = [
             'debug'    => true,
             'database' => [
@@ -253,7 +249,7 @@ class InstallCommand extends Command
         $admin = $this->dataSource->getAdminUser();
 
         if ($admin['password'] !== $admin['password_confirmation']) {
-            throw new Exception('The password did not match it\'s confirmation.');
+            throw new Exception('The password did not match its confirmation.');
         }
 
         $this->info('Creating admin user '.$admin['username']);

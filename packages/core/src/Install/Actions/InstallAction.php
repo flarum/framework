@@ -54,13 +54,12 @@ class InstallAction extends Action
         $data = new DefaultData;
 
         $data->setDatabaseConfiguration([
-            'driver'                => 'mysql',
-            'host'                  => array_get($input, 'mysqlHost'),
-            'database'              => array_get($input, 'mysqlDatabase'),
-            'username'              => array_get($input, 'mysqlUsername'),
-            'password'              => array_get($input, 'mysqlPassword'),
-            'password_confirmation' => array_get($input, 'mysqlPasswordConfirmation'),
-            'prefix'                => array_get($input, 'tablePrefix'),
+            'driver'   => 'mysql',
+            'host'     => array_get($input, 'mysqlHost'),
+            'database' => array_get($input, 'mysqlDatabase'),
+            'username' => array_get($input, 'mysqlUsername'),
+            'password' => array_get($input, 'mysqlPassword'),
+            'prefix'   => array_get($input, 'tablePrefix'),
         ]);
 
         $data->setAdminUser([
