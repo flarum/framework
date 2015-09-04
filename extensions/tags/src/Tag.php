@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -123,7 +123,7 @@ class Tag extends Model
         }
 
         $ids = [];
-        $hasGlobalPermission = $user->hasPermission($permission);
+        $hasGlobalPermission = $user->hasPermission($permission === 'view' ? 'forum.view' : $permission);
 
         foreach ($tags as $tag) {
             if (($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
@@ -143,7 +143,7 @@ class Tag extends Model
         }
 
         $ids = [];
-        $hasGlobalPermission = $user->hasPermission($permission);
+        $hasGlobalPermission = $user->hasPermission($permission === 'view' ? 'forum.view' : $permission);
 
         foreach ($tags as $tag) {
             if (($tag->is_restricted || ! $hasGlobalPermission) && ! $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
