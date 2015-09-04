@@ -3,19 +3,23 @@
     "title": "Emoji",
     "description": "Convert text and unicode emoji into Twemoji.",
     "keywords": ["discussions"],
-    "version": "0.1.0",
+    "version": "0.1.0-beta.2",
     "author": {
         "name": "Toby Zerner",
-        "email": "toby.zerner@gmail.com"
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
     },
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "flarum": ">0.1.0"
+        "flarum": ">=0.1.0-beta.2"
+    },
+    "support": {
+        "source": "https://github.com/flarum/emoji",
+        "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {
-      "name": "smile-o",
-      "backgroundColor": "#FFC700",
-      "color": "#000"
+        "name": "smile-o",
+        "backgroundColor": "#FFC700",
+        "color": "#000"
     }
 }
