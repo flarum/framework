@@ -15,7 +15,7 @@ class ConfigureTagPermissions
     public function scopeTagVisibility(ScopeModelVisibility $event)
     {
         if ($event->model instanceof Tag) {
-            $event->query->whereNotIn('id', Tag::getNotVisibleTo($event->actor));
+            $event->query->whereNotIn('id', Tag::getIdsWhereCannot($event->actor, 'view'));
         }
     }
 

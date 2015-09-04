@@ -104,7 +104,7 @@ class Tag extends Model
         return $this;
     }
 
-    public static function getNotVisibleTo($user)
+    public static function getIdsWhereCan($user, $permission)
     {
         static $tags;
 
@@ -113,9 +113,30 @@ class Tag extends Model
         }
 
         $ids = [];
+        $hasGlobalPermission = $user->hasPermission($permission);
 
         foreach ($tags as $tag) {
-            if ($tag->is_restricted && ! $user->hasPermission('tag' . $tag->id . '.view')) {
+            if (($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
+                $ids[] = $tag->id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public static function getIdsWhereCannot($user, $permission)
+    {
+        static $tags;
+
+        if (! $tags) {
+            $tags = static::all();
+        }
+
+        $ids = [];
+        $hasGlobalPermission = $user->hasPermission($permission);
+
+        foreach ($tags as $tag) {
+            if (($tag->is_restricted || ! $hasGlobalPermission) && ! $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
                 $ids[] = $tag->id;
             }
         }
