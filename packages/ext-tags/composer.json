@@ -3,5 +3,8 @@
         "psr-4": {
             "Flarum\\Tags\\": "src/"
         }
+    },
+    "scripts": {
+        "style": "phpcs --standard=PSR2 -np src"
     }
 }
