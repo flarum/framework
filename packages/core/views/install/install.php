@@ -36,7 +36,7 @@
     
     <div class="FormField">
       <label>Table Prefix</label>
-      <input type="tablePrefix">
+      <input type="text" name="tablePrefix">
     </div>
   </div>
 
