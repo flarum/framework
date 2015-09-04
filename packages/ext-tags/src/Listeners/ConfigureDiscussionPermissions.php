@@ -1,9 +1,11 @@
 <?php namespace Flarum\Tags\Listeners;
 
 use Flarum\Events\ScopeModelVisibility;
+use Flarum\Events\ScopeEmptyDiscussionVisibility;
 use Flarum\Events\ModelAllow;
 use Flarum\Core\Discussions\Discussion;
 use Flarum\Tags\Tag;
+use Flarum\Reports\Report;
 use Illuminate\Database\Query\Expression;
 
 class ConfigureDiscussionPermissions
@@ -11,6 +13,7 @@ class ConfigureDiscussionPermissions
     public function subscribe($events)
     {
         $events->listen(ScopeModelVisibility::class, [$this, 'scopeDiscussionVisibility']);
+        $events->listen(ScopeEmptyDiscussionVisibility::class, [$this, 'scopeEmptyDiscussionVisibility']);
         $events->listen(ModelAllow::class, [$this, 'allowDiscussionPermissions']);
     }
 
@@ -19,12 +22,35 @@ class ConfigureDiscussionPermissions
         // Hide discussions which have tags that the user is not allowed to see.
         if ($event->model instanceof Discussion) {
             $event->query->whereNotExists(function ($query) use ($event) {
-                return $query->select(app('flarum.db')->raw(1))
+                return $query->select(new Expression(1))
                     ->from('discussions_tags')
-                    ->whereIn('tag_id', Tag::getNotVisibleTo($event->actor))
+                    ->whereIn('tag_id', Tag::getIdsWhereCannot($event->actor, 'view'))
                     ->where('discussions.id', new Expression('discussion_id'));
             });
         }
+
+        if ($event->model instanceof Report) {
+            $event->query
+                ->select('reports.*')
+                ->leftJoin('posts', 'posts.id', '=', 'reports.post_id')
+                ->leftJoin('discussions', 'discussions.id', '=', 'posts.discussion_id')
+                ->whereNotExists(function ($query) use ($event) {
+                    return $query->select(new Expression(1))
+                        ->from('discussions_tags')
+                        ->whereIn('tag_id', Tag::getIdsWhereCannot($event->actor, 'discussion.viewReports'))
+                        ->where('discussions.id', new Expression('discussion_id'));
+                });
+        }
+    }
+
+    public function scopeEmptyDiscussionVisibility(ScopeEmptyDiscussionVisibility $event)
+    {
+        $event->query->orWhereExists(function ($query) use ($event) {
+            return $query->select(new Expression(1))
+                ->from('discussions_tags')
+                ->whereIn('tag_id', Tag::getIdsWhereCan($event->actor, 'discussion.editPosts'))
+                ->where('discussions.id', new Expression('discussion_id'));
+        });
     }
 
     public function allowDiscussionPermissions(ModelAllow $event)
