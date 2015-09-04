@@ -10,7 +10,8 @@
 
 namespace Flarum\Core\Users\Listeners;
 
-use Flarum\Core\Users\User;
+use Flarum\Core\Posts\Post;
+use Flarum\Core\Discussions\Discussion;
 use Flarum\Events\PostWasPosted;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Events\PostWasHidden;
@@ -39,7 +40,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasPosted(PostWasPosted $event)
     {
-        $this->updateCommentsCount($event->post->user, 1);
+        $this->updateCommentsCount($event->post, 1);
     }
 
     /**
@@ -47,9 +48,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
-        if ($event->post->user->exists) {
-            $this->updateCommentsCount($event->post->user, -1);
-        }
+        $this->updateCommentsCount($event->post, -1);
     }
 
     /**
@@ -57,7 +56,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasHidden(PostWasHidden $event)
     {
-        $this->updateCommentsCount($event->post->user, -1);
+        $this->updateCommentsCount($event->post, -1);
     }
 
     /**
@@ -65,7 +64,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasRestored(PostWasRestored $event)
     {
-        $this->updateCommentsCount($event->post->user, 1);
+        $this->updateCommentsCount($event->post, 1);
     }
 
     /**
@@ -73,7 +72,7 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasStarted(DiscussionWasStarted $event)
     {
-        $this->updateDiscussionsCount($event->discussion->startUser, 1);
+        $this->updateDiscussionsCount($event->discussion, 1);
     }
 
     /**
@@ -81,26 +80,34 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasDeleted(DiscussionWasDeleted $event)
     {
-        $this->updateDiscussionsCount($event->discussion->startUser, -1);
+        $this->updateDiscussionsCount($event->discussion, -1);
     }
 
     /**
-     * @param User $user
+     * @param Post $post
      * @param int $amount
      */
-    protected function updateCommentsCount(User $user, $amount)
+    protected function updateCommentsCount(Post $post, $amount)
     {
-        $user->comments_count += $amount;
-        $user->save();
+        $user = $post->user;
+
+        if ($user && $user->exists) {
+            $user->comments_count += $amount;
+            $user->save();
+        }
     }
 
     /**
-     * @param User $user
+     * @param Discussion $discussion
      * @param int $amount
      */
-    protected function updateDiscussionsCount(User $user, $amount)
+    protected function updateDiscussionsCount(Discussion $discussion, $amount)
     {
-        $user->discussions_count += $amount;
-        $user->save();
+        $user = $discussion->startUser;
+
+        if ($user && $user->exists) {
+            $user->discussions_count += $amount;
+            $user->save();
+        }
     }
 }
