@@ -109,8 +109,8 @@ export default class CommentPost extends Post {
     return {
       className: classList({
         'CommentPost': true,
-        'hidden': post.isHidden(),
-        'edited': post.isEdited(),
+        'Post--hidden': post.isHidden(),
+        'Post--edited': post.isEdited(),
         'revealContent': this.revealContent,
         'editing': this.isEditing()
       })
