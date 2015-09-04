@@ -30,7 +30,7 @@ export default class HeaderSecondary extends Component {
   items() {
     const items = new ItemList();
 
-    items.add('search', app.search.render());
+    items.add('search', app.search.render(), 30);
 
     if (Object.keys(app.locales).length > 1) {
       const locales = [];
@@ -54,12 +54,12 @@ export default class HeaderSecondary extends Component {
       items.add('locale', SelectDropdown.component({
         children: locales,
         buttonClassName: 'Button Button--link'
-      }));
+      }), 20);
     }
 
     if (app.session.user) {
-      items.add('notifications', NotificationsDropdown.component());
-      items.add('session', SessionDropdown.component());
+      items.add('notifications', NotificationsDropdown.component(), 10);
+      items.add('session', SessionDropdown.component(), 0);
     } else {
       if (app.forum.attribute('allowSignUp')) {
         items.add('signUp',
@@ -67,7 +67,7 @@ export default class HeaderSecondary extends Component {
             children: app.trans('core.sign_up'),
             className: 'Button Button--link',
             onclick: () => app.modal.show(new SignUpModal())
-          })
+          }), 10
         );
       }
 
@@ -76,7 +76,7 @@ export default class HeaderSecondary extends Component {
           children: app.trans('core.log_in'),
           className: 'Button Button--link',
           onclick: () => app.modal.show(new LogInModal())
-        })
+        }), 0
       );
     }
 
