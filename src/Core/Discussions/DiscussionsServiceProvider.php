@@ -13,7 +13,9 @@ namespace Flarum\Core\Discussions;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Users\User;
 use Flarum\Events\ModelAllow;
+use Flarum\Events\ScopeModelVisibility;
 use Flarum\Events\RegisterDiscussionGambits;
+use Flarum\Events\ScopeEmptyDiscussionVisibility;
 use Flarum\Support\ServiceProvider;
 use Flarum\Extend;
 use Illuminate\Contracts\Container\Container;
@@ -50,6 +52,19 @@ class DiscussionsServiceProvider extends ServiceProvider
                         ($event->model->start_time->diffInMinutes(Carbon::now()) < $allowRenaming)) {
                         return true;
                     }
+                }
+            }
+        });
+
+        $events->listen(ScopeModelVisibility::class, function (ScopeModelVisibility $event) {
+            if ($event->model instanceof Discussion) {
+                if (! $event->actor->hasPermission('discussion.editPosts')) {
+                    $event->query->where(function ($query) use ($event) {
+                        $query->where('comments_count', '>', '0')
+                            ->orWhere('start_user_id', $event->actor->id);
+
+                        event(new ScopeEmptyDiscussionVisibility($query, $event->actor));
+                    });
                 }
             }
         });
