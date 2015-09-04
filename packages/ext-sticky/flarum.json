@@ -3,7 +3,7 @@
     "title": "Sticky",
     "description": "Pin discussions to the top of the list.",
     "keywords": ["moderation"],
-    "version": "0.1.0",
+    "version": "0.1.0-beta.2",
     "author": {
         "name": "Toby Zerner",
         "email": "toby@flarum.org",
@@ -11,16 +11,15 @@
     },
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "flarum": ">0.1.0"
+        "flarum": ">=0.1.0-beta.2"
     },
     "support": {
         "source": "https://github.com/flarum/sticky",
-        "issues": "https://github.com/flarum/sticky/issues"
+        "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {
-      "name": "thumb-tack",
-      "backgroundColor": "#D13E32",
-      "color": "#fff"
+        "name": "thumb-tack",
+        "backgroundColor": "#D13E32",
+        "color": "#fff"
     }
 }
