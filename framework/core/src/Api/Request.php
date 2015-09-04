@@ -22,7 +22,7 @@ class Request
     public $input;
 
     /**
-     * @var Guest
+     * @var User
      */
     public $actor;
 
