@@ -16,6 +16,7 @@ use Flarum\Core\Users\User;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Groups\Permission;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Arr;
 use PDO;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -259,7 +260,7 @@ class InstallCommand extends Command
 
         User::unguard();
 
-        $user = new User($admin);
+        $user = new User(Arr::except($admin, 'password_confirmation'));
         $user->is_activated = 1;
         $user->join_time = time();
         $user->save();
