@@ -156,15 +156,17 @@ export default class Component {
    * @public
    */
   static component(props = {}, children) {
-    if (children) props.children = children;
+    const componentProps = Object.assign({}, props);
 
-    this.initProps(props);
+    if (children) componentProps.children = children;
+
+    this.initProps(componentProps);
 
     // Set up a function for Mithril to get the component's view. It will accept
     // the component's controller (which happens to be the component itself, in
     // our case), update its props with the ones supplied, and then render the view.
     const view = (component) => {
-      component.props = props;
+      component.props = componentProps;
       return component.render();
     };
 
@@ -177,17 +179,17 @@ export default class Component {
     // attach a reference to the props that were passed through and the
     // component's class for reference.
     const output = {
-      controller: this.bind(undefined, props),
+      controller: this.bind(undefined, componentProps),
       view: view,
-      props: props,
+      props: componentProps,
       component: this
     };
 
     // If a `key` prop was set, then we'll assume that we want that to actually
     // show up as an attribute on the component object so that Mithril's key
     // algorithm can be applied.
-    if (props.key) {
-      output.attrs = {key: props.key};
+    if (componentProps.key) {
+      output.attrs = {key: componentProps.key};
     }
 
     return output;
