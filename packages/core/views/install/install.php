@@ -19,6 +19,11 @@
     </div>
 
     <div class="FormField">
+      <label>MySQL Database</label>
+      <input name="mysqlDatabase">
+    </div>
+
+    <div class="FormField">
       <label>MySQL Username</label>
       <input name="mysqlUsername">
     </div>
@@ -27,11 +32,6 @@
       <label>MySQL Password</label>
       <input type="password" name="mysqlPassword">
       <input type="password" name="mysqlPasswordConfirmation">
-    </div>
-
-    <div class="FormField">
-      <label>MySQL Database</label>
-      <input name="mysqlDatabase">
     </div>
     
     <div class="FormField">
