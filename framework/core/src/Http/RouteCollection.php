@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of Flarum.
  *
@@ -91,7 +90,7 @@ class RouteCollection
     {
         $parts = $this->reverse[$name][0];
         array_walk($parts, [$this, 'fixPathPart'], $parameters);
-        $path = '/' . ltrim(implode('', $parts), '/');
-        return $path;
+
+        return '/' . ltrim(implode('', $parts), '/');
     }
 }
