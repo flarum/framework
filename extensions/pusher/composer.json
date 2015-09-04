@@ -6,5 +6,8 @@
     },
     "require": {
         "pusher/pusher-php-server": "^2.2"
+    },
+    "scripts": {
+        "style": "phpcs --standard=PSR2 -np src"
     }
 }
