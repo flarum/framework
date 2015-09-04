@@ -27,7 +27,12 @@
     "$": true,
     "moment": true
   },
+  "plugins": [
+    "react"
+  ],
   "rules": {
+    "react/jsx-uses-vars": 1,
+
 /**
  * Strict mode
  */
