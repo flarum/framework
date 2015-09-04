@@ -77,7 +77,7 @@ abstract class Model extends Eloquent
         // If a custom relation with this key has been set up, then we will load
         // and return results from the query and hydrate the relationship's
         // value on the "relationships" array.
-        if ($relation = $this->getCustomRelation($key)) {
+        if (! $this->relationLoaded($key) && ($relation = $this->getCustomRelation($key))) {
             if (! $relation instanceof Relation) {
                 throw new LogicException('Relationship method must return an object of type '
                     . 'Illuminate\Database\Eloquent\Relations\Relation');
