@@ -37,5 +37,11 @@ class AddClientAssets
             'likes.others',
             'likes.you'
         ]);
+
+        $event->adminAssets([
+            __DIR__.'/../../js/admin/dist/extension.js'
+        ]);
+
+        $event->adminBootstrapper('likes/main');
     }
 }
