@@ -11,6 +11,7 @@
 namespace Flarum\Assets;
 
 use Less_Parser;
+use Less_Exception_Parser;
 
 class LessCompiler extends RevisionCompiler
 {
@@ -28,7 +29,11 @@ class LessCompiler extends RevisionCompiler
         }
 
         foreach ($this->strings as $callback) {
-            $parser->parse($callback());
+            try {
+                $parser->parse($callback());
+            } catch (Less_Exception_Parser $e) {
+                // TODO: log an error somewhere?
+            }
         }
 
         return $parser->getCss();
