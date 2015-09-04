@@ -23,20 +23,18 @@ export default class Dropdown extends Component {
 
     props.className = props.className || '';
     props.buttonClassName = props.buttonClassName || '';
-    props.contentClassName = props.contentClassName || '';
+    props.menuClassName = props.menuClassName || '';
     props.label = props.label || app.trans('core.controls');
     props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
   }
 
   view() {
-    const items = listItems(this.props.children);
+    const items = this.props.children ? listItems(this.props.children) : [];
 
     return (
       <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length}>
         {this.getButton()}
-        <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>
-          {items}
-        </ul>
+        {this.getMenu(items)}
       </div>
     );
   }
@@ -93,5 +91,13 @@ export default class Dropdown extends Component {
       <span className="Button-label">{this.props.label}</span>,
       this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
     ];
+  }
+
+  getMenu(items) {
+    return (
+      <ul className={'Dropdown-menu dropdown-menu ' + this.props.menuClassName}>
+        {items}
+      </ul>
+    );
   }
 }
