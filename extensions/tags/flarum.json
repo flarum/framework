@@ -3,7 +3,7 @@
     "title": "Tags",
     "description": "Organise discussions into a heirarchy of tags and categories.",
     "keywords": ["discussions"],
-    "version": "0.1.0",
+    "version": "0.1.0-beta.2",
     "author": {
         "name": "Toby Zerner",
         "email": "toby@flarum.org",
@@ -11,16 +11,15 @@
     },
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "flarum": ">0.1.0"
+        "flarum": ">=0.1.0-beta.2"
     },
     "support": {
         "source": "https://github.com/flarum/tags",
-        "issues": "https://github.com/flarum/tags/issues"
+        "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {
-      "name": "tags",
-      "backgroundColor": "#F28326",
-      "color": "#fff"
+        "name": "tags",
+        "backgroundColor": "#F28326",
+        "color": "#fff"
     }
 }
