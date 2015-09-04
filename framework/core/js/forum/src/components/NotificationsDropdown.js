@@ -1,8 +1,18 @@
-import Component from 'flarum/Component';
+import Dropdown from 'flarum/components/Dropdown';
 import icon from 'flarum/helpers/icon';
 import NotificationList from 'flarum/components/NotificationList';
 
-export default class NotificationsDropdown extends Component {
+export default class NotificationsDropdown extends Dropdown {
+  static initProps(props) {
+    props.className = props.className || 'NotificationsDropdown';
+    props.buttonClassName = props.buttonClassName || 'Button Button--flat';
+    props.menuClassName = props.menuClassName || 'Dropdown-menu--right';
+    props.label = props.label || app.trans('core.notifications');
+    props.icon = props.icon || 'bell';
+
+    super.initProps(props);
+  }
+
   constructor(...args) {
     super(...args);
 
@@ -16,33 +26,49 @@ export default class NotificationsDropdown extends Component {
     this.list = new NotificationList();
   }
 
-  view() {
-    const user = app.session.user;
-    const unread = user.unreadNotificationsCount();
+  getButton() {
+    const unread = this.getUnreadCount();
+    const vdom = super.getButton();
 
+    vdom.attrs.className += (unread ? ' unread' : '');
+    vdom.attrs.onclick = this.onclick.bind(this);
+
+    return vdom;
+  }
+
+  getButtonContent() {
+    const unread = this.getUnreadCount();
+
+    return [
+      icon(this.props.icon, {className: 'Button-icon'}),
+      unread ? <span className="NotificationsDropdown-unread">{unread}</span> : '',
+      <span className="Button-label">{this.props.label}</span>
+    ];
+  }
+
+  getMenu() {
     return (
-      <div className="Dropdown NotificationsDropdown">
-        <a href="javascript:;"
-          className={'Dropdown-toggle Button Button--flat NotificationsDropdown-button' + (unread ? ' unread' : '')}
-          data-toggle="dropdown"
-          onclick={this.onclick.bind(this)}>
-          <span className="Button-icon">{unread || icon('bell')}</span>
-          <span className="Button-label">{app.trans('core.notifications')}</span>
-        </a>
-        <div className="Dropdown-menu Dropdown-menu--right" onclick={this.menuClick.bind(this)}>
-          {this.showing ? this.list.render() : ''}
-        </div>
+      <div className={'Dropdown-menu ' + this.props.menuClassName} onclick={this.menuClick.bind(this)}>
+        {this.showing ? this.list.render() : ''}
       </div>
     );
   }
 
   onclick() {
     if (app.drawer.isOpen()) {
-      m.route(app.route('notifications'));
+      this.goToRoute();
     } else {
       this.showing = true;
       this.list.load();
     }
+  }
+
+  goToRoute() {
+    m.route(app.route('notifications'));
+  }
+
+  getUnreadCount() {
+    return app.session.user.unreadNotificationsCount();
   }
 
   menuClick(e) {
