@@ -3,19 +3,23 @@
     "title": "Markdown",
     "description": "Allow posts to be formatted with Markdown.",
     "keywords": ["discussions"],
-    "version": "0.1.0",
+    "version": "0.1.0-beta.2",
     "author": {
         "name": "Toby Zerner",
-        "email": "toby.zerner@gmail.com"
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
     },
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "flarum": ">0.1.0"
+        "flarum": ">=0.1.0-beta.2"
+    },
+    "support": {
+        "source": "https://github.com/flarum/markdown",
+        "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {
-      "name": "font",
-      "backgroundColor": "#AB90D8",
-      "color": "#fff"
+        "name": "font",
+        "backgroundColor": "#AB90D8",
+        "color": "#fff"
     }
 }
