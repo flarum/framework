@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Reports\\": "src/"
+        }
+    },
+    "scripts": {
+        "style": "phpcs --standard=PSR2 -np src"
+    }
+}
