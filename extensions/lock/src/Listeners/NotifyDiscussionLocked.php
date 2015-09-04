@@ -1,4 +1,14 @@
-<?php namespace Flarum\Lock\Listeners;
+<?php 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Lock\Listeners;
 
 use Flarum\Events\RegisterPostTypes;
 use Flarum\Events\RegisterNotificationTypes;
