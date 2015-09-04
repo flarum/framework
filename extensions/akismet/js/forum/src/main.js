@@ -12,9 +12,10 @@ app.initializers.add('akismet', () => {
         <Button className="Button"
           icon="check"
           onclick={() => {
-            this.dismissReport({akismet: 'ham'}).then(
-              () => PostControls.restoreAction.apply(this.props.post)
-            );
+            this.dismissReport({akismet: 'ham'}).then(() => {
+              PostControls.restoreAction.apply(this.props.post);
+              m.redraw();
+            });
           }}>
           Not Spam
         </Button>
