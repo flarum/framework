@@ -77,7 +77,7 @@ class User extends Model
     /**
      * An array of permissions that this user has.
      *
-     * @var array|null
+     * @var string[]|null
      */
     protected $permissions = null;
 
@@ -378,10 +378,36 @@ class User extends Model
         }
 
         if (is_null($this->permissions)) {
-            $this->permissions = $this->permissions()->lists('permission')->all();
+            $this->permissions = $this->getPermissions();
         }
 
         return in_array($permission, $this->permissions);
+    }
+
+    /**
+     * Check whether the user has a permission that is like the given string,
+     * based on their groups.
+     *
+     * @param string $match
+     * @return boolean
+     */
+    public function hasPermissionLike($match)
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if (is_null($this->permissions)) {
+            $this->permissions = $this->getPermissions();
+        }
+
+        foreach ($this->permissions as $permission) {
+            if (substr($permission, -strlen($match)) === $match) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -593,6 +619,16 @@ class User extends Model
         event(new GetUserGroups($this, $groupIds));
 
         return Permission::whereIn('group_id', $groupIds);
+    }
+
+    /**
+     * Get a list of permissions that the user has.
+     *
+     * @return string[]
+     */
+    public function getPermissions()
+    {
+        return $this->permissions()->lists('permission')->all();
     }
 
     /**
