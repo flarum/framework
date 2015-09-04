@@ -23,10 +23,12 @@ function withoutUnnecessarySeparators(items) {
  * The `listItems` helper wraps a collection of components in <li> tags,
  * stripping out any unnecessary `Separator` components.
  *
- * @param {Array} items
+ * @param {*} items
  * @return {Array}
  */
 export default function listItems(items) {
+  if (!(items instanceof Array)) items = [items];
+
   return withoutUnnecessarySeparators(items).map(item => {
     const isListItem = item.component && item.component.isListItem;
     const active = item.component && item.component.isActive && item.component.isActive(item.props);
