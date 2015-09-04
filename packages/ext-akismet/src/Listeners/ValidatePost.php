@@ -16,7 +16,7 @@ use TijsVerkoyen\Akismet\Akismet;
 use Flarum\Core;
 use Flarum\Core\Posts\CommentPost;
 use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Report\Report;
+use Flarum\Reports\Report;
 
 class ValidatePost
 {
