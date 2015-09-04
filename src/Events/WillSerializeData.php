@@ -10,15 +10,27 @@
 
 namespace Flarum\Events;
 
+use Flarum\Api\Actions\Action;
+use Flarum\Api\JsonApiRequest;
+
 class WillSerializeData
 {
+    /**
+     * @var Action
+     */
     public $action;
 
+    /**
+     * @var mixed
+     */
     public $data;
 
+    /**
+     * @var JsonApiRequest
+     */
     public $request;
 
-    public function __construct($action, &$data, $request)
+    public function __construct(Action $action, &$data, JsonApiRequest $request)
     {
         $this->action = $action;
         $this->data = &$data;
