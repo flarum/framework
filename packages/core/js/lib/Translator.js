@@ -51,7 +51,7 @@ export default class Translator {
     // If this translation has multiple options and a 'count' has been provided
     // in the input, we'll work out which option to choose using the `plural`
     // method.
-    if (typeof translation === 'object' && typeof input.count !== 'undefined') {
+    if (translation && typeof translation === 'object' && typeof input.count !== 'undefined') {
       translation = translation[this.plural(extractText(input.count))];
     }
 
