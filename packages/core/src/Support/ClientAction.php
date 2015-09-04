@@ -248,7 +248,11 @@ abstract class ClientAction extends HtmlAction
         }
 
         if (! $locale || ! $this->locales->hasLocale($locale)) {
-            return $this->settings->get('default_locale', 'en');
+            $locale = $this->settings->get('default_locale', 'en');
+        }
+
+        if (! $this->locales->hasLocale($locale)) {
+            return 'en';
         }
 
         return $locale;
