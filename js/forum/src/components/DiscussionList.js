@@ -54,7 +54,7 @@ export default class DiscussionList extends Component {
       });
     }
 
-    if (this.discussions.length == 0) {
+    if (this.discussions.length === 0 && !this.loading) {
       const text = 'Looks like there are no discussions here. Why don\'t you create a new one?';
       return (
         <div className="DiscussionList">
