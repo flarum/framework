@@ -50,9 +50,7 @@ export default class ItemList {
 
     for (const i in this) {
       if (this.hasOwnProperty(i) && this[i] instanceof Item) {
-        if (typeof this[i].content === 'string') {
-          this[i].content = new String(this[i].content);
-        }
+        this[i].content = Object(this[i].content);
 
         this[i].content.itemName = i;
         items.push(this[i]);
