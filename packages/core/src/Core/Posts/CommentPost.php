@@ -87,7 +87,7 @@ class CommentPost extends Post
      * @param User $actor
      * @return $this
      */
-    public function hide(User $actor)
+    public function hide(User $actor = null)
     {
         if ($this->number == 1) {
             throw new DomainException('Cannot hide the first post of a discussion');
@@ -95,7 +95,7 @@ class CommentPost extends Post
 
         if (! $this->hide_time) {
             $this->hide_time = time();
-            $this->hide_user_id = $actor->id;
+            $this->hide_user_id = $actor ? $actor->id : null;
 
             $this->raise(new PostWasHidden($this));
         }
