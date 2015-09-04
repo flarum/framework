@@ -1,6 +1,5 @@
 core:
   account: Account
-  activity: Activity
   administration: Administration
   alert: Alert
   all_discussions: All Discussions
@@ -96,7 +95,6 @@ core:
   sort_relevance: Relevance
   sort_top: Top
   start_a_discussion: Start a Discussion
-  started_a_discussion: Started a discussion
   unread_posts: "{count} unread"
   upload: Upload
   username: Username
