@@ -1,0 +1,13 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Akismet\\": "src/"
+        }
+    },
+    "require": {
+        "tijsverkoyen/akismet": "^1.1"
+    },
+    "scripts": {
+        "style": "phpcs --standard=PSR2 -np src"
+    }
+}
