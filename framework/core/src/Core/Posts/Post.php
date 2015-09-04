@@ -120,7 +120,7 @@ class Post extends Model
         if ($discussion) {
             $this->setRelation('discussion', $discussion);
 
-            return (bool) $discussion->postsVisibleTo($user)->find($this->id)->count();
+            return (bool) $discussion->postsVisibleTo($user)->where('id', $this->id)->count();
         }
 
         return false;
