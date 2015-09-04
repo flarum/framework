@@ -150,7 +150,7 @@ class User extends Model
     {
         $user = new static;
 
-        $this->assertValidPassword($password);
+        $user->assertValidPassword($password);
 
         $user->username  = $username;
         $user->email     = $email;
