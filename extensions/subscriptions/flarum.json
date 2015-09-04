@@ -3,7 +3,7 @@
     "title": "Subscriptions",
     "description": "Allow users to follow discussions and receive notifications for new posts.",
     "keywords": ["discussions"],
-    "version": "0.1.0",
+    "version": "0.1.0-beta.2",
     "author": {
         "name": "Toby Zerner",
         "email": "toby@flarum.org",
@@ -11,16 +11,15 @@
     },
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "flarum": ">0.1.0"
+        "flarum": ">=0.1.0-beta.2"
     },
     "support": {
         "source": "https://github.com/flarum/subscriptions",
-        "issues": "https://github.com/flarum/subscriptions/issues"
+        "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {
-      "name": "star",
-      "backgroundColor": "#ffea7b",
-      "color": "#de8e00"
+        "name": "star",
+        "backgroundColor": "#ffea7b",
+        "color": "#de8e00"
     }
 }
