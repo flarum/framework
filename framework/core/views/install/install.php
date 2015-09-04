@@ -31,9 +31,8 @@
     <div class="FormField">
       <label>MySQL Password</label>
       <input type="password" name="mysqlPassword">
-      <input type="password" name="mysqlPasswordConfirmation">
     </div>
-    
+
     <div class="FormField">
       <label>Table Prefix</label>
       <input type="text" name="tablePrefix">
@@ -54,6 +53,10 @@
     <div class="FormField">
       <label>Admin Password</label>
       <input type="password" name="adminPassword">
+    </div>
+
+    <div class="FormField">
+      <label>Confirm Password</label>
       <input type="password" name="adminPasswordConfirmation">
     </div>
   </div>
