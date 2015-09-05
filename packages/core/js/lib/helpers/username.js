@@ -6,7 +6,7 @@
  * @return {Object}
  */
 export default function username(user) {
-  const name = (user && user.username()) || '[deleted]';
+  const name = (user && user.username()) || app.trans('deleted');
 
   return <span className="username">{name}</span>;
 }
