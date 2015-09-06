@@ -23,6 +23,8 @@ class AddDefaultLikePermissions extends Migration
      */
     public function up()
     {
+        Permission::unguard();
+
         $permission = Permission::firstOrNew($this->getPermissionAttributes());
 
         $permission->save();
