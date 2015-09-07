@@ -89,10 +89,6 @@ class CommentPost extends Post
      */
     public function hide(User $actor = null)
     {
-        if ($this->number == 1) {
-            throw new DomainException('Cannot hide the first post of a discussion');
-        }
-
         if (! $this->hide_time) {
             $this->hide_time = time();
             $this->hide_user_id = $actor ? $actor->id : null;
@@ -110,10 +106,6 @@ class CommentPost extends Post
      */
     public function restore()
     {
-        if ($this->number == 1) {
-            throw new DomainException('Cannot restore the first post of a discussion');
-        }
-
         if ($this->hide_time !== null) {
             $this->hide_time = null;
             $this->hide_user_id = null;
