@@ -87,20 +87,18 @@ export default {
   destructiveControls(post) {
     const items = new ItemList();
 
-    if (post.number() !== 1) {
-      if (post.contentType() === 'comment' && !post.isHidden() && post.canEdit()) {
-        items.add('hide', Button.component({
-          icon: 'times',
-          children: app.trans('core.delete'),
-          onclick: this.hideAction.bind(post)
-        }));
-      } else if ((post.contentType() !== 'comment' || post.isHidden()) && post.canDelete()) {
-        items.add('delete', Button.component({
-          icon: 'times',
-          children: app.trans('core.delete_forever'),
-          onclick: this.deleteAction.bind(post)
-        }));
-      }
+    if (post.contentType() === 'comment' && !post.isHidden() && post.canEdit()) {
+      items.add('hide', Button.component({
+        icon: 'times',
+        children: app.trans('core.delete'),
+        onclick: this.hideAction.bind(post)
+      }));
+    } else if (post.number() !== 1 && (post.contentType() !== 'comment' || post.isHidden()) && post.canDelete()) {
+      items.add('delete', Button.component({
+        icon: 'times',
+        children: app.trans('core.delete_forever'),
+        onclick: this.deleteAction.bind(post)
+      }));
     }
 
     return items;
