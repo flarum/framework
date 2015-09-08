@@ -14,7 +14,7 @@ export default function() {
     items.add('like',
       Button.component({
         children: app.trans(isLiked ? 'likes.unlike_action' : 'likes.like_action'),
-        className: 'Button Button--text',
+        className: 'Button Button--link',
         onclick: () => {
           isLiked = !isLiked;
 
