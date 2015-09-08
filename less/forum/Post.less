@@ -2,12 +2,13 @@
 // Posts
 
 .Post {
-  padding: 30px 20px;
+  padding: 20px 20px 25px;
   margin: -1px -20px;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
   border-radius: @border-radius;
+  .clearfix();
 
   &.editing {
     top: 5px;
@@ -16,12 +17,12 @@
 }
 .Post-controls {
   float: right;
-  margin-top: -8px;
-  margin-left: 10px;
+  // margin-top: -8px;
+  // margin-left: 10px;
 }
 
 .Post-header {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: @muted-color;
 
   &, a {
@@ -50,7 +51,7 @@
   h3, h3 a {
     color: @heading-color;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .UserCard {
@@ -234,6 +235,8 @@
   }
 }
 .Post-footer {
+  margin-top: 20px;
+
   > ul {
     > li {
       margin-bottom: 5px;
@@ -245,17 +248,19 @@
   }
 }
 .Post-actions {
-  margin-top: 10px;
+  float: right;
+  margin-top: -3px;
   .transition(opacity 0.2s);
 
   @media @tablet-up {
     margin-bottom: -10px;
-    opacity: 0;
+    opacity: 0.5;
   }
 
   > ul {
     > li {
-      margin-right: 10px;
+      margin-right: 0;
+      margin-left: -5px;
       display: inline-block;
     }
   }
@@ -328,33 +333,35 @@
   }
 }
 
+@avatar-column-width: 85px;
+
 @media @tablet-up {
   .Post {
-    padding-left: 20px + 90px;
+    padding-left: 20px + @avatar-column-width;
 
-    .Post-controls {
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    &:hover .Post-controls, .Post-controls.open {
-      opacity: 1;
-    }
+    // .Post-controls {
+    //   opacity: 0.5;
+    //   transition: opacity 0.2s;
+    // }
+    // &:hover .Post-controls, .Post-controls.open {
+    //   opacity: 1;
+    // }
   }
   .PostUser-avatar {
-    margin-left: -90px;
+    margin-left: -@avatar-column-width;
     float: left;
     .Avatar--size(64px);
   }
   .PostUser-badges {
     float: left;
     position: relative;
-    margin-left: -85px;
+    margin-left: -@avatar-column-width + 5px;
     margin-top: -3px;
     width: 64px;
   }
   .EventPost-icon {
     text-align: right;
-    margin-left: -90px;
+    margin-left: -@avatar-column-width;
     width: 64px;
     font-size: 22px;
   }

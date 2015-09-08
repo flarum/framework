@@ -45,13 +45,7 @@ export default class Post extends Component {
 
           return (
             <div>
-              {controls.length ? Dropdown.component({
-                children: controls,
-                className: 'Post-controls',
-                buttonClassName: 'Button Button--icon Button--flat',
-                menuClassName: 'Dropdown-menu--right',
-                icon: 'ellipsis-v'
-              }) : ''}
+
 
               {this.content()}
             </div>
