@@ -10,6 +10,7 @@
 
 namespace Flarum\Api\Middleware;
 
+use Flarum\Core\Exceptions\JsonApiSerializable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
@@ -22,23 +23,29 @@ class JsonApiErrors implements ErrorMiddlewareInterface
      */
     public function __invoke($error, Request $request, Response $response, callable $out = null)
     {
-        $errorObject = [
-            'title' => $error->getMessage(),
-        ];
+        if ($error instanceof JsonApiSerializable) {
+            $status = $error->getStatusCode();
 
-        $status = 500;
+            $errors = $error->getErrors();
+        } else {
+            $status = 500;
 
-        // If it seems to be a valid HTTP status code, we pass on the
-        // exception's status.
-        $errorCode = $error->getCode();
-        if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
-            $status = $errorCode;
+            $errors = [
+                ['title' => $error->getMessage()]
+            ];
+
+            // If it seems to be a valid HTTP status code, we pass on the
+            // exception's status.
+            $errorCode = $error->getCode();
+            if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
+                $status = $errorCode;
+            }
         }
 
         // JSON API errors must be collected in an array under the
         // "errors" key in the top level of the document
         $data = [
-            'errors' => [$errorObject]
+            'errors' => $errors,
         ];
 
         return new JsonResponse($data, $status);
