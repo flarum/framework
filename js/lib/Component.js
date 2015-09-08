@@ -53,6 +53,16 @@ export default class Component {
      * @public
      */
     this.element = null;
+
+    this.init();
+  }
+
+  /**
+   * Called when the component is constructed.
+   *
+   * @protected
+   */
+  init() {
   }
 
   /**

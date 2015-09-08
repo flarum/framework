@@ -71,7 +71,7 @@ export default class UserPage extends Page {
    * @param {User} user
    * @protected
    */
-  init(user) {
+  show(user) {
     this.user = user;
 
     app.setTitle(user.username());
@@ -90,13 +90,13 @@ export default class UserPage extends Page {
 
     app.store.all('users').some(user => {
       if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {
-        this.init(user);
+        this.show(user);
         return true;
       }
     });
 
     if (!this.user) {
-      app.store.find('users', username).then(this.init.bind(this));
+      app.store.find('users', username).then(this.show.bind(this));
     }
   }
 
