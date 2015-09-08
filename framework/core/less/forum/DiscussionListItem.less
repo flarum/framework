@@ -44,8 +44,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
+  .read & {
+    color: mix(@heading-color, @body-bg, 60%);
+  }
   .unread & {
-    font-weight: bold;
+    font-weight: 600;
   }
 }
 .DiscussionListItem-info {
