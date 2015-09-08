@@ -10,19 +10,14 @@
 
 namespace Flarum\Core\Exceptions;
 
-use Exception;
-
-class PermissionDeniedException extends Exception implements JsonApiSerializable
+interface JsonApiSerializable
 {
     /**
      * Return the HTTP status code to be used for this exception.
      *
      * @return int
      */
-    public function getStatusCode()
-    {
-        return 401;
-    }
+    public function getStatusCode();
 
     /**
      * Return an array of errors, formatted as JSON-API error objects.
@@ -30,8 +25,5 @@ class PermissionDeniedException extends Exception implements JsonApiSerializable
      * @see http://jsonapi.org/format/#error-objects
      * @return array
      */
-    public function getErrors()
-    {
-        return [];
-    }
+    public function getErrors();
 }
