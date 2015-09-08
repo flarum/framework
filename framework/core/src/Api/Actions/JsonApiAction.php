@@ -13,8 +13,6 @@ namespace Flarum\Api\Actions;
 use Flarum\Api\Request;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Core\Exceptions\ValidationFailureException;
-use Flarum\Core\Exceptions\PermissionDeniedException;
 use Zend\Diactoros\Response\JsonResponse;
 
 abstract class JsonApiAction implements Action
@@ -40,14 +38,6 @@ abstract class JsonApiAction implements Action
                 ];
             }
             return new JsonResponse(['errors' => $errors], 422);
-        } catch (\Flarum\Core\Exceptions\ValidationException $e) {
-            $errors = [];
-            foreach ($e->getMessages() as $path => $detail) {
-                $errors[] = compact('path', 'detail');
-            }
-            return new JsonResponse(['errors' => $errors], 422);
-        } catch (PermissionDeniedException $e) {
-            return new JsonResponse(null, 401);
         } catch (ModelNotFoundException $e) {
             return new JsonResponse(null, 404);
         }
