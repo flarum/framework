@@ -38,7 +38,7 @@ class PostStream extends mixin(Component, evented) {
     this.loadPageTimeouts = {};
     this.pagesLoading = 0;
 
-    this.init(this.props.includedPosts);
+    this.show(this.props.includedPosts);
   }
 
   /**
@@ -153,7 +153,7 @@ class PostStream extends mixin(Component, evented) {
    *
    * @param {Post[]} posts
    */
-  init(posts) {
+  show(posts) {
     this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
     this.visibleEnd = this.visibleStart + posts.length;
   }
@@ -421,7 +421,7 @@ class PostStream extends mixin(Component, evented) {
     return app.store.find('posts', {
       filter: {discussion: this.discussion.id()},
       page: {near: number}
-    }).then(this.init.bind(this));
+    }).then(this.show.bind(this));
   }
 
   /**
@@ -442,7 +442,7 @@ class PostStream extends mixin(Component, evented) {
 
     this.reset(start, end);
 
-    return this.loadRange(start, end).then(this.init.bind(this));
+    return this.loadRange(start, end).then(this.show.bind(this));
   }
 
   /**

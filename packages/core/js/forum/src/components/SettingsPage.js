@@ -16,7 +16,7 @@ export default class SettingsPage extends UserPage {
   constructor(...args) {
     super(...args);
 
-    this.init(app.session.user);
+    this.show(app.session.user);
     app.setTitle(app.trans('core.settings'));
   }
 

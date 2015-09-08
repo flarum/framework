@@ -80,8 +80,8 @@ export default class PostsUserPage extends UserPage {
    * Initialize the component with a user, and trigger the loading of their
    * activity feed.
    */
-  init(user) {
-    super.init(user);
+  show(user) {
+    super.show(user);
 
     this.refresh();
   }
