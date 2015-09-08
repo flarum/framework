@@ -51,6 +51,7 @@ export default class DiscussionListItem extends Component {
     const discussion = this.props.discussion;
     const startUser = discussion.startUser();
     const isUnread = discussion.isUnread();
+    const isRead = discussion.isRead();
     const showUnread = !this.showRepliesCount() && isUnread;
     const jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
     const relevantPosts = this.props.params.q ? discussion.relevantPosts() : [];
@@ -71,7 +72,7 @@ export default class DiscussionListItem extends Component {
           {icon('check')}
         </a>
 
-        <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '')}>
+        <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
           <a href={startUser ? app.route.user(startUser) : '#'}
             className="DiscussionListItem-author"
             title={extractText(app.trans('core.discussion_started', {user: startUser, ago: humanTime(discussion.startTime())}))}
