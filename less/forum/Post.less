@@ -2,10 +2,12 @@
 // Posts
 
 .Post {
-  padding: 30px 0;
+  padding: 30px 20px;
+  margin: -1px -20px;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
+  border-radius: @border-radius;
 
   &.editing {
     top: 5px;
@@ -136,13 +138,13 @@
     font-size: 100%;
     font-weight: bold;
   }
-  img {
+  img, iframe {
     max-width: 100%;
   }
 }
 
-.Post.hidden {
-  .Post-header, .Post-header a, .Post-user h3, .Post-user h3 a {
+.Post--hidden {
+  .Post-header, .Post-header a, .PostUser h3, .PostUser h3 a {
     color: @muted-more-color;
   }
   .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
@@ -328,7 +330,7 @@
 
 @media @tablet-up {
   .Post {
-    padding-left: 90px;
+    padding-left: 20px + 90px;
 
     .Post-controls {
       opacity: 0;

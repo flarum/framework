@@ -128,12 +128,12 @@ export default class DiscussionPage extends Page {
       // component for the first time on page load, then any calls to m.redraw
       // will be ineffective and thus any configs (scroll code) will be run
       // before stuff is drawn to the page.
-      setTimeout(this.init.bind(this, preloadedDiscussion));
+      setTimeout(this.show.bind(this, preloadedDiscussion));
     } else {
       const params = this.requestParams();
 
       app.store.find('discussions', m.route.param('id').split('-')[0], params)
-        .then(this.init.bind(this));
+        .then(this.show.bind(this));
     }
 
     m.lazyRedraw();
@@ -156,7 +156,7 @@ export default class DiscussionPage extends Page {
    *
    * @param {Discussion} discussion
    */
-  init(discussion) {
+  show(discussion) {
     this.discussion = discussion;
 
     app.setTitle(discussion.title());

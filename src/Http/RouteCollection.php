@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of Flarum.
  *
@@ -80,18 +79,18 @@ class RouteCollection
         return $this->dataGenerator->getData();
     }
 
-    public function getPath($name, $parameters = [])
+    protected function fixPathPart(&$part, $key, array $parameters)
+    {
+        if (is_array($part) && array_key_exists($part[0], $parameters)) {
+            $part = $parameters[$part[0]];
+        }
+    }
+
+    public function getPath($name, array $parameters = [])
     {
         $parts = $this->reverse[$name][0];
+        array_walk($parts, [$this, 'fixPathPart'], $parameters);
 
-        $path = implode('', array_map(function ($part) use ($parameters) {
-            if (is_array($part)) {
-                $part = $parameters[$part[0]];
-            }
-            return $part;
-        }, $parts));
-
-        $path = '/' . ltrim($path, '/');
-        return $path;
+        return '/' . ltrim(implode('', $parts), '/');
     }
 }

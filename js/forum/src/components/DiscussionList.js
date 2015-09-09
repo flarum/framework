@@ -2,6 +2,7 @@ import Component from 'flarum/Component';
 import DiscussionListItem from 'flarum/components/DiscussionListItem';
 import Button from 'flarum/components/Button';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
+import Placeholder from 'flarum/components/Placeholder';
 
 /**
  * The `DiscussionList` component displays a list of discussions.
@@ -51,6 +52,15 @@ export default class DiscussionList extends Component {
         className: 'Button',
         onclick: this.loadMore.bind(this)
       });
+    }
+
+    if (this.discussions.length === 0 && !this.loading) {
+      const text = 'Looks like there are no discussions here. Why don\'t you create a new one?';
+      return (
+        <div className="DiscussionList">
+          {Placeholder.component({text})}
+        </div>
+      );
     }
 
     return (

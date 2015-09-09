@@ -1,6 +1,5 @@
 core:
   account: Account
-  activity: Activity
   administration: Administration
   alert: Alert
   all_discussions: All Discussions
@@ -50,7 +49,6 @@ core:
   group_mods: Mods
   invalid_login: Your login details were incorrect.
   joined: "Joined {ago}"
-  joined_the_forum: Joined the forum
   load_more: Load More
   log_in: Log In
   log_in_to_reply: Log In to Reply
@@ -71,7 +69,6 @@ core:
   post_edited: "{username} edited {ago}"
   post_number: "Post #{number}"
   post_reply: Post Reply
-  posted_a_reply: Posted a reply
   posts: Posts
   powered_by_flarum: Powered by Flarum
   privacy: Privacy
@@ -96,7 +93,6 @@ core:
   sort_relevance: Relevance
   sort_top: Top
   start_a_discussion: Start a Discussion
-  started_a_discussion: Started a discussion
   unread_posts: "{count} unread"
   upload: Upload
   username: Username

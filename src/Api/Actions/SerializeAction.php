@@ -19,7 +19,7 @@ use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\SerializerInterface;
 use Zend\Diactoros\Response\JsonResponse;
 
-abstract class SerializeAction extends JsonApiAction
+abstract class SerializeAction implements Action
 {
     /**
      * The name of the serializer class to output results with.
@@ -77,7 +77,7 @@ abstract class SerializeAction extends JsonApiAction
      * @param Request $request
      * @return JsonResponse
      */
-    public function respond(Request $request)
+    public function handle(Request $request)
     {
         $request = $this->buildJsonApiRequest($request);
         $document = new Document();

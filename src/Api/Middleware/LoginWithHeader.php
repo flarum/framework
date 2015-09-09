@@ -11,6 +11,8 @@
 namespace Flarum\Api\Middleware;
 
 use Flarum\Api\AccessToken;
+use Flarum\Api\ApiKey;
+use Flarum\Core\Users\User;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -42,13 +44,23 @@ class LoginWithHeader implements MiddlewareInterface
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
         $header = $request->getHeaderLine('authorization');
-        if (starts_with($header, $this->prefix) &&
-            ($token = substr($header, strlen($this->prefix))) &&
-            ($accessToken = AccessToken::valid($token))
-        ) {
-            $this->app->instance('flarum.actor', $user = $accessToken->user);
 
-            $user->updateLastSeen()->save();
+        $parts = explode(';', $header);
+
+        if (isset($parts[0]) && starts_with($parts[0], $this->prefix)) {
+            $token = substr($parts[0], strlen($this->prefix));
+
+            if ($accessToken = AccessToken::valid($token)) {
+                $this->app->instance('flarum.actor', $user = $accessToken->user);
+
+                $user->updateLastSeen()->save();
+            } elseif (isset($parts[1]) && ($apiKey = ApiKey::valid($token))) {
+                $userParts = explode('=', trim($parts[1]));
+
+                if (isset($userParts[0]) && $userParts[0] === 'userId') {
+                    $this->app->instance('flarum.actor', $user = User::find($userParts[1]));
+                }
+            }
         }
 
         return $out ? $out($request, $response) : $response;

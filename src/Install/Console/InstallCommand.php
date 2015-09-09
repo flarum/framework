@@ -15,7 +15,9 @@ use Flarum\Core\Model;
 use Flarum\Core\Users\User;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Groups\Permission;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Arr;
+use PDO;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -30,13 +32,13 @@ class InstallCommand extends Command
     protected $dataSource;
 
     /**
-     * @var Container
+     * @var Application
      */
-    protected $container;
+    protected $application;
 
-    public function __construct(Container $container)
+    public function __construct(Application $application)
     {
-        $this->container = $container;
+        $this->application = $application;
 
         parent::__construct();
     }
@@ -61,11 +63,22 @@ class InstallCommand extends Command
     {
         $this->init();
 
-        $this->info('Installing Flarum...');
+        $prerequisites = $this->getPrerequisites();
+        $prerequisites->check();
+        $errors = $prerequisites->getErrors();
 
-        $this->install();
+        if (empty($errors)) {
+            $this->info('Installing Flarum...');
 
-        $this->info('DONE.');
+            $this->install();
+
+            $this->info('DONE.');
+        } else {
+            $this->output->writeln(
+                '<error>Please fix the following errors before we can continue with the installation.</error>'
+            );
+            $this->showErrors($errors);
+        }
     }
 
     protected function init()
@@ -93,11 +106,11 @@ class InstallCommand extends Command
 
             $this->writeSettings();
 
-            $this->container->register('Flarum\Core\CoreServiceProvider');
+            $this->application->register('Flarum\Core\CoreServiceProvider');
 
-            $resolver = $this->container->make('Illuminate\Database\ConnectionResolverInterface');
+            $resolver = $this->application->make('Illuminate\Database\ConnectionResolverInterface');
             Model::setConnectionResolver($resolver);
-            Model::setEventDispatcher($this->container->make('events'));
+            Model::setEventDispatcher($this->application->make('events'));
 
             $this->seedGroups();
             $this->seedPermissions();
@@ -138,8 +151,14 @@ class InstallCommand extends Command
 
         $this->info('Testing config');
 
-        $this->container->instance('flarum.config', $config);
-        $this->container->make('flarum.db');
+        $this->application->instance('flarum.config', $config);
+        /* @var $db \Illuminate\Database\ConnectionInterface */
+        $db = $this->application->make('flarum.db');
+        $version = $db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+        if (version_compare($version, '5.5.0', '<')) {
+            throw new Exception('MySQL version too low. You need at least MySQL 5.5.');
+        }
 
         $this->info('Writing config');
 
@@ -151,11 +170,11 @@ class InstallCommand extends Command
 
     protected function runMigrations()
     {
-        $this->container->bind('Illuminate\Database\Schema\Builder', function ($container) {
+        $this->application->bind('Illuminate\Database\Schema\Builder', function ($container) {
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
-        $migrator = $this->container->make('Flarum\Migrations\Migrator');
+        $migrator = $this->application->make('Flarum\Migrations\Migrator');
         $migrator->getRepository()->createRepository();
 
         $migrator->run(__DIR__ . '/../../../migrations');
@@ -168,7 +187,7 @@ class InstallCommand extends Command
     protected function writeSettings()
     {
         $data = $this->dataSource->getSettings();
-        $settings = $this->container->make('Flarum\Core\Settings\SettingsRepository');
+        $settings = $this->application->make('Flarum\Core\Settings\SettingsRepository');
 
         $this->info('Writing default settings');
 
@@ -229,11 +248,15 @@ class InstallCommand extends Command
     {
         $admin = $this->dataSource->getAdminUser();
 
+        if ($admin['password'] !== $admin['password_confirmation']) {
+            throw new Exception('The password did not match its confirmation.');
+        }
+
         $this->info('Creating admin user '.$admin['username']);
 
         User::unguard();
 
-        $user = new User($admin);
+        $user = new User(Arr::except($admin, 'password_confirmation'));
         $user->is_activated = 1;
         $user->join_time = time();
         $user->save();
@@ -243,7 +266,7 @@ class InstallCommand extends Command
 
     protected function enableBundledExtensions()
     {
-        $extensions = $this->container->make('Flarum\Support\ExtensionManager');
+        $extensions = $this->application->make('Flarum\Support\ExtensionManager');
 
         $migrator = $extensions->getMigrator();
 
@@ -267,5 +290,24 @@ class InstallCommand extends Command
     protected function getConfigFile()
     {
         return base_path('../config.php');
+    }
+
+    /**
+     * @return \Flarum\Install\Prerequisites\Prerequisite
+     */
+    protected function getPrerequisites()
+    {
+        return $this->application->make('Flarum\Install\Prerequisites\Prerequisite');
+    }
+
+    protected function showErrors($errors)
+    {
+        foreach ($errors as $error) {
+            $this->info($error['message']);
+
+            if (isset($error['detail'])) {
+                $this->output->writeln('<comment>' . $error['detail'] . '</comment>');
+            }
+        }
     }
 }

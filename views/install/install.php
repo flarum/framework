@@ -2,7 +2,7 @@
 
 <p>Set up your forum by filling out your details below. If you have any trouble, get help on the <a href="http://flarum.org/docs/installation" target="_blank">Flarum website</a>.</p>
 
-<form>
+<form method="post">
   <div id="error" style="display:none"></div>
 
   <div class="FormGroup">
@@ -19,6 +19,11 @@
     </div>
 
     <div class="FormField">
+      <label>MySQL Database</label>
+      <input name="mysqlDatabase">
+    </div>
+
+    <div class="FormField">
       <label>MySQL Username</label>
       <input name="mysqlUsername">
     </div>
@@ -29,8 +34,8 @@
     </div>
 
     <div class="FormField">
-      <label>MySQL Database</label>
-      <input name="mysqlDatabase">
+      <label>Table Prefix</label>
+      <input type="text" name="tablePrefix">
     </div>
   </div>
 
@@ -48,6 +53,11 @@
     <div class="FormField">
       <label>Admin Password</label>
       <input type="password" name="adminPassword">
+    </div>
+
+    <div class="FormField">
+      <label>Confirm Password</label>
+      <input type="password" name="adminPasswordConfirmation">
     </div>
   </div>
 
@@ -77,6 +87,8 @@ $(function() {
 
         $button.prop('disabled', false).text('Install Flarum');
       });
+
+    return false;
   });
 });
 </script>

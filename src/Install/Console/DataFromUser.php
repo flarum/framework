@@ -54,9 +54,10 @@ class DataFromUser implements ProvidesData
     public function getAdminUser()
     {
         return [
-            'username' => $this->ask('Admin username:'),
-            'password' => $this->secret('Admin password:'),
-            'email'    => $this->ask('Admin email address:'),
+            'username'              => $this->ask('Admin username:'),
+            'password'              => $this->secret('Admin password:'),
+            'password_confirmation' => $this->secret('Admin password (confirmation):'),
+            'email'                 => $this->ask('Admin email address:'),
         ];
     }
 

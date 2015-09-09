@@ -10,6 +10,7 @@
 
 namespace Flarum\Install\Actions;
 
+use Flarum\Install\Prerequisites\Prerequisite;
 use Flarum\Support\HtmlAction;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\View\Factory;
@@ -22,11 +23,18 @@ class IndexAction extends HtmlAction
     protected $view;
 
     /**
-     * @param Factory $view
+     * @var Prerequisite
      */
-    public function __construct(Factory $view)
+    protected $prerequisite;
+
+    /**
+     * @param Factory $view
+     * @param Prerequisite $prerequisite
+     */
+    public function __construct(Factory $view, Prerequisite $prerequisite)
     {
         $this->view = $view;
+        $this->prerequisite = $prerequisite;
     }
 
     /**
@@ -38,38 +46,8 @@ class IndexAction extends HtmlAction
     {
         $view = $this->view->make('flarum.install::app');
 
-        $errors = [];
-
-        if (version_compare(PHP_VERSION, '5.5.0', '<')) {
-            $errors[] = [
-                'message' => '<strong>PHP 5.5+</strong> is required.',
-                'detail' => 'You are running version '.PHP_VERSION.'. Talk to your hosting provider about upgrading to the latest PHP version.'
-            ];
-        }
-
-        foreach (['mbstring', 'pdo_mysql', 'openssl', 'json', 'gd', 'dom'] as $extension) {
-            if (! extension_loaded($extension)) {
-                $errors[] = [
-                    'message' => 'The <strong>'.$extension.'</strong> extension is required.'
-                ];
-            }
-        }
-
-        $paths = [
-            public_path(),
-            public_path().'/assets',
-            public_path().'/extensions',
-            storage_path()
-        ];
-
-        foreach ($paths as $path) {
-            if (! is_writable($path)) {
-                $errors[] = [
-                    'message' => 'The <strong>'.realpath($path).'</strong> directory is not writable.',
-                    'detail' => 'Please chmod this directory '.($path !== public_path() ? ' and its contents' : '').' to 0775.'
-                ];
-            }
-        }
+        $this->prerequisite->check();
+        $errors = $this->prerequisite->getErrors();
 
         if (count($errors)) {
             $view->content = $this->view->make('flarum.install::errors');

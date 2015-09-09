@@ -19,18 +19,21 @@ export default class Notification extends Component {
     const href = this.href();
 
     return (
-      <div className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
-        onclick={this.markAsRead.bind(this)}>
-        <a href={href} config={href.indexOf('://') === -1 ? m.route : undefined}>
-          {avatar(notification.sender())}
-          {icon(this.icon(), {className: 'Notification-icon'})}
-          <span className="Notification-content">{this.content()}</span>
-          {humanTime(notification.time())}
-          <div className="Notification-excerpt">
-            {this.excerpt()}
-          </div>
-        </a>
-      </div>
+      <a className={'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : '')}
+        href={href}
+        config={function(element, isInitialized) {
+          if (href.indexOf('://') === -1) m.route.apply(this, arguments);
+
+          if (!isInitialized) $(element).click(this.markAsRead.bind(this));
+        }}>
+        {avatar(notification.sender())}
+        {icon(this.icon(), {className: 'Notification-icon'})}
+        <span className="Notification-content">{this.content()}</span>
+        {humanTime(notification.time())}
+        <div className="Notification-excerpt">
+          {this.excerpt()}
+        </div>
+      </a>
     );
   }
 

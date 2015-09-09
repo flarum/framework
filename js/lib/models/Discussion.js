@@ -25,6 +25,7 @@ export default class Discussion extends mixin(Model, {
   readTime: Model.attribute('readTime', Model.transformDate),
   readNumber: Model.attribute('readNumber'),
   isUnread: computed('unreadCount', unreadCount => !!unreadCount),
+  isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
 
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
@@ -61,7 +62,7 @@ export default class Discussion extends mixin(Model, {
     const user = app.session.user;
 
     if (user && user.readTime() < this.lastTime()) {
-      return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0))
+      return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
     }
 
     return 0;

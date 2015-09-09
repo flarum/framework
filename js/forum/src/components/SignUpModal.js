@@ -173,11 +173,7 @@ export default class SignUpModal extends Modal {
 
     this.loading = true;
 
-    const data = {
-      username: this.username(),
-      email: this.email(),
-      password: this.password()
-    };
+    const data = this.submitData();
 
     app.store.createRecord('users').save(data).then(
       user => {
@@ -190,5 +186,13 @@ export default class SignUpModal extends Modal {
         this.handleErrors(response.errors);
       }
     );
+  }
+
+  submitData() {
+    return {
+      username: this.username(),
+      email: this.email(),
+      password: this.password()
+    };
   }
 }

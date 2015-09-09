@@ -76,19 +76,17 @@
   padding: 0;
 }
 .Notification {
-  > a {
-    display: block;
-    padding: 8px 15px 8px 70px;
-    color: @muted-color;
-    overflow: hidden;
+  display: block;
+  padding: 8px 15px 8px 70px;
+  color: @muted-color !important; // required to override .light-contents applied to header
+  overflow: hidden;
 
-    .unread& {
-      background: @control-bg;
-    }
-    &:hover {
-      text-decoration: none;
-      background: @control-bg;
-    }
+  .unread& {
+    background: @control-bg;
+  }
+  &:hover {
+    text-decoration: none;
+    background: @control-bg;
   }
   .Avatar {
     .Avatar--size(24px);
