@@ -10,14 +10,14 @@
 
 namespace Flarum\Pusher\Api;
 
-use Flarum\Api\Actions\JsonApiAction;
+use Flarum\Api\Actions\Action;
 use Flarum\Api\Request;
 use Flarum\Core\Settings\SettingsRepository;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Diactoros\Response\EmptyResponse;
 use Pusher;
 
-class AuthAction extends JsonApiAction
+class AuthAction implements Action
 {
     protected $settings;
 
@@ -26,7 +26,7 @@ class AuthAction extends JsonApiAction
         $this->settings = $settings;
     }
 
-    protected function respond(Request $request)
+    public function handle(Request $request)
     {
         $userChannel = 'private-user' . $request->actor->id;
 
