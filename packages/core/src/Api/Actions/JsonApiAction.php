@@ -11,8 +11,6 @@
 namespace Flarum\Api\Actions;
 
 use Flarum\Api\Request;
-use Illuminate\Contracts\Validation\ValidationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Zend\Diactoros\Response\JsonResponse;
 
 abstract class JsonApiAction implements Action
@@ -26,21 +24,7 @@ abstract class JsonApiAction implements Action
      */
     public function handle(Request $request)
     {
-        // TODO: This is gross. Move this error handling code to middleware?
-        try {
-            return $this->respond($request);
-        } catch (ValidationException $e) {
-            $errors = [];
-            foreach ($e->errors()->toArray() as $field => $messages) {
-                $errors[] = [
-                    'detail' => implode("\n", $messages),
-                    'path' => $field
-                ];
-            }
-            return new JsonResponse(['errors' => $errors], 422);
-        } catch (ModelNotFoundException $e) {
-            return new JsonResponse(null, 404);
-        }
+        return $this->respond($request);
     }
 
     /**

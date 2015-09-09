@@ -11,6 +11,8 @@
 namespace Flarum\Api\Middleware;
 
 use Flarum\Core\Exceptions\JsonApiSerializable;
+use Illuminate\Contracts\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
@@ -27,12 +29,22 @@ class JsonApiErrors implements ErrorMiddlewareInterface
             $status = $error->getStatusCode();
 
             $errors = $error->getErrors();
+        } else if ($error instanceof ValidationException) {
+            $status = 422;
+
+            $errors = $error->errors()->toArray();
+            $errors = array_map(function ($field, $messages) {
+                return [
+                    'detail' => implode("\n", $messages),
+                    'path' => $field,
+                ];
+            }, array_keys($errors), $errors);
+        } else if ($error instanceof ModelNotFoundException) {
+            $status = 404;
+
+            $errors = [];
         } else {
             $status = 500;
-
-            $errors = [
-                ['title' => $error->getMessage()]
-            ];
 
             // If it seems to be a valid HTTP status code, we pass on the
             // exception's status.
@@ -40,6 +52,10 @@ class JsonApiErrors implements ErrorMiddlewareInterface
             if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
                 $status = $errorCode;
             }
+
+            $errors = [
+                ['title' => $error->getMessage()]
+            ];
         }
 
         // JSON API errors must be collected in an array under the
