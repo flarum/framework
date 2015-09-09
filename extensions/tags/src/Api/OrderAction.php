@@ -10,15 +10,15 @@
 
 namespace Flarum\Tags\Api;
 
-use Flarum\Api\Actions\JsonApiAction;
+use Flarum\Api\Actions\Action;
 use Flarum\Api\Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Flarum\Tags\Tag;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 
-class OrderAction extends JsonApiAction
+class OrderAction implements Action
 {
-    protected function respond(Request $request)
+    public function handle(Request $request)
     {
         if (! $request->actor->isAdmin()) {
             throw new PermissionDeniedException;
