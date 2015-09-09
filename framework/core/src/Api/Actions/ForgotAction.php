@@ -16,7 +16,7 @@ use Flarum\Core\Users\Commands\RequestPasswordReset;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Zend\Diactoros\Response\EmptyResponse;
 
-class ForgotAction extends JsonApiAction
+class ForgotAction implements Action
 {
     protected $users;
 
@@ -34,7 +34,7 @@ class ForgotAction extends JsonApiAction
      * @param \Flarum\Api\Request $request
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function respond(Request $request)
+    public function handle(Request $request)
     {
         $email = $request->get('email');
 
