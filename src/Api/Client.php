@@ -38,7 +38,7 @@ class Client
      */
     public function send(User $actor, $actionClass, array $input = [])
     {
-        /** @var \Flarum\Api\Actions\JsonApiAction $action */
+        /** @var \Flarum\Api\Actions\Action $action */
         $action = $this->container->make($actionClass);
 
         $response = $action->handle(new Request($input, $actor));
