@@ -18,7 +18,7 @@ use Flarum\Events\UserEmailChangeWasRequested;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Zend\Diactoros\Response\JsonResponse;
 
-class TokenAction extends JsonApiAction
+class TokenAction implements Action
 {
     protected $users;
 
@@ -37,7 +37,7 @@ class TokenAction extends JsonApiAction
      * @return \Psr\Http\Message\ResponseInterface
      * @throws PermissionDeniedException
      */
-    public function respond(Request $request)
+    public function handle(Request $request)
     {
         $identification = $request->get('identification');
         $password = $request->get('password');
