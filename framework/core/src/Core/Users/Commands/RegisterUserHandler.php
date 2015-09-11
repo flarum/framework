@@ -30,6 +30,7 @@ class RegisterUserHandler
     /**
      * @param RegisterUser $command
      * @return User
+     * @throws PermissionDeniedException
      */
     public function handle(RegisterUser $command)
     {
