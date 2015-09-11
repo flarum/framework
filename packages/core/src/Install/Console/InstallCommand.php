@@ -11,12 +11,14 @@
 namespace Flarum\Install\Console;
 
 use Flarum\Console\Command;
+use Flarum\Core\Exceptions\ValidationException;
 use Flarum\Core\Model;
 use Flarum\Core\Users\User;
 use Flarum\Core\Groups\Group;
 use Flarum\Core\Groups\Permission;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Factory;
 use PDO;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -128,6 +130,23 @@ class InstallCommand extends Command
     protected function storeConfiguration()
     {
         $dbConfig = $this->dataSource->getDatabaseConfiguration();
+        $baseUrl = $this->dataSource->getBaseUrl();
+
+        $validation = $this->getValidator()->make(
+            $dbConfig,
+            [
+                'driver' => 'required|in:mysql',
+                'host' => 'required',
+                'database' => 'required|alpha_dash',
+                'username' => 'required|alpha_dash',
+                'password' => 'required',
+                'prefix' => 'alpha_dash|max:10'
+            ]
+        );
+
+        if ($validation->fails()) {
+            throw new ValidationException($validation->getMessageBag()->toArray());
+        }
 
         $config = [
             'debug'    => true,
@@ -142,7 +161,7 @@ class InstallCommand extends Command
                 'prefix'    => $dbConfig['prefix'],
                 'strict'    => false
             ],
-            'url'   => $this->dataSource->getBaseUrl(),
+            'url'   => $baseUrl,
             'paths' => [
                 'api'   => 'api',
                 'admin' => 'admin',
@@ -254,11 +273,13 @@ class InstallCommand extends Command
 
         $this->info('Creating admin user '.$admin['username']);
 
-        User::unguard();
+        $user = User::register(
+            $admin['username'],
+            $admin['email'],
+            $admin['password']
+        );
 
-        $user = new User(Arr::except($admin, 'password_confirmation'));
         $user->is_activated = 1;
-        $user->join_time = time();
         $user->save();
 
         $user->groups()->sync([1]);
@@ -298,6 +319,14 @@ class InstallCommand extends Command
     protected function getPrerequisites()
     {
         return $this->application->make('Flarum\Install\Prerequisites\Prerequisite');
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Validation\Factory
+     */
+    protected function getValidator()
+    {
+        return new Factory($this->application->make('Symfony\Component\Translation\TranslatorInterface'));
     }
 
     protected function showErrors($errors)
