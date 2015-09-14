@@ -139,7 +139,6 @@ class InstallCommand extends Command
                 'host' => 'required',
                 'database' => 'required|alpha_dash',
                 'username' => 'required|alpha_dash',
-                'password' => 'required',
                 'prefix' => 'alpha_dash|max:10'
             ]
         );
