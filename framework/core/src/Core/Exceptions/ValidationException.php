@@ -19,6 +19,8 @@ class ValidationException extends Exception implements JsonApiSerializable
     public function __construct(array $messages)
     {
         $this->messages = $messages;
+
+        parent::__construct(implode("\n", $messages));
     }
 
     public function getMessages()
