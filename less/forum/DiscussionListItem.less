@@ -45,7 +45,7 @@
   text-overflow: ellipsis;
 
   .read & {
-    color: mix(@heading-color, @body-bg, 60%);
+    color: mix(@heading-color, @body-bg, 55%);
   }
   .unread & {
     font-weight: 600;
@@ -59,6 +59,12 @@
 
   > li {
     display: inline;
+    opacity: 0.7;
+    .transition(opacity 0.2s);
+
+    .DiscussionListItem:hover &, .DiscussionListItem.active & {
+      opacity: 1;
+    }
   }
   .username {
     font-weight: bold;
