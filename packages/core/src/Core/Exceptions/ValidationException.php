@@ -27,9 +27,7 @@ class ValidationException extends Exception implements JsonApiSerializable
     }
 
     /**
-     * Return the HTTP status code to be used for this exception.
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function getStatusCode()
     {
@@ -37,15 +35,14 @@ class ValidationException extends Exception implements JsonApiSerializable
     }
 
     /**
-     * Return an array of errors, formatted as JSON-API error objects.
-     *
-     * @see http://jsonapi.org/format/#error-objects
-     * @return array
+     * {@inheritdoc}
      */
     public function getErrors()
     {
         return array_map(function ($path, $detail) {
-            return compact('path', 'detail');
+            $source = ['pointer' => '/data/attributes/' . $path];
+
+            return compact('source', 'detail');
         }, array_keys($this->messages), $this->messages);
     }
 }
