@@ -129,7 +129,7 @@ export default class Modal extends Component {
     m.redraw();
 
     if (errors) {
-      this.$('form [name=' + errors[0].path + ']').select();
+      this.$('form [name=' + errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
     } else {
       this.$('form :input:first').select();
     }
