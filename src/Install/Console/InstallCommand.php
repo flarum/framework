@@ -102,6 +102,43 @@ class InstallCommand extends Command
     protected function install()
     {
         try {
+            $this->dbConfig = $this->dataSource->getDatabaseConfiguration();
+
+            $validation = $this->getValidator()->make(
+                $this->dbConfig,
+                [
+                    'driver' => 'required|in:mysql',
+                    'host' => 'required',
+                    'database' => 'required|alpha_dash',
+                    'username' => 'required|alpha_dash',
+                    'prefix' => 'alpha_dash|max:10'
+                ]
+            );
+
+            if ($validation->fails()) {
+                throw new Exception(implode("\n", call_user_func_array('array_merge', $validation->getMessageBag()->toArray())));
+            }
+
+            $this->baseUrl = $this->dataSource->getBaseUrl();
+            $this->settings = $this->dataSource->getSettings();
+            $this->adminUser = $admin = $this->dataSource->getAdminUser();
+
+            if (strlen($admin['password']) < 8) {
+                throw new Exception('Password must be at least 8 characters.');
+            }
+
+            if ($admin['password'] !== $admin['password_confirmation']) {
+                throw new Exception('The password did not match its confirmation.');
+            }
+
+            if (! filter_var($admin['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('You must enter a valid email.');
+            }
+
+            if (! $admin['username'] || preg_match('/[^a-z0-9_-]/i', $admin['username'])) {
+                throw new Exception('Username can only contain letters, numbers, underscores, and dashes.');
+            }
+
             $this->storeConfiguration();
 
             $this->runMigrations();
@@ -129,23 +166,7 @@ class InstallCommand extends Command
 
     protected function storeConfiguration()
     {
-        $dbConfig = $this->dataSource->getDatabaseConfiguration();
-        $baseUrl = $this->dataSource->getBaseUrl();
-
-        $validation = $this->getValidator()->make(
-            $dbConfig,
-            [
-                'driver' => 'required|in:mysql',
-                'host' => 'required',
-                'database' => 'required|alpha_dash',
-                'username' => 'required|alpha_dash',
-                'prefix' => 'alpha_dash|max:10'
-            ]
-        );
-
-        if ($validation->fails()) {
-            throw new ValidationException($validation->getMessageBag()->toArray());
-        }
+        $dbConfig = $this->dbConfig;
 
         $config = [
             'debug'    => true,
@@ -160,7 +181,7 @@ class InstallCommand extends Command
                 'prefix'    => $dbConfig['prefix'],
                 'strict'    => false
             ],
-            'url'   => $baseUrl,
+            'url'   => $this->baseUrl,
             'paths' => [
                 'api'   => 'api',
                 'admin' => 'admin',
@@ -204,12 +225,11 @@ class InstallCommand extends Command
 
     protected function writeSettings()
     {
-        $data = $this->dataSource->getSettings();
         $settings = $this->application->make('Flarum\Core\Settings\SettingsRepository');
 
         $this->info('Writing default settings');
 
-        foreach ($data as $k => $v) {
+        foreach ($this->settings as $k => $v) {
             $settings->set($k, $v);
         }
     }
@@ -264,7 +284,7 @@ class InstallCommand extends Command
 
     protected function createAdminUser()
     {
-        $admin = $this->dataSource->getAdminUser();
+        $admin = $this->adminUser;
 
         if ($admin['password'] !== $admin['password_confirmation']) {
             throw new Exception('The password did not match its confirmation.');
