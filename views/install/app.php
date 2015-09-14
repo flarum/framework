@@ -162,7 +162,7 @@
   <body>
     <div class="container">
       <h1>
-        <?php include 'logo.svg'; ?>
+        <?php echo file_get_contents(__DIR__ . '/logo.svg'); ?>
       </h1>
 
       <div class="animated fadeIn">
