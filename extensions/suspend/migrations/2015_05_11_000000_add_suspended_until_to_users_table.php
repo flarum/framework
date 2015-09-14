@@ -22,7 +22,7 @@ class AddSuspendedUntilToUsersTable extends Migration
     public function up()
     {
         $this->schema->table('users', function (Blueprint $table) {
-            $table->dateTime('suspended_until')->nullable();
+            $table->dateTime('suspend_until')->nullable();
         });
     }
 
@@ -34,7 +34,7 @@ class AddSuspendedUntilToUsersTable extends Migration
     public function down()
     {
         $this->schema->table('users', function (Blueprint $table) {
-            $table->dropColumn('suspended_until');
+            $table->dropColumn('suspend_until');
         });
     }
 }
