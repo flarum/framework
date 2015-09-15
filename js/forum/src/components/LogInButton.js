@@ -13,8 +13,8 @@ export default class LogInButton extends Button {
     props.className = (props.className || '') + ' LogInButton';
 
     props.onclick = function() {
-      const width = 620;
-      const height = 400;
+      const width = 1000;
+      const height = 500;
       const $window = $(window);
 
       window.open(app.forum.attribute('baseUrl') + props.path, 'logInPopup',

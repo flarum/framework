@@ -11,7 +11,7 @@
 namespace Flarum\Core\Users\Commands;
 
 use Flarum\Core\Users\User;
-use Flarum\Core\Users\EmailToken;
+use Flarum\Core\Users\AuthToken;
 use Flarum\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
 use Flarum\Core\Settings\SettingsRepository;
@@ -54,30 +54,36 @@ class RegisterUserHandler
             throw new PermissionDeniedException;
         }
 
-        // If a valid email confirmation token was provided as an attribute,
-        // then we can create a random password for this user and consider their
-        // email address confirmed.
-        if (isset($data['attributes']['token'])) {
-            $token = EmailToken::whereNull('user_id')->validOrFail($data['attributes']['token']);
+        $username = array_get($data, 'attributes.username');
+        $email = array_get($data, 'attributes.email');
+        $password = array_get($data, 'attributes.password');
 
-            $email = $token->email;
-            $password = array_get($data, 'attributes.password', str_random(20));
-        } else {
-            $email = array_get($data, 'attributes.email');
-            $password = array_get($data, 'attributes.password');
+        // If a valid authentication token was provided as an attribute,
+        // then we won't require the user to choose a password.
+        if (isset($data['attributes']['token'])) {
+            $token = AuthToken::validOrFail($data['attributes']['token']);
+
+            $password = $password ?: str_random(20);
         }
 
-        // Create the user's new account. If their email was set via token, then
-        // we can activate their account from the get-go, and they won't need
-        // to confirm their email address.
         $user = User::register(
-            array_get($data, 'attributes.username'),
+            $username,
             $email,
             $password
         );
 
+        // If a valid authentication token was provided, then we will assign
+        // the attributes associated with it to the user's account. If this
+        // includes an email address, then we will activate the user's account
+        // from the get-go.
         if (isset($token)) {
-            $user->activate();
+            foreach ($token->payload as $k => $v) {
+                $user->$k = $v;
+            }
+
+            if (isset($token->payload['email'])) {
+                $user->activate();
+            }
         }
 
         event(new UserWillBeSaved($user, $actor, $data));
