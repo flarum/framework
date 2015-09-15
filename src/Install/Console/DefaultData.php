@@ -25,8 +25,8 @@ class DefaultData implements ProvidesData
 
     protected $adminUser = [
         'username'              => 'admin',
-        'password'              => 'admin',
-        'password_confirmation' => 'admin',
+        'password'              => 'password',
+        'password_confirmation' => 'password',
         'email'                 => 'admin@example.com',
     ];
 
