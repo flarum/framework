@@ -13,7 +13,7 @@ namespace Flarum\Forum\Actions;
 use Flarum\Core\Users\User;
 use Zend\Diactoros\Response\HtmlResponse;
 use Flarum\Api\Commands\GenerateAccessToken;
-use Flarum\Core\Users\EmailToken;
+use Flarum\Core\Users\AuthToken;
 
 trait ExternalAuthenticatorTrait
 {
@@ -25,33 +25,42 @@ trait ExternalAuthenticatorTrait
     protected $bus;
 
     /**
-     * Respond with JavaScript to tell the Flarum app that the user has been
-     * authenticated, or with information about their sign up status.
+     * Respond with JavaScript to inform the Flarum app about the user's
+     * authentication status.
      *
-     * @param string $email The email of the user's account.
-     * @param string $username A suggested username for the user's account.
+     * An array of identification attributes must be passed as the first
+     * argument. These are checked against existing user accounts; if a match is
+     * found, then the user is authenticated and logged into that account via
+     * cookie. The Flarum app will then simply refresh the page.
+     *
+     * If no matching account is found, then an AuthToken will be generated to
+     * store the identification attributes. This token, along with an optional
+     * array of suggestions, will be passed into the Flarum app's sign up modal.
+     * This results in the user not having to choose a password. When they
+     * complete their registration, the identification attributes will be
+     * set on their new user account.
+     *
+     * @param array $identification
+     * @param array $suggestions
      * @return HtmlResponse
      */
-    protected function authenticated($email, $username)
+    protected function authenticated(array $identification, array $suggestions = [])
     {
-        $user = User::where('email', $email)->first();
+        $user = User::where($identification)->first();
 
-        // If a user with this email address doesn't already exist, then we will
-        // generate a unique confirmation token for this email address and add
-        // it to the response, along with the email address and a suggested
-        // username. Otherwise, we will log in the existing user by generating
-        // an access token.
-        if (! $user) {
-            $token = EmailToken::generate($email);
-            $token->save();
-
-            $payload = compact('email', 'username');
-
-            $payload['token'] = $token->id;
-        } else {
+        // If a user with these attributes already exists, then we will log them
+        // in by generating an access token. Otherwise, we will generate a
+        // unique token for these attributes and add it to the response, along
+        // with the suggested account information.
+        if ($user) {
             $accessToken = $this->bus->dispatch(new GenerateAccessToken($user->id));
 
             $payload = ['authenticated' => true];
+        } else {
+            $token = AuthToken::generate($identification);
+            $token->save();
+
+            $payload = array_merge($identification, $suggestions, ['token' => $token->id]);
         }
 
         $content = sprintf('<script>

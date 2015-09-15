@@ -82,7 +82,7 @@ export default class SignUpModal extends Modal {
           <input className="FormControl" name="email" type="email" placeholder={app.trans('core.email')}
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
-            disabled={this.loading || this.props.token} />
+            disabled={this.loading || (this.props.token && this.props.email)} />
         </div>
 
         {this.props.token ? '' : (
@@ -121,7 +121,8 @@ export default class SignUpModal extends Modal {
               {avatar(user)}
               <h3>{app.trans('core.welcome_user', {user})}</h3>
 
-              <p>{app.trans('core.confirmation_email_sent', {email: <strong>{user.email()}</strong>})}</p>,
+              <p>{app.trans('core.confirmation_email_sent', {email: <strong>{user.email()}</strong>})}</p>
+
               <p>
                 <a href={`http://${emailProviderName}`} className="Button Button--primary" target="_blank">
                   {app.trans('core.go_to', {location: emailProviderName})}
@@ -161,7 +162,7 @@ export default class SignUpModal extends Modal {
   }
 
   onready() {
-    if (this.props.username && !this.props.token) {
+    if (this.props.username && !this.props.email) {
       this.$('[name=email]').select();
     } else {
       this.$('[name=username]').select();
