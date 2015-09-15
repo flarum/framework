@@ -2,6 +2,8 @@ import Component from 'flarum/Component';
 import SubtreeRetainer from 'flarum/utils/SubtreeRetainer';
 import Dropdown from 'flarum/components/Dropdown';
 import PostControls from 'flarum/utils/PostControls';
+import listItems from 'flarum/helpers/listItems';
+import ItemList from 'flarum/utils/ItemList';
 
 /**
  * The `Post` component displays a single post. The basic post template just
@@ -45,15 +47,21 @@ export default class Post extends Component {
 
           return (
             <div>
-              {controls.length ? Dropdown.component({
-                children: controls,
-                className: 'Post-controls',
-                buttonClassName: 'Button Button--icon Button--flat',
-                menuClassName: 'Dropdown-menu--right',
-                icon: 'ellipsis-v'
-              }) : ''}
-
               {this.content()}
+              <aside className="Post-actions">
+                <ul>
+                  {listItems(this.actionItems().toArray())}
+                  {controls.length ? <li>
+                    <Dropdown
+                      className="Post-controls"
+                      buttonClassName="Button Button--icon Button--flat"
+                      menuClassName="Dropdown-menu--right"
+                      icon="ellipsis-h">
+                      {controls}
+                    </Dropdown>
+                  </li> : ''}
+                </ul>
+              </aside>
             </div>
           );
         })()}
@@ -77,5 +85,14 @@ export default class Post extends Component {
    */
   content() {
     return '';
+  }
+
+  /**
+   * Build an item list for the post's actions.
+   *
+   * @return {ItemList}
+   */
+  actionItems() {
+    return new ItemList();
   }
 }
