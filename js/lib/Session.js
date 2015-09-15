@@ -16,6 +16,7 @@ export default class Session {
      * The token that was used for authentication.
      *
      * @type {String|null}
+     * @public
      */
     this.token = token;
   }
@@ -26,6 +27,7 @@ export default class Session {
    * @param {String} identification The username/email.
    * @param {String} password
    * @return {Promise}
+   * @public
    */
   login(identification, password) {
     return app.request({
@@ -38,6 +40,8 @@ export default class Session {
 
   /**
    * Log the user out.
+   *
+   * @public
    */
   logout() {
     window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.token;
@@ -48,8 +52,11 @@ export default class Session {
    * XMLHttpRequest object.
    *
    * @param {XMLHttpRequest} xhr
+   * @public
    */
   authorize(xhr) {
-    xhr.setRequestHeader('Authorization', 'Token ' + this.token);
+    if (this.token) {
+      xhr.setRequestHeader('Authorization', 'Token ' + this.token);
+    }
   }
 }

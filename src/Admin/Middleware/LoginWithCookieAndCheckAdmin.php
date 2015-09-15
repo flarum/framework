@@ -15,36 +15,32 @@ use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Stratigility\MiddlewareInterface;
+use Flarum\Forum\Middleware\LoginWithCookie;
+use Flarum\Core\Exceptions\PermissionDeniedException;
 
-class LoginWithCookieAndCheckAdmin implements MiddlewareInterface
+class LoginWithCookieAndCheckAdmin extends LoginWithCookie
 {
-    /**
-     * @var Container
-     */
-    protected $app;
-
-    /**
-     * @param Container $app
-     */
-    public function __construct(Container $app)
-    {
-        $this->app = $app;
-    }
-
     /**
      * {@inheritdoc}
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        if (($token = array_get($request->getCookieParams(), 'flarum_remember')) &&
-            ($accessToken = AccessToken::valid($token)) &&
-            $accessToken->user->isAdmin()
-        ) {
-            $this->app->instance('flarum.actor', $accessToken->user);
-        } else {
-            die('Access Denied');
+        if (! $this->logIn($request)) {
+            throw new PermissionDeniedException;
         }
 
         return $out ? $out($request, $response) : $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getToken(Request $request)
+    {
+        $token = parent::getToken($request);
+
+        if ($token && $token->user && $token->user->isAdmin()) {
+            return $token;
+        }
     }
 }

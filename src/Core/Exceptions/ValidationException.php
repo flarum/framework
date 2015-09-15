@@ -12,17 +12,39 @@ namespace Flarum\Core\Exceptions;
 
 use Exception;
 
-class ValidationException extends Exception
+class ValidationException extends Exception implements JsonApiSerializable
 {
     protected $messages;
 
     public function __construct(array $messages)
     {
         $this->messages = $messages;
+
+        parent::__construct(implode("\n", $messages));
     }
 
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStatusCode()
+    {
+        return 422;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getErrors()
+    {
+        return array_map(function ($path, $detail) {
+            $source = ['pointer' => '/data/attributes/' . $path];
+
+            return compact('source', 'detail');
+        }, array_keys($this->messages), $this->messages);
     }
 }

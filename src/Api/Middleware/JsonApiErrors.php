@@ -10,35 +10,65 @@
 
 namespace Flarum\Api\Middleware;
 
+use Flarum\Core\Exceptions\JsonApiSerializable;
+use Illuminate\Contracts\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
+use Flarum\Core;
+use Exception;
 
 class JsonApiErrors implements ErrorMiddlewareInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function __invoke($error, Request $request, Response $response, callable $out = null)
+    public function __invoke($e, Request $request, Response $response, callable $out = null)
     {
-        $errorObject = [
-            'title' => $error->getMessage(),
-        ];
+        return $this->handle($e);
+    }
 
-        $status = 500;
+    public function handle(Exception $e)
+    {
+        if ($e instanceof JsonApiSerializable) {
+            $status = $e->getStatusCode();
 
-        // If it seems to be a valid HTTP status code, we pass on the
-        // exception's status.
-        $errorCode = $error->getCode();
-        if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
-            $status = $errorCode;
+            $errors = $e->getErrors();
+        } else if ($e instanceof ValidationException) {
+            $status = 422;
+
+            $errors = $e->errors()->toArray();
+            $errors = array_map(function ($field, $messages) {
+                return [
+                    'detail' => implode("\n", $messages),
+                    'source' => ['pointer' => '/data/attributes/' . $field],
+                ];
+            }, array_keys($errors), $errors);
+        } else if ($e instanceof ModelNotFoundException) {
+            $status = 404;
+
+            $errors = [];
+        } else {
+            $status = 500;
+
+            $error = [
+                'code' => $status,
+                'title' => 'Internal Server Error'
+            ];
+
+            if (Core::inDebugMode()) {
+                $error['detail'] = (string) $e;
+            }
+
+            $errors = [$error];
         }
 
         // JSON API errors must be collected in an array under the
         // "errors" key in the top level of the document
         $data = [
-            'errors' => [$errorObject]
+            'errors' => $errors,
         ];
 
         return new JsonResponse($data, $status);

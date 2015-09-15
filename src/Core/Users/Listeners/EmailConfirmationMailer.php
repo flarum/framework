@@ -57,6 +57,11 @@ class EmailConfirmationMailer
     public function whenUserWasRegistered(UserWasRegistered $event)
     {
         $user = $event->user;
+
+        if ($user->is_activated) {
+            return;
+        }
+
         $data = $this->getEmailData($user, $user->email);
 
         $this->mailer->send(['text' => 'flarum::emails.activateAccount'], $data, function (Message $message) use ($user) {
@@ -82,11 +87,12 @@ class EmailConfirmationMailer
     /**
      * @param User $user
      * @param string $email
+     *
      * @return EmailToken
      */
     protected function generateToken(User $user, $email)
     {
-        $token = EmailToken::generate($user->id, $email);
+        $token = EmailToken::generate($email, $user->id);
         $token->save();
 
         return $token;
@@ -97,6 +103,7 @@ class EmailConfirmationMailer
      *
      * @param User $user
      * @param string $email
+     *
      * @return array
      */
     protected function getEmailData(User $user, $email)
