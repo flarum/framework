@@ -50,12 +50,13 @@ export default class ReportPostModal extends Modal {
           </div>
 
           <div className="Form-group">
-            {Button.component({
-              children: 'Report Post',
-              className: 'Button Button--primary',
-              loading: this.loading,
-              disabled: !this.reason()
-            })}
+            <Button
+              className="Button Button--primary"
+              type="submit"
+              loading={this.loading}
+              disabled={!this.reason()}>
+              Report Post
+            </Button>
           </div>
         </div>
       </div>
