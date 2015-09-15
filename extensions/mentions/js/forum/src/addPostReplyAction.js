@@ -29,7 +29,7 @@ export default function() {
 
     items.add('reply',
       Button.component({
-        className: 'Button Button--text',
+        className: 'Button Button--link',
         children: app.trans('mentions.reply_link'),
         onclick: () => {
           const quote = window.getSelection().toString();
