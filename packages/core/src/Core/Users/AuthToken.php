@@ -17,12 +17,12 @@ use DateTime;
 /**
  * @todo document database columns with @property
  */
-class EmailToken extends Model
+class AuthToken extends Model
 {
     /**
      * {@inheritdoc}
      */
-    protected $table = 'email_tokens';
+    protected $table = 'auth_tokens';
 
     /**
      * {@inheritdoc}
@@ -40,30 +40,39 @@ class EmailToken extends Model
      * Generate an email token for the specified user.
      *
      * @param string $email
-     * @param int $userId
      *
      * @return static
      */
-    public static function generate($email, $userId)
+    public static function generate($payload)
     {
         $token = new static;
 
         $token->id = str_random(40);
-        $token->user_id = $userId;
-        $token->email = $email;
+        $token->payload = $payload;
         $token->created_at = time();
 
         return $token;
     }
 
     /**
-     * Define the relationship with the owner of this email token.
+     * Unserialize the payload attribute from the database's JSON value.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @param string $value
+     * @return string
      */
-    public function user()
+    public function getPayloadAttribute($value)
     {
-        return $this->belongsTo('Flarum\Core\Users\User');
+        return json_decode($value, true);
+    }
+
+    /**
+     * Serialize the payload attribute to be stored in the database as JSON.
+     *
+     * @param string $value
+     */
+    public function setPayloadAttribute($value)
+    {
+        $this->attributes['payload'] = json_encode($value);
     }
 
     /**
