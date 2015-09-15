@@ -12,7 +12,7 @@
 use Flarum\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEmailTokensTable extends Migration
+class MakeEmailTokensUserIdColumnNullable extends Migration
 {
     /**
      * Run the migrations.
@@ -21,11 +21,8 @@ class CreateEmailTokensTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('email_tokens', function (Blueprint $table) {
-            $table->string('id', 100)->primary();
-            $table->string('email', 150);
-            $table->integer('user_id')->unsigned();
-            $table->timestamp('created_at');
+        $this->schema->table('email_tokens', function (Blueprint $table) {
+            $table->integer('user_id')->unsigned()->nullable()->change();
         });
     }
 
@@ -36,6 +33,8 @@ class CreateEmailTokensTable extends Migration
      */
     public function down()
     {
-        $this->schema->drop('email_tokens');
+        $this->schema->table('email_tokens', function (Blueprint $table) {
+            $table->integer('user_id')->unsigned()->change();
+        });
     }
 }

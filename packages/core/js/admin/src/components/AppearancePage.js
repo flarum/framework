@@ -44,6 +44,7 @@ export default class AppearancePage extends Component {
 
               {Button.component({
                 className: 'Button Button--primary',
+                type: 'submit',
                 children: 'Save Changes',
                 loading: this.loading
               })}
