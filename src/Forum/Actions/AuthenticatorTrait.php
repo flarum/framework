@@ -15,7 +15,7 @@ use Zend\Diactoros\Response\HtmlResponse;
 use Flarum\Api\Commands\GenerateAccessToken;
 use Flarum\Core\Users\AuthToken;
 
-trait ExternalAuthenticatorTrait
+trait AuthenticatorTrait
 {
     use WritesRememberCookie;
 
