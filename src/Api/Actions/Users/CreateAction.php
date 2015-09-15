@@ -73,8 +73,12 @@ class CreateAction extends BaseCreateAction
      */
     protected function create(JsonApiRequest $request)
     {
-        return $this->bus->dispatch(
+        $user = $this->bus->dispatch(
             new RegisterUser($request->actor, $request->get('data'))
         );
+
+        $request->actor = $user;
+
+        return $user;
     }
 }

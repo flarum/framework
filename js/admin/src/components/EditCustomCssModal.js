@@ -30,6 +30,7 @@ export default class EditCustomCssModal extends Modal {
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--primary',
+              type: 'submit',
               children: 'Save Changes',
               loading: this.loading
             })}
