@@ -24,6 +24,12 @@ class AssetManager
         $this->less = $less;
     }
 
+    public function setFilename($filename)
+    {
+        $this->js->setFilename($filename . '.js');
+        $this->less->setFilename($filename . '.css');
+    }
+
     public function addFile($file)
     {
         $ext = pathinfo($file, PATHINFO_EXTENSION);
