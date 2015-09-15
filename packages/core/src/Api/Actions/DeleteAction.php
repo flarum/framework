@@ -13,7 +13,7 @@ namespace Flarum\Api\Actions;
 use Flarum\Api\Request;
 use Zend\Diactoros\Response\EmptyResponse;
 
-abstract class DeleteAction extends JsonApiAction
+abstract class DeleteAction implements Action
 {
     /**
      * Delegate deletion of the resource, and return a 204 No Content
@@ -22,7 +22,7 @@ abstract class DeleteAction extends JsonApiAction
      * @param \Flarum\Api\Request $request
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function respond(Request $request)
+    public function handle(Request $request)
     {
         $this->delete($request);
 

@@ -27,7 +27,7 @@ class Application extends Container implements ApplicationContract
      *
      * @var string
      */
-    const VERSION = '0.1.0-beta';
+    const VERSION = '0.1.0-beta.2';
 
     /**
      * The base path for the Laravel installation.

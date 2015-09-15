@@ -10,13 +10,13 @@
 
 namespace Flarum\Api\Actions\Extensions;
 
-use Flarum\Api\Actions\JsonApiAction;
+use Flarum\Api\Actions\Action;
 use Flarum\Api\Request;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 use Flarum\Support\ExtensionManager;
 
-class UpdateAction extends JsonApiAction
+class UpdateAction implements Action
 {
     protected $extensions;
 
@@ -25,7 +25,7 @@ class UpdateAction extends JsonApiAction
         $this->extensions = $extensions;
     }
 
-    protected function respond(Request $request)
+    public function handle(Request $request)
     {
         if (! $request->actor->isAdmin()) {
             throw new PermissionDeniedException;

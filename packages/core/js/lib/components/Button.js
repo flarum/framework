@@ -25,7 +25,8 @@ export default class Button extends Component {
 
     delete attrs.children;
 
-    attrs.className = (attrs.className || '');
+    attrs.className = attrs.className || '';
+    attrs.type = attrs.type || 'button';
 
     const iconName = extract(attrs, 'icon');
     if (iconName) attrs.className += ' hasIcon';

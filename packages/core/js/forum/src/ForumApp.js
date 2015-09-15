@@ -4,6 +4,7 @@ import Search from 'flarum/components/Search';
 import Composer from 'flarum/components/Composer';
 import ReplyComposer from 'flarum/components/ReplyComposer';
 import DiscussionPage from 'flarum/components/DiscussionPage';
+import SignUpModal from 'flarum/components/SignUpModal';
 
 export default class ForumApp extends App {
   constructor(...args) {
@@ -75,5 +76,28 @@ export default class ForumApp extends App {
   viewingDiscussion(discussion) {
     return this.current instanceof DiscussionPage &&
       this.current.discussion === discussion;
+  }
+
+  /**
+   * Callback for when an external authenticator (social login) action has
+   * completed.
+   *
+   * If the payload indicates that the user has been logged in, then the page
+   * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
+   * with the provided details.
+   *
+   * @param {Object} payload A dictionary of props to pass into the sign up
+   *     modal. A truthy `authenticated` prop indicates that the user has logged
+   *     in, and thus the page is reloaded.
+   * @public
+   */
+  authenticationComplete(payload) {
+    if (payload.authenticated) {
+      window.location.reload();
+    } else {
+      const modal = new SignUpModal(payload);
+      this.modal.show(modal);
+      modal.$('[name=password]').focus();
+    }
   }
 }

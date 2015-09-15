@@ -56,7 +56,6 @@ class ClientAction extends BaseClientAction
         'core.discussion_started',
         'core.discussion_title',
         'core.discussions',
-        'core.dismiss',
         'core.edit',
         'core.editing_post',
         'core.email',

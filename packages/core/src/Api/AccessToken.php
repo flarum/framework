@@ -12,6 +12,7 @@ namespace Flarum\Api;
 
 use Flarum\Core\Model;
 use DateTime;
+use Exception;
 
 /**
  * @todo document database columns with @property
@@ -55,14 +56,13 @@ class AccessToken extends Model
     }
 
     /**
-     * Get the given token only if it is valid.
+     * Check that the token has not expired.
      *
-     * @param string $token
-     * @return static|null
+     * @return bool
      */
-    public static function valid($token)
+    public function isValid()
     {
-        return static::where('id', $token)->where('expires_at', '>', new DateTime)->first();
+        return $this->expires_at > new DateTime;
     }
 
     /**

@@ -36,14 +36,46 @@ class LoginWithCookie implements MiddlewareInterface
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        if (($token = array_get($request->getCookieParams(), 'flarum_remember')) &&
-            ($accessToken = AccessToken::valid($token))
-        ) {
-            $this->app->instance('flarum.actor', $user = $accessToken->user);
-
-            $user->updateLastSeen()->save();
-        }
+        $this->logIn($request);
 
         return $out ? $out($request, $response) : $response;
+    }
+
+    /**
+     * Set the application's actor instance according to the request token.
+     *
+     * @param Request $request
+     * @return bool
+     */
+    protected function logIn(Request $request)
+    {
+        if ($token = $this->getToken($request)) {
+            if (! $token->isValid()) {
+                // TODO: https://github.com/flarum/core/issues/253
+            } elseif ($token->user) {
+                $this->app->instance('flarum.actor', $user = $token->user);
+
+                $user->updateLastSeen()->save();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the access token referred to by the request cookie.
+     *
+     * @param Request $request
+     * @return AccessToken|null
+     */
+    protected function getToken(Request $request)
+    {
+        $token = array_get($request->getCookieParams(), 'flarum_remember');
+
+        if ($token) {
+            return AccessToken::find($token);
+        }
     }
 }
