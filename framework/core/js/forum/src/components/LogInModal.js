@@ -3,6 +3,7 @@ import ForgotPasswordModal from 'flarum/components/ForgotPasswordModal';
 import SignUpModal from 'flarum/components/SignUpModal';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
+import LogInButtons from 'flarum/components/LogInButtons';
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.
@@ -42,6 +43,8 @@ export default class LogInModal extends Modal {
   content() {
     return [
       <div className="Modal-body">
+        <LogInButtons/>
+
         <div className="Form Form--centered">
           <div className="Form-group">
             <input className="FormControl" name="email" placeholder={app.trans('core.username_or_email')}
@@ -71,6 +74,7 @@ export default class LogInModal extends Modal {
         <p className="LogInModal-forgotPassword">
           <a onclick={this.forgotPassword.bind(this)}>{app.trans('core.forgot_password_link')}</a>
         </p>
+
         {app.forum.attribute('allowSignUp') ? (
           <p className="LogInModal-signUp">
             {app.trans('core.before_sign_up_link')}{' '}
@@ -84,6 +88,8 @@ export default class LogInModal extends Modal {
   /**
    * Open the forgot password modal, prefilling it with an email if the user has
    * entered one.
+   *
+   * @public
    */
   forgotPassword() {
     const email = this.email();
@@ -95,6 +101,8 @@ export default class LogInModal extends Modal {
   /**
    * Open the sign up modal, prefilling it with an email/username/password if
    * the user has entered one.
+   *
+   * @public
    */
   signUp() {
     const props = {password: this.password()};

@@ -50,7 +50,7 @@ class LoginWithHeader implements MiddlewareInterface
         if (isset($parts[0]) && starts_with($parts[0], $this->prefix)) {
             $token = substr($parts[0], strlen($this->prefix));
 
-            if ($accessToken = AccessToken::valid($token)) {
+            if (($accessToken = AccessToken::find($token)) && $accessToken->isValid()) {
                 $this->app->instance('flarum.actor', $user = $accessToken->user);
 
                 $user->updateLastSeen()->save();
