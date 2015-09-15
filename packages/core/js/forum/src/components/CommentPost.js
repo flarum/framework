@@ -10,8 +10,6 @@ import Composer from 'flarum/components/Composer';
 import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
 import Button from 'flarum/components/Button';
-import Dropdown from 'flarum/components/Dropdown';
-import PostControls from 'flarum/utils/PostControls';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -44,8 +42,6 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    const controls = PostControls.controls(this.props.post, this).toArray();
-
     return [
       <header className="Post-header"><ul>{listItems(this.headerItems().toArray())}</ul></header>,
       <div className="Post-body">
@@ -53,16 +49,6 @@ export default class CommentPost extends Post {
           ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
           : m.trust(this.props.post.contentHtml())}
       </div>,
-      <aside className="Post-actions"><ul>
-        {controls.length ? Dropdown.component({
-                children: controls,
-                className: 'Post-controls',
-                buttonClassName: 'Button Button--icon Button--flat',
-                menuClassName: 'Dropdown-menu--right',
-                icon: 'ellipsis-h'
-              }) : ''}
-        {listItems(this.actionItems().toArray())}
-      </ul></aside>,
       <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>
     ];
   }
@@ -196,15 +182,6 @@ export default class CommentPost extends Post {
    * @return {ItemList}
    */
   footerItems() {
-    return new ItemList();
-  }
-
-  /**
-   * Build an item list for the post's actions.
-   *
-   * @return {ItemList}
-   */
-  actionItems() {
     return new ItemList();
   }
 }

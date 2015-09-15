@@ -15,11 +15,6 @@
     opacity: 0.5;
   }
 }
-.Post-controls {
-  float: right;
-  // margin-top: -8px;
-  // margin-left: 10px;
-}
 
 .Post-header {
   margin-bottom: 15px;
@@ -148,6 +143,9 @@
   .Post-header, .Post-header a, .PostUser h3, .PostUser h3 a {
     color: @muted-more-color;
   }
+  &:not(.revealContent) .Post-header {
+    margin-bottom: 0;
+  }
   .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
     position: absolute;
     visibility: hidden;
@@ -249,12 +247,16 @@
 }
 .Post-actions {
   float: right;
-  margin-top: -3px;
+  margin-top: -10px;
   .transition(opacity 0.2s);
 
+  .EventPost &, .Post--hidden & {
+    margin-top: -27px;
+  }
+
   @media @tablet-up {
-    margin-bottom: -10px;
-    opacity: 0.5;
+    margin-bottom: -15px;
+    opacity: 0;
   }
 
   > ul {
@@ -262,6 +264,7 @@
       margin-right: 0;
       margin-left: -5px;
       display: inline-block;
+      vertical-align: top;
     }
   }
   .Post:hover & {
@@ -297,14 +300,6 @@
 }
 
 @media @phone {
-  .Post-controls {
-    margin-top: -6px;
-    margin-right: -8px;
-
-    .Dropdown-toggle {
-      opacity: 0.5;
-    }
-  }
   .Post-header {
     .Avatar {
       .Avatar--size(32px);
@@ -338,14 +333,6 @@
 @media @tablet-up {
   .Post {
     padding-left: 20px + @avatar-column-width;
-
-    // .Post-controls {
-    //   opacity: 0.5;
-    //   transition: opacity 0.2s;
-    // }
-    // &:hover .Post-controls, .Post-controls.open {
-    //   opacity: 1;
-    // }
   }
   .PostUser-avatar {
     margin-left: -@avatar-column-width;
