@@ -24,6 +24,7 @@ trait WritesRememberCookie
             SetCookie::create('flarum_remember', $token)
                 ->withMaxAge(14 * 24 * 60 * 60)
                 ->withPath('/')
+                ->withHttpOnly(true)
         );
     }
 
@@ -35,6 +36,7 @@ trait WritesRememberCookie
             SetCookie::create('flarum_remember')
                 ->withMaxAge(-2628000)
                 ->withPath('/')
+                ->withHttpOnly(true)
         );
     }
 }

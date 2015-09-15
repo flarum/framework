@@ -10,14 +10,8 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Exceptions\PermissionDeniedException;
-use Flarum\Core\Users\User;
-use Flarum\Events\ModelAllow;
 use Flarum\Events\ModelDates;
 use Flarum\Events\ModelRelationship;
-use Flarum\Events\ScopeModelVisibility;
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use LogicException;

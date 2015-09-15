@@ -47,7 +47,7 @@ class LoginAction extends Action
     /**
      * @param Request $request
      * @param array $routeParams
-     * @return \Psr\Http\Message\ResponseInterface|EmptyResponse
+     * @return JsonResponse|EmptyResponse
      */
     public function handle(Request $request, array $routeParams = [])
     {

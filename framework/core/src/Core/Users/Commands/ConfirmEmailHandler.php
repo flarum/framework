@@ -13,7 +13,6 @@ namespace Flarum\Core\Users\Commands;
 use Flarum\Core\Users\UserRepository;
 use Flarum\Events\UserWillBeSaved;
 use Flarum\Core\Support\DispatchesEvents;
-use Flarum\Core\Exceptions\InvalidConfirmationTokenException;
 use Flarum\Core\Users\EmailToken;
 use DateTime;
 
@@ -36,16 +35,14 @@ class ConfirmEmailHandler
 
     /**
      * @param ConfirmEmail $command
-     * @return \Flarum\Core\Users\User
+     *
      * @throws InvalidConfirmationTokenException
+     *
+     * @return \Flarum\Core\Users\User
      */
     public function handle(ConfirmEmail $command)
     {
-        $token = EmailToken::find($command->token);
-
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
-            throw new InvalidConfirmationTokenException;
-        }
+        $token = EmailToken::validOrFail($command->token);
 
         $user = $token->user;
         $user->changeEmail($token->email);

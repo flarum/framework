@@ -102,6 +102,12 @@ class ForumServiceProvider extends ServiceProvider
             $this->action('Flarum\Forum\Actions\LoginAction')
         );
 
+        $routes->post(
+            '/register',
+            'flarum.forum.register',
+            $this->action('Flarum\Forum\Actions\RegisterAction')
+        );
+
         $routes->get(
             '/confirm/{token}',
             'flarum.forum.confirmEmail',

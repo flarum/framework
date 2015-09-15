@@ -12,6 +12,8 @@ namespace Flarum\Api;
 
 use Flarum\Core\Users\User;
 use Illuminate\Contracts\Container\Container;
+use Exception;
+use Flarum\Api\Middleware\JsonApiErrors;
 
 class Client
 {
@@ -38,10 +40,16 @@ class Client
      */
     public function send(User $actor, $actionClass, array $input = [])
     {
-        /** @var \Flarum\Api\Actions\JsonApiAction $action */
+        /** @var \Flarum\Api\Actions\Action $action */
         $action = $this->container->make($actionClass);
 
-        $response = $action->handle(new Request($input, $actor));
+        try {
+            $response = $action->handle(new Request($input, $actor));
+        } catch (Exception $e) {
+            $middleware = new JsonApiErrors();
+
+            $response = $middleware->handle($e);
+        }
 
         return new Response($response);
     }
