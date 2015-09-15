@@ -31,8 +31,12 @@ class ReadNotificationHandler
 
         $notification = Notification::where('user_id', $actor->id)->findOrFail($command->notificationId);
 
-        $notification->read();
-        $notification->save();
+        Notification::where([
+            'user_id' => $actor->id,
+            'type' => $notification->type,
+            'subject_id' => $notification->subject_id
+        ])
+            ->update(['is_read' => true]);
 
         return $notification;
     }
