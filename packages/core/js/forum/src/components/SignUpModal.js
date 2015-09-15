@@ -164,7 +164,7 @@ export default class SignUpModal extends Modal {
     if (this.props.username && !this.props.token) {
       this.$('[name=email]').select();
     } else {
-      super.onready();
+      this.$('[name=username]').select();
     }
   }
 
