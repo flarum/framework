@@ -24,6 +24,11 @@ class RevisionCompiler implements Compiler
         $this->filename = $filename;
     }
 
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+    }
+
     public function addFile($file)
     {
         $this->files[] = $file;
