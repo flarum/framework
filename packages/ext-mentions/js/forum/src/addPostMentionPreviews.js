@@ -12,6 +12,7 @@ export default function addPostMentionPreviews() {
     this.oldPostContentHtml = contentHtml;
 
     const parentPost = this.props.post;
+    const $parentPost = this.$();
 
     this.$('.UserMention, .PostMention').each(function() {
       m.route.call(this, this, false, {}, {attrs: {href: this.getAttribute('href')}});
@@ -25,8 +26,7 @@ export default function addPostMentionPreviews() {
       // Wrap the mention link in a wrapper element so that we can insert a
       // preview popup as its sibling and relatively position it.
       const $preview = $('<ul class="Dropdown-menu PostMention-preview fade"/>');
-      const $wrapper = $('<span class="PostMention-wrapper"/>');
-      $this.wrap($wrapper).after($preview);
+      $parentPost.append($preview);
 
       const getPostElement = () => {
         return $(`.PostStream-item[data-id="${id}"]`);
@@ -53,7 +53,10 @@ export default function addPostMentionPreviews() {
           // Position the preview so that it appears above the mention.
           // (The offsetParent should be .Post-body.)
           const positionPreview = () => {
-            $preview.show().css('top', $this.offset().top - $this.offsetParent().offset().top - $preview.outerHeight(true));
+            $preview.show()
+              .css('top', $this.offset().top - $parentPost.offset().top - $preview.outerHeight(true))
+              .css('left', $this.offsetParent().offset().left - $parentPost.offset().left)
+              .css('max-width', $this.offsetParent().width());
           };
 
           const showPost = post => {
@@ -90,7 +93,7 @@ export default function addPostMentionPreviews() {
 
       $this.on('touchstart', e => e.preventDefault());
 
-      $this.parent().hover(
+      $this.add($preview).hover(
         () => {
           clearTimeout(timeout);
           timeout = setTimeout(showPreview, 250);
