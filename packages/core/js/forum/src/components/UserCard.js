@@ -40,6 +40,7 @@ export default class UserCard extends Component {
               className: 'UserCard-controls App-primaryControl',
               menuClassName: 'Dropdown-menu--right',
               buttonClassName: this.props.controlsButtonClassName,
+              label: app.trans('core.controls'),
               icon: 'ellipsis-v'
             }) : ''}
 
