@@ -3,7 +3,17 @@ All notable changes to Flarum and its bundled extensions will be documented in t
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
-*nothing yet*
+### Added
+- External authentication (social login) API.
+- API to set asset compiler filename.
+
+### Changed
+- Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
+- More compact post layout, with all controls grouped over to the right.
+
+### Fixed
+- Output forum description in meta description tag. ([#506](https://github.com/flarum/core/issues/506))
+- Fix several design bugs.
 
 ## [0.1.0-beta.2] - 2015-09-15
 ### Added
