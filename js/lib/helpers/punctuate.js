@@ -20,7 +20,7 @@ export default function punctuate(items) {
     // punctuation. If the list is more than 2 items long, we'll add a comma.
     // And if this is the second-to-last item, we'll add 'and'.
     if (i < items.length - 1) {
-      punctuated.push((items.length > 2 ? ', ' : '') + (i === items.length - 2 ? ' and ' : ''));
+      punctuated.push((items.length > 2 ? ', ' : '') + (i === items.length - 2 ? ' ' + app.trans('core.and') + ' ' : ''));
     }
   });
 
