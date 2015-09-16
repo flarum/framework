@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of Flarum.
  *
@@ -8,6 +7,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+namespace Flarum\Migrations\Tags;
 
 use Illuminate\Database\Schema\Blueprint;
 use Flarum\Migrations\Migration;
