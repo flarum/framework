@@ -76,9 +76,9 @@ class ExtensionManager
     {
         $this->disable($extension);
 
-        $class = $this->load($extension);
+        $this->load($extension);
 
-        $this->migrate($extension, false);
+        $this->migrateDown($extension);
     }
 
     public function migrate($extension, $up = true)
@@ -94,6 +94,11 @@ class ExtensionManager
         } else {
             $this->migrator->reset($migrationDir, $extension);
         }
+    }
+
+    public function migrateDown($extension)
+    {
+        $this->migrate($extension, false);
     }
 
     public function getMigrator()
