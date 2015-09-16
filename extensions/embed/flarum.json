@@ -1,0 +1,21 @@
+{
+    "name": "embed",
+    "title": "Embed",
+    "description": "Embed Flarum discussions as comments for your blog.",
+    "keywords": [],
+    "version": "0.1.0-beta.2",
+    "author": {
+        "name": "Toby Zerner",
+        "email": "toby@flarum.org",
+        "homepage": "http://tobyzerner.com"
+    },
+    "license": "MIT",
+    "require": {
+        "flarum": ">0.1.0-beta.2"
+    },
+    "icon": {
+        "name": "code",
+        "backgroundColor": "#D0E800",
+        "color": "#fff"
+    }
+}
