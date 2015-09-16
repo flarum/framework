@@ -55,7 +55,14 @@ class User extends Model
      * @var array
      */
     protected $rules = [
-        'username'          => 'required|alpha_dash|unique',
+        'username'          => [
+            'required',
+            'alpha_dash',
+            'unique',
+            'max:100',
+            'min:3',
+            'not_in:admin,moderator,administrator,root'
+        ],
         'email'             => 'required|email|unique',
         'password'          => 'required',
         'join_time'         => 'date',
