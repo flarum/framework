@@ -28,6 +28,8 @@ export function extend(object, method, callback) {
 
     return value;
   };
+
+  Object.assign(object[method], original);
 }
 
 /**
@@ -58,4 +60,6 @@ export function override(object, method, newMethod) {
   object[method] = function(...args) {
     return newMethod.apply(this, [original.bind(this)].concat(args));
   };
+
+  Object.assign(object[method], original);
 }
