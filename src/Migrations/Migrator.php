@@ -130,7 +130,7 @@ class Migrator
         // First we will resolve a "real" instance of the migration class from this
         // migration file name. Once we have the instances we can run the actual
         // command such as "up" or "down", or we can just simulate the action.
-        $migration = $this->resolve($file);
+        $migration = $this->resolve($file, $extension);
 
         $migration->up();
 
@@ -181,7 +181,7 @@ class Migrator
         // First we will get the file name of the migration so we can resolve out an
         // instance of the migration. Once we get an instance we can either run a
         // pretend execution of the migration or we can run the real migration.
-        $instance = $this->resolve($file);
+        $instance = $this->resolve($file, $extension);
 
         $instance->down();
 
@@ -242,11 +242,13 @@ class Migrator
      * @param  string  $file
      * @return object
      */
-    public function resolve($file)
+    public function resolve($file, $extension = null)
     {
         $file = implode('_', array_slice(explode('_', $file), 4));
 
-        $class = Str::studly($file);
+        $class = 'Flarum\\Migrations\\' . ($extension ? Str::studly($extension) : 'Core') . '\\';
+
+        $class .= Str::studly($file);
 
         return app()->make($class);
     }
