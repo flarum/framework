@@ -32,7 +32,9 @@ export default class Dropdown extends Component {
     const items = this.props.children ? listItems(this.props.children) : [];
 
     return (
-      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length}>
+      <div
+          title={this.props.label}
+          className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length}>
         {this.getButton()}
         {this.getMenu(items)}
       </div>
