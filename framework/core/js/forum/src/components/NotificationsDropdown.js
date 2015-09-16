@@ -30,6 +30,7 @@ export default class NotificationsDropdown extends Dropdown {
     const unread = this.getUnreadCount();
     const vdom = super.getButton();
 
+    vdom.attrs.title = this.props.label;
     vdom.attrs.className += (unread ? ' unread' : '');
     vdom.attrs.onclick = this.onclick.bind(this);
 
