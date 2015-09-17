@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - External authentication (social login) API.
 - API to set asset compiler filename.
+- Migration generator, available via generate:migration console command.
 
 ### Changed
 - Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
