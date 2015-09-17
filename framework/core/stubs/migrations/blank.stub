@@ -1,0 +1,29 @@
+<?php
+
+namespace Flarum\Migrations\{{extension}};
+
+use Illuminate\Database\Schema\Blueprint;
+use Flarum\Migrations\Migration;
+
+class {{name}} extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        //
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        //
+    }
+}
