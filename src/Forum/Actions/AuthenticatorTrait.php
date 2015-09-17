@@ -14,6 +14,7 @@ use Flarum\Core\Users\User;
 use Zend\Diactoros\Response\HtmlResponse;
 use Flarum\Api\Commands\GenerateAccessToken;
 use Flarum\Core\Users\AuthToken;
+use DateTime;
 
 trait AuthenticatorTrait
 {
@@ -71,6 +72,11 @@ window.close();
         $response = new HtmlResponse($content);
 
         if (isset($accessToken)) {
+            // Extend the token's expiry to 2 weeks so that we can set a
+            // remember cookie
+            $accessToken::unguard();
+            $accessToken->update(['expires_at' => new DateTime('+2 weeks')]);
+
             $response = $this->withRememberCookie($response, $accessToken->id);
         }
 
