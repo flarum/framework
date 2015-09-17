@@ -24,13 +24,14 @@ export default function boot(app) {
   // able to click on the 'back' button to go home, regardless of which page
   // they started on.
   const defaultRoute = app.forum.attribute('defaultRoute');
+  let defaultAction = 'index';
 
   for (const i in app.routes) {
-    if (app.routes[i].path === defaultRoute) {
-      app.routes[i].path = '/';
-      app.history.push(i, '/');
-    }
+    if (app.routes[i].path === defaultRoute) defaultAction = i;
   }
+
+  app.routes[defaultAction].path = '/';
+  app.history.push(defaultAction, '/');
 
   m.startComputation();
 

@@ -4,6 +4,7 @@ import Select from 'flarum/components/Select';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
 import saveConfig from 'flarum/utils/saveConfig';
+import ItemList from 'flarum/utils/ItemList';
 
 export default class BasicsPage extends Component {
   constructor(...args) {
@@ -72,18 +73,12 @@ export default class BasicsPage extends Component {
                 <div className="helpText">
                   Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root.
                 </div>,
-                <label className="checkbox">
-                  <input type="radio" name="homePage" value="/all" checked={this.values.default_route() === '/all'} onclick={m.withAttr('value', this.values.default_route)}/>
-                  All Discussions
-                </label>,
-                <label className="checkbox">
-                  <input type="radio" name="homePage" value="custom" checked={this.values.default_route() !== '/all'} onclick={() => {
-                    this.values.default_route('');
-                    m.redraw(true);
-                    this.$('.BasicsPage-homePage input').select();
-                  }}/>
-                  Custom <input className="FormControl" value={this.values.default_route()} oninput={m.withAttr('value', this.values.default_route)} style={this.values.default_route() !== '/all' ? 'margin-top: 5px' : 'display:none'}/>
-                </label>
+                this.homePageItems().toArray().map(({path, label}) =>
+                  <label className="checkbox">
+                    <input type="radio" name="homePage" value={path} checked={this.values.default_route() === path} onclick={m.withAttr('value', this.values.default_route)}/>
+                    {label}
+                  </label>
+                )
               ]
             })}
 
@@ -118,6 +113,24 @@ export default class BasicsPage extends Component {
     const config = app.config;
 
     return this.fields.some(key => this.values[key]() !== config[key]);
+  }
+
+  /**
+   * Build a list of options for the default homepage. Each option must be an
+   * object with `path` and `label` properties.
+   *
+   * @return {ItemList}
+   * @public
+   */
+  homePageItems()  {
+    const items = new ItemList();
+
+    items.add('allDiscussions', {
+      path: '/all',
+      label: 'All Discussions'
+    });
+
+    return items;
   }
 
   onsubmit(e) {
