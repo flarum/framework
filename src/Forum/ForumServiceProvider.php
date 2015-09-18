@@ -16,6 +16,7 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Flarum\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
+use Flarum\Forum\Http\UrlGeneratorInterface;
 
 class ForumServiceProvider extends ServiceProvider
 {
@@ -31,7 +32,7 @@ class ForumServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(
-            'Flarum\Forum\Http\UrlGeneratorInterface',
+            UrlGeneratorInterface::class,
             function () {
                 return new UrlGenerator($this->app->make('flarum.forum.routes'));
             }

@@ -11,8 +11,7 @@
 
 namespace Flarum\Forum\Http;
 
-use Flarum\Http\UrlGeneratorInterface as HttpGeneratorInterface;
 
-interface UrlGeneratorInterface extends HttpGeneratorInterface
+interface UrlGeneratorInterface
 {
 }

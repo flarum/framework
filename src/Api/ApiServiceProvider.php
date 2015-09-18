@@ -20,7 +20,7 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
-
+use Flarum\Api\Http\UrlGeneratorInterface;
 use Flarum\Forum\ForumServiceProvider;
 
 class ApiServiceProvider extends ServiceProvider
@@ -32,10 +32,10 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->register(ForumServiceProvider::class);
+        $this->app->register(ForumServiceProvider::class);
 
         $this->app->singleton(
-            'Flarum\Api\Http\UrlGeneratorInterface',
+            UrlGeneratorInterface::class,
             function () {
                 return new UrlGenerator($this->app->make('flarum.api.routes'));
             }

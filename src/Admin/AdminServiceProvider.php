@@ -15,6 +15,7 @@ use Flarum\Admin\Http\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\RedirectResponse;
+use Flarum\Admin\Http\UrlGeneratorInterface;
 
 class AdminServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,7 @@ class AdminServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(
-            'Flarum\Admin\Http\UrlGeneratorInterface',
+            UrlGeneratorInterface::class,
             function () {
                 return new UrlGenerator($this->app->make('flarum.admin.routes'));
             }

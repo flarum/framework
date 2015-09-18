@@ -88,7 +88,6 @@ class RouteCollection
 
     public function getPath($name, array $parameters = [])
     {
-        var_dump($this->reverse);
         $parts = $this->reverse[$name][0];
         array_walk($parts, [$this, 'fixPathPart'], $parameters);
 
