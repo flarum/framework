@@ -62,6 +62,7 @@ export default class Post extends Component {
                   </li> : ''}
                 </ul>
               </aside>
+              <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>
             </div>
           );
         })()}
@@ -93,6 +94,15 @@ export default class Post extends Component {
    * @return {ItemList}
    */
   actionItems() {
+    return new ItemList();
+  }
+
+  /**
+   * Build an item list for the post's footer.
+   *
+   * @return {ItemList}
+   */
+  footerItems() {
     return new ItemList();
   }
 }
