@@ -1,8 +1,11 @@
 import ItemList from 'flarum/utils/ItemList';
 import Alert from 'flarum/components/Alert';
+import Button from 'flarum/components/Button';
+import RequestErrorModal from 'flarum/components/RequestErrorModal';
 import Translator from 'flarum/Translator';
 import extract from 'flarum/utils/extract';
 import patchMithril from 'flarum/utils/patchMithril';
+import RequestError from 'flarum/utils/RequestError';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -193,7 +196,7 @@ export default class App {
       try {
         return JSON.parse(responseText);
       } catch (e) {
-        throw new Error('Oops! Something went wrong on the server. Please reload the page and try again.');
+        throw new RequestError(e.message, responseText);
       }
     });
 
@@ -202,33 +205,50 @@ export default class App {
     // awry.
     const original = options.extract;
     options.extract = xhr => {
+      let responseText;
+
+      if (original) {
+        responseText = original(xhr.responseText);
+      } else {
+        responseText = xhr.responseText.length > 0 ? xhr.responseText : null;
+      }
+
       const status = xhr.status;
 
       if (status >= 500 && status <= 599) {
-        throw new Error('Oops! Something went wrong on the server. Please reload the page and try again.');
+        throw new RequestError('Internal Server Error', responseText);
       }
 
-      if (original) {
-        return original(xhr.responseText);
-      }
-
-      return xhr.responseText.length > 0 ? xhr.responseText : null;
+      return responseText;
     };
 
-    this.alerts.dismiss(this.requestError);
+    this.alerts.dismiss(this.requestErrorAlert);
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
-    return m.request(options).then(null, response => {
-      if (response instanceof Error) {
-        this.alerts.show(this.requestError = new Alert({
+    return m.request(options).then(null, error => {
+      if (error instanceof RequestError) {
+        this.alerts.show(this.requestErrorAlert = new Alert({
           type: 'error',
-          children: response.message
+          children: 'Oops! Something went wrong. Please reload the page and try again.',
+          controls: app.forum.attribute('debug') ? [
+            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
+          ] : undefined
         }));
       }
 
-      throw response;
+      throw error;
     });
+  }
+
+  /**
+   * @param {RequestError} error
+   * @private
+   */
+  showDebug(error) {
+    this.alerts.dismiss(this.requestErrorAlert);
+
+    this.modal.show(new RequestErrorModal({error}));
   }
 
   /**

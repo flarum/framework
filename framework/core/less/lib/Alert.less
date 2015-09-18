@@ -4,21 +4,21 @@
   background: @alert-bg;
   line-height: 1.5;
 
-  &, button, button:hover {
+  &, .Button, .Button:hover {
     color: @alert-color;
   }
 }
 .Alert--error {
   background: @alert-error-bg;
 
-  &, a, a:hover, button, button:hover {
+  &, a, a:hover, .Button, .Button:hover {
     color: @alert-error-color;
   }
 }
 .Alert--success {
   background: @alert-success-bg;
 
-  &, a, a:hover, button, button:hover {
+  &, a, a:hover, .Button, .Button:hover {
     color: @alert-success-color;
   }
   a, a:hover {
@@ -35,7 +35,7 @@
     display: inline-block;
     margin: 0 5px;
 
-    > a {
+    > a, > .Button {
       text-transform: uppercase;
       font-size: 12px;
       font-weight: bold;
@@ -44,6 +44,9 @@
         cursor: default;
         text-decoration: none;
         opacity: 0.5;
+      }
+      &:hover {
+        text-decoration: underline;
       }
     }
 
