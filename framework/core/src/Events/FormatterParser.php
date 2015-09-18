@@ -11,7 +11,6 @@
 namespace Flarum\Events;
 
 use s9e\TextFormatter\Parser;
-use Flarum\Core\Posts\CommentPost;
 
 class FormatterParser
 {
@@ -21,17 +20,17 @@ class FormatterParser
     public $parser;
 
     /**
-     * @var CommentPost
+     * @var mixed
      */
-    public $post;
+    public $context;
 
     /**
      * @param Parser $parser
-     * @param CommentPost $post
+     * @param mixed $context
      */
-    public function __construct(Parser $parser, CommentPost $post)
+    public function __construct(Parser $parser, $context)
     {
         $this->parser = $parser;
-        $this->post = $post;
+        $this->context = $context;
     }
 }
