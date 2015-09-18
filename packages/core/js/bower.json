@@ -10,6 +10,7 @@
     "mithril": "lhorie/mithril.js#next",
     "es6-micro-loader": "caridy/es6-micro-loader#v0.2.1",
     "fastclick": "~1.0.6",
-    "autolink": "*"
+    "autolink": "*",
+    "m.attrs.bidi": "tobscure/m.attrs.bidi"
   }
 }
