@@ -10,22 +10,10 @@
 
 namespace Flarum\Migrations\Tags;
 
-use Illuminate\Database\Schema\Builder;
-use Illuminate\Database\Schema\Blueprint;
 use Flarum\Migrations\Migration;
-use Flarum\Core\Settings\SettingsRepository;
 
 class SetDefaultSettings extends Migration
 {
-    protected $settings;
-
-    public function __construct(SettingsRepository $settings, Builder $builder)
-    {
-        $this->settings = $settings;
-
-        parent::__construct($builder);
-    }
-
     /**
      * Run the migrations.
      *
