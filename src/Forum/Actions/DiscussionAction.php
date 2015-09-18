@@ -50,7 +50,7 @@ class DiscussionAction extends ClientAction
                 $queryString[] = $k . '=' . $v;
             }
 
-            return app('Flarum\Http\UrlGeneratorInterface')
+            return app('Flarum\Forum\Http\UrlGeneratorInterface')
                 ->toRoute('flarum.forum.discussion', ['id' => $document->data->id]) .
                 ($queryString ? '?' . implode('&', $queryString) : '');
         };

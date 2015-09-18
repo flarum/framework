@@ -17,7 +17,7 @@ use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core;
-use Flarum\Http\UrlGeneratorInterface;
+use Flarum\Forum\Http\UrlGeneratorInterface;
 
 class RequestPasswordResetHandler
 {

@@ -31,7 +31,7 @@ class ForumServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(
-            'Flarum\Http\UrlGeneratorInterface',
+            'Flarum\Forum\Http\UrlGeneratorInterface',
             function () {
                 return new UrlGenerator($this->app->make('flarum.forum.routes'));
             }

@@ -35,7 +35,7 @@ class ApiServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(
-            'Flarum\Http\UrlGeneratorInterface',
+            'Flarum\Api\Http\UrlGeneratorInterface',
             function () {
                 return new UrlGenerator($this->app->make('flarum.api.routes'));
             }
