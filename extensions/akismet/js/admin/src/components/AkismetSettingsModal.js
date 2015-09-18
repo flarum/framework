@@ -1,14 +1,6 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import saveConfig from 'flarum/utils/saveConfig';
+import SettingsModal from 'flarum/components/SettingsModal';
 
-export default class AkismetSettingsModal extends Modal {
-  constructor(...args) {
-    super(...args);
-
-    this.apiKey = m.prop(app.config['akismet.api_key'] || '');
-  }
-
+export default class AkismetSettingsModal extends SettingsModal {
   className() {
     return 'AkismetSettingsModal Modal--small';
   }
@@ -17,41 +9,12 @@ export default class AkismetSettingsModal extends Modal {
     return 'Akismet Settings';
   }
 
-  content() {
-    return (
-      <div className="Modal-body">
-        <div className="Form">
-          <div className="Form-group">
-            <label>API Key</label>
-            <input className="FormControl" value={this.apiKey()} oninput={m.withAttr('value', this.apiKey)}/>
-          </div>
-
-          <div className="Form-group">
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary AkismetSettingsModal-save',
-              loading: this.loading,
-              children: 'Save Changes'
-            })}
-          </div>
-        </div>
+  form() {
+    return [
+      <div className="Form-group">
+        <label>API Key</label>
+        <input className="FormControl" bidi={this.setting('akismet.api_key')}/>
       </div>
-    );
-  }
-
-  onsubmit(e) {
-    e.preventDefault();
-
-    this.loading = true;
-
-    saveConfig({
-      'akismet.api_key': this.apiKey()
-    }).then(
-      () => this.hide(),
-      () => {
-        this.loading = false;
-        m.redraw();
-      }
-    );
+    ];
   }
 }
