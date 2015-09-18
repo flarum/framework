@@ -10,6 +10,7 @@ gulp({
     bowerDir + '/es6-micro-loader/dist/system-polyfill.js',
 
     bowerDir + '/mithril/mithril.js',
+    bowerDir + '/m.attrs.bidi/bidi.js',
     bowerDir + '/jquery/dist/jquery.js',
     bowerDir + '/jquery.hotkeys/jquery.hotkeys.js',
     bowerDir + '/color-thief/js/color-thief.js',
