@@ -19,5 +19,5 @@ interface SettingsRepository
 
     public function set($key, $value);
 
-    public function delete($key);
+    public function delete($keyLike);
 }
