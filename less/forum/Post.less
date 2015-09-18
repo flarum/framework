@@ -2,7 +2,7 @@
 // Posts
 
 .Post {
-  padding: 20px 20px 25px;
+  padding: 20px;
   margin: -1px -20px;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
@@ -234,7 +234,7 @@
   }
 }
 .Post-footer {
-  margin-top: 20px;
+  margin-top: 5px;
 
   > ul {
     > li {
@@ -247,16 +247,18 @@
   }
 }
 .Post-actions {
+  margin-top: -5px;
   float: right;
-  margin-top: -10px;
+  position: relative;
+  z-index: 1;
   .transition(opacity 0.2s);
 
-  .EventPost &, .Post--hidden & {
+  .EventPost &, .Post--hidden:not(.revealContent) & {
     margin-top: -27px;
+    margin-bottom: -15px;
   }
 
   @media @tablet-up {
-    margin-bottom: -15px;
     opacity: 0;
   }
 
