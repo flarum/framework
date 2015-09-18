@@ -11,7 +11,6 @@
 namespace Flarum\Events;
 
 use s9e\TextFormatter\Renderer;
-use Flarum\Core\Posts\CommentPost;
 
 class FormatterRenderer
 {
@@ -21,17 +20,17 @@ class FormatterRenderer
     public $renderer;
 
     /**
-     * @var CommentPost
+     * @var mixed
      */
-    public $post;
+    public $context;
 
     /**
      * @param Renderer $renderer
-     * @param CommentPost $post
+     * @param mixed $context
      */
-    public function __construct(Renderer $renderer, CommentPost $post)
+    public function __construct(Renderer $renderer, $context)
     {
         $this->renderer = $renderer;
-        $this->post = $post;
+        $this->context = $context;
     }
 }
