@@ -100,7 +100,7 @@ class Composer extends Component {
     // it at previously, or otherwise the composer's default height. After that,
     // we'll hide the composer.
     this.height = localStorage.getItem('composerHeight') || this.$().height();
-    this.$().hide();
+    this.$().hide().css('bottom', -this.height);
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
