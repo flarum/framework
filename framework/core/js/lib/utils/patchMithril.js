@@ -8,8 +8,14 @@ export default function patchMithril(global) {
       return comp.component(...args);
     }
 
-    return mo.apply(this, arguments);
-  }
+    const node = mo.apply(this, arguments);
+
+    if (node.attrs.bidi) {
+      m.bidi(node, node.attrs.bidi);
+    }
+
+    return node;
+  };
 
   Object.keys(mo).forEach(key => m[key] = mo[key]);
 
