@@ -21,6 +21,8 @@ use Flarum\Http\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
+use Flarum\Forum\ForumServiceProvider;
+
 class ApiServiceProvider extends ServiceProvider
 {
     /**
@@ -30,9 +32,7 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('flarum.actor', function () {
-            return new Guest;
-        });
+        $this->register(ForumServiceProvider::class);
 
         $this->app->singleton(
             'Flarum\Api\Http\UrlGeneratorInterface',
