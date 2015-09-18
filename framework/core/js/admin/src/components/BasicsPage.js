@@ -7,9 +7,7 @@ import saveConfig from 'flarum/utils/saveConfig';
 import ItemList from 'flarum/utils/ItemList';
 
 export default class BasicsPage extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.loading = false;
 
     this.fields = [
@@ -110,9 +108,7 @@ export default class BasicsPage extends Component {
   }
 
   changed() {
-    const config = app.config;
-
-    return this.fields.some(key => this.values[key]() !== config[key]);
+    return this.fields.some(key => this.values[key]() !== app.config[key]);
   }
 
   /**
@@ -122,7 +118,7 @@ export default class BasicsPage extends Component {
    * @return {ItemList}
    * @public
    */
-  homePageItems()  {
+  homePageItems() {
     const items = new ItemList();
 
     items.add('allDiscussions', {
