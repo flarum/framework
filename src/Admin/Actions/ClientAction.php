@@ -16,6 +16,7 @@ use Flarum\Core\Groups\Permission;
 use Flarum\Api\Client;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Locale\LocaleManager;
+use Flarum\Events\UnserializeConfig;
 
 class ClientAction extends BaseClientAction
 {
@@ -48,7 +49,11 @@ class ClientAction extends BaseClientAction
     {
         $view = parent::render($request, $routeParams);
 
-        $view->setVariable('config', $this->settings->all());
+        $config = $this->settings->all();
+
+        event(new UnserializeConfig($config));
+
+        $view->setVariable('config', $config);
         $view->setVariable('permissions', Permission::map());
         $view->setVariable('extensions', app('flarum.extensions')->getInfo());
 

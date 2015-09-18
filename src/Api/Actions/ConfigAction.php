@@ -14,6 +14,7 @@ use Flarum\Api\Request;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Groups\Permission;
 use Flarum\Core\Exceptions\PermissionDeniedException;
+use Flarum\Events\SerializeConfig;
 use Zend\Diactoros\Response\EmptyResponse;
 use Exception;
 
@@ -49,6 +50,8 @@ class ConfigAction implements Action
         }
 
         foreach ($config as $k => $v) {
+            event($event = new SerializeConfig($k, $v));
+
             $this->settings->set($k, $v);
 
             if (strpos($k, 'theme_') === 0 || $k === 'custom_less') {
