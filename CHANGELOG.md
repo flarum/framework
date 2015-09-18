@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Tags: Ability to set the tags page as the home page.
 - `bidi` attribute for Mithril elements as a shortcut to set up bidirectional bindings.
 - Abstract SettingsModal component for quickly building admin config modals.
+- "Debug" button to inspect the response of a failed AJAX request.
 
 ### Changed
 - Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
