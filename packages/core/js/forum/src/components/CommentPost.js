@@ -48,8 +48,7 @@ export default class CommentPost extends Post {
         {this.isEditing()
           ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
           : m.trust(this.props.post.contentHtml())}
-      </div>,
-      <footer className="Post-footer"><ul>{listItems(this.footerItems().toArray())}</ul></footer>
+      </div>
     ];
   }
 
@@ -174,14 +173,5 @@ export default class CommentPost extends Post {
     }
 
     return items;
-  }
-
-  /**
-   * Build an item list for the post's footer.
-   *
-   * @return {ItemList}
-   */
-  footerItems() {
-    return new ItemList();
   }
 }
