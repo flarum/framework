@@ -11,7 +11,6 @@
 
 namespace Flarum\Forum\Http;
 
-
 interface UrlGeneratorInterface
 {
 }
