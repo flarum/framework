@@ -61,7 +61,7 @@ export default class PermissionDropdown extends Dropdown {
         icon: !everyone && !members ? 'check' : true,
         disabled: !everyone && !members,
         onclick: e => {
-          e.stopPropagation();
+          if (e.shiftKey) e.stopPropagation();
           this.save([]);
         }
       })
@@ -75,7 +75,7 @@ export default class PermissionDropdown extends Dropdown {
           children: [GroupBadge.component({group, label: null}), ' ', group.namePlural()],
           icon: groupIds.indexOf(group.id()) !== -1 ? 'check' : true,
           onclick: (e) => {
-            e.stopPropagation();
+            if (e.shiftKey) e.stopPropagation();
             this.toggle(group.id());
           }
         }))

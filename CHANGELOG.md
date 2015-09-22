@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### Added
-- Allow discussions to be hidden and restored.
+- Ability to hide and restore discussions.
 - External authentication (social login) API.
 - API to set asset compiler filename.
 - Migration generator, available via generate:migration console command.
@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Abstract SettingsModal component for quickly building admin config modals.
 - "Debug" button to inspect the response of a failed AJAX request.
 - `Model::afterSave()` API to run callback after a model instance is saved.
+- Improved admin Permissions page with icons and other tweaks.
 
 ### Changed
 - Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
