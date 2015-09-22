@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
 - More compact post layout, with all controls grouped over to the right.
+- Rename `notification_read_time` column in discussions table to `notifications_read_time`.
 
 ### Fixed
 - Output forum description in meta description tag. ([#506](https://github.com/flarum/core/issues/506))
