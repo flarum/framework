@@ -14,6 +14,7 @@ import listItems from 'flarum/helpers/listItems';
  * - `caretIcon` The name of an icon to show on the right of the button.
  * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
  * - `onhide`
+ * - `onshow`
  *
  * The children will be displayed as a list inside of the dropdown menu.
  */
@@ -52,9 +53,14 @@ export default class Dropdown extends Component {
         'Dropdown-menu--top',
         $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height()
       );
+
+      if (this.props.onshow) {
+        this.props.onshow();
+        m.redraw();
+      }
     });
 
-    this.$().on('hide.bs.dropdown', () => {
+    this.$().on('hidden.bs.dropdown', () => {
       if (this.props.onhide) {
         this.props.onhide();
         m.redraw();
