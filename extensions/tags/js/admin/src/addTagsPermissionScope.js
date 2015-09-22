@@ -28,10 +28,10 @@ export default function() {
             }
 
             if (permission) {
-              const props = Object.assign({}, item);
-              props.permission = 'tag' + tag.id() + '.' + permission;
-
-              return PermissionDropdown.component(props);
+              return PermissionDropdown.component({
+                permission: 'tag' + tag.id() + '.' + permission,
+                allowGuest: item.allowGuest
+              });
             }
           }
 
