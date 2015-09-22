@@ -24,6 +24,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Output forum description in meta description tag. ([#506](https://github.com/flarum/core/issues/506))
+- Allow users to edit their last post in a discussion even if it's hidden.
+- Allow users to rename their discussion even if their first post is hidden.
 - Fix several design bugs.
 
 ## [0.1.0-beta.2] - 2015-09-15

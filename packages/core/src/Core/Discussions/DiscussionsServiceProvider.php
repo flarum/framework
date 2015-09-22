@@ -48,7 +48,7 @@ class DiscussionsServiceProvider extends ServiceProvider
                     $allowRenaming = $settings->get('allow_renaming');
 
                     if ($allowRenaming === '-1' ||
-                        ($allowRenaming === 'reply' && $event->model->participants_count == 1) ||
+                        ($allowRenaming === 'reply' && $event->model->participants_count <= 1) ||
                         ($event->model->start_time->diffInMinutes(Carbon::now()) < $allowRenaming)) {
                         return true;
                     }
