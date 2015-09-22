@@ -23,6 +23,10 @@ class ReadJsonParameters implements MiddlewareInterface
     {
         if (str_contains($request->getHeaderLine('content-type'), 'json')) {
             $input = json_decode($request->getBody(), true);
+            
+            if (! is_array($input)) {
+                $input = [];
+            }
 
             foreach ($input as $name => $value) {
                 $request = $request->withAttribute($name, $value);
