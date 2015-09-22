@@ -14,9 +14,9 @@ use Flarum\Core\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * The `ScopeEmptyDiscussionVisibility` event
+ * The `ScopeHiddenDiscussionVisibility` event
  */
-class ScopeEmptyDiscussionVisibility
+class ScopeHiddenDiscussionVisibility
 {
     /**
      * @var Builder
@@ -29,12 +29,19 @@ class ScopeEmptyDiscussionVisibility
     public $actor;
 
     /**
+     * @var string
+     */
+    public $permission;
+
+    /**
      * @param Builder $query
      * @param User $actor
+     * @param string $permission
      */
-    public function __construct(Builder $query, User $actor)
+    public function __construct(Builder $query, User $actor, $permission)
     {
         $this->query = $query;
         $this->actor = $actor;
+        $this->permission = $permission;
     }
 }

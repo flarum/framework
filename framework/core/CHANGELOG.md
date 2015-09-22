@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### Added
+- Allow discussions to be hidden and restored.
 - External authentication (social login) API.
 - API to set asset compiler filename.
 - Migration generator, available via generate:migration console command.

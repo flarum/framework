@@ -11,6 +11,7 @@ import extract from 'flarum/utils/extract';
  * - `type` The type of badge this is. This will be used to give the badge a
  *   class name of `Badge--{type}`.
  * - `icon` The name of an icon to show inside the badge.
+ * - `label`
  *
  * All other props will be assigned as attributes on the badge element.
  */

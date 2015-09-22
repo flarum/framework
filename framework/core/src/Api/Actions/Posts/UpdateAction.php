@@ -33,6 +33,7 @@ class UpdateAction extends SerializeResourceAction
      */
     public $include = [
         'editUser' => true,
+        'discussion' => true
     ];
 
     /**
