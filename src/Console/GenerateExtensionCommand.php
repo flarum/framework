@@ -89,7 +89,7 @@ class GenerateExtensionCommand extends Command
             ],
             'license' => $license,
             'require' => [
-                'flarum' => '>'.Application::VERSION
+                'flarum' => '>='.Application::VERSION
             ],
             'icon' => [
                 'name' => '',
