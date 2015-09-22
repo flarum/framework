@@ -77,7 +77,11 @@ export default function boot(app) {
 
   // Initialize FastClick, which makes links and buttons much more responsive on
   // touch devices.
-  $(() => FastClick.attach(document.body));
+  $(() => {
+    FastClick.attach(document.body)
+
+    $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
+  });
 
   app.booted = true;
 }
