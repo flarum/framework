@@ -105,10 +105,25 @@ export default {
   destructiveControls(discussion) {
     const items = new ItemList();
 
-    if (discussion.canDelete()) {
+    if (!discussion.isHidden()) {
+      if (discussion.canHide()) {
+        items.add('hide', Button.component({
+          icon: 'trash-o',
+          children: app.trans('core.delete'),
+          onclick: this.hideAction.bind(discussion)
+        }));
+      }
+    } else if (discussion.canDelete()) {
+      items.add('restore', Button.component({
+        icon: 'reply',
+        children: app.trans('core.restore'),
+        onclick: this.restoreAction.bind(discussion),
+        disabled: discussion.commentsCount() === 0
+      }));
+
       items.add('delete', Button.component({
         icon: 'times',
-        children: app.trans('core.delete'),
+        children: app.trans('core.delete_forever'),
         onclick: this.deleteAction.bind(discussion)
       }));
     }
@@ -174,12 +189,34 @@ export default {
   },
 
   /**
+   * Hide a discussion.
+   *
+   * @return {Promise}
+   */
+  hideAction() {
+    this.pushAttributes({ hideTime: new Date(), hideUser: app.session.user });
+
+    return this.save({ isHidden: true });
+  },
+
+  /**
+   * Restore a discussion.
+   *
+   * @return {Promise}
+   */
+  restoreAction() {
+    this.pushAttributes({ hideTime: null, hideUser: null });
+
+    return this.save({ isHidden: false });
+  },
+
+  /**
    * Delete the discussion after confirming with the user.
+   *
+   * @return {Promise}
    */
   deleteAction() {
     if (confirm(extractText(app.trans('core.confirm_delete_discussion')))) {
-      this.delete();
-
       // If there is a discussion list in the cache, remove this discussion.
       if (app.cache.discussionList) {
         app.cache.discussionList.removeDiscussion(this);
@@ -190,11 +227,15 @@ export default {
       if (app.viewingDiscussion(this)) {
         app.history.back();
       }
+
+      return this.delete();
     }
   },
 
   /**
    * Rename the discussion.
+   *
+   * @return {Promise}
    */
   renameAction() {
     const currentTitle = this.title();
@@ -204,7 +245,7 @@ export default {
     // save has completed, update the post stream as there will be a new post
     // indicating that the discussion was renamed.
     if (title && title !== currentTitle) {
-      this.save({title}).then(() => {
+      return this.save({title}).then(() => {
         if (app.viewingDiscussion(this)) {
           app.current.stream.update();
         }

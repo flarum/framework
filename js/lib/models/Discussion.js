@@ -3,6 +3,7 @@ import mixin from 'flarum/utils/mixin';
 import computed from 'flarum/utils/computed';
 import ItemList from 'flarum/utils/ItemList';
 import { slug } from 'flarum/utils/string';
+import Badge from 'flarum/components/Badge';
 
 export default class Discussion extends mixin(Model, {
   title: Model.attribute('title'),
@@ -27,8 +28,13 @@ export default class Discussion extends mixin(Model, {
   isUnread: computed('unreadCount', unreadCount => !!unreadCount),
   isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
 
+  hideTime: Model.attribute('hideTime', Model.transformDate),
+  hideUser: Model.hasOne('hideUser'),
+  isHidden: computed('hideTime', 'commentsCount', (hideTime, commentsCount) => !!hideTime || commentsCount === 0),
+
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
+  canHide: Model.attribute('canHide'),
   canDelete: Model.attribute('canDelete')
 }) {
   /**
@@ -75,7 +81,13 @@ export default class Discussion extends mixin(Model, {
    * @public
    */
   badges() {
-    return new ItemList();
+    const items = new ItemList();
+
+    if (this.isHidden()) {
+      items.add('hidden', <Badge type="hidden" icon="trash" label="Hidden"/>);
+    }
+
+    return items;
   }
 
   /**
