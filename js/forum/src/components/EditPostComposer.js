@@ -68,7 +68,10 @@ export default class EditPostComposer extends ComposerBody {
         app.composer.hide();
         m.redraw();
       },
-      () => this.loading = false
+      () => {
+        this.loading = false;
+        m.redraw();
+      }
     );
   }
 }
