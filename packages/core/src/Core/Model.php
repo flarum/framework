@@ -36,6 +36,29 @@ abstract class Model extends Eloquent
     public $timestamps = false;
 
     /**
+     * An array of callbacks to be run once after the model is saved.
+     *
+     * @var callable[]
+     */
+    public $afterSaveCallbacks = [];
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function (Model $model) {
+            foreach ($model->afterSaveCallbacks as $callback) {
+                $callback($model);
+            }
+
+            $model->afterSaveCallbacks = [];
+        });
+    }
+
+    /**
      * Get the attributes that should be converted to dates.
      *
      * @return array
@@ -92,6 +115,17 @@ abstract class Model extends Eloquent
         return static::$dispatcher->until(
             new ModelRelationship($this, $name)
         );
+    }
+
+    /**
+     * Register a callback to be run once after the model is saved.
+     *
+     * @param callable $callback
+     * @return void
+     */
+    public function afterSave($callback)
+    {
+        $this->afterSaveCallbacks[] = $callback;
     }
 
     /**

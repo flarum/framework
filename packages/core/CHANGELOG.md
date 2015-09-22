@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `route` attribute for Mithril elements as a shortcut to link to a route.
 - Abstract SettingsModal component for quickly building admin config modals.
 - "Debug" button to inspect the response of a failed AJAX request.
+- `Model::afterSave()` API to run callback after a model instance is saved.
 
 ### Changed
 - Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
