@@ -71,7 +71,7 @@ class User extends Model
         'join_time',
         'last_seen_time',
         'read_time',
-        'notification_read_time'
+        'notifications_read_time'
     ];
 
     /**
@@ -295,7 +295,7 @@ class User extends Model
      */
     public function markNotificationsAsRead()
     {
-        $this->notification_read_time = time();
+        $this->notifications_read_time = time();
 
         return $this;
     }
@@ -432,7 +432,7 @@ class User extends Model
     {
         return $this->notifications()
             ->whereIn('type', $this->getAlertableNotificationTypes())
-            ->where('time', '>', $this->notification_read_time ?: 0)
+            ->where('time', '>', $this->notifications_read_time ?: 0)
             ->where('is_read', 0)
             ->where('is_deleted', 0)
             ->count($this->getConnection()->raw('DISTINCT type, subject_id'));
