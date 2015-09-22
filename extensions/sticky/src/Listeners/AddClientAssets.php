@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -45,5 +45,11 @@ class AddClientAssets
             'sticky.sticky',
             'sticky.unsticky'
         ]);
+
+        $event->adminAssets([
+            __DIR__.'/../../js/admin/dist/extension.js'
+        ]);
+
+        $event->adminBootstrapper('sticky/main');
     }
 }
