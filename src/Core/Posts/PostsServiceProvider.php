@@ -55,11 +55,12 @@ class PostsServiceProvider extends ServiceProvider
                     if ($post->discussion->can($actor, 'editPosts')) {
                         return true;
                     }
+
                     if ($post->user_id == $actor->id && (! $post->hide_time || $post->hide_user_id == $actor->id)) {
                         $allowEditing = $settings->get('allow_post_editing');
 
                         if ($allowEditing === '-1' ||
-                            ($allowEditing === 'reply' && $event->model->number == $event->model->discussion->last_post_number) ||
+                            ($allowEditing === 'reply' && $event->model->number >= $event->model->discussion->last_post_number) ||
                             ($event->model->time->diffInMinutes(Carbon::now()) < $allowEditing)) {
                             return true;
                         }
