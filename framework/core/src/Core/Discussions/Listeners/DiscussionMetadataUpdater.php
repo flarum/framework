@@ -38,8 +38,8 @@ class DiscussionMetadataUpdater
         $discussion = $event->post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->comments_count++;
-            $discussion->setLastPost($event->post);
+            $discussion->refreshCommentsCount();
+            $discussion->refreshLastPost();
             $discussion->refreshParticipantsCount();
             $discussion->save();
         }
