@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Migration generator, available via generate:migration console command.
 - Tags: Ability to set the tags page as the home page.
 - `bidi` attribute for Mithril elements as a shortcut to set up bidirectional bindings.
+- `route` attribute for Mithril elements as a shortcut to link to a route.
 - Abstract SettingsModal component for quickly building admin config modals.
 - "Debug" button to inspect the response of a failed AJAX request.
 
