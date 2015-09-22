@@ -52,7 +52,7 @@ export default class TextEditor extends Component {
   configTextarea(element, isInitialized) {
     if (isInitialized) return;
 
-    var handler = () => {
+    const handler = () => {
       this.onsubmit();
       m.redraw();
     };
