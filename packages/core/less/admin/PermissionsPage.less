@@ -59,18 +59,26 @@
   tbody {
     th {
       padding-right: 50px;
+
+      .icon {
+        margin-right: 5px;
+        font-size: 14px;
+      }
     }
     tr:last-child {
       td, th {
         padding-bottom: 15px !important;
       }
     }
-    select {
-      background: transparent;
-      padding: 0 30px 0 0;
-      height: auto;
-      border: 0;
-      width: 100%;
+    .Dropdown {
+      display: block;
+
+      .Dropdown-toggle {
+        width: 100%;
+        display: block;
+        text-align: left;
+        float: none;
+      }
     }
     .Button {
       text-decoration: none;
@@ -93,9 +101,14 @@
   margin: -1px 0;
 }
 .PermissionDropdown {
+  .Dropdown-toggle {
+    padding: 5px 0;
+    margin: -5px 0;
+  }
   .Badge {
     margin: -3px 3px -3px 0;
     vertical-align: 1px;
+    .box-shadow(none);
   }
 }
 .PermissionGrid-section {
