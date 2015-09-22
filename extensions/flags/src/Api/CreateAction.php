@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Api;
+namespace Flarum\Flags\Api;
 
-use Flarum\Reports\Commands\CreateReport;
+use Flarum\Flags\Commands\CreateFlag;
 use Flarum\Api\Actions\CreateAction as BaseCreateAction;
 use Flarum\Api\JsonApiRequest;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -25,14 +25,14 @@ class CreateAction extends BaseCreateAction
     /**
      * @inheritdoc
      */
-    public $serializer = 'Flarum\Reports\Api\ReportSerializer';
+    public $serializer = 'Flarum\Flags\Api\FlagSerializer';
 
     /**
      * @inheritdoc
      */
     public $include = [
         'post' => true,
-        'post.reports' => true
+        'post.flags' => true
     ];
 
     /**
@@ -44,15 +44,15 @@ class CreateAction extends BaseCreateAction
     }
 
     /**
-     * Create a report according to input from the API request.
+     * Create a flag according to input from the API request.
      *
      * @param JsonApiRequest $request
-     * @return \Flarum\Reports\Report
+     * @return \Flarum\Flags\Flag
      */
     protected function create(JsonApiRequest $request)
     {
         return $this->bus->dispatch(
-            new CreateReport($request->actor, $request->get('data'))
+            new CreateFlag($request->actor, $request->get('data'))
         );
     }
 }

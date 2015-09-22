@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of Flarum.
  *
@@ -9,19 +8,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Events;
+namespace Flarum\Flags\Commands;
 
-use Flarum\Core\Posts\Post;
+use Flarum\Flags\Flag;
 use Flarum\Core\Users\User;
 
-class ReportsWillBeDeleted
+class DeleteFlags
 {
     /**
-     * @var Post
+     * The ID of the post to delete flags for.
+     *
+     * @var int
      */
-    public $post;
+    public $postId;
 
     /**
+     * The user performing the action.
+     *
      * @var User
      */
     public $actor;
@@ -32,13 +35,13 @@ class ReportsWillBeDeleted
     public $data;
 
     /**
-     * @param Post $post
-     * @param User $actor
+     * @param int $postId The ID of the post to delete flags for.
+     * @param User $actor The user performing the action.
      * @param array $data
      */
-    public function __construct(Post $post, User $actor, array $data = [])
+    public function __construct($postId, User $actor, array $data = [])
     {
-        $this->post = $post;
+        $this->postId = $postId;
         $this->actor = $actor;
         $this->data = $data;
     }

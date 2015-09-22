@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Listeners;
+namespace Flarum\Flags\Listeners;
 
 use Flarum\Events\RegisterLocales;
 use Flarum\Events\BuildClientView;
@@ -34,16 +34,16 @@ class AddClientAssets
             __DIR__.'/../../less/forum/extension.less'
         ]);
 
-        $event->forumBootstrapper('reports/main');
+        $event->forumBootstrapper('flags/main');
 
         $event->forumTranslations([
-            'reports.reason_off_topic',
-            'reports.reason_spam',
-            'reports.reason_inappropriate',
-            'reports.reason_other',
-            'reports.reported_by',
-            'reports.reported_by_with_reason',
-            'reports.no_reports'
+            'flags.reason_off_topic',
+            'flags.reason_spam',
+            'flags.reason_inappropriate',
+            'flags.reason_other',
+            'flags.flagged_by',
+            'flags.flagged_by_with_reason',
+            'flags.no_flags'
         ]);
 
         $event->adminAssets([
@@ -51,10 +51,10 @@ class AddClientAssets
             __DIR__.'/../../less/admin/extension.less'
         ]);
 
-        $event->adminBootstrapper('reports/main');
+        $event->adminBootstrapper('flags/main');
 
         $event->adminTranslations([
-            // 'report.hello_world'
+            // 'flag.hello_world'
         ]);
     }
 }

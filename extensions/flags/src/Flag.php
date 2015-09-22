@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,16 +8,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports;
+namespace Flarum\Flags;
 
 use Flarum\Core\Model;
 use Flarum\Core\Support\VisibleScope;
 
-class Report extends Model
+class Flag extends Model
 {
     use VisibleScope;
 
-    protected $table = 'reports';
+    protected $table = 'flags';
 
     protected $dates = ['time'];
 

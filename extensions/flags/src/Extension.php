@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,17 +8,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports;
+namespace Flarum\Flags;
 
 use Flarum\Support\Extension as BaseExtension;
 use Illuminate\Events\Dispatcher;
+use Flarum\Core\Posts\Post;
 
 class Extension extends BaseExtension
 {
     public function listen(Dispatcher $events)
     {
-        $events->subscribe('Flarum\Reports\Listeners\AddClientAssets');
-        $events->subscribe('Flarum\Reports\Listeners\AddApiAttributes');
-        $events->subscribe('Flarum\Reports\Listeners\AddModelRelationship');
+        $events->subscribe('Flarum\Flags\Listeners\AddClientAssets');
+        $events->subscribe('Flarum\Flags\Listeners\AddApiAttributes');
+        $events->subscribe('Flarum\Flags\Listeners\AddModelRelationship');
     }
 }

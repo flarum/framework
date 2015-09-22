@@ -1,7 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
-export default class ReportPostModal extends Modal {
+export default class FlagPostModal extends Modal {
   constructor(...args) {
     super(...args);
 
@@ -10,11 +10,11 @@ export default class ReportPostModal extends Modal {
   }
 
   className() {
-    return 'ReportPostModal Modal--small';
+    return 'FlagPostModal Modal--small';
   }
 
   title() {
-    return 'Report Post';
+    return 'Flag Post';
   }
 
   content() {
@@ -55,7 +55,7 @@ export default class ReportPostModal extends Modal {
               type="submit"
               loading={this.loading}
               disabled={!this.reason()}>
-              Report Post
+              Flag Post
             </Button>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default class ReportPostModal extends Modal {
 
     this.loading = true;
 
-    app.store.createRecord('reports').save({
+    app.store.createRecord('flags').save({
       reason: this.reason() === 'other' ? null : this.reason(),
       reasonDetail: this.reasonDetail(),
       relationships: {

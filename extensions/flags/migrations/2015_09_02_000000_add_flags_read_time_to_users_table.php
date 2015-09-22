@@ -8,22 +8,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Reports;
+namespace Flarum\Migrations\Flags;
 
 use Illuminate\Database\Schema\Blueprint;
 use Flarum\Migrations\Migration;
 
-class AddReportsReadTimeToUsersTable extends Migration
+class AddFlagsReadTimeToUsersTable extends Migration
 {
     public function up()
     {
         $this->schema->table('users', function (Blueprint $table) {
-            $table->dateTime('reports_read_time')->nullable();
+            $table->dateTime('flags_read_time')->nullable();
         });
     }
 
     public function down()
     {
-        $this->schema->drop('reports_read_time');
+        $this->schema->drop('flags_read_time');
     }
 }

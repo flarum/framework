@@ -1,21 +1,21 @@
 import app from 'flarum/app';
 import Model from 'flarum/Model';
 
-import Report from 'reports/models/Report';
-import ReportsPage from 'reports/components/ReportsPage';
-import addReportControl from 'reports/addReportControl';
-import addReportsDropdown from 'reports/addReportsDropdown';
-import addReportsToPosts from 'reports/addReportsToPosts';
+import Flag from 'flags/models/Flag';
+import FlagsPage from 'flags/components/FlagsPage';
+import addFlagControl from 'flags/addFlagControl';
+import addFlagsDropdown from 'flags/addFlagsDropdown';
+import addFlagsToPosts from 'flags/addFlagsToPosts';
 
-app.initializers.add('reports', () => {
-  app.store.models.posts.prototype.reports = Model.hasMany('reports');
-  app.store.models.posts.prototype.canReport = Model.attribute('canReport');
+app.initializers.add('flags', () => {
+  app.store.models.posts.prototype.flags = Model.hasMany('flags');
+  app.store.models.posts.prototype.canFlag = Model.attribute('canFlag');
 
-  app.store.models.reports = Report;
+  app.store.models.flags = Flag;
 
-  app.routes.reports = {path: '/reports', component: <ReportsPage/>};
+  app.routes.flags = {path: '/flags', component: <FlagsPage/>};
 
-  addReportControl();
-  addReportsDropdown();
-  addReportsToPosts();
+  addFlagControl();
+  addFlagsDropdown();
+  addFlagsToPosts();
 });

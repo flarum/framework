@@ -8,13 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Commands;
+namespace Flarum\Flags\Commands;
 
-use Flarum\Reports\Report;
+use Flarum\Flags\Flag;
 use Flarum\Core\Posts\PostRepository;
-use Flarum\Reports\Events\ReportsWillBeDeleted;
+use Flarum\Flags\Events\FlagsWillBeDeleted;
 
-class DeleteReportsHandler
+class DeleteFlagsHandler
 {
     protected $posts;
 
@@ -24,21 +24,21 @@ class DeleteReportsHandler
     }
 
     /**
-     * @param DeleteReport $command
-     * @return Report
+     * @param DeleteFlag $command
+     * @return Flag
      * @throws \Flarum\Core\Exceptions\PermissionDeniedException
      */
-    public function handle(DeleteReports $command)
+    public function handle(DeleteFlags $command)
     {
         $actor = $command->actor;
 
         $post = $this->posts->findOrFail($command->postId, $actor);
 
-        $post->discussion->assertCan($actor, 'viewReports');
+        $post->discussion->assertCan($actor, 'viewFlags');
 
-        event(new ReportsWillBeDeleted($post, $actor, $command->data));
+        event(new FlagsWillBeDeleted($post, $actor, $command->data));
 
-        $post->reports()->delete();
+        $post->flags()->delete();
 
         return $post;
     }
