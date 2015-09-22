@@ -172,6 +172,10 @@ export default class Search extends Component {
           search.searched.push(query);
           m.redraw();
         }, 250);
+      })
+
+      .on('focus', function() {
+        $(this).one('mouseup', e => e.preventDefault()).select();
       });
   }
 
