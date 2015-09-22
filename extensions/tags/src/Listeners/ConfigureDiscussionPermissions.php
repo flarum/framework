@@ -11,7 +11,7 @@
 namespace Flarum\Tags\Listeners;
 
 use Flarum\Events\ScopeModelVisibility;
-use Flarum\Events\ScopeEmptyDiscussionVisibility;
+use Flarum\Events\ScopeHiddenDiscussionVisibility;
 use Flarum\Events\ModelAllow;
 use Flarum\Core\Discussions\Discussion;
 use Flarum\Tags\Tag;
@@ -23,7 +23,7 @@ class ConfigureDiscussionPermissions
     public function subscribe($events)
     {
         $events->listen(ScopeModelVisibility::class, [$this, 'scopeDiscussionVisibility']);
-        $events->listen(ScopeEmptyDiscussionVisibility::class, [$this, 'scopeEmptyDiscussionVisibility']);
+        $events->listen(ScopeHiddenDiscussionVisibility::class, [$this, 'scopeHiddenDiscussionVisibility']);
         $events->listen(ModelAllow::class, [$this, 'allowDiscussionPermissions']);
     }
 
@@ -39,26 +39,31 @@ class ConfigureDiscussionPermissions
             });
         }
 
-        if ($event->model instanceof Report) {
+        if ($event->model instanceof Flag) {
             $event->query
-                ->select('reports.*')
-                ->leftJoin('posts', 'posts.id', '=', 'reports.post_id')
+                ->select('flags.*')
+                ->leftJoin('posts', 'posts.id', '=', 'flags.post_id')
                 ->leftJoin('discussions', 'discussions.id', '=', 'posts.discussion_id')
                 ->whereNotExists(function ($query) use ($event) {
                     return $query->select(new Expression(1))
                         ->from('discussions_tags')
-                        ->whereIn('tag_id', Tag::getIdsWhereCannot($event->actor, 'discussion.viewReports'))
+                        ->whereIn('tag_id', Tag::getIdsWhereCannot($event->actor, 'discussion.viewFlags'))
                         ->where('discussions.id', new Expression('discussion_id'));
                 });
         }
     }
 
-    public function scopeEmptyDiscussionVisibility(ScopeEmptyDiscussionVisibility $event)
+    public function scopeHiddenDiscussionVisibility(ScopeHiddenDiscussionVisibility $event)
     {
+        // By default, discussions are not visible to the public if they are
+        // hidden or contain zero comments - unless the actor has a certain
+        // permission. Since we grant permissions per-tag, we will make
+        // discussions visible in the tags for which the user has that
+        // permission.
         $event->query->orWhereExists(function ($query) use ($event) {
             return $query->select(new Expression(1))
                 ->from('discussions_tags')
-                ->whereIn('tag_id', Tag::getIdsWhereCan($event->actor, 'discussion.editPosts'))
+                ->whereIn('tag_id', Tag::getIdsWhereCan($event->actor, $event->permission))
                 ->where('discussions.id', new Expression('discussion_id'));
         });
     }
