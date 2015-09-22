@@ -16,7 +16,7 @@ app.initializers.add('suspend', () => {
     if (user.canSuspend()) {
       items.add('suspend', Button.component({
         children: 'Suspend',
-        icon: 'shield',
+        icon: 'ban',
         onclick: () => app.modal.show(new SuspendUserModal({user}))
       }));
     }
