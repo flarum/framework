@@ -171,6 +171,7 @@ export default class Model {
       // old data! We'll revert to that and let others handle the error.
       response => {
         this.pushData(oldData);
+        m.lazyRedraw();
         throw response;
       }
     );
