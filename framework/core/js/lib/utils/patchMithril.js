@@ -14,6 +14,13 @@ export default function patchMithril(global) {
       m.bidi(node, node.attrs.bidi);
     }
 
+    if (node.attrs.route) {
+      node.attrs.href = node.attrs.route;
+      node.attrs.config = m.route;
+
+      delete node.attrs.route;
+    }
+
     return node;
   };
 
