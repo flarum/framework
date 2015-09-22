@@ -259,7 +259,9 @@
   }
 
   @media @tablet-up {
-    opacity: 0;
+    .no-touch & {
+      opacity: 0;
+    }
   }
 
   > ul {
@@ -270,8 +272,11 @@
       vertical-align: top;
     }
   }
-  .Post:hover & {
+  .Post:hover &, &.open {
     opacity: 1;
+  }
+  &.open {
+    z-index: 2;
   }
 }
 
