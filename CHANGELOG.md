@@ -15,6 +15,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - "Debug" button to inspect the response of a failed AJAX request.
 - `Model::afterSave()` API to run callback after a model instance is saved.
 - Improved admin Permissions page with icons and other tweaks.
+- Sticky: Allow permission to be configured.
+- Lock: Allow permission to be configured.
+- Flags: New extension. Allows posts to be flagged for moderator review.
+- Approval: New extension. Flags new posts to be approved by the moderation team.
+- Akismet: New extension. Hides/flags spam posts for moderator approval.
 
 ### Changed
 - Migrations must be namespaced under `Flarum\Migrations\{Core|ExtensionName}`. ([#422](https://github.com/flarum/core/issues/422))
