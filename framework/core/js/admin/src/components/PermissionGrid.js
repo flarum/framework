@@ -3,6 +3,7 @@ import PermissionDropdown from 'flarum/components/PermissionDropdown';
 import ConfigDropdown from 'flarum/components/ConfigDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
+import icon from 'flarum/helpers/icon';
 
 export default class PermissionGrid extends Component {
   constructor(...args) {
@@ -45,7 +46,7 @@ export default class PermissionGrid extends Component {
             </tr>
             {section.children.map(child => (
               <tr className="PermissionGrid-child">
-                <th>{child.label}</th>
+                <th>{child.icon ? icon(child.icon) : ''}{child.label}</th>
                 {permissionCells(child)}
                 <td/>
               </tr>
@@ -60,24 +61,24 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('view', {
-      label: 'View the forum',
+      label: 'Read',
       children: this.viewItems().toArray()
-    });
+    }, 100);
 
     items.add('start', {
-      label: 'Start discussions',
+      label: 'Create',
       children: this.startItems().toArray()
-    });
+    }, 90);
 
     items.add('reply', {
-      label: 'Reply to discussions',
+      label: 'Participate',
       children: this.replyItems().toArray()
-    });
+    }, 80);
 
     items.add('moderate', {
       label: 'Moderate',
       children: this.moderateItems().toArray()
-    });
+    }, 70);
 
     return items;
   }
@@ -86,12 +87,14 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('view', {
+      icon: 'eye',
       label: 'View discussions',
       permission: 'forum.view',
       allowGuest: true
-    });
+    }, 100);
 
     items.add('signUp', {
+      icon: 'user-plus',
       label: 'Sign up',
       setting: () => ConfigDropdown.component({
         key: 'allow_sign_up',
@@ -100,7 +103,7 @@ export default class PermissionGrid extends Component {
           {value: '0', label: 'Closed'}
         ]
       })
-    });
+    }, 90);
 
     return items;
   }
@@ -109,11 +112,13 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('start', {
+      icon: 'edit',
       label: 'Start discussions',
       permission: 'forum.startDiscussion'
-    });
+    }, 100);
 
     items.add('allowRenaming', {
+      icon: 'i-cursor',
       label: 'Allow renaming',
       setting: () => {
         const minutes = parseInt(app.config.allow_renaming, 10);
@@ -128,7 +133,7 @@ export default class PermissionGrid extends Component {
           ]
         });
       }
-    });
+    }, 90);
 
     return items;
   }
@@ -137,11 +142,13 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('reply', {
+      icon: 'reply',
       label: 'Reply to discussions',
       permission: 'discussion.reply'
-    });
+    }, 100);
 
     items.add('allowPostEditing', {
+      icon: 'pencil',
       label: 'Allow post editing',
       setting: () => {
         const minutes = parseInt(app.config.allow_post_editing, 10);
@@ -156,7 +163,7 @@ export default class PermissionGrid extends Component {
           ]
         });
       }
-    });
+    }, 90);
 
     return items;
   }
@@ -164,25 +171,35 @@ export default class PermissionGrid extends Component {
   moderateItems() {
     const items = new ItemList();
 
-    items.add('editPosts', {
-      label: 'Edit posts',
-      permission: 'discussion.editPosts'
-    });
-
-    items.add('deletePosts', {
-      label: 'Delete posts',
-      permission: 'discussion.deletePosts'
-    });
-
     items.add('renameDiscussions', {
+      icon: 'i-cursor',
       label: 'Rename discussions',
       permission: 'discussion.rename'
-    });
+    }, 100);
+
+    items.add('hideDiscussions', {
+      icon: 'trash-o',
+      label: 'Delete discussions',
+      permission: 'discussion.hide'
+    }, 90);
 
     items.add('deleteDiscussions', {
-      label: 'Delete discussions',
+      icon: 'times',
+      label: 'Delete discussions forever',
       permission: 'discussion.delete'
-    });
+    }, 80);
+
+    items.add('editPosts', {
+      icon: 'pencil',
+      label: 'Edit and delete posts',
+      permission: 'discussion.editPosts'
+    }, 70);
+
+    items.add('deletePosts', {
+      icon: 'times',
+      label: 'Delete posts forever',
+      permission: 'discussion.deletePosts'
+    }, 60);
 
     return items;
   }
@@ -196,12 +213,15 @@ export default class PermissionGrid extends Component {
         if (item.setting) {
           return item.setting();
         } else if (item.permission) {
-          return PermissionDropdown.component(Object.assign({}, item));
+          return PermissionDropdown.component({
+            permission: item.permission,
+            allowGuest: item.allowGuest
+          });
         }
 
         return '';
       }
-    });
+    }, 100);
 
     return items;
   }
