@@ -16,13 +16,12 @@ use TijsVerkoyen\Akismet\Akismet;
 use Flarum\Core;
 use Flarum\Core\Posts\CommentPost;
 use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Reports\Report;
+use Flarum\Flags\Flag;
+use Flarum\Approval\Events\PostWasApproved;
 
 class ValidatePost
 {
     protected $settings;
-
-    private $savingPost;
 
     public function __construct(SettingsRepository $settings)
     {
@@ -32,6 +31,7 @@ class ValidatePost
     public function subscribe(Dispatcher $events)
     {
         $events->listen(PostWillBeSaved::class, [$this, 'validatePost']);
+        $events->listen(PostWasApproved::class, [$this, 'submitHam']);
     }
 
     public function validatePost(PostWillBeSaved $event)
@@ -53,26 +53,26 @@ class ValidatePost
         );
 
         if ($isSpam) {
-            $post->hide();
+            $post->is_approved = false;
 
-            $this->savingPost = $post;
+            // TODO:
+            // $post->is_spam = true;
 
-            CommentPost::saved(function (CommentPost $post) {
-                if ($post !== $this->savingPost) {
-                    return;
-                }
+            $post->afterSave(function ($post) {
+                $flag = new Flag;
 
-                $report = new Report;
+                $flag->post_id = $post->id;
+                $flag->type = 'akismet';
+                $flag->time = time();
 
-                $report->post_id = $post->id;
-                $report->reporter = 'Akismet';
-                $report->reason = 'spam';
-                $report->time = time();
-
-                $report->save();
-
-                $this->savingPost = null;
+                $flag->save();
             });
         }
+    }
+
+    public function submitHam(PostWasApproved $event)
+    {
+        // TODO
+        // if ($post->is_spam)
     }
 }
