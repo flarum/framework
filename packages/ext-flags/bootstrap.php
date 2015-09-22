@@ -11,4 +11,4 @@
 
 require __DIR__.'/vendor/autoload.php';
 
-return 'Flarum\Reports\Extension';
+return 'Flarum\Flags\Extension';

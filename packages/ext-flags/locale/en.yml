@@ -1,8 +1,8 @@
-reports:
+flags:
   reason_off_topic: Off-topic
   reason_spam: Spam
   reason_inappropriate: Inappropriate
   reason_other: Other
-  reported_by: "Reported by {users}"
-  reported_by_with_reason: "Reported as {reasons} by {users}"
-  no_reports: No Reports
+  flagged_by: "{username} flagged"
+  flagged_by_with_reason: "{username} flagged as {reason}"
+  no_flags: No Flags

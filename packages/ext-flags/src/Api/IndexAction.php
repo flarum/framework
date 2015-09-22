@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,11 +8,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Api;
+namespace Flarum\Flags\Api;
 
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Reports\Report;
+use Flarum\Flags\Flag;
 use Tobscure\JsonApi\Document;
 
 class IndexAction extends SerializeCollectionAction
@@ -20,7 +20,7 @@ class IndexAction extends SerializeCollectionAction
     /**
      * @inheritdoc
      */
-    public $serializer = 'Flarum\Reports\Api\ReportSerializer';
+    public $serializer = 'Flarum\Flags\Api\FlagSerializer';
 
     /**
      * @inheritdoc
@@ -41,12 +41,12 @@ class IndexAction extends SerializeCollectionAction
     {
         $actor = $request->actor;
 
-        $actor->reports_read_time = time();
+        $actor->flags_read_time = time();
         $actor->save();
 
-        return Report::whereVisibleTo($actor)
+        return Flag::whereVisibleTo($actor)
             ->with($request->include)
-            ->latest('reports.time')
+            ->latest('flags.time')
             ->groupBy('post_id')
             ->get();
     }

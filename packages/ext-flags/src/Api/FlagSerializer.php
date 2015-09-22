@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,20 +8,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Api;
+namespace Flarum\Flags\Api;
 
 use Flarum\Api\Serializers\Serializer;
 
-class ReportSerializer extends Serializer
+class FlagSerializer extends Serializer
 {
-    protected $type = 'reports';
+    protected $type = 'flags';
 
-    protected function getDefaultAttributes($report)
+    protected function getDefaultAttributes($flag)
     {
         return [
-            'reporter'      => $report->reporter,
-            'reason'        => $report->reason,
-            'reasonDetail'  => $report->reason_detail,
+            'type'         => $flag->type,
+            'reason'       => $flag->reason,
+            'reasonDetail' => $flag->reason_detail,
         ];
     }
 

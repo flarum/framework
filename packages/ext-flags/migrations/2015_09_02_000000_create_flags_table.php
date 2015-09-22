@@ -8,20 +8,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Reports;
+namespace Flarum\Migrations\Flags;
 
 use Illuminate\Database\Schema\Blueprint;
 use Flarum\Migrations\Migration;
 
-class CreateReportsTable extends Migration
+class CreateFlagsTable extends Migration
 {
     public function up()
     {
-        $this->schema->create('reports', function (Blueprint $table) {
+        $this->schema->create('flags', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('post_id')->unsigned();
-            $table->integer('user_id')->unsigned();
-            $table->string('reporter')->nullable();
+            $table->string('type');
+            $table->integer('user_id')->unsigned()->nullable();
             $table->string('reason')->nullable();
             $table->string('reason_detail')->nullable();
             $table->dateTime('time');
@@ -30,6 +30,6 @@ class CreateReportsTable extends Migration
 
     public function down()
     {
-        $this->schema->drop('reports');
+        $this->schema->drop('flags');
     }
 }

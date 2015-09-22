@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Listeners;
+namespace Flarum\Flags\Listeners;
 
 use Flarum\Events\ApiRelationship;
 use Flarum\Events\WillSerializeData;
@@ -19,26 +19,26 @@ use Flarum\Api\Serializers\PostSerializer;
 use Flarum\Api\Serializers\ForumSerializer;
 use Flarum\Api\Actions\Posts;
 use Flarum\Api\Actions\Discussions;
-use Flarum\Reports\Report;
-use Flarum\Reports\Api\CreateAction as ReportsCreateAction;
+use Flarum\Flags\Flag;
+use Flarum\Flags\Api\CreateAction as FlagsCreateAction;
 use Illuminate\Database\Eloquent\Collection;
 
 class AddApiAttributes
 {
     public function subscribe($events)
     {
-        $events->listen(ApiRelationship::class, [$this, 'addReportsRelationship']);
-        $events->listen(WillSerializeData::class, [$this, 'loadReportsRelationship']);
-        $events->listen(BuildApiAction::class, [$this, 'includeReportsRelationship']);
+        $events->listen(ApiRelationship::class, [$this, 'addFlagsRelationship']);
+        $events->listen(WillSerializeData::class, [$this, 'loadFlagsRelationship']);
+        $events->listen(BuildApiAction::class, [$this, 'includeFlagsRelationship']);
         $events->listen(ApiAttributes::class, [$this, 'addAttributes']);
         $events->listen(RegisterApiRoutes::class, [$this, 'addRoutes']);
     }
 
-    public function loadReportsRelationship(WillSerializeData $event)
+    public function loadFlagsRelationship(WillSerializeData $event)
     {
-        // For any API action that allows the 'reports' relationship to be
+        // For any API action that allows the 'flags' relationship to be
         // included, we need to preload this relationship onto the data (Post
-        // models) so that we can selectively expose only the reports that the
+        // models) so that we can selectively expose only the flags that the
         // user has permission to view.
         if ($event->action instanceof Discussions\ShowAction) {
             $discussion = $event->data;
@@ -53,9 +53,9 @@ class AddApiAttributes
             $posts = [$event->data];
         }
 
-        if ($event->action instanceof ReportsCreateAction) {
-            $report = $event->data;
-            $posts = [$report->post];
+        if ($event->action instanceof FlagsCreateAction) {
+            $flag = $event->data;
+            $posts = [$flag->post];
         }
 
         if (isset($posts)) {
@@ -63,67 +63,67 @@ class AddApiAttributes
             $postsWithPermission = [];
 
             foreach ($posts as $post) {
-                $post->setRelation('reports', null);
+                $post->setRelation('flags', null);
 
-                if ($post->discussion->can($actor, 'viewReports')) {
+                if ($post->discussion->can($actor, 'viewFlags')) {
                     $postsWithPermission[] = $post;
                 }
             }
 
             if (count($postsWithPermission)) {
                 (new Collection($postsWithPermission))
-                    ->load('reports', 'reports.user');
+                    ->load('flags', 'flags.user');
             }
         }
     }
 
-    public function addReportsRelationship(ApiRelationship $event)
+    public function addFlagsRelationship(ApiRelationship $event)
     {
         if ($event->serializer instanceof PostSerializer &&
-            $event->relationship === 'reports') {
-            return $event->serializer->hasMany('Flarum\Reports\Api\ReportSerializer', 'reports');
+            $event->relationship === 'flags') {
+            return $event->serializer->hasMany('Flarum\Flags\Api\FlagSerializer', 'flags');
         }
     }
 
-    public function includeReportsRelationship(BuildApiAction $event)
+    public function includeFlagsRelationship(BuildApiAction $event)
     {
         if ($event->action instanceof Discussions\ShowAction) {
-            $event->addInclude('posts.reports');
-            $event->addInclude('posts.reports.user');
+            $event->addInclude('posts.flags');
+            $event->addInclude('posts.flags.user');
         }
 
         if ($event->action instanceof Posts\IndexAction ||
             $event->action instanceof Posts\ShowAction) {
-            $event->addInclude('reports');
-            $event->addInclude('reports.user');
+            $event->addInclude('flags');
+            $event->addInclude('flags.user');
         }
     }
 
     public function addAttributes(ApiAttributes $event)
     {
         if ($event->serializer instanceof ForumSerializer) {
-            $event->attributes['canViewReports'] = $event->actor->hasPermissionLike('discussion.viewReports');
+            $event->attributes['canViewFlags'] = $event->actor->hasPermissionLike('discussion.viewFlags');
 
-            if ($event->attributes['canViewReports']) {
-                $query = Report::whereVisibleTo($event->actor);
+            if ($event->attributes['canViewFlags']) {
+                $query = Flag::whereVisibleTo($event->actor);
 
-                if ($time = $event->actor->reports_read_time) {
-                    $query->where('reports.time', '>', $time);
+                if ($time = $event->actor->flags_read_time) {
+                    $query->where('flags.time', '>', $time);
                 }
 
-                $event->attributes['unreadReportsCount'] = $query->distinct('reports.post_id')->count();
+                $event->attributes['unreadFlagsCount'] = $query->distinct('flags.post_id')->count();
             }
         }
 
         if ($event->serializer instanceof PostSerializer) {
-            $event->attributes['canReport'] = $event->model->can($event->actor, 'report');
+            $event->attributes['canFlag'] = $event->model->can($event->actor, 'flag');
         }
     }
 
     public function addRoutes(RegisterApiRoutes $event)
     {
-        $event->get('/reports', 'reports.index', 'Flarum\Reports\Api\IndexAction');
-        $event->post('/reports', 'reports.create', 'Flarum\Reports\Api\CreateAction');
-        $event->delete('/posts/{id}/reports', 'reports.delete', 'Flarum\Reports\Api\DeleteAction');
+        $event->get('/flags', 'flags.index', 'Flarum\Flags\Api\IndexAction');
+        $event->post('/flags', 'flags.create', 'Flarum\Flags\Api\CreateAction');
+        $event->delete('/posts/{id}/flags', 'flags.delete', 'Flarum\Flags\Api\DeleteAction');
     }
 }

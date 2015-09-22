@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Api;
+namespace Flarum\Flags\Api;
 
-use Flarum\Reports\Commands\DeleteReports;
+use Flarum\Flags\Commands\DeleteFlags;
 use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
 use Flarum\Api\Request;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -31,14 +31,14 @@ class DeleteAction extends BaseDeleteAction
     }
 
     /**
-     * Delete reports for a post.
+     * Delete flags for a post.
      *
      * @param Request $request
      */
     protected function delete(Request $request)
     {
         $this->bus->dispatch(
-            new DeleteReports($request->get('id'), $request->actor, $request->all())
+            new DeleteFlags($request->get('id'), $request->actor, $request->all())
         );
     }
 }

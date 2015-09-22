@@ -5,7 +5,7 @@ import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
 
-export default class ReportList extends Component {
+export default class FlagList extends Component {
   constructor(...args) {
     super(...args);
 
@@ -18,32 +18,32 @@ export default class ReportList extends Component {
   }
 
   view() {
-    const reports = app.cache.reports || [];
+    const flags = app.cache.flags || [];
 
     return (
-      <div className="NotificationList ReportList">
+      <div className="NotificationList FlagList">
         <div className="NotificationList-header">
-          <h4 className="App-titleControl App-titleControl--text">Reported Posts</h4>
+          <h4 className="App-titleControl App-titleControl--text">Flagged Posts</h4>
         </div>
         <div className="NotificationList-content">
           <ul className="NotificationGroup-content">
-            {reports.length
-              ? reports.map(report => {
-                const post = report.post();
+            {flags.length
+              ? flags.map(flag => {
+                const post = flag.post();
 
                 return (
                   <li>
-                    <a href={app.route.post(post)} className="Notification Report" config={function(element, isInitialized) {
+                    <a href={app.route.post(post)} className="Notification Flag" config={function(element, isInitialized) {
                       m.route.apply(this, arguments);
 
-                      if (!isInitialized) $(element).on('click', () => app.cache.reportIndex = post);
+                      if (!isInitialized) $(element).on('click', () => app.cache.flagIndex = post);
                     }}>
                       {avatar(post.user())}
                       {icon('flag', {className: 'Notification-icon'})}
                       <span className="Notification-content">
                         {username(post.user())} in <em>{post.discussion().title()}</em>
                       </span>
-                      {humanTime(report.time())}
+                      {humanTime(flag.time())}
                       <div className="Notification-excerpt">
                         {post.contentPlain()}
                       </div>
@@ -52,7 +52,7 @@ export default class ReportList extends Component {
                 );
               })
               : !this.loading
-                ? <div className="NotificationList-empty">{app.trans('reports.no_reports')}</div>
+                ? <div className="NotificationList-empty">{app.trans('flags.no_flags')}</div>
                 : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
           </ul>
         </div>
@@ -61,20 +61,20 @@ export default class ReportList extends Component {
   }
 
   /**
-   * Load reports into the application's cache if they haven't already
+   * Load flags into the application's cache if they haven't already
    * been loaded.
    */
   load() {
-    if (app.cache.reports && !app.forum.attribute('unreadReportsCount')) {
+    if (app.cache.flags && !app.forum.attribute('unreadFlagsCount')) {
       return;
     }
 
     this.loading = true;
     m.redraw();
 
-    app.store.find('reports').then(reports => {
-      app.forum.pushAttributes({unreadReportsCount: 0});
-      app.cache.reports = reports.sort((a, b) => b.time() - a.time());
+    app.store.find('flags').then(flags => {
+      app.forum.pushAttributes({unreadFlagsCount: 0});
+      app.cache.flags = flags.sort((a, b) => b.time() - a.time());
 
       this.loading = false;
       m.redraw();

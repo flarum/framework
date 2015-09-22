@@ -1,7 +1,7 @@
 {
-    "name": "reports",
-    "title": "Reports",
-    "description": "Allow users to report posts for moderator review.",
+    "name": "flags",
+    "title": "Flags",
+    "description": "Allow users to flag posts for moderator review.",
     "keywords": [],
     "version": "0.1.0-beta.2",
     "author": {
@@ -14,7 +14,7 @@
         "flarum": ">=0.1.0-beta.2"
     },
     "support": {
-        "source": "https://github.com/flarum/reports",
+        "source": "https://github.com/flarum/flags",
         "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {

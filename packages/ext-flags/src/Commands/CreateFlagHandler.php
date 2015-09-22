@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,14 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Commands;
+namespace Flarum\Flags\Commands;
 
-use Flarum\Reports\Report;
+use Flarum\Flags\Flag;
 use Flarum\Core\Posts\PostRepository;
 use Flarum\Core\Posts\CommentPost;
 use Exception;
 
-class CreateReportHandler
+class CreateFlagHandler
 {
     private $posts;
 
@@ -25,10 +25,10 @@ class CreateReportHandler
     }
 
     /**
-     * @param CreateReport $command
-     * @return Report
+     * @param CreateFlag $command
+     * @return Flag
      */
-    public function handle(CreateReport $command)
+    public function handle(CreateFlag $command)
     {
         $actor = $command->actor;
         $data = $command->data;
@@ -41,23 +41,24 @@ class CreateReportHandler
             throw new Exception;
         }
 
-        $post->assertCan($actor, 'report');
+        $post->assertCan($actor, 'flag');
 
-        Report::unguard();
+        Flag::unguard();
 
-        $report = Report::firstOrNew([
+        $flag = Flag::firstOrNew([
             'post_id' => $post->id,
             'user_id' => $actor->id
         ]);
 
-        $report->post_id = $post->id;
-        $report->user_id = $actor->id;
-        $report->reason = array_get($data, 'attributes.reason');
-        $report->reason_detail = array_get($data, 'attributes.reasonDetail');
-        $report->time = time();
+        $flag->post_id = $post->id;
+        $flag->user_id = $actor->id;
+        $flag->type = 'user';
+        $flag->reason = array_get($data, 'attributes.reason');
+        $flag->reason_detail = array_get($data, 'attributes.reasonDetail');
+        $flag->time = time();
 
-        $report->save();
+        $flag->save();
 
-        return $report;
+        return $flag;
     }
 }

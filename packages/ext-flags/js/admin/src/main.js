@@ -2,18 +2,20 @@ import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
-app.initializers.add('reports', () => {
+app.initializers.add('flags', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
-    items.add('viewReports', {
-      label: 'View reported posts',
-      permission: 'discussion.viewReports'
-    });
+    items.add('viewFlags', {
+      icon: 'flag',
+      label: 'View flagged posts',
+      permission: 'discussion.viewFlags'
+    }, 65);
   });
 
   extend(PermissionGrid.prototype, 'replyItems', items => {
-    items.add('reportPosts', {
-      label: 'Report posts',
-      permission: 'discussion.reportPosts'
-    });
+    items.add('flagPosts', {
+      icon: 'flag',
+      label: 'Flag posts',
+      permission: 'discussion.flagPosts'
+    }, 70);
   });
 });

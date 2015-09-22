@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -8,11 +8,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Reports\Commands;
+namespace Flarum\Flags\Commands;
 
 use Flarum\Core\Users\User;
 
-class CreateReport
+class CreateFlag
 {
     /**
      * The user performing the action.
@@ -22,7 +22,7 @@ class CreateReport
     public $actor;
 
     /**
-     * The attributes of the new report.
+     * The attributes of the new flag.
      *
      * @var array
      */
@@ -30,7 +30,7 @@ class CreateReport
 
     /**
      * @param User $actor The user performing the action.
-     * @param array $data The attributes of the new report.
+     * @param array $data The attributes of the new flag.
      */
     public function __construct(User $actor, array $data)
     {
