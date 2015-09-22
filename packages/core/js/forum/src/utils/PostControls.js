@@ -114,25 +114,34 @@ export default {
 
   /**
    * Hide a post.
+   *
+   * @return {Promise}
    */
   hideAction() {
-    this.save({ isHidden: true });
     this.pushAttributes({ hideTime: new Date(), hideUser: app.session.user });
+
+    return this.save({ isHidden: true }).then(() => m.redraw());
   },
 
   /**
    * Restore a post.
+   *
+   * @return {Promise}
    */
   restoreAction() {
-    this.save({ isHidden: false });
     this.pushAttributes({ hideTime: null, hideUser: null });
+
+    return this.save({ isHidden: false }).then(() => m.redraw());
   },
 
   /**
    * Delete a post.
+   *
+   * @return {Promise}
    */
   deleteAction() {
-    this.delete();
     this.discussion().removePost(this.id());
+
+    return this.delete();
   }
 };

@@ -13,6 +13,7 @@ import SubtreeRetainer from 'flarum/utils/SubtreeRetainer';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 import slidable from 'flarum/utils/slidable';
 import extractText from 'flarum/utils/extractText';
+import classList from 'flarum/utils/classList';
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the
@@ -43,6 +44,16 @@ export default class DiscussionListItem extends Component {
     );
   }
 
+  attrs() {
+    return {
+      className: classList([
+        'DiscussionListItem',
+        this.active() ? 'active' : '',
+        this.props.discussion.isHidden() ? 'DiscussionListItem--hidden' : ''
+      ])
+    };
+  }
+
   view() {
     const retain = this.subtree.retain();
 
@@ -56,9 +67,10 @@ export default class DiscussionListItem extends Component {
     const jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
     const relevantPosts = this.props.params.q ? discussion.relevantPosts() : [];
     const controls = DiscussionControls.controls(discussion, this).toArray();
+    const attrs = this.attrs();
 
     return (
-      <div className={'DiscussionListItem ' + (this.active() ? 'active' : '')}>
+      <div {...attrs}>
 
         {controls.length ? Dropdown.component({
           icon: 'ellipsis-v',

@@ -27,8 +27,14 @@ class DiscussionSerializer extends DiscussionBasicSerializer
             'lastPostNumber'    => $discussion->last_post_number,
             'canReply'          => $discussion->can($this->actor, 'reply'),
             'canRename'         => $discussion->can($this->actor, 'rename'),
-            'canDelete'         => $discussion->can($this->actor, 'delete')
+            'canDelete'         => $discussion->can($this->actor, 'delete'),
+            'canHide'           => $discussion->can($this->actor, 'hide')
         ];
+
+        if ($discussion->hide_time) {
+            $attributes['isHidden'] = true;
+            $attributes['hideTime'] = $discussion->hide_time->toRFC3339String();
+        }
 
         Discussion::setStateUser($this->actor);
 
@@ -40,5 +46,13 @@ class DiscussionSerializer extends DiscussionBasicSerializer
         }
 
         return $attributes;
+    }
+
+    /**
+     * @return callable
+     */
+    public function hideUser()
+    {
+        return $this->hasOne('Flarum\Api\Serializers\UserSerializer');
     }
 }

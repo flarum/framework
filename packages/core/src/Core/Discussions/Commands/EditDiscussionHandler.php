@@ -49,6 +49,16 @@ class EditDiscussionHandler
             $discussion->rename($attributes['title'], $actor);
         }
 
+        if (isset($attributes['isHidden'])) {
+            $discussion->assertCan($actor, 'hide');
+
+            if ($attributes['isHidden']) {
+                $discussion->hide($actor);
+            } else {
+                $discussion->restore();
+            }
+        }
+
         event(new DiscussionWillBeSaved($discussion, $actor, $data));
 
         $discussion->save();

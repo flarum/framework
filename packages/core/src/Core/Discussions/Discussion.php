@@ -14,6 +14,8 @@ use Flarum\Core\Model;
 use Flarum\Events\DiscussionWasDeleted;
 use Flarum\Events\DiscussionWasStarted;
 use Flarum\Events\DiscussionWasRenamed;
+use Flarum\Events\DiscussionWasHidden;
+use Flarum\Events\DiscussionWasRestored;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Events\ScopePostVisibility;
 use Flarum\Core\Posts\Post;
@@ -68,7 +70,7 @@ class Discussion extends Model
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['start_time', 'last_time'];
+    protected $dates = ['start_time', 'last_time', 'hide_time'];
 
     /**
      * The user for which the state relationship should be loaded.
@@ -142,6 +144,41 @@ class Discussion extends Model
             $this->title = $title;
 
             $this->raise(new DiscussionWasRenamed($this, $user, $oldTitle));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Hide the discussion.
+     *
+     * @param User $actor
+     * @return $this
+     */
+    public function hide(User $actor = null)
+    {
+        if (! $this->hide_time) {
+            $this->hide_time = time();
+            $this->hide_user_id = $actor ? $actor->id : null;
+
+            $this->raise(new DiscussionWasHidden($this));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Restore the discussion.
+     *
+     * @return $this
+     */
+    public function restore()
+    {
+        if ($this->hide_time !== null) {
+            $this->hide_time = null;
+            $this->hide_user_id = null;
+
+            $this->raise(new DiscussionWasRestored($this));
         }
 
         return $this;
