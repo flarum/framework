@@ -57,13 +57,7 @@ export default {
     const items = new ItemList();
 
     if (post.contentType() === 'comment' && post.canEdit()) {
-      if (post.isHidden()) {
-        items.add('restore', Button.component({
-          icon: 'reply',
-          children: app.trans('core.restore'),
-          onclick: this.restoreAction.bind(post)
-        }));
-      } else {
+      if (!post.isHidden()) {
         items.add('edit', Button.component({
           icon: 'pencil',
           children: app.trans('core.edit'),
@@ -87,18 +81,29 @@ export default {
   destructiveControls(post) {
     const items = new ItemList();
 
-    if (post.contentType() === 'comment' && !post.isHidden() && post.canEdit()) {
-      items.add('hide', Button.component({
-        icon: 'times',
-        children: app.trans('core.delete'),
-        onclick: this.hideAction.bind(post)
-      }));
-    } else if (post.number() !== 1 && (post.contentType() !== 'comment' || post.isHidden()) && post.canDelete()) {
-      items.add('delete', Button.component({
-        icon: 'times',
-        children: app.trans('core.delete_forever'),
-        onclick: this.deleteAction.bind(post)
-      }));
+    if (post.contentType() === 'comment' && !post.isHidden()) {
+      if (post.canEdit()) {
+        items.add('hide', Button.component({
+          icon: 'trash-o',
+          children: app.trans('core.delete'),
+          onclick: this.hideAction.bind(post)
+        }));
+      }
+    } else {
+      if (post.canEdit()) {
+        items.add('restore', Button.component({
+          icon: 'reply',
+          children: app.trans('core.restore'),
+          onclick: this.restoreAction.bind(post)
+        }));
+      }
+      if (post.canDelete() && post.number() !== 1) {
+        items.add('delete', Button.component({
+          icon: 'times',
+          children: app.trans('core.delete_forever'),
+          onclick: this.deleteAction.bind(post)
+        }));
+      }
     }
 
     return items;
