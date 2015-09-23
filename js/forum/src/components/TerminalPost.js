@@ -1,5 +1,6 @@
 import Component from 'flarum/Component';
 import humanTime from 'flarum/helpers/humanTime';
+import icon from 'flarum/helpers/icon';
 
 /**
  * Displays information about a the first or last post in a discussion.
@@ -19,7 +20,7 @@ export default class TerminalPost extends Component {
 
     return (
       <span>
-        // Core Key Reorganization: Adjusted syntax for new key names 
+        {lastPost ? icon('reply') : ''}{' '}
         {app.trans('core.discussion_list_' + (lastPost ? 'replied' : 'started') + '_text', {
           user,
           ago: humanTime(time)
