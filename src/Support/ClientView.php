@@ -337,7 +337,7 @@ class ClientView implements Renderable
     {
         return [
             'userId' => $this->actor->id,
-            'token' => array_get($this->request->getCookieParams(), 'flarum_remember'),
+            'token' => array_get($this->request->getCookieParams(), app('config')->get('session.cookie')),
         ];
     }
 }
