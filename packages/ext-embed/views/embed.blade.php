@@ -21,7 +21,7 @@
  * - #composer
  */
 ?>
-<div id="app" class="App">
+<div id="app" class="App EmbedApp">
 
   <main class="App-content">
     <div id="content"></div>
