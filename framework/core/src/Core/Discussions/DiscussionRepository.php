@@ -12,6 +12,7 @@ namespace Flarum\Core\Discussions;
 
 use Illuminate\Database\Eloquent\Builder;
 use Flarum\Core\Users\User;
+use Illuminate\Database\Query\Expression;
 
 class DiscussionRepository
 {
@@ -50,8 +51,9 @@ class DiscussionRepository
     {
         return Discussion::leftJoin('users_discussions', 'users_discussions.discussion_id', '=', 'discussions.id')
             ->where('user_id', $user->id)
-            ->where('read_number', '<', 'last_post_number')
-            ->lists('id');
+            ->where('read_number', '>=', new Expression('last_post_number'))
+            ->lists('id')
+            ->all();
     }
 
     /**
