@@ -15,7 +15,7 @@ export default class PostEdited extends Component {
   view() {
     const post = this.props.post;
     const editUser = post.editUser();
-    const title = extractText(app.trans('core.post_edited', {user: editUser, ago: humanTime(post.editTime())}));
+    const title = extractText(app.trans('core.post_edited_tooltip', {user: editUser, ago: humanTime(post.editTime())}));
 
     return (
       <span className="PostEdited" title={title}>{icon('pencil')}</span>

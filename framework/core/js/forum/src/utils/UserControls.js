@@ -60,7 +60,7 @@ export default {
     if (user.canEdit()) {
       items.add('edit', Button.component({
         icon: 'pencil',
-        children: app.trans('core.edit'),
+        children: app.trans('core.user_controls_edit_button'),
         onclick: this.editAction.bind(user)
       }));
     }
@@ -83,7 +83,7 @@ export default {
     if (user.id() !== '1' && user.canDelete()) {
       items.add('delete', Button.component({
         icon: 'times',
-        children: app.trans('core.delete'),
+        children: app.trans('core.user_controls_delete_button'),
         onclick: this.deleteAction.bind(user)
       }));
     }

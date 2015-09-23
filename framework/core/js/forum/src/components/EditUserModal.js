@@ -37,7 +37,7 @@ export default class EditUserModal extends Modal {
         <div className="Form">
           <div className="Form-group">
             <label>Username</label>
-            <input className="FormControl" placeholder={app.trans('core.username')}
+            <input className="FormControl" placeholder={app.trans('core.edit_user_username_label')}
               value={this.username()}
               onchange={m.withAttr('value', this.username)} />
           </div>
@@ -45,7 +45,7 @@ export default class EditUserModal extends Modal {
           <div className="Form-group">
             <label>Email</label>
             <div>
-              <input className="FormControl" placeholder={app.trans('core.email')}
+              <input className="FormControl" placeholder={app.trans('core.edit_user_email_label')}
                 value={this.email()}
                 onchange={m.withAttr('value', this.email)} />
             </div>
@@ -64,7 +64,7 @@ export default class EditUserModal extends Modal {
                 Set new password
               </label>
               {this.setPassword() ? (
-                <input className="FormControl" type="password" name="password" placeholder={app.trans('core.password')}
+                <input className="FormControl" type="password" name="password" placeholder={app.trans('core.edit_user_password_label')}
                   value={this.password()}
                   onchange={m.withAttr('value', this.password)} />
               ) : ''}
@@ -93,7 +93,7 @@ export default class EditUserModal extends Modal {
               className: 'Button Button--primary',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.save_changes')
+              children: app.trans('core.edit_user_submit_button')
             })}
           </div>
         </div>

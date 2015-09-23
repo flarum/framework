@@ -460,28 +460,28 @@ class Composer extends Component {
     if (this.position === Composer.PositionEnum.FULLSCREEN) {
       items.add('exitFullScreen', ComposerButton.component({
         icon: 'compress',
-        title: app.trans('core.exit_full_screen'),
+        title: app.trans('core.composer_exit_full_screen_tooltip'),
         onclick: this.exitFullScreen.bind(this)
       }));
     } else {
       if (this.position !== Composer.PositionEnum.MINIMIZED) {
         items.add('minimize', ComposerButton.component({
           icon: 'minus minimize',
-          title: app.trans('core.minimize'),
+          title: app.trans('core.composer_minimize_tooltip'),
           onclick: this.minimize.bind(this),
           itemClassName: 'App-backControl'
         }));
 
         items.add('fullScreen', ComposerButton.component({
           icon: 'expand',
-          title: app.trans('core.full_screen'),
+          title: app.trans('core.composer_full_screen_tooltip'),
           onclick: this.fullScreen.bind(this)
         }));
       }
 
       items.add('close', ComposerButton.component({
         icon: 'times',
-        title: app.trans('core.close'),
+        title: app.trans('core.composer_close_tooltip'),
         onclick: this.close.bind(this)
       }));
     }

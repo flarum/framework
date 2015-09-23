@@ -51,7 +51,7 @@ export default class PostsUserPage extends UserPage {
       footer = (
         <div className="PostsUserPage-loadMore">
           {Button.component({
-            children: app.trans('core.load_more'),
+            children: app.trans('core.user_posts_load_more_button'),
             className: 'Button',
             onclick: this.loadMore.bind(this)
           })}

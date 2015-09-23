@@ -64,7 +64,7 @@ export default class HeaderSecondary extends Component {
       if (app.forum.attribute('allowSignUp')) {
         items.add('signUp',
           Button.component({
-            children: app.trans('core.sign_up'),
+            children: app.trans('core.header_sign_up_link'),
             className: 'Button Button--link',
             onclick: () => app.modal.show(new SignUpModal())
           }), 10
@@ -73,7 +73,7 @@ export default class HeaderSecondary extends Component {
 
       items.add('logIn',
         Button.component({
-          children: app.trans('core.log_in'),
+          children: app.trans('core.header_log_in_link'),
           className: 'Button Button--link',
           onclick: () => app.modal.show(new LogInModal())
         }), 0
