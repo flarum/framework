@@ -1,0 +1,6 @@
+{
+  "name": "flarum-embed",
+  "devDependencies": {
+    "iframe-resizer": "^3.2.0"
+  }
+}
