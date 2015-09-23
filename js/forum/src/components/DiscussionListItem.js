@@ -87,7 +87,7 @@ export default class DiscussionListItem extends Component {
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
           <a href={startUser ? app.route.user(startUser) : '#'}
             className="DiscussionListItem-author"
-            title={extractText(app.trans('core.discussion_started', {user: startUser, ago: humanTime(discussion.startTime())}))}
+            title={extractText(app.trans('core.discussion_list_started_text', {user: startUser, ago: humanTime(discussion.startTime())}))}
             config={function(element) {
               $(element).tooltip({placement: 'right'});
               m.route.apply(this, arguments);
@@ -108,7 +108,7 @@ export default class DiscussionListItem extends Component {
 
           <span className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
-            title={showUnread ? app.trans('core.mark_as_read') : ''}>
+            title={showUnread ? app.trans('core.discussion_list_mark_as_read_tooltip') : ''}>
             {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())}
           </span>
 
