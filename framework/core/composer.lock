@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e60ca4174e0cfb22de050c0f15539735",
+    "hash": "eb1e411ff1d02b0d1384c482f34625c5",
+    "content-hash": "51442663d4096ed0941800baefafda1a",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -1690,16 +1691,16 @@
         },
         {
             "name": "s9e/text-formatter",
-            "version": "0.3.2",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/s9e/TextFormatter.git",
-                "reference": "4db4d250735125274c8cfd1ac41ef76eae7d15e8"
+                "reference": "0ad4f5d80542819d0bae9047d39566ab0df55c53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/4db4d250735125274c8cfd1ac41ef76eae7d15e8",
-                "reference": "4db4d250735125274c8cfd1ac41ef76eae7d15e8",
+                "url": "https://api.github.com/repos/s9e/TextFormatter/zipball/0ad4f5d80542819d0bae9047d39566ab0df55c53",
+                "reference": "0ad4f5d80542819d0bae9047d39566ab0df55c53",
                 "shasum": ""
             },
             "require": {
@@ -1745,7 +1746,7 @@
                 "parser",
                 "shortcodes"
             ],
-            "time": "2015-09-06 18:52:07"
+            "time": "2015-09-22 23:26:41"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -1805,12 +1806,12 @@
             "version": "v2.7.4",
             "source": {
                 "type": "git",
-                "url": "git@github.com:symfony/Console.git",
+                "url": "https://github.com/symfony/Console.git",
                 "reference": "f1f7376766394f409b9b33a57a5675a52f8aad93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/f1f7376766394f409b9b33a57a5675a52f8aad93",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/9ff9032151186bd66ecee727d728f1319f52d1d8",
                 "reference": "f1f7376766394f409b9b33a57a5675a52f8aad93",
                 "shasum": ""
             },
@@ -2868,7 +2869,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.4.0"
+        "php": ">=5.5.9"
     },
     "platform-dev": []
 }
