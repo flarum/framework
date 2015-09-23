@@ -54,8 +54,8 @@ core:
   # These strings are used in the discussion list.
   discussion_list_load_more_button: => core.load_more
   discussion_list_mark_as_read_tooltip: Mark as Read
-  discussion_list_replied_text: "Last reply {ago} by {username}"
-  discussion_list_started_text: "Started {ago} by {username}"
+  discussion_list_replied_text: "{username} replied {ago}"
+  discussion_list_started_text: "{username} started {ago}"
 
   # These strings are used in the Edit User modal dialog (moderator function).
   edit_user_email_label: => core.email
