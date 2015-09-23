@@ -27,7 +27,9 @@
         @endforeach
 
         <script>
+          @if (! $forum->attributes->debug)
           try {
+          @endif
             var app = System.get('flarum/app').default;
 
             babelHelpers._extends(app, {!! json_encode($app) !!});
@@ -37,12 +39,11 @@
             @endforeach
 
             app.boot();
+          @if (! $forum->attributes->debug)
           } catch (e) {
-            @if (! $forum->attributes->debug)
-                window.location = window.location + '?nojs=1';
-            @endif
-            throw e;
+            window.location = window.location + '?nojs=1';
           }
+          @endif
         </script>
     @endif
 

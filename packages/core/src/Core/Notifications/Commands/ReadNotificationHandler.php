@@ -38,6 +38,8 @@ class ReadNotificationHandler
         ])
             ->update(['is_read' => true]);
 
+        $notification->is_read = true;
+
         return $notification;
     }
 }
