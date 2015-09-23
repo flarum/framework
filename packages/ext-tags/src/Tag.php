@@ -29,7 +29,7 @@ class Tag extends Model
 
     protected $rules = [
         'name' => 'required',
-        'slug' => 'required'
+        'slug' => ['required', 'unique:tags,slug']
     ];
 
     /**
