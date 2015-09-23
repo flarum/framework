@@ -147,7 +147,8 @@ export default class IndexPage extends Page {
 
     items.add('newDiscussion',
       Button.component({
-        children: canStartDiscussion ? app.trans('core.start_a_discussion') : 'Can\'t Start Discussion',
+        // Core Key Reorganization: Extracted the "Can't Start Discussion" string
+        children: app.trans(canStartDiscussion ? 'core.index_start_discussion_button' : 'core.index_cannot_start_discussion_button'),
         icon: 'edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
@@ -180,7 +181,7 @@ export default class IndexPage extends Page {
     items.add('allDiscussions',
       LinkButton.component({
         href: app.route('index', params),
-        children: app.trans('core.all_discussions'),
+        children: app.trans('core.index_all_discussions_link'),
         icon: 'comments-o'
       }),
       100
@@ -201,7 +202,8 @@ export default class IndexPage extends Page {
 
     const sortOptions = {};
     for (const i in app.cache.discussionList.sortMap()) {
-      sortOptions[i] = app.trans('core.sort_' + i);
+      // Core Key Reorganization: Adjusted syntax for new key names
+      sortOptions[i] = app.trans('core.index_sort_' + i + '_button');
     }
 
     items.add('sort',
@@ -226,7 +228,7 @@ export default class IndexPage extends Page {
 
     items.add('refresh',
       Button.component({
-        title: app.trans('core.refresh'),
+        title: app.trans('core.index_refresh_tooltip'),
         icon: 'refresh',
         className: 'Button Button--icon',
         onclick: () => app.cache.discussionList.refresh()
@@ -236,7 +238,7 @@ export default class IndexPage extends Page {
     if (app.session.user) {
       items.add('markAllAsRead',
         Button.component({
-          title: app.trans('core.mark_all_as_read'),
+          title: app.trans('core.index_mark_all_as_read_tooltip'),
           icon: 'check',
           className: 'Button Button--icon',
           onclick: this.markAllAsRead.bind(this)
