@@ -71,7 +71,7 @@ export default class PostStreamScrubber extends Component {
     const unreadCount = this.props.stream.discussion.unreadCount();
     const unreadPercent = Math.min(this.count() - this.index, unreadCount) / this.count();
 
-    const viewing = app.trans('core.viewing_posts', {
+    const viewing = app.trans('core.post_scrubber_viewing_text', {
       index: <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
       count: <span className="Scrubber-count">{formatNumber(this.count())}</span>
     });
@@ -101,7 +101,7 @@ export default class PostStreamScrubber extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('angle-double-up')} {app.trans('core.original_post')}
+              {icon('angle-double-up')} {app.trans('core.post_scrubber_original_post_link')}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -116,12 +116,12 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-after"/>
 
               <div className="Scrubber-unread" config={styleUnread}>
-                {app.trans('core.unread_posts', {count: unreadCount})}
+                {app.trans('core.post_scrubber_unread_text', {count: unreadCount})}
               </div>
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('angle-double-down')} {app.trans('core.now')}
+              {icon('angle-double-down')} {app.trans('core.post_scrubber_now_link')}
             </a>
           </div>
         </div>

@@ -34,7 +34,7 @@ export default class ForgotPasswordModal extends Modal {
   }
 
   title() {
-    return app.trans('core.forgot_password');
+    return app.trans('core.forgot_password_title');
   }
 
   content() {
@@ -44,10 +44,11 @@ export default class ForgotPasswordModal extends Modal {
       return (
         <div className="Modal-body">
           <div className="Form Form--centered">
-            <p className="helpText">{app.trans('core.password_reset_email_sent')}</p>
+            <p className="helpText">{app.trans('core.forgot_password_email_sent_message')}</p>
             <div className="Form-group">
+              // Core Key Reorganization: This needs to be changed to a dismiss button!
               <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
-                {app.trans('core.go_to', {location: emailProviderName})}
+                {app.trans('core.forgot_password_dismiss_button', {location: emailProviderName})}
               </a>
             </div>
           </div>
@@ -58,9 +59,9 @@ export default class ForgotPasswordModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">{app.trans('core.forgot_password_help')}</p>
+          <p className="helpText">{app.trans('core.forgot_password_text')}</p>
           <div className="Form-group">
-            <input className="FormControl" name="email" type="email" placeholder={app.trans('core.email')}
+            <input className="FormControl" name="email" type="email" placeholder={app.trans('core.forgot_password_email_placeholder')}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
@@ -70,7 +71,7 @@ export default class ForgotPasswordModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.recover_password')
+              children: app.trans('core.forgot_password_submit_button')
             })}
           </div>
         </div>

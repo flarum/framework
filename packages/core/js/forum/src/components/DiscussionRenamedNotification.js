@@ -20,6 +20,6 @@ export default class DiscussionRenamedNotification extends Notification {
   }
 
   content() {
-    return app.trans('core.discussion_renamed_notification', {user: this.props.notification.sender()});
+    return app.trans('core.notifications_discussion_renamed_text', {user: this.props.notification.sender()});
   }
 }

@@ -19,7 +19,8 @@ export default class TerminalPost extends Component {
 
     return (
       <span>
-        {app.trans('core.discussion_' + (lastPost ? 'replied' : 'started'), {
+        // Core Key Reorganization: Adjusted syntax for new key names 
+        {app.trans('core.discussion_list_' + (lastPost ? 'replied' : 'started') + '_text', {
           user,
           ago: humanTime(time)
         })}

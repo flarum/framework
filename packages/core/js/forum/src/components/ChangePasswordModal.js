@@ -11,20 +11,20 @@ export default class ChangePasswordModal extends Modal {
   }
 
   title() {
-    return app.trans('core.change_password');
+    return app.trans('core.change_password_title');
   }
 
   content() {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">{app.trans('core.change_password_help')}</p>
+          <p className="helpText">{app.trans('core.change_password_text')}</p>
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.send_password_reset_email')
+              children: app.trans('core.change_password_send_button')
             })}
           </div>
         </div>

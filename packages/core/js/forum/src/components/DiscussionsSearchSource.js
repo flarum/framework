@@ -28,11 +28,11 @@ export default class DiscussionsSearchSource {
     const results = this.results[query] || [];
 
     return [
-      <li className="Dropdown-header">{app.trans('core.discussions')}</li>,
+      <li className="Dropdown-header">{app.trans('core.search_discussions_heading')}</li>,
       <li>
         {LinkButton.component({
           icon: 'search',
-          children: app.trans('core.search_all_discussions', {query}),
+          children: app.trans('core.search_all_discussions_button', {query}),
           href: app.route('index', {q: query})
         })}
       </li>,

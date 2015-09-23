@@ -7,7 +7,7 @@ export default class NotificationsDropdown extends Dropdown {
     props.className = props.className || 'NotificationsDropdown';
     props.buttonClassName = props.buttonClassName || 'Button Button--flat';
     props.menuClassName = props.menuClassName || 'Dropdown-menu--right';
-    props.label = props.label || app.trans('core.notifications');
+    props.label = props.label || app.trans('core.notifications_tooltip');
     props.icon = props.icon || 'bell';
 
     super.initProps(props);
