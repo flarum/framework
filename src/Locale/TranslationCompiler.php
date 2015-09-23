@@ -34,6 +34,14 @@ class TranslationCompiler
             $translations = array_replace_recursive($translations, Yaml::parse(file_get_contents($filename)));
         }
 
+        // Temporary solution to resolve references.
+        // TODO: Make it do more than one level deep, unit test.
+        array_walk_recursive($translations, function (&$value, $key) use ($translations) {
+            if (preg_match('/^=>\s*([a-z0-9_\.]+)$/i', $value, $matches)) {
+                $value = array_get($translations, $matches[1]);
+            }
+        });
+
         return $translations;
     }
 }
