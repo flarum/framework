@@ -59,9 +59,8 @@ class User extends Model
             'required',
             'alpha_dash',
             'unique',
-            'max:100',
-            'min:3',
-            'not_in:admin,moderator,administrator,root'
+            'max:30',
+            'min:3'
         ],
         'email'             => 'required|email|unique',
         'password'          => 'required',
