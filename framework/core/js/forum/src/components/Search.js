@@ -83,7 +83,7 @@ export default class Search extends Component {
       })}>
         <div className="Search-input">
           <input className="FormControl"
-            placeholder={app.trans('core.search_forum')}
+            placeholder={app.trans('core.header_search_placeholder')}
             value={this.value()}
             oninput={m.withAttr('value', this.value)}
             onfocus={() => this.hasFocus = true}

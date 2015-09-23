@@ -60,7 +60,7 @@ export default {
       if (!post.isHidden()) {
         items.add('edit', Button.component({
           icon: 'pencil',
-          children: app.trans('core.edit'),
+          children: app.trans('core.post_controls_edit_button'),
           onclick: this.editAction.bind(post)
         }));
       }
@@ -85,7 +85,7 @@ export default {
       if (post.canEdit()) {
         items.add('hide', Button.component({
           icon: 'trash-o',
-          children: app.trans('core.delete'),
+          children: app.trans('core.post_controls_delete_button'),
           onclick: this.hideAction.bind(post)
         }));
       }
@@ -93,14 +93,14 @@ export default {
       if (post.canEdit()) {
         items.add('restore', Button.component({
           icon: 'reply',
-          children: app.trans('core.restore'),
+          children: app.trans('core.post_controls_restore_button'),
           onclick: this.restoreAction.bind(post)
         }));
       }
       if (post.canDelete() && post.number() !== 1) {
         items.add('delete', Button.component({
           icon: 'times',
-          children: app.trans('core.delete_forever'),
+          children: app.trans('core.post_controls_delete_forever_button'),
           onclick: this.deleteAction.bind(post)
         }));
       }

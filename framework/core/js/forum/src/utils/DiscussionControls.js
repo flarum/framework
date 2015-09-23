@@ -55,14 +55,15 @@ export default {
         !app.session.user || discussion.canReply()
           ? Button.component({
             icon: 'reply',
-            children: app.session.user ? app.trans('core.reply') : app.trans('core.log_in_to_reply'),
+            // Core Key Reorganization: Combined two app.trans calls into one using Toby's slightly slicker way.
+            children: app.trans(app.session.user ? 'core.discussion_controls_reply_button' : 'core.discussion_controls_log_in_to_reply_button'),
             onclick: this.replyAction.bind(discussion, true, false)
           })
           : Button.component({
             icon: 'reply',
-            children: app.trans('core.cannot_reply'),
+            children: app.trans('core.discussion_controls_cannot_reply_button'),
             className: 'disabled',
-            title: app.trans('core.cannot_reply_help')
+            title: app.trans('core.discussion_controls_cannot_reply_text')
           })
       );
     }
@@ -85,7 +86,7 @@ export default {
     if (discussion.canRename()) {
       items.add('rename', Button.component({
         icon: 'pencil',
-        children: app.trans('core.rename'),
+        children: app.trans('core.discussion_controls_rename_button'),
         onclick: this.renameAction.bind(discussion)
       }));
     }
@@ -109,21 +110,21 @@ export default {
       if (discussion.canHide()) {
         items.add('hide', Button.component({
           icon: 'trash-o',
-          children: app.trans('core.delete'),
+          children: app.trans('core.discussion_controls_delete_button'),
           onclick: this.hideAction.bind(discussion)
         }));
       }
     } else if (discussion.canDelete()) {
       items.add('restore', Button.component({
         icon: 'reply',
-        children: app.trans('core.restore'),
+        children: app.trans('core.discussion_controls_restore_button'),
         onclick: this.restoreAction.bind(discussion),
         disabled: discussion.commentsCount() === 0
       }));
 
       items.add('delete', Button.component({
         icon: 'times',
-        children: app.trans('core.delete_forever'),
+        children: app.trans('core.discussion_controls_delete_forever_button'),
         onclick: this.deleteAction.bind(discussion)
       }));
     }
@@ -216,7 +217,7 @@ export default {
    * @return {Promise}
    */
   deleteAction() {
-    if (confirm(extractText(app.trans('core.confirm_delete_discussion')))) {
+    if (confirm(extractText(app.trans('core.discussion_controls_delete_confirmation')))) {
       // If there is a discussion list in the cache, remove this discussion.
       if (app.cache.discussionList) {
         app.cache.discussionList.removeDiscussion(this);
@@ -239,7 +240,7 @@ export default {
    */
   renameAction() {
     const currentTitle = this.title();
-    const title = prompt(extractText(app.trans('core.prompt_rename_discussion')), currentTitle);
+    const title = prompt(extractText(app.trans('core.discussion_controls_rename_text')), currentTitle);
 
     // If the title is different to what it was before, then save it. After the
     // save has completed, update the post stream as there will be a new post
