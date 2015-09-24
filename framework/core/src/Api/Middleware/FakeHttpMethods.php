@@ -16,13 +16,15 @@ use Zend\Stratigility\MiddlewareInterface;
 
 class FakeHttpMethods implements MiddlewareInterface
 {
+    const HEADER_NAME = 'x-fake-http-method';
+
     /**
      * {@inheritdoc}
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        if ($request->getMethod() === 'POST' && $request->hasHeader('x-http-method')) {
-            $fakeMethod = $request->getHeaderLine('x-http-method');
+        if ($request->getMethod() === 'POST' && $request->hasHeader(self::HEADER_NAME)) {
+            $fakeMethod = $request->getHeaderLine(self::HEADER_NAME);
 
             $request = $request->withMethod(strtoupper($fakeMethod));
         }
