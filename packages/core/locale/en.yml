@@ -1,8 +1,8 @@
 core:
 
-##
-# UNIQUE KEYS - The following keys are used in only one location each.
-##
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
 
   # These strings are used in the Change Email modal dialog.
   change_email_confirmation_message: => core.confirmation_email_sent
@@ -184,9 +184,9 @@ core:
   user_controls_delete_button: => core.delete
   user_controls_edit_button: => core.edit
 
-##
-# REUSED STRINGS - The following keys are referenced by two or more unique keys.
-##
+  ##
+  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  ##
 
   change_email: Change Email
   change_password: Change Password
@@ -209,9 +209,9 @@ core:
   username: Username
   write_a_reply: Write a Reply...
 
-##
-# GLOBAL STRINGS - Keys in this section are used globally (or generated automatically).
-##
+  ##
+  # GLOBAL STRINGS - Keys in this section are used globally (or generated automatically).
+  ##
 
   # This string replaces a deleted username:
   deleted_username: "[deleted]"
