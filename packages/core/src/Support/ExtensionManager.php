@@ -53,7 +53,7 @@ class ExtensionManager
 
             $enabled[] = $extension;
 
-            $class = $this->load($extension);
+            $this->load($extension);
 
             $this->migrate($extension);
 
@@ -130,10 +130,8 @@ class ExtensionManager
         if (file_exists($file = $this->getExtensionsDir() . '/' . $extension . '/bootstrap.php')) {
             $className = require $file;
 
-            $class = new $className($this->app);
+            $ext = new $className($this->app);
         }
-
-        return $class;
     }
 
     protected function getExtensionsDir()
