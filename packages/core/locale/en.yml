@@ -98,7 +98,7 @@ core:
   log_in_confirmation_required_message: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
   log_in_forgot_password_link: Forgot password?
   log_in_invalid_login_message: Your login details were incorrect.
-  log_in_no_account_text: "Don't have an account? "
+  log_in_no_account_text: "Don't have an account? " # Final space is needed for string separation.
   log_in_password_placeholder: => core.password
   log_in_sign_up_link: => core.sign_up
   log_in_submit_button: => core.log_in
@@ -155,7 +155,7 @@ core:
   settings_notify_discussion_renamed_label: Someone renames a discussion I started
 
   # These strings are used in the Sign Up modal dialog.
-  sign_up_already_have_account_text: "Already have an account? "
+  sign_up_already_have_account_text: "Already have an account? " # Final space is needed for string separation.
   sign_up_confirmation_message: => core.confirmation_email_sent
   sign_up_email_placeholder: => core.email
   sign_up_dismiss_button: => core.okay
