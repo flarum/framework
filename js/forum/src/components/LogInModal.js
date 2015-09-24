@@ -37,7 +37,7 @@ export default class LogInModal extends Modal {
   }
 
   title() {
-    return app.trans('core.log_in');
+    return app.trans('core.log_in_title');
   }
 
   content() {
@@ -47,14 +47,14 @@ export default class LogInModal extends Modal {
 
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" placeholder={app.trans('core.username_or_email')}
+            <input className="FormControl" name="email" placeholder={app.trans('core.log_in_username_or_email_placeholder')}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
           </div>
 
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.password')}
+            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.log_in_password_placeholder')}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />
@@ -65,20 +65,21 @@ export default class LogInModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.log_in')
+              children: app.trans('core.log_in_submit_button')
             })}
           </div>
         </div>
       </div>,
       <div className="Modal-footer">
         <p className="LogInModal-forgotPassword">
-          <a onclick={this.forgotPassword.bind(this)}>{app.trans('core.forgot_password_link')}</a>
+          <a onclick={this.forgotPassword.bind(this)}>{app.trans('core.log_in_forgot_password_link')}</a>
         </p>
 
         {app.forum.attribute('allowSignUp') ? (
           <p className="LogInModal-signUp">
-            {app.trans('core.before_sign_up_link')}{' '}
-            <a onclick={this.signUp.bind(this)}>{app.trans('core.sign_up')}</a>
+            // Core Key Reorganization: Moved hardcoded space into preceding string.
+            {app.trans('core.log_in_no_account_text')}
+            <a onclick={this.signUp.bind(this)}>{app.trans('core.log_in_sign_up_link')}</a>
           </p>
         ) : ''}
       </div>
@@ -131,12 +132,12 @@ export default class LogInModal extends Modal {
 
         if (response && response.code === 'confirm_email') {
           this.alert = Alert.component({
-            children: app.trans('core.email_confirmation_required', {email: response.email})
+            children: app.trans('core.log_in_confirmation_required_message', {email: response.email})
           });
         } else {
           this.alert = Alert.component({
             type: 'error',
-            children: app.trans('core.invalid_login')
+            children: app.trans('core.log_in_invalid_login_message')
           });
         }
 

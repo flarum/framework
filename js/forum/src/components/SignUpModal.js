@@ -52,7 +52,7 @@ export default class SignUpModal extends Modal {
   }
 
   title() {
-    return app.trans('core.sign_up');
+    return app.trans('core.sign_up_title');
   }
 
   content() {
@@ -72,14 +72,14 @@ export default class SignUpModal extends Modal {
 
       <div className="Form Form--centered">
         <div className="Form-group">
-          <input className="FormControl" name="username" placeholder={app.trans('core.username')}
+          <input className="FormControl" name="username" placeholder={app.trans('core.sign_up_username_placeholder')}
             value={this.username()}
             onchange={m.withAttr('value', this.username)}
             disabled={this.loading} />
         </div>
 
         <div className="Form-group">
-          <input className="FormControl" name="email" type="email" placeholder={app.trans('core.email')}
+          <input className="FormControl" name="email" type="email" placeholder={app.trans('core.sign_up_email_placeholder')}
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading || (this.props.token && this.props.email)} />
@@ -87,7 +87,7 @@ export default class SignUpModal extends Modal {
 
         {this.props.token ? '' : (
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.password')}
+            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.sign_up_password_placeholder')}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />
@@ -99,7 +99,7 @@ export default class SignUpModal extends Modal {
             className="Button Button--primary Button--block"
             type="submit"
             loading={this.loading}>
-            {app.trans('core.sign_up')}
+            {app.trans('core.sign_up_submit_button')}
           </Button>
         </div>
       </div>
@@ -119,13 +119,14 @@ export default class SignUpModal extends Modal {
           <div className="darkenBackground">
             <div className="container">
               {avatar(user)}
-              <h3>{app.trans('core.welcome_user', {user})}</h3>
+              <h3>{app.trans('core.sign_up_welcome_text', {user})}</h3>
 
-              <p>{app.trans('core.confirmation_email_sent', {email: <strong>{user.email()}</strong>})}</p>
+              <p>{app.trans('core.sign_up_confirmation_message', {email: <strong>{user.email()}</strong>})}</p>
 
               <p>
+                // Core Key Reorganization: This needs to be changed to a dismiss button!
                 <a href={`http://${emailProviderName}`} className="Button Button--primary" target="_blank">
-                  {app.trans('core.go_to', {location: emailProviderName})}
+                  {app.trans('core.sign_up_dismiss_button', {location: emailProviderName})}
                 </a>
               </p>
             </div>
@@ -140,8 +141,9 @@ export default class SignUpModal extends Modal {
   footer() {
     return [
       <p className="SignUpModal-logIn">
-        {app.trans('core.before_log_in_link')}{' '}
-        <a onclick={this.logIn.bind(this)}>{app.trans('core.log_in')}</a>
+        // Core Key Reorganization: Moved hardcoded space into preceding string.
+        {app.trans('core.sign_up_already_have_account_text')}
+        <a onclick={this.logIn.bind(this)}>{app.trans('core.sign_up_log_in_link')}</a>
       </p>
     ];
   }

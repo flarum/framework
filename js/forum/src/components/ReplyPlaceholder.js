@@ -44,7 +44,7 @@ export default class ReplyPlaceholder extends Component {
       <article className="Post ReplyPlaceholder" onclick={reply} onmousedown={triggerClick}>
         <header className="Post-header">
           {avatar(app.session.user, {className: 'PostUser-avatar'})}{' '}
-          {app.trans('core.write_a_reply')}
+          {app.trans('core.post_stream_reply_placeholder')}
         </header>
       </article>
     );

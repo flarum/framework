@@ -47,7 +47,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('profile',
       LinkButton.component({
         icon: 'user',
-        children: app.trans('core.profile'),
+        children: app.trans('core.header_profile_button'),
         href: app.route.user(user)
       }),
       100
@@ -56,7 +56,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('settings',
       LinkButton.component({
         icon: 'cog',
-        children: app.trans('core.settings'),
+        children: app.trans('core.header_settings_button'),
         href: app.route('settings')
       }),
       50
@@ -66,7 +66,7 @@ export default class SessionDropdown extends Dropdown {
       items.add('administration',
         LinkButton.component({
           icon: 'wrench',
-          children: app.trans('core.administration'),
+          children: app.trans('core.header_admin_button'),
           href: app.forum.attribute('baseUrl') + '/admin',
           target: '_blank',
           config: () => {}
@@ -80,7 +80,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('logOut',
       Button.component({
         icon: 'sign-out',
-        children: app.trans('core.log_out'),
+        children: app.trans('core.header_log_out_button'),
         onclick: app.session.logout.bind(app.session)
       }),
       -100
