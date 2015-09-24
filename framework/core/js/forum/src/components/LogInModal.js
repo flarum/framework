@@ -77,7 +77,6 @@ export default class LogInModal extends Modal {
 
         {app.forum.attribute('allowSignUp') ? (
           <p className="LogInModal-signUp">
-            // Core Key Reorganization: Moved hardcoded space into preceding string.
             {app.trans('core.log_in_no_account_text')}
             <a onclick={this.signUp.bind(this)}>{app.trans('core.log_in_sign_up_link')}</a>
           </p>

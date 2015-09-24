@@ -6,7 +6,6 @@
  * @return {Object}
  */
 export default function username(user) {
-  // Core Key Reorganization: Added core namespacing to the key.
   const name = (user && user.username()) || app.trans('core.deleted_username');
 
   return <span className="username">{name}</span>;

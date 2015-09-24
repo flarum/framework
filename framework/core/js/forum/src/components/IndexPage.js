@@ -147,7 +147,6 @@ export default class IndexPage extends Page {
 
     items.add('newDiscussion',
       Button.component({
-        // Core Key Reorganization: Extracted the "Can't Start Discussion" string
         children: app.trans(canStartDiscussion ? 'core.index_start_discussion_button' : 'core.index_cannot_start_discussion_button'),
         icon: 'edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
@@ -202,7 +201,6 @@ export default class IndexPage extends Page {
 
     const sortOptions = {};
     for (const i in app.cache.discussionList.sortMap()) {
-      // Core Key Reorganization: Adjusted syntax for new key names
       sortOptions[i] = app.trans('core.index_sort_' + i + '_button');
     }
 
