@@ -140,7 +140,6 @@ export default class SignUpModal extends Modal {
   footer() {
     return [
       <p className="SignUpModal-logIn">
-        // Core Key Reorganization: Moved hardcoded space into preceding string.
         {app.trans('core.sign_up_already_have_account_text')}
         <a onclick={this.logIn.bind(this)}>{app.trans('core.sign_up_log_in_link')}</a>
       </p>
