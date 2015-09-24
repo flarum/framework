@@ -41,7 +41,8 @@
             app.boot();
           @if (! $forum->attributes->debug)
           } catch (e) {
-            window.location = window.location + '?nojs=1';
+            var nojs = window.location.search ? '&nojs=1' : '?nojs=1';
+            window.location = window.location + nojs;
           }
           @endif
         </script>

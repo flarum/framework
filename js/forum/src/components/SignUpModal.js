@@ -124,9 +124,8 @@ export default class SignUpModal extends Modal {
               <p>{app.trans('core.sign_up_confirmation_message', {email: <strong>{user.email()}</strong>})}</p>
 
               <p>
-                // Core Key Reorganization: This needs to be changed to a dismiss button!
                 <a href={`http://${emailProviderName}`} className="Button Button--primary" target="_blank">
-                  {app.trans('core.sign_up_dismiss_button', {location: emailProviderName})}
+                  {app.trans('core.sign_up_go_to_button', {url: emailProviderName})}
                 </a>
               </p>
             </div>
@@ -141,7 +140,6 @@ export default class SignUpModal extends Modal {
   footer() {
     return [
       <p className="SignUpModal-logIn">
-        // Core Key Reorganization: Moved hardcoded space into preceding string.
         {app.trans('core.sign_up_already_have_account_text')}
         <a onclick={this.logIn.bind(this)}>{app.trans('core.sign_up_log_in_link')}</a>
       </p>

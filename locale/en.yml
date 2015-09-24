@@ -1,12 +1,12 @@
 core:
 
-##
-# UNIQUE KEYS - The following keys are used in only one location each.
-##
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
 
   # These strings are used in the Change Email modal dialog.
   change_email_confirmation_message: => core.confirmation_email_sent
-  change_email_dismiss_button: => core.okay
+  change_email_go_to_button: => core.go_to_url
   change_email_submit_button: => core.save_changes
   change_email_title: => core.change_email
 
@@ -54,8 +54,8 @@ core:
   # These strings are used in the discussion list.
   discussion_list_load_more_button: => core.load_more
   discussion_list_mark_as_read_tooltip: Mark as Read
-  discussion_list_replied_text: "Last reply {ago} by {username}"
-  discussion_list_started_text: "Started {ago} by {username}"
+  discussion_list_replied_text: "{username} replied {ago}"
+  discussion_list_started_text: "{username} started {ago}"
 
   # These strings are used in the Edit User modal dialog (moderator function).
   edit_user_email_label: => core.email
@@ -64,7 +64,7 @@ core:
   edit_user_username_label: => core.username
 
   # These strings are used in the Forgot Password modal dialog.
-  forgot_password_dismiss_button: => core.okay
+  forgot_password_go_to_button: => core.go_to_url
   forgot_password_email_placeholder: => core.email
   forgot_password_email_sent_message: We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
   forgot_password_submit_button: Recover Password
@@ -98,7 +98,7 @@ core:
   log_in_confirmation_required_message: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
   log_in_forgot_password_link: Forgot password?
   log_in_invalid_login_message: Your login details were incorrect.
-  log_in_no_account_text: "Don't have an account? "
+  log_in_no_account_text: "Don't have an account? " # Final space is needed for string separation.
   log_in_password_placeholder: => core.password
   log_in_sign_up_link: => core.sign_up
   log_in_submit_button: => core.log_in
@@ -155,10 +155,10 @@ core:
   settings_notify_discussion_renamed_label: Someone renames a discussion I started
 
   # These strings are used in the Sign Up modal dialog.
-  sign_up_already_have_account_text: "Already have an account? "
+  sign_up_already_have_account_text: "Already have an account? " # Final space is needed for string separation.
   sign_up_confirmation_message: => core.confirmation_email_sent
   sign_up_email_placeholder: => core.email
-  sign_up_dismiss_button: => core.okay
+  sign_up_go_to_button: => core.go_to_url
   sign_up_log_in_link: => core.log_in
   sign_up_password_placeholder: => core.password
   sign_up_submit_button: => core.sign_up
@@ -184,9 +184,9 @@ core:
   user_controls_delete_button: => core.delete
   user_controls_edit_button: => core.edit
 
-##
-# REUSED STRINGS - The following keys are referenced by two or more unique keys.
-##
+  ##
+  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  ##
 
   change_email: Change Email
   change_password: Change Password
@@ -196,11 +196,11 @@ core:
   discussions: Discussions
   edit: Edit
   email: Email
+  go_to_url: "Go to {url}"
   load_more: Load More
   log_in: Log In
   mark_all_as_read: Mark All as Read
   notifications: Notifications
-  okay: OK
   password: Password
   restore: Restore
   save_changes: Save Changes
@@ -209,9 +209,9 @@ core:
   username: Username
   write_a_reply: Write a Reply...
 
-##
-# GLOBAL STRINGS - Keys in this section are used globally (or generated automatically).
-##
+  ##
+  # GLOBAL STRINGS - Keys in this section are used globally (or generated automatically).
+  ##
 
   # This string replaces a deleted username:
   deleted_username: "[deleted]"

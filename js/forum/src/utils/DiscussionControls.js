@@ -55,7 +55,6 @@ export default {
         !app.session.user || discussion.canReply()
           ? Button.component({
             icon: 'reply',
-            // Core Key Reorganization: Combined two app.trans calls into one using Toby's slightly slicker way.
             children: app.trans(app.session.user ? 'core.discussion_controls_reply_button' : 'core.discussion_controls_log_in_to_reply_button'),
             onclick: this.replyAction.bind(discussion, true, false)
           })

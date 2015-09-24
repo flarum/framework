@@ -41,9 +41,8 @@ export default class ChangeEmailModal extends Modal {
           <div className="Form Form--centered">
             <p className="helpText">{app.trans('core.change_email_confirmation_message', {email: <strong>{this.email()}</strong>})}</p>
             <div className="Form-group">
-              // Core Key Reorganization: This needs to be changed to a dismiss button!
               <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
-                {app.trans('core.change_email_dismiss_button', {location: emailProviderName})}
+                {app.trans('core.change_email_go_to_button', {url: emailProviderName})}
               </a>
             </div>
           </div>

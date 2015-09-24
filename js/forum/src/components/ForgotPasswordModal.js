@@ -46,9 +46,8 @@ export default class ForgotPasswordModal extends Modal {
           <div className="Form Form--centered">
             <p className="helpText">{app.trans('core.forgot_password_email_sent_message')}</p>
             <div className="Form-group">
-              // Core Key Reorganization: This needs to be changed to a dismiss button!
               <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
-                {app.trans('core.forgot_password_dismiss_button', {location: emailProviderName})}
+                {app.trans('core.forgot_password_go_to_button', {url: emailProviderName})}
               </a>
             </div>
           </div>
