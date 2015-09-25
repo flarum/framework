@@ -19,7 +19,7 @@
         "issues": "https://github.com/flarum/core/issues"
     },
     "icon": {
-        "name": "globe",
+        "name": "language",
         "backgroundColor": "#eee",
         "color": "#000"
     }
