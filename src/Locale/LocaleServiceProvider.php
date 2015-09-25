@@ -24,19 +24,7 @@ class LocaleServiceProvider extends ServiceProvider
     {
         $manager = $this->app->make('flarum.localeManager');
 
-        $this->registerLocale($manager, 'en', 'English');
-
         event(new RegisterLocales($manager));
-    }
-
-    public function registerLocale(LocaleManager $manager, $locale, $title)
-    {
-        $path = __DIR__.'/../../locale/'.$locale;
-
-        $manager->addLocale($locale, $title);
-        $manager->addTranslations($locale, $path.'.yml');
-        $manager->addConfig($locale, $path.'.php');
-        $manager->addJsFile($locale, $path.'.js');
     }
 
     public function register()
@@ -45,10 +33,6 @@ class LocaleServiceProvider extends ServiceProvider
 
         $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
 
-        $this->app->bind('translator', function ($app) {
-            $locales = $app->make('flarum.localeManager');
-
-            return new Translator($locales->getTranslations('en'), $locales->getConfig('en')['plural']);
-        });
+        $this->app->instance('translator', new Translator);
     }
 }

@@ -100,15 +100,15 @@ abstract class ClientAction extends HtmlAction
         $actor = app('flarum.actor');
         $assets = $this->getAssets();
         $locale = $this->getLocale($actor, $request);
-        $localeCompiler = $this->getLocaleCompiler($locale);
+        $localeCompiler = $locale ? $this->getLocaleCompiler($locale) : null;
 
         $view = new ClientView(
             $this->apiClient,
             $request,
             $actor,
             $assets,
-            $localeCompiler,
-            $this->layout
+            $this->layout,
+            $localeCompiler
         );
 
         $view->setVariable('locales', $this->locales->getLocales());
@@ -120,14 +120,17 @@ abstract class ClientAction extends HtmlAction
         // which translations should be included in the locale file. Afterwards,
         // we will filter all of the translations for the actor's locale and
         // compile only the ones we need.
-        $translations = $this->locales->getTranslations($locale);
         $keys = $this->translationKeys;
 
         event(new BuildClientView($this, $view, $keys));
 
-        $translations = $this->filterTranslations($translations, $keys);
+        if ($localeCompiler) {
+            $translations = $this->locales->getTranslations($locale);
 
-        $localeCompiler->setTranslations($translations);
+            $translations = $this->filterTranslations($translations, $keys);
+
+            $localeCompiler->setTranslations($translations);
+        }
 
         return $view;
     }
@@ -141,6 +144,12 @@ abstract class ClientAction extends HtmlAction
     public function flushAssets()
     {
         $this->getAssets()->flush();
+
+        $locales = array_keys($this->locales->getLocales());
+
+        foreach ($locales as $locale) {
+            $this->getLocaleCompiler($locale)->flush();
+        }
     }
 
     /**
@@ -251,11 +260,9 @@ abstract class ClientAction extends HtmlAction
             $locale = $this->settings->get('default_locale', 'en');
         }
 
-        if (! $this->locales->hasLocale($locale)) {
-            return 'en';
+        if ($this->locales->hasLocale($locale)) {
+            return $locale;
         }
-
-        return $locale;
     }
 
     /**
