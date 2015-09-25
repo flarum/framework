@@ -1,0 +1,230 @@
+core:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # These strings are used in the Change Email modal dialog.
+  change_email_confirmation_message: => core.confirmation_email_sent
+  change_email_go_to_button: => core.go_to_url
+  change_email_submit_button: => core.save_changes
+  change_email_title: => core.change_email
+
+  # These strings are used in the Change Password modal dialog.
+  change_password_send_button: Send Password Reset Email
+  change_password_text: Click the button below and check your email for a link to change your password.
+  change_password_title: => core.change_password
+
+  # These strings are used by the Composer controls.
+  composer_close_tooltip: Close
+  composer_exit_full_screen_tooltip: Exit Full Screen
+  composer_full_screen_tooltip: Full Screen
+  composer_minimize_tooltip: Minimize
+
+  # These strings are used by the Composer when starting a discussion.
+  composer_discussion_body_placeholder: Write a Post...
+  composer_discussion_discard_confirmation: You have not posted your discussion. Do you wish to discard it?
+  composer_discussion_submit_button: Post Discussion
+  composer_discussion_title_placeholder: Discussion Title
+
+  # These strings are used by the Composer when editing a post.
+  composer_edit_discard_confirmation: You have not saved your changes. Do you wish to discard them?
+  composer_edit_post_link: "Post #{number} in {discussion}"
+  composer_edit_submit_button: => core.save_changes
+
+  # These strings are used by the Composer when replying to a discussion.
+  composer_reply_body_placeholder: => core.write_a_reply
+  composer_reply_discard_confirmation: You have not posted your reply. Do you wish to discard it?
+  composer_reply_posted_message: Your reply was posted.
+  composer_reply_submit_button: Post Reply
+  composer_reply_view_button: View
+
+  # These strings are used by the discussion control buttons.
+  discussion_controls_cannot_reply_button: Can't Reply
+  discussion_controls_cannot_reply_text: You don't have permission to reply to this discussion.
+  discussion_controls_delete_button: => core.delete
+  discussion_controls_delete_confirmation: Are you sure you want to delete this discussion?
+  discussion_controls_delete_forever_button: => core.delete_forever
+  discussion_controls_log_in_to_reply_button: Log In to Reply
+  discussion_controls_rename_button: Rename
+  discussion_controls_rename_text: Enter a new title for this discussion:
+  discussion_controls_reply_button: Reply
+  discussion_controls_restore_button: => core.restore
+
+  # These strings are used in the discussion list.
+  discussion_list_load_more_button: => core.load_more
+  discussion_list_mark_as_read_tooltip: Mark as Read
+  discussion_list_replied_text: "{username} replied {ago}"
+  discussion_list_started_text: "{username} started {ago}"
+
+  # These strings are used in the Edit User modal dialog (moderator function).
+  edit_user_email_label: => core.email
+  edit_user_password_label: => core.password
+  edit_user_submit_button: => core.save_changes
+  edit_user_username_label: => core.username
+
+  # These strings are used in the Forgot Password modal dialog.
+  forgot_password_go_to_button: => core.go_to_url
+  forgot_password_email_placeholder: => core.email
+  forgot_password_email_sent_message: We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
+  forgot_password_submit_button: Recover Password
+  forgot_password_text: Enter your email address and we will send you a link to reset your password.
+  forgot_password_title: Forgot Password
+
+  # These strings are used in the header and session dropdown menu.
+  header_admin_button: Administration
+  header_log_in_link: => core.log_in
+  header_log_out_button: Log Out
+  header_profile_button: Profile
+  header_search_placeholder: Search Forum
+  header_settings_button: => core.settings
+  header_sign_up_link: => core.sign_up
+
+  # These strings are used on the index page, peripheral to the discussion list.
+  index_all_discussions_link: All Discussions
+  index_cannot_start_discussion_button: "Can't Start Discussion"
+  index_mark_all_as_read_tooltip: => core.mark_all_as_read
+  index_refresh_tooltip: Refresh
+  index_start_discussion_button: Start a Discussion
+
+  # These strings are used by the sorting control above the discussion list.
+  index_sort_latest_button: Latest
+  index_sort_newest_button: Newest
+  index_sort_oldest_button: Oldest
+  index_sort_relevance_button: Relevance
+  index_sort_top_button: Top
+
+  # These strings are used in the Log In modal dialog.
+  log_in_confirmation_required_message: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
+  log_in_forgot_password_link: Forgot password?
+  log_in_invalid_login_message: Your login details were incorrect.
+  log_in_no_account_text: "Don't have an account? " # Final space is needed for string separation.
+  log_in_password_placeholder: => core.password
+  log_in_sign_up_link: => core.sign_up
+  log_in_submit_button: => core.log_in
+  log_in_title: => core.log_in
+  log_in_username_or_email_placeholder: Username or Email
+
+  # These strings are used by the Notifications dropdown, a.k.a. "the bell".
+  notifications_discussion_renamed_text: "{username} changed the title"
+  notifications_empty_text: No Notifications
+  notifications_mark_all_as_read_tooltip: => core.mark_all_as_read
+  notifications_title: => core.notifications
+  notifications_tooltip: => core.notifications
+
+  # These strings are used by tooltips displayed for individual posts.
+  post_edited_tooltip: "{username} edited {ago}"
+  post_number_tooltip: "Post #{number}"
+
+  # These strings are used by the post control buttons.
+  post_controls_delete_button: => core.delete
+  post_controls_delete_forever_button: => core.delete_forever
+  post_controls_edit_button: => core.edit
+  post_controls_restore_button: => core.restore
+
+  # These strings are used in the scrubber to the right of the post stream.
+  post_scrubber_now_link: Now
+  post_scrubber_original_post_link: Original Post
+  post_scrubber_unread_text: "{count} unread"
+  post_scrubber_viewing_text:
+    one: "{index} of {count} post"
+    other: "{index} of {count} posts"
+
+  # These strings are displayed between posts in the post stream.
+  post_stream_discussion_renamed_text: "{username} changed the title from {old} to {new}."
+  post_stream_reply_placeholder: => core.write_a_reply
+  post_stream_time_lapsed_text: "{period} later"
+
+  # These strings are used by the search results dropdown list.
+  search_all_discussions_button: 'Search all discussions for "{query}"'
+  search_discussions_heading: => core.discussions
+  search_users_heading: Users
+
+  # These strings are used in the Settings page.
+  settings_account_heading: Account
+  settings_change_email_button: => core.change_email
+  settings_change_password_button: => core.change_password
+  settings_notifications_heading: => core.notifications
+  settings_privacy_disclose_online_label: Allow others to see when I am online
+  settings_privacy_heading: Privacy
+  settings_title: => core.settings
+
+  # These strings are used in the Notifications grid on the Settings page.
+  settings_notify_by_email_heading: => core.email
+  settings_notify_by_web_heading: Web
+  settings_notify_discussion_renamed_label: Someone renames a discussion I started
+
+  # These strings are used in the Sign Up modal dialog.
+  sign_up_already_have_account_text: "Already have an account? " # Final space is needed for string separation.
+  sign_up_confirmation_message: => core.confirmation_email_sent
+  sign_up_email_placeholder: => core.email
+  sign_up_go_to_button: => core.go_to_url
+  sign_up_log_in_link: => core.log_in
+  sign_up_password_placeholder: => core.password
+  sign_up_submit_button: => core.sign_up
+  sign_up_title: => core.sign_up
+  sign_up_username_placeholder: => core.username
+  sign_up_welcome_text: "Welcome, {username}!"
+
+  # These strings are used in the user profile page and profile popup.
+  user_bio_placeholder: Write something about yourself
+  user_discussions_link: => core.discussions
+  user_joined_date_text: "Joined {ago}"
+  user_online_text: Online
+  user_posts_load_more_button: => core.load_more
+  user_posts_link: Posts
+  user_settings_link: => core.settings
+
+  # These strings are used to control the avatar in the user profile page.
+  user_avatar_remove_button: Remove
+  user_avatar_upload_button: Upload
+
+  # These strings are found on the user profile page (moderator function).
+  user_controls_button: Controls
+  user_controls_delete_button: => core.delete
+  user_controls_edit_button: => core.edit
+
+  ##
+  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  ##
+
+  change_email: Change Email
+  change_password: Change Password
+  confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
+  delete: Delete
+  delete_forever: Delete Forever
+  discussions: Discussions
+  edit: Edit
+  email: Email
+  go_to_url: "Go to {url}"
+  load_more: Load More
+  log_in: Log In
+  mark_all_as_read: Mark All as Read
+  notifications: Notifications
+  password: Password
+  restore: Restore
+  save_changes: Save Changes
+  settings: Settings
+  sign_up: Sign Up
+  username: Username
+  write_a_reply: Write a Reply...
+
+  ##
+  # GLOBAL STRINGS - Keys in this section are used globally (or generated automatically).
+  ##
+
+  # This string replaces a deleted username:
+  deleted_username: "[deleted]"
+
+  # The following keys are generated from group names:
+  group_admin: Admin
+  group_admins: Admins
+  group_guest: Guest
+  group_guests: Guests
+  group_member: Member
+  group_members: Members
+  group_mod: Mod
+  group_mods: Mods
+
+  # This string is currently unused:
+  powered_by_flarum: Powered by Flarum
