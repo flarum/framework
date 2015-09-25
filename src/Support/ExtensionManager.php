@@ -53,8 +53,6 @@ class ExtensionManager
 
             $enabled[] = $extension;
 
-            $this->load($extension);
-
             $this->migrate($extension);
 
             $this->setEnabled($enabled);
@@ -75,8 +73,6 @@ class ExtensionManager
     public function uninstall($extension)
     {
         $this->disable($extension);
-
-        $this->load($extension);
 
         $this->migrateDown($extension);
     }
@@ -123,15 +119,6 @@ class ExtensionManager
     public function isEnabled($extension)
     {
         return in_array($extension, $this->getEnabled());
-    }
-
-    protected function load($extension)
-    {
-        if (file_exists($file = $this->getExtensionsDir() . '/' . $extension . '/bootstrap.php')) {
-            $className = require $file;
-
-            $ext = new $className($this->app);
-        }
     }
 
     protected function getExtensionsDir()
