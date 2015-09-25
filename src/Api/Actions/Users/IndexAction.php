@@ -14,7 +14,7 @@ use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Users\Search\UserSearcher;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Http\UrlGeneratorInterface;
+use Flarum\Api\Http\UrlGeneratorInterface;
 use Tobscure\JsonApi\Document;
 
 class IndexAction extends SerializeCollectionAction

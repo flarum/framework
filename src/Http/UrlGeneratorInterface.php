@@ -11,7 +11,11 @@
 
 namespace Flarum\Http;
 
-interface UrlGeneratorInterface
+use Flarum\Admin\Http\UrlGeneratorInterface as AdminInterface;
+use Flarum\Api\Http\UrlGeneratorInterface as ApiInterface;
+use Flarum\Forum\Http\UrlGeneratorInterface as ForumInterface;
+
+interface UrlGeneratorInterface extends AdminInterface, ApiInterface, ForumInterface
 {
     public function toRoute($name, $parameters = []);
 

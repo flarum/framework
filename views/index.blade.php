@@ -1,5 +1,5 @@
 <?php
-$url = app('Flarum\Http\UrlGeneratorInterface');
+$url = app('Flarum\Forum\Http\UrlGeneratorInterface');
 ?>
 <div class="container">
     <h2>All Discussions</h2>

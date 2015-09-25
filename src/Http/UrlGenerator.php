@@ -27,7 +27,7 @@ class UrlGenerator implements UrlGeneratorInterface
     {
         $path = $this->routes->getPath($name, $parameters);
         $path = ltrim($path, '/');
-
+        
         return Core::url() . "/$path";
     }
 
