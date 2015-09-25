@@ -1,0 +1,21 @@
+# Automatically normalize line endings for all text-based files
+# http://git-scm.com/docs/gitattributes#_end_of_line_conversion
+* text=auto
+
+# For the following file types, normalize line endings to LF on
+# check in and prevent conversion to CRLF when they are checked out
+# (this is required in order to prevent newline related issues like,
+# for example, after the build script is run)
+.*     text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.php  text eol=lf
+*.yml  text eol=lf
+
+# Exclude the following files when exporting an archive
+# https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes#Exporting-Your-Repository
+.editorconfig  export-ignore
+.gitattributes export-ignore
+.gitignore     export-ignore
+README.md      export-ignore
