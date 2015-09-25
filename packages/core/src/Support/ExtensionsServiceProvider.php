@@ -23,19 +23,19 @@ class ExtensionsServiceProvider extends ServiceProvider
 
         $config = $this->app->make('Flarum\Core\Settings\SettingsRepository')->get('extensions_enabled');
         $extensions = json_decode($config, true);
-        $providers = [];
-
-        foreach ($extensions as $extension) {
-            if (file_exists($file = public_path().'/extensions/'.$extension.'/bootstrap.php')) {
-                $providerName = require $file;
-                $providers[$extension] = $this->app->register($providerName);
-            }
-        }
 
         $events = $this->app->make('events');
 
-        foreach ($providers as $provider) {
-            $provider->listen($events);
+        foreach ($extensions as $extension) {
+            if (file_exists($file = public_path().'/extensions/'.$extension.'/bootstrap.php')) {
+                $provider = require $file;
+
+                if (is_string($provider)) {
+                    $this->app->register($provider)->listen($events);
+                } elseif (is_callable($provider)) {
+                    $provider($events);
+                }
+            }
         }
     }
 }
