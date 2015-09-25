@@ -110,23 +110,23 @@ class ClientView implements Renderable
      * @param Request $request
      * @param User $actor
      * @param AssetManager $assets
-     * @param JsCompiler $locale
      * @param string $layout
+     * @param JsCompiler $locale
      */
     public function __construct(
         Client $apiClient,
         Request $request,
         User $actor,
         AssetManager $assets,
-        JsCompiler $locale,
-        $layout
+        $layout,
+        JsCompiler $locale = null
     ) {
         $this->apiClient = $apiClient;
         $this->request = $request;
         $this->actor = $actor;
         $this->assets = $assets;
-        $this->locale = $locale;
         $this->layout = $layout;
+        $this->locale = $locale;
     }
 
     /**
@@ -262,7 +262,11 @@ class ClientView implements Renderable
         $view->noJs = $noJs;
 
         $view->styles = [$this->assets->getCssFile()];
-        $view->scripts = [$this->assets->getJsFile(), $this->locale->getFile()];
+        $view->scripts = [$this->assets->getJsFile()];
+
+        if ($this->locale) {
+            $view->scripts[] = $this->locale->getFile();
+        }
 
         $view->head = implode("\n", $this->headStrings);
         $view->foot = implode("\n", $this->footStrings);

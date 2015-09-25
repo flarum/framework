@@ -15,21 +15,27 @@ use Closure;
 
 class Translator implements TranslatorInterface
 {
-    protected $translations;
+    protected $translations = [];
 
     protected $plural;
 
-    public function __construct(array $translations, Closure $plural)
+    public function setTranslations(array $translations)
     {
         $this->translations = $translations;
+    }
+
+    public function setPlural(callable $plural)
+    {
         $this->plural = $plural;
     }
 
     protected function plural($count)
     {
-        $plural = $this->plural;
+        if ($this->plural) {
+            $plural = $this->plural;
 
-        return $plural($count);
+            return $plural($count);
+        }
     }
 
     public function getLocale()
@@ -47,7 +53,11 @@ class Translator implements TranslatorInterface
         $translation = array_get($this->translations, $id);
 
         if (is_array($translation) && isset($parameters['count'])) {
-            $translation = $translation[$this->plural($parameters['count'])];
+            $plural = $this->plural($parameters['count']);
+
+            if ($plural) {
+                $translation = $translation[$plural];
+            }
         }
 
         if (is_string($translation)) {
