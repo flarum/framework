@@ -6,12 +6,13 @@ export default class DashboardPage extends Component {
       <div className="DashboardPage">
         <div className="container">
           <h2>Welcome to Flarum Beta</h2>
-          <p>Thanks for trying out Flarum! You are running version <strong>{app.forum.attribute('version')}</strong>. This is beta software, and should not be used in production.</p>
+          <p>Thanks for trying out Flarum! You are running version <strong>{app.forum.attribute('version')}</strong>.</p>
+          <p>This <strong>beta software</strong> is provided primarily so that you can help us test it and make it better; it should not be used in production.</p>
           <ul>
-            <li>Having problems? Read the <a href="http://flarum.org/docs/troubleshooting" target="_blank">Troubleshooting docs</a>.</li>
-            <li>Found a bug? Please <a href="https://github.com/flarum/core/issues" target="_blank">report it on GitHub</a>.</li>
-            <li>Got some feedback? Let us know what you think on the <a href="http://discuss.flarum.org" target="_blank">Support Forum</a>.</li>
-            <li>Want to contribute? Read the <a href="http://flarum.org/docs/contributing" target="_blank">Contributing docs</a>.</li>
+            <li>Want to look for bugs and contribute? Read the <a href="http://flarum.org/docs/contributing" target="_blank">Contributing docs</a>.</li>
+            <li>Having problems? Follow the instructions in the <a href="http://flarum.org/docs/troubleshooting" target="_blank">Troubleshooting docs</a>.</li>
+            <li>Found a bug? Please report it in our forum, under the <a href="http://discuss.flarum.org/t/support" target="_blank">Support tag</a>.</li>
+            <li>Got an idea to improve a feature? Tell us about it under the <a href="http://discuss.flarum.org/t/features" target="_blank">Features tag</a>.</li>
             <li>Interested in developing extensions? Read the <a href="http://flarum.org/docs/extend" target="_blank">Extension docs</a>.</li>
           </ul>
         </div>
