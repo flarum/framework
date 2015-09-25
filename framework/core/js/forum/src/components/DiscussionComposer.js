@@ -1,4 +1,5 @@
 import ComposerBody from 'flarum/components/ComposerBody';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `DiscussionComposer` component displays the composer content for starting
@@ -26,10 +27,10 @@ export default class DiscussionComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.placeholder = props.placeholder || app.trans('core.composer_discussion_body_placeholder');
+    props.placeholder = props.placeholder || extractText(app.trans('core.composer_discussion_body_placeholder'));
     props.submitLabel = props.submitLabel || app.trans('core.composer_discussion_submit_button');
-    props.confirmExit = props.confirmExit || app.trans('core.composer_discussion_discard_confirmation');
-    props.titlePlaceholder = props.titlePlaceholder || app.trans('core.composer_discussion_title_placeholder');
+    props.confirmExit = props.confirmExit || extractText(app.trans('core.composer_discussion_discard_confirmation'));
+    props.titlePlaceholder = props.titlePlaceholder || extractText(app.trans('core.composer_discussion_title_placeholder'));
   }
 
   headerItems() {

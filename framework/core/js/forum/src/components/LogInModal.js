@@ -4,6 +4,7 @@ import SignUpModal from 'flarum/components/SignUpModal';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 import LogInButtons from 'flarum/components/LogInButtons';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.
@@ -47,14 +48,14 @@ export default class LogInModal extends Modal {
 
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" placeholder={app.trans('core.log_in_username_or_email_placeholder')}
+            <input className="FormControl" name="email" placeholder={extractText(app.trans('core.log_in_username_or_email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
           </div>
 
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.log_in_password_placeholder')}
+            <input className="FormControl" name="password" type="password" placeholder={extractText(app.trans('core.log_in_password_placeholder'))}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />

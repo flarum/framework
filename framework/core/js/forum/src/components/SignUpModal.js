@@ -3,6 +3,7 @@ import LogInModal from 'flarum/components/LogInModal';
 import avatar from 'flarum/helpers/avatar';
 import Button from 'flarum/components/Button';
 import LogInButtons from 'flarum/components/LogInButtons';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.
@@ -72,14 +73,14 @@ export default class SignUpModal extends Modal {
 
       <div className="Form Form--centered">
         <div className="Form-group">
-          <input className="FormControl" name="username" placeholder={app.trans('core.sign_up_username_placeholder')}
+          <input className="FormControl" name="username" placeholder={extractText(app.trans('core.sign_up_username_placeholder'))}
             value={this.username()}
             onchange={m.withAttr('value', this.username)}
             disabled={this.loading} />
         </div>
 
         <div className="Form-group">
-          <input className="FormControl" name="email" type="email" placeholder={app.trans('core.sign_up_email_placeholder')}
+          <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.sign_up_email_placeholder'))}
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading || (this.props.token && this.props.email)} />
@@ -87,7 +88,7 @@ export default class SignUpModal extends Modal {
 
         {this.props.token ? '' : (
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={app.trans('core.sign_up_password_placeholder')}
+            <input className="FormControl" name="password" type="password" placeholder={extractText(app.trans('core.sign_up_password_placeholder'))}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />

@@ -1,6 +1,7 @@
 import Component from 'flarum/Component';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import classList from 'flarum/utils/classList';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `UserBio` component displays a user's bio, optionally letting the user
@@ -30,7 +31,7 @@ export default class UserBio extends Component {
     let content;
 
     if (this.editing) {
-      content = <textarea className="FormControl" placeholder={app.trans('core.user_bio_placeholder')} rows="3" value={user.bio()}/>;
+      content = <textarea className="FormControl" placeholder={extractText(app.trans('core.user_bio_placeholder'))} rows="3" value={user.bio()}/>;
     } else {
       let subContent;
 
