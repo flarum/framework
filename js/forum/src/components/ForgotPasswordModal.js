@@ -1,6 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `ForgotPasswordModal` component displays a modal which allows the user to
@@ -60,7 +61,7 @@ export default class ForgotPasswordModal extends Modal {
         <div className="Form Form--centered">
           <p className="helpText">{app.trans('core.forgot_password_text')}</p>
           <div className="Form-group">
-            <input className="FormControl" name="email" type="email" placeholder={app.trans('core.forgot_password_email_placeholder')}
+            <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.forgot_password_email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />

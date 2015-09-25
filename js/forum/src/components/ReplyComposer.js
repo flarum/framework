@@ -2,6 +2,7 @@ import ComposerBody from 'flarum/components/ComposerBody';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 import icon from 'flarum/helpers/icon';
+import extractText from 'flarum/utils/extractText';
 
 /**
  * The `ReplyComposer` component displays the composer content for replying to a
@@ -24,9 +25,9 @@ export default class ReplyComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.placeholder = props.placeholder || app.trans('core.composer_reply_body_placeholder');
+    props.placeholder = props.placeholder || extractText(app.trans('core.composer_reply_body_placeholder'));
     props.submitLabel = props.submitLabel || app.trans('core.composer_reply_submit_button');
-    props.confirmExit = props.confirmExit || app.trans('core.composer_reply_discard_confirmation');
+    props.confirmExit = props.confirmExit || extractText(app.trans('core.composer_reply_discard_confirmation'));
   }
 
   headerItems() {

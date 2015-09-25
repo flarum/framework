@@ -2,6 +2,7 @@ import Component from 'flarum/Component';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import ItemList from 'flarum/utils/ItemList';
 import classList from 'flarum/utils/classList';
+import extractText from 'flarum/utils/extractText';
 import icon from 'flarum/helpers/icon';
 import DiscussionsSearchSource from 'flarum/components/DiscussionsSearchSource';
 import UsersSearchSource from 'flarum/components/UsersSearchSource';
@@ -83,7 +84,7 @@ export default class Search extends Component {
       })}>
         <div className="Search-input">
           <input className="FormControl"
-            placeholder={app.trans('core.header_search_placeholder')}
+            placeholder={extractText(app.trans('core.header_search_placeholder'))}
             value={this.value()}
             oninput={m.withAttr('value', this.value)}
             onfocus={() => this.hasFocus = true}
