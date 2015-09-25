@@ -124,7 +124,7 @@ class Composer extends Component {
     // component a chance to scream at the user to make sure they don't
     // unintentionally lose any contnet.
     window.onbeforeunload = () => {
-      return (this.component && this.component.preventExit()) || null;
+      return (this.component && this.component.preventExit()) || undefined;
     };
 
     const handlers = {};
