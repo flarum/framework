@@ -23,11 +23,17 @@ class Client
     protected $container;
 
     /**
+     * @var JsonApiErrors
+     */
+    private $jsonApiErrors;
+
+    /**
      * @param Container $container
      */
-    public function __construct(Container $container)
+    public function __construct(Container $container, JsonApiErrors $jsonApiErrors)
     {
         $this->container = $container;
+        $this->jsonApiErrors = $jsonApiErrors;
     }
 
     /**
@@ -46,9 +52,7 @@ class Client
         try {
             $response = $action->handle(new Request($input, $actor));
         } catch (Exception $e) {
-            $middleware = new JsonApiErrors();
-
-            $response = $middleware->handle($e);
+            $response = $this->jsonApiErrors->handle($e);
         }
 
         return new Response($response);
