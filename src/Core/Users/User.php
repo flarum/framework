@@ -16,7 +16,6 @@ use Flarum\Core\Model;
 use Flarum\Core\Notifications\Notification;
 use Flarum\Events\RegisterUserPreferences;
 use Illuminate\Contracts\Hashing\Hasher;
-use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Events\UserWasDeleted;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Events\UserWasRegistered;
