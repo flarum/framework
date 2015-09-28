@@ -36,8 +36,9 @@
         "doctrine/dbal": "^2.5"
     },
     "require-dev": {
+        "mockery/mockery": "^0.9.4",
         "squizlabs/php_codesniffer": "2.*",
-        "phpspec/phpspec": "^2.2"
+        "phpunit/phpunit": "^4.8"
     },
     "autoload": {
         "psr-4": {
@@ -47,8 +48,13 @@
             "src/helpers.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests/"
+        }
+    },
     "scripts": {
-        "test": "phpspec run",
+        "test": "vendor/bin/phpunit -c tests/phpunit.xml",
         "style": "phpcs --standard=PSR2 -np src"
     }
 }
