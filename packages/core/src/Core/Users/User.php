@@ -466,7 +466,7 @@ class User extends Model
      */
     public function getNewNotificationsCount()
     {
-        return $this->getUnreadNotifications()->filter(function($notification) {
+        return $this->getUnreadNotifications()->filter(function ($notification) {
             return $notification->time > $this->notifications_read_time ?: 0;
         })->count();
     }
