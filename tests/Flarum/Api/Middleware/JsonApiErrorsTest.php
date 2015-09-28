@@ -4,6 +4,7 @@ namespace tests\Flarum\Api\Middleware;
 use Flarum\Api\Middleware\JsonApiErrors;
 use Illuminate\Contracts\Support\MessageProvider;
 use Illuminate\Contracts\Validation\ValidationException;
+use Mockery as m;
 use tests\Test\Stubs\ApiException;
 use tests\Test\TestCase;
 
@@ -33,6 +34,6 @@ class JsonApiErrorsTest extends TestCase
 
         $response = $this->middleware->handle($exception);
 
-        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(422, $response->getStatusCode());
     }
 }
