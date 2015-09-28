@@ -33,7 +33,8 @@
         "dflydev/fig-cookies": "^1.0",
         "symfony/console": "^2.7",
         "symfony/yaml": "^2.7",
-        "doctrine/dbal": "^2.5"
+        "doctrine/dbal": "^2.5",
+        "zendframework/zend-stratigility": "^1.1"
     },
     "require-dev": {
         "mockery/mockery": "^0.9.4",
