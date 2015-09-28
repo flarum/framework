@@ -4,3 +4,4 @@ composer.phar
 Thumbs.db
 tests/_output/*
 .vagrant
+.idea/*
