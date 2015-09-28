@@ -4,6 +4,7 @@ namespace tests\Flarum\Api\Middleware;
 use Flarum\Api\Middleware\JsonApiErrors;
 use Illuminate\Contracts\Support\MessageProvider;
 use Illuminate\Contracts\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Mockery as m;
 use tests\Test\Stubs\ApiException;
 use tests\Test\TestCase;
@@ -35,5 +36,12 @@ class JsonApiErrorsTest extends TestCase
         $response = $this->middleware->handle($exception);
 
         $this->assertEquals(422, $response->getStatusCode());
+    }
+
+    public function it_should_handle_model_not_found_exceptions()
+    {
+        $response = $this->middleware->handle(new ModelNotFoundException);
+
+        $this->assertEquals(404, $response->getStatusCode());
     }
 }
