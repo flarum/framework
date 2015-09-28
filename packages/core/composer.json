@@ -42,12 +42,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Flarum\\": "src/",
-            "tests\\": "tests/"
+            "Flarum\\": "src/"
         },
         "files": [
             "src/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests/"
+        }
     },
     "scripts": {
         "test": "vendor/bin/phpunit -c tests/phpunit.xml",
