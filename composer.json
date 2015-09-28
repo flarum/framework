@@ -33,10 +33,10 @@
         "dflydev/fig-cookies": "^1.0",
         "symfony/console": "^2.7",
         "symfony/yaml": "^2.7",
-        "doctrine/dbal": "^2.5",
-        "mockery/mockery": "^0.9.4"
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
+        "mockery/mockery": "^0.9.4",
         "squizlabs/php_codesniffer": "2.*",
         "phpunit/phpunit": "^4.8"
     },
