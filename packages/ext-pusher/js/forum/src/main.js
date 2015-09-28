@@ -138,7 +138,8 @@ app.initializers.add('pusher', () => {
     if (channels.user) {
       channels.user.bind('notification', () => {
         app.session.user.pushAttributes({
-          unreadNotificationsCount: app.session.user.unreadNotificationsCount() + 1
+          unreadNotificationsCount: app.session.user.unreadNotificationsCount() + 1,
+          newNotificationsCount: app.session.user.newNotificationsCount() + 1
         });
         delete app.cache.notifications;
         m.redraw();
