@@ -24,14 +24,15 @@
   }
 }
 
-.NotificationsDropdown .Dropdown-toggle.unread .Button-icon {
+.NotificationsDropdown .Dropdown-toggle.new .Button-icon {
   color: @header-color;
 }
+
 .NotificationsDropdown-unread {
   position: absolute;
   top: 1px;
   left: 17px;
-  background: @header-color;
+  background: @control-color;
   color: @header-bg;
   font-size: 11px;
   font-weight: bold;
@@ -41,4 +42,8 @@
   border: 1px solid @header-bg;
   min-width: 18px;
   height: 18px;
+
+  .new & {
+    background: @header-color;
+  }
 }

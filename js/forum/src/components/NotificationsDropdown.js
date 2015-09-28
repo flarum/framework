@@ -27,11 +27,12 @@ export default class NotificationsDropdown extends Dropdown {
   }
 
   getButton() {
-    const unread = this.getUnreadCount();
+    const newNotifications = this.getNewCount();
     const vdom = super.getButton();
 
     vdom.attrs.title = this.props.label;
-    vdom.attrs.className += (unread ? ' unread' : '');
+
+    vdom.attrs.className += (newNotifications ? ' new' : '');
     vdom.attrs.onclick = this.onclick.bind(this);
 
     return vdom;
@@ -69,6 +70,12 @@ export default class NotificationsDropdown extends Dropdown {
   }
 
   getUnreadCount() {
+    return app.cache.notifications ?
+        app.cache.notifications.filter(notification => !notification.isRead()).length :
+        0;
+  }
+
+  getNewCount() {
     return app.session.user.unreadNotificationsCount();
   }
 
