@@ -23,6 +23,7 @@ export default class User extends mixin(Model, {
   lastSeenTime: Model.attribute('lastSeenTime', Model.transformDate),
   readTime: Model.attribute('readTime', Model.transformDate),
   unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
+  newNotificationsCount: Model.attribute('newNotificationsCount'),
 
   discussionsCount: Model.attribute('discussionsCount'),
   commentsCount: Model.attribute('commentsCount'),
