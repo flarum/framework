@@ -110,7 +110,7 @@ export default class NotificationList extends Component {
    * been loaded.
    */
   load() {
-    if (app.cache.notifications && !app.session.user.unreadNotificationsCount()) {
+    if (app.cache.notifications && !app.session.user.newNotificationsCount()) {
       return;
     }
 
@@ -118,7 +118,7 @@ export default class NotificationList extends Component {
     m.redraw();
 
     app.store.find('notifications').then(notifications => {
-      app.session.user.pushAttributes({unreadNotificationsCount: 0});
+      app.session.user.pushAttributes({newNotificationsCount: 0});
       app.cache.notifications = notifications.sort((a, b) => b.time() - a.time());
 
       this.loading = false;
@@ -131,6 +131,8 @@ export default class NotificationList extends Component {
    */
   markAllAsRead() {
     if (!app.cache.notifications) return;
+
+    app.session.user.pushAttributes({unreadNotificationsCount: 0});
 
     app.cache.notifications.forEach(notification => {
       if (!notification.isRead()) {
