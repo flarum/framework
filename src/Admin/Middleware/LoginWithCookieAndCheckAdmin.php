@@ -10,11 +10,8 @@
 
 namespace Flarum\Admin\Middleware;
 
-use Flarum\Api\AccessToken;
-use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Stratigility\MiddlewareInterface;
 use Flarum\Forum\Middleware\LoginWithCookie;
 use Flarum\Core\Exceptions\PermissionDeniedException;
 
