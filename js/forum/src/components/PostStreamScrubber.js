@@ -410,7 +410,7 @@ export default class PostStreamScrubber extends Component {
     // the index at which the drag was started, and then scroll there.
     const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
     const deltaPercent = deltaPixels / this.$('.Scrubber-scrollbar').outerHeight() * 100;
-    const deltaIndex = deltaPercent / this.percentPerPost().index;
+    const deltaIndex = (deltaPercent / this.percentPerPost().index) || 0;
     const newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
 
     this.index = Math.max(0, newIndex);
