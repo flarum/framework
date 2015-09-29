@@ -108,7 +108,6 @@ export default class SignUpModal extends Modal {
 
     if (this.welcomeUser) {
       const user = this.welcomeUser;
-      const emailProviderName = user.email().split('@')[1];
 
       const fadeIn = (element, isInitialized) => {
         if (isInitialized) return;
@@ -125,9 +124,9 @@ export default class SignUpModal extends Modal {
               <p>{app.trans('core.sign_up_confirmation_message', {email: <strong>{user.email()}</strong>})}</p>
 
               <p>
-                <a href={`http://${emailProviderName}`} className="Button Button--primary" target="_blank">
-                  {app.trans('core.sign_up_go_to_button', {url: emailProviderName})}
-                </a>
+                <Button className="Button Button--primary" onclick={this.hide.bind(this)}>
+                  {app.trans('core.sign_up_dismiss_button')}
+                </Button>
               </p>
             </div>
           </div>
