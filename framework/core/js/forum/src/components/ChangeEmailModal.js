@@ -89,8 +89,9 @@ export default class ChangeEmailModal extends Modal {
         this.success = true;
         m.redraw();
       },
-      () => {
+      response => {
         this.loading = false;
+        this.handleErrors(response);
       }
     );
   }
