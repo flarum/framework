@@ -42,7 +42,7 @@ class ApiServiceProvider extends ServiceProvider
             }
         );
 
-        $this->app->singleton(ErrorHandler::class, function() {
+        $this->app->singleton(ErrorHandler::class, function () {
             $handler = new ErrorHandler;
             $handler->registerHandler();
         });
