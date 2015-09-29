@@ -18,7 +18,7 @@ interface ExceptionHandler
      * Handle the provided exception.
      *
      * @param Exception $e
-     * @return mixed
+     * @return ResponseBag
      */
     public function handle(Exception $e);
 }

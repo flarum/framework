@@ -19,6 +19,9 @@ use Zend\Stratigility\ErrorMiddlewareInterface;
 use Flarum\Core;
 use Exception;
 
+/**
+ * Manages any exceptions thrown by the API, and formats the response accordingly.
+ */
 class JsonApiErrors implements ErrorMiddlewareInterface
 {
     /**
@@ -56,7 +59,7 @@ class JsonApiErrors implements ErrorMiddlewareInterface
         // "errors" key in the top level of the document
         return $this->formatResponse($response);
     }
-
+    
     /**
      * Constructs the format necessary for the response back to the client.
      *
