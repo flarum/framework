@@ -178,6 +178,13 @@ class ApiServiceProvider extends ServiceProvider
             $this->action('Flarum\Api\Actions\Notifications\IndexAction')
         );
 
+        // Mark all notifications as read
+        $routes->post(
+            '/notifications/read',
+            'flarum.api.notifications.readAll',
+            $this->action('Flarum\Api\Actions\Notifications\ReadAllAction')
+        );
+
         // Mark a single notification as read
         $routes->patch(
             '/notifications/{id}',

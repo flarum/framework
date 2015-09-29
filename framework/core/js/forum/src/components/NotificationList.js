@@ -134,10 +134,11 @@ export default class NotificationList extends Component {
 
     app.session.user.pushAttributes({unreadNotificationsCount: 0});
 
-    app.cache.notifications.forEach(notification => {
-      if (!notification.isRead()) {
-        notification.save({isRead: true});
-      }
+    app.cache.notifications.forEach(notification => notification.pushAttributes({isRead: true}));
+
+    app.request({
+      url: app.forum.attribute('apiUrl') + '/notifications/read',
+      method: 'POST'
     });
   }
 }
