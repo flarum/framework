@@ -6,7 +6,7 @@ core:
 
   # These strings are used in the Change Email modal dialog.
   change_email_confirmation_message: => core.confirmation_email_sent
-  change_email_go_to_button: => core.go_to_url
+  change_email_dismiss_button: => core.okay
   change_email_submit_button: => core.save_changes
   change_email_title: => core.change_email
 
@@ -64,7 +64,7 @@ core:
   edit_user_username_label: => core.username
 
   # These strings are used in the Forgot Password modal dialog.
-  forgot_password_go_to_button: => core.go_to_url
+  forgot_password_dismiss_button: => core.okay
   forgot_password_email_placeholder: => core.email
   forgot_password_email_sent_message: We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
   forgot_password_submit_button: Recover Password
@@ -158,7 +158,7 @@ core:
   sign_up_already_have_account_text: "Already have an account? " # Final space is needed for string separation.
   sign_up_confirmation_message: => core.confirmation_email_sent
   sign_up_email_placeholder: => core.email
-  sign_up_go_to_button: => core.go_to_url
+  sign_up_dismiss_button: => core.okay
   sign_up_log_in_link: => core.log_in
   sign_up_password_placeholder: => core.password
   sign_up_submit_button: => core.sign_up
@@ -196,11 +196,11 @@ core:
   discussions: Discussions
   edit: Edit
   email: Email
-  go_to_url: "Go to {url}"
   load_more: Load More
   log_in: Log In
   mark_all_as_read: Mark All as Read
   notifications: Notifications
+  okay: OK
   password: Password
   restore: Restore
   save_changes: Save Changes
