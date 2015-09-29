@@ -10,10 +10,10 @@
 
 namespace Flarum\Api;
 
+use Flarum\Api\Middleware\JsonApiErrors;
 use Flarum\Core\Users\User;
 use Illuminate\Contracts\Container\Container;
 use Exception;
-use Flarum\Api\Middleware\JsonApiErrors;
 
 class Client
 {

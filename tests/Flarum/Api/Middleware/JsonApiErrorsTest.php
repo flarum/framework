@@ -3,6 +3,11 @@ namespace tests\Flarum\Api\Middleware;
 
 use Exception;
 use Flarum\Api\Middleware\JsonApiErrors;
+use Flarum\Support\Json\ErrorHandler;
+use Flarum\Support\Json\FallbackExceptionHandler;
+use Flarum\Support\Json\ModelNotFoundExceptionHandler;
+use Flarum\Support\Json\SerializableErrorHandler;
+use Flarum\Support\Json\ValidationExceptionHandler;
 use Illuminate\Contracts\Support\MessageProvider;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -16,7 +21,13 @@ class JsonApiErrorsTest extends TestCase
 
     public function init()
     {
-        $this->middleware = new JsonApiErrors;
+        $errorHandler = new ErrorHandler;
+        $errorHandler->registerHandler(new SerializableErrorHandler);
+        $errorHandler->registerHandler(new ValidationExceptionHandler);
+        $errorHandler->registerHandler(new ModelNotFoundExceptionHandler);
+        $errorHandler->registerHandler(new FallbackExceptionHandler);
+
+        $this->middleware = new JsonApiErrors($errorHandler);
     }
 
     public function test_it_should_handle_serializable_exceptions()

@@ -10,6 +10,7 @@
 
 namespace Flarum\Api;
 
+use Flarum\Support\Json\ErrorHandler;
 use Flarum\Api\Serializers\ActivitySerializer;
 use Flarum\Api\Serializers\NotificationSerializer;
 use Flarum\Core\Users\Guest;
@@ -40,6 +41,11 @@ class ApiServiceProvider extends ServiceProvider
                 return new UrlGenerator($this->app->make('flarum.api.routes'));
             }
         );
+
+        $this->app->singleton(ErrorHandler::class, function() {
+            $handler = new ErrorHandler;
+            $handler->registerHandler();
+        });
     }
 
     /**

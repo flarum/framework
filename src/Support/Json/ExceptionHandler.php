@@ -1,5 +1,7 @@
 <?php
-namespace Flarum\Api\Middleware\Json;
+namespace Flarum\Support\Json;
+
+use Exception;
 
 interface ExceptionHandler
 {
@@ -10,7 +12,7 @@ interface ExceptionHandler
      * @param Exception $e
      * @return boolean
      */
-    public function canHandle(Exception $e);
+    public function manages(Exception $e);
 
     /**
      * Handle the provided exception.
