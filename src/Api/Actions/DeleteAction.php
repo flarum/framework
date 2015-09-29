@@ -19,8 +19,8 @@ abstract class DeleteAction implements Action
      * Delegate deletion of the resource, and return a 204 No Content
      * response.
      *
-     * @param \Flarum\Api\Request $request
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param Request $request
+     * @return EmptyResponse
      */
     public function handle(Request $request)
     {
@@ -32,7 +32,7 @@ abstract class DeleteAction implements Action
     /**
      * Delete the resource.
      *
-     * @param \Flarum\Api\Request $request
+     * @param Request $request
      * @return void
      */
     abstract protected function delete(Request $request);
