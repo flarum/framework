@@ -66,11 +66,9 @@ export default class SuspendUserModal extends Modal {
           </div>
 
           <div className="Form-group">
-            {Button.component({
-              children: 'Save Changes',
-              className: 'Button Button--primary',
-              loading: this.loading
-            })}
+            <Button className="Button Button--primary" loading={this.loading} type="submit">
+              Save Changes
+            </Button>
           </div>
         </div>
       </div>
