@@ -11,7 +11,7 @@
   <body>
     <h1>Reset Your Password</h1>
 
-    <form class="form-horizontal" role="form" method="POST" action="{{ app('Flarum\Http\UrlGeneratorInterface')->toRoute('flarum.forum.savePassword') }}">
+    <form class="form-horizontal" role="form" method="POST" action="{{ app('Flarum\Forum\UrlGenerator')->toRoute('savePassword') }}">
       <input type="hidden" name="token" value="{{ $token }}">
 
       <div class="form-group">
