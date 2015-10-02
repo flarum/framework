@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of Flarum.
  *
@@ -9,11 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http;
+namespace Flarum\Forum;
 
-interface UrlGeneratorInterface
+use Flarum\Http\UrlGenerator as BaseUrlGenerator;
+
+class UrlGenerator extends BaseUrlGenerator
 {
-    public function toRoute($name, $parameters = []);
-
-    public function toAsset($path);
 }
