@@ -26,29 +26,31 @@ export default class ExtensionsPage extends Component {
         <div className="ExtensionsPage-list">
           <div className="container">
             <ul className="ExtensionList">
-              {app.extensions
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map(extension => (
-                  <li className={'ExtensionListItem ' + (!this.isEnabled(extension.name) ? 'disabled' : '')}>
+              {Object.keys(app.extensions)
+                .sort((a, b) => app.extensions[a].extra['flarum-extension'].title.localeCompare(app.extensions[b].extra['flarum-extension'].title))
+                .map(name => {
+                  const extension = app.extensions[name];
+
+                  return <li className={'ExtensionListItem ' + (!this.isEnabled(name) ? 'disabled' : '')}>
                     {Dropdown.component({
                       icon: 'ellipsis-v',
-                      children: this.controlItems(extension).toArray(),
+                      children: this.controlItems(name).toArray(),
                       className: 'ExtensionListItem-controls',
                       buttonClassName: 'Button Button--icon Button--flat',
                       menuClassName: 'Dropdown-menu--right'
                     })}
                     <div className="ExtensionListItem-content">
-                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-                        {extension.icon ? icon(extension.icon.name) : ''}
+                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.extra['flarum-extension'].icon}>
+                        {extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''}
                       </span>
                       <h4 className="ExtensionListItem-title">
-                        {extension.title}{' '}
+                        {extension.extra['flarum-extension'].title}{' '}
                         <small className="ExtensionListItem-version">{extension.version}</small>
                       </h4>
                       <div className="ExtensionListItem-description">{extension.description}</div>
                     </div>
-                  </li>
-                ))}
+                  </li>;
+                })}
             </ul>
           </div>
         </div>
@@ -56,9 +58,15 @@ export default class ExtensionsPage extends Component {
     );
   }
 
-  controlItems(extension) {
+  controlItems(name) {
     const items = new ItemList();
-    const enabled = this.isEnabled(extension.name);
+    const extension = app.extensions[name];
+    const enabled = this.isEnabled(name);
+
+    items.add('info', <span>
+      Package Name: {extension.name}<br/>
+      Installed in: {name}
+    </span>);
 
     if (app.extensionSettings[extension.name]) {
       items.add('settings', Button.component({
@@ -73,7 +81,7 @@ export default class ExtensionsPage extends Component {
       children: enabled ? 'Disable' : 'Enable',
       onclick: () => {
         app.request({
-          url: app.forum.attribute('apiUrl') + '/extensions/' + extension.name,
+          url: app.forum.attribute('apiUrl') + '/extensions/' + name,
           method: 'PATCH',
           data: {enabled: !enabled}
         }).then(() => window.location.reload());
@@ -88,8 +96,8 @@ export default class ExtensionsPage extends Component {
         children: 'Uninstall',
         onclick: () => {
           app.request({
-            url: app.forum.attribute('apiUrl') + '/extensions/' + extension.name,
-            method: 'DELETE',
+            url: app.forum.attribute('apiUrl') + '/extensions/' + name,
+            method: 'DELETE'
           }).then(() => window.location.reload());
 
           app.modal.show(new LoadingModal());
