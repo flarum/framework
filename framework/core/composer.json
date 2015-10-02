@@ -34,7 +34,9 @@
         "symfony/console": "^2.7",
         "symfony/yaml": "^2.7",
         "doctrine/dbal": "^2.5",
-        "zendframework/zend-stratigility": "^1.1"
+        "zendframework/zend-stratigility": "^1.1",
+        "monolog/monolog": "^1.16.0",
+        "franzl/whoops-middleware": "dev-master"
     },
     "require-dev": {
         "mockery/mockery": "^0.9.4",
