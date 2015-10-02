@@ -48,7 +48,7 @@ export default class DiscussionList extends Component {
       loading = LoadingIndicator.component();
     } else if (this.moreResults) {
       loading = Button.component({
-        children: app.trans('core.discussion_list_load_more_button'),
+        children: app.trans('core.forum.discussion_list_load_more_button'),
         className: 'Button',
         onclick: this.loadMore.bind(this)
       });
