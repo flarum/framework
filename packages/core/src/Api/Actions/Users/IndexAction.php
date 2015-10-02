@@ -14,7 +14,7 @@ use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Users\Search\UserSearcher;
 use Flarum\Api\Actions\SerializeCollectionAction;
 use Flarum\Api\JsonApiRequest;
-use Flarum\Http\UrlGeneratorInterface;
+use Flarum\Api\UrlGenerator;
 use Tobscure\JsonApi\Document;
 
 class IndexAction extends SerializeCollectionAction
@@ -25,7 +25,7 @@ class IndexAction extends SerializeCollectionAction
     protected $searcher;
 
     /**
-     * @var UrlGeneratorInterface
+     * @var UrlGenerator
      */
     protected $url;
 
@@ -68,9 +68,9 @@ class IndexAction extends SerializeCollectionAction
 
     /**
      * @param UserSearcher $searcher
-     * @param UrlGeneratorInterface $url
+     * @param UrlGenerator $url
      */
-    public function __construct(UserSearcher $searcher, UrlGeneratorInterface $url)
+    public function __construct(UserSearcher $searcher, UrlGenerator $url)
     {
         $this->searcher = $searcher;
         $this->url = $url;
@@ -97,7 +97,7 @@ class IndexAction extends SerializeCollectionAction
         $this->addPaginationLinks(
             $document,
             $request,
-            $this->url->toRoute('flarum.api.users.index'),
+            $this->url->toRoute('users.index'),
             $results->areMoreResults()
         );
 
