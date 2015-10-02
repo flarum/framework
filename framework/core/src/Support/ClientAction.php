@@ -17,7 +17,6 @@ use Flarum\Assets\LessCompiler;
 use Flarum\Core;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Users\User;
-use Flarum\Events\BuildClientView;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -122,7 +121,7 @@ abstract class ClientAction extends HtmlAction
         // compile only the ones we need.
         $keys = $this->translationKeys;
 
-        event(new BuildClientView($this, $view, $keys));
+        $this->fireEvent($view, $keys);
 
         if ($localeCompiler) {
             $translations = $this->locales->getTranslations($locale);
@@ -134,6 +133,13 @@ abstract class ClientAction extends HtmlAction
 
         return $view;
     }
+
+    /**
+     * @param ClientView $view
+     * @param array &$keys
+     * @return void
+     */
+    abstract protected function fireEvent(ClientView $view, array &$keys);
 
     /**
      * Flush the client's assets so that they will be regenerated from scratch
