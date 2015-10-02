@@ -10,6 +10,7 @@
 
 namespace Flarum\Support;
 
+use Flarum\Core;
 use Flarum\Support\ServiceProvider;
 use Flarum\Core\Settings\SettingsRepository;
 use Illuminate\Contracts\Container\Container;
@@ -37,9 +38,17 @@ class ExtensionManager
         $dirs = array_diff(scandir($extensionsDir), ['.', '..']);
         $extensions = [];
 
+        $installed = json_decode(file_get_contents(public_path('vendor/composer/installed.json')), true);
+
         foreach ($dirs as $dir) {
-            if (file_exists($manifest = $extensionsDir . '/' . $dir . '/flarum.json')) {
-                $extensions[] = json_decode(file_get_contents($manifest));
+            if (file_exists($manifest = $extensionsDir . '/' . $dir . '/composer.json')) {
+                $extensions[$dir] = json_decode(file_get_contents($manifest), true);
+
+                foreach ($installed as $package) {
+                    if ($package['name'] === $extensions[$dir]['name']) {
+                        $extensions[$dir]['version'] = $package['version'];
+                    }
+                }
             }
         }
 
@@ -79,7 +88,7 @@ class ExtensionManager
 
     public function migrate($extension, $up = true)
     {
-        $migrationDir = base_path('../extensions/' . $extension . '/migrations');
+        $migrationDir = public_path('extensions/' . $extension . '/migrations');
 
         $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
