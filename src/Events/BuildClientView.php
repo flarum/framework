@@ -12,10 +12,8 @@ namespace Flarum\Events;
 
 use Flarum\Support\ClientAction;
 use Flarum\Support\ClientView;
-use Flarum\Forum\Actions\ClientAction as ForumClientAction;
-use Flarum\Admin\Actions\ClientAction as AdminClientAction;
 
-class BuildClientView
+abstract class BuildClientView
 {
     /**
      * @var ClientAction
@@ -32,61 +30,20 @@ class BuildClientView
      */
     public $keys;
 
-    /**
-     * @param ClientAction $action
-     * @param ClientView $view
-     * @param array $keys
-     */
-    public function __construct($action, $view, &$keys)
+    public function assets($files)
     {
-        $this->action = $action;
-        $this->view = $view;
-        $this->keys = &$keys;
+        $this->view->getAssets()->addFiles((array) $files);
     }
 
-    public function forumAssets($files)
+    public function bootstrapper($bootstrapper)
     {
-        if ($this->action instanceof ForumClientAction) {
-            $this->view->getAssets()->addFiles((array) $files);
-        }
+        $this->view->addBootstrapper($bootstrapper);
     }
 
-    public function forumBootstrapper($bootstrapper)
+    public function translations(array $keys)
     {
-        if ($this->action instanceof ForumClientAction) {
-            $this->view->addBootstrapper($bootstrapper);
-        }
-    }
-
-    public function forumTranslations(array $keys)
-    {
-        if ($this->action instanceof ForumClientAction) {
-            foreach ($keys as $key) {
-                $this->keys[] = $key;
-            }
-        }
-    }
-
-    public function adminAssets($files)
-    {
-        if ($this->action instanceof AdminClientAction) {
-            $this->view->getAssets()->addFiles((array) $files);
-        }
-    }
-
-    public function adminBootstrapper($bootstrapper)
-    {
-        if ($this->action instanceof AdminClientAction) {
-            $this->view->addBootstrapper($bootstrapper);
-        }
-    }
-
-    public function adminTranslations(array $keys)
-    {
-        if ($this->action instanceof AdminClientAction) {
-            foreach ($keys as $key) {
-                $this->keys[] = $key;
-            }
+        foreach ($keys as $key) {
+            $this->keys[] = $key;
         }
     }
 }
