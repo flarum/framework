@@ -11,9 +11,11 @@
 namespace Flarum\Forum\Actions;
 
 use Flarum\Support\ClientAction as BaseClientAction;
+use Flarum\Support\ClientView;
 use Flarum\Api\Client;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Locale\LocaleManager;
+use Flarum\Events\BuildForumClientView;
 
 class ClientAction extends BaseClientAction
 {
@@ -25,9 +27,7 @@ class ClientAction extends BaseClientAction
     /**
      * {@inheritdoc}
      */
-    protected $translationKeys = [
-        'core'
-    ];
+    protected $translationKeys = ['core.forum'];
 
     /**
      * {@inheritdoc}
@@ -37,6 +37,14 @@ class ClientAction extends BaseClientAction
         parent::__construct($apiClient, $locales, $settings);
 
         $this->layout = __DIR__.'/../../../views/forum.blade.php';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function fireEvent(ClientView $view, array &$keys)
+    {
+        event(new BuildForumClientView($this, $view, $keys));
     }
 
     /**

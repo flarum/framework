@@ -62,7 +62,7 @@ export default class AvatarEditor extends Component {
     items.add('upload',
       Button.component({
         icon: 'upload',
-        children: app.trans('core.user_avatar_upload_button'),
+        children: app.trans('core.forum.user_avatar_upload_button'),
         onclick: this.upload.bind(this)
       })
     );
@@ -70,7 +70,7 @@ export default class AvatarEditor extends Component {
     items.add('remove',
       Button.component({
         icon: 'times',
-        children: app.trans('core.user_avatar_remove_button'),
+        children: app.trans('core.forum.user_avatar_remove_button'),
         onclick: this.remove.bind(this)
       })
     );

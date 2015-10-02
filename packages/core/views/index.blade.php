@@ -1,5 +1,5 @@
 <?php
-$url = app('Flarum\Http\UrlGeneratorInterface');
+$url = app('Flarum\Forum\UrlGenerator');
 ?>
 <div class="container">
     <h2>All Discussions</h2>
@@ -7,7 +7,7 @@ $url = app('Flarum\Http\UrlGeneratorInterface');
     <ul>
         @foreach ($document->data as $discussion)
             <li>
-                <a href="{{ $url->toRoute('flarum.forum.discussion', [
+                <a href="{{ $url->toRoute('discussion', [
                     'id' => $discussion->id . '-' . $discussion->attributes->title
                 ]) }}">
                     {{ $discussion->attributes->title }}
@@ -16,5 +16,5 @@ $url = app('Flarum\Http\UrlGeneratorInterface');
         @endforeach
     </ul>
 
-    <a href="{{ $url->toRoute('flarum.forum.index') }}?page={{ $page + 1 }}">Next Page &raquo;</a>
+    <a href="{{ $url->toRoute('index') }}?page={{ $page + 1 }}">Next Page &raquo;</a>
 </div>

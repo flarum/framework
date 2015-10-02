@@ -23,8 +23,8 @@ export default class EditPostComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.submitLabel = props.submitLabel || app.trans('core.composer_edit_submit_button');
-    props.confirmExit = props.confirmExit || app.trans('core.composer_edit_discard_confirmation');
+    props.submitLabel = props.submitLabel || app.trans('core.forum.composer_edit_submit_button');
+    props.confirmExit = props.confirmExit || app.trans('core.forum.composer_edit_discard_confirmation');
     props.originalContent = props.originalContent || props.post.content();
     props.user = props.user || props.post.user();
 
@@ -39,7 +39,7 @@ export default class EditPostComposer extends ComposerBody {
       <h3>
         {icon('pencil')}{' '}
         <a href={app.route.discussion(post.discussion(), post.number())} config={m.route}>
-          {app.trans('core.composer_edit_post_link', {number: post.number(), discussion: post.discussion().title()})}
+          {app.trans('core.forum.composer_edit_post_link', {number: post.number(), discussion: post.discussion().title()})}
         </a>
       </h3>
     ));
