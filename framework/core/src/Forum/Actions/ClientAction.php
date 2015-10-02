@@ -27,9 +27,7 @@ class ClientAction extends BaseClientAction
     /**
      * {@inheritdoc}
      */
-    protected $translationKeys = [
-        'core'
-    ];
+    protected $translationKeys = ['core.forum'];
 
     /**
      * {@inheritdoc}
