@@ -44,6 +44,10 @@ class ExtensionManager
             if (file_exists($manifest = $extensionsDir . '/' . $dir . '/composer.json')) {
                 $extensions[$dir] = json_decode(file_get_contents($manifest), true);
 
+                foreach ($extensions[$dir]['extra']['flarum-extension']['icon'] as &$style) {
+                    $style = str_replace('{$assets}', Core::url().'/extensions/'.$dir.'/assets', $style);
+                }
+
                 foreach ($installed as $package) {
                     if ($package['name'] === $extensions[$dir]['name']) {
                         $extensions[$dir]['version'] = $package['version'];
