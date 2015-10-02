@@ -6,7 +6,7 @@
  * @return {Object}
  */
 export default function username(user) {
-  const name = (user && user.username()) || app.trans('core.deleted_username');
+  const name = (user && user.username()) || app.trans('core.forum.user_deleted_text');
 
   return <span className="username">{name}</span>;
 }
