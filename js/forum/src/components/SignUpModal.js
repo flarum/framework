@@ -53,7 +53,7 @@ export default class SignUpModal extends Modal {
   }
 
   title() {
-    return app.trans('core.sign_up_title');
+    return app.trans('core.forum.sign_up_title');
   }
 
   content() {
@@ -73,14 +73,14 @@ export default class SignUpModal extends Modal {
 
       <div className="Form Form--centered">
         <div className="Form-group">
-          <input className="FormControl" name="username" placeholder={extractText(app.trans('core.sign_up_username_placeholder'))}
+          <input className="FormControl" name="username" placeholder={extractText(app.trans('core.forum.sign_up_username_placeholder'))}
             value={this.username()}
             onchange={m.withAttr('value', this.username)}
             disabled={this.loading} />
         </div>
 
         <div className="Form-group">
-          <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.sign_up_email_placeholder'))}
+          <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.forum.sign_up_email_placeholder'))}
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
             disabled={this.loading || (this.props.token && this.props.email)} />
@@ -88,7 +88,7 @@ export default class SignUpModal extends Modal {
 
         {this.props.token ? '' : (
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={extractText(app.trans('core.sign_up_password_placeholder'))}
+            <input className="FormControl" name="password" type="password" placeholder={extractText(app.trans('core.forum.sign_up_password_placeholder'))}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />
@@ -100,7 +100,7 @@ export default class SignUpModal extends Modal {
             className="Button Button--primary Button--block"
             type="submit"
             loading={this.loading}>
-            {app.trans('core.sign_up_submit_button')}
+            {app.trans('core.forum.sign_up_submit_button')}
           </Button>
         </div>
       </div>
@@ -119,13 +119,13 @@ export default class SignUpModal extends Modal {
           <div className="darkenBackground">
             <div className="container">
               {avatar(user)}
-              <h3>{app.trans('core.sign_up_welcome_text', {user})}</h3>
+              <h3>{app.trans('core.forum.sign_up_welcome_text', {user})}</h3>
 
-              <p>{app.trans('core.sign_up_confirmation_message', {email: <strong>{user.email()}</strong>})}</p>
+              <p>{app.trans('core.forum.sign_up_confirmation_message', {email: <strong>{user.email()}</strong>})}</p>
 
               <p>
                 <Button className="Button Button--primary" onclick={this.hide.bind(this)}>
-                  {app.trans('core.sign_up_dismiss_button')}
+                  {app.trans('core.forum.sign_up_dismiss_button')}
                 </Button>
               </p>
             </div>
@@ -140,8 +140,8 @@ export default class SignUpModal extends Modal {
   footer() {
     return [
       <p className="SignUpModal-logIn">
-        {app.trans('core.sign_up_already_have_account_text')}
-        <a onclick={this.logIn.bind(this)}>{app.trans('core.sign_up_log_in_link')}</a>
+        {app.trans('core.forum.sign_up_already_have_account_text')}
+        <a onclick={this.logIn.bind(this)}>{app.trans('core.forum.sign_up_log_in_link')}</a>
       </p>
     ];
   }

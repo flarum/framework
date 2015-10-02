@@ -17,7 +17,7 @@ export default class SettingsPage extends UserPage {
     super(...args);
 
     this.show(app.session.user);
-    app.setTitle(app.trans('core.settings_title'));
+    app.setTitle(app.trans('core.forum.settings_title'));
   }
 
   content() {
@@ -38,7 +38,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('account',
       FieldSet.component({
-        label: app.trans('core.settings_account_heading'),
+        label: app.trans('core.forum.settings_account_heading'),
         className: 'Settings-account',
         children: this.accountItems().toArray()
       })
@@ -46,7 +46,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('notifications',
       FieldSet.component({
-        label: app.trans('core.settings_notifications_heading'),
+        label: app.trans('core.forum.settings_notifications_heading'),
         className: 'Settings-notifications',
         children: [NotificationGrid.component({user: this.user})]
       })
@@ -54,7 +54,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('privacy',
       FieldSet.component({
-        label: app.trans('core.settings_privacy_heading'),
+        label: app.trans('core.forum.settings_privacy_heading'),
         className: 'Settings-privacy',
         children: this.privacyItems().toArray()
       })
@@ -73,7 +73,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('changePassword',
       Button.component({
-        children: app.trans('core.settings_change_password_button'),
+        children: app.trans('core.forum.settings_change_password_button'),
         className: 'Button',
         onclick: () => app.modal.show(new ChangePasswordModal())
       })
@@ -81,7 +81,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('changeEmail',
       Button.component({
-        children: app.trans('core.settings_change_email_button'),
+        children: app.trans('core.forum.settings_change_email_button'),
         className: 'Button',
         onclick: () => app.modal.show(new ChangeEmailModal())
       })
@@ -118,7 +118,7 @@ export default class SettingsPage extends UserPage {
 
     items.add('discloseOnline',
       Switch.component({
-        children: app.trans('core.settings_privacy_disclose_online_label'),
+        children: app.trans('core.forum.settings_privacy_disclose_online_label'),
         state: this.user.preferences().discloseOnline,
         onchange: (value, component) => {
           this.user.pushAttributes({lastSeenTime: null});

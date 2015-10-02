@@ -17,7 +17,7 @@ use Flarum\Events\RegisterApiRoutes;
 use Flarum\Events\RegisterActivityTypes;
 use Flarum\Events\RegisterNotificationTypes;
 use Flarum\Http\RouteCollection;
-use Flarum\Http\UrlGenerator;
+use Flarum\Api\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -35,7 +35,7 @@ class ApiServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(
-            'Flarum\Http\UrlGeneratorInterface',
+            UrlGenerator::class,
             function () {
                 return new UrlGenerator($this->app->make('flarum.api.routes'));
             }
@@ -78,28 +78,28 @@ class ApiServiceProvider extends ServiceProvider
         // Get forum information
         $routes->get(
             '/forum',
-            'flarum.api.forum.show',
+            'forum.show',
             $this->action('Flarum\Api\Actions\Forum\ShowAction')
         );
 
         // Save forum information
         $routes->patch(
             '/forum',
-            'flarum.api.forum.update',
+            'forum.update',
             $this->action('Flarum\Api\Actions\Forum\UpdateAction')
         );
 
         // Retrieve authentication token
         $routes->post(
             '/token',
-            'flarum.api.token',
+            'token',
             $this->action('Flarum\Api\Actions\TokenAction')
         );
 
         // Send forgot password email
         $routes->post(
             '/forgot',
-            'flarum.api.forgot',
+            'forgot',
             $this->action('Flarum\Api\Actions\ForgotAction')
         );
 
@@ -112,49 +112,49 @@ class ApiServiceProvider extends ServiceProvider
         // List users
         $routes->get(
             '/users',
-            'flarum.api.users.index',
+            'users.index',
             $this->action('Flarum\Api\Actions\Users\IndexAction')
         );
 
         // Register a user
         $routes->post(
             '/users',
-            'flarum.api.users.create',
+            'users.create',
             $this->action('Flarum\Api\Actions\Users\CreateAction')
         );
 
         // Get a single user
         $routes->get(
             '/users/{id}',
-            'flarum.api.users.show',
+            'users.show',
             $this->action('Flarum\Api\Actions\Users\ShowAction')
         );
 
         // Edit a user
         $routes->patch(
             '/users/{id}',
-            'flarum.api.users.update',
+            'users.update',
             $this->action('Flarum\Api\Actions\Users\UpdateAction')
         );
 
         // Delete a user
         $routes->delete(
             '/users/{id}',
-            'flarum.api.users.delete',
+            'users.delete',
             $this->action('Flarum\Api\Actions\Users\DeleteAction')
         );
 
         // Upload avatar
         $routes->post(
             '/users/{id}/avatar',
-            'flarum.api.users.avatar.upload',
+            'users.avatar.upload',
             $this->action('Flarum\Api\Actions\Users\UploadAvatarAction')
         );
 
         // Remove avatar
         $routes->delete(
             '/users/{id}/avatar',
-            'flarum.api.users.avatar.delete',
+            'users.avatar.delete',
             $this->action('Flarum\Api\Actions\Users\DeleteAvatarAction')
         );
 
@@ -167,28 +167,28 @@ class ApiServiceProvider extends ServiceProvider
         // List activity
         $routes->get(
             '/activity',
-            'flarum.api.activity.index',
+            'activity.index',
             $this->action('Flarum\Api\Actions\Activity\IndexAction')
         );
 
         // List notifications for the current user
         $routes->get(
             '/notifications',
-            'flarum.api.notifications.index',
+            'notifications.index',
             $this->action('Flarum\Api\Actions\Notifications\IndexAction')
         );
 
         // Mark all notifications as read
         $routes->post(
             '/notifications/read',
-            'flarum.api.notifications.readAll',
+            'notifications.readAll',
             $this->action('Flarum\Api\Actions\Notifications\ReadAllAction')
         );
 
         // Mark a single notification as read
         $routes->patch(
             '/notifications/{id}',
-            'flarum.api.notifications.update',
+            'notifications.update',
             $this->action('Flarum\Api\Actions\Notifications\UpdateAction')
         );
 
@@ -201,35 +201,35 @@ class ApiServiceProvider extends ServiceProvider
         // List discussions
         $routes->get(
             '/discussions',
-            'flarum.api.discussions.index',
+            'discussions.index',
             $this->action('Flarum\Api\Actions\Discussions\IndexAction')
         );
 
         // Create a discussion
         $routes->post(
             '/discussions',
-            'flarum.api.discussions.create',
+            'discussions.create',
             $this->action('Flarum\Api\Actions\Discussions\CreateAction')
         );
 
         // Show a single discussion
         $routes->get(
             '/discussions/{id}',
-            'flarum.api.discussions.show',
+            'discussions.show',
             $this->action('Flarum\Api\Actions\Discussions\ShowAction')
         );
 
         // Edit a discussion
         $routes->patch(
             '/discussions/{id}',
-            'flarum.api.discussions.update',
+            'discussions.update',
             $this->action('Flarum\Api\Actions\Discussions\UpdateAction')
         );
 
         // Delete a discussion
         $routes->delete(
             '/discussions/{id}',
-            'flarum.api.discussions.delete',
+            'discussions.delete',
             $this->action('Flarum\Api\Actions\Discussions\DeleteAction')
         );
 
@@ -242,35 +242,35 @@ class ApiServiceProvider extends ServiceProvider
         // List posts, usually for a discussion
         $routes->get(
             '/posts',
-            'flarum.api.posts.index',
+            'posts.index',
             $this->action('Flarum\Api\Actions\Posts\IndexAction')
         );
 
         // Create a post
         $routes->post(
             '/posts',
-            'flarum.api.posts.create',
+            'posts.create',
             $this->action('Flarum\Api\Actions\Posts\CreateAction')
         );
 
         // Show a single or multiple posts by ID
         $routes->get(
             '/posts/{id}',
-            'flarum.api.posts.show',
+            'posts.show',
             $this->action('Flarum\Api\Actions\Posts\ShowAction')
         );
 
         // Edit a post
         $routes->patch(
             '/posts/{id}',
-            'flarum.api.posts.update',
+            'posts.update',
             $this->action('Flarum\Api\Actions\Posts\UpdateAction')
         );
 
         // Delete a post
         $routes->delete(
             '/posts/{id}',
-            'flarum.api.posts.delete',
+            'posts.delete',
             $this->action('Flarum\Api\Actions\Posts\DeleteAction')
         );
 
@@ -283,28 +283,28 @@ class ApiServiceProvider extends ServiceProvider
         // List groups
         $routes->get(
             '/groups',
-            'flarum.api.groups.index',
+            'groups.index',
             $this->action('Flarum\Api\Actions\Groups\IndexAction')
         );
 
         // Create a group
         $routes->post(
             '/groups',
-            'flarum.api.groups.create',
+            'groups.create',
             $this->action('Flarum\Api\Actions\Groups\CreateAction')
         );
 
         // Edit a group
         $routes->patch(
             '/groups/{id}',
-            'flarum.api.groups.update',
+            'groups.update',
             $this->action('Flarum\Api\Actions\Groups\UpdateAction')
         );
 
         // Delete a group
         $routes->delete(
             '/groups/{id}',
-            'flarum.api.groups.delete',
+            'groups.delete',
             $this->action('Flarum\Api\Actions\Groups\DeleteAction')
         );
 
@@ -317,28 +317,28 @@ class ApiServiceProvider extends ServiceProvider
         // Toggle an extension
         $routes->patch(
             '/extensions/{name}',
-            'flarum.api.extensions.update',
+            'extensions.update',
             $this->action('Flarum\Api\Actions\Extensions\UpdateAction')
         );
 
         // Uninstall an extension
         $routes->delete(
             '/extensions/{name}',
-            'flarum.api.extensions.delete',
+            'extensions.delete',
             $this->action('Flarum\Api\Actions\Extensions\DeleteAction')
         );
 
         // Update config settings
         $routes->post(
             '/config',
-            'flarum.api.config',
+            'config',
             $this->action('Flarum\Api\Actions\ConfigAction')
         );
 
         // Update a permission
         $routes->post(
             '/permission',
-            'flarum.api.permission',
+            'permission',
             $this->action('Flarum\Api\Actions\PermissionAction')
         );
 
