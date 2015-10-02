@@ -20,7 +20,7 @@ export default class EditCustomCssModal extends Modal {
   content() {
     return (
       <div className="Modal-body">
-        <p>Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles. <a href="">Read the documentation</a> for more information.</p>
+        <p>Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles. <a href="http://flarum.org/docs/extend/themes/">Read the documentation</a> for more information.</p>
 
         <div className="Form">
           <div className="Form-group">
