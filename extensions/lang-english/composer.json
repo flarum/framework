@@ -1,0 +1,29 @@
+{
+    "name": "flarum/english",
+    "type": "flarum-extension",
+    "description": "English language pack.",
+    "license": "MIT",
+    "require": {
+        "composer/installers": "dev-master"
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "English",
+            "icon": {
+                "backgroundImage": "url('{$assets}/icon.svg')",
+                "backgroundSize": "cover",
+                "backgroundPosition": "center"
+            }
+        },
+        "flarum-locale": {
+            "code": "en",
+            "title": "English"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/tobscure/installers"
+        }
+    ]
+}
