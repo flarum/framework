@@ -19,11 +19,5 @@
             "code": "en",
             "title": "English"
         }
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/tobscure/installers"
-        }
-    ]
+    }
 }
