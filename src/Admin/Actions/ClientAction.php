@@ -18,7 +18,6 @@ use Flarum\Api\Client;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Locale\LocaleManager;
 use Flarum\Events\UnserializeConfig;
-use Flarum\Events\BuildAdminClientView;
 
 class ClientAction extends BaseClientAction
 {
@@ -40,14 +39,6 @@ class ClientAction extends BaseClientAction
         parent::__construct($apiClient, $locales, $settings);
 
         $this->layout = __DIR__.'/../../../views/admin.blade.php';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function fireEvent(ClientView $view, array &$keys)
-    {
-        event(new BuildAdminClientView($this, $view, $keys));
     }
 
     /**
