@@ -1,10 +1,29 @@
 {
+    "name": "flarum/tags",
+    "type": "flarum-extension",
+    "description": "Organise discussions into a heirarchy of tags and categories.",
     "autoload": {
         "psr-4": {
             "Flarum\\Tags\\": "src/"
         }
     },
-    "scripts": {
-        "style": "phpcs --standard=PSR2 -np src"
-    }
+    "require": {
+        "composer/installers": "dev-master"
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Tags",
+            "icon": {
+                "name": "tags",
+                "backgroundColor": "#F28326",
+                "color": "#fff"
+            }
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/tobscure/installers"
+        }
+    ]
 }
