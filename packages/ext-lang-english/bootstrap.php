@@ -1,31 +1,31 @@
 <?php
 
 use Flarum\Events\RegisterLocales;
-use Illuminate\Events\Dispatcher;
+use Flarum\Core\Application;
 
-return function (Dispatcher $events) {
-    $events->listen(RegisterLocales::class, function(RegisterLocales $event) {
-        $locale = $name = null;
+return function (Application $app) {
+    $app->make('events')->listen(RegisterLocales::class, function(RegisterLocales $event) {
+        $name = $title = basename(__DIR__);
 
-        if (file_exists($manifest = __DIR__.'/flarum.json')) {
+        if (file_exists($manifest = __DIR__.'/composer.json')) {
             $json = json_decode(file_get_contents($manifest), true);
-            $locale = array_key_exists('locale', $json) ? $json['locale'] : null;
-            $name = array_key_exists('name', $json) ? $json['name'] : null;
-            unset($json);
+
+            if (empty($json)) {
+                throw new RuntimeException("Error parsing composer.json in $name: ".json_last_error_msg());
+            }
+
+            $locale = array_get($json, 'extra.flarum-locale.code');
+            $title = array_get($json, 'extra.flarum-locale.title', $title);
         }
 
-        if ($name === null) {
-            throw new RuntimeException("Language pack ".__DIR__." needs a \"name\" in flarum.json.");
+        if (! isset($locale)) {
+            throw new RuntimeException("Language pack $name must define \"extra.flarum-locale.code\" in composer.json.");
         }
 
-        if ($locale === null) {
-            throw new RuntimeException("Language pack {$name} needs a \"locale\" in flarum.json.");
-        }
-
-        $event->addLocale($locale, $name);
+        $event->addLocale($locale, $title);
 
         if (! is_dir($localeDir = __DIR__.'/locale')) {
-            throw new RuntimeException("Language pack {$name} needs a \"locale\" subdirectory.");
+            throw new RuntimeException("Language pack $name must have a \"locale\" subdirectory.");
         }
 
         if (file_exists($file = $localeDir.'/config.js')) {
@@ -36,9 +36,7 @@ return function (Dispatcher $events) {
             $event->addConfig($locale, $file);
         }
 
-        $files = new DirectoryIterator($localeDir);
-
-        foreach ($files as $file) {
+        foreach (new DirectoryIterator($localeDir) as $file) {
             if ($file->isFile() && in_array($file->getExtension(), ['yml', 'yaml'])) {
                 $event->addTranslations($locale, $file->getPathname());
             }
