@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Core;
+namespace Flarum\Core\Migrations;
 
 use Flarum\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
