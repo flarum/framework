@@ -310,10 +310,8 @@ class InstallCommand extends Command
 
         $migrator = $extensions->getMigrator();
 
-        foreach ($extensions->getInfo() as $extension) {
-            $name = $extension->name;
-
-            if ($name === 'pusher') {
+        foreach ($extensions->getInfo() as $name => $extension) {
+            if ($name === 'flarum-pusher') {
                 continue;
             }
 
@@ -329,7 +327,7 @@ class InstallCommand extends Command
 
     protected function getConfigFile()
     {
-        return base_path('../config.php');
+        return base_path('config.php');
     }
 
     /**
