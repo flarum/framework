@@ -12,8 +12,10 @@ namespace Flarum\Events;
 
 use Flarum\Support\ClientAction;
 use Flarum\Support\ClientView;
+use Flarum\Admin\Actions\ClientAction as AdminClientAction;
+use Flarum\Forum\Actions\ClientAction as ForumClientAction;
 
-abstract class BuildClientView
+class BuildClientView
 {
     /**
      * @var ClientAction
@@ -30,17 +32,39 @@ abstract class BuildClientView
      */
     public $keys;
 
-    public function assets($files)
+    /**
+     * @param ClientAction $action
+     * @param ClientView $view
+     * @param array $keys
+     */
+    public function __construct(ClientAction $action, ClientView $view, array &$keys)
+    {
+        $this->action = $action;
+        $this->view = $view;
+        $this->keys = &$keys;
+    }
+
+    public function isForum()
+    {
+        return $this->action instanceof ForumClientAction;
+    }
+
+    public function isAdmin()
+    {
+        return $this->action instanceof AdminClientAction;
+    }
+
+    public function addAssets($files)
     {
         $this->view->getAssets()->addFiles((array) $files);
     }
 
-    public function bootstrapper($bootstrapper)
+    public function addBootstrapper($bootstrapper)
     {
         $this->view->addBootstrapper($bootstrapper);
     }
 
-    public function translations(array $keys)
+    public function addTranslations(array $keys)
     {
         foreach ($keys as $key) {
             $this->keys[] = $key;
