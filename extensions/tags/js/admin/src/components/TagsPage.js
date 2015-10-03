@@ -1,10 +1,10 @@
 import Component from 'flarum/Component';
 import Button from 'flarum/components/Button';
 
-import EditTagModal from 'tags/components/EditTagModal';
-import TagSettingsModal from 'tags/components/TagSettingsModal';
-import tagIcon from 'tags/helpers/tagIcon';
-import sortTags from 'tags/utils/sortTags';
+import EditTagModal from 'flarum/tags/components/EditTagModal';
+import TagSettingsModal from 'flarum/tags/components/TagSettingsModal';
+import tagIcon from 'flarum/tags/helpers/tagIcon';
+import sortTags from 'flarum/tags/utils/sortTags';
 
 function tagItem(tag) {
   return (
