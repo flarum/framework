@@ -1,6 +1,6 @@
 import EventPost from 'flarum/components/EventPost';
 import punctuate from 'flarum/helpers/punctuate';
-import tagsLabel from 'tags/helpers/tagsLabel';
+import tagsLabel from 'flarum/tags/helpers/tagsLabel';
 
 export default class DiscussionTaggedPost extends EventPost {
   icon() {

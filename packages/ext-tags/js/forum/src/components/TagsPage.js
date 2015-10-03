@@ -3,8 +3,8 @@ import IndexPage from 'flarum/components/IndexPage';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
 
-import tagLabel from 'tags/helpers/tagLabel';
-import sortTags from 'tags/utils/sortTags';
+import tagLabel from 'flarum/tags/helpers/tagLabel';
+import sortTags from 'flarum/tags/utils/sortTags';
 
 export default class TagsPage extends Component {
   constructor(...args) {

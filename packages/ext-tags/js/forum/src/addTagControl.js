@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 import Button from 'flarum/components/Button';
 
-import TagDiscussionModal from 'tags/components/TagDiscussionModal';
+import TagDiscussionModal from 'flarum/tags/components/TagDiscussionModal';
 
 export default function() {
   // Add a control allowing the discussion to be moved to another category.

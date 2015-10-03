@@ -1,6 +1,6 @@
 import extract from 'flarum/utils/extract';
-import tagLabel from 'tags/helpers/tagLabel';
-import sortTags from 'tags/utils/sortTags';
+import tagLabel from 'flarum/tags/helpers/tagLabel';
+import sortTags from 'flarum/tags/utils/sortTags';
 
 export default function tagsLabel(tags, attrs = {}) {
   const children = [];

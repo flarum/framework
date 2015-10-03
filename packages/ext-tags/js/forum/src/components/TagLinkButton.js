@@ -1,5 +1,5 @@
 import LinkButton from 'flarum/components/LinkButton';
-import tagIcon from 'tags/helpers/tagIcon';
+import tagIcon from 'flarum/tags/helpers/tagIcon';
 
 export default class TagLinkButton extends LinkButton {
   view() {

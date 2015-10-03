@@ -3,9 +3,9 @@ import IndexPage from 'flarum/components/IndexPage';
 import Separator from 'flarum/components/Separator';
 import LinkButton from 'flarum/components/LinkButton';
 
-import TagLinkButton from 'tags/components/TagLinkButton';
-import TagsPage from 'tags/components/TagsPage';
-import sortTags from 'tags/utils/sortTags';
+import TagLinkButton from 'flarum/tags/components/TagLinkButton';
+import TagsPage from 'flarum/tags/components/TagsPage';
+import sortTags from 'flarum/tags/utils/sortTags';
 
 export default function() {
   // Add a link to the tags page, as well as a list of all the tags,
