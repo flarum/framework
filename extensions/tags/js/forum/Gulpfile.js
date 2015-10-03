@@ -2,7 +2,7 @@ var gulp = require('flarum-gulp');
 
 gulp({
   modules: {
-    'tags': [
+    'flarum/tags': [
       '../lib/**/*.js',
       'src/**/*.js'
     ]

@@ -2,7 +2,7 @@ import { extend, override } from 'flarum/extend';
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionList from 'flarum/components/DiscussionList';
 
-import TagHero from 'tags/components/TagHero';
+import TagHero from 'flarum/tags/components/TagHero';
 
 export default function() {
   IndexPage.prototype.currentTag = function() {

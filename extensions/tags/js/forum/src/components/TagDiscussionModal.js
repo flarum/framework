@@ -5,9 +5,9 @@ import highlight from 'flarum/helpers/highlight';
 import classList from 'flarum/utils/classList';
 import extractText from 'flarum/utils/extractText';
 
-import tagLabel from 'tags/helpers/tagLabel';
-import tagIcon from 'tags/helpers/tagIcon';
-import sortTags from 'tags/utils/sortTags';
+import tagLabel from 'flarum/tags/helpers/tagLabel';
+import tagIcon from 'flarum/tags/helpers/tagIcon';
+import sortTags from 'flarum/tags/utils/sortTags';
 
 export default class TagDiscussionModal extends Modal {
   constructor(...args) {

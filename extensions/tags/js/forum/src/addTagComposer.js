@@ -2,8 +2,8 @@ import { extend, override } from 'flarum/extend';
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 
-import TagDiscussionModal from 'tags/components/TagDiscussionModal';
-import tagsLabel from 'tags/helpers/tagsLabel';
+import TagDiscussionModal from 'flarum/tags/components/TagDiscussionModal';
+import tagsLabel from 'flarum/tags/helpers/tagsLabel';
 
 export default function() {
   extend(IndexPage.prototype, 'composeNewDiscussion', function(promise) {
