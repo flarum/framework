@@ -1,8 +1,8 @@
-import Tag from 'tags/models/Tag';
-import addTagsPermissionScope from 'tags/addTagsPermissionScope';
-import addTagPermission from 'tags/addTagPermission';
-import addTagsPane from 'tags/addTagsPane';
-import addTagsHomePageOption from 'tags/addTagsHomePageOption';
+import Tag from 'flarum/tags/models/Tag';
+import addTagsPermissionScope from 'flarum/tags/addTagsPermissionScope';
+import addTagPermission from 'flarum/tags/addTagPermission';
+import addTagsPane from 'flarum/tags/addTagsPane';
+import addTagsHomePageOption from 'flarum/tags/addTagsHomePageOption';
 
 app.initializers.add('tags', app => {
   app.store.models.tags = Tag;
