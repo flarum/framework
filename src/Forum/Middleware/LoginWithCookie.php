@@ -72,7 +72,7 @@ class LoginWithCookie implements MiddlewareInterface
      */
     protected function getToken(Request $request)
     {
-        $token = array_get($request->getCookieParams(), 'flarum_remember');
+        $token = array_get($request->getCookieParams(), app('config')->get('session.cookie'));
 
         if ($token) {
             return AccessToken::find($token);
