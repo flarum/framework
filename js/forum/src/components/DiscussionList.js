@@ -55,7 +55,7 @@ export default class DiscussionList extends Component {
     }
 
     if (this.discussions.length === 0 && !this.loading) {
-      const text = 'Looks like there are no discussions here. Why don\'t you create a new one?';
+      const text = app.trans('core.admin.discussion_list_empty_text');
       return (
         <div className="DiscussionList">
           {Placeholder.component({text})}
