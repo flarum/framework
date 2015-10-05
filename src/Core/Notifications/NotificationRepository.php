@@ -42,4 +42,16 @@ class NotificationRepository
             ->latest('time')
             ->get();
     }
+
+    /**
+     * Mark all of a user's notifications as read.
+     *
+     * @param User $user
+     *
+     * @return void
+     */
+    public function markAllAsRead(User $user)
+    {
+        Notification::where('user_id', $user->id)->update(['is_read' => true]);
+    }
 }

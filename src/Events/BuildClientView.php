@@ -12,8 +12,8 @@ namespace Flarum\Events;
 
 use Flarum\Support\ClientAction;
 use Flarum\Support\ClientView;
-use Flarum\Forum\Actions\ClientAction as ForumClientAction;
 use Flarum\Admin\Actions\ClientAction as AdminClientAction;
+use Flarum\Forum\Actions\ClientAction as ForumClientAction;
 
 class BuildClientView
 {
@@ -37,56 +37,37 @@ class BuildClientView
      * @param ClientView $view
      * @param array $keys
      */
-    public function __construct($action, $view, &$keys)
+    public function __construct(ClientAction $action, ClientView $view, array &$keys)
     {
         $this->action = $action;
         $this->view = $view;
         $this->keys = &$keys;
     }
 
-    public function forumAssets($files)
+    public function isForum()
     {
-        if ($this->action instanceof ForumClientAction) {
-            $this->view->getAssets()->addFiles((array) $files);
-        }
+        return $this->action instanceof ForumClientAction;
     }
 
-    public function forumBootstrapper($bootstrapper)
+    public function isAdmin()
     {
-        if ($this->action instanceof ForumClientAction) {
-            $this->view->addBootstrapper($bootstrapper);
-        }
+        return $this->action instanceof AdminClientAction;
     }
 
-    public function forumTranslations(array $keys)
+    public function addAssets($files)
     {
-        if ($this->action instanceof ForumClientAction) {
-            foreach ($keys as $key) {
-                $this->keys[] = $key;
-            }
-        }
+        $this->view->getAssets()->addFiles((array) $files);
     }
 
-    public function adminAssets($files)
+    public function addBootstrapper($bootstrapper)
     {
-        if ($this->action instanceof AdminClientAction) {
-            $this->view->getAssets()->addFiles((array) $files);
-        }
+        $this->view->addBootstrapper($bootstrapper);
     }
 
-    public function adminBootstrapper($bootstrapper)
+    public function addTranslations(array $keys)
     {
-        if ($this->action instanceof AdminClientAction) {
-            $this->view->addBootstrapper($bootstrapper);
-        }
-    }
-
-    public function adminTranslations(array $keys)
-    {
-        if ($this->action instanceof AdminClientAction) {
-            foreach ($keys as $key) {
-                $this->keys[] = $key;
-            }
+        foreach ($keys as $key) {
+            $this->keys[] = $key;
         }
     }
 }

@@ -59,12 +59,12 @@ export default class NotificationList extends Component {
             {Button.component({
               className: 'Button Button--icon Button--link',
               icon: 'check',
-              title: app.trans('core.notifications_mark_all_as_read_tooltip'),
+              title: app.trans('core.forum.notifications_mark_all_as_read_tooltip'),
               onclick: this.markAllAsRead.bind(this)
             })}
           </div>
 
-          <h4 className="App-titleControl App-titleControl--text">{app.trans('core.notifications_title')}</h4>
+          <h4 className="App-titleControl App-titleControl--text">{app.trans('core.forum.notifications_title')}</h4>
         </div>
 
         <div className="NotificationList-content">
@@ -98,7 +98,7 @@ export default class NotificationList extends Component {
               );
             })
             : !this.loading
-              ? <div className="NotificationList-empty">{app.trans('core.notifications_empty_text')}</div>
+              ? <div className="NotificationList-empty">{app.trans('core.forum.notifications_empty_text')}</div>
               : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
         </div>
       </div>
@@ -110,7 +110,7 @@ export default class NotificationList extends Component {
    * been loaded.
    */
   load() {
-    if (app.cache.notifications && !app.session.user.unreadNotificationsCount()) {
+    if (app.cache.notifications && !app.session.user.newNotificationsCount()) {
       return;
     }
 
@@ -118,7 +118,7 @@ export default class NotificationList extends Component {
     m.redraw();
 
     app.store.find('notifications').then(notifications => {
-      app.session.user.pushAttributes({unreadNotificationsCount: 0});
+      app.session.user.pushAttributes({newNotificationsCount: 0});
       app.cache.notifications = notifications.sort((a, b) => b.time() - a.time());
 
       this.loading = false;
@@ -132,10 +132,13 @@ export default class NotificationList extends Component {
   markAllAsRead() {
     if (!app.cache.notifications) return;
 
-    app.cache.notifications.forEach(notification => {
-      if (!notification.isRead()) {
-        notification.save({isRead: true});
-      }
+    app.session.user.pushAttributes({unreadNotificationsCount: 0});
+
+    app.cache.notifications.forEach(notification => notification.pushAttributes({isRead: true}));
+
+    app.request({
+      url: app.forum.attribute('apiUrl') + '/notifications/read',
+      method: 'POST'
     });
   }
 }

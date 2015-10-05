@@ -35,21 +35,19 @@ export default class ForgotPasswordModal extends Modal {
   }
 
   title() {
-    return app.trans('core.forgot_password_title');
+    return app.trans('core.forum.forgot_password_title');
   }
 
   content() {
     if (this.success) {
-      const emailProviderName = this.email().split('@')[1];
-
       return (
         <div className="Modal-body">
           <div className="Form Form--centered">
-            <p className="helpText">{app.trans('core.forgot_password_email_sent_message')}</p>
+            <p className="helpText">{app.trans('core.forum.forgot_password_email_sent_message')}</p>
             <div className="Form-group">
-              <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
-                {app.trans('core.forgot_password_go_to_button', {url: emailProviderName})}
-              </a>
+              <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
+                {app.trans('core.forum.forgot_password_dismiss_button')}
+              </Button>
             </div>
           </div>
         </div>
@@ -59,9 +57,9 @@ export default class ForgotPasswordModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">{app.trans('core.forgot_password_text')}</p>
+          <p className="helpText">{app.trans('core.forum.forgot_password_text')}</p>
           <div className="Form-group">
-            <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.forgot_password_email_placeholder'))}
+            <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.forum.forgot_password_email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
@@ -71,7 +69,7 @@ export default class ForgotPasswordModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.forgot_password_submit_button')
+              children: app.trans('core.forum.forgot_password_submit_button')
             })}
           </div>
         </div>

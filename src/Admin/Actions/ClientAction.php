@@ -11,6 +11,7 @@
 namespace Flarum\Admin\Actions;
 
 use Flarum\Support\ClientAction as BaseClientAction;
+use Flarum\Support\ClientView;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Flarum\Core\Groups\Permission;
 use Flarum\Api\Client;
@@ -28,9 +29,7 @@ class ClientAction extends BaseClientAction
     /**
      * {@inheritdoc}
      */
-    protected $translationKeys = [
-        'core.log_out'
-    ];
+    protected $translationKeys = ['core.admin'];
 
     /**
      * {@inheritdoc}

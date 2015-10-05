@@ -23,6 +23,7 @@ class CurrentUserSerializer extends UserSerializer
             $attributes += [
                 'readTime'                 => $user->read_time ? $user->read_time->toRFC3339String() : null,
                 'unreadNotificationsCount' => $user->getUnreadNotificationsCount(),
+                'newNotificationsCount'    => $user->getNewNotificationsCount(),
                 'preferences'              => $user->preferences
             ];
         }

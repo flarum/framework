@@ -17,9 +17,9 @@ use Flarum\Assets\LessCompiler;
 use Flarum\Core;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Core\Users\User;
-use Flarum\Events\BuildClientView;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
+use Flarum\Events\BuildClientView;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**

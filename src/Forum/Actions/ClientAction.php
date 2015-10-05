@@ -11,6 +11,7 @@
 namespace Flarum\Forum\Actions;
 
 use Flarum\Support\ClientAction as BaseClientAction;
+use Flarum\Support\ClientView;
 use Flarum\Api\Client;
 use Flarum\Core\Settings\SettingsRepository;
 use Flarum\Locale\LocaleManager;
@@ -25,9 +26,7 @@ class ClientAction extends BaseClientAction
     /**
      * {@inheritdoc}
      */
-    protected $translationKeys = [
-        'core'
-    ];
+    protected $translationKeys = ['core.forum'];
 
     /**
      * {@inheritdoc}

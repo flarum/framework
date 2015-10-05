@@ -71,7 +71,7 @@ export default class PostStreamScrubber extends Component {
     const unreadCount = this.props.stream.discussion.unreadCount();
     const unreadPercent = Math.min(this.count() - this.index, unreadCount) / this.count();
 
-    const viewing = app.trans('core.post_scrubber_viewing_text', {
+    const viewing = app.trans('core.forum.post_scrubber_viewing_text', {
       index: <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
       count: <span className="Scrubber-count">{formatNumber(this.count())}</span>
     });
@@ -101,7 +101,7 @@ export default class PostStreamScrubber extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('angle-double-up')} {app.trans('core.post_scrubber_original_post_link')}
+              {icon('angle-double-up')} {app.trans('core.forum.post_scrubber_original_post_link')}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -116,12 +116,12 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-after"/>
 
               <div className="Scrubber-unread" config={styleUnread}>
-                {app.trans('core.post_scrubber_unread_text', {count: unreadCount})}
+                {app.trans('core.forum.post_scrubber_unread_text', {count: unreadCount})}
               </div>
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('angle-double-down')} {app.trans('core.post_scrubber_now_link')}
+              {icon('angle-double-down')} {app.trans('core.forum.post_scrubber_now_link')}
             </a>
           </div>
         </div>
@@ -410,7 +410,7 @@ export default class PostStreamScrubber extends Component {
     // the index at which the drag was started, and then scroll there.
     const deltaPixels = (e.clientY || e.originalEvent.touches[0].clientY) - this.mouseStart;
     const deltaPercent = deltaPixels / this.$('.Scrubber-scrollbar').outerHeight() * 100;
-    const deltaIndex = deltaPercent / this.percentPerPost().index;
+    const deltaIndex = (deltaPercent / this.percentPerPost().index) || 0;
     const newIndex = Math.min(this.indexStart + deltaIndex, this.count() - 1);
 
     this.index = Math.max(0, newIndex);

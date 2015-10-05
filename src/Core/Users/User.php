@@ -16,7 +16,6 @@ use Flarum\Core\Model;
 use Flarum\Core\Notifications\Notification;
 use Flarum\Events\RegisterUserPreferences;
 use Illuminate\Contracts\Hashing\Hasher;
-use Flarum\Core\Formatter\FormatterManager;
 use Flarum\Events\UserWasDeleted;
 use Flarum\Events\PostWasDeleted;
 use Flarum\Events\UserWasRegistered;
@@ -329,7 +328,7 @@ class User extends Model
      */
     public function getAvatarUrlAttribute()
     {
-        $urlGenerator = app('Flarum\Http\UrlGeneratorInterface');
+        $urlGenerator = app('Flarum\Forum\UrlGenerator');
 
         return $this->avatar_path ? $urlGenerator->toAsset('avatars/'.$this->avatar_path) : null;
     }
@@ -432,16 +431,43 @@ class User extends Model
     /**
      * Get the number of unread notifications for the user.
      *
-     * @return mixed
+     * @return int
      */
     public function getUnreadNotificationsCount()
     {
-        return $this->notifications()
-            ->whereIn('type', $this->getAlertableNotificationTypes())
-            ->where('time', '>', $this->notifications_read_time ?: 0)
-            ->where('is_read', 0)
-            ->where('is_deleted', 0)
-            ->count($this->getConnection()->raw('DISTINCT type, subject_id'));
+        return $this->getUnreadNotifications()->count();
+    }
+
+    /**
+     * Get all notifications that have not been read yet
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function getUnreadNotifications()
+    {
+        static $cached = null;
+
+        if (is_null($cached)) {
+            $cached = $this->notifications()
+                ->whereIn('type', $this->getAlertableNotificationTypes())
+                ->where('is_read', 0)
+                ->where('is_deleted', 0)
+                ->get();
+        }
+
+        return $cached;
+    }
+
+    /**
+     * Get the number of new, unseen notifications for the user.
+     *
+     * @return int
+     */
+    public function getNewNotificationsCount()
+    {
+        return $this->getUnreadNotifications()->filter(function ($notification) {
+            return $notification->time > $this->notifications_read_time ?: 0;
+        })->count();
     }
 
     /**

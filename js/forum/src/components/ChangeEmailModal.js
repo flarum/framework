@@ -29,21 +29,19 @@ export default class ChangeEmailModal extends Modal {
   }
 
   title() {
-    return app.trans('core.change_email_title');
+    return app.trans('core.forum.change_email_title');
   }
 
   content() {
     if (this.success) {
-      const emailProviderName = this.email().split('@')[1];
-
       return (
         <div className="Modal-body">
           <div className="Form Form--centered">
-            <p className="helpText">{app.trans('core.change_email_confirmation_message', {email: <strong>{this.email()}</strong>})}</p>
+            <p className="helpText">{app.trans('core.forum.change_email_confirmation_message', {email: <strong>{this.email()}</strong>})}</p>
             <div className="Form-group">
-              <a href={'http://' + emailProviderName} className="Button Button--primary Button--block">
-                {app.trans('core.change_email_go_to_button', {url: emailProviderName})}
-              </a>
+              <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
+                {app.trans('core.forum.change_email_dismiss_button')}
+              </Button>
             </div>
           </div>
         </div>
@@ -65,7 +63,7 @@ export default class ChangeEmailModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.change_email_submit_button')
+              children: app.trans('core.forum.change_email_submit_button')
             })}
           </div>
         </div>
@@ -91,8 +89,9 @@ export default class ChangeEmailModal extends Modal {
         this.success = true;
         m.redraw();
       },
-      () => {
+      response => {
         this.loading = false;
+        this.handleErrors(response);
       }
     );
   }
