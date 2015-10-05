@@ -95,7 +95,7 @@ export default {
    * Delete the user.
    */
   deleteAction() {
-    if (confirm('Are you sure you want to delete this user? All of the user\'s posts will be deleted.')) {
+    if (confirm(app.trans('core.admin.user_controls_delete_confirmation'))) {
       this.delete().then(() => {
         if (app.current instanceof UserPage && app.current.user === this) {
           app.history.back();
