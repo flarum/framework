@@ -30,7 +30,7 @@ export default class EditGroupModal extends Modal {
         style: {backgroundColor: this.color()}
       }) : '',
       ' ',
-      this.namePlural() || 'Create Group'
+      this.namePlural() || app.trans('core.admin.edit_group_title')
     ];
   }
 
@@ -39,7 +39,7 @@ export default class EditGroupModal extends Modal {
       <div className="Modal-body">
         <div className="Form">
           <div className="Form-group">
-            <label>Name</label>
+            <label>{app.trans('core.admin.edit_group_name_label')}</label>
             <div className="EditGroupModal-name-input">
               <input className="FormControl" placeholder="Singular (e.g. Mod)" value={this.nameSingular()} oninput={m.withAttr('value', this.nameSingular)}/>
               <input className="FormControl" placeholder="Plural (e.g. Mods)" value={this.namePlural()} oninput={m.withAttr('value', this.namePlural)}/>
@@ -47,14 +47,14 @@ export default class EditGroupModal extends Modal {
           </div>
 
           <div className="Form-group">
-            <label>Color</label>
+            <label>{app.trans('core.admin.edit_group_color_label')}</label>
             <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
           </div>
 
           <div className="Form-group">
-            <label>Icon</label>
+            <label>{app.trans('core.admin.edit_group_icon_label')}</label>
             <div className="helpText">
-              Enter the name of any <a href="http://fortawesome.github.io/Font-Awesome/icons/" tabindex="-1">FontAwesome</a> icon class, <em>without</em> the <code>fa-</code> prefix.
+              {app.trans('core.admin.edit_group_icon_text', {a: <a href="http://fortawesome.github.io/Font-Awesome/icons/" tabindex="-1"/>}, {em: <em/>}, {code: <code/>})}
             </div>
             <input className="FormControl" placeholder="bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
           </div>
@@ -64,11 +64,11 @@ export default class EditGroupModal extends Modal {
               type: 'submit',
               className: 'Button Button--primary EditGroupModal-save',
               loading: this.loading,
-              children: 'Save Changes'
+              children: app.trans('core.admin.edit_group_submit_button')
             })}
             {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
               <button type="button" className="Button EditGroupModal-delete" onclick={this.delete.bind(this)}>
-                Delete Group
+                {app.trans('core.admin.edit_group_delete_button')}
               </button>
             ) : ''}
           </div>
@@ -97,7 +97,7 @@ export default class EditGroupModal extends Modal {
   }
 
   delete() {
-    if (confirm('Are you sure you want to delete this group? The group members will NOT be deleted.')) {
+    if (confirm(app.trans('core.admin.edit_group_delete_confirmation'))) {
       this.group.delete().then(() => m.redraw());
       this.hide();
     }

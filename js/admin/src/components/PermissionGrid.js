@@ -61,22 +61,22 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('view', {
-      label: 'Read',
+      label: app.trans('core.admin.permissions_read_heading'),
       children: this.viewItems().toArray()
     }, 100);
 
     items.add('start', {
-      label: 'Create',
+      label: app.trans('core.admin.permissions_create_heading'),
       children: this.startItems().toArray()
     }, 90);
 
     items.add('reply', {
-      label: 'Participate',
+      label: app.trans('core.admin.permissions_participate_heading'),
       children: this.replyItems().toArray()
     }, 80);
 
     items.add('moderate', {
-      label: 'Moderate',
+      label: app.trans('core.admin.permissions_moderate_heading'),
       children: this.moderateItems().toArray()
     }, 70);
 
@@ -88,19 +88,19 @@ export default class PermissionGrid extends Component {
 
     items.add('view', {
       icon: 'eye',
-      label: 'View discussions',
+      label: app.trans('core.admin.permissions_view_discussions_label'),
       permission: 'forum.view',
       allowGuest: true
     }, 100);
 
     items.add('signUp', {
       icon: 'user-plus',
-      label: 'Sign up',
+      label: app.trans('core.admin.permissions_sign_up_label'),
       setting: () => ConfigDropdown.component({
         key: 'allow_sign_up',
         options: [
-          {value: '1', label: 'Open'},
-          {value: '0', label: 'Closed'}
+          {value: '1', label: app.trans('core.admin.permissions_signup_open_button')},
+          {value: '0', label: app.trans('core.admin.permissions_signup_closed_button')}
         ]
       })
     }, 90);
@@ -113,23 +113,25 @@ export default class PermissionGrid extends Component {
 
     items.add('start', {
       icon: 'edit',
-      label: 'Start discussions',
+      label: app.trans('core.admin.permissions_start_discussions_label'),
       permission: 'forum.startDiscussion'
     }, 100);
 
     items.add('allowRenaming', {
       icon: 'i-cursor',
-      label: 'Allow renaming',
+      label: app.trans('core.admin.permissions_allow_renaming_label'),
       setting: () => {
         const minutes = parseInt(app.config.allow_renaming, 10);
 
         return ConfigDropdown.component({
-          defaultLabel: minutes ? `For ${minutes} minutes` : 'Indefinitely',
+          defaultLabel: minutes
+            ? app.trans('core.admin.permissions_allow_some_minutes_button', {count: minutes})
+            : app.trans('core.admin.permissions_allow_indefinitely_button'),
           key: 'allow_renaming',
           options: [
-            {value: '-1', label: 'Indefinitely'},
-            {value: '10', label: 'For 10 minutes'},
-            {value: 'reply', label: 'Until next reply'}
+            {value: '-1', label: app.trans('core.admin.permissions_allow_indefinitely_button')},
+            {value: '10', label: app.trans('core.admin.permissions_allow_ten_minutes_button')},
+            {value: 'reply', label: app.trans('core.admin.permissions_allow_until_reply_button')}
           ]
         });
       }
@@ -143,23 +145,23 @@ export default class PermissionGrid extends Component {
 
     items.add('reply', {
       icon: 'reply',
-      label: 'Reply to discussions',
+      label: app.trans('core.admin.permissions_reply_to_discussions_label'),
       permission: 'discussion.reply'
     }, 100);
 
     items.add('allowPostEditing', {
       icon: 'pencil',
-      label: 'Allow post editing',
+      label: app.trans('core.admin.permissions_allow_post_editing_label'),
       setting: () => {
         const minutes = parseInt(app.config.allow_post_editing, 10);
 
         return ConfigDropdown.component({
-          defaultLabel: minutes ? `For ${minutes} minutes` : 'Indefinitely',
+          defaultLabel: app.trans(minutes ? 'core.admin.permissions_allow_some_minutes_button', {some: ?{minutes}} : 'core.admin.permissions_allow_indefinitely_button'),
           key: 'allow_post_editing',
           options: [
-            {value: '-1', label: 'Indefinitely'},
-            {value: '10', label: 'For 10 minutes'},
-            {value: 'reply', label: 'Until next reply'}
+            {value: '-1', label: app.trans('core.admin.permissions_allow_indefinitely_button')},
+            {value: '10', label: app.trans('core.admin.permissions_allow_ten_minutes_button')},
+            {value: 'reply', label: app.trans('core.admin.permissions_allow_until_reply_button')}
           ]
         });
       }
@@ -173,31 +175,31 @@ export default class PermissionGrid extends Component {
 
     items.add('renameDiscussions', {
       icon: 'i-cursor',
-      label: 'Rename discussions',
+      label: app.trans('core.admin.permissions_rename_discussions_label'),
       permission: 'discussion.rename'
     }, 100);
 
     items.add('hideDiscussions', {
       icon: 'trash-o',
-      label: 'Delete discussions',
+      label: app.trans('core.admin.permissions_delete_discussions_label'),
       permission: 'discussion.hide'
     }, 90);
 
     items.add('deleteDiscussions', {
       icon: 'times',
-      label: 'Delete discussions forever',
+      label: app.trans('core.admin.permissions_delete_discussions_forever_label'),
       permission: 'discussion.delete'
     }, 80);
 
     items.add('editPosts', {
       icon: 'pencil',
-      label: 'Edit and delete posts',
+      label: app.trans('core.admin.permissions_edit_and_delete_posts_label'),
       permission: 'discussion.editPosts'
     }, 70);
 
     items.add('deletePosts', {
       icon: 'times',
-      label: 'Delete posts forever',
+      label: app.trans('core.admin.permissions_delete_posts_forever_label'),
       permission: 'discussion.deletePosts'
     }, 60);
 
@@ -208,7 +210,7 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('global', {
-      label: 'Global',
+      label: app.trans('core.admin.permissions_global_heading'),
       render: item => {
         if (item.setting) {
           return item.setting();
