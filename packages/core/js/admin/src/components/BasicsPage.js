@@ -36,17 +36,17 @@ export default class BasicsPage extends Component {
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component({
-              label: 'Forum Title',
+              label: app.trans('core.admin.basics_forum_title_heading'),
               children: [
                 <input className="FormControl" value={this.values.forum_title()} oninput={m.withAttr('value', this.values.forum_title)}/>
               ]
             })}
 
             {FieldSet.component({
-              label: 'Forum Description',
+              label: app.trans('core.admin.basics_forum_description_heading'),
               children: [
                 <div className="helpText">
-                  Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
+                  {app.trans('core.admin.basics_forum_description_text')}
                 </div>,
                 <textarea className="FormControl" value={this.values.forum_description()} oninput={m.withAttr('value', this.values.forum_description)}/>
               ]
@@ -54,7 +54,7 @@ export default class BasicsPage extends Component {
 
             {Object.keys(this.localeOptions).length > 1
               ? FieldSet.component({
-                label: 'Default Language',
+                label: app.trans('core.admin.basics_default_language_heading'),
                 children: [
                   Select.component({
                     options: this.localeOptions,
@@ -65,11 +65,11 @@ export default class BasicsPage extends Component {
               : ''}
 
             {FieldSet.component({
-              label: 'Home Page',
+              label: app.trans('core.admin.basics_home_page_heading'),
               className: 'BasicsPage-homePage',
               children: [
                 <div className="helpText">
-                  Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root.
+                  {app.trans('core.admin.basics_home_page_text')}
                 </div>,
                 this.homePageItems().toArray().map(({path, label}) =>
                   <label className="checkbox">
@@ -81,11 +81,11 @@ export default class BasicsPage extends Component {
             })}
 
             {FieldSet.component({
-              label: 'Welcome Banner',
+              label: app.trans('core.admin.basics_welcome_banner_heading'),
               className: 'BasicsPage-welcomeBanner',
               children: [
                 <div className="helpText">
-                  Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
+                  {app.trans('core.admin.basics_welcome_banner_text')}
                 </div>,
                 <div className="BasicsPage-welcomeBanner-input">
                   <input className="FormControl" value={this.values.welcome_title()} oninput={m.withAttr('value', this.values.welcome_title)}/>
@@ -97,7 +97,7 @@ export default class BasicsPage extends Component {
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary',
-              children: 'Save Changes',
+              children: app.trans('core.admin.basics_submit_button'),
               loading: this.loading,
               disabled: !this.changed()
             })}
@@ -123,7 +123,7 @@ export default class BasicsPage extends Component {
 
     items.add('allDiscussions', {
       path: '/all',
-      label: 'All Discussions'
+      label: app.trans('core.admin.basics_all_discussions_label')
     });
 
     return items;
@@ -143,7 +143,7 @@ export default class BasicsPage extends Component {
 
     saveConfig(config)
       .then(() => {
-        app.alerts.show(this.successAlert = new Alert({type: 'success', children: 'Your changes were saved.'}));
+        app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.trans('core.admin.basics_saved_message')}));
       })
       .finally(() => {
         this.loading = false;
