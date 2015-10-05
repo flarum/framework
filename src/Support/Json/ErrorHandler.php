@@ -17,7 +17,7 @@ class ErrorHandler
      *
      * @param Exception $exception
      * @return mixed
-     * @throws InvalidExceptionHandlerException
+     * @throws InvalidHandlerException
      */
     public function handle(Exception $exception)
     {

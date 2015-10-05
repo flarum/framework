@@ -19,6 +19,10 @@ use Flarum\Events\RegisterActivityTypes;
 use Flarum\Events\RegisterNotificationTypes;
 use Flarum\Http\RouteCollection;
 use Flarum\Api\UrlGenerator;
+use Flarum\Support\Json\FallbackExceptionHandler;
+use Flarum\Support\Json\ModelNotFoundExceptionHandler;
+use Flarum\Support\Json\SerializableErrorHandler;
+use Flarum\Support\Json\ValidationExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -44,7 +48,10 @@ class ApiServiceProvider extends ServiceProvider
 
         $this->app->singleton(ErrorHandler::class, function () {
             $handler = new ErrorHandler;
-            $handler->registerHandler();
+            $handler->registerHandler(new SerializableErrorHandler);
+            $handler->registerHandler(new ValidationExceptionHandler);
+            $handler->registerHandler(new ModelNotFoundExceptionHandler);
+            $handler->registerHandler(new FallbackExceptionHandler);
         });
     }
 
