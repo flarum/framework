@@ -10,10 +10,10 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Middleware\JsonApiErrors;
 use Flarum\Core\Users\User;
 use Illuminate\Contracts\Container\Container;
 use Exception;
+use Zend\Stratigility\ErrorMiddlewareInterface;
 
 class Client
 {
@@ -23,17 +23,18 @@ class Client
     protected $container;
 
     /**
-     * @var JsonApiErrors
+     * @var ErrorMiddlewareInterface
      */
-    private $jsonApiErrors;
+    private $middleware;
 
     /**
      * @param Container $container
+     * @param ErrorMiddlewareInterface $middleware
      */
-    public function __construct(Container $container, JsonApiErrors $jsonApiErrors)
+    public function __construct(Container $container, ErrorMiddlewareInterface $middleware)
     {
         $this->container = $container;
-        $this->jsonApiErrors = $jsonApiErrors;
+        $this->middleware = $middleware;
     }
 
     /**
@@ -52,9 +53,9 @@ class Client
         try {
             $response = $action->handle(new Request($input, $actor));
         } catch (Exception $e) {
-            $response = $this->jsonApiErrors->handle($e);
+            $response = $this->middleware->handle($e);
         }
-
+        
         return new Response($response);
     }
 }
