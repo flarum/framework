@@ -10,6 +10,7 @@
 
 namespace Flarum\Api;
 
+use Flarum\Support\Json\ErrorHandler;
 use Flarum\Api\Serializers\ActivitySerializer;
 use Flarum\Api\Serializers\NotificationSerializer;
 use Flarum\Core\Users\Guest;
@@ -18,6 +19,10 @@ use Flarum\Events\RegisterActivityTypes;
 use Flarum\Events\RegisterNotificationTypes;
 use Flarum\Http\RouteCollection;
 use Flarum\Api\UrlGenerator;
+use Flarum\Support\Json\FallbackExceptionHandler;
+use Flarum\Support\Json\ModelNotFoundExceptionHandler;
+use Flarum\Support\Json\SerializableErrorHandler;
+use Flarum\Support\Json\ValidationExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -40,6 +45,14 @@ class ApiServiceProvider extends ServiceProvider
                 return new UrlGenerator($this->app->make('flarum.api.routes'));
             }
         );
+
+        $this->app->singleton(ErrorHandler::class, function () {
+            $handler = new ErrorHandler;
+            $handler->registerHandler(new SerializableErrorHandler);
+            $handler->registerHandler(new ValidationExceptionHandler);
+            $handler->registerHandler(new ModelNotFoundExceptionHandler);
+            $handler->registerHandler(new FallbackExceptionHandler);
+        });
     }
 
     /**
