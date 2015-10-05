@@ -55,7 +55,7 @@ class Client
         } catch (Exception $e) {
             $response = $this->middleware->handle($e);
         }
-        
+
         return new Response($response);
     }
 }

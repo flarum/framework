@@ -54,9 +54,7 @@ class JsonApiErrors implements ErrorMiddlewareInterface
     public function handle(Exception $e)
     {
         $response = $this->errorHandler->handle($e);
-
-        // JSON API errors must be collected in an array under the
-        // "errors" key in the top level of the document
+        
         return $this->formatResponse($response);
     }
     
