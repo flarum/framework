@@ -140,8 +140,7 @@ export default class SignUpModal extends Modal {
   footer() {
     return [
       <p className="SignUpModal-logIn">
-        {app.trans('core.forum.sign_up_already_have_account_text')}
-        <a onclick={this.logIn.bind(this)}>{app.trans('core.forum.sign_up_log_in_link')}</a>
+        {app.trans('core.forum.sign_up_log_in_text', {a: <a onclick={this.logIn.bind(this)}/>})}
       </p>
     ];
   }
