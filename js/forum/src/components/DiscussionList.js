@@ -55,7 +55,7 @@ export default class DiscussionList extends Component {
     }
 
     if (this.discussions.length === 0 && !this.loading) {
-      const text = app.trans('core.admin.discussion_list_empty_text');
+      const text = app.trans('core.forum.discussion_list_empty_text');
       return (
         <div className="DiscussionList">
           {Placeholder.component({text})}
