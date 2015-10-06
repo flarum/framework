@@ -95,7 +95,7 @@ export default {
    * Delete the user.
    */
   deleteAction() {
-    if (confirm(app.trans('core.admin.user_controls_delete_confirmation'))) {
+    if (confirm(app.trans('core.forum.user_controls_delete_confirmation'))) {
       this.delete().then(() => {
         if (app.current instanceof UserPage && app.current.user === this) {
           app.history.back();
