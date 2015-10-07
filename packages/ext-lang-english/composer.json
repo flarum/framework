@@ -3,14 +3,11 @@
     "type": "flarum-extension",
     "description": "English language pack.",
     "license": "MIT",
-    "require": {
-        "composer/installers": "dev-master"
-    },
     "extra": {
         "flarum-extension": {
             "title": "English",
             "icon": {
-                "backgroundImage": "url('{$assets}/icon.svg')",
+                "image": "icon.svg",
                 "backgroundSize": "cover",
                 "backgroundPosition": "center"
             }
