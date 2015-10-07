@@ -1,10 +1,10 @@
 <?php
 
-use Flarum\Events\RegisterLocales;
-use Flarum\Core\Application;
+use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Event\ConfigureLocales;
 
-return function (Application $app) {
-    $app->make('events')->listen(RegisterLocales::class, function(RegisterLocales $event) {
+return function (Dispatcher $events) {
+    $events->listen(ConfigureLocales::class, function(ConfigureLocales $event) {
         $name = $title = basename(__DIR__);
 
         if (file_exists($manifest = __DIR__.'/composer.json')) {
@@ -22,23 +22,23 @@ return function (Application $app) {
             throw new RuntimeException("Language pack $name must define \"extra.flarum-locale.code\" in composer.json.");
         }
 
-        $event->addLocale($locale, $title);
+        $event->locales->addLocale($locale, $title);
 
         if (! is_dir($localeDir = __DIR__.'/locale')) {
             throw new RuntimeException("Language pack $name must have a \"locale\" subdirectory.");
         }
 
         if (file_exists($file = $localeDir.'/config.js')) {
-            $event->addJsFile($locale, $file);
+            $event->locales->addJsFile($locale, $file);
         }
 
         if (file_exists($file = $localeDir.'/config.php')) {
-            $event->addConfig($locale, $file);
+            $event->locales->addConfig($locale, $file);
         }
 
         foreach (new DirectoryIterator($localeDir) as $file) {
             if ($file->isFile() && in_array($file->getExtension(), ['yml', 'yaml'])) {
-                $event->addTranslations($locale, $file->getPathname());
+                $event->locales->addTranslations($locale, $file->getPathname());
             }
         }
     });
