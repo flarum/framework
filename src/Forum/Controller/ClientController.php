@@ -27,7 +27,7 @@ class ClientController extends AbstractClientController
     /**
      * {@inheritdoc}
      */
-    protected $translationKeys = ['core.forum'];
+    protected $translationKeys = ['core.forum', 'core.lib'];
 
     /**
      * {@inheritdoc}

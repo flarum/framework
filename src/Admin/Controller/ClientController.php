@@ -31,7 +31,7 @@ class ClientController extends BaseClientController
     /**
      * {@inheritdoc}
      */
-    protected $translationKeys = ['core.admin'];
+    protected $translationKeys = ['core.admin', 'core.lib'];
 
     /**
      * @var ExtensionManager
