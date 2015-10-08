@@ -13,6 +13,7 @@ namespace Flarum\Admin\Controller;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\AbstractClientController as BaseClientController;
 use Flarum\Extension\ExtensionManager;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Flarum\Core\Permission;
@@ -47,9 +48,10 @@ class ClientController extends BaseClientController
         LocaleManager $locales,
         SettingsRepository $settings,
         Dispatcher $events,
+        Repository $cache,
         ExtensionManager $extensions
     ) {
-        BaseClientController::__construct($app, $apiClient, $locales, $settings, $events);
+        BaseClientController::__construct($app, $apiClient, $locales, $settings, $events, $cache);
 
         $this->layout = __DIR__.'/../../../views/admin.blade.php';
         $this->extensions = $extensions;

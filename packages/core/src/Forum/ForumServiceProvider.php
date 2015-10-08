@@ -148,7 +148,7 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $this->app->make('events')->listen(SettingWasSet::class, function (SettingWasSet $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->flushAssets();
+                $this->getClientController()->flushCss();
             }
         });
     }
@@ -163,7 +163,14 @@ class ForumServiceProvider extends AbstractServiceProvider
 
     public function flushAssets()
     {
-        $controller = $this->app->make('Flarum\Forum\Controller\ClientController');
-        $controller->flushAssets();
+        $this->getClientController()->flushAssets();
+    }
+
+    /**
+     * @return \Flarum\Forum\Controller\ClientController
+     */
+    protected function getClientController()
+    {
+        return $this->app->make('Flarum\Forum\Controller\ClientController');
     }
 }

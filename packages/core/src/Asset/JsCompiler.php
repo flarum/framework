@@ -11,54 +11,44 @@
 namespace Flarum\Asset;
 
 use Exception;
+use Illuminate\Cache\Repository;
 use MatthiasMullie\Minify;
 use s9e\TextFormatter\Configurator\JavaScript\Minifiers\ClosureCompilerService;
 
 class JsCompiler extends RevisionCompiler
 {
     /**
-     * @var bool
+     * @var Repository
      */
-    protected $minify;
+    protected $cache;
 
     /**
      * @param string $path
      * @param string $filename
-     * @param bool $minify
+     * @param bool $watch
+     * @param Repository $cache
      */
-    public function __construct($path, $filename, $minify = false)
+    public function __construct($path, $filename, $watch = false, Repository $cache = null)
     {
-        parent::__construct($path, $filename);
+        parent::__construct($path, $filename, $watch);
 
-        $this->minify = $minify;
+        $this->cache = $cache;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function format($string)
+    protected function format($string)
     {
-        return $string.";\n";
-    }
+        if (! $this->watch) {
+            $key = 'js.'.sha1($string);
 
-    /**
-     * @inheritDoc
-     */
-    public function compile()
-    {
-        $output = parent::compile();
-
-        if ($this->minify) {
-            set_time_limit(60);
-
-            try {
-                $output = $this->minifyWithClosureCompilerService($output);
-            } catch (Exception $e) {
-                $output = $this->minifyWithFallback($output);
-            }
+            $string = $this->cache->rememberForever($key, function () use ($string) {
+                return $this->minify($string);
+            });
         }
 
-        return $output;
+        return $string.";\n";
     }
 
     /**
@@ -66,7 +56,24 @@ class JsCompiler extends RevisionCompiler
      */
     protected function getCacheDifferentiator()
     {
-        return $this->minify;
+        return $this->watch;
+    }
+
+    /**
+     * @param string $source
+     * @return string
+     */
+    protected function minify($source)
+    {
+        set_time_limit(60);
+
+        try {
+            $source = $this->minifyWithClosureCompilerService($source);
+        } catch (Exception $e) {
+            $source = $this->minifyWithFallback($source);
+        }
+
+        return $source;
     }
 
     /**

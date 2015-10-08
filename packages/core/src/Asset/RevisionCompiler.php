@@ -25,13 +25,20 @@ class RevisionCompiler implements CompilerInterface
     protected $strings = [];
 
     /**
+     * @var bool
+     */
+    protected $watch;
+
+    /**
      * @param string $path
      * @param string $filename
+     * @param bool $watch
      */
-    public function __construct($path, $filename)
+    public function __construct($path, $filename, $watch = false)
     {
         $this->path = $path;
         $this->filename = $filename;
+        $this->watch = $watch;
     }
 
     /**
@@ -63,17 +70,20 @@ class RevisionCompiler implements CompilerInterface
      */
     public function getFile()
     {
-        $old = $this->getRevision();
-
-        $lastModTime = 0;
-        foreach ($this->files as $file) {
-            $lastModTime = max($lastModTime, filemtime($file));
-        }
-
-        $current = hash('crc32b', serialize([$lastModTime, $this->getCacheDifferentiator()]));
+        $old = $current = $this->getRevision();
 
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
         $file = $this->path.'/'.substr_replace($this->filename, '-'.$old, -strlen($ext) - 1, 0);
+
+        if ($this->watch) {
+            $cacheDifferentiator = [$this->getCacheDifferentiator()];
+
+            foreach ($this->files as $source) {
+                $cacheDifferentiator[] = [$source, filemtime($source)];
+            }
+
+            $current = hash('crc32b', serialize($cacheDifferentiator));
+        }
 
         $exists = file_exists($file);
 
@@ -83,6 +93,7 @@ class RevisionCompiler implements CompilerInterface
             }
 
             $this->putRevision($current);
+
             $file = $this->path.'/'.substr_replace($this->filename, '-'.$current, -strlen($ext) - 1, 0);
             file_put_contents($file, $this->compile());
         }
@@ -115,7 +126,7 @@ class RevisionCompiler implements CompilerInterface
         $output = '';
 
         foreach ($this->files as $file) {
-            $output .= $this->format(file_get_contents($file));
+            $output .= $this->formatFile($file);
         }
 
         foreach ($this->strings as $callback) {
@@ -123,6 +134,15 @@ class RevisionCompiler implements CompilerInterface
         }
 
         return $output;
+    }
+
+    /**
+     * @param string $file
+     * @return string
+     */
+    protected function formatFile($file)
+    {
+        return $this->format(file_get_contents($file));
     }
 
     /**
