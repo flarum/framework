@@ -44,4 +44,14 @@ class GetApiRelationship
         $this->serializer = $serializer;
         $this->relationship = $relationship;
     }
+
+    /**
+     * @param string $serializer
+     * @param string $relationship
+     * @return bool
+     */
+    public function isRelationship($serializer, $relationship)
+    {
+        return $this->serializer instanceof $serializer && $this->relationship === $relationship;
+    }
 }

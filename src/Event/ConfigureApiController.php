@@ -28,6 +28,15 @@ class ConfigureApiController
     }
 
     /**
+     * @param string $controller
+     * @return bool
+     */
+    public function isController($controller)
+    {
+        return $this->controller instanceof $controller;
+    }
+
+    /**
      * Set the serializer that will serialize data for the endpoint.
      *
      * @param string $serializer
@@ -40,11 +49,11 @@ class ConfigureApiController
     /**
      * Include the given relationship by default.
      *
-     * @param string $name
+     * @param string|array $name
      */
     public function addInclude($name)
     {
-        $this->controller->include[] = $name;
+        $this->controller->include = array_merge($this->controller->include, (array) $name);
     }
 
     /**

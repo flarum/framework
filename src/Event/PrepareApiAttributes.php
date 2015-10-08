@@ -42,6 +42,11 @@ class PrepareApiAttributes
     public $attributes;
 
     /**
+     * @var \Flarum\Core\User
+     */
+    public $actor;
+
+    /**
      * @param AbstractSerializer $serializer The class doing the serializing.
      * @param object|array $model The model being serialized.
      * @param array $attributes The serialized attributes of the resource.
@@ -51,5 +56,15 @@ class PrepareApiAttributes
         $this->serializer = $serializer;
         $this->model = $model;
         $this->attributes = &$attributes;
+        $this->actor = $serializer->getActor();
+    }
+
+    /**
+     * @param string $serializer
+     * @return bool
+     */
+    public function isSerializer($serializer)
+    {
+        return $this->serializer instanceof $serializer;
     }
 }
