@@ -40,7 +40,7 @@ export default {
    * @return {ItemList}
    * @protected
    */
-  userControls() {
+  userControls(post, context) {
     return new ItemList();
   },
 
@@ -53,7 +53,7 @@ export default {
    * @return {ItemList}
    * @protected
    */
-  moderationControls(post) {
+  moderationControls(post, context) {
     const items = new ItemList();
 
     if (post.contentType() === 'comment' && post.canEdit()) {
@@ -90,7 +90,7 @@ export default {
         }));
       }
     } else {
-      if (post.canEdit()) {
+      if (post.contentType() === 'comment' && post.canEdit()) {
         items.add('restore', Button.component({
           icon: 'reply',
           children: app.trans('core.forum.post_controls_restore_button'),
