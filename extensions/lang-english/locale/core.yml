@@ -292,6 +292,14 @@ core:
     permissions_dropdown_everyone_button: Everyone
     permissions_dropdown_members_button: Members
 
+  # Strings in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # These strings are used to punctuate a series of items.
+    series_glue_text: ", "
+    series_two_text: "{first} and {second}"
+    series_three_text: "{first}, {second}, and {third}"
+
   ##
   # REUSED STRINGS - The following keys are referenced by two or more unique keys.
   ##
