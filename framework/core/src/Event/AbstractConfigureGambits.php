@@ -17,7 +17,7 @@ abstract class AbstractConfigureGambits
     /**
      * @var GambitManager
      */
-    protected $gambits;
+    public $gambits;
 
     /**
      * @param GambitManager $gambits

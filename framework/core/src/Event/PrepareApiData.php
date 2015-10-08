@@ -37,9 +37,15 @@ class PrepareApiData
     public $document;
 
     /**
-     * @param AbstractSerializeController $endpoint
+     * @var \Flarum\Core\User
+     */
+    public $actor;
+
+    /**
+     * @param AbstractSerializeController $controller
      * @param mixed $data
      * @param ServerRequestInterface $request
+     * @param Document $document
      */
     public function __construct(
         AbstractSerializeController $controller,
@@ -51,5 +57,15 @@ class PrepareApiData
         $this->data = &$data;
         $this->request = $request;
         $this->document = $document;
+        $this->actor = $request->getAttribute('actor');
+    }
+
+    /**
+     * @param string $controller
+     * @return bool
+     */
+    public function isController($controller)
+    {
+        return $this->controller instanceof $controller;
     }
 }
