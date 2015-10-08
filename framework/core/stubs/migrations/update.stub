@@ -1,17 +1,12 @@
 <?php
 
-namespace Flarum\Migrations\{{extension}};
+namespace {{namespace}}\Migration;
 
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
 
-class {{name}} extends Migration
+class {{name}} extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->table('{{table}}', function (Blueprint $table) {
@@ -19,11 +14,6 @@ class {{name}} extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->table('{{table}}', function (Blueprint $table) {

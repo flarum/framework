@@ -10,7 +10,7 @@
 
 namespace Flarum\Locale;
 
-use Flarum\Assets\RevisionCompiler;
+use Flarum\Asset\RevisionCompiler;
 
 class JsCompiler extends RevisionCompiler
 {

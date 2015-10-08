@@ -2,16 +2,16 @@ import Component from 'flarum/Component';
 import Button from 'flarum/components/Button';
 import Switch from 'flarum/components/Switch';
 import EditCustomCssModal from 'flarum/components/EditCustomCssModal';
-import saveConfig from 'flarum/utils/saveConfig';
+import saveSettings from 'flarum/utils/saveSettings';
 
 export default class AppearancePage extends Component {
   constructor(...args) {
     super(...args);
 
-    this.primaryColor = m.prop(app.config.theme_primary_color);
-    this.secondaryColor = m.prop(app.config.theme_secondary_color);
-    this.darkMode = m.prop(app.config.theme_dark_mode === '1');
-    this.coloredHeader = m.prop(app.config.theme_colored_header === '1');
+    this.primaryColor = m.prop(app.settings.theme_primary_color);
+    this.secondaryColor = m.prop(app.settings.theme_secondary_color);
+    this.darkMode = m.prop(app.settings.theme_dark_mode === '1');
+    this.coloredHeader = m.prop(app.settings.theme_colored_header === '1');
   }
 
   view() {
@@ -79,7 +79,7 @@ export default class AppearancePage extends Component {
 
     this.loading = true;
 
-    saveConfig({
+    saveSettings({
       theme_primary_color: this.primaryColor(),
       theme_secondary_color: this.secondaryColor(),
       theme_dark_mode: this.darkMode(),

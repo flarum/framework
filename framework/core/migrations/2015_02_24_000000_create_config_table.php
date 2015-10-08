@@ -8,18 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migrations;
+namespace Flarum\Core\Migration;
 
-use Flarum\Migrations\Migration;
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateConfigTable extends Migration
+class CreateConfigTable extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->create('config', function (Blueprint $table) {
@@ -28,11 +23,6 @@ class CreateConfigTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->drop('config');

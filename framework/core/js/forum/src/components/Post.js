@@ -73,7 +73,7 @@ export default class Post extends Component {
     );
   }
 
-  config(isInitialized, context) {
+  config(isInitialized) {
     const $actions = this.$('.Post-actions');
     const $controls = this.$('.Post-controls');
 

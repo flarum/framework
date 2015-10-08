@@ -8,18 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migrations;
+namespace Flarum\Core\Migration;
 
-use Flarum\Migrations\Migration;
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateAuthTokensTable extends Migration
+class CreateAuthTokensTable extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->create('auth_tokens', function (Blueprint $table) {
@@ -29,11 +24,6 @@ class CreateAuthTokensTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->drop('auth_tokens');

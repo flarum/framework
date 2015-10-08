@@ -10,7 +10,7 @@
 
 namespace Flarum\Core\Search;
 
-use Flarum\Core\Users\User;
+use Flarum\Core\User;
 
 /**
  * Represents the criteria that will determine the entire result set of a

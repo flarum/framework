@@ -8,18 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migrations;
+namespace Flarum\Core\Migration;
 
-use Flarum\Migrations\Migration;
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreatePostsTable extends Migration
+class CreatePostsTable extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->create('posts', function (Blueprint $table) {
@@ -46,11 +41,6 @@ class CreatePostsTable extends Migration
         $this->schema->getConnection()->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->drop('posts');

@@ -87,7 +87,7 @@ export default class Store {
     let url = app.forum.attribute('apiUrl') + '/' + type;
 
     if (id instanceof Array) {
-      url += '?ids[]=' + id.join('&ids[]=');
+      url += '?filter[id]=' + id.join(',');
     } else if (typeof id === 'object') {
       data = id;
     } else if (id) {

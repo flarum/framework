@@ -10,9 +10,9 @@
 
 namespace Flarum\Admin;
 
-use Flarum\Http\UrlGenerator as BaseUrlGenerator;
+use Flarum\Http\AbstractUrlGenerator;
 
-class UrlGenerator extends BaseUrlGenerator
+class UrlGenerator extends AbstractUrlGenerator
 {
-    protected $prefix = 'admin';
+    protected $path = 'admin';
 }

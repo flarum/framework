@@ -10,13 +10,12 @@
 
 namespace Flarum\Api;
 
-use Flarum\Core\Model;
-use DateTime;
+use Flarum\Database\AbstractModel;
 
 /**
- * @todo document database columns with @property
+ * @property string $id
  */
-class ApiKey extends Model
+class ApiKey extends AbstractModel
 {
     /**
      * {@inheritdoc}

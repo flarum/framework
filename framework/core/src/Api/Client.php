@@ -10,10 +10,12 @@
 
 namespace Flarum\Api;
 
-use Flarum\Core\Users\User;
+use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Core\User;
 use Illuminate\Contracts\Container\Container;
 use Exception;
-use Flarum\Api\Middleware\JsonApiErrors;
+use InvalidArgumentException;
+use Zend\Diactoros\ServerRequestFactory;
 
 class Client
 {
@@ -33,24 +35,31 @@ class Client
     /**
      * Execute the given API action class, pass the input and return its response.
      *
+     * @param string|ControllerInterface $controller
      * @param User $actor
-     * @param string $actionClass
-     * @param array $input
-     * @return object
+     * @param array $queryParams
+     * @param array $body
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function send(User $actor, $actionClass, array $input = [])
+    public function send($controller, User $actor, array $queryParams = [], array $body = [])
     {
-        /** @var \Flarum\Api\Actions\Action $action */
-        $action = $this->container->make($actionClass);
+        $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body)->withAttribute('actor', $actor);
 
-        try {
-            $response = $action->handle(new Request($input, $actor));
-        } catch (Exception $e) {
-            $middleware = new JsonApiErrors();
-
-            $response = $middleware->handle($e);
+        if (is_string($controller)) {
+            $controller = $this->container->make($controller);
         }
 
-        return new Response($response);
+        if (! ($controller instanceof ControllerInterface)) {
+            throw new InvalidArgumentException('Endpoint must be an instance of '
+                . ControllerInterface::class);
+        }
+
+        try {
+            $response = $controller->handle($request);
+        } catch (Exception $e) {
+            $response = $this->container->make('Flarum\Api\Middleware\HandleErrors')->handle($e);
+        }
+
+        return $response;
     }
 }

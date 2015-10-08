@@ -10,14 +10,17 @@
 
 namespace Flarum\Api;
 
-use Flarum\Core\Model;
+use Flarum\Database\AbstractModel;
 use DateTime;
-use Exception;
 
 /**
- * @todo document database columns with @property
+ * @property string $id
+ * @property int $user_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $expires_at
+ * @property \Flarum\Core\User|null $user
  */
-class AccessToken extends Model
+class AccessToken extends AbstractModel
 {
     /**
      * {@inheritdoc}
@@ -72,6 +75,6 @@ class AccessToken extends Model
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\Users\User');
+        return $this->belongsTo('Flarum\Core\User');
     }
 }

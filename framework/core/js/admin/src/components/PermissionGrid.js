@@ -1,6 +1,6 @@
 import Component from 'flarum/Component';
 import PermissionDropdown from 'flarum/components/PermissionDropdown';
-import ConfigDropdown from 'flarum/components/ConfigDropdown';
+import SettingDropdown from 'flarum/components/SettingDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import icon from 'flarum/helpers/icon';
@@ -96,7 +96,7 @@ export default class PermissionGrid extends Component {
     items.add('signUp', {
       icon: 'user-plus',
       label: 'Sign up',
-      setting: () => ConfigDropdown.component({
+      setting: () => SettingDropdown.component({
         key: 'allow_sign_up',
         options: [
           {value: '1', label: 'Open'},
@@ -121,9 +121,9 @@ export default class PermissionGrid extends Component {
       icon: 'i-cursor',
       label: 'Allow renaming',
       setting: () => {
-        const minutes = parseInt(app.config.allow_renaming, 10);
+        const minutes = parseInt(app.settings.allow_renaming, 10);
 
-        return ConfigDropdown.component({
+        return SettingDropdown.component({
           defaultLabel: minutes ? `For ${minutes} minutes` : 'Indefinitely',
           key: 'allow_renaming',
           options: [
@@ -151,9 +151,9 @@ export default class PermissionGrid extends Component {
       icon: 'pencil',
       label: 'Allow post editing',
       setting: () => {
-        const minutes = parseInt(app.config.allow_post_editing, 10);
+        const minutes = parseInt(app.settings.allow_post_editing, 10);
 
-        return ConfigDropdown.component({
+        return SettingDropdown.component({
           defaultLabel: minutes ? `For ${minutes} minutes` : 'Indefinitely',
           key: 'allow_post_editing',
           options: [
