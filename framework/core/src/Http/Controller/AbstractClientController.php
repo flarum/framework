@@ -21,6 +21,7 @@ use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepository;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -91,24 +92,32 @@ abstract class AbstractClientController extends AbstractHtmlController
     protected $events;
 
     /**
+     * @var Repository
+     */
+    protected $cache;
+
+    /**
      * @param \Flarum\Foundation\Application $app
      * @param Client $api
      * @param LocaleManager $locales
      * @param \Flarum\Settings\SettingsRepository $settings
      * @param Dispatcher $events
+     * @param Repository $cache
      */
     public function __construct(
         Application $app,
         Client $api,
         LocaleManager $locales,
         SettingsRepository $settings,
-        Dispatcher $events
+        Dispatcher $events,
+        Repository $cache
     ) {
         $this->app = $app;
         $this->api = $api;
         $this->locales = $locales;
         $this->settings = $settings;
         $this->events = $events;
+        $this->cache = $cache;
     }
 
     /**
@@ -161,13 +170,27 @@ abstract class AbstractClientController extends AbstractHtmlController
     /**
      * Flush the client's assets so that they will be regenerated from scratch
      * on the next render.
-     *
-     * @return void
      */
     public function flushAssets()
     {
-        $this->getAssets()->flush();
+        $this->flushCss();
+        $this->flushJs();
+    }
 
+    public function flushCss()
+    {
+        $this->getAssets()->flushCss();
+    }
+
+    public function flushJs()
+    {
+        $this->getAssets()->flushJs();
+
+        $this->flushLocales();
+    }
+
+    public function flushLocales()
+    {
         $locales = array_keys($this->locales->getLocales());
 
         foreach ($locales as $locale) {
@@ -180,15 +203,16 @@ abstract class AbstractClientController extends AbstractHtmlController
      * compiler. Automatically add the files necessary to boot a Flarum client,
      * as well as any configured LESS customizations.
      *
-     * @return \Flarum\Asset\AssetManager
+     * @return AssetManager
      */
     protected function getAssets()
     {
         $public = $this->getAssetDirectory();
+        $watch = $this->app->config('debug');
 
         $assets = new AssetManager(
-            new JsCompiler($public, "$this->clientName.js", ! $this->app->config('debug')),
-            new LessCompiler($public, "$this->clientName.css", $this->app->storagePath().'/less')
+            new JsCompiler($public, "$this->clientName.js", $watch, $this->cache),
+            new LessCompiler($public, "$this->clientName.css", $watch, $this->app->storagePath().'/less')
         );
 
         $this->addAssets($assets);
@@ -201,7 +225,7 @@ abstract class AbstractClientController extends AbstractHtmlController
      * Add the assets necessary to boot a Flarum client, found within the
      * directory specified by the $clientName property.
      *
-     * @param \Flarum\Asset\AssetManager $assets
+     * @param AssetManager $assets
      */
     protected function addAssets(AssetManager $assets)
     {
@@ -214,7 +238,7 @@ abstract class AbstractClientController extends AbstractHtmlController
     /**
      * Add any configured JS/LESS customizations to the asset manager.
      *
-     * @param \Flarum\Asset\AssetManager $assets
+     * @param AssetManager $assets
      */
     protected function addCustomizations(AssetManager $assets)
     {
@@ -255,7 +279,12 @@ abstract class AbstractClientController extends AbstractHtmlController
      */
     protected function getLocaleCompiler($locale)
     {
-        $compiler = new LocaleJsCompiler($this->getAssetDirectory(), "$this->clientName-$locale.js");
+        $compiler = new LocaleJsCompiler(
+            $this->getAssetDirectory(),
+            "$this->clientName-$locale.js",
+            $this->app->config('debug'),
+            $this->cache
+        );
 
         foreach ($this->locales->getJsFiles($locale) as $file) {
             $compiler->addFile($file);

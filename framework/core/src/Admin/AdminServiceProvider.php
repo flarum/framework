@@ -71,7 +71,7 @@ class AdminServiceProvider extends AbstractServiceProvider
     {
         $this->app->make('events')->listen(SettingWasSet::class, function (SettingWasSet $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->flushAssets();
+                $this->getClientController()->flushCss();
             }
         });
     }
@@ -86,7 +86,14 @@ class AdminServiceProvider extends AbstractServiceProvider
 
     public function flushAssets()
     {
-        $action = $this->app->make('Flarum\Admin\Controller\ClientController');
-        $action->flushAssets();
+        $this->getClientController()->flushAssets();
+    }
+
+    /**
+     * @return \Flarum\Admin\Controller\ClientController
+     */
+    protected function getClientController()
+    {
+        return $this->app->make('Flarum\Admin\Controller\ClientController');
     }
 }
