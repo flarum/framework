@@ -7,9 +7,6 @@
             "Flarum\\Tags\\": "src/"
         }
     },
-    "require": {
-        "composer/installers": "dev-master"
-    },
     "extra": {
         "flarum-extension": {
             "title": "Tags",
