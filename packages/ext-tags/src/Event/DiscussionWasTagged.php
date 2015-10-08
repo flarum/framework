@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Events;
+namespace Flarum\Tags\Event;
 
-use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Users\User;
+use Flarum\Core\Discussion;
+use Flarum\Core\User;
 
 class DiscussionWasTagged
 {

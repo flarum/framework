@@ -8,14 +8,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Api;
+namespace Flarum\Tags\Api\Serializer;
 
-use Flarum\Api\Serializers\Serializer;
+use Flarum\Api\Serializer\AbstractSerializer;
+use Flarum\Api\Serializer\DiscussionSerializer;
 
-class TagSerializer extends Serializer
+class TagSerializer extends AbstractSerializer
 {
+    /**
+     * {@inheritdoc}
+     */
     protected $type = 'tags';
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getDefaultAttributes($tag)
     {
         $attributes = [
@@ -31,8 +38,8 @@ class TagSerializer extends Serializer
             'defaultSort'        => $tag->default_sort,
             'isChild'            => (bool) $tag->parent_id,
             'isHidden'           => (bool) $tag->is_hidden,
-            'lastTime'           => $tag->last_time ? $tag->last_time->toRFC3339String() : null,
-            'canStartDiscussion' => $tag->can($this->actor, 'startDiscussion')
+            'lastTime'           => $this->formatDate($tag->last_time),
+            'canStartDiscussion' => $this->actor->can('startDiscussion', $tag)
         ];
 
         if ($this->actor->isAdmin()) {
@@ -42,13 +49,19 @@ class TagSerializer extends Serializer
         return $attributes;
     }
 
+    /**
+     * @return \Flarum\Api\Relationship\HasOneBuilder
+     */
     protected function parent()
     {
-        return $this->hasOne('Flarum\Tags\Api\TagSerializer');
+        return $this->hasOne(TagSerializer::class);
     }
 
+    /**
+     * @return \Flarum\Api\Relationship\HasOneBuilder
+     */
     protected function lastDiscussion()
     {
-        return $this->hasOne('Flarum\Api\Serializers\DiscussionSerializer');
+        return $this->hasOne(DiscussionSerializer::class);
     }
 }

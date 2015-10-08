@@ -8,31 +8,37 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Gambits;
+namespace Flarum\Tags\Gambit;
 
+use Flarum\Core\Search\AbstractRegexGambit;
+use Flarum\Core\Search\AbstractSearch;
 use Flarum\Tags\TagRepository;
-use Flarum\Core\Search\Search;
-use Flarum\Core\Search\RegexGambit;
 use Illuminate\Database\Query\Expression;
 
-class TagGambit extends RegexGambit
+class TagGambit extends AbstractRegexGambit
 {
+    /**
+     * {@inheritdoc}
+     */
     protected $pattern = 'tag:(.+)';
 
     /**
-     * @var \Flarum\Tags\TagRepository
+     * @var TagRepository
      */
     protected $tags;
 
     /**
-     * @param \Flarum\Tags\TagRepository $tags
+     * @param TagRepository $tags
      */
     public function __construct(TagRepository $tags)
     {
         $this->tags = $tags;
     }
 
-    protected function conditions(Search $search, array $matches, $negate)
+    /**
+     * {@inheritdoc}
+     */
+    protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
         $slugs = explode(',', trim($matches[1], '"'));
 
@@ -41,7 +47,7 @@ class TagGambit extends RegexGambit
             foreach ($slugs as $slug) {
                 if ($slug === 'untagged') {
                     $query->orWhereNotExists(function ($query) {
-                        $query->select(app('flarum.db')->raw(1))
+                        $query->select(new Expression(1))
                               ->from('discussions_tags')
                               ->where('discussions.id', new Expression('discussion_id'));
                     });
@@ -49,7 +55,7 @@ class TagGambit extends RegexGambit
                     $id = $this->tags->getIdForSlug($slug);
 
                     $query->orWhereExists(function ($query) use ($id) {
-                        $query->select(app('flarum.db')->raw(1))
+                        $query->select(new Expression(1))
                               ->from('discussions_tags')
                               ->where('discussions.id', new Expression('discussion_id'))
                               ->where('tag_id', $id);

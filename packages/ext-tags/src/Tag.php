@@ -10,32 +10,27 @@
 
 namespace Flarum\Tags;
 
-use Flarum\Core\Model;
-use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Groups\Permission;
-use Flarum\Core\Support\VisibleScope;
-use Flarum\Core\Support\Locked;
-use Flarum\Core\Support\ValidatesBeforeSave;
+use Flarum\Core\Discussion;
+use Flarum\Core\Permission;
+use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Database\AbstractModel;
 
-class Tag extends Model
+class Tag extends AbstractModel
 {
-    use ValidatesBeforeSave;
-    use VisibleScope;
-    use Locked;
-
-    protected $table = 'tags';
-
-    protected $dates = ['last_time'];
-
-    protected $rules = [
-        'name' => 'required',
-        'slug' => ['required', 'unique:slug']
-    ];
+    use ScopeVisibilityTrait;
 
     /**
-     * Boot the model.
-     *
-     * @return void
+     * {@inheritdoc}
+     */
+    protected $table = 'tags';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $dates = ['last_time'];
+
+    /**
+     * {@inheritdoc}
      */
     public static function boot()
     {
@@ -71,19 +66,28 @@ class Tag extends Model
         return $tag;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function parent()
     {
         return $this->belongsTo('Flarum\Tags\Tag', 'parent_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function lastDiscussion()
     {
-        return $this->belongsTo('Flarum\Core\Discussions\Discussion', 'last_discussion_id');
+        return $this->belongsTo('Flarum\Core\Discussion', 'last_discussion_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function discussions()
     {
-        return $this->belongsToMany('Flarum\Core\Discussions\Discussion', 'discussions_tags');
+        return $this->belongsToMany('Flarum\Core\Discussion', 'discussions_tags');
     }
 
     /**
@@ -114,6 +118,11 @@ class Tag extends Model
         return $this;
     }
 
+    /**
+     * @param $user
+     * @param $permission
+     * @return array
+     */
     public static function getIdsWhereCan($user, $permission)
     {
         static $tags;
@@ -134,6 +143,11 @@ class Tag extends Model
         return $ids;
     }
 
+    /**
+     * @param $user
+     * @param $permission
+     * @return array
+     */
     public static function getIdsWhereCannot($user, $permission)
     {
         static $tags;

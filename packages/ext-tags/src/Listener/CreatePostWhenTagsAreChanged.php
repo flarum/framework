@@ -8,26 +8,35 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Listeners;
+namespace Flarum\Tags\Listener;
 
-use Flarum\Events\RegisterPostTypes;
-use Flarum\Tags\Posts\DiscussionTaggedPost;
-use Flarum\Tags\Events\DiscussionWasTagged;
+use Flarum\Event\ConfigurePostTypes;
+use Flarum\Tags\Event\DiscussionWasTagged;
+use Flarum\Tags\Post\DiscussionTaggedPost;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class LogDiscussionTagged
+class CreatePostWhenTagsAreChanged
 {
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterPostTypes::class, [$this, 'registerPostType']);
+        $events->listen(ConfigurePostTypes::class, [$this, 'addPostType']);
         $events->listen(DiscussionWasTagged::class, [$this, 'whenDiscussionWasTagged']);
     }
 
-    public function registerPostType(RegisterPostTypes $event)
+    /**
+     * @param ConfigurePostTypes $event
+     */
+    public function addPostType(ConfigurePostTypes $event)
     {
-        $event->register(DiscussionTaggedPost::class);
+        $event->add(DiscussionTaggedPost::class);
     }
 
+    /**
+     * @param DiscussionWasTagged $event
+     */
     public function whenDiscussionWasTagged(DiscussionWasTagged $event)
     {
         $post = DiscussionTaggedPost::reply(

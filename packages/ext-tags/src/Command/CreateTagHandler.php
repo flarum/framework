@@ -8,26 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Commands;
+namespace Flarum\Tags\Command;
 
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\Tag;
-use Flarum\Core\Forum;
-use Flarum\Events\TagWillBeSaved;
 
 class CreateTagHandler
 {
-    /**
-     * @var Forum
-     */
-    protected $forum;
-
-    /**
-     * @param Forum $forum
-     */
-    public function __construct(Forum $forum)
-    {
-        $this->forum = $forum;
-    }
+    use AssertPermissionTrait;
 
     /**
      * @param CreateTag $command
@@ -38,7 +26,7 @@ class CreateTagHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $this->forum->assertCan($actor, 'createTag');
+        $this->assertCan($actor, 'createTag');
 
         $tag = Tag::build(
             array_get($data, 'attributes.name'),

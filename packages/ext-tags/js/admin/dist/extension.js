@@ -1,1 +1,1335 @@
-!function(t,e){"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof exports?module.exports=e(require("jquery")):t.sortable=e(t.jQuery)}(this,function(t){"use strict";var e,n,a=t(),r=[],o=function(t){t.off("dragstart.h5s"),t.off("dragend.h5s"),t.off("selectstart.h5s"),t.off("dragover.h5s"),t.off("dragenter.h5s"),t.off("drop.h5s")},i=function(t){t.off("dragover.h5s"),t.off("dragenter.h5s"),t.off("drop.h5s")},s=function(t,e){t.dataTransfer.effectAllowed="move",t.dataTransfer.setData("text",""),t.dataTransfer.setDragImage&&t.dataTransfer.setDragImage(e.item,e.x,e.y)},u=function(t,e){return e.x||(e.x=parseInt(t.pageX-e.draggedItem.offset().left)),e.y||(e.y=parseInt(t.pageY-e.draggedItem.offset().top)),e},l=function(t){return{item:t[0],draggedItem:t}},c=function(t,e){var n=l(e);n=u(t,n),s(t,n)},d=function(t,e){return"undefined"==typeof t?e:t},f=function(t){t.removeData("opts"),t.removeData("connectWith"),t.removeData("items"),t.removeAttr("aria-dropeffect")},m=function(t){t.removeAttr("aria-grabbed"),t.removeAttr("draggable"),t.removeAttr("role")},p=function(t,e){return t[0]===e[0]?!0:void 0!==t.data("connectWith")?t.data("connectWith")===e.data("connectWith"):!1},g=function(t){var e=t.data("opts")||{},n=t.children(e.items),a=e.handle?n.find(e.handle):n;i(t),f(t),a.off("mousedown.h5s"),o(n),m(n)},h=function(e){var n=e.data("opts"),a=e.children(n.items),r=n.handle?a.find(n.handle):a;e.attr("aria-dropeffect","move"),r.attr("draggable","true"),"function"!=typeof document.createElement("span").dragDrop||n.disableIEFix||r.on("mousedown.h5s",function(){-1!==a.index(this)?this.dragDrop():t(this).parents(n.items)[0].dragDrop()})},v=function(t){var e=t.data("opts"),n=t.children(e.items),a=e.handle?n.find(e.handle):n;t.attr("aria-dropeffect","none"),a.attr("draggable",!1),a.off("mousedown.h5s")},b=function(t){var e=t.data("opts"),n=t.children(e.items),a=e.handle?n.find(e.handle):n;o(n),a.off("mousedown.h5s"),i(t)},y=function(o,i){var u=t(o),l=String(i);return i=t.extend({connectWith:!1,placeholder:null,dragImage:null,disableIEFix:!1,placeholderClass:"sortable-placeholder",draggingClass:"sortable-dragging"},i),u.each(function(){var o=t(this);if(/enable|disable|destroy/.test(l))return void y[l](o);i=d(o.data("opts"),i),o.data("opts",i),b(o);var u,f,m,g=o.children(i.items),v=null===i.placeholder?t("<"+(/^ul|ol$/i.test(this.tagName)?"li":"div")+' class="'+i.placeholderClass+'"/>'):t(i.placeholder).addClass(i.placeholderClass);if(!o.attr("data-sortable-id")){var T=r.length;r[T]=o,o.attr("data-sortable-id",T),g.attr("data-item-sortable-id",T)}o.data("items",i.items),a=a.add(v),i.connectWith&&o.data("connectWith",i.connectWith),h(o),g.attr("role","option"),g.attr("aria-grabbed","false"),g.on("dragstart.h5s",function(a){a.stopImmediatePropagation(),i.dragImage?(s(a.originalEvent,{item:i.dragImage,x:0,y:0}),console.log("WARNING: dragImage option is deprecated and will be removed in the future!")):c(a.originalEvent,t(this),i.dragImage),e=t(this),e.addClass(i.draggingClass),e.attr("aria-grabbed","true"),u=e.index(),n=e.height(),f=t(this).parent(),e.parent().triggerHandler("sortstart",{item:e,startparent:f})}),g.on("dragend.h5s",function(){e&&(e.removeClass(i.draggingClass),e.attr("aria-grabbed","false"),e.show(),a.detach(),m=t(this).parent(),e.parent().triggerHandler("sortstop",{item:e,startparent:f}),(u!==e.index()||f.get(0)!==m.get(0))&&e.parent().triggerHandler("sortupdate",{item:e,index:m.children(m.data("items")).index(e),oldindex:g.index(e),elementIndex:e.index(),oldElementIndex:u,startparent:f,endparent:m}),e=null,n=null)}),t(this).add([v]).on("drop.h5s",function(n){return p(o,t(e).parent())?(n.stopPropagation(),a.filter(":visible").after(e),e.trigger("dragend.h5s"),!1):void 0}),g.add([this,v]).on("dragover.h5s dragenter.h5s",function(r){if(p(o,t(e).parent())){if(r.preventDefault(),r.originalEvent.dataTransfer.dropEffect="move",g.is(this)){var s=t(this).height();if(i.forcePlaceholderSize&&v.height(n),s>n){var u=s-n,l=t(this).offset().top;if(v.index()<t(this).index()&&r.originalEvent.pageY<l+u)return!1;if(v.index()>t(this).index()&&r.originalEvent.pageY>l+s-u)return!1}e.hide(),v.index()<t(this).index()?t(this).after(v):t(this).before(v),a.not(v).detach()}else a.is(this)||t(this).children(i.items).length||(a.detach(),t(this).append(v));return!1}})})};return y.destroy=function(t){g(t)},y.enable=function(t){h(t)},y.disable=function(t){v(t)},t.fn.sortable=function(t){return y(this,t)},y}),System.register("flarum/tags/helpers/tagIcon",[],function(t){"use strict";function e(t){var e=arguments.length<=1||void 0===arguments[1]?{}:arguments[1];return e.className="icon TagIcon "+(e.className||""),t?(e.style=e.style||{},e.style.backgroundColor=t.color()):e.className+=" untagged",m("span",e)}return t("default",e),{setters:[],execute:function(){}}}),System.register("flarum/tags/helpers/tagLabel",["flarum/utils/extract"],function(t){"use strict";function e(t){var e=arguments.length<=1||void 0===arguments[1]?{}:arguments[1];e.style=e.style||{},e.className="TagLabel "+(e.className||"");var a=n(e,"link");if(t){var r=t.color();r&&(e.style.backgroundColor=e.style.color=r,e.className+=" colored"),a&&(e.title=t.description()||"",e.href=app.route("tag",{tags:t.slug()}),e.config=m.route)}else e.className+=" untagged";return m(a?"a":"span",e,m("span",{className:"TagLabel-text"},t?t.name():app.trans("tags.deleted")))}var n;return t("default",e),{setters:[function(t){n=t["default"]}],execute:function(){}}}),System.register("flarum/tags/helpers/tagsLabel",["flarum/utils/extract","flarum/tags/helpers/tagLabel","flarum/tags/utils/sortTags"],function(t){"use strict";function e(t){var e=arguments.length<=1||void 0===arguments[1]?{}:arguments[1],o=[],i=n(e,"link");return e.className="TagsLabel "+(e.className||""),t?r(t).forEach(function(e){(e||1===t.length)&&o.push(a(e,{link:i}))}):o.push(a()),m("span",e,o)}var n,a,r;return t("default",e),{setters:[function(t){n=t["default"]},function(t){a=t["default"]},function(t){r=t["default"]}],execute:function(){}}}),System.register("flarum/tags/models/Tag",["flarum/Model","flarum/utils/mixin","flarum/utils/computed"],function(t){"use strict";function e(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function n(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e)}var a,r,o,i,s=function(t,e,n){for(var a=!0;a;){var r=t,o=e,i=n;s=l=u=void 0,a=!1,null===r&&(r=Function.prototype);var s=Object.getOwnPropertyDescriptor(r,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(i)}var l=Object.getPrototypeOf(r);if(null===l)return void 0;t=l,e=o,n=i,a=!0}};return{setters:[function(t){a=t["default"]},function(t){r=t["default"]},function(t){o=t["default"]}],execute:function(){i=function(t){function a(){e(this,a),s(Object.getPrototypeOf(a.prototype),"constructor",this).apply(this,arguments)}return n(a,t),a}(r(a,{name:a.attribute("name"),slug:a.attribute("slug"),description:a.attribute("description"),color:a.attribute("color"),backgroundUrl:a.attribute("backgroundUrl"),backgroundMode:a.attribute("backgroundMode"),position:a.attribute("position"),parent:a.hasOne("parent"),defaultSort:a.attribute("defaultSort"),isChild:a.attribute("isChild"),isHidden:a.attribute("isHidden"),discussionsCount:a.attribute("discussionsCount"),lastTime:a.attribute("lastTime",a.transformDate),lastDiscussion:a.hasOne("lastDiscussion"),isRestricted:a.attribute("isRestricted"),canStartDiscussion:a.attribute("canStartDiscussion"),isPrimary:o("position","parent",function(t,e){return null!==t&&e===!1})})),t("default",i)}}}),System.register("flarum/tags/utils/sortTags",[],function(t){"use strict";function e(t){return t.slice(0).sort(function(t,e){var n=t.position(),a=e.position(),r=t.parent(),o=e.parent();return null===n&&null===a?e.discussionsCount()-t.discussionsCount():null===a?-1:null===n?1:r===o?n-a:r?r===e?1:r.position()-a:o?o===t?-1:n-o.position():0})}return t("default",e),{setters:[],execute:function(){}}}),System.register("flarum/tags/addTagPermission",["flarum/extend","flarum/components/PermissionGrid"],function(t){"use strict";var e,n;return{setters:[function(t){e=t.extend},function(t){n=t["default"]}],execute:function(){t("default",function(){e(n.prototype,"moderateItems",function(t){t.add("tag",{icon:"tag",label:"Tag discussions",permission:"discussion.tag"},95)})})}}}),System.register("flarum/tags/addTagsHomePageOption",["flarum/extend","flarum/components/BasicsPage"],function(t){"use strict";var e,n;return{setters:[function(t){e=t.extend},function(t){n=t["default"]}],execute:function(){t("default",function(){e(n.prototype,"homePageItems",function(t){t.add("tags",{path:"/tags",label:"Tags"})})})}}}),System.register("flarum/tags/addTagsPane",["flarum/extend","flarum/components/AdminNav","flarum/components/AdminLinkButton","flarum/tags/components/TagsPage"],function(t){"use strict";var e,n,a,r;return{setters:[function(t){e=t.extend},function(t){n=t["default"]},function(t){a=t["default"]},function(t){r=t["default"]}],execute:function(){t("default",function(){app.routes.tags={path:"/tags",component:r.component()},app.extensionSettings.tags=function(){return m.route(app.route("tags"))},e(n.prototype,"items",function(t){t.add("tags",a.component({href:app.route("tags"),icon:"tags",children:"Tags",description:"Manage the list of tags available to organise discussions with."}))})})}}}),System.register("flarum/tags/addTagsPermissionScope",["flarum/extend","flarum/components/PermissionGrid","flarum/components/PermissionDropdown","flarum/components/Dropdown","flarum/components/Button","flarum/tags/helpers/tagLabel","flarum/tags/helpers/tagIcon","flarum/tags/utils/sortTags"],function(t){"use strict";var e,n,a,r,o,i,s,u;return{setters:[function(t){e=t.extend},function(t){n=t["default"]},function(t){a=t["default"]},function(t){r=t["default"]},function(t){o=t["default"]},function(t){i=t["default"]},function(t){s=t["default"]},function(t){u=t["default"]}],execute:function(){t("default",function(){e(n.prototype,"scopeItems",function(t){u(app.store.all("tags")).filter(function(t){return t.isRestricted()}).forEach(function(e){return t.add("tag"+e.id(),{label:i(e),onremove:function(){return e.save({isRestricted:!1})},render:function(t){if(t.permission){var n=void 0;if("forum.view"===t.permission?n="view":"forum.startDiscussion"===t.permission?n="startDiscussion":0===t.permission.indexOf("discussion.")&&(n=t.permission),n)return a.component({permission:"tag"+e.id()+"."+n,allowGuest:t.allowGuest})}return""}})})}),e(n.prototype,"scopeControlItems",function(t){var e=u(app.store.all("tags").filter(function(t){return!t.isRestricted()}));e.length&&t.add("tag",r.component({className:"Dropdown--restrictByTag",buttonClassName:"Button Button--text",label:"Restrict by Tag",icon:"plus",caretIcon:null,children:e.map(function(t){return o.component({icon:!0,children:[s(t,{className:"Button-icon"})," ",t.name()],onclick:function(){return t.save({isRestricted:!0})}})})}))})})}}}),System.register("flarum/tags/main",["flarum/tags/models/Tag","flarum/tags/addTagsPermissionScope","flarum/tags/addTagPermission","flarum/tags/addTagsPane","flarum/tags/addTagsHomePageOption"],function(t){"use strict";var e,n,a,r,o;return{setters:[function(t){e=t["default"]},function(t){n=t["default"]},function(t){a=t["default"]},function(t){r=t["default"]},function(t){o=t["default"]}],execute:function(){app.initializers.add("tags",function(t){t.store.models.tags=e,n(),a(),r(),o()})}}}),System.register("flarum/tags/components/EditTagModal",["flarum/components/Modal","flarum/components/Button","flarum/utils/string","flarum/tags/helpers/tagLabel"],function(t){"use strict";function e(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function n(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e)}var a,r,o,i,s,u=function(){function t(t,e){for(var n=0;n<e.length;n++){var a=e[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(t,a.key,a)}}return function(e,n,a){return n&&t(e.prototype,n),a&&t(e,a),e}}(),l=function(t,e,n){for(var a=!0;a;){var r=t,o=e,i=n;s=l=u=void 0,a=!1,null===r&&(r=Function.prototype);var s=Object.getOwnPropertyDescriptor(r,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(i)}var l=Object.getPrototypeOf(r);if(null===l)return void 0;t=l,e=o,n=i,a=!0}};return{setters:[function(t){a=t["default"]},function(t){r=t["default"]},function(t){o=t.slug},function(t){i=t["default"]}],execute:function(){s=function(t){function a(){e(this,a);for(var t=arguments.length,n=Array(t),r=0;t>r;r++)n[r]=arguments[r];l(Object.getPrototypeOf(a.prototype),"constructor",this).apply(this,n),this.tag=this.props.tag||app.store.createRecord("tags"),this.name=m.prop(this.tag.name()||""),this.slug=m.prop(this.tag.slug()||""),this.description=m.prop(this.tag.description()||""),this.color=m.prop(this.tag.color()||""),this.isHidden=m.prop(this.tag.isHidden()||!1)}return n(a,t),u(a,[{key:"className",value:function(){return"EditTagModal Modal--small"}},{key:"title",value:function(){return this.name()?i({name:this.name,color:this.color}):"Create Tag"}},{key:"content",value:function(){var t=this;return m("div",{className:"Modal-body"},m("div",{className:"Form"},m("div",{className:"Form-group"},m("label",null,"Name"),m("input",{className:"FormControl",placeholder:"Name",value:this.name(),oninput:function(e){t.name(e.target.value),t.slug(o(e.target.value))}})),m("div",{className:"Form-group"},m("label",null,"Slug"),m("input",{className:"FormControl",value:this.slug(),oninput:m.withAttr("value",this.slug)})),m("div",{className:"Form-group"},m("label",null,"Description"),m("textarea",{className:"FormControl",value:this.description(),oninput:m.withAttr("value",this.description)})),m("div",{className:"Form-group"},m("label",null,"Color"),m("input",{className:"FormControl",placeholder:"#aaaaaa",value:this.color(),oninput:m.withAttr("value",this.color)})),m("div",{className:"Form-group"},m("div",null,m("label",{className:"checkbox"},m("input",{type:"checkbox",value:"1",checked:this.isHidden(),onchange:m.withAttr("checked",this.isHidden)}),"Hide from All Discussions"))),m("div",{className:"Form-group"},r.component({type:"submit",className:"Button Button--primary EditTagModal-save",loading:this.loading,children:"Save Changes"}),this.tag.exists?m("button",{type:"button",className:"Button EditTagModal-delete",onclick:this["delete"].bind(this)},"Delete Tag"):"")))}},{key:"onsubmit",value:function(t){var e=this;t.preventDefault(),this.loading=!0,this.tag.save({name:this.name(),slug:this.slug(),description:this.description(),color:this.color(),isHidden:this.isHidden()}).then(function(){return e.hide()},function(){e.loading=!1,m.redraw()})}},{key:"delete",value:function(){confirm("Are you sure you want to delete this tag? The tag's discussions will NOT be deleted.")&&(this.tag["delete"]().then(function(){return m.redraw()}),this.hide())}}]),a}(a),t("default",s)}}}),System.register("flarum/tags/components/TagSettingsModal",["flarum/components/SettingsModal"],function(t){"use strict";function e(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function n(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e)}var a,r,o=function(){function t(t,e){for(var n=0;n<e.length;n++){var a=e[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(t,a.key,a)}}return function(e,n,a){return n&&t(e.prototype,n),a&&t(e,a),e}}(),i=function(t,e,n){for(var a=!0;a;){var r=t,o=e,i=n;s=l=u=void 0,a=!1,null===r&&(r=Function.prototype);var s=Object.getOwnPropertyDescriptor(r,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(i)}var l=Object.getPrototypeOf(r);if(null===l)return void 0;t=l,e=o,n=i,a=!0}};return{setters:[function(t){a=t["default"]}],execute:function(){r=function(t){function a(){e(this,a),i(Object.getPrototypeOf(a.prototype),"constructor",this).apply(this,arguments)}return n(a,t),o(a,[{key:"setMinTags",value:function(t,e,n){t(n),e(Math.max(n,e()))}},{key:"className",value:function(){return"TagSettingsModal Modal--small"}},{key:"title",value:function(){return"Tag Settings"}},{key:"form",value:function(){var t=this.setting("tags.min_primary_tags",0),e=this.setting("tags.max_primary_tags",0),n=this.setting("tags.min_secondary_tags",0),a=this.setting("tags.max_secondary_tags",0);return[m("div",{className:"Form-group"},m("label",null,"Required Number of Primary Tags"),m("div",{className:"helpText"},"Enter the minimum and maximum number of primary tags that may be applied to a discussion."),m("div",{className:"TagSettingsModal-rangeInput"},m("input",{className:"FormControl",type:"number",min:"0",value:t(),oninput:m.withAttr("value",this.setMinTags.bind(this,t,e))})," to ",m("input",{className:"FormControl",type:"number",min:t(),bidi:e}))),m("div",{className:"Form-group"},m("label",null,"Required Number of Secondary Tags"),m("div",{className:"helpText"},"Enter the minimum and maximum number of secondary tags that may be applied to a discussion."),m("div",{className:"TagSettingsModal-rangeInput"},m("input",{className:"FormControl",type:"number",min:"0",value:n(),oninput:m.withAttr("value",this.setMinTags.bind(this,n,a))})," to ",m("input",{className:"FormControl",type:"number",min:n(),bidi:a})))]}}]),a}(a),t("default",r)}}}),System.register("flarum/tags/components/TagsPage",["flarum/Component","flarum/components/Button","flarum/tags/components/EditTagModal","flarum/tags/components/TagSettingsModal","flarum/tags/helpers/tagIcon","flarum/tags/utils/sortTags"],function(t){"use strict";function e(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function n(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e)}function a(t){return m("li",{"data-id":t.id(),style:{color:t.color()}},m("div",{className:"TagListItem-info"},u(t),m("span",{className:"TagListItem-name"},t.name()),o.component({className:"Button Button--link",icon:"pencil",onclick:function(){return app.modal.show(new i({tag:t}))}})),t.isChild()||null===t.position()?"":m("ol",{className:"TagListItem-children"},l(app.store.all("tags")).filter(function(e){return e.parent()===t}).map(a)))}var r,o,i,s,u,l,c,d=function(){function t(t,e){for(var n=0;n<e.length;n++){var a=e[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(t,a.key,a)}}return function(e,n,a){return n&&t(e.prototype,n),a&&t(e,a),e}}(),f=function(t,e,n){for(var a=!0;a;){var r=t,o=e,i=n;s=l=u=void 0,a=!1,null===r&&(r=Function.prototype);var s=Object.getOwnPropertyDescriptor(r,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(i)}var l=Object.getPrototypeOf(r);if(null===l)return void 0;t=l,e=o,n=i,a=!0}};return{setters:[function(t){r=t["default"]},function(t){o=t["default"]},function(t){i=t["default"]},function(t){s=t["default"]},function(t){u=t["default"]},function(t){l=t["default"]}],execute:function(){c=function(t){function r(){e(this,r),f(Object.getPrototypeOf(r.prototype),"constructor",this).apply(this,arguments)}return n(r,t),d(r,[{key:"view",value:function(){return m("div",{className:"TagsPage"},m("div",{className:"TagsPage-header"},m("div",{className:"container"},m("p",null,"Tags are used to categorize discussions. Primary tags are like traditional forum categories: They can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization."),o.component({className:"Button Button--primary",icon:"plus",children:"Create Tag",onclick:function(){return app.modal.show(new i)}}),o.component({className:"Button",children:"Settings",onclick:function(){return app.modal.show(new s)}}))),m("div",{className:"TagsPage-list"},m("div",{className:"container"},m("div",{className:"TagGroup"},m("label",null,"Primary Tags"),m("ol",{className:"TagList TagList--primary"},l(app.store.all("tags")).filter(function(t){return null!==t.position()&&!t.isChild()}).map(a))),m("div",{className:"TagGroup"},m("label",null,"Secondary Tags"),m("ul",{className:"TagList"},app.store.all("tags").filter(function(t){return null===t.position()}).sort(function(t,e){return t.name().localeCompare(e.name())}).map(a))))))}},{key:"config",value:function(){var t=this;this.$("ol, ul").sortable({connectWith:"primary"}).on("sortupdate",function(e,n){n.startparent.is("ol")&&n.endparent.is("ul")&&app.store.getById("tags",n.item.data("id")).pushData({attributes:{position:null,isChild:!1},relationships:{parent:null}});var a=t.$(".TagList--primary > li").map(function(){return{id:$(this).data("id"),children:$(this).find("li").map(function(){return $(this).data("id")}).get()}}).get();a.forEach(function(t,e){var n=app.store.getById("tags",t.id);n.pushData({attributes:{position:e,isChild:!1},relationships:{parent:null}}),t.children.forEach(function(t,e){app.store.getById("tags",t).pushData({attributes:{position:e,isChild:!0},relationships:{parent:n}})})}),app.request({url:app.forum.attribute("apiUrl")+"/tags/order",method:"POST",data:{order:a}}),m.redraw.strategy("all"),m.redraw()})}}]),r}(r),t("default",c)}}});
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('jquery'));
+  } else {
+    root.sortable = factory(root.jQuery);
+  }
+}(this, function($) {
+/*
+ * HTML5 Sortable jQuery Plugin
+ * https://github.com/voidberg/html5sortable
+ *
+ * Original code copyright 2012 Ali Farhadi.
+ * This version is mantained by Alexandru Badiu <andu@ctrlz.ro> & Lukas Oppermann <lukas@vea.re>
+ *
+ *
+ * Released under the MIT license.
+ */
+'use strict';
+/*
+ * variables global to the plugin
+ */
+var dragging;
+var draggingHeight;
+var placeholders = $();
+var sortables = [];
+/*
+ * remove event handlers from items
+ * @param [jquery Collection] items
+ * @info event.h5s (jquery way of namespacing events, to bind multiple handlers to the event)
+ */
+var _removeItemEvents = function(items) {
+  items.off('dragstart.h5s');
+  items.off('dragend.h5s');
+  items.off('selectstart.h5s');
+  items.off('dragover.h5s');
+  items.off('dragenter.h5s');
+  items.off('drop.h5s');
+};
+/*
+ * remove event handlers from sortable
+ * @param [jquery Collection] sortable
+ * @info event.h5s (jquery way of namespacing events, to bind multiple handlers to the event)
+ */
+var _removeSortableEvents = function(sortable) {
+  sortable.off('dragover.h5s');
+  sortable.off('dragenter.h5s');
+  sortable.off('drop.h5s');
+};
+/*
+ * attache ghost to dataTransfer object
+ * @param [event] original event
+ * @param [object] ghost-object with item, x and y coordinates
+ */
+var _attachGhost = function(event, ghost) {
+  // this needs to be set for HTML5 drag & drop to work
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text', '');
+
+  // check if setDragImage method is available
+  if (event.dataTransfer.setDragImage) {
+    event.dataTransfer.setDragImage(ghost.item, ghost.x, ghost.y);
+  }
+};
+/**
+ * _addGhostPos clones the dragged item and adds it as a Ghost item
+ * @param [object] event - the event fired when dragstart is triggered
+ * @param [object] ghost - .item = node, draggedItem = jQuery collection
+ */
+var _addGhostPos = function(e, ghost) {
+  if (!ghost.x) {
+    ghost.x = parseInt(e.pageX - ghost.draggedItem.offset().left);
+  }
+  if (!ghost.y) {
+    ghost.y = parseInt(e.pageY - ghost.draggedItem.offset().top);
+  }
+  return ghost;
+};
+/**
+ * _makeGhost decides which way to make a ghost and passes it to attachGhost
+ * @param [jQuery selection] $draggedItem - the item that the user drags
+ */
+var _makeGhost = function($draggedItem) {
+  return {
+    item: $draggedItem[0],
+    draggedItem: $draggedItem
+  };
+};
+/**
+ * _getGhost constructs ghost and attaches it to dataTransfer
+ * @param [event] event - the original drag event object
+ * @param [jQuery selection] $draggedItem - the item that the user drags
+ * @param [object] ghostOpt - the ghost options
+ */
+// TODO: could $draggedItem be replaced by event.target in all instances
+var _getGhost = function(event, $draggedItem) {
+  // add ghost item & draggedItem to ghost object
+  var ghost = _makeGhost($draggedItem);
+  // attach ghost position
+  ghost = _addGhostPos(event, ghost);
+  // attach ghost to dataTransfer
+  _attachGhost(event, ghost);
+};
+/*
+ * return options if not set on sortable already
+ * @param [object] soptions
+ * @param [object] options
+ */
+var _getOptions = function(soptions, options) {
+  if (typeof soptions === 'undefined') {
+    return options;
+  }
+  return soptions;
+};
+/*
+ * remove data from sortable
+ * @param [jquery Collection] a single sortable
+ */
+var _removeSortableData = function(sortable) {
+  sortable.removeData('opts');
+  sortable.removeData('connectWith');
+  sortable.removeData('items');
+  sortable.removeAttr('aria-dropeffect');
+};
+/*
+ * remove data from items
+ * @param [jquery Collection] items
+ */
+var _removeItemData = function(items) {
+  items.removeAttr('aria-grabbed');
+  items.removeAttr('draggable');
+  items.removeAttr('role');
+};
+/*
+ * check if two lists are connected
+ * @param [jquery Collection] items
+ */
+var _listsConnected = function(curList, destList) {
+  if (curList[0] === destList[0]) {
+    return true;
+  }
+  if (curList.data('connectWith') !== undefined) {
+    return curList.data('connectWith') === destList.data('connectWith');
+  }
+  return false;
+};
+/*
+ * destroy the sortable
+ * @param [jquery Collection] a single sortable
+ */
+var _destroySortable = function(sortable) {
+  var opts = sortable.data('opts') || {};
+  var items = sortable.children(opts.items);
+  var handles = opts.handle ? items.find(opts.handle) : items;
+  // remove event handlers & data from sortable
+  _removeSortableEvents(sortable);
+  _removeSortableData(sortable);
+  // remove event handlers & data from items
+  handles.off('mousedown.h5s');
+  _removeItemEvents(items);
+  _removeItemData(items);
+};
+/*
+ * enable the sortable
+ * @param [jquery Collection] a single sortable
+ */
+var _enableSortable = function(sortable) {
+  var opts = sortable.data('opts');
+  var items = sortable.children(opts.items);
+  var handles = opts.handle ? items.find(opts.handle) : items;
+  sortable.attr('aria-dropeffect', 'move');
+  handles.attr('draggable', 'true');
+  // IE FIX for ghost
+  // can be disabled as it has the side effect that other events
+  // (e.g. click) will be ignored
+  if (typeof document.createElement('span').dragDrop === 'function' && !opts.disableIEFix) {
+    handles.on('mousedown.h5s', function() {
+      if (items.index(this) !== -1) {
+        this.dragDrop();
+      } else {
+        $(this).parents(opts.items)[0].dragDrop();
+      }
+    });
+  }
+};
+/*
+ * disable the sortable
+ * @param [jquery Collection] a single sortable
+ */
+var _disableSortable = function(sortable) {
+  var opts = sortable.data('opts');
+  var items = sortable.children(opts.items);
+  var handles = opts.handle ? items.find(opts.handle) : items;
+  sortable.attr('aria-dropeffect', 'none');
+  handles.attr('draggable', false);
+  handles.off('mousedown.h5s');
+};
+/*
+ * reload the sortable
+ * @param [jquery Collection] a single sortable
+ * @description events need to be removed to not be double bound
+ */
+var _reloadSortable = function(sortable) {
+  var opts = sortable.data('opts');
+  var items = sortable.children(opts.items);
+  var handles = opts.handle ? items.find(opts.handle) : items;
+  // remove event handlers from items
+  _removeItemEvents(items);
+  handles.off('mousedown.h5s');
+  // remove event handlers from sortable
+  _removeSortableEvents(sortable);
+};
+/*
+ * public sortable object
+ * @param [object|string] options|method
+ */
+var sortable = function(selector, options) {
+
+  var $sortables = $(selector);
+  var method = String(options);
+
+  options = $.extend({
+    connectWith: false,
+    placeholder: null,
+    // dragImage can be null or a jQuery element
+    dragImage: null,
+    disableIEFix: false,
+    placeholderClass: 'sortable-placeholder',
+    draggingClass: 'sortable-dragging'
+  }, options);
+
+  /* TODO: maxstatements should be 25, fix and remove line below */
+  /*jshint maxstatements:false */
+  return $sortables.each(function() {
+
+    var $sortable = $(this);
+
+    if (/enable|disable|destroy/.test(method)) {
+      sortable[method]($sortable);
+      return;
+    }
+
+    // get options & set options on sortable
+    options = _getOptions($sortable.data('opts'), options);
+    $sortable.data('opts', options);
+    // reset sortable
+    _reloadSortable($sortable);
+    // initialize
+    var items = $sortable.children(options.items);
+    var index;
+    var startParent;
+    var newParent;
+    var placeholder = (options.placeholder === null) ? $('<' + (/^ul|ol$/i.test(this.tagName) ? 'li' : 'div') + ' class="' + options.placeholderClass + '"/>') : $(options.placeholder).addClass(options.placeholderClass);
+
+    // setup sortable ids
+    if (!$sortable.attr('data-sortable-id')) {
+      var id = sortables.length;
+      sortables[id] = $sortable;
+      $sortable.attr('data-sortable-id', id);
+      items.attr('data-item-sortable-id', id);
+    }
+
+    $sortable.data('items', options.items);
+    placeholders = placeholders.add(placeholder);
+    if (options.connectWith) {
+      $sortable.data('connectWith', options.connectWith);
+    }
+
+    _enableSortable($sortable);
+    items.attr('role', 'option');
+    items.attr('aria-grabbed', 'false');
+
+    // Handle drag events on draggable items
+    items.on('dragstart.h5s', function(e) {
+      e.stopImmediatePropagation();
+
+      if (options.dragImage) {
+        _attachGhost(e.originalEvent, {
+          item: options.dragImage,
+          x: 0,
+          y: 0
+        });
+        console.log('WARNING: dragImage option is deprecated' +
+        ' and will be removed in the future!');
+      } else {
+        // add transparent clone or other ghost to cursor
+        _getGhost(e.originalEvent, $(this), options.dragImage);
+      }
+      // cache selsection & add attr for dragging
+      dragging = $(this);
+      dragging.addClass(options.draggingClass);
+      dragging.attr('aria-grabbed', 'true');
+      // grab values
+      index = dragging.index();
+      draggingHeight = dragging.height();
+      startParent = $(this).parent();
+      // trigger sortstar update
+      dragging.parent().triggerHandler('sortstart', {
+        item: dragging,
+        startparent: startParent
+      });
+    });
+    // Handle drag events on draggable items
+    items.on('dragend.h5s', function() {
+      if (!dragging) {
+        return;
+      }
+      // remove dragging attributes and show item
+      dragging.removeClass(options.draggingClass);
+      dragging.attr('aria-grabbed', 'false');
+      dragging.show();
+
+      placeholders.detach();
+      newParent = $(this).parent();
+      dragging.parent().triggerHandler('sortstop', {
+        item: dragging,
+        startparent: startParent,
+      });
+      if (index !== dragging.index() ||
+          startParent.get(0) !== newParent.get(0)) {
+        dragging.parent().triggerHandler('sortupdate', {
+          item: dragging,
+          index: newParent.children(newParent.data('items')).index(dragging),
+          oldindex: items.index(dragging),
+          elementIndex: dragging.index(),
+          oldElementIndex: index,
+          startparent: startParent,
+          endparent: newParent
+        });
+      }
+      dragging = null;
+      draggingHeight = null;
+    });
+    // Handle drop event on sortable & placeholder
+    // TODO: REMOVE placeholder?????
+    $(this).add([placeholder]).on('drop.h5s', function(e) {
+      if (!_listsConnected($sortable, $(dragging).parent())) {
+        return;
+      }
+
+      e.stopPropagation();
+      placeholders.filter(':visible').after(dragging);
+      dragging.trigger('dragend.h5s');
+      return false;
+    });
+
+    // Handle dragover and dragenter events on draggable items
+    // TODO: REMOVE placeholder?????
+    items.add([this, placeholder]).on('dragover.h5s dragenter.h5s', function(e) {
+      if (!_listsConnected($sortable, $(dragging).parent())) {
+        return;
+      }
+
+      e.preventDefault();
+      e.originalEvent.dataTransfer.dropEffect = 'move';
+      if (items.is(this)) {
+        var thisHeight = $(this).height();
+        if (options.forcePlaceholderSize) {
+          placeholder.height(draggingHeight);
+        }
+
+        // Check if $(this) is bigger than the draggable. If it is, we have to define a dead zone to prevent flickering
+        if (thisHeight > draggingHeight) {
+          // Dead zone?
+          var deadZone = thisHeight - draggingHeight;
+          var offsetTop = $(this).offset().top;
+          if (placeholder.index() < $(this).index() &&
+              e.originalEvent.pageY < offsetTop + deadZone) {
+            return false;
+          }
+          if (placeholder.index() > $(this).index() &&
+              e.originalEvent.pageY > offsetTop + thisHeight - deadZone) {
+            return false;
+          }
+        }
+
+        dragging.hide();
+        if (placeholder.index() < $(this).index()) {
+          $(this).after(placeholder);
+        } else {
+          $(this).before(placeholder);
+        }
+        placeholders.not(placeholder).detach();
+      } else {
+        if (!placeholders.is(this) && !$(this).children(options.items).length) {
+          placeholders.detach();
+          $(this).append(placeholder);
+        }
+      }
+      return false;
+    });
+  });
+};
+
+sortable.destroy = function(sortable) {
+  _destroySortable(sortable);
+};
+
+sortable.enable = function(sortable) {
+  _enableSortable(sortable);
+};
+
+sortable.disable = function(sortable) {
+  _disableSortable(sortable);
+};
+
+$.fn.sortable = function(options) {
+  return sortable(this, options);
+};
+
+return sortable;
+}));
+;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
+  'use strict';
+
+  _export('default', tagIcon);
+
+  function tagIcon(tag) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    attrs.className = 'icon TagIcon ' + (attrs.className || '');
+
+    if (tag) {
+      attrs.style = attrs.style || {};
+      attrs.style.backgroundColor = tag.color();
+    } else {
+      attrs.className += ' untagged';
+    }
+
+    return m('span', attrs);
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], function (_export) {
+  'use strict';
+
+  var extract;
+
+  _export('default', tagLabel);
+
+  function tagLabel(tag) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    attrs.style = attrs.style || {};
+    attrs.className = 'TagLabel ' + (attrs.className || '');
+
+    var link = extract(attrs, 'link');
+
+    if (tag) {
+      var color = tag.color();
+      if (color) {
+        attrs.style.backgroundColor = attrs.style.color = color;
+        attrs.className += ' colored';
+      }
+
+      if (link) {
+        attrs.title = tag.description() || '';
+        attrs.href = app.route('tag', { tags: tag.slug() });
+        attrs.config = m.route;
+      }
+    } else {
+      attrs.className += ' untagged';
+    }
+
+    return m(link ? 'a' : 'span', attrs, m(
+      'span',
+      { className: 'TagLabel-text' },
+      tag ? tag.name() : app.trans('tags.deleted')
+    ));
+  }
+
+  return {
+    setters: [function (_flarumUtilsExtract) {
+      extract = _flarumUtilsExtract['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export) {
+  'use strict';
+
+  var extract, tagLabel, sortTags;
+
+  _export('default', tagsLabel);
+
+  function tagsLabel(tags) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    var children = [];
+    var link = extract(attrs, 'link');
+
+    attrs.className = 'TagsLabel ' + (attrs.className || '');
+
+    if (tags) {
+      sortTags(tags).forEach(function (tag) {
+        if (tag || tags.length === 1) {
+          children.push(tagLabel(tag, { link: link }));
+        }
+      });
+    } else {
+      children.push(tagLabel());
+    }
+
+    return m(
+      'span',
+      attrs,
+      children
+    );
+  }
+
+  return {
+    setters: [function (_flarumUtilsExtract) {
+      extract = _flarumUtilsExtract['default'];
+    }, function (_flarumTagsHelpersTagLabel) {
+      tagLabel = _flarumTagsHelpersTagLabel['default'];
+    }, function (_flarumTagsUtilsSortTags) {
+      sortTags = _flarumTagsUtilsSortTags['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Tag;
+
+  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Tag = (function (_mixin) {
+        _inherits(Tag, _mixin);
+
+        function Tag() {
+          _classCallCheck(this, Tag);
+
+          _get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Tag;
+      })(mixin(Model, {
+        name: Model.attribute('name'),
+        slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
+
+        color: Model.attribute('color'),
+        backgroundUrl: Model.attribute('backgroundUrl'),
+        backgroundMode: Model.attribute('backgroundMode'),
+
+        position: Model.attribute('position'),
+        parent: Model.hasOne('parent'),
+        defaultSort: Model.attribute('defaultSort'),
+        isChild: Model.attribute('isChild'),
+        isHidden: Model.attribute('isHidden'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastDiscussion: Model.hasOne('lastDiscussion'),
+
+        isRestricted: Model.attribute('isRestricted'),
+        canStartDiscussion: Model.attribute('canStartDiscussion'),
+
+        isPrimary: computed('position', 'parent', function (position, parent) {
+          return position !== null && parent === false;
+        })
+      }));
+
+      _export('default', Tag);
+    }
+  };
+});;System.register("flarum/tags/utils/sortTags", [], function (_export) {
+  "use strict";
+
+  _export("default", sortTags);
+
+  function sortTags(tags) {
+    return tags.slice(0).sort(function (a, b) {
+      var aPos = a.position();
+      var bPos = b.position();
+
+      var aParent = a.parent();
+      var bParent = b.parent();
+
+      if (aPos === null && bPos === null) {
+        return b.discussionsCount() - a.discussionsCount();
+      } else if (bPos === null) {
+        return -1;
+      } else if (aPos === null) {
+        return 1;
+      } else if (aParent === bParent) {
+        return aPos - bPos;
+      } else if (aParent) {
+        return aParent === b ? 1 : aParent.position() - bPos;
+      } else if (bParent) {
+        return bParent === a ? -1 : aPos - bParent.position();
+      }
+
+      return 0;
+    });
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register('flarum/tags/addTagPermission', ['flarum/extend', 'flarum/components/PermissionGrid'], function (_export) {
+  'use strict';
+
+  var extend, PermissionGrid;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsPermissionGrid) {
+      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+    }],
+    execute: function () {
+      _export('default', function () {
+        extend(PermissionGrid.prototype, 'moderateItems', function (items) {
+          items.add('tag', {
+            icon: 'tag',
+            label: 'Tag discussions',
+            permission: 'discussion.tag'
+          }, 95);
+        });
+      });
+    }
+  };
+});;System.register('flarum/tags/addTagsHomePageOption', ['flarum/extend', 'flarum/components/BasicsPage'], function (_export) {
+  'use strict';
+
+  var extend, BasicsPage;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsBasicsPage) {
+      BasicsPage = _flarumComponentsBasicsPage['default'];
+    }],
+    execute: function () {
+      _export('default', function () {
+        extend(BasicsPage.prototype, 'homePageItems', function (items) {
+          items.add('tags', {
+            path: '/tags',
+            label: 'Tags'
+          });
+        });
+      });
+    }
+  };
+});;System.register('flarum/tags/addTagsPane', ['flarum/extend', 'flarum/components/AdminNav', 'flarum/components/AdminLinkButton', 'flarum/tags/components/TagsPage'], function (_export) {
+  'use strict';
+
+  var extend, AdminNav, AdminLinkButton, TagsPage;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsAdminNav) {
+      AdminNav = _flarumComponentsAdminNav['default'];
+    }, function (_flarumComponentsAdminLinkButton) {
+      AdminLinkButton = _flarumComponentsAdminLinkButton['default'];
+    }, function (_flarumTagsComponentsTagsPage) {
+      TagsPage = _flarumTagsComponentsTagsPage['default'];
+    }],
+    execute: function () {
+      _export('default', function () {
+        app.routes.tags = { path: '/tags', component: TagsPage.component() };
+
+        app.extensionSettings.tags = function () {
+          return m.route(app.route('tags'));
+        };
+
+        extend(AdminNav.prototype, 'items', function (items) {
+          items.add('tags', AdminLinkButton.component({
+            href: app.route('tags'),
+            icon: 'tags',
+            children: 'Tags',
+            description: 'Manage the list of tags available to organise discussions with.'
+          }));
+        });
+      });
+    }
+  };
+});;System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/PermissionDropdown', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export) {
+  'use strict';
+
+  var extend, PermissionGrid, PermissionDropdown, Dropdown, Button, tagLabel, tagIcon, sortTags;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsPermissionGrid) {
+      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+    }, function (_flarumComponentsPermissionDropdown) {
+      PermissionDropdown = _flarumComponentsPermissionDropdown['default'];
+    }, function (_flarumComponentsDropdown) {
+      Dropdown = _flarumComponentsDropdown['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumTagsHelpersTagLabel) {
+      tagLabel = _flarumTagsHelpersTagLabel['default'];
+    }, function (_flarumTagsHelpersTagIcon) {
+      tagIcon = _flarumTagsHelpersTagIcon['default'];
+    }, function (_flarumTagsUtilsSortTags) {
+      sortTags = _flarumTagsUtilsSortTags['default'];
+    }],
+    execute: function () {
+      _export('default', function () {
+        extend(PermissionGrid.prototype, 'scopeItems', function (items) {
+          sortTags(app.store.all('tags')).filter(function (tag) {
+            return tag.isRestricted();
+          }).forEach(function (tag) {
+            return items.add('tag' + tag.id(), {
+              label: tagLabel(tag),
+              onremove: function onremove() {
+                return tag.save({ isRestricted: false });
+              },
+              render: function render(item) {
+                if (item.permission) {
+                  var permission = undefined;
+
+                  if (item.permission === 'forum.view') {
+                    permission = 'view';
+                  } else if (item.permission === 'forum.startDiscussion') {
+                    permission = 'startDiscussion';
+                  } else if (item.permission.indexOf('discussion.') === 0) {
+                    permission = item.permission;
+                  }
+
+                  if (permission) {
+                    return PermissionDropdown.component({
+                      permission: 'tag' + tag.id() + '.' + permission,
+                      allowGuest: item.allowGuest
+                    });
+                  }
+                }
+
+                return '';
+              }
+            });
+          });
+        });
+
+        extend(PermissionGrid.prototype, 'scopeControlItems', function (items) {
+          var tags = sortTags(app.store.all('tags').filter(function (tag) {
+            return !tag.isRestricted();
+          }));
+
+          if (tags.length) {
+            items.add('tag', Dropdown.component({
+              className: 'Dropdown--restrictByTag',
+              buttonClassName: 'Button Button--text',
+              label: 'Restrict by Tag',
+              icon: 'plus',
+              caretIcon: null,
+              children: tags.map(function (tag) {
+                return Button.component({
+                  icon: true,
+                  children: [tagIcon(tag, { className: 'Button-icon' }), ' ', tag.name()],
+                  onclick: function onclick() {
+                    return tag.save({ isRestricted: true });
+                  }
+                });
+              })
+            }));
+          }
+        });
+      });
+    }
+  };
+});;System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addTagsPermissionScope', 'flarum/tags/addTagPermission', 'flarum/tags/addTagsPane', 'flarum/tags/addTagsHomePageOption'], function (_export) {
+  'use strict';
+
+  var Tag, addTagsPermissionScope, addTagPermission, addTagsPane, addTagsHomePageOption;
+  return {
+    setters: [function (_flarumTagsModelsTag) {
+      Tag = _flarumTagsModelsTag['default'];
+    }, function (_flarumTagsAddTagsPermissionScope) {
+      addTagsPermissionScope = _flarumTagsAddTagsPermissionScope['default'];
+    }, function (_flarumTagsAddTagPermission) {
+      addTagPermission = _flarumTagsAddTagPermission['default'];
+    }, function (_flarumTagsAddTagsPane) {
+      addTagsPane = _flarumTagsAddTagsPane['default'];
+    }, function (_flarumTagsAddTagsHomePageOption) {
+      addTagsHomePageOption = _flarumTagsAddTagsHomePageOption['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('tags', function (app) {
+        app.store.models.tags = Tag;
+
+        addTagsPermissionScope();
+        addTagPermission();
+        addTagsPane();
+        addTagsHomePageOption();
+      });
+    }
+  };
+});;System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/string', 'flarum/tags/helpers/tagLabel'], function (_export) {
+
+  /**
+   * The `EditTagModal` component shows a modal dialog which allows the user
+   * to create or edit a tag.
+   */
+  'use strict';
+
+  var Modal, Button, slug, tagLabel, EditTagModal;
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+  return {
+    setters: [function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumUtilsString) {
+      slug = _flarumUtilsString.slug;
+    }, function (_flarumTagsHelpersTagLabel) {
+      tagLabel = _flarumTagsHelpersTagLabel['default'];
+    }],
+    execute: function () {
+      EditTagModal = (function (_Modal) {
+        _inherits(EditTagModal, _Modal);
+
+        function EditTagModal() {
+          _classCallCheck(this, EditTagModal);
+
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          _get(Object.getPrototypeOf(EditTagModal.prototype), 'constructor', this).apply(this, args);
+
+          this.tag = this.props.tag || app.store.createRecord('tags');
+
+          this.name = m.prop(this.tag.name() || '');
+          this.slug = m.prop(this.tag.slug() || '');
+          this.description = m.prop(this.tag.description() || '');
+          this.color = m.prop(this.tag.color() || '');
+          this.isHidden = m.prop(this.tag.isHidden() || false);
+        }
+
+        _createClass(EditTagModal, [{
+          key: 'className',
+          value: function className() {
+            return 'EditTagModal Modal--small';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return this.name() ? tagLabel({
+              name: this.name,
+              color: this.color
+            }) : 'Create Tag';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            var _this = this;
+
+            return m(
+              'div',
+              { className: 'Modal-body' },
+              m(
+                'div',
+                { className: 'Form' },
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    'label',
+                    null,
+                    'Name'
+                  ),
+                  m('input', { className: 'FormControl', placeholder: 'Name', value: this.name(), oninput: function (e) {
+                      _this.name(e.target.value);
+                      _this.slug(slug(e.target.value));
+                    } })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    'label',
+                    null,
+                    'Slug'
+                  ),
+                  m('input', { className: 'FormControl', value: this.slug(), oninput: m.withAttr('value', this.slug) })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    'label',
+                    null,
+                    'Description'
+                  ),
+                  m('textarea', { className: 'FormControl', value: this.description(), oninput: m.withAttr('value', this.description) })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    'label',
+                    null,
+                    'Color'
+                  ),
+                  m('input', { className: 'FormControl', placeholder: '#aaaaaa', value: this.color(), oninput: m.withAttr('value', this.color) })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    'div',
+                    null,
+                    m(
+                      'label',
+                      { className: 'checkbox' },
+                      m('input', { type: 'checkbox', value: '1', checked: this.isHidden(), onchange: m.withAttr('checked', this.isHidden) }),
+                      'Hide from All Discussions'
+                    )
+                  )
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  Button.component({
+                    type: 'submit',
+                    className: 'Button Button--primary EditTagModal-save',
+                    loading: this.loading,
+                    children: 'Save Changes'
+                  }),
+                  this.tag.exists ? m(
+                    'button',
+                    { type: 'button', className: 'Button EditTagModal-delete', onclick: this['delete'].bind(this) },
+                    'Delete Tag'
+                  ) : ''
+                )
+              )
+            );
+          }
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit(e) {
+            var _this2 = this;
+
+            e.preventDefault();
+
+            this.loading = true;
+
+            this.tag.save({
+              name: this.name(),
+              slug: this.slug(),
+              description: this.description(),
+              color: this.color(),
+              isHidden: this.isHidden()
+            }).then(function () {
+              return _this2.hide();
+            }, function () {
+              _this2.loading = false;
+              m.redraw();
+            });
+          }
+        }, {
+          key: 'delete',
+          value: function _delete() {
+            if (confirm('Are you sure you want to delete this tag? The tag\'s discussions will NOT be deleted.')) {
+              this.tag['delete']().then(function () {
+                return m.redraw();
+              });
+              this.hide();
+            }
+          }
+        }]);
+
+        return EditTagModal;
+      })(Modal);
+
+      _export('default', EditTagModal);
+    }
+  };
+});;System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
+  'use strict';
+
+  var SettingsModal, TagSettingsModal;
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+  return {
+    setters: [function (_flarumComponentsSettingsModal) {
+      SettingsModal = _flarumComponentsSettingsModal['default'];
+    }],
+    execute: function () {
+      TagSettingsModal = (function (_SettingsModal) {
+        _inherits(TagSettingsModal, _SettingsModal);
+
+        function TagSettingsModal() {
+          _classCallCheck(this, TagSettingsModal);
+
+          _get(Object.getPrototypeOf(TagSettingsModal.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        _createClass(TagSettingsModal, [{
+          key: 'setMinTags',
+          value: function setMinTags(minTags, maxTags, value) {
+            minTags(value);
+            maxTags(Math.max(value, maxTags()));
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return 'TagSettingsModal Modal--small';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return 'Tag Settings';
+          }
+        }, {
+          key: 'form',
+          value: function form() {
+            var minPrimaryTags = this.setting('tags.min_primary_tags', 0);
+            var maxPrimaryTags = this.setting('tags.max_primary_tags', 0);
+
+            var minSecondaryTags = this.setting('tags.min_secondary_tags', 0);
+            var maxSecondaryTags = this.setting('tags.max_secondary_tags', 0);
+
+            return [m(
+              'div',
+              { className: 'Form-group' },
+              m(
+                'label',
+                null,
+                'Required Number of Primary Tags'
+              ),
+              m(
+                'div',
+                { className: 'helpText' },
+                'Enter the minimum and maximum number of primary tags that may be applied to a discussion.'
+              ),
+              m(
+                'div',
+                { className: 'TagSettingsModal-rangeInput' },
+                m('input', { className: 'FormControl',
+                  type: 'number',
+                  min: '0',
+                  value: minPrimaryTags(),
+                  oninput: m.withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags)) }),
+                ' to ',
+                m('input', { className: 'FormControl',
+                  type: 'number',
+                  min: minPrimaryTags(),
+                  bidi: maxPrimaryTags })
+              )
+            ), m(
+              'div',
+              { className: 'Form-group' },
+              m(
+                'label',
+                null,
+                'Required Number of Secondary Tags'
+              ),
+              m(
+                'div',
+                { className: 'helpText' },
+                'Enter the minimum and maximum number of secondary tags that may be applied to a discussion.'
+              ),
+              m(
+                'div',
+                { className: 'TagSettingsModal-rangeInput' },
+                m('input', { className: 'FormControl',
+                  type: 'number',
+                  min: '0',
+                  value: minSecondaryTags(),
+                  oninput: m.withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags)) }),
+                ' to ',
+                m('input', { className: 'FormControl',
+                  type: 'number',
+                  min: minSecondaryTags(),
+                  bidi: maxSecondaryTags })
+              )
+            )];
+          }
+        }]);
+
+        return TagSettingsModal;
+      })(SettingsModal);
+
+      _export('default', TagSettingsModal);
+    }
+  };
+});;System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/components/Button', 'flarum/tags/components/EditTagModal', 'flarum/tags/components/TagSettingsModal', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export) {
+  'use strict';
+
+  var Component, Button, EditTagModal, TagSettingsModal, tagIcon, sortTags, TagsPage;
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+  function tagItem(tag) {
+    return m(
+      'li',
+      { 'data-id': tag.id(), style: { color: tag.color() } },
+      m(
+        'div',
+        { className: 'TagListItem-info' },
+        tagIcon(tag),
+        m(
+          'span',
+          { className: 'TagListItem-name' },
+          tag.name()
+        ),
+        Button.component({
+          className: 'Button Button--link',
+          icon: 'pencil',
+          onclick: function onclick() {
+            return app.modal.show(new EditTagModal({ tag: tag }));
+          }
+        })
+      ),
+      !tag.isChild() && tag.position() !== null ? m(
+        'ol',
+        { className: 'TagListItem-children' },
+        sortTags(app.store.all('tags')).filter(function (child) {
+          return child.parent() === tag;
+        }).map(tagItem)
+      ) : ''
+    );
+  }
+
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumTagsComponentsEditTagModal) {
+      EditTagModal = _flarumTagsComponentsEditTagModal['default'];
+    }, function (_flarumTagsComponentsTagSettingsModal) {
+      TagSettingsModal = _flarumTagsComponentsTagSettingsModal['default'];
+    }, function (_flarumTagsHelpersTagIcon) {
+      tagIcon = _flarumTagsHelpersTagIcon['default'];
+    }, function (_flarumTagsUtilsSortTags) {
+      sortTags = _flarumTagsUtilsSortTags['default'];
+    }],
+    execute: function () {
+      TagsPage = (function (_Component) {
+        _inherits(TagsPage, _Component);
+
+        function TagsPage() {
+          _classCallCheck(this, TagsPage);
+
+          _get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        _createClass(TagsPage, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: 'TagsPage' },
+              m(
+                'div',
+                { className: 'TagsPage-header' },
+                m(
+                  'div',
+                  { className: 'container' },
+                  m(
+                    'p',
+                    null,
+                    'Tags are used to categorize discussions. Primary tags are like traditional forum categories: They can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization.'
+                  ),
+                  Button.component({
+                    className: 'Button Button--primary',
+                    icon: 'plus',
+                    children: 'Create Tag',
+                    onclick: function onclick() {
+                      return app.modal.show(new EditTagModal());
+                    }
+                  }),
+                  Button.component({
+                    className: 'Button',
+                    children: 'Settings',
+                    onclick: function onclick() {
+                      return app.modal.show(new TagSettingsModal());
+                    }
+                  })
+                )
+              ),
+              m(
+                'div',
+                { className: 'TagsPage-list' },
+                m(
+                  'div',
+                  { className: 'container' },
+                  m(
+                    'div',
+                    { className: 'TagGroup' },
+                    m(
+                      'label',
+                      null,
+                      'Primary Tags'
+                    ),
+                    m(
+                      'ol',
+                      { className: 'TagList TagList--primary' },
+                      sortTags(app.store.all('tags')).filter(function (tag) {
+                        return tag.position() !== null && !tag.isChild();
+                      }).map(tagItem)
+                    )
+                  ),
+                  m(
+                    'div',
+                    { className: 'TagGroup' },
+                    m(
+                      'label',
+                      null,
+                      'Secondary Tags'
+                    ),
+                    m(
+                      'ul',
+                      { className: 'TagList' },
+                      app.store.all('tags').filter(function (tag) {
+                        return tag.position() === null;
+                      }).sort(function (a, b) {
+                        return a.name().localeCompare(b.name());
+                      }).map(tagItem)
+                    )
+                  )
+                )
+              )
+            );
+          }
+        }, {
+          key: 'config',
+          value: function config() {
+            var _this = this;
+
+            this.$('ol, ul').sortable({ connectWith: 'primary' }).on('sortupdate', function (e, ui) {
+              // If we've moved a tag from 'primary' to 'secondary', then we'll update
+              // its attributes in our local store so that when we redraw the change
+              // will be made.
+              if (ui.startparent.is('ol') && ui.endparent.is('ul')) {
+                app.store.getById('tags', ui.item.data('id')).pushData({
+                  attributes: {
+                    position: null,
+                    isChild: false
+                  },
+                  relationships: { parent: null }
+                });
+              }
+
+              // Construct an array of primary tag IDs and their children, in the same
+              // order that they have been arranged in.
+              var order = _this.$('.TagList--primary > li').map(function () {
+                return {
+                  id: $(this).data('id'),
+                  children: $(this).find('li').map(function () {
+                    return $(this).data('id');
+                  }).get()
+                };
+              }).get();
+
+              // Now that we have an accurate representation of the order which the
+              // primary tags are in, we will update the tag attributes in our local
+              // store to reflect this order.
+              order.forEach(function (tag, i) {
+                var parent = app.store.getById('tags', tag.id);
+                parent.pushData({
+                  attributes: {
+                    position: i,
+                    isChild: false
+                  },
+                  relationships: { parent: null }
+                });
+
+                tag.children.forEach(function (child, j) {
+                  app.store.getById('tags', child).pushData({
+                    attributes: {
+                      position: j,
+                      isChild: true
+                    },
+                    relationships: { parent: parent }
+                  });
+                });
+              });
+
+              app.request({
+                url: app.forum.attribute('apiUrl') + '/tags/order',
+                method: 'POST',
+                data: { order: order }
+              });
+
+              // A diff redraw won't work here, because sortable has mucked around
+              // with the DOM which will confuse Mithril's diffing algorithm. Instead
+              // we force a full reconstruction of the DOM.
+              m.redraw.strategy('all');
+              m.redraw();
+            });
+          }
+        }]);
+
+        return TagsPage;
+      })(Component);
+
+      _export('default', TagsPage);
+    }
+  };
+});

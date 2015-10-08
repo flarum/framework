@@ -8,13 +8,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Commands;
+namespace Flarum\Tags\Command;
 
-use Flarum\Tags\Tag;
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\TagRepository;
 
 class DeleteTagHandler
 {
+    use AssertPermissionTrait;
+
     /**
      * @var TagRepository
      */
@@ -30,8 +32,8 @@ class DeleteTagHandler
 
     /**
      * @param DeleteTag $command
-     * @return Tag
-     * @throws \Flarum\Core\Exceptions\PermissionDeniedException
+     * @return \Flarum\Tags\Tag
+     * @throws \Flarum\Core\Exception\PermissionDeniedException
      */
     public function handle(DeleteTag $command)
     {
@@ -39,7 +41,7 @@ class DeleteTagHandler
 
         $tag = $this->tags->findOrFail($command->tagId, $actor);
 
-        $tag->assertCan($actor, 'delete');
+        $this->assertCan($actor, 'delete', $tag);
 
         $tag->delete();
 

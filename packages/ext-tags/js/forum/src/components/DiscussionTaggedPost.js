@@ -1,5 +1,5 @@
 import EventPost from 'flarum/components/EventPost';
-import punctuate from 'flarum/helpers/punctuate';
+import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import tagsLabel from 'flarum/tags/helpers/tagsLabel';
 
 export default class DiscussionTaggedPost extends EventPost {
@@ -41,7 +41,7 @@ export default class DiscussionTaggedPost extends EventPost {
     }
 
     return {
-      action: punctuate(actions),
+      action: punctuateSeries(actions),
       count: added.length + removed.length
     };
   }
