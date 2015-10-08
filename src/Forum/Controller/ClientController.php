@@ -11,10 +11,12 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
+use Flarum\Formatter\Formatter;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepository;
 use Flarum\Locale\LocaleManager;
 use Flarum\Http\Controller\AbstractClientController;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ClientController extends AbstractClientController
@@ -30,6 +32,11 @@ class ClientController extends AbstractClientController
     protected $translationKeys = ['core.forum', 'core.lib'];
 
     /**
+     * @var Formatter
+     */
+    protected $formatter;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct(
@@ -37,11 +44,14 @@ class ClientController extends AbstractClientController
         Client $api,
         LocaleManager $locales,
         SettingsRepository $settings,
-        Dispatcher $events
+        Dispatcher $events,
+        Repository $cache,
+        Formatter $formatter
     ) {
-        parent::__construct($app, $api, $locales, $settings, $events);
+        parent::__construct($app, $api, $locales, $settings, $events, $cache);
 
         $this->layout = __DIR__.'/../../../views/forum.blade.php';
+        $this->formatter = $formatter;
     }
 
     /**
@@ -52,7 +62,7 @@ class ClientController extends AbstractClientController
         $assets = parent::getAssets();
 
         $assets->addJs(function () {
-            return $this->app->make('flarum.formatter')->getJs();
+            return $this->formatter->getJs();
         });
 
         return $assets;

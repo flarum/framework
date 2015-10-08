@@ -106,9 +106,13 @@ class AssetManager
         return $this->js->getFile();
     }
 
-    public function flush()
+    public function flushCss()
     {
         $this->less->flush();
+    }
+
+    public function flushJs()
+    {
         $this->js->flush();
     }
 }

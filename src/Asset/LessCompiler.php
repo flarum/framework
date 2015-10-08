@@ -23,11 +23,12 @@ class LessCompiler extends RevisionCompiler
     /**
      * @param string $path
      * @param string $filename
+     * @param bool $watch
      * @param string $cachePath
      */
-    public function __construct($path, $filename, $cachePath)
+    public function __construct($path, $filename, $watch, $cachePath)
     {
-        parent::__construct($path, $filename);
+        parent::__construct($path, $filename, $watch);
 
         $this->cachePath = $cachePath;
     }
