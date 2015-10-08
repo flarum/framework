@@ -1,0 +1,106 @@
+<?php
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Tags\Access;
+
+use Flarum\Core\Access\AbstractPolicy;
+use Flarum\Core\Discussion;
+use Flarum\Core\User;
+use Flarum\Event\ScopeHiddenDiscussionVisibility;
+use Flarum\Tags\Tag;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Expression;
+
+class DiscussionPolicy extends AbstractPolicy
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected $model = Discussion::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function subscribe(Dispatcher $events)
+    {
+        parent::subscribe($events);
+
+        $events->listen(ScopeHiddenDiscussionVisibility::class, [$this, 'scopeHiddenDiscussionVisibility']);
+    }
+
+    /**
+     * @param User $actor
+     * @param string $ability
+     * @param Discussion $discussion
+     * @return bool
+     */
+    public function before(User $actor, $ability, Discussion $discussion)
+    {
+        // Wrap all discussion permission checks with some logic pertaining to
+        // the discussion's tags. If the discussion has a tag that has been
+        // restricted, and the user has this permission for that tag, then they
+        // are allowed. If the discussion only has tags that have been
+        // restricted, then the user *must* have permission for at least one of
+        // them.
+        $tags = $discussion->tags;
+
+        if (count($tags)) {
+            $restricted = true;
+
+            foreach ($tags as $tag) {
+                if ($tag->is_restricted) {
+                    if ($actor->hasPermission('tag' . $tag->id . '.discussion.' . $ability)) {
+                        return true;
+                    }
+                } else {
+                    $restricted = false;
+                }
+            }
+
+            if ($restricted) {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * @param User $actor
+     * @param Builder $query
+     */
+    public function find(User $actor, Builder $query)
+    {
+        // Hide discussions which have tags that the user is not allowed to see.
+        $query->whereNotExists(function ($query) use ($actor) {
+            return $query->select(new Expression(1))
+                ->from('discussions_tags')
+                ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'view'))
+                ->where('discussions.id', new Expression('discussion_id'));
+        });
+    }
+
+    /**
+     * @param ScopeHiddenDiscussionVisibility $event
+     */
+    public function scopeHiddenDiscussionVisibility(ScopeHiddenDiscussionVisibility $event)
+    {
+        // By default, discussions are not visible to the public if they are
+        // hidden or contain zero comments - unless the actor has a certain
+        // permission. Since we grant permissions per-tag, we will make
+        // discussions visible in the tags for which the user has that
+        // permission.
+        $event->query->orWhereExists(function ($query) use ($event) {
+            return $query->select(new Expression(1))
+                ->from('discussions_tags')
+                ->whereIn('tag_id', Tag::getIdsWhereCan($event->actor, $event->permission))
+                ->where('discussions.id', new Expression('discussion_id'));
+        });
+    }
+}

@@ -9,20 +9,26 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Core\Application;
+use Flarum\Tags\Access;
+use Flarum\Tags\Listener;
+use Flarum\Tags\Tag;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return function (Application $app) {
-    Flarum\Tags\Tag::setValidator($app->make('validator'));
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
+    $events->subscribe(Listener\AddForumTagsRelationship::class);
+    $events->subscribe(Listener\AddTagsApi::class);
+    $events->subscribe(Listener\CreatePostWhenTagsAreChanged::class);
+    $events->subscribe(Listener\FilterDiscussionListByTags::class);
+    $events->subscribe(Listener\SaveTagsToDatabase::class);
+    $events->subscribe(Listener\UpdateTagMetadata::class);
 
-    $events = $app->make('events');
+    $events->subscribe(Access\DiscussionPolicy::class);
+    $events->subscribe(Access\TagPolicy::class);
+    $events->subscribe(Access\FlagPolicy::class);
 
-    $events->subscribe('Flarum\Tags\Listeners\AddClientAssets');
-    $events->subscribe('Flarum\Tags\Listeners\AddModelRelationship');
-    $events->subscribe('Flarum\Tags\Listeners\ConfigureDiscussionPermissions');
-    $events->subscribe('Flarum\Tags\Listeners\ConfigureTagPermissions');
-    $events->subscribe('Flarum\Tags\Listeners\AddApiAttributes');
-    $events->subscribe('Flarum\Tags\Listeners\PersistData');
-    $events->subscribe('Flarum\Tags\Listeners\LogDiscussionTagged');
-    $events->subscribe('Flarum\Tags\Listeners\UpdateTagMetadata');
-    $events->subscribe('Flarum\Tags\Listeners\AddTagGambit');
+    Tag::saving(function ($model) {
+        $this->app->make('Flarum\Tags\TagValidator')->assertValid($model);
+    });
 };

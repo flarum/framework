@@ -10,9 +10,8 @@
 
 namespace Flarum\Tags;
 
+use Flarum\Core\User;
 use Illuminate\Database\Eloquent\Builder;
-use Flarum\Core\Users\User;
-use Flarum\Tags\Tag;
 
 class TagRepository
 {
@@ -23,7 +22,6 @@ class TagRepository
      * @param int $id
      * @param User $actor
      * @return Tag
-     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function findOrFail($id, User $actor = null)

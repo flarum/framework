@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Commands;
+namespace Flarum\Tags\Command;
 
-use Flarum\Core\Users\User;
+use Flarum\Core\User;
 
 class CreateTag
 {

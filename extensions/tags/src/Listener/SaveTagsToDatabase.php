@@ -8,32 +8,47 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Listeners;
+namespace Flarum\Tags\Listener;
 
+use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Exception\ValidationException;
+use Flarum\Event\DiscussionWillBeSaved;
+use Flarum\Settings\SettingsRepository;
+use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
-use Flarum\Tags\Events\DiscussionWasTagged;
-use Flarum\Events\DiscussionWillBeSaved;
-use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Exceptions\PermissionDeniedException;
-use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Tags\TagCountException;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class PersistData
+class SaveTagsToDatabase
 {
+    /**
+     * @var SettingsRepository
+     */
     protected $settings;
 
+    /**
+     * @param SettingsRepository $settings
+     */
     public function __construct(SettingsRepository $settings)
     {
         $this->settings = $settings;
     }
 
-    public function subscribe($events)
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
         $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
     }
 
+    /**
+     * @param DiscussionWillBeSaved $event
+     * @throws PermissionDeniedException
+     * @throws ValidationException
+     */
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
     {
+        // TODO: clean up, prevent discussion from being created without tags
         if (isset($event->data['relationships']['tags']['data'])) {
             $discussion = $event->discussion;
             $actor = $event->actor;
@@ -49,7 +64,7 @@ class PersistData
             $secondaryCount = 0;
 
             foreach ($newTags as $tag) {
-                if (! $tag->can($actor, 'startDiscussion')) {
+                if ($actor->cannot('startDiscussion', $tag)) {
                     throw new PermissionDeniedException;
                 }
 
@@ -63,8 +78,6 @@ class PersistData
             $this->validatePrimaryTagCount($primaryCount);
             $this->validateSecondaryTagCount($secondaryCount);
 
-            $oldTags = [];
-
             if ($discussion->exists) {
                 $oldTags = $discussion->tags()->get();
                 $oldTagIds = $oldTags->lists('id');
@@ -73,32 +86,46 @@ class PersistData
                     return;
                 }
 
-                $discussion->raise(new DiscussionWasTagged($discussion, $actor, $oldTags->all()));
+                $discussion->raise(
+                    new DiscussionWasTagged($discussion, $actor, $oldTags->all())
+                );
             }
 
-            Discussion::saved(function ($discussion) use ($newTagIds) {
+            $discussion->afterSave(function ($discussion) use ($newTagIds) {
                 $discussion->tags()->sync($newTagIds);
             });
         }
     }
 
+    /**
+     * @param $count
+     * @throws ValidationException
+     */
     protected function validatePrimaryTagCount($count)
     {
-        $min = $this->settings->get('tags.min_primary_tags');
-        $max = $this->settings->get('tags.max_primary_tags');
+        $min = $this->settings->get('flarum-tags.min_primary_tags');
+        $max = $this->settings->get('flarum-tags.max_primary_tags');
 
         if ($count < $min || $count > $max) {
-            throw new TagCountException(['tags' => sprintf('Discussion must have between %d and %d primary tags.', $min, $max)]);
+            throw new ValidationException([
+                'tags' => sprintf('Discussion must have between %d and %d primary tags.', $min, $max)
+            ]);
         }
     }
 
+    /**
+     * @param $count
+     * @throws ValidationException
+     */
     protected function validateSecondaryTagCount($count)
     {
-        $min = $this->settings->get('tags.min_secondary_tags');
-        $max = $this->settings->get('tags.max_secondary_tags');
+        $min = $this->settings->get('flarum-tags.min_secondary_tags');
+        $max = $this->settings->get('flarum-tags.max_secondary_tags');
 
         if ($count < $min || $count > $max) {
-            throw new TagCountException(['tags' => sprintf('Discussion must have between %d and %d secondary tags.', $min, $max)]);
+            throw new ValidationException([
+                'tags' => sprintf('Discussion must have between %d and %d secondary tags.', $min, $max)
+            ]);
         }
     }
 }

@@ -8,22 +8,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Listeners;
+namespace Flarum\Tags\Listener;
 
+use Flarum\Core\Post;
+use Flarum\Event\DiscussionWasDeleted;
+use Flarum\Event\DiscussionWasStarted;
+use Flarum\Event\PostWasDeleted;
+use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
+use Flarum\Event\PostWasRestored;
+use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
-use Flarum\Tags\Events\DiscussionWasTagged;
-use Flarum\Events\DiscussionWasStarted;
-use Flarum\Events\DiscussionWasDeleted;
-use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Posts\Post;
-use Flarum\Events\PostWasPosted;
-use Flarum\Events\PostWasDeleted;
-use Flarum\Events\PostWasHidden;
-use Flarum\Events\PostWasRestored;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class UpdateTagMetadata
 {
-    public function subscribe($events)
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
         $events->listen(DiscussionWasStarted::class, [$this, 'whenDiscussionWasStarted']);
         $events->listen(DiscussionWasTagged::class, [$this, 'whenDiscussionWasTagged']);
@@ -35,20 +38,28 @@ class UpdateTagMetadata
         $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
     }
 
+    /**
+     * @param DiscussionWasStarted $event
+     */
     public function whenDiscussionWasStarted(DiscussionWasStarted $event)
     {
         $this->updateTags($event->discussion, 1);
     }
 
+    /**
+     * @param DiscussionWasTagged $event
+     */
     public function whenDiscussionWasTagged(DiscussionWasTagged $event)
     {
         $oldTags = Tag::whereIn('id', array_pluck($event->oldTags, 'id'));
 
         $this->updateTags($event->discussion, -1, $oldTags);
-
         $this->updateTags($event->discussion, 1);
     }
 
+    /**
+     * @param DiscussionWasDeleted $event
+     */
     public function whenDiscussionWasDeleted(DiscussionWasDeleted $event)
     {
         $this->updateTags($event->discussion, -1);
@@ -56,26 +67,43 @@ class UpdateTagMetadata
         $event->discussion->tags()->detach();
     }
 
+    /**
+     * @param PostWasPosted $event
+     */
     public function whenPostWasPosted(PostWasPosted $event)
     {
         $this->updateTags($event->post->discussion);
     }
 
+    /**
+     * @param PostWasDeleted $event
+     */
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
         $this->updateTags($event->post->discussion);
     }
 
+    /**
+     * @param PostWasHidden $event
+     */
     public function whenPostWasHidden(PostWasHidden $event)
     {
         $this->updateTags($event->post->discussion);
     }
 
+    /**
+     * @param PostWasRestored $event
+     */
     public function whenPostWasRestored(PostWasRestored $event)
     {
         $this->updateTags($event->post->discussion);
     }
 
+    /**
+     * @param \Flarum\Core\Discussion $discussion
+     * @param int $delta
+     * @param Tag[]|null $tags
+     */
     protected function updateTags($discussion, $delta = 0, $tags = null)
     {
         if (! $tags) {

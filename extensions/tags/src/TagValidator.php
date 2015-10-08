@@ -10,8 +10,15 @@
 
 namespace Flarum\Tags;
 
-use Flarum\Core\Exceptions\ValidationException;
+use Flarum\Core\Validator\AbstractValidator;
 
-class TagCountException extends ValidationException
+class TagValidator extends AbstractValidator
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected $rules = [
+        'name' => ['required'],
+        'slug' => ['required', 'unique:slug']
+    ];
 }

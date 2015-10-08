@@ -8,14 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Api;
+namespace Flarum\Tags\Api\Controller;
 
-use Flarum\Tags\Commands\DeleteTag;
-use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
-use Flarum\Api\Request;
+use Flarum\Api\Controller\AbstractDeleteController;
+use Flarum\Tags\Command\DeleteTag;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Psr\Http\Message\ServerRequestInterface;
 
-class DeleteAction extends BaseDeleteAction
+class DeleteTagController extends AbstractDeleteController
 {
     /**
      * @var Dispatcher
@@ -31,14 +31,12 @@ class DeleteAction extends BaseDeleteAction
     }
 
     /**
-     * Delete a tag.
-     *
-     * @param Request $request
+     * {@inheritdoc}
      */
-    protected function delete(Request $request)
+    protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteTag($request->get('id'), $request->actor)
+            new DeleteTag(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
         );
     }
 }

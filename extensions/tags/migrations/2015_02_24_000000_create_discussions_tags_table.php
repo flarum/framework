@@ -10,16 +10,11 @@
 
 namespace Flarum\Tags\Migrations;
 
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
 
-class CreateDiscussionsTagsTable extends Migration
+class CreateDiscussionsTagsTable extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->create('discussions_tags', function (Blueprint $table) {
@@ -29,11 +24,6 @@ class CreateDiscussionsTagsTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->drop('discussions_tags');

@@ -8,16 +8,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Posts;
+namespace Flarum\Tags\Post;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Posts\EventPost;
-use Flarum\Core\Posts\MergeablePost;
+use Flarum\Core\Post;
+use Flarum\Core\Post\AbstractEventPost;
+use Flarum\Core\Post\MergeableInterface;
 
-class DiscussionTaggedPost extends EventPost implements MergeablePost
+class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public static $type = 'discussionTagged';
 
+    /**
+     * {@inheritdoc}
+     */
     public function saveAfter(Post $previous)
     {
         // If the previous post is another 'discussion tagged' post, and it's

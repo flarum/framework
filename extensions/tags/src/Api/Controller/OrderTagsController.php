@@ -8,23 +8,26 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Api;
+namespace Flarum\Tags\Api\Controller;
 
-use Flarum\Api\Actions\Action;
-use Flarum\Api\Request;
-use Zend\Diactoros\Response\EmptyResponse;
+use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Tags\Tag;
-use Flarum\Core\Exceptions\PermissionDeniedException;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\EmptyResponse;
 
-class OrderAction implements Action
+class OrderTagsController implements ControllerInterface
 {
-    public function handle(Request $request)
-    {
-        if (! $request->actor->isAdmin()) {
-            throw new PermissionDeniedException;
-        }
+    use AssertPermissionTrait;
 
-        $order = $request->get('order');
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(ServerRequestInterface $request)
+    {
+        $this->assertAdmin($request->getAttribute('actor'));
+
+        $order = array_get($request->getParsedBody(), 'order');
 
         Tag::query()->update([
             'position' => null,

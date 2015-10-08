@@ -8,13 +8,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Commands;
+namespace Flarum\Tags\Command;
 
-use Flarum\Tags\Tag;
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\TagRepository;
 
 class EditTagHandler
 {
+    use AssertPermissionTrait;
+
     /**
      * @var TagRepository
      */
@@ -30,8 +32,8 @@ class EditTagHandler
 
     /**
      * @param EditTag $command
-     * @return Tag
-     * @throws \Flarum\Core\Exceptions\PermissionDeniedException
+     * @return \Flarum\Tags\Tag
+     * @throws \Flarum\Core\Exception\PermissionDeniedException
      */
     public function handle(EditTag $command)
     {
@@ -40,7 +42,7 @@ class EditTagHandler
 
         $tag = $this->tags->findOrFail($command->tagId, $actor);
 
-        $tag->assertCan($actor, 'edit');
+        $this->assertCan($actor, 'edit', $tag);
 
         $attributes = array_get($data, 'attributes', []);
 
