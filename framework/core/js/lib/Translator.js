@@ -78,7 +78,7 @@ export default class Translator {
         }
       });
 
-      return translation;
+      return translation.filter(part => part);
     }
 
     return fallback || [key];
