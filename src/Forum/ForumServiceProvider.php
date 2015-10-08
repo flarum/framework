@@ -11,13 +11,12 @@
 namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
-use Flarum\Event\SettingWasSet;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Http\RouteCollection;
+use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
-use Psr\Http\Message\ServerRequestInterface;
+use Flarum\Http\RouteCollection;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
@@ -45,6 +44,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
         $this->flushAssetsWhenThemeChanged();
+
+        $this->flushAssetsWhenExtensionsChanged();
     }
 
     /**
