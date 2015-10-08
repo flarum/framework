@@ -1,6 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
-import saveConfig from 'flarum/utils/saveConfig';
+import saveSettings from 'flarum/utils/saveSettings';
 
 export default class SettingsModal extends Modal {
   init() {
@@ -39,7 +39,7 @@ export default class SettingsModal extends Modal {
   }
 
   setting(key, fallback = '') {
-    this.settings[key] = this.settings[key] || m.prop(app.config[key] || fallback);
+    this.settings[key] = this.settings[key] || m.prop(app.settings[key] || fallback);
 
     return this.settings[key];
   }
@@ -50,7 +50,7 @@ export default class SettingsModal extends Modal {
     Object.keys(this.settings).forEach(key => {
       const value = this.settings[key]();
 
-      if (value !== app.config[key]) {
+      if (value !== app.settings[key]) {
         dirty[key] = value;
       }
     });
@@ -67,7 +67,7 @@ export default class SettingsModal extends Modal {
 
     this.loading = true;
 
-    saveConfig(this.dirty()).then(
+    saveSettings(this.dirty()).then(
       () => this.hide(),
       () => {
         this.loading = false;

@@ -10,17 +10,55 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Users\User;
-use Flarum\Events\ModelAllow;
-use Flarum\Support\ServiceProvider;
-use Flarum\Extend;
+use Flarum\Core\Access\Gate;
+use Flarum\Core\Post\CommentPost;
+use Flarum\Event\ConfigurePostTypes;
+use Flarum\Event\ConfigureUserPreferences;
+use Flarum\Event\GetPermission;
+use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Container\Container;
+use RuntimeException;
 
-class CoreServiceProvider extends ServiceProvider
+class CoreServiceProvider extends AbstractServiceProvider
 {
     /**
-     * Bootstrap the application events.
-     *
-     * @return void
+     * {@inheritdoc}
+     */
+    public function register()
+    {
+        $this->app->singleton('flarum.gate', function ($app) {
+            return new Gate($app, function () {
+                throw new RuntimeException('You must set the gate user with forUser()');
+            });
+        });
+
+        $this->app->alias('flarum.gate', 'Illuminate\Contracts\Auth\Access\Gate');
+        $this->app->alias('flarum.gate', 'Flarum\Core\Access\Gate');
+
+        $this->registerAvatarsFilesystem();
+
+        $this->app->register('Flarum\Core\Notification\NotificationServiceProvider');
+        $this->app->register('Flarum\Core\Search\SearchServiceProvider');
+        $this->app->register('Flarum\Formatter\FormatterServiceProvider');
+    }
+
+    protected function registerAvatarsFilesystem()
+    {
+        $avatarsFilesystem = function (Container $app) {
+            return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
+        };
+
+        $this->app->when('Flarum\Core\Command\UploadAvatarHandler')
+            ->needs('League\Flysystem\FilesystemInterface')
+            ->give($avatarsFilesystem);
+
+        $this->app->when('Flarum\Core\Command\DeleteAvatarHandler')
+            ->needs('League\Flysystem\FilesystemInterface')
+            ->give($avatarsFilesystem);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function boot()
     {
@@ -30,32 +68,76 @@ class CoreServiceProvider extends ServiceProvider
             return get_class($command).'Handler@handle';
         });
 
-        $events = $this->app->make('events');
-
-        $events->listen(ModelAllow::class, function (ModelAllow $event) {
-            if ($event->model instanceof Forum &&
-                $event->actor->hasPermission('forum.'.$event->action)) {
+        $this->app->make('flarum.gate')->before(function (User $actor, $ability, $model = null) {
+            if ($actor->hasPermission($ability)) {
                 return true;
             }
+
+            return $this->app->make('events')->until(
+                new GetPermission($actor, $ability, [$model])
+            );
         });
+
+        $this->registerPostTypes();
+
+        CommentPost::setFormatter($this->app->make('flarum.formatter'));
+
+        User::setHasher($this->app->make('hash'));
+        User::setGate($this->app->make('flarum.gate'));
+
+        $this->validateModelWith(User::class, 'Flarum\Core\Validator\UserValidator');
+        $this->validateModelWith(Group::class, 'Flarum\Core\Validator\GroupValidator');
+        $this->validateModelWith(Post::class, 'Flarum\Core\Validator\PostValidator');
+
+        $events = $this->app->make('events');
+
+        $events->subscribe('Flarum\Core\Listener\DiscussionMetadataUpdater');
+        $events->subscribe('Flarum\Core\Listener\UserMetadataUpdater');
+        $events->subscribe('Flarum\Core\Listener\EmailConfirmationMailer');
+        $events->subscribe('Flarum\Core\Listener\DiscussionRenamedNotifier');
+
+        $events->subscribe('Flarum\Core\Access\DiscussionPolicy');
+        $events->subscribe('Flarum\Core\Access\GroupPolicy');
+        $events->subscribe('Flarum\Core\Access\PostPolicy');
+        $events->subscribe('Flarum\Core\Access\UserPolicy');
+
+        $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
+    }
+
+    public function registerPostTypes()
+    {
+        $models = [
+            'Flarum\Core\Post\CommentPost',
+            'Flarum\Core\Post\DiscussionRenamedPost'
+        ];
+
+        $this->app->make('events')->fire(
+            new ConfigurePostTypes($models)
+        );
+
+        foreach ($models as $model) {
+            Post::setModel($model::$type, $model);
+        }
     }
 
     /**
-     * Register the service provider.
-     *
-     * @return void
+     * @param ConfigureUserPreferences $event
      */
-    public function register()
+    public function configureUserPreferences(ConfigureUserPreferences $event)
     {
-        $this->app->singleton('flarum.forum', 'Flarum\Core\Forum');
+        $event->add('discloseOnline', 'boolval', true);
+        $event->add('indexProfile', 'boolval', true);
+        $event->add('locale');
+    }
 
-        // FIXME: probably use Illuminate's AggregateServiceProvider
-        // functionality, because it includes the 'provides' stuff.
-        $this->app->register('Flarum\Core\Discussions\DiscussionsServiceProvider');
-        $this->app->register('Flarum\Core\Formatter\FormatterServiceProvider');
-        $this->app->register('Flarum\Core\Groups\GroupsServiceProvider');
-        $this->app->register('Flarum\Core\Notifications\NotificationsServiceProvider');
-        $this->app->register('Flarum\Core\Posts\PostsServiceProvider');
-        $this->app->register('Flarum\Core\Users\UsersServiceProvider');
+    /**
+     * @param string $model
+     * @param string $validator
+     */
+    protected function validateModelWith($model, $validator)
+    {
+        $model::saving(function ($model) use ($validator) {
+            $this->app->make($validator)->assertValid($model);
+        });
     }
 }

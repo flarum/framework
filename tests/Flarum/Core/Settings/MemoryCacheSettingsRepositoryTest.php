@@ -1,8 +1,8 @@
 <?php
 namespace tests\Flarum\Core\Settings;
 
-use Flarum\Core\Settings\MemoryCacheSettingsRepository;
-use Flarum\Core\Settings\SettingsRepository;
+use Flarum\Settings\MemoryCacheSettingsRepository;
+use Flarum\Settings\SettingsRepository;
 use Mockery as m;
 use tests\Test\TestCase;
 
@@ -13,7 +13,7 @@ class MemoryCacheSettingsRepositoryTest extends TestCase
 
     public function init()
     {
-        $this->baseRepository = m::mock(SettingsRepository::class);
+        $this->baseRepository = m::mock(\Flarum\Settings\SettingsRepository::class);
         $this->repository = new MemoryCacheSettingsRepository($this->baseRepository);
     }
     

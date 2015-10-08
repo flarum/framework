@@ -96,6 +96,12 @@ class Composer extends Component {
   }
 
   config(isInitialized, context) {
+    let defaultHeight;
+
+    if (!isInitialized) {
+      defaultHeight = this.$().height();
+    }
+
     this.updateHeight();
 
     if (isInitialized) return;
@@ -107,7 +113,7 @@ class Composer extends Component {
     // Initialize the composer's intended height based on what the user has set
     // it at previously, or otherwise the composer's default height. After that,
     // we'll hide the composer.
-    this.height = localStorage.getItem('composerHeight') || this.$().height();
+    this.height = localStorage.getItem('composerHeight') || defaultHeight;
     this.$().hide().css('bottom', -this.height);
 
     // Whenever any of the inputs inside the composer are have focus, we want to

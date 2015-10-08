@@ -196,6 +196,8 @@ class PostStream extends mixin(Component, evented) {
     this.visibleEnd = this.sanitizeIndex(this.visibleEnd);
     this.viewingEnd = this.visibleEnd === this.count();
 
+    const postIds = this.discussion.postIds();
+
     return (
       <div className="PostStream">
         {this.posts().map((post, i) => {
@@ -229,7 +231,7 @@ class PostStream extends mixin(Component, evented) {
 
             lastTime = time;
           } else {
-            attrs.key = this.visibleStart + i;
+            attrs.key = 'post' + postIds[this.visibleStart + i];
 
             content = PostLoading.component();
           }
@@ -277,7 +279,7 @@ class PostStream extends mixin(Component, evented) {
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
-    const loadAheadDistance = 500;
+    const loadAheadDistance = 300;
 
     if (this.visibleStart > 0) {
       const $item = this.$('.PostStream-item[data-index=' + this.visibleStart + ']');

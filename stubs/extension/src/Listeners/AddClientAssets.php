@@ -1,23 +1,23 @@
 <?php namespace {{namespace}}\Listeners;
 
-use Flarum\Events\RegisterLocales;
-use Flarum\Events\BuildClientView;
+use Flarum\Event\ConfigureLocales;
+use Flarum\Event\ConfigureClientView;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterLocales::class, [$this, 'addLocale']);
-        $events->listen(BuildClientView::class, [$this, 'addAssets']);
+        $events->listen(ConfigureLocales::class, [$this, 'addLocale']);
+        $events->listen(ConfigureClientView::class, [$this, 'addAssets']);
     }
 
-    public function addLocale(RegisterLocales $event)
+    public function addLocale(ConfigureLocales $event)
     {
         $event->addTranslations('en', __DIR__.'/../../locale/en.yml');
     }
 
-    public function addAssets(BuildClientView $event)
+    public function addAssets(ConfigureClientView $event)
     {
         $event->forumAssets([
             __DIR__.'/../../js/forum/dist/extension.js',
