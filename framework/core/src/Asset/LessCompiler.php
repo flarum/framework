@@ -10,9 +10,8 @@
 
 namespace Flarum\Asset;
 
-use Flarum\Asset\RevisionCompiler;
-use Less_Parser;
 use Less_Exception_Parser;
+use Less_Parser;
 
 class LessCompiler extends RevisionCompiler
 {

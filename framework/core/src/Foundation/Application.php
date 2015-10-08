@@ -111,13 +111,23 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function config($key, $default = null)
+    {
+        return array_get($this->make('flarum.config'), $key, $default);
+    }
+
+    /**
      * Check if Flarum is in debug mode.
      *
      * @return bool
      */
     public function inDebugMode()
     {
-        return ! $this->isInstalled() || $this->make('flarum.config')['debug'];
+        return ! $this->isInstalled() || $this->config('debug');
     }
 
     /**

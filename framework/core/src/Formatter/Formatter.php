@@ -198,10 +198,6 @@ class Formatter
         $configurator->enableJavaScript();
         $configurator->javascript->exportMethods = ['preview'];
 
-        $minifier = $configurator->javascript->setMinifier(new MinifyMinifier);
-        $minifier->keepGoing = true;
-        $minifier->cacheDir = $this->cacheDir;
-
         return $configurator->finalize([
             'returnParser' => false,
             'returnRenderer' => false
