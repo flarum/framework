@@ -3,7 +3,7 @@ import FieldSet from 'flarum/components/FieldSet';
 import Select from 'flarum/components/Select';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
-import saveConfig from 'flarum/utils/saveConfig';
+import saveSettings from 'flarum/utils/saveSettings';
 import ItemList from 'flarum/utils/ItemList';
 
 export default class BasicsPage extends Component {
@@ -20,8 +20,8 @@ export default class BasicsPage extends Component {
     ];
     this.values = {};
 
-    const config = app.config;
-    this.fields.forEach(key => this.values[key] = m.prop(config[key]));
+    const settings = app.settings;
+    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     this.localeOptions = {};
     const locales = app.locales;
@@ -108,7 +108,7 @@ export default class BasicsPage extends Component {
   }
 
   changed() {
-    return this.fields.some(key => this.values[key]() !== app.config[key]);
+    return this.fields.some(key => this.values[key]() !== app.settings[key]);
   }
 
   /**
@@ -137,11 +137,11 @@ export default class BasicsPage extends Component {
     this.loading = true;
     app.alerts.dismiss(this.successAlert);
 
-    const config = {};
+    const settings = {};
 
-    this.fields.forEach(key => config[key] = this.values[key]());
+    this.fields.forEach(key => settings[key] = this.values[key]());
 
-    saveConfig(config)
+    saveSettings(settings)
       .then(() => {
         app.alerts.show(this.successAlert = new Alert({type: 'success', children: 'Your changes were saved.'}));
       })

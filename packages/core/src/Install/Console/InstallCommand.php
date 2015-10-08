@@ -10,12 +10,12 @@
 
 namespace Flarum\Install\Console;
 
-use Flarum\Console\Command;
-use Flarum\Core\Exceptions\ValidationException;
-use Flarum\Core\Model;
-use Flarum\Core\Users\User;
-use Flarum\Core\Groups\Group;
-use Flarum\Core\Groups\Permission;
+use Flarum\Console\Command\AbstractCommand;
+use Flarum\Core\Exception\ValidationException;
+use Flarum\Database\AbstractModel;
+use Flarum\Core\User;
+use Flarum\Core\Group;
+use Flarum\Core\Permission;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
@@ -26,10 +26,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Exception;
 
-class InstallCommand extends Command
+class InstallCommand extends AbstractCommand
 {
     /**
-     * @var ProvidesData
+     * @var DataProviderInterface
      */
     protected $dataSource;
 
@@ -42,7 +42,7 @@ class InstallCommand extends Command
     {
         $this->application = $application;
 
-        parent::__construct();
+        \Flarum\Console\Command\parent::__construct();
     }
 
     protected function configure()
@@ -87,14 +87,14 @@ class InstallCommand extends Command
     {
         if ($this->dataSource === null) {
             if ($this->input->getOption('defaults')) {
-                $this->dataSource = new DefaultData();
+                $this->dataSource = new DefaultsDataProvider();
             } else {
-                $this->dataSource = new DataFromUser($this->input, $this->output, $this->getHelperSet()->get('question'));
+                $this->dataSource = new UserDataProvider($this->input, $this->output, $this->getHelperSet()->get('question'));
             }
         }
     }
 
-    public function setDataSource(ProvidesData $dataSource)
+    public function setDataSource(DataProviderInterface $dataSource)
     {
         $this->dataSource = $dataSource;
     }
@@ -148,8 +148,8 @@ class InstallCommand extends Command
             $this->application->register('Flarum\Core\CoreServiceProvider');
 
             $resolver = $this->application->make('Illuminate\Database\ConnectionResolverInterface');
-            Model::setConnectionResolver($resolver);
-            Model::setEventDispatcher($this->application->make('events'));
+            AbstractModel::setConnectionResolver($resolver);
+            AbstractModel::setEventDispatcher($this->application->make('events'));
 
             $this->seedGroups();
             $this->seedPermissions();
@@ -157,6 +157,8 @@ class InstallCommand extends Command
             $this->createAdminUser();
 
             $this->enableBundledExtensions();
+
+            $this->publishAssets();
         } catch (Exception $e) {
             @unlink($this->getConfigFile());
 
@@ -213,7 +215,7 @@ class InstallCommand extends Command
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
         });
 
-        $migrator = $this->application->make('Flarum\Migrations\Migrator');
+        $migrator = $this->application->make('Flarum\Database\Migrator');
         $migrator->getRepository()->createRepository();
 
         $migrator->run(__DIR__ . '/../../../migrations');
@@ -225,7 +227,7 @@ class InstallCommand extends Command
 
     protected function writeSettings()
     {
-        $settings = $this->application->make('Flarum\Core\Settings\SettingsRepository');
+        $settings = $this->application->make('Flarum\Settings\SettingsRepository');
 
         $this->info('Writing default settings');
 
@@ -306,7 +308,7 @@ class InstallCommand extends Command
 
     protected function enableBundledExtensions()
     {
-        $extensions = $this->application->make('Flarum\Support\ExtensionManager');
+        $extensions = $this->application->make('Flarum\Extension\ExtensionManager');
 
         $migrator = $extensions->getMigrator();
 
@@ -325,13 +327,18 @@ class InstallCommand extends Command
         }
     }
 
+    protected function publishAssets()
+    {
+        // TODO
+    }
+
     protected function getConfigFile()
     {
         return base_path('config.php');
     }
 
     /**
-     * @return \Flarum\Install\Prerequisites\Prerequisite
+     * @return \Flarum\Install\Prerequisite\PrerequisiteInterface
      */
     protected function getPrerequisites()
     {

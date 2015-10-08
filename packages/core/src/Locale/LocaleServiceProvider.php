@@ -10,23 +10,25 @@
 
 namespace Flarum\Locale;
 
-use Flarum\Events\RegisterLocales;
-use Flarum\Support\ServiceProvider;
+use Flarum\Event\ConfigureLocales;
+use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class LocaleServiceProvider extends ServiceProvider
+class LocaleServiceProvider extends AbstractServiceProvider
 {
     /**
-     * Bootstrap the application events.
-     *
-     * @return void
+     * {@inheritdoc}
      */
-    public function boot()
+    public function boot(Dispatcher $events)
     {
         $manager = $this->app->make('flarum.localeManager');
 
-        event(new RegisterLocales($manager));
+        $events->fire(new ConfigureLocales($manager));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function register()
     {
         $this->app->singleton('Flarum\Locale\LocaleManager');

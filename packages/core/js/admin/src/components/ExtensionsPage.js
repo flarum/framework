@@ -116,7 +116,7 @@ export default class ExtensionsPage extends Component {
   }
 
   isEnabled(name) {
-    const enabled = JSON.parse(app.config.extensions_enabled);
+    const enabled = JSON.parse(app.settings.extensions_enabled);
 
     return enabled.indexOf(name) !== -1;
   }

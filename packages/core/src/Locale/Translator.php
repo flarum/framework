@@ -11,7 +11,6 @@
 namespace Flarum\Locale;
 
 use Symfony\Component\Translation\TranslatorInterface;
-use Closure;
 
 class Translator implements TranslatorInterface
 {

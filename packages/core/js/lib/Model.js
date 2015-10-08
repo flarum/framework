@@ -88,7 +88,7 @@ export default class Model {
         // relationship data object.
         for (const innerKey in data[key]) {
           if (data[key][innerKey] instanceof Model) {
-            data[key][innerKey] = {data: Model.getRelationshipData(data[key][innerKey])};
+            data[key][innerKey] = {data: Model.getIdentifier(data[key][innerKey])};
           }
           this.data[key][innerKey] = data[key][innerKey];
         }
@@ -138,8 +138,8 @@ export default class Model {
 
         data.relationships[key] = {
           data: model instanceof Array
-            ? model.map(Model.getRelationshipData)
-            : Model.getRelationshipData(model)
+            ? model.map(Model.getIdentifier)
+            : Model.getIdentifier(model)
         };
       }
 
@@ -283,13 +283,13 @@ export default class Model {
   }
 
   /**
-   * Get a relationship data object for the given model.
+   * Get a resource identifier object for the given model.
    *
    * @param {Model} model
    * @return {Object}
    * @protected
    */
-  static getRelationshipData(model) {
+  static getIdentifier(model) {
     return {
       type: model.data.type,
       id: model.data.id

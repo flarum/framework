@@ -1,8 +1,8 @@
 <?php
 namespace tests\Flarum\Admin\Middleware;
 
-use Flarum\Admin\Middleware\LoginWithCookieAndCheckAdmin;
-use Flarum\Core\Exceptions\PermissionDeniedException;
+use Flarum\Admin\Middleware\AuthenticateWithCookie;
+use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Container\Container;
 use Mockery as m;
 use Psr\Http\Message\ResponseInterface;
@@ -21,7 +21,7 @@ class LoginWithCookieAndCheckAdminTest extends TestCase
 
         $request->shouldReceive('getCookieParams')->andReturn([]);
 
-        $middleware = new LoginWithCookieAndCheckAdmin($container);
+        $middleware = new AuthenticateWithCookie($container);
         $middleware->__invoke($request, $response);
     }
 }

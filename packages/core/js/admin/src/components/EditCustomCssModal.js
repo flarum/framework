@@ -1,12 +1,12 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
-import saveConfig from 'flarum/utils/saveConfig';
+import saveSettings from 'flarum/utils/saveSettings';
 
 export default class EditCustomCssModal extends Modal {
   constructor(...args) {
     super(...args);
 
-    this.customLess = m.prop(app.config.custom_less || '');
+    this.customLess = m.prop(app.settings.custom_less || '');
   }
 
   className() {
@@ -45,7 +45,7 @@ export default class EditCustomCssModal extends Modal {
 
     this.loading = true;
 
-    saveConfig({
+    saveSettings({
       custom_less: this.customLess()
     }).then(() => window.location.reload());
   }
