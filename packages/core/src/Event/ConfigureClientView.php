@@ -64,9 +64,9 @@ class ConfigureClientView
         $this->view->addBootstrapper($bootstrapper);
     }
 
-    public function addTranslations(array $keys)
+    public function addTranslations($keys)
     {
-        foreach ($keys as $key) {
+        foreach ((array) $keys as $key) {
             $this->keys[] = $key;
         }
     }

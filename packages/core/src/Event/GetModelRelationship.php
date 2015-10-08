@@ -37,4 +37,14 @@ class GetModelRelationship
         $this->model = $model;
         $this->relationship = $relationship;
     }
+
+    /**
+     * @param string $model
+     * @param string $relationship
+     * @return bool
+     */
+    public function isRelationship($model, $relationship)
+    {
+        return $this->model instanceof $model && $this->relationship === $relationship;
+    }
 }
