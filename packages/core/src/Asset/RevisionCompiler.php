@@ -10,7 +10,6 @@
 
 namespace Flarum\Asset;
 
-use Flarum\Asset\CompilerInterface;
 use Illuminate\Support\Str;
 
 class RevisionCompiler implements CompilerInterface
@@ -64,28 +63,39 @@ class RevisionCompiler implements CompilerInterface
      */
     public function getFile()
     {
-        $revision = $this->getRevision();
+        $old = $this->getRevision();
 
         $lastModTime = 0;
         foreach ($this->files as $file) {
             $lastModTime = max($lastModTime, filemtime($file));
         }
 
-        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
-        $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
+        $current = hash('crc32b', serialize([$lastModTime, $this->getCacheDifferentiator()]));
 
-        if (! ($exists = file_exists($file)) || filemtime($file) < $lastModTime) {
+        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+        $file = $this->path.'/'.substr_replace($this->filename, '-'.$old, -strlen($ext) - 1, 0);
+
+        $exists = file_exists($file);
+
+        if (! $exists || $old !== $current) {
             if ($exists) {
                 unlink($file);
             }
 
-            $revision = Str::quickRandom();
-            $this->putRevision($revision);
-            $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
+            $this->putRevision($current);
+            $file = $this->path.'/'.substr_replace($this->filename, '-'.$current, -strlen($ext) - 1, 0);
             file_put_contents($file, $this->compile());
         }
 
         return $file;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getCacheDifferentiator()
+    {
+        return null;
     }
 
     /**

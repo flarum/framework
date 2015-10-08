@@ -187,7 +187,7 @@ abstract class AbstractClientController extends AbstractHtmlController
         $public = $this->getAssetDirectory();
 
         $assets = new AssetManager(
-            new JsCompiler($public, "$this->clientName.js"),
+            new JsCompiler($public, "$this->clientName.js", ! $this->app->config('debug')),
             new LessCompiler($public, "$this->clientName.css", $this->app->storagePath().'/less')
         );
 
