@@ -16,17 +16,17 @@ export default function punctuateSeries(items) {
       second: items[1]
     });
   } else if (items.length >= 3) {
-    // If there are three or more items, we will join all of the items up until
-    // the second-to-last one with the equivalent of a comma, and then we will
-    // feed that into the translator along with the last two items.
-    const first = items
-      .slice(0, items.length - 2)
+    // If there are three or more items, we will join all but the first and
+    // last items with the equivalent of a comma, and then we will feed that
+    // into the translator along with the first and last item.
+    const second = items
+      .slice(1, items.length - 1)
       .reduce((list, item) => list.concat([item, app.trans('core.lib.series_glue_text')]), [])
       .slice(0, -1);
 
     return app.trans('core.lib.series_three_text', {
-      first,
-      second: items[items.length - 2],
+      first: items[0],
+      second,
       third: items[items.length - 1]
     });
   }
