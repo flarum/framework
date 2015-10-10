@@ -36,5 +36,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
         $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
 
         $this->app->instance('translator', new Translator);
+
+        $this->app->alias('translator', 'Symfony\Component\Translation\TranslatorInterface');
     }
 }

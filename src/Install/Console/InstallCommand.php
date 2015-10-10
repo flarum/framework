@@ -42,7 +42,7 @@ class InstallCommand extends AbstractCommand
     {
         $this->application = $application;
 
-        \Flarum\Console\Command\parent::__construct();
+        parent::__construct();
     }
 
     protected function configure()
@@ -342,7 +342,7 @@ class InstallCommand extends AbstractCommand
      */
     protected function getPrerequisites()
     {
-        return $this->application->make('Flarum\Install\Prerequisites\Prerequisite');
+        return $this->application->make('Flarum\Install\Prerequisite\PrerequisiteInterface');
     }
 
     /**

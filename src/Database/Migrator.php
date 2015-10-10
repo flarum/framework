@@ -246,7 +246,7 @@ class Migrator
     {
         $file = implode('_', array_slice(explode('_', $file), 4));
 
-        $class = ($extension ? Str::studly($extension) : 'Flarum\\Core') . '\\Migration\\';
+        $class = ($extension ? str_replace('-', '\\', $extension) : 'Flarum\\Core') . '\\Migration\\';
 
         $class .= Str::studly($file);
 
