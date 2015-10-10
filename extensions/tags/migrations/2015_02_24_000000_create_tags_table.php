@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Migrations;
+namespace Flarum\Tags\Migration;
 
 use Flarum\Database\AbstractMigration;
 use Flarum\Tags\Tag;
