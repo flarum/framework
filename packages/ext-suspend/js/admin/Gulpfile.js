@@ -2,6 +2,6 @@ var gulp = require('flarum-gulp');
 
 gulp({
   modules: {
-    'suspend': 'src/**/*.js'
+    'flarum/suspend': 'src/**/*.js'
   }
 });

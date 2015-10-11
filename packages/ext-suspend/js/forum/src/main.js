@@ -6,9 +6,9 @@ import Badge from 'flarum/components/Badge';
 import Model from 'flarum/Model';
 import User from 'flarum/models/User';
 
-import SuspendUserModal from 'suspend/components/SuspendUserModal';
+import SuspendUserModal from 'flarum/suspend/components/SuspendUserModal';
 
-app.initializers.add('suspend', () => {
+app.initializers.add('flarum-suspend', () => {
   User.prototype.canSuspend = Model.attribute('canSuspend');
   User.prototype.suspendUntil = Model.attribute('suspendUntil', Model.transformDate);
 
@@ -27,7 +27,7 @@ app.initializers.add('suspend', () => {
 
     if (new Date() < until) {
       items.add('suspended', Badge.component({
-        icon: 'times',
+        icon: 'ban',
         type: 'suspended',
         label: 'Suspended'
       }));

@@ -9,6 +9,15 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\Suspend\Access;
+use Flarum\Suspend\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return 'Flarum\Suspend\Extension';
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\AddUserSuspendAttributes::class);
+    $events->subscribe(Listener\RevokeAccessFromSuspendedUsers::class);
+    $events->subscribe(Listener\SaveSuspensionToDatabase::class);
+
+    $events->subscribe(Access\UserPolicy::class);
+};
