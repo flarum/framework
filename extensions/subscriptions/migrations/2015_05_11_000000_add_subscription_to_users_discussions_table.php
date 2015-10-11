@@ -8,18 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Subscriptions;
+namespace Flarum\Subscriptions\Migration;
 
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
 
-class AddSubscriptionToUsersDiscussionsTable extends Migration
+class AddSubscriptionToUsersDiscussionsTable extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->table('users_discussions', function (Blueprint $table) {
@@ -27,11 +22,6 @@ class AddSubscriptionToUsersDiscussionsTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->table('users_discussions', function (Blueprint $table) {

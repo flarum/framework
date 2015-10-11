@@ -8,54 +8,81 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Subscriptions\Notifications;
+namespace Flarum\Subscriptions\Notification;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Users\User;
-use Flarum\Core\Notifications\Blueprint;
-use Flarum\Core\Notifications\MailableBlueprint;
+use Flarum\Core\Discussion;
+use Flarum\Core\Post;
+use Flarum\Core\Notification\BlueprintInterface;
+use Flarum\Core\Notification\MailableInterface;
 
-class NewPostBlueprint implements Blueprint, MailableBlueprint
+class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {
+    /**
+     * @var Post
+     */
     public $post;
 
+    /**
+     * @param Post $post
+     */
     public function __construct(Post $post)
     {
         $this->post = $post;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSubject()
     {
         return $this->post->discussion;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSender()
     {
         return $this->post->user;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getData()
     {
         return ['postNumber' => (int) $this->post->number];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getEmailView()
     {
-        return ['text' => 'subscriptions::emails.newPost'];
+        return ['text' => 'flarum-subscriptions::emails.newPost'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getEmailSubject()
     {
         return '[New Post] '.$this->post->discussion->title;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getType()
     {
         return 'newPost';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Discussions\Discussion';
+        return Discussion::class;
     }
 }

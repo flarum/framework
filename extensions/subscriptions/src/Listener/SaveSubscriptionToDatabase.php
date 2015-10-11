@@ -8,18 +8,27 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Subscriptions\Listeners;
+namespace Flarum\Subscriptions\Listener;
 
-use Flarum\Events\DiscussionWillBeSaved;
-use Flarum\Core\Exceptions\PermissionDeniedException;
+use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Event\DiscussionWillBeSaved;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class PersistSubscriptionData
+class SaveSubscriptionToDatabase
 {
-    public function subscribe($events)
+    use AssertPermissionTrait;
+
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
         $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
     }
 
+    /**
+     * @param DiscussionWillBeSaved $event
+     */
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
     {
         $discussion = $event->discussion;
@@ -29,9 +38,7 @@ class PersistSubscriptionData
             $actor = $event->actor;
             $subscription = $data['attributes']['subscription'];
 
-            if (! $actor->exists) {
-                throw new PermissionDeniedException;
-            }
+            $this->assertRegistered($actor);
 
             $state = $discussion->stateFor($actor);
 

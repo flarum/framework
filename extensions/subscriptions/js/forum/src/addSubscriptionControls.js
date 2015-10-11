@@ -3,15 +3,15 @@ import Button from 'flarum/components/Button';
 import DiscussionPage from 'flarum/components/DiscussionPage';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 
-import SubscriptionMenu from 'subscriptions/components/SubscriptionMenu';
+import SubscriptionMenu from 'flarum/subscriptions/components/SubscriptionMenu';
 
 export default function addSubscriptionControls() {
   extend(DiscussionControls, 'userControls', function(items, discussion, context) {
     if (app.session.user && !(context instanceof DiscussionPage)) {
       const states = {
-        none: {label: app.trans('subscriptions.follow'), icon: 'star', save: 'follow'},
-        follow: {label: app.trans('subscriptions.unfollow'), icon: 'star-o', save: false},
-        ignore: {label: app.trans('subscriptions.unignore'), icon: 'eye', save: false}
+        none: {label: app.trans('flarum-subscriptions.forum.follow'), icon: 'star', save: 'follow'},
+        follow: {label: app.trans('flarum-subscriptions.forum.unfollow'), icon: 'star-o', save: false},
+        ignore: {label: app.trans('flarum-subscriptions.forum.unignore'), icon: 'eye', save: false}
       };
 
       const subscription = discussion.subscription() || 'none';

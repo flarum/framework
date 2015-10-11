@@ -8,17 +8,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Subscriptions\Gambits;
+namespace Flarum\Subscriptions\Gambit;
 
-use Flarum\Core\Search\Search;
-use Flarum\Core\Search\RegexGambit;
+use Flarum\Core\Search\AbstractRegexGambit;
+use Flarum\Core\Search\AbstractSearch;
 use Illuminate\Database\Query\Expression;
 
-class SubscriptionGambit extends RegexGambit
+class SubscriptionGambit extends AbstractRegexGambit
 {
+    /**
+     * {@inheritdoc}
+     */
     protected $pattern = 'is:(follow|ignor)(?:ing|ed)';
 
-    protected function conditions(Search $search, array $matches, $negate)
+    /**
+     * {@inheritdoc}
+     */
+    protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
         $actor = $search->getActor();
 
