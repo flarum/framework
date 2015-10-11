@@ -44,7 +44,7 @@ export default class ExtensionsPage extends Component {
                         {extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''}
                       </span>
                       <h4 className="ExtensionListItem-title">
-                        {extension.extra['flarum-extension'].title}{' '}
+                        {extension.extra['flarum-extension'].title} {' '}
                         <small className="ExtensionListItem-version">{extension.version}</small>
                       </h4>
                       <div className="ExtensionListItem-description">{extension.description}</div>
@@ -68,11 +68,11 @@ export default class ExtensionsPage extends Component {
       Installed in: {name}
     </span>);
 
-    if (app.extensionSettings[extension.name]) {
+    if (app.extensionSettings[name]) {
       items.add('settings', Button.component({
         icon: 'cog',
         children: 'Settings',
-        onclick: app.extensionSettings[extension.name]
+        onclick: app.extensionSettings[name]
       }));
     }
 
