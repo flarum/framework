@@ -1,8 +1,0 @@
-flags:
-  reason_off_topic: Off-topic
-  reason_spam: Spam
-  reason_inappropriate: Inappropriate
-  reason_other: Other
-  flagged_by: "{username} flagged"
-  flagged_by_with_reason: "{username} flagged as {reason}"
-  no_flags: No Flags

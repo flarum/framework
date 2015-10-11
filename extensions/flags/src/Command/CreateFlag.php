@@ -8,20 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Commands;
+namespace Flarum\Flags\Command;
 
-use Flarum\Flags\Flag;
-use Flarum\Core\Users\User;
+use Flarum\Core\User;
 
-class DeleteFlags
+class CreateFlag
 {
-    /**
-     * The ID of the post to delete flags for.
-     *
-     * @var int
-     */
-    public $postId;
-
     /**
      * The user performing the action.
      *
@@ -30,18 +22,18 @@ class DeleteFlags
     public $actor;
 
     /**
+     * The attributes of the new flag.
+     *
      * @var array
      */
     public $data;
 
     /**
-     * @param int $postId The ID of the post to delete flags for.
      * @param User $actor The user performing the action.
-     * @param array $data
+     * @param array $data The attributes of the new flag.
      */
-    public function __construct($postId, User $actor, array $data = [])
+    public function __construct(User $actor, array $data)
     {
-        $this->postId = $postId;
         $this->actor = $actor;
         $this->data = $data;
     }

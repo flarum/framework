@@ -8,17 +8,26 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Commands;
+namespace Flarum\Flags\Command;
 
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Flags\Flag;
-use Flarum\Core\Posts\PostRepository;
-use Flarum\Core\Posts\CommentPost;
-use Exception;
+use Flarum\Core\Repository\PostRepository;
+use Flarum\Core\Post\CommentPost;
+use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class CreateFlagHandler
 {
-    private $posts;
+    use AssertPermissionTrait;
 
+    /**
+     * @var PostRepository
+     */
+    protected $posts;
+
+    /**
+     * @param PostRepository $posts
+     */
     public function __construct(PostRepository $posts)
     {
         $this->posts = $posts;
@@ -27,6 +36,7 @@ class CreateFlagHandler
     /**
      * @param CreateFlag $command
      * @return Flag
+     * @throws InvalidParameterException
      */
     public function handle(CreateFlag $command)
     {
@@ -37,11 +47,10 @@ class CreateFlagHandler
         $post = $this->posts->findOrFail($postId, $actor);
 
         if (! ($post instanceof CommentPost)) {
-            // TODO: throw 400(?) error
-            throw new Exception;
+            throw new InvalidParameterException;
         }
 
-        $post->assertCan($actor, 'flag');
+        $this->assertCan($actor, 'flag', $post);
 
         Flag::unguard();
 

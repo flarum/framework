@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
-app.initializers.add('flags', () => {
+app.initializers.add('flarum-flags', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('viewFlags', {
       icon: 'flag',

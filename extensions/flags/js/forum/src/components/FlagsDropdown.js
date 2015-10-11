@@ -1,6 +1,6 @@
 import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
 
-import FlagList from 'flags/components/FlagList';
+import FlagList from 'flarum/flags/components/FlagList';
 
 export default class FlagsDropdown extends NotificationsDropdown {
   static initProps(props) {
@@ -22,5 +22,9 @@ export default class FlagsDropdown extends NotificationsDropdown {
 
   getUnreadCount() {
     return app.forum.attribute('unreadFlagsCount');
+  }
+
+  getNewCount() {
+    return app.forum.attribute('newFlagsCount');
   }
 }
