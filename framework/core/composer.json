@@ -1,12 +1,24 @@
 {
     "name": "flarum/core",
-    "description": "",
+    "description": "Delightfully simple forum software.",
+    "keywords": ["forum", "discussion"],
+    "homepage": "http://flarum.org",
+    "license": "MIT",
     "authors": [
         {
             "name": "Toby Zerner",
-            "email": "toby@flarum.org"
+            "email": "toby.zerner@gmail.com"
+        },
+        {
+            "name": "Franz Liedke",
+            "email": "franz.liedke@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/core",
+        "docs": "http://flarum.org/docs"
+    },
     "require": {
         "php": ">=5.5.9",
         "illuminate/bus": "5.1.*",
@@ -59,6 +71,6 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit -c tests/phpunit.xml",
-        "style": "phpcs --standard=PSR2 -np src"
+        "style": "vendor/bin/phpcs --standard=PSR2 -np src"
     }
 }
