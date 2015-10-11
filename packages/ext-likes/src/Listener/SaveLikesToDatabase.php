@@ -8,24 +8,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Likes\Listeners;
+namespace Flarum\Likes\Listener;
 
-use Flarum\Likes\Events\PostWasLiked;
-use Flarum\Likes\Events\PostWasUnliked;
-use Flarum\Events\PostWillBeSaved;
-use Flarum\Events\PostWasDeleted;
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Exceptions\PermissionDeniedException;
+use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Event\PostWasDeleted;
+use Flarum\Event\PostWillBeSaved;
+use Flarum\Likes\Event\PostWasLiked;
+use Flarum\Likes\Event\PostWasUnliked;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class PersistData
+class SaveLikesToDatabase
 {
+    use AssertPermissionTrait;
+
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(PostWillBeSaved::class, [$this, 'whenPostWillBeSaved']);
         $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
     }
 
+    /**
+     * @param PostWillBeSaved $event
+     */
     public function whenPostWillBeSaved(PostWillBeSaved $event)
     {
         $post = $event->post;
@@ -35,9 +42,7 @@ class PersistData
             $actor = $event->actor;
             $liked = (bool) $data['attributes']['isLiked'];
 
-            if (! $post->can($actor, 'like')) {
-                throw new PermissionDeniedException;
-            }
+            $this->assertCan($actor, 'like', $post);
 
             $currentlyLiked = $post->likes()->where('user_id', $actor->id)->exists();
 
@@ -53,6 +58,9 @@ class PersistData
         }
     }
 
+    /**
+     * @param PostWasDeleted $event
+     */
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
         $event->post->likes()->detach();

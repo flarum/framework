@@ -8,20 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Likes;
+namespace Flarum\Likes\Migration;
 
-use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
-use Flarum\Core\Groups\Group;
-use Flarum\Core\Groups\Permission;
+use Flarum\Core\Group;
+use Flarum\Core\Permission;
+use Flarum\Database\AbstractMigration;
 
-class AddDefaultLikePermissions extends Migration
+class AddDefaultLikePermissions extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Permission::unguard();
@@ -31,16 +25,14 @@ class AddDefaultLikePermissions extends Migration
         $permission->save();
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Permission::where($this->getPermissionAttributes())->delete();
     }
 
+    /**
+     * @return array
+     */
     protected function getPermissionAttributes()
     {
         return [

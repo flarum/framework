@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
-app.initializers.add('likes', () => {
+app.initializers.add('flarum-likes', () => {
   extend(PermissionGrid.prototype, 'replyItems', items => {
     items.add('likePosts', {
       icon: 'thumbs-o-up',

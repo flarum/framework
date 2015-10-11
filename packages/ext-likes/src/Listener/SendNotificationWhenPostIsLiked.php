@@ -8,52 +8,72 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Likes\Listeners;
+namespace Flarum\Likes\Listener;
 
-use Flarum\Likes\Notifications\PostLikedBlueprint;
-use Flarum\Events\RegisterNotificationTypes;
-use Flarum\Likes\Events\PostWasLiked;
-use Flarum\Likes\Events\PostWasUnliked;
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Users\User;
-use Flarum\Core\Notifications\NotificationSyncer;
+use Flarum\Api\Serializer\PostBasicSerializer;
+use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Core\Post;
+use Flarum\Core\User;
+use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Likes\Event\PostWasLiked;
+use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\Likes\Notification\PostLikedBlueprint;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class NotifyPostLiked
+class SendNotificationWhenPostIsLiked
 {
+    /**
+     * @var NotificationSyncer
+     */
     protected $notifications;
 
+    /**
+     * @param NotificationSyncer $notifications
+     */
     public function __construct(NotificationSyncer $notifications)
     {
         $this->notifications = $notifications;
     }
 
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterNotificationTypes::class, [$this, 'registerNotificationType']);
+        $events->listen(ConfigureNotificationTypes::class, [$this, 'registerNotificationType']);
         $events->listen(PostWasLiked::class, [$this, 'whenPostWasLiked']);
         $events->listen(PostWasUnliked::class, [$this, 'whenPostWasUnliked']);
     }
 
-    public function registerNotificationType(RegisterNotificationTypes $event)
+    /**
+     * @param ConfigureNotificationTypes $event
+     */
+    public function registerNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->register(
-            'Flarum\Likes\Notifications\PostLikedBlueprint',
-            'Flarum\Api\Serializers\PostBasicSerializer',
-            ['alert']
-        );
+        $event->add(PostLikedBlueprint::class, PostBasicSerializer::class, ['alert']);
     }
 
+    /**
+     * @param PostWasLiked $event
+     */
     public function whenPostWasLiked(PostWasLiked $event)
     {
         $this->sync($event->post, $event->user, [$event->post->user]);
     }
 
+    /**
+     * @param PostWasUnliked $event
+     */
     public function whenPostWasUnliked(PostWasUnliked $event)
     {
         $this->sync($event->post, $event->user, []);
     }
 
+    /**
+     * @param Post $post
+     * @param User $user
+     * @param array $recipients
+     */
     public function sync(Post $post, User $user, array $recipients)
     {
         if ($post->user->id != $user->id) {

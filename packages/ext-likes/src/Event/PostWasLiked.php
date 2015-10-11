@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Likes\Events;
+namespace Flarum\Likes\Event;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Users\User;
+use Flarum\Core\Post;
+use Flarum\Core\User;
 
 class PostWasLiked
 {
