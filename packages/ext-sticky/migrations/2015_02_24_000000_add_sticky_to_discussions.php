@@ -8,18 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Sticky;
+namespace Flarum\Sticky\Migration;
 
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
 
-class AddStickyToDiscussions extends Migration
+class AddStickyToDiscussions extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->table('discussions', function (Blueprint $table) {
@@ -27,11 +22,6 @@ class AddStickyToDiscussions extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->table('discussions', function (Blueprint $table) {

@@ -8,19 +8,29 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Sticky\Listeners;
+namespace Flarum\Sticky\Listener;
 
-use Flarum\Sticky\Events\DiscussionWasStickied;
-use Flarum\Sticky\Events\DiscussionWasUnstickied;
-use Flarum\Events\DiscussionWillBeSaved;
+use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Sticky\Event\DiscussionWasStickied;
+use Flarum\Sticky\Event\DiscussionWasUnstickied;
+use Flarum\Event\DiscussionWillBeSaved;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class PersistData
+class SaveStickyToDatabase
 {
-    public function subscribe($events)
+    use AssertPermissionTrait;
+
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
         $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
     }
 
+    /**
+     * @param DiscussionWillBeSaved $event
+     */
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
     {
         if (isset($event->data['attributes']['isSticky'])) {
@@ -28,7 +38,7 @@ class PersistData
             $discussion = $event->discussion;
             $actor = $event->actor;
 
-            $discussion->assertCan($actor, 'sticky');
+            $this->assertCan($actor, 'sticky', $discussion);
 
             if ((bool) $discussion->is_sticky === $isSticky) {
                 return;

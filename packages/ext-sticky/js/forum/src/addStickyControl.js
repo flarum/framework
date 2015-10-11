@@ -7,7 +7,7 @@ export default function addStickyControl() {
   extend(DiscussionControls, 'moderationControls', function(items, discussion) {
     if (discussion.canSticky()) {
       items.add('sticky', Button.component({
-        children: app.trans(discussion.isSticky() ? 'sticky.unsticky' : 'sticky.sticky'),
+        children: app.trans(discussion.isSticky() ? 'flarum-sticky.forum.unsticky' : 'flarum-sticky.forum.sticky'),
         icon: 'thumb-tack',
         onclick: this.stickyAction.bind(discussion)
       }));
