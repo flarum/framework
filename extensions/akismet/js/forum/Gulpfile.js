@@ -2,6 +2,6 @@ var gulp = require('flarum-gulp');
 
 gulp({
   modules: {
-    'akismet': 'src/**/*.js'
+    'flarum/akismet': 'src/**/*.js'
   }
 });

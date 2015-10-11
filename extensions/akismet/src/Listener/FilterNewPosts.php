@@ -8,32 +8,51 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Akismet\Listeners;
+namespace Flarum\Akismet\Listener;
 
-use Flarum\Events\PostWillBeSaved;
+use Flarum\Approval\Event\PostWasApproved;
+use Flarum\Core;
+use Flarum\Event\PostWillBeSaved;
+use Flarum\Flags\Flag;
+use Flarum\Foundation\Application;
+use Flarum\Settings\SettingsRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use TijsVerkoyen\Akismet\Akismet;
-use Flarum\Core;
-use Flarum\Core\Posts\CommentPost;
-use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Flags\Flag;
-use Flarum\Approval\Events\PostWasApproved;
 
-class ValidatePost
+class FilterNewPosts
 {
+    /**
+     * @var SettingsRepository
+     */
     protected $settings;
 
-    public function __construct(SettingsRepository $settings)
+    /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
+     * @param SettingsRepository $settings
+     * @param Application $app
+     */
+    public function __construct(SettingsRepository $settings, Application $app)
     {
         $this->settings = $settings;
+        $this->app = $app;
     }
 
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(PostWillBeSaved::class, [$this, 'validatePost']);
         $events->listen(PostWasApproved::class, [$this, 'submitHam']);
     }
 
+    /**
+     * @param PostWillBeSaved $event
+     */
     public function validatePost(PostWillBeSaved $event)
     {
         $post = $event->post;
@@ -42,7 +61,7 @@ class ValidatePost
             return;
         }
 
-        $akismet = new Akismet($this->settings->get('akismet.api_key'), Core::url());
+        $akismet = new Akismet($this->settings->get('flarum-akismet.api_key'), $this->app->url());
 
         $isSpam = $akismet->isSpam(
             $post->content,
@@ -70,6 +89,9 @@ class ValidatePost
         }
     }
 
+    /**
+     * @param PostWasApproved $event
+     */
     public function submitHam(PostWasApproved $event)
     {
         // TODO

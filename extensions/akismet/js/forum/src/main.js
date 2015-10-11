@@ -4,7 +4,7 @@ import app from 'flarum/app';
 import PostControls from 'flarum/utils/PostControls';
 import CommentPost from 'flarum/components/CommentPost';
 
-app.initializers.add('akismet', () => {
+app.initializers.add('flarum-akismet', () => {
   extend(PostControls, 'destructiveControls', function(items, post) {
     if (items.approve) {
       const flags = post.flags();
