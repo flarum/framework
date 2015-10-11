@@ -8,16 +8,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Sticky\Posts;
+namespace Flarum\Sticky\Post;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Posts\EventPost;
-use Flarum\Core\Posts\MergeablePost;
+use Flarum\Core\Post;
+use Flarum\Core\Post\AbstractEventPost;
+use Flarum\Core\Post\MergeableInterface;
 
-class DiscussionStickiedPost extends EventPost implements MergeablePost
+class DiscussionStickiedPost extends AbstractEventPost implements MergeableInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public static $type = 'discussionStickied';
 
+    /**
+     * {@inheritdoc}
+     */
     public function saveAfter(Post $previous)
     {
         // If the previous post is another 'discussion stickied' post, and it's

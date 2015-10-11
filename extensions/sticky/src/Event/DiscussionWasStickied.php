@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Sticky\Events;
+namespace Flarum\Sticky\Event;
 
-use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Users\User;
+use Flarum\Core\Discussion;
+use Flarum\Core\User;
 
 class DiscussionWasStickied
 {

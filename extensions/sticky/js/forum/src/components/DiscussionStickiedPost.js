@@ -7,7 +7,7 @@ export default class DiscussionStickiedPost extends EventPost {
 
   descriptionKey() {
     return this.props.post.content().sticky
-      ? 'sticky.discussion_stickied_post'
-      : 'sticky.discussion_unstickied_post';
+      ? 'flarum-sticky.forum.discussion_stickied_post'
+      : 'flarum-sticky.forum.discussion_unstickied_post';
   }
 }
