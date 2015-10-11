@@ -37,4 +37,13 @@ class ConfigureModelDates
         $this->model = $model;
         $this->dates = &$dates;
     }
+
+    /**
+     * @param string $model
+     * @return bool
+     */
+    public function isModel($model)
+    {
+        return $this->model instanceof $model;
+    }
 }

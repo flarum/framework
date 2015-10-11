@@ -10,6 +10,7 @@
 
 namespace Flarum\Event;
 
+use DateTime;
 use Flarum\Api\Serializer\AbstractSerializer;
 
 /**
@@ -66,5 +67,16 @@ class PrepareApiAttributes
     public function isSerializer($serializer)
     {
         return $this->serializer instanceof $serializer;
+    }
+
+    /**
+     * @param DateTime|null $date
+     * @return string|null
+     */
+    public function formatDate(DateTime $date = null)
+    {
+        if ($date) {
+            return $date->format(DateTime::RFC3339);
+        }
     }
 }
