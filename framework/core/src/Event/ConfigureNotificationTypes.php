@@ -10,6 +10,7 @@
 
 namespace Flarum\Event;
 
+use Flarum\Core\Notification\BlueprintInterface;
 use InvalidArgumentException;
 use ReflectionClass;
 
@@ -25,17 +26,26 @@ class ConfigureNotificationTypes
      */
     private $serializers;
 
+    /**
+     * @param array $blueprints
+     * @param array $serializers
+     */
     public function __construct(array &$blueprints, array &$serializers = [])
     {
         $this->blueprints = &$blueprints;
         $this->serializers = &$serializers;
     }
 
+    /**
+     * @param string $blueprint
+     * @param string $serializer
+     * @param array $enabledByDefault
+     */
     public function add($blueprint, $serializer, $enabledByDefault = [])
     {
-        if (! (new ReflectionClass($blueprint))->implementsInterface('Flarum\Core\Notification\Blueprint')) {
+        if (! (new ReflectionClass($blueprint))->implementsInterface(BlueprintInterface::class)) {
             throw new InvalidArgumentException('Notification blueprint ' . $blueprint
-                . ' must implement Flarum\Core\Notification\Blueprint');
+                . ' must implement '.BlueprintInterface::class);
         }
 
         $this->blueprints[$blueprint] = $enabledByDefault;
