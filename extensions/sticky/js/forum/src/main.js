@@ -8,11 +8,13 @@ import addStickyBadge from 'flarum/sticky/addStickyBadge';
 import addStickyControl from 'flarum/sticky/addStickyControl';
 import addStickyExcerpt from 'flarum/sticky/addStickyExcerpt';
 
-app.postComponents.discussionStickied = DiscussionStickiedPost;
+app.initializers.add('flarum-sticky', () => {
+  app.postComponents.discussionStickied = DiscussionStickiedPost;
 
-Discussion.prototype.isSticky = Model.attribute('isSticky');
-Discussion.prototype.canSticky = Model.attribute('canSticky');
+  Discussion.prototype.isSticky = Model.attribute('isSticky');
+  Discussion.prototype.canSticky = Model.attribute('canSticky');
 
-addStickyBadge();
-addStickyControl();
-addStickyExcerpt();
+  addStickyBadge();
+  addStickyControl();
+  addStickyExcerpt();
+});
