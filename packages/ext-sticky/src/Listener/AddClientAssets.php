@@ -42,6 +42,7 @@ class AddClientAssets
                 __DIR__.'/../../js/admin/dist/extension.js'
             ]);
             $event->addBootstrapper('flarum/sticky/main');
+            $event->addTranslations('flarum-sticky.admin');
         }
     }
 }
