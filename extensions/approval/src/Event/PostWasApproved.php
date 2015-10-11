@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Approval\Events;
+namespace Flarum\Approval\Event;
 
-use Flarum\Core\Posts\Post;
+use Flarum\Core\Post;
 
 class PostWasApproved
 {

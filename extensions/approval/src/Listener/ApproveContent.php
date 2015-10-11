@@ -1,27 +1,46 @@
-<?php namespace Flarum\Approval\Listeners;
+<?php
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-use Flarum\Events\PostWillBeSaved;
-use Flarum\Approval\Events\PostWasApproved;
+namespace Flarum\Approval\Listener;
+
+use Flarum\Approval\Event\PostWasApproved;
+use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Event\PostWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
 {
+    use AssertPermissionTrait;
+
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(PostWillBeSaved::class, [$this, 'approvePost']);
         $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
     }
 
+    /**
+     * @param PostWillBeSaved $event
+     */
     public function approvePost(PostWillBeSaved $event)
     {
         $attributes = $event->data['attributes'];
         $post = $event->post;
 
         if (isset($attributes['isApproved'])) {
-            $post->assertCan($event->actor, 'approve');
+            $this->assertCan($event->actor, 'approve', $post);
 
             $isApproved = (bool) $attributes['isApproved'];
-        } elseif (! empty($attributes['isHidden']) && $post->can($event->actor, 'approve')) {
+        } elseif (! empty($attributes['isHidden']) && $event->actor->can('approve', $post)) {
             $isApproved = true;
         }
 
@@ -32,6 +51,9 @@ class ApproveContent
         }
     }
 
+    /**
+     * @param PostWasApproved $event
+     */
     public function approveDiscussion(PostWasApproved $event)
     {
         $post = $event->post;

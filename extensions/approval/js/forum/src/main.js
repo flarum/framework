@@ -7,7 +7,7 @@ import CommentPost from 'flarum/components/CommentPost';
 import Button from 'flarum/components/Button';
 import PostControls from 'flarum/utils/PostControls';
 
-app.initializers.add('approval', () => {
+app.initializers.add('flarum-approval', () => {
   Discussion.prototype.isApproved = Discussion.attribute('isApproved');
 
   Post.prototype.isApproved = Post.attribute('isApproved');
