@@ -19,14 +19,14 @@ class DatabaseSettingsRepositoryTest extends TestCase
     
     public function test_requesting_an_existing_setting_should_return_its_value()
     {
-        $this->connection->shouldReceive("table->where->pluck")->andReturn('value');
+        $this->connection->shouldReceive("table->where->value")->andReturn('value');
 
         $this->assertEquals('value', $this->repository->get('key'));
     }
 
     public function test_non_existent_setting_values_should_return_null()
     {
-        $this->connection->shouldReceive("table->where->pluck")->andReturn(null);
+        $this->connection->shouldReceive("table->where->value")->andReturn(null);
 
         $this->assertEquals('default', $this->repository->get('key', 'default'));
     }

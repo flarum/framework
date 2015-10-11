@@ -33,4 +33,3 @@ class HasManyBuilder extends AbstractHasManyBuilder
         $this->actor = $actor;
     }
 }
-
