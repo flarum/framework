@@ -1,6 +1,6 @@
 {
     "name": "flarum/tags",
-    "description": "Organise discussions into a heirarchy of tags and categories.",
+    "description": "Organize discussions into a hierarchy of tags and categories.",
     "type": "flarum-extension",
     "license": "MIT",
     "authors": [
