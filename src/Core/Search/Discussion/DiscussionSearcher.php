@@ -16,7 +16,7 @@ use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Repository\PostRepository;
-use Flarum\Event\DiscussionSearchWillBePerformed;
+use Flarum\Event\ConfigureDiscussionSearch;
 use Flarum\Core\Search\SearchResults;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -82,7 +82,7 @@ class DiscussionSearcher
         $this->applyLimit($search, $limit + 1);
 
         // TODO: inject dispatcher
-        event(new DiscussionSearchWillBePerformed($search, $criteria));
+        event(new ConfigureDiscussionSearch($search, $criteria));
 
         // Execute the search query and retrieve the results. We get one more
         // results than the user asked for, so that we can say if there are more

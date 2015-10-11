@@ -13,7 +13,7 @@ namespace Flarum\Event;
 use Flarum\Core\Search\User\UserSearch;
 use Flarum\Core\Search\SearchCriteria;
 
-class UserSearchWillBePerformed
+class ConfigureUserSearch
 {
     /**
      * @var UserSearch
