@@ -8,12 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Lock\Events;
+namespace Flarum\Lock\Event;
 
-use Flarum\Core\Discussions\Discussion;
-use Flarum\Core\Users\User;
+use Flarum\Core\Discussion;
+use Flarum\Core\User;
 
-class DiscussionWasLocked
+class DiscussionWasUnlocked
 {
     /**
      * @var Discussion

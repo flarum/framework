@@ -8,19 +8,29 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Lock\Listeners;
+namespace Flarum\Lock\Listener;
 
-use Flarum\Lock\Events\DiscussionWasLocked;
-use Flarum\Lock\Events\DiscussionWasUnlocked;
-use Flarum\Events\DiscussionWillBeSaved;
+use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Event\DiscussionWillBeSaved;
+use Flarum\Lock\Event\DiscussionWasLocked;
+use Flarum\Lock\Event\DiscussionWasUnlocked;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class PersistData
+class SaveLockedToDatabase
 {
-    public function subscribe($events)
+    use AssertPermissionTrait;
+
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
         $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
     }
 
+    /**
+     * @param DiscussionWillBeSaved $event
+     */
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
     {
         if (isset($event->data['attributes']['isLocked'])) {
@@ -28,7 +38,7 @@ class PersistData
             $discussion = $event->discussion;
             $actor = $event->actor;
 
-            $discussion->assertCan($actor, 'lock');
+            $this->assertCan($actor, 'lock', $discussion);
 
             if ((bool) $discussion->is_locked === $isLocked) {
                 return;

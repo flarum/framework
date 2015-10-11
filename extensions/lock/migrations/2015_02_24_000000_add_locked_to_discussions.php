@@ -8,18 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Lock;
+namespace Flarum\Lock\Migration;
 
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
 
-class AddLockedToDiscussions extends Migration
+class AddLockedToDiscussions extends AbstractMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $this->schema->table('discussions', function (Blueprint $table) {
@@ -27,11 +22,6 @@ class AddLockedToDiscussions extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         $this->schema->table('discussions', function (Blueprint $table) {

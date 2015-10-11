@@ -4,24 +4,26 @@ import Model from 'flarum/Model';
 import Discussion from 'flarum/models/Discussion';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 
-import DiscussionLockedPost from 'lock/components/DiscussionLockedPost';
-import DiscussionLockedNotification from 'lock/components/DiscussionLockedNotification';
-import addLockBadge from 'lock/addLockBadge';
-import addLockControl from 'lock/addLockControl';
+import DiscussionLockedPost from 'flarum/lock/components/DiscussionLockedPost';
+import DiscussionLockedNotification from 'flarum/lock/components/DiscussionLockedNotification';
+import addLockBadge from 'flarum/lock/addLockBadge';
+import addLockControl from 'flarum/lock/addLockControl';
 
-app.postComponents.discussionLocked = DiscussionLockedPost;
-app.notificationComponents.discussionLocked = DiscussionLockedNotification;
+app.initializers.add('flarum-lock', () => {
+  app.postComponents.discussionLocked = DiscussionLockedPost;
+  app.notificationComponents.discussionLocked = DiscussionLockedNotification;
 
-Discussion.prototype.isLocked = Model.attribute('isLocked');
-Discussion.prototype.canLock = Model.attribute('canLock');
+  Discussion.prototype.isLocked = Model.attribute('isLocked');
+  Discussion.prototype.canLock = Model.attribute('canLock');
 
-addLockBadge();
-addLockControl();
+  addLockBadge();
+  addLockControl();
 
-extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
-  items.add('discussionLocked', {
-    name: 'discussionLocked',
-    icon: 'lock',
-    label: app.trans('lock.notify_discussion_locked')
+  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+    items.add('discussionLocked', {
+      name: 'discussionLocked',
+      icon: 'lock',
+      label: app.trans('flarum-lock.forum.notify_discussion_locked')
+    });
   });
 });

@@ -9,6 +9,16 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\Lock\Access;
+use Flarum\Lock\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return 'Flarum\Lock\Extension';
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\AddDiscussionLockedAttributes::class);
+    $events->subscribe(Listener\AddLockedGambit::class);
+    $events->subscribe(Listener\CreatePostWhenDiscussionIsLocked::class);
+    $events->subscribe(Listener\SaveLockedToDatabase::class);
+
+    $events->subscribe(Access\DiscussionPolicy::class);
+};
