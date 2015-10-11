@@ -3,7 +3,7 @@ import LinkButton from 'flarum/components/LinkButton';
 import IndexPage from 'flarum/components/IndexPage';
 import DiscussionList from 'flarum/components/DiscussionList';
 
-export default function addSubscriptionControls() {
+export default function addSubscriptionFilter() {
   extend(IndexPage.prototype, 'navItems', function(items) {
     if (app.session.user) {
       const params = this.stickyParams();
@@ -12,7 +12,7 @@ export default function addSubscriptionControls() {
 
       items.add('following', LinkButton.component({
         href: app.route('index.filter', params),
-        children: app.trans('subscriptions.following'),
+        children: app.trans('flarum-subscriptions.forum.following'),
         icon: 'star'
       }), 50);
     }

@@ -1,0 +1,388 @@
+System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export) {
+  'use strict';
+
+  var extend, Discussion, Badge;
+
+  _export('default', addSubscriptionBadge);
+
+  function addSubscriptionBadge() {
+    extend(Discussion.prototype, 'badges', function (badges) {
+      var badge = undefined;
+
+      switch (this.subscription()) {
+        case 'follow':
+          badge = Badge.component({
+            label: app.trans('flarum-subscriptions.forum.following'),
+            icon: 'star',
+            type: 'following'
+          });
+          break;
+
+        case 'ignore':
+          badge = Badge.component({
+            label: app.trans('flarum-subscriptions.forum.ignoring'),
+            icon: 'eye-slash',
+            type: 'ignoring'
+          });
+          break;
+
+        default:
+        // no default
+      }
+
+      if (badge) {
+        badges.add('subscription', badge);
+      }
+    });
+  }
+
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumModelsDiscussion) {
+      Discussion = _flarumModelsDiscussion['default'];
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/subscriptions/addSubscriptionControls', ['flarum/extend', 'flarum/components/Button', 'flarum/components/DiscussionPage', 'flarum/utils/DiscussionControls', 'flarum/subscriptions/components/SubscriptionMenu'], function (_export) {
+  'use strict';
+
+  var extend, Button, DiscussionPage, DiscussionControls, SubscriptionMenu;
+
+  _export('default', addSubscriptionControls);
+
+  function addSubscriptionControls() {
+    extend(DiscussionControls, 'userControls', function (items, discussion, context) {
+      if (app.session.user && !(context instanceof DiscussionPage)) {
+        var states = {
+          none: { label: app.trans('flarum-subscriptions.forum.follow'), icon: 'star', save: 'follow' },
+          follow: { label: app.trans('flarum-subscriptions.forum.unfollow'), icon: 'star-o', save: false },
+          ignore: { label: app.trans('flarum-subscriptions.forum.unignore'), icon: 'eye', save: false }
+        };
+
+        var subscription = discussion.subscription() || 'none';
+
+        items.add('subscription', Button.component({
+          children: states[subscription].label,
+          icon: states[subscription].icon,
+          onclick: discussion.save.bind(discussion, { subscription: states[subscription].save })
+        }));
+      }
+    });
+
+    extend(DiscussionPage.prototype, 'sidebarItems', function (items) {
+      if (app.session.user) {
+        var discussion = this.discussion;
+
+        items.add('subscription', SubscriptionMenu.component({ discussion: discussion }));
+      }
+    });
+  }
+
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumComponentsDiscussionPage) {
+      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+    }, function (_flarumUtilsDiscussionControls) {
+      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+    }, function (_flarumSubscriptionsComponentsSubscriptionMenu) {
+      SubscriptionMenu = _flarumSubscriptionsComponentsSubscriptionMenu['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/subscriptions/addSubscriptionFilter', ['flarum/extend', 'flarum/components/LinkButton', 'flarum/components/IndexPage', 'flarum/components/DiscussionList'], function (_export) {
+  'use strict';
+
+  var extend, LinkButton, IndexPage, DiscussionList;
+
+  _export('default', addSubscriptionFilter);
+
+  function addSubscriptionFilter() {
+    extend(IndexPage.prototype, 'navItems', function (items) {
+      if (app.session.user) {
+        var params = this.stickyParams();
+
+        params.filter = 'following';
+
+        items.add('following', LinkButton.component({
+          href: app.route('index.filter', params),
+          children: app.trans('flarum-subscriptions.forum.following'),
+          icon: 'star'
+        }), 50);
+      }
+    });
+
+    extend(DiscussionList.prototype, 'requestParams', function (params) {
+      if (this.props.params.filter === 'following') {
+        params.filter.q = (params.filter.q || '') + ' is:following';
+      }
+    });
+  }
+
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsLinkButton) {
+      LinkButton = _flarumComponentsLinkButton['default'];
+    }, function (_flarumComponentsIndexPage) {
+      IndexPage = _flarumComponentsIndexPage['default'];
+    }, function (_flarumComponentsDiscussionList) {
+      DiscussionList = _flarumComponentsDiscussionList['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/subscriptions/addSubscriptionBadge', 'flarum/subscriptions/addSubscriptionControls', 'flarum/subscriptions/addSubscriptionFilter', 'flarum/subscriptions/components/NewPostNotification'], function (_export) {
+  'use strict';
+
+  var extend, app, Model, Discussion, NotificationGrid, addSubscriptionBadge, addSubscriptionControls, addSubscriptionFilter, NewPostNotification;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumModelsDiscussion) {
+      Discussion = _flarumModelsDiscussion['default'];
+    }, function (_flarumComponentsNotificationGrid) {
+      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+    }, function (_flarumSubscriptionsAddSubscriptionBadge) {
+      addSubscriptionBadge = _flarumSubscriptionsAddSubscriptionBadge['default'];
+    }, function (_flarumSubscriptionsAddSubscriptionControls) {
+      addSubscriptionControls = _flarumSubscriptionsAddSubscriptionControls['default'];
+    }, function (_flarumSubscriptionsAddSubscriptionFilter) {
+      addSubscriptionFilter = _flarumSubscriptionsAddSubscriptionFilter['default'];
+    }, function (_flarumSubscriptionsComponentsNewPostNotification) {
+      NewPostNotification = _flarumSubscriptionsComponentsNewPostNotification['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('subscriptions', function () {
+        app.notificationComponents.newPost = NewPostNotification;
+
+        Discussion.prototype.subscription = Model.attribute('subscription');
+
+        addSubscriptionBadge();
+        addSubscriptionControls();
+        addSubscriptionFilter();
+
+        extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+          items.add('newPost', {
+            name: 'newPost',
+            icon: 'star',
+            label: app.trans('flarum-subscriptions.forum.notify_new_post')
+          });
+        });
+      });
+    }
+  };
+});;System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/components/Notification', 'flarum/helpers/username'], function (_export) {
+  'use strict';
+
+  var Notification, username, NewPostNotification;
+  return {
+    setters: [function (_flarumComponentsNotification) {
+      Notification = _flarumComponentsNotification['default'];
+    }, function (_flarumHelpersUsername) {
+      username = _flarumHelpersUsername['default'];
+    }],
+    execute: function () {
+      NewPostNotification = (function (_Notification) {
+        babelHelpers.inherits(NewPostNotification, _Notification);
+
+        function NewPostNotification() {
+          babelHelpers.classCallCheck(this, NewPostNotification);
+          babelHelpers.get(Object.getPrototypeOf(NewPostNotification.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(NewPostNotification, [{
+          key: 'icon',
+          value: function icon() {
+            return 'star';
+          }
+        }, {
+          key: 'href',
+          value: function href() {
+            var notification = this.props.notification;
+            var discussion = notification.subject();
+            var content = notification.content() || {};
+
+            return app.route.discussion(discussion, content.postNumber);
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return app.trans('flarum-subscriptions.forum.new_post_notification', { user: this.props.notification.sender() });
+          }
+        }]);
+        return NewPostNotification;
+      })(Notification);
+
+      _export('default', NewPostNotification);
+    }
+  };
+});;System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export) {
+  'use strict';
+
+  var Component, Button, icon, SubscriptionMenuItem, SubscriptionMenu;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }, function (_flarumSubscriptionsComponentsSubscriptionMenuItem) {
+      SubscriptionMenuItem = _flarumSubscriptionsComponentsSubscriptionMenuItem['default'];
+    }],
+    execute: function () {
+      SubscriptionMenu = (function (_Component) {
+        babelHelpers.inherits(SubscriptionMenu, _Component);
+
+        function SubscriptionMenu() {
+          babelHelpers.classCallCheck(this, SubscriptionMenu);
+          babelHelpers.get(Object.getPrototypeOf(SubscriptionMenu.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(SubscriptionMenu, [{
+          key: 'view',
+          value: function view() {
+            var _this = this;
+
+            var discussion = this.props.discussion;
+            var subscription = discussion.subscription();
+
+            var buttonLabel = app.trans('flarum-subscriptions.forum.follow');
+            var buttonIcon = 'star-o';
+            var buttonClass = 'SubscriptionMenu-button--' + subscription;
+
+            switch (subscription) {
+              case 'follow':
+                buttonLabel = app.trans('flarum-subscriptions.forum.following');
+                buttonIcon = 'star';
+                break;
+
+              case 'ignore':
+                buttonLabel = app.trans('flarum-subscriptions.forum.ignoring');
+                buttonIcon = 'eye-slash';
+                break;
+
+              default:
+              // no default
+            }
+
+            var options = [{
+              subscription: false,
+              icon: 'star-o',
+              label: app.trans('flarum-subscriptions.forum.not_following'),
+              description: app.trans('flarum-subscriptions.forum.not_following_description')
+            }, {
+              subscription: 'follow',
+              icon: 'star',
+              label: app.trans('flarum-subscriptions.forum.following'),
+              description: app.trans('flarum-subscriptions.forum.following_description')
+            }, {
+              subscription: 'ignore',
+              icon: 'eye-slash',
+              label: app.trans('flarum-subscriptions.forum.ignoring'),
+              description: app.trans('flarum-subscriptions.forum.ignoring_description')
+            }];
+
+            return m(
+              'div',
+              { className: 'Dropdown ButtonGroup SubscriptionMenu' },
+              Button.component({
+                className: 'Button SubscriptionMenu-button ' + buttonClass,
+                icon: buttonIcon,
+                children: buttonLabel,
+                onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
+              }),
+              m(
+                'button',
+                { className: 'Dropdown-toggle Button Button--icon ' + buttonClass, 'data-toggle': 'dropdown' },
+                icon('caret-down', { className: 'Button-icon' })
+              ),
+              m(
+                'ul',
+                { className: 'Dropdown-menu dropdown-menu Dropdown-menu--right' },
+                options.map(function (props) {
+                  props.onclick = _this.saveSubscription.bind(_this, discussion, props.subscription);
+                  props.active = subscription === props.subscription;
+
+                  return m(
+                    'li',
+                    null,
+                    SubscriptionMenuItem.component(props)
+                  );
+                })
+              )
+            );
+          }
+        }, {
+          key: 'saveSubscription',
+          value: function saveSubscription(discussion, subscription) {
+            discussion.save({ subscription: subscription });
+          }
+        }]);
+        return SubscriptionMenu;
+      })(Component);
+
+      _export('default', SubscriptionMenu);
+    }
+  };
+});;System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
+  'use strict';
+
+  var Component, icon, SubscriptionMenuItem;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }],
+    execute: function () {
+      SubscriptionMenuItem = (function (_Component) {
+        babelHelpers.inherits(SubscriptionMenuItem, _Component);
+
+        function SubscriptionMenuItem() {
+          babelHelpers.classCallCheck(this, SubscriptionMenuItem);
+          babelHelpers.get(Object.getPrototypeOf(SubscriptionMenuItem.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(SubscriptionMenuItem, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'button',
+              { className: 'SubscriptionMenuItem hasIcon', onclick: this.props.onclick },
+              this.props.active ? icon('check', { className: 'Button-icon' }) : '',
+              m(
+                'span',
+                { className: 'SubscriptionMenuItem-label' },
+                icon(this.props.icon, { className: 'Button-icon' }),
+                m(
+                  'strong',
+                  null,
+                  this.props.label
+                ),
+                m(
+                  'span',
+                  { className: 'SubscriptionMenuItem-description' },
+                  this.props.description
+                )
+              )
+            );
+          }
+        }]);
+        return SubscriptionMenuItem;
+      })(Component);
+
+      _export('default', SubscriptionMenuItem);
+    }
+  };
+});

@@ -15,6 +15,6 @@ export default class NewPostNotification extends Notification {
   }
 
   content() {
-    return app.trans('subscriptions.new_post_notification', {user: this.props.notification.sender()});
+    return app.trans('flarum-subscriptions.forum.new_post_notification', {user: this.props.notification.sender()});
   }
 }

@@ -4,10 +4,10 @@ import Model from 'flarum/Model';
 import Discussion from 'flarum/models/Discussion';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 
-import addSubscriptionBadge from 'subscriptions/addSubscriptionBadge';
-import addSubscriptionControls from 'subscriptions/addSubscriptionControls';
-import addSubscriptionFilter from 'subscriptions/addSubscriptionFilter';
-import NewPostNotification from 'subscriptions/components/NewPostNotification';
+import addSubscriptionBadge from 'flarum/subscriptions/addSubscriptionBadge';
+import addSubscriptionControls from 'flarum/subscriptions/addSubscriptionControls';
+import addSubscriptionFilter from 'flarum/subscriptions/addSubscriptionFilter';
+import NewPostNotification from 'flarum/subscriptions/components/NewPostNotification';
 
 app.initializers.add('subscriptions', function() {
   app.notificationComponents.newPost = NewPostNotification;
@@ -22,7 +22,7 @@ app.initializers.add('subscriptions', function() {
     items.add('newPost', {
       name: 'newPost',
       icon: 'star',
-      label: app.trans('subscriptions.notify_new_post')
+      label: app.trans('flarum-subscriptions.forum.notify_new_post')
     });
   });
 });

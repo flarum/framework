@@ -2,25 +2,25 @@ import Component from 'flarum/Component';
 import Button from 'flarum/components/Button';
 import icon from 'flarum/helpers/icon';
 
-import SubscriptionMenuItem from 'subscriptions/components/SubscriptionMenuItem';
+import SubscriptionMenuItem from 'flarum/subscriptions/components/SubscriptionMenuItem';
 
 export default class SubscriptionMenu extends Component {
   view() {
     const discussion = this.props.discussion;
     const subscription = discussion.subscription();
 
-    let buttonLabel = app.trans('subscriptions.follow');
+    let buttonLabel = app.trans('flarum-subscriptions.forum.follow');
     let buttonIcon = 'star-o';
     const buttonClass = 'SubscriptionMenu-button--' + subscription;
 
     switch (subscription) {
       case 'follow':
-        buttonLabel = app.trans('subscriptions.following');
+        buttonLabel = app.trans('flarum-subscriptions.forum.following');
         buttonIcon = 'star';
         break;
 
       case 'ignore':
-        buttonLabel = app.trans('subscriptions.ignoring');
+        buttonLabel = app.trans('flarum-subscriptions.forum.ignoring');
         buttonIcon = 'eye-slash';
         break;
 
@@ -32,20 +32,20 @@ export default class SubscriptionMenu extends Component {
       {
         subscription: false,
         icon: 'star-o',
-        label: app.trans('subscriptions.not_following'),
-        description: app.trans('subscriptions.not_following_description')
+        label: app.trans('flarum-subscriptions.forum.not_following'),
+        description: app.trans('flarum-subscriptions.forum.not_following_description')
       },
       {
         subscription: 'follow',
         icon: 'star',
-        label: app.trans('subscriptions.following'),
-        description: app.trans('subscriptions.following_description')
+        label: app.trans('flarum-subscriptions.forum.following'),
+        description: app.trans('flarum-subscriptions.forum.following_description')
       },
       {
         subscription: 'ignore',
         icon: 'eye-slash',
-        label: app.trans('subscriptions.ignoring'),
-        description: app.trans('subscriptions.ignoring_description')
+        label: app.trans('flarum-subscriptions.forum.ignoring'),
+        description: app.trans('flarum-subscriptions.forum.ignoring_description')
       }
     ];
 

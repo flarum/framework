@@ -8,29 +8,40 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Subscriptions\Listeners;
+namespace Flarum\Subscriptions\Listener;
 
-use Flarum\Subscriptions\Notifications\NewPostBlueprint;
-use Flarum\Events\RegisterNotificationTypes;
-use Flarum\Events\PostWasPosted;
-use Flarum\Events\PostWasHidden;
-use Flarum\Events\PostWasRestored;
-use Flarum\Events\PostWasDeleted;
-use Flarum\Core\Notifications\NotificationSyncer;
+use Flarum\Api\Serializer\DiscussionBasicSerializer;
+use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Core\Post;
+use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Event\PostWasDeleted;
+use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
+use Flarum\Event\PostWasRestored;
+use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class NotifyNewPosts
+class SendNotificationWhenReplyIsPosted
 {
+    /**
+     * @var NotificationSyncer
+     */
     protected $notifications;
 
+    /**
+     * @param NotificationSyncer $notifications
+     */
     public function __construct(NotificationSyncer $notifications)
     {
         $this->notifications = $notifications;
     }
 
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterNotificationTypes::class, [$this, 'addNotificationType']);
+        $events->listen(ConfigureNotificationTypes::class, [$this, 'addNotificationType']);
 
         // Register with '1' as priority so this runs before discussion metadata
         // is updated, as we need to compare the user's last read number to that
@@ -41,15 +52,17 @@ class NotifyNewPosts
         $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
     }
 
-    public function addNotificationType(RegisterNotificationTypes $event)
+    /**
+     * @param ConfigureNotificationTypes $event
+     */
+    public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->register(
-            NewPostBlueprint::class,
-            'Flarum\Api\Serializers\DiscussionBasicSerializer',
-            ['alert', 'email']
-        );
+        $event->add(NewPostBlueprint::class, DiscussionBasicSerializer::class, ['alert', 'email']);
     }
 
+    /**
+     * @param PostWasPosted $event
+     */
     public function whenPostWasPosted(PostWasPosted $event)
     {
         $post = $event->post;
@@ -67,22 +80,35 @@ class NotifyNewPosts
         );
     }
 
+    /**
+     * @param PostWasHidden $event
+     */
     public function whenPostWasHidden(PostWasHidden $event)
     {
         $this->notifications->delete($this->getNotification($event->post));
     }
 
+    /**
+     * @param PostWasRestored $event
+     */
     public function whenPostWasRestored(PostWasRestored $event)
     {
         $this->notifications->restore($this->getNotification($event->post));
     }
 
+    /**
+     * @param PostWasDeleted $event
+     */
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
         $this->notifications->delete($this->getNotification($event->post));
     }
 
-    protected function getNotification($post)
+    /**
+     * @param Post $post
+     * @return NewPostBlueprint
+     */
+    protected function getNotification(Post $post)
     {
         return new NewPostBlueprint($post);
     }
