@@ -1,11 +1,11 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import CommentPost from 'flarum/components/CommentPost';
-import punctuate from 'flarum/helpers/punctuate';
+import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 
-import PostLikesModal from 'likes/components/PostLikesModal';
+import PostLikesModal from 'flarum/likes/components/PostLikesModal';
 
 export default function() {
   extend(CommentPost.prototype, 'footerItems', function(items) {
@@ -22,7 +22,7 @@ export default function() {
         .map(user => {
           return (
             <a href={app.route.user(user)} config={m.route}>
-              {user === app.session.user ? app.trans('likes.you') : username(user)}
+              {user === app.session.user ? app.trans('flarum-likes.forum.you') : username(user)}
             </a>
           );
         });
@@ -36,7 +36,7 @@ export default function() {
             e.preventDefault();
             app.modal.show(new PostLikesModal({post}));
           }}>
-            {app.trans('likes.others', {count: likes.length - limit})}
+            {app.trans('flarum-likes.forum.others', {count: likes.length - limit})}
           </a>
         );
       }
@@ -44,9 +44,9 @@ export default function() {
       items.add('liked', (
         <div className="Post-likedBy">
           {icon('thumbs-o-up')}
-          {app.trans('likes.post_liked_by' + (likes[0] === app.session.user ? '_self' : ''), {
+          {app.trans('flarum-likes.forum.post_liked_by' + (likes[0] === app.session.user ? '_self' : ''), {
             count: names.length,
-            users: punctuate(names)
+            users: punctuateSeries(names)
           })}
         </div>
       ));

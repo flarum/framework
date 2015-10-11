@@ -8,46 +8,71 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Likes\Notifications;
+namespace Flarum\Likes\Notification;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Users\User;
-use Flarum\Core\Notifications\Blueprint;
+use Flarum\Core\Post;
+use Flarum\Core\User;
+use Flarum\Core\Notification\BlueprintInterface;
 
-class PostLikedBlueprint implements Blueprint
+class PostLikedBlueprint implements BlueprintInterface
 {
+    /**
+     * @var Post
+     */
     public $post;
 
+    /**
+     * @var User
+     */
     public $user;
 
+    /**
+     * @param Post $post
+     * @param User $user
+     */
     public function __construct(Post $post, User $user)
     {
         $this->post = $post;
         $this->user = $user;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSubject()
     {
         return $this->post;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSender()
     {
         return $this->user;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getData()
     {
         return null;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getType()
     {
         return 'postLiked';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubjectModel()
     {
-        return 'Flarum\Core\Posts\Post';
+        return Post::class;
     }
 }

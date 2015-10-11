@@ -9,6 +9,13 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\Likes\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return 'Flarum\Likes\Extension';
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\AddPostLikesRelationship::class);
+    $events->subscribe(Listener\SaveLikesToDatabase::class);
+    $events->subscribe(Listener\SendNotificationWhenPostIsLiked::class);
+
+};
