@@ -8,19 +8,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Markdown\Listeners;
+namespace Flarum\Markdown\Listener;
 
-use Flarum\Events\FormatterConfigurator;
+use Flarum\Event\ConfigureFormatter;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class AddMarkdownFormatter
+class FormatMarkdown
 {
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, [$this, 'addMarkdownFormatter']);
+        $events->listen(ConfigureFormatter::class, [$this, 'addMarkdownFormatter']);
     }
 
-    public function addMarkdownFormatter(FormatterConfigurator $event)
+    /**
+     * @param ConfigureFormatter $event
+     */
+    public function addMarkdownFormatter(ConfigureFormatter $event)
     {
         $event->configurator->Litedown;
     }

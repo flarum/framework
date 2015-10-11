@@ -1,10 +1,37 @@
 {
+    "name": "flarum/markdown",
+    "description": "Allow posts to be formatted with Markdown.",
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Toby Zerner",
+            "email": "toby.zerner@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/markdown"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.3"
+    },
     "autoload": {
         "psr-4": {
             "Flarum\\Markdown\\": "src/"
         }
     },
-    "scripts": {
-        "style": "phpcs --standard=PSR2 -np src"
+    "extra": {
+        "flarum-extension": {
+            "title": "Markdown",
+            "icon": {
+                "image": "icon.svg",
+                "backgroundColor": "#000",
+                "backgroundSize": "100%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center",
+                "color": "#fff"
+            }
+        }
     }
 }
