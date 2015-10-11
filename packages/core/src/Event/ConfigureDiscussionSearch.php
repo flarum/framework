@@ -13,7 +13,7 @@ namespace Flarum\Event;
 use Flarum\Core\Search\Discussion\DiscussionSearch;
 use Flarum\Core\Search\SearchCriteria;
 
-class DiscussionSearchWillBePerformed
+class ConfigureDiscussionSearch
 {
     /**
      * @var DiscussionSearch

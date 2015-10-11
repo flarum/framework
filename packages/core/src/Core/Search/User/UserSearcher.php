@@ -15,7 +15,7 @@ use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Event\UserSearchWillBePerformed;
+use Flarum\Event\ConfigureUserSearch;
 
 /**
  * Takes a UserSearchCriteria object, performs a search using gambits,
@@ -68,7 +68,7 @@ class UserSearcher
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
 
-        event(new UserSearchWillBePerformed($search, $criteria));
+        event(new ConfigureUserSearch($search, $criteria));
 
         // Execute the search query and retrieve the results. We get one more
         // results than the user asked for, so that we can say if there are more
