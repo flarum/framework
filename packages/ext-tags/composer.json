@@ -1,7 +1,21 @@
 {
     "name": "flarum/tags",
-    "type": "flarum-extension",
     "description": "Organise discussions into a heirarchy of tags and categories.",
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Toby Zerner",
+            "email": "toby.zerner@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/tags"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.3"
+    },
     "autoload": {
         "psr-4": {
             "Flarum\\Tags\\": "src/"
