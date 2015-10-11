@@ -1,13 +1,37 @@
 {
+    "name": "flarum/akismet",
+    "description": "Stop spam using the Akismet anti-spam service.",
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Toby Zerner",
+            "email": "toby.zerner@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/akismet"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.3",
+        "flarum/approval": "^0.1.0-beta.3",
+        "tijsverkoyen/akismet": "^1.1"
+    },
     "autoload": {
         "psr-4": {
             "Flarum\\Akismet\\": "src/"
         }
     },
-    "require": {
-        "tijsverkoyen/akismet": "^1.1"
-    },
-    "scripts": {
-        "style": "phpcs --standard=PSR2 -np src"
+    "extra": {
+        "flarum-extension": {
+            "title": "Akismet",
+            "icon": {
+                "image": "icon.jpg",
+                "backgroundSize": "cover",
+                "backgroundColor": "#5e8e14",
+                "color": "#fff"
+            }
+        }
     }
 }
