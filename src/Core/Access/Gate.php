@@ -183,9 +183,7 @@ class Gate implements GateContract
             return $result;
         }
 
-        $callback = $this->resolveAuthCallback(
-            $user, $ability, $arguments
-        );
+        $callback = $this->resolveAuthCallback($user, $ability, $arguments);
 
         return call_user_func_array($callback, array_merge([$user], $arguments));
     }
@@ -224,7 +222,9 @@ class Gate implements GateContract
         } elseif (isset($this->abilities[$ability])) {
             return $this->abilities[$ability];
         } else {
-            return function () { return false; };
+            return function () {
+                return false;
+            };
         }
     }
 
@@ -266,9 +266,7 @@ class Gate implements GateContract
                 // into the policy before methods with the arguments and get the result.
                 $beforeArguments = array_merge([$user, $ability], $arguments);
 
-                $result = call_user_func_array(
-                    [$instance, 'before'], $beforeArguments
-                );
+                $result = call_user_func_array([$instance, 'before'], $beforeArguments);
 
                 // If we recieved a non-null result from the before method, we will return it
                 // as the result of a check. This allows developers to override the checks
@@ -282,9 +280,7 @@ class Gate implements GateContract
                 return false;
             }
 
-            return call_user_func_array(
-                [$instance, $ability], array_merge([$user], $arguments)
-            );
+            return call_user_func_array([$instance, $ability], array_merge([$user], $arguments));
         };
     }
 
@@ -329,7 +325,13 @@ class Gate implements GateContract
     public function forUser($user)
     {
         return new static(
-            $this->container, function () use ($user) { return $user; }, $this->abilities, $this->policies, $this->beforeCallbacks
+            $this->container,
+            function () use ($user) {
+                return $user;
+            },
+            $this->abilities,
+            $this->policies,
+            $this->beforeCallbacks
         );
     }
 
