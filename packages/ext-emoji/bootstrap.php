@@ -9,6 +9,10 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\Emoji\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return 'Flarum\Emoji\Extension';
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\FormatEmoticons::class);
+};

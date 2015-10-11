@@ -8,19 +8,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Emoji\Listeners;
+namespace Flarum\Emoji\Listener;
 
-use Flarum\Events\FormatterConfigurator;
+use Flarum\Event\ConfigureFormatter;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class AddEmoticons
+class FormatEmoticons
 {
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, [$this, 'addEmoticons']);
+        $events->listen(ConfigureFormatter::class, [$this, 'addEmoticons']);
     }
 
-    public function addEmoticons(FormatterConfigurator $event)
+    /**
+     * @param ConfigureFormatter $event
+     */
+    public function addEmoticons(ConfigureFormatter $event)
     {
         $event->configurator->Emoticons->add(':)', '&#x1f604;');
         $event->configurator->Emoticons->add(':D', '&#x1f603;');
