@@ -9,6 +9,17 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\Mentions\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Factory;
 
-return 'Flarum\Mentions\Extension';
+return function (Dispatcher $events, Factory $views) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\AddPostMentionedByRelationship::class);
+    $events->subscribe(Listener\FormatPostMentions::class);
+    $events->subscribe(Listener\FormatUserMentions::class);
+    $events->subscribe(Listener\UpdatePostMentionsMetadata::class);
+    $events->subscribe(Listener\UpdateUserMentionsMetadata::class);
+
+    $views->addNamespace('flarum-mentions', __DIR__.'/views');
+};

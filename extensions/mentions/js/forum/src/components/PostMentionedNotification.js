@@ -21,11 +21,11 @@ export default class PostMentionedNotification extends Notification {
     const auc = notification.additionalUnreadCount();
     const user = notification.sender();
 
-    return app.trans('mentions.post_mentioned_notification', {
+    return app.trans('flarum-mentions.forum.post_mentioned_notification', {
       user,
       username: auc ? punctuate([
         username(user),
-        app.trans('mentions.others', {count: auc})
+        app.trans('flarum-mentions.forum.others', {count: auc})
       ]) : undefined
     });
   }

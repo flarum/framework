@@ -3,7 +3,7 @@ import Model from 'flarum/Model';
 import Post from 'flarum/models/Post';
 import CommentPost from 'flarum/components/CommentPost';
 import PostPreview from 'flarum/components/PostPreview';
-import punctuate from 'flarum/helpers/punctuate';
+import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 
@@ -91,7 +91,7 @@ export default function addMentionedByList() {
               config={m.route}
               onclick={hidePreview}
               data-number={reply.number()}>
-              {app.session.user === user ? app.trans('mentions.you') : username(user)}
+              {app.session.user === user ? app.trans('flarum-mentions.forum.you') : username(user)}
             </a>
           );
         });
@@ -100,9 +100,9 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy" config={config}>
           <span className="Post-mentionedBy-summary">
             {icon('reply')}
-            {app.trans('mentions.post_mentioned_by', {
+            {app.trans('flarum-mentions.forum.post_mentioned_by', {
               count: names.length,
-              users: punctuate(names)
+              users: punctuateSeries(names)
             })}
           </span>
         </div>

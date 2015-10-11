@@ -8,34 +8,42 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Mentions\Listeners;
+namespace Flarum\Mentions\Listener;
 
-use Flarum\Mentions\Notifications\UserMentionedBlueprint;
-use Flarum\Core\Notifications\NotificationSyncer;
-use Flarum\Events\RegisterNotificationTypes;
-use Flarum\Events\PostWasPosted;
-use Flarum\Events\PostWasRevised;
-use Flarum\Events\PostWasHidden;
-use Flarum\Events\PostWasRestored;
-use Flarum\Events\PostWasDeleted;
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Users\User;
+use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Core\Post;
+use Flarum\Core\User;
+use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Event\PostWasDeleted;
+use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
+use Flarum\Event\PostWasRestored;
+use Flarum\Event\PostWasRevised;
+use Flarum\Mentions\Notification\UserMentionedBlueprint;
 use Illuminate\Contracts\Events\Dispatcher;
 use s9e\TextFormatter\Utils;
 
 class UpdateUserMentionsMetadata
 {
+    /**
+     * @var NotificationSyncer
+     */
     protected $notifications;
 
+    /**
+     * @param NotificationSyncer $notifications
+     */
     public function __construct(NotificationSyncer $notifications)
     {
         $this->notifications = $notifications;
     }
 
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(RegisterNotificationTypes::class, [$this, 'registerNotificationType']);
-
+        $events->listen(ConfigureNotificationTypes::class, [$this, 'addNotificationType']);
         $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
         $events->listen(PostWasRevised::class, [$this, 'whenPostWasRevised']);
         $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
@@ -43,40 +51,61 @@ class UpdateUserMentionsMetadata
         $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
     }
 
-    public function registerNotificationType(RegisterNotificationTypes $event)
+    /**
+     * @param ConfigureNotificationTypes $event
+     */
+    public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->register(
+        $event->add(
             UserMentionedBlueprint::class,
             'Flarum\Api\Serializers\PostBasicSerializer',
             ['alert']
         );
     }
 
+    /**
+     * @param PostWasPosted $event
+     */
     public function whenPostWasPosted(PostWasPosted $event)
     {
         $this->postBecameVisible($event->post);
     }
 
+    /**
+     * @param PostWasRevised $event
+     */
     public function whenPostWasRevised(PostWasRevised $event)
     {
         $this->postBecameVisible($event->post);
     }
 
+    /**
+     * @param PostWasHidden $event
+     */
     public function whenPostWasHidden(PostWasHidden $event)
     {
         $this->postBecameInvisible($event->post);
     }
 
+    /**
+     * @param PostWasRestored $event
+     */
     public function whenPostWasRestored(PostWasRestored $event)
     {
         $this->postBecameVisible($event->post);
     }
 
+    /**
+     * @param PostWasDeleted $event
+     */
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
         $this->postBecameInvisible($event->post);
     }
 
+    /**
+     * @param Post $post
+     */
     protected function postBecameVisible(Post $post)
     {
         $mentioned = Utils::getAttributeValues($post->parsedContent, 'USERMENTION', 'id');
@@ -84,11 +113,18 @@ class UpdateUserMentionsMetadata
         $this->sync($post, $mentioned);
     }
 
+    /**
+     * @param Post $post
+     */
     protected function postBecameInvisible(Post $post)
     {
         $this->sync($post, []);
     }
 
+    /**
+     * @param Post $post
+     * @param array $mentioned
+     */
     protected function sync(Post $post, array $mentioned)
     {
         $post->mentionsUsers()->sync($mentioned);

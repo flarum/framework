@@ -3,14 +3,14 @@ import app from 'flarum/app';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 import { getPlainContent } from 'flarum/utils/string';
 
-import addPostMentionPreviews from 'mentions/addPostMentionPreviews';
-import addMentionedByList from 'mentions/addMentionedByList';
-import addPostReplyAction from 'mentions/addPostReplyAction';
-import addComposerAutocomplete from 'mentions/addComposerAutocomplete';
-import PostMentionedNotification from 'mentions/components/PostMentionedNotification';
-import UserMentionedNotification from 'mentions/components/UserMentionedNotification';
+import addPostMentionPreviews from 'flarum/mentions/addPostMentionPreviews';
+import addMentionedByList from 'flarum/mentions/addMentionedByList';
+import addPostReplyAction from 'flarum/mentions/addPostReplyAction';
+import addComposerAutocomplete from 'flarum/mentions/addComposerAutocomplete';
+import PostMentionedNotification from 'flarum/mentions/components/PostMentionedNotification';
+import UserMentionedNotification from 'flarum/mentions/components/UserMentionedNotification';
 
-app.initializers.add('mentions', function() {
+app.initializers.add('flarum-mentions', function() {
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
@@ -35,13 +35,13 @@ app.initializers.add('mentions', function() {
     items.add('postMentioned', {
       name: 'postMentioned',
       icon: 'reply',
-      label: app.trans('mentions.notify_post_mentioned')
+      label: app.trans('flarum-mentions.forum.notify_post_mentioned')
     });
 
     items.add('userMentioned', {
       name: 'userMentioned',
       icon: 'at',
-      label: app.trans('mentions.notify_user_mentioned')
+      label: app.trans('flarum-mentions.forum.notify_user_mentioned')
     });
   });
 

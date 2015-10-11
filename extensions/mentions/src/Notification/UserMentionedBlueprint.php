@@ -8,52 +8,78 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Mentions\Notifications;
+namespace Flarum\Mentions\Notification;
 
-use Flarum\Core\Users\User;
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Notifications\Blueprint;
-use Flarum\Core\Notifications\MailableBlueprint;
+use Flarum\Core\Post;
+use Flarum\Core\Notification\BlueprintInterface;
+use Flarum\Core\Notification\MailableInterface;
 
-class UserMentionedBlueprint implements Blueprint, MailableBlueprint
+class UserMentionedBlueprint implements BlueprintInterface, MailableInterface
 {
+    /**
+     * @var Post
+     */
     public $post;
 
+    /**
+     * @param Post $post
+     */
     public function __construct(Post $post)
     {
         $this->post = $post;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSubject()
     {
         return $this->post;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSender()
     {
         return $this->post->user;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getData()
     {
         return null;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getEmailView()
     {
-        return ['text' => 'mentions::emails.userMentioned'];
+        return ['text' => 'flarum-mentions::emails.userMentioned'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getEmailSubject()
     {
         return "{$this->post->user->username} mentioned you in {$this->post->discussion->title}";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getType()
     {
         return 'userMentioned';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubjectModel()
     {
         return Post::class;
