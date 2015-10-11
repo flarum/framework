@@ -42,6 +42,7 @@ class AddClientAssets
                 __DIR__.'/../../js/admin/dist/extension.js'
             ]);
             $event->addBootstrapper('flarum/likes/main');
+            $event->addTranslations('flarum-likes.admin');
         }
     }
 }

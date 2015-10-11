@@ -17,5 +17,4 @@ return function (Dispatcher $events) {
     $events->subscribe(Listener\AddPostLikesRelationship::class);
     $events->subscribe(Listener\SaveLikesToDatabase::class);
     $events->subscribe(Listener\SendNotificationWhenPostIsLiked::class);
-
 };
