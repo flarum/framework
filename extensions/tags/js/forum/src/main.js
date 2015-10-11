@@ -12,7 +12,7 @@ import addTagLabels from 'flarum/tags/addTagLabels';
 import addTagControl from 'flarum/tags/addTagControl';
 import addTagComposer from 'flarum/tags/addTagComposer';
 
-app.initializers.add('tags', function(app) {
+app.initializers.add('flarum-tags', function(app) {
   app.routes.tags = {path: '/tags', component: TagsPage.component()};
   app.routes.tag = {path: '/t/:tags', component: IndexPage.component()};
 
