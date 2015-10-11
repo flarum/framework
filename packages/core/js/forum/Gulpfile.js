@@ -33,6 +33,5 @@ gulp({
       '../lib/**/*.js'
     ]
   },
-  externalHelpers: true,
   outputFile: 'dist/app.js'
 });
