@@ -20,6 +20,8 @@ class CurrentUserSerializer extends UserSerializer
         $attributes = parent::getDefaultAttributes($user);
 
         $attributes += [
+            'isActivated'              => $user->is_activated,
+            'email'                    => $user->email,
             'readTime'                 => $this->formatDate($user->read_time),
             'unreadNotificationsCount' => (int) $user->getUnreadNotificationsCount(),
             'newNotificationsCount'    => (int) $user->getNewNotificationsCount(),
