@@ -4,7 +4,7 @@ import { override } from 'flarum/extend';
 import app from 'flarum/app';
 import Post from 'flarum/models/Post';
 
-app.initializers.add('emoji', () => {
+app.initializers.add('flarum-emoji', () => {
   override(Post.prototype, 'contentHtml', function(original) {
     const contentHtml = original();
 
