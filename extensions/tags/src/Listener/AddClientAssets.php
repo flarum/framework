@@ -45,6 +45,7 @@ class AddClientAssets
                 __DIR__.'/../../less/admin/extension.less'
             ]);
             $event->addBootstrapper('flarum/tags/main');
+            $event->addTranslations('flarum-tags.admin');
         }
     }
 
