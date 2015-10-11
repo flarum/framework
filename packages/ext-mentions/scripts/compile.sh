@@ -5,8 +5,6 @@
 
 base=$PWD
 
-composer install --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-dev
-
 cd "${base}/js"
 
 if [ -f bower.json ]; then
