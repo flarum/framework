@@ -52,7 +52,7 @@ export default class FlagList extends Component {
                 );
               })
               : !this.loading
-                ? <div className="NotificationList-empty">{app.trans('flags.no_flags')}</div>
+                ? <div className="NotificationList-empty">{app.trans('flarum-flags.forum.no_flags')}</div>
                 : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
           </ul>
         </div>

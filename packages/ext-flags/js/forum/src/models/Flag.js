@@ -1,7 +1,9 @@
 import Model from 'flarum/Model';
 import mixin from 'flarum/utils/mixin';
 
-export default class Flag extends mixin(Model, {
+class Flag extends Model {}
+
+Object.assign(Flag.prototype, {
   type: Model.attribute('type'),
   reason: Model.attribute('reason'),
   reasonDetail: Model.attribute('reasonDetail'),
@@ -9,4 +11,6 @@ export default class Flag extends mixin(Model, {
 
   post: Model.hasOne('post'),
   user: Model.hasOne('user')
-}) {}
+});
+
+export default Flag;

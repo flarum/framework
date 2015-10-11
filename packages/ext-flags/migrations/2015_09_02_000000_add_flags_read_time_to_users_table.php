@@ -8,12 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Migrations\Flags;
+namespace Flarum\Flags\Migration;
 
+use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
-use Flarum\Migrations\Migration;
 
-class AddFlagsReadTimeToUsersTable extends Migration
+class AddFlagsReadTimeToUsersTable extends AbstractMigration
 {
     public function up()
     {

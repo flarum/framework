@@ -10,24 +10,38 @@
 
 namespace Flarum\Flags;
 
-use Flarum\Core\Model;
-use Flarum\Core\Support\VisibleScope;
+use Flarum\Core\Post;
+use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Core\User;
+use Flarum\Database\AbstractModel;
 
-class Flag extends Model
+class Flag extends AbstractModel
 {
-    use VisibleScope;
+    use ScopeVisibilityTrait;
 
+    /**
+     * {@inheritdoc}
+     */
     protected $table = 'flags';
 
+    /**
+     * {@inheritdoc}
+     */
     protected $dates = ['time'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function post()
     {
-        return $this->belongsTo('Flarum\Core\Posts\Post');
+        return $this->belongsTo(Post::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\Users\User');
+        return $this->belongsTo(User::class);
     }
 }

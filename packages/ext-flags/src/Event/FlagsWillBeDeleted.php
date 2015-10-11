@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Events;
+namespace Flarum\Flags\Event;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Users\User;
+use Flarum\Core\Post;
+use Flarum\Core\User;
 
 class FlagsWillBeDeleted
 {

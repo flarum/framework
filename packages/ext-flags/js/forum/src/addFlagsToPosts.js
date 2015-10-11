@@ -101,7 +101,7 @@ export default function() {
       const detail = flag.reasonDetail();
 
       return [
-        app.trans(reason ? 'flags.flagged_by_with_reason' : 'flags.flagged_by', {user, reason}),
+        app.trans(reason ? 'flarum-flags.forum.flagged_by_with_reason' : 'flarum-flags.forum.flagged_by', {user, reason}),
         detail ? <span className="Post-flagged-detail">{detail}</span> : ''
       ];
     }

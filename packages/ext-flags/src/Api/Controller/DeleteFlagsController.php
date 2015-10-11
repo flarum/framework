@@ -8,14 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Api;
+namespace Flarum\Flags\Api\Controller;
 
-use Flarum\Flags\Commands\DeleteFlags;
-use Flarum\Api\Actions\DeleteAction as BaseDeleteAction;
-use Flarum\Api\Request;
+use Flarum\Api\Controller\AbstractDeleteController;
+use Flarum\Flags\Command\DeleteFlags;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Psr\Http\Message\ServerRequestInterface;
 
-class DeleteAction extends BaseDeleteAction
+class DeleteFlagsController extends AbstractDeleteController
 {
     /**
      * @var Dispatcher
@@ -31,14 +31,12 @@ class DeleteAction extends BaseDeleteAction
     }
 
     /**
-     * Delete flags for a post.
-     *
-     * @param Request $request
+     * {@inheritdoc}
      */
-    protected function delete(Request $request)
+    protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteFlags($request->get('id'), $request->actor, $request->all())
+            new DeleteFlags(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'), $request->getParsedBody())
         );
     }
 }
