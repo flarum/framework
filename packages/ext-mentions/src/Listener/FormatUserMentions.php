@@ -8,30 +8,43 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Mentions\Listeners;
+namespace Flarum\Mentions\Listener;
 
-use Flarum\Events\FormatterConfigurator;
-use Flarum\Events\FormatterRenderer;
-use Flarum\Events\FormatterParser;
-use Flarum\Core\Users\UserRepository;
+use Flarum\Core\Repository\UserRepository;
+use Flarum\Event\ConfigureFormatter;
+use Flarum\Event\ConfigureFormatterParser;
+use Flarum\Event\ConfigureFormatterRenderer;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class AddUserMentionsFormatter
+class FormatUserMentions
 {
+    /**
+     * @var UserRepository
+     */
     protected $users;
 
+    /**
+     * @param UserRepository $users
+     */
     public function __construct(UserRepository $users)
     {
         $this->users = $users;
     }
 
-    public function subscribe($events)
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, [$this, 'configure']);
-        $events->listen(FormatterParser::class, [$this, 'parse']);
-        $events->listen(FormatterRenderer::class, [$this, 'render']);
+        $events->listen(ConfigureFormatter::class, [$this, 'configure']);
+        $events->listen(ConfigureFormatterParser::class, [$this, 'parse']);
+        $events->listen(ConfigureFormatterRenderer::class, [$this, 'render']);
     }
 
-    public function configure(FormatterConfigurator $event)
+    /**
+     * @param ConfigureFormatter $event
+     */
+    public function configure(ConfigureFormatter $event)
     {
         $configurator = $event->configurator;
 
@@ -50,17 +63,28 @@ class AddUserMentionsFormatter
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
     }
 
-    public function parse(FormatterParser $event)
+    /**
+     * @param ConfigureFormatterParser $event
+     */
+    public function parse(ConfigureFormatterParser $event)
     {
         $event->parser->registeredVars['userRepository'] = $this->users;
     }
 
-    public function render(FormatterRenderer $event)
+    /**
+     * @param ConfigureFormatterRenderer $event
+     */
+    public function render(ConfigureFormatterRenderer $event)
     {
         // TODO: use URL generator
         $event->renderer->setParameter('PROFILE_URL', '/u/');
     }
 
+    /**
+     * @param $tag
+     * @param UserRepository $users
+     * @return bool
+     */
     public static function addId($tag, UserRepository $users)
     {
         if ($id = $users->getIdForUsername($tag->getAttribute('username'))) {

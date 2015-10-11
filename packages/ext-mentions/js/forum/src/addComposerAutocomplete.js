@@ -7,7 +7,7 @@ import usernameHelper from 'flarum/helpers/username';
 import highlight from 'flarum/helpers/highlight';
 import { truncate } from 'flarum/utils/string';
 
-import AutocompleteDropdown from 'mentions/components/AutocompleteDropdown';
+import AutocompleteDropdown from 'flarum/mentions/components/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
   extend(ComposerBody.prototype, 'config', function(original, isInitialized) {
@@ -79,7 +79,7 @@ export default function addComposerAutocomplete() {
                 }}>
                 <span className="PostPreview-content">
                   {avatar(user)}
-                  {username}{' '}
+                  {username} {' '}
                   {content}
                 </span>
               </button>
@@ -108,7 +108,7 @@ export default function addComposerAutocomplete() {
                   const user = post.user();
                   suggestions.push(
                     makeSuggestion(user, '@' + user.username() + '#' + post.id(), [
-                      app.trans('mentions.reply_to_post', {number: post.number()}), ' — ',
+                      app.trans('flarum-mentions.forum.reply_to_post', {number: post.number()}), ' — ',
                       truncate(post.contentPlain(), 200)
                     ], 'MentionsDropdown-post')
                   );

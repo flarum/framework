@@ -8,19 +8,26 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Mentions\Listeners;
+namespace Flarum\Mentions\Listener;
 
-use Flarum\Events\FormatterConfigurator;
-use Flarum\Core\Posts\CommentPost;
+use Flarum\Core\Post\CommentPost;
+use Flarum\Event\ConfigureFormatter;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class AddPostMentionsFormatter
+class FormatPostMentions
 {
-    public function subscribe($events)
+    /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, [$this, 'configure']);
+        $events->listen(ConfigureFormatter::class, [$this, 'configure']);
     }
 
-    public function configure(FormatterConfigurator $event)
+    /**
+     * @param ConfigureFormatter $event
+     */
+    public function configure(ConfigureFormatter $event)
     {
         $configurator = $event->configurator;
 
@@ -44,6 +51,10 @@ class AddPostMentionsFormatter
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)#(?<id>\d+)/i', $tagName);
     }
 
+    /**
+     * @param $tag
+     * @return bool
+     */
     public static function addId($tag)
     {
         $post = CommentPost::find($tag->getAttribute('id'));
