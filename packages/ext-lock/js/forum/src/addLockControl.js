@@ -7,7 +7,7 @@ export default function addLockControl() {
   extend(DiscussionControls, 'moderationControls', function(items, discussion) {
     if (discussion.canLock()) {
       items.add('lock', Button.component({
-        children: app.trans(discussion.isLocked() ? 'lock.unlock' : 'lock.lock'),
+        children: app.trans(discussion.isLocked() ? 'flarum-lock.forum.unlock' : 'flarum-lock.forum.lock'),
         icon: 'lock',
         onclick: this.lockAction.bind(discussion)
       }));

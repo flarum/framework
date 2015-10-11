@@ -8,16 +8,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Lock\Gambits;
+namespace Flarum\Lock\Gambit;
 
-use Flarum\Core\Search\Search;
-use Flarum\Core\Search\RegexGambit;
+use Flarum\Core\Search\AbstractRegexGambit;
+use Flarum\Core\Search\AbstractSearch;
 
-class LockGambit extends RegexGambit
+class LockedGambit extends AbstractRegexGambit
 {
+    /**
+     * {@inheritdoc}
+     */
     protected $pattern = 'is:locked';
 
-    protected function conditions(Search $search, array $matches, $negate)
+    /**
+     * {@inheritdoc}
+     */
+    protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
         $search->getQuery()->where('is_locked', ! $negate);
     }

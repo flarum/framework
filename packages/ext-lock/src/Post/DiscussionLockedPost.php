@@ -8,16 +8,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Lock\Posts;
+namespace Flarum\Lock\Post;
 
-use Flarum\Core\Posts\Post;
-use Flarum\Core\Posts\EventPost;
-use Flarum\Core\Posts\MergeablePost;
+use Flarum\Core\Post;
+use Flarum\Core\Post\AbstractEventPost;
+use Flarum\Core\Post\MergeableInterface;
 
-class DiscussionLockedPost extends EventPost implements MergeablePost
+class DiscussionLockedPost extends AbstractEventPost implements MergeableInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public static $type = 'discussionLocked';
 
+    /**
+     * {@inheritdoc}
+     */
     public function saveAfter(Post $previous)
     {
         // If the previous post is another 'discussion locked' post, and it's
