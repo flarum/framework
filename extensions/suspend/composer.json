@@ -2,6 +2,7 @@
     "name": "flarum/suspend",
     "description": "Suspend users so they can't post.",
     "type": "flarum-extension",
+    "keywords": ["moderation"],
     "license": "MIT",
     "authors": [
         {
