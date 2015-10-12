@@ -2,6 +2,7 @@
     "name": "flarum/approval",
     "description": "Make discussions and posts require moderator approval.",
     "type": "flarum-extension",
+    "keywords": ["moderation"],
     "license": "MIT",
     "authors": [
         {
@@ -27,8 +28,8 @@
             "title": "Approval",
             "icon": {
                 "name": "check",
-                "backgroundColor": "green",
-                "color": "#fff"
+                "backgroundColor": "#ABDC88",
+                "color": "#3F8A32"
             }
         }
     }
