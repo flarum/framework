@@ -53,6 +53,10 @@ class ExtensionManager
             if (file_exists($manifest = $extensionsDir . '/' . $dir . '/composer.json')) {
                 $extension = json_decode(file_get_contents($manifest), true);
 
+                if (empty($extension['name'])) {
+                    continue;
+                }
+
                 if (isset($extension['extra']['flarum-extension']['icon'])) {
                     $icon = &$extension['extra']['flarum-extension']['icon'];
 
@@ -75,6 +79,8 @@ class ExtensionManager
                         $extension['version'] = $package['version'];
                     }
                 }
+
+                $extension['id'] = $dir;
 
                 $extensions[$dir] = $extension;
             }
