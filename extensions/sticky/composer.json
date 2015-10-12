@@ -2,6 +2,7 @@
     "name": "flarum/sticky",
     "description": "Pin discussions to the top of the list.",
     "type": "flarum-extension",
+    "keywords": ["discussion"],
     "license": "MIT",
     "authors": [
         {
