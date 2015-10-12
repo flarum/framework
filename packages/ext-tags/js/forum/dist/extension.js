@@ -1,64 +1,4 @@
-System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, Tag;
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }],
-    execute: function () {
-      Tag = (function (_mixin) {
-        _inherits(Tag, _mixin);
-
-        function Tag() {
-          _classCallCheck(this, Tag);
-
-          _get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Tag;
-      })(mixin(Model, {
-        name: Model.attribute('name'),
-        slug: Model.attribute('slug'),
-        description: Model.attribute('description'),
-
-        color: Model.attribute('color'),
-        backgroundUrl: Model.attribute('backgroundUrl'),
-        backgroundMode: Model.attribute('backgroundMode'),
-
-        position: Model.attribute('position'),
-        parent: Model.hasOne('parent'),
-        defaultSort: Model.attribute('defaultSort'),
-        isChild: Model.attribute('isChild'),
-        isHidden: Model.attribute('isHidden'),
-
-        discussionsCount: Model.attribute('discussionsCount'),
-        lastTime: Model.attribute('lastTime', Model.transformDate),
-        lastDiscussion: Model.hasOne('lastDiscussion'),
-
-        isRestricted: Model.attribute('isRestricted'),
-        canStartDiscussion: Model.attribute('canStartDiscussion'),
-
-        isPrimary: computed('position', 'parent', function (position, parent) {
-          return position !== null && parent === false;
-        })
-      }));
-
-      _export('default', Tag);
-    }
-  };
-});;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
+System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
   'use strict';
 
   _export('default', tagIcon);
@@ -167,6 +107,58 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
       sortTags = _flarumTagsUtilsSortTags['default'];
     }],
     execute: function () {}
+  };
+});;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Tag;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Tag = (function (_mixin) {
+        babelHelpers.inherits(Tag, _mixin);
+
+        function Tag() {
+          babelHelpers.classCallCheck(this, Tag);
+          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Tag;
+      })(mixin(Model, {
+        name: Model.attribute('name'),
+        slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
+
+        color: Model.attribute('color'),
+        backgroundUrl: Model.attribute('backgroundUrl'),
+        backgroundMode: Model.attribute('backgroundMode'),
+
+        position: Model.attribute('position'),
+        parent: Model.hasOne('parent'),
+        defaultSort: Model.attribute('defaultSort'),
+        isChild: Model.attribute('isChild'),
+        isHidden: Model.attribute('isHidden'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastDiscussion: Model.hasOne('lastDiscussion'),
+
+        isRestricted: Model.attribute('isRestricted'),
+        canStartDiscussion: Model.attribute('canStartDiscussion'),
+
+        isPrimary: computed('position', 'parent', function (position, parent) {
+          return position !== null && parent === false;
+        })
+      }));
+
+      _export('default', Tag);
+    }
   };
 });;System.register("flarum/tags/utils/sortTags", [], function (_export) {
   "use strict";
@@ -538,7 +530,7 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
     }],
     execute: function () {
 
-      app.initializers.add('tags', function (app) {
+      app.initializers.add('flarum-tags', function (app) {
         app.routes.tags = { path: '/tags', component: TagsPage.component() };
         app.routes.tag = { path: '/t/:tags', component: IndexPage.component() };
 
@@ -565,15 +557,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
   'use strict';
 
   var EventPost, punctuateSeries, tagsLabel, DiscussionTaggedPost;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponentsEventPost) {
       EventPost = _flarumComponentsEventPost['default'];
@@ -584,15 +567,14 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
     }],
     execute: function () {
       DiscussionTaggedPost = (function (_EventPost) {
-        _inherits(DiscussionTaggedPost, _EventPost);
+        babelHelpers.inherits(DiscussionTaggedPost, _EventPost);
 
         function DiscussionTaggedPost() {
-          _classCallCheck(this, DiscussionTaggedPost);
-
-          _get(Object.getPrototypeOf(DiscussionTaggedPost.prototype), 'constructor', this).apply(this, arguments);
+          babelHelpers.classCallCheck(this, DiscussionTaggedPost);
+          babelHelpers.get(Object.getPrototypeOf(DiscussionTaggedPost.prototype), 'constructor', this).apply(this, arguments);
         }
 
-        _createClass(DiscussionTaggedPost, [{
+        babelHelpers.createClass(DiscussionTaggedPost, [{
           key: 'icon',
           value: function icon() {
             return 'tag';
@@ -641,7 +623,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
             };
           }
         }]);
-
         return DiscussionTaggedPost;
       })(EventPost);
 
@@ -652,15 +633,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
   'use strict';
 
   var Modal, DiscussionPage, Button, highlight, classList, extractText, tagLabel, tagIcon, sortTags, TagDiscussionModal;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponentsModal) {
       Modal = _flarumComponentsModal['default'];
@@ -683,16 +655,16 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
     }],
     execute: function () {
       TagDiscussionModal = (function (_Modal) {
-        _inherits(TagDiscussionModal, _Modal);
+        babelHelpers.inherits(TagDiscussionModal, _Modal);
 
         function TagDiscussionModal() {
-          _classCallCheck(this, TagDiscussionModal);
+          babelHelpers.classCallCheck(this, TagDiscussionModal);
 
           for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
             args[_key] = arguments[_key];
           }
 
-          _get(Object.getPrototypeOf(TagDiscussionModal.prototype), 'constructor', this).apply(this, args);
+          babelHelpers.get(Object.getPrototypeOf(TagDiscussionModal.prototype), 'constructor', this).apply(this, args);
 
           this.tags = sortTags(app.store.all('tags').filter(function (tag) {
             return tag.canStartDiscussion();
@@ -715,7 +687,7 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
           this.maxSecondary = app.forum.attribute('maxSecondaryTags');
         }
 
-        _createClass(TagDiscussionModal, [{
+        babelHelpers.createClass(TagDiscussionModal, [{
           key: 'primaryCount',
           value: function primaryCount() {
             return this.selected.filter(function (tag) {
@@ -1059,7 +1031,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
             m.redraw.strategy('none');
           }
         }]);
-
         return TagDiscussionModal;
       })(Modal);
 
@@ -1070,30 +1041,20 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
   'use strict';
 
   var Component, TagHero;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent['default'];
     }],
     execute: function () {
       TagHero = (function (_Component) {
-        _inherits(TagHero, _Component);
+        babelHelpers.inherits(TagHero, _Component);
 
         function TagHero() {
-          _classCallCheck(this, TagHero);
-
-          _get(Object.getPrototypeOf(TagHero.prototype), 'constructor', this).apply(this, arguments);
+          babelHelpers.classCallCheck(this, TagHero);
+          babelHelpers.get(Object.getPrototypeOf(TagHero.prototype), 'constructor', this).apply(this, arguments);
         }
 
-        _createClass(TagHero, [{
+        babelHelpers.createClass(TagHero, [{
           key: 'view',
           value: function view() {
             var tag = this.props.tag;
@@ -1124,7 +1085,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
             );
           }
         }]);
-
         return TagHero;
       })(Component);
 
@@ -1135,15 +1095,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
   'use strict';
 
   var LinkButton, tagIcon, TagLinkButton;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponentsLinkButton) {
       LinkButton = _flarumComponentsLinkButton['default'];
@@ -1152,15 +1103,14 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
     }],
     execute: function () {
       TagLinkButton = (function (_LinkButton) {
-        _inherits(TagLinkButton, _LinkButton);
+        babelHelpers.inherits(TagLinkButton, _LinkButton);
 
         function TagLinkButton() {
-          _classCallCheck(this, TagLinkButton);
-
-          _get(Object.getPrototypeOf(TagLinkButton.prototype), 'constructor', this).apply(this, arguments);
+          babelHelpers.classCallCheck(this, TagLinkButton);
+          babelHelpers.get(Object.getPrototypeOf(TagLinkButton.prototype), 'constructor', this).apply(this, arguments);
         }
 
-        _createClass(TagLinkButton, [{
+        babelHelpers.createClass(TagLinkButton, [{
           key: 'view',
           value: function view() {
             var tag = this.props.tag;
@@ -1186,7 +1136,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
             props.children = tag ? tag.name() : app.trans('tags.untagged');
           }
         }]);
-
         return TagLinkButton;
       })(LinkButton);
 
@@ -1197,15 +1146,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
   'use strict';
 
   var Component, IndexPage, listItems, humanTime, tagLabel, sortTags, TagsPage;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent['default'];
@@ -1222,16 +1162,16 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
     }],
     execute: function () {
       TagsPage = (function (_Component) {
-        _inherits(TagsPage, _Component);
+        babelHelpers.inherits(TagsPage, _Component);
 
         function TagsPage() {
-          _classCallCheck(this, TagsPage);
+          babelHelpers.classCallCheck(this, TagsPage);
 
           for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
             args[_key] = arguments[_key];
           }
 
-          _get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, args);
+          babelHelpers.get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, args);
 
           this.tags = sortTags(app.store.all('tags').filter(function (tag) {
             return !tag.parent();
@@ -1243,7 +1183,7 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
           app.modal.close();
         }
 
-        _createClass(TagsPage, [{
+        babelHelpers.createClass(TagsPage, [{
           key: 'view',
           value: function view() {
             var pinned = this.tags.filter(function (tag) {
@@ -1345,7 +1285,6 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
             );
           }
         }]);
-
         return TagsPage;
       })(Component);
 
