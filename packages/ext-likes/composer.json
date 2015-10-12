@@ -2,6 +2,7 @@
     "name": "flarum/likes",
     "description": "Allow users to like posts.",
     "type": "flarum-extension",
+    "keywords": ["discussion"],
     "license": "MIT",
     "authors": [
         {
