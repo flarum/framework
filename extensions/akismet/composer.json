@@ -2,6 +2,7 @@
     "name": "flarum/akismet",
     "description": "Stop spam using the Akismet anti-spam service.",
     "type": "flarum-extension",
+    "keywords": ["moderation"],
     "license": "MIT",
     "authors": [
         {
