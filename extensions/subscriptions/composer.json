@@ -2,6 +2,7 @@
     "name": "flarum/subscriptions",
     "description": "Allow users to follow discussions and receive notifications for new posts.",
     "type": "flarum-extension",
+    "keywords": ["discussion"],
     "license": "MIT",
     "authors": [
         {
