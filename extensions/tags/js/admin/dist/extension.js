@@ -525,13 +525,6 @@ return sortable;
   'use strict';
 
   var Model, mixin, computed, Tag;
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel['default'];
@@ -542,12 +535,11 @@ return sortable;
     }],
     execute: function () {
       Tag = (function (_mixin) {
-        _inherits(Tag, _mixin);
+        babelHelpers.inherits(Tag, _mixin);
 
         function Tag() {
-          _classCallCheck(this, Tag);
-
-          _get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+          babelHelpers.classCallCheck(this, Tag);
+          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
         }
 
         return Tag;
@@ -677,7 +669,7 @@ return sortable;
       _export('default', function () {
         app.routes.tags = { path: '/tags', component: TagsPage.component() };
 
-        app.extensionSettings.tags = function () {
+        app.extensionSettings['flarum-tags'] = function () {
           return m.route(app.route('tags'));
         };
 
@@ -796,7 +788,7 @@ return sortable;
     }],
     execute: function () {
 
-      app.initializers.add('tags', function (app) {
+      app.initializers.add('flarum-tags', function (app) {
         app.store.models.tags = Tag;
 
         addTagsPermissionScope();
@@ -815,15 +807,6 @@ return sortable;
   'use strict';
 
   var Modal, Button, slug, tagLabel, EditTagModal;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponentsModal) {
       Modal = _flarumComponentsModal['default'];
@@ -836,16 +819,16 @@ return sortable;
     }],
     execute: function () {
       EditTagModal = (function (_Modal) {
-        _inherits(EditTagModal, _Modal);
+        babelHelpers.inherits(EditTagModal, _Modal);
 
         function EditTagModal() {
-          _classCallCheck(this, EditTagModal);
+          babelHelpers.classCallCheck(this, EditTagModal);
 
           for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
             args[_key] = arguments[_key];
           }
 
-          _get(Object.getPrototypeOf(EditTagModal.prototype), 'constructor', this).apply(this, args);
+          babelHelpers.get(Object.getPrototypeOf(EditTagModal.prototype), 'constructor', this).apply(this, args);
 
           this.tag = this.props.tag || app.store.createRecord('tags');
 
@@ -856,7 +839,7 @@ return sortable;
           this.isHidden = m.prop(this.tag.isHidden() || false);
         }
 
-        _createClass(EditTagModal, [{
+        babelHelpers.createClass(EditTagModal, [{
           key: 'className',
           value: function className() {
             return 'EditTagModal Modal--small';
@@ -988,7 +971,6 @@ return sortable;
             }
           }
         }]);
-
         return EditTagModal;
       })(Modal);
 
@@ -999,30 +981,20 @@ return sortable;
   'use strict';
 
   var SettingsModal, TagSettingsModal;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
   return {
     setters: [function (_flarumComponentsSettingsModal) {
       SettingsModal = _flarumComponentsSettingsModal['default'];
     }],
     execute: function () {
       TagSettingsModal = (function (_SettingsModal) {
-        _inherits(TagSettingsModal, _SettingsModal);
+        babelHelpers.inherits(TagSettingsModal, _SettingsModal);
 
         function TagSettingsModal() {
-          _classCallCheck(this, TagSettingsModal);
-
-          _get(Object.getPrototypeOf(TagSettingsModal.prototype), 'constructor', this).apply(this, arguments);
+          babelHelpers.classCallCheck(this, TagSettingsModal);
+          babelHelpers.get(Object.getPrototypeOf(TagSettingsModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
-        _createClass(TagSettingsModal, [{
+        babelHelpers.createClass(TagSettingsModal, [{
           key: 'setMinTags',
           value: function setMinTags(minTags, maxTags, value) {
             minTags(value);
@@ -1104,7 +1076,6 @@ return sortable;
             )];
           }
         }]);
-
         return TagSettingsModal;
       })(SettingsModal);
 
@@ -1115,14 +1086,6 @@ return sortable;
   'use strict';
 
   var Component, Button, EditTagModal, TagSettingsModal, tagIcon, sortTags, TagsPage;
-
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
   function tagItem(tag) {
     return m(
@@ -1171,15 +1134,14 @@ return sortable;
     }],
     execute: function () {
       TagsPage = (function (_Component) {
-        _inherits(TagsPage, _Component);
+        babelHelpers.inherits(TagsPage, _Component);
 
         function TagsPage() {
-          _classCallCheck(this, TagsPage);
-
-          _get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, arguments);
+          babelHelpers.classCallCheck(this, TagsPage);
+          babelHelpers.get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, arguments);
         }
 
-        _createClass(TagsPage, [{
+        babelHelpers.createClass(TagsPage, [{
           key: 'view',
           value: function view() {
             return m(
@@ -1325,7 +1287,6 @@ return sortable;
             });
           }
         }]);
-
         return TagsPage;
       })(Component);
 
