@@ -2,12 +2,14 @@
     "name": "flarum/english",
     "type": "flarum-extension",
     "description": "English language pack.",
+    "keywords": ["locale"],
     "license": "MIT",
     "extra": {
         "flarum-extension": {
             "title": "English",
             "icon": {
                 "image": "icon.svg",
+                "backgroundColor": "#00247d",
                 "backgroundSize": "cover",
                 "backgroundPosition": "center"
             }
