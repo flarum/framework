@@ -2,6 +2,7 @@
     "name": "flarum/mentions",
     "description": "Mention and reply to specific posts and users.",
     "type": "flarum-extension",
+    "keywords": ["discussion"],
     "license": "MIT",
     "authors": [
         {
