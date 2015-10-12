@@ -2,6 +2,7 @@
     "name": "flarum/flags",
     "description": "Allow users to flag posts for moderator review.",
     "type": "flarum-extension",
+    "keywords": ["moderation"],
     "license": "MIT",
     "authors": [
         {
@@ -26,7 +27,7 @@
             "title": "Flags",
             "icon": {
                 "name": "flag",
-                "backgroundColor": "#e92693",
+                "backgroundColor": "#D659B5",
                 "color": "#fff"
             }
         }
