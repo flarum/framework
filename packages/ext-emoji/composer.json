@@ -2,6 +2,7 @@
     "name": "flarum/emoji",
     "description": "Convert text and unicode emoji into Twemoji.",
     "type": "flarum-extension",
+    "keywords": ["formatting"],
     "license": "MIT",
     "authors": [
         {
