@@ -8,19 +8,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\BBCode\Listeners;
+namespace Flarum\BBCode\Listener;
 
-use Flarum\Events\FormatterConfigurator;
+use Flarum\Event\ConfigureFormatter;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class AddBBCodeFormatter
+class FormatBBCode
 {
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(FormatterConfigurator::class, [$this, 'addBBCodeFormatter']);
+        $events->listen(ConfigureFormatter::class, [$this, 'addBBCodeFormatter']);
     }
 
-    public function addBBCodeFormatter(FormatterConfigurator $event)
+    /**
+     * @param ConfigureFormatter $event
+     */
+    public function addBBCodeFormatter(ConfigureFormatter $event)
     {
         $event->configurator->BBCodes->addFromRepository('B');
         $event->configurator->BBCodes->addFromRepository('I');
