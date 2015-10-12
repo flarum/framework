@@ -9,6 +9,9 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\BBCode\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return 'Flarum\BBCode\Extension';
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\FormatBBCode::class);
+};
