@@ -8,31 +8,42 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Pusher\Listeners;
+namespace Flarum\Pusher\Listener;
 
-use Flarum\Events\PostWasPosted;
-use Flarum\Events\NotificationWillBeSent;
+use Flarum\Core\Guest;
+use Flarum\Event\NotificationWillBeSent;
+use Flarum\Event\PostWasPosted;
+use Flarum\Settings\SettingsRepository;
 use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\Core\Settings\SettingsRepository;
-use Flarum\Core\Users\Guest;
-use Flarum\Core\Discussions\Discussion;
 use Pusher;
 
 class PushNewPosts
 {
+    /**
+     * @var SettingsRepository
+     */
     protected $settings;
 
+    /**
+     * @param SettingsRepository $settings
+     */
     public function __construct(SettingsRepository $settings)
     {
         $this->settings = $settings;
     }
 
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(PostWasPosted::class, [$this, 'pushNewPost']);
         $events->listen(NotificationWillBeSent::class, [$this, 'pushNotification']);
     }
 
+    /**
+     * @param PostWasPosted $event
+     */
     public function pushNewPost(PostWasPosted $event)
     {
         if ($event->post->isVisibleTo(new Guest)) {
@@ -46,6 +57,9 @@ class PushNewPosts
         }
     }
 
+    /**
+     * @param NotificationWillBeSent $event
+     */
     public function pushNotification(NotificationWillBeSent $event)
     {
         $pusher = $this->getPusher();
@@ -58,12 +72,15 @@ class PushNewPosts
         }
     }
 
+    /**
+     * @return Pusher
+     */
     protected function getPusher()
     {
         return new Pusher(
-            $this->settings->get('pusher.app_key'),
-            $this->settings->get('pusher.app_secret'),
-            $this->settings->get('pusher.app_id')
+            $this->settings->get('flarum-pusher.app_key'),
+            $this->settings->get('flarum-pusher.app_secret'),
+            $this->settings->get('flarum-pusher.app_id')
         );
     }
 }

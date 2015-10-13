@@ -9,6 +9,11 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Flarum\Pusher\Listener;
+use Illuminate\Contracts\Events\Dispatcher;
 
-return 'Flarum\Pusher\Extension';
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+    $events->subscribe(Listener\AddPusherApi::class);
+    $events->subscribe(Listener\PushNewPosts::class);
+};

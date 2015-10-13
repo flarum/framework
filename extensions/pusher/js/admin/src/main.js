@@ -1,8 +1,8 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 
-import PusherSettingsModal from 'pusher/components/PusherSettingsModal';
+import PusherSettingsModal from 'flarum/pusher/components/PusherSettingsModal';
 
-app.initializers.add('pusher', app => {
-  app.extensionSettings.pusher = () => app.modal.show(new PusherSettingsModal());
+app.initializers.add('flarum-pusher', app => {
+  app.extensionSettings['flarum-pusher'] = () => app.modal.show(new PusherSettingsModal());
 });
