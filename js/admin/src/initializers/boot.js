@@ -54,4 +54,12 @@ export default function boot(app) {
   }).start();
 
   app.booted = true;
+
+  // If an extension has just been enabled, then we will run its settings
+  // callback.
+  const enabled = localStorage.getItem('enabledExtension');
+  if (enabled && app.extensionSettings[enabled]) {
+    app.extensionSettings[enabled]();
+    localStorage.removeItem('enabledExtension');
+  }
 }
