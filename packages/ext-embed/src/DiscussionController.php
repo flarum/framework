@@ -10,28 +10,26 @@
 
 namespace Flarum\Embed;
 
-use Flarum\Forum\Actions\DiscussionAction as DiscussionAction;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Flarum\Forum\Controller\DiscussionController as BaseDiscussionController;
+use Psr\Http\Message\ServerRequestInterface;
 
-class ClientAction extends DiscussionAction
+class DiscussionController extends BaseDiscussionController
 {
     /**
      * {@inheritdoc}
-     *
-     * @return ClientView
      */
-    public function render(Request $request, array $routeParams = [])
+    public function render(ServerRequestInterface $request)
     {
-        $view = parent::render($request, $routeParams);
+        $view = parent::render($request);
 
-        $view->addBootstrapper('embed/main');
+        $view->addBootstrapper('flarum/embed/main');
         $view->setLayout(__DIR__.'/../views/embed.blade.php');
 
         return $view;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getAssets()
     {

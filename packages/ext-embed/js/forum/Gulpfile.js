@@ -5,6 +5,6 @@ gulp({
     'bower_components/iframe-resizer/js/iframeResizer.contentWindow.min.js'
   ],
   modules: {
-    'embed': 'src/**/*.js'
+    'flarum/embed': 'src/**/*.js'
   }
 });

@@ -1,7 +1,35 @@
 {
+    "name": "flarum/embed",
+    "description": "Embed Flarum discussions as comments for your blog.",
+    "type": "flarum-extension",
+    "keywords": ["discussion"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Toby Zerner",
+            "email": "toby.zerner@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/embed"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.3"
+    },
     "autoload": {
         "psr-4": {
             "Flarum\\Embed\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Embed",
+            "icon": {
+                "name": "code",
+                "backgroundColor": "#B9D233",
+                "color": "#fff"
+            }
         }
     }
 }
