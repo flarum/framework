@@ -6,9 +6,7 @@ import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
 
 export default class FlagList extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not the notifications are loading.
      *

@@ -7,8 +7,8 @@ import FlagList from 'flarum/flags/components/FlagList';
  * used on mobile devices where the flags dropdown is within the drawer.
  */
 export default class FlagsPage extends Page {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     app.history.push('flags');
 

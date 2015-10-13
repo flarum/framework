@@ -2,8 +2,8 @@ import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
 export default class FlagPostModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.reason = m.prop('');
     this.reasonDetail = m.prop('');
