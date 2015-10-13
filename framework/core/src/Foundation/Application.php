@@ -138,7 +138,7 @@ class Application extends Container implements ApplicationContract
      */
     public function url($path = null)
     {
-        $config = $this->make('flarum.config');
+        $config = $this->isInstalled() ? $this->make('flarum.config') : [];
         $url = array_get($config, 'url', $_SERVER['REQUEST_URI']);
 
         if (is_array($url)) {
