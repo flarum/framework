@@ -7,7 +7,7 @@ import DiscussionPage from 'flarum/components/DiscussionPage';
 import IndexPage from 'flarum/components/IndexPage';
 import Button from 'flarum/components/Button';
 
-app.initializers.add('pusher', () => {
+app.initializers.add('flarum-pusher', () => {
   const loadPusher = m.deferred();
 
   $.getScript('//js.pusher.com/3.0/pusher.min.js', () => {
