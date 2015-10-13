@@ -2,8 +2,8 @@ import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
 export default class SuspendUserModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     let until = this.props.user.suspendUntil();
     let status = null;
