@@ -2,7 +2,9 @@ import Model from 'flarum/Model';
 import mixin from 'flarum/utils/mixin';
 import computed from 'flarum/utils/computed';
 
-export default class Notification extends mixin(Model, {
+export default class Notification extends Model {}
+
+Object.assign(Notification.prototype, {
   contentType: Model.attribute('contentType'),
   subjectId: Model.attribute('subjectId'),
   content: Model.attribute('content'),
@@ -15,4 +17,6 @@ export default class Notification extends mixin(Model, {
   user: Model.hasOne('user'),
   sender: Model.hasOne('sender'),
   subject: Model.hasOne('subject')
-}) {}
+});
+
+export default Notification;
