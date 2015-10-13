@@ -7,9 +7,7 @@ import tagLabel from 'flarum/tags/helpers/tagLabel';
 import sortTags from 'flarum/tags/utils/sortTags';
 
 export default class TagsPage extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
 
     app.current = this;

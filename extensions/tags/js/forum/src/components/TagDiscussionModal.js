@@ -10,8 +10,8 @@ import tagIcon from 'flarum/tags/helpers/tagIcon';
 import sortTags from 'flarum/tags/utils/sortTags';
 
 export default class TagDiscussionModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.tags = sortTags(app.store.all('tags').filter(tag => tag.canStartDiscussion()));
 

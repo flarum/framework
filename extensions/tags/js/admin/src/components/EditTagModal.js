@@ -9,8 +9,8 @@ import tagLabel from 'flarum/tags/helpers/tagLabel';
  * to create or edit a tag.
  */
 export default class EditTagModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.tag = this.props.tag || app.store.createRecord('tags');
 
