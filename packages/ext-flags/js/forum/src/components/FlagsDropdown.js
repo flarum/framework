@@ -10,8 +10,8 @@ export default class FlagsDropdown extends NotificationsDropdown {
     super.initProps(props);
   }
 
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.list = new FlagList();
   }
