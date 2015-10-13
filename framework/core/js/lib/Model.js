@@ -10,7 +10,7 @@ export default class Model {
    * @param {Store} store The data store that this model should be persisted to.
    * @public
    */
-  constructor(data = {}, store) {
+  constructor(data = {}, store = null) {
     /**
      * The resource object from the API.
      *

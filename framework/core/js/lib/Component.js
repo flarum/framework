@@ -34,7 +34,7 @@ export default class Component {
    * @param {Array|Object} children
    * @public
    */
-  constructor(props = {}, children) {
+  constructor(props = {}, children = null) {
     if (children) props.children = children;
 
     this.constructor.initProps(props);
@@ -158,6 +158,7 @@ export default class Component {
    *
    * @see https://lhorie.github.io/mithril/mithril.component.html
    * @param {Object} [props] Properties to set on the component
+   * @param children
    * @return {Object} The Mithril component object
    * @property {function} controller
    * @property {function} view
@@ -165,7 +166,7 @@ export default class Component {
    * @property {Object} props The props that were passed to the component
    * @public
    */
-  static component(props = {}, children) {
+  static component(props = {}, children = null) {
     const componentProps = Object.assign({}, props);
 
     if (children) componentProps.children = children;
