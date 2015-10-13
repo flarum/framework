@@ -1,9 +1,7 @@
 import Component from 'flarum/Component';
 
 export default class AutocompleteDropdown extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.active = false;
     this.index = 0;
     this.keyWasJustPressed = false;
