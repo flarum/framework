@@ -8,9 +8,7 @@ import Group from 'flarum/models/Group';
  * to create or edit a group.
  */
 export default class EditGroupModal extends Modal {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.group = this.props.group || app.store.createRecord('groups');
 
     this.nameSingular = m.prop(this.group.nameSingular() || '');

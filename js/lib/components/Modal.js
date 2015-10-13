@@ -9,9 +9,7 @@ import Button from 'flarum/components/Button';
  * @abstract
  */
 export default class Modal extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * An alert component to show below the header.
      *

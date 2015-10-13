@@ -13,8 +13,8 @@ import listItems from 'flarum/helpers/listItems';
  * the context of their user profile.
  */
 export default class SettingsPage extends UserPage {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.show(app.session.user);
     app.setTitle(app.trans('core.forum.settings_title'));

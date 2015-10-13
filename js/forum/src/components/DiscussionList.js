@@ -13,9 +13,7 @@ import Placeholder from 'flarum/components/Placeholder';
  *   to send along in the API request to get discussion results.
  */
 export default class DiscussionList extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not discussion results are loading.
      *

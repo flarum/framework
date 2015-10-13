@@ -6,8 +6,8 @@ import Button from 'flarum/components/Button';
  * to change their email address.
  */
 export default class ChangeEmailModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * Whether or not the email has been changed successfully.

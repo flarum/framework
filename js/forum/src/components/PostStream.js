@@ -15,10 +15,8 @@ import ReplyPlaceholder from 'flarum/components/ReplyPlaceholder';
  * - `discussion`
  * - `includedPosts`
  */
-class PostStream extends mixin(Component, evented) {
-  constructor(...args) {
-    super(...args);
-
+class PostStream extends Component {
+  init() {
     /**
      * The discussion to display the post stream for.
      *
@@ -584,5 +582,7 @@ class PostStream extends mixin(Component, evented) {
  * @type {Integer}
  */
 PostStream.loadCount = 20;
+
+Object.assign(PostStream.prototype, evented);
 
 export default PostStream;

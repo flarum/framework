@@ -15,9 +15,7 @@ import Button from 'flarum/components/Button';
  * - `disabled`
  */
 export default class TextEditor extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * The value of the textarea.
      *

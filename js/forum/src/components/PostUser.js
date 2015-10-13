@@ -12,9 +12,7 @@ import listItems from 'flarum/helpers/listItems';
  * - `post`
  */
 export default class PostUser extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not the user hover card is visible.
      *

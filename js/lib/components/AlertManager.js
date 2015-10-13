@@ -6,9 +6,7 @@ import Alert from 'flarum/components/Alert';
  * be shown and dismissed.
  */
 export default class AlertManager extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * An array of Alert components which are currently showing.
      *

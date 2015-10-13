@@ -6,9 +6,7 @@ import Component from 'flarum/Component';
  * @abstract
  */
 export default class Page extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     app.previous = app.current;
     app.current = this;
 

@@ -17,8 +17,8 @@ import SelectDropdown from 'flarum/components/SelectDropdown';
  * hero, the sidebar, and the discussion list.
  */
 export default class IndexPage extends Page {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     // If the user is returning from a discussion page, then take note of which
     // discussion they have just visited. After the view is rendered, we will

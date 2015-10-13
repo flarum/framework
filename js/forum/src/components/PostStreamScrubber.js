@@ -15,9 +15,7 @@ import formatNumber from 'flarum/utils/formatNumber';
  * - `className`
  */
 export default class PostStreamScrubber extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.handlers = {};
 
     /**

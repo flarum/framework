@@ -21,8 +21,8 @@ import Button from 'flarum/components/Button';
  * - `post`
  */
 export default class CommentPost extends Post {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * If the post has been hidden, then this flag determines whether or not its

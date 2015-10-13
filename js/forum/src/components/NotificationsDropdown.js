@@ -13,8 +13,8 @@ export default class NotificationsDropdown extends Dropdown {
     super.initProps(props);
   }
 
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * Whether or not the notifications dropdown is visible.

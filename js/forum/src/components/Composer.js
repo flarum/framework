@@ -11,9 +11,7 @@ import computed from 'flarum/utils/computed';
  * `show`, `hide`, `close`, `minimize`, `fullScreen`, and `exitFullScreen`.
  */
 class Composer extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * The composer's current position.
      *

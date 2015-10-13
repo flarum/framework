@@ -17,9 +17,7 @@ import ItemList from 'flarum/utils/ItemList';
  * @abstract
  */
 export default class Post extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Set up a subtree retainer so that the post will not be redrawn
      * unless new data comes in.
