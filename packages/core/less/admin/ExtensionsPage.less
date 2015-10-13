@@ -25,48 +25,17 @@
 
   > li {
     float: left;
-    text-align: center;
+    text-align: left;
     position: relative;
   }
 }
-.ExtensionListItem.disabled .ExtensionListItem-content {
-  opacity: 0.5;
-  color: @muted-color;
-
+.ExtensionListItem.disabled {
+  .ExtensionListItem-title {
+    opacity: 0.5;
+    color: @muted-color;
+  }
   .ExtensionListItem-icon {
     opacity: 0.5;
-  }
-}
-.ExtensionListItem-controls {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 120px;
-  border-radius: 6px;
-  background-image: none !important;
-  opacity: 0;
-  z-index: 1;
-  margin: 0;
-  padding: 5px 5px 0;
-  .light-contents();
-  .transition(opacity 0.2s);
-  display: flex;
-  align-items: stretch;
-  align-content: stretch;
-  flex-direction: column;
-
-  .ExtensionListItem:hover & {
-    opacity: 1;
-  }
-  > li {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    margin-bottom: 5px;
-  }
-  .Button {
-    .Button--block();
   }
 }
 .ExtensionListItem {
@@ -76,16 +45,29 @@
   margin-bottom: 15px;
 }
 .ExtensionListItem-title {
-  font-size: 14px;
-  margin: 10px 0 2px;
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin: 8px 0 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 .ExtensionListItem-version {
   color: @muted-more-color;
   font-size: 11px;
   font-weight: normal;
+}
+.ExtensionListItem-controls {
+  float: right;
+  display: none;
+  margin-right: -5px;
+  margin-top: 1px;
+
+  .ExtensionListItem:hover &, &.open {
+    display: block;
+  }
 }
 
 .ExtensionIcon {

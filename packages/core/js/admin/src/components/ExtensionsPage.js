@@ -11,31 +11,7 @@ import listItems from 'flarum/helpers/listItems';
 
 export default class ExtensionsPage extends Component {
   view() {
-    const groups = [
-      {keyword: 'discussion', title: 'Discussions', extensions: []},
-      {keyword: 'formatting', title: 'Formatting', extensions: []},
-      {keyword: 'moderation', title: 'Moderation', extensions: []},
-      {keyword: 'theme', title: 'Themes', extensions: []},
-      {keyword: 'authentication', title: 'Authentication', extensions: []},
-      {keyword: 'locale', title: 'Language Packs', extensions: []},
-      {title: 'Other', extensions: []}
-    ];
-
-    Object.keys(app.extensions).forEach(id => {
-      const extension = app.extensions[id];
-      const keywords = extension.keywords;
-
-      const grouped = keywords && groups.some(group => {
-        if (keywords.indexOf(group.keyword) !== -1) {
-          group.extensions.push(extension);
-          return true;
-        }
-      });
-
-      if (!grouped) {
-        groups[groups.length - 1].extensions.push(extension);
-      }
-    });
+    const extensions = Object.keys(app.extensions).map(id => app.extensions[id]);
 
     return (
       <div className="ExtensionsPage">
@@ -52,31 +28,35 @@ export default class ExtensionsPage extends Component {
 
         <div className="ExtensionsPage-list">
           <div className="container">
-            {groups.filter(group => group.extensions.length).map(group => (
-              <div className="ExtensionGroup">
-                <h3>{group.title}</h3>
-                <ul className="ExtensionList">
-                  {group.extensions
-                    .sort((a, b) => a.extra['flarum-extension'].title.localeCompare(b.extra['flarum-extension'].title))
-                    .map(extension => {
-                      return <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
-                        <ul className="ExtensionListItem-controls" style={extension.extra['flarum-extension'].icon}>
-                          {listItems(this.controlItems(extension.id).toArray())}
-                        </ul>
-                        <div className="ExtensionListItem-content">
-                          <span className="ExtensionListItem-icon ExtensionIcon" style={extension.extra['flarum-extension'].icon}>
-                            {extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''}
-                          </span>
-                          <h4 className="ExtensionListItem-title" title={extension.description}>
-                            {extension.extra['flarum-extension'].title}
-                          </h4>
-                          <div className="ExtensionListItem-version">{extension.version}</div>
-                        </div>
-                      </li>;
-                    })}
-                </ul>
-              </div>
-            ))}
+            <ul className="ExtensionList">
+              {extensions
+                .sort((a, b) => a.extra['flarum-extension'].title.localeCompare(b.extra['flarum-extension'].title))
+                .map(extension => {
+                  const controls = this.controlItems(extension.id).toArray();
+
+                  return <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
+                    <div className="ExtensionListItem-content">
+                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.extra['flarum-extension'].icon}>
+                        {extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''}
+                      </span>
+                      {controls.length ? (
+                        <Dropdown
+                          className="ExtensionListItem-controls"
+                          buttonClassName="Button Button--icon Button--flat"
+                          menuClassName="Dropdown-menu--right"
+                          icon="ellipsis-h">
+                          {controls}
+                        </Dropdown>
+                      ) : ''}
+                      <label className="ExtensionListItem-title">
+                        <input type="checkbox" checked={this.isEnabled(extension.id)} onclick={this.toggle.bind(this, extension.id)}/> {' '}
+                        {extension.extra['flarum-extension'].title}
+                      </label>
+                      <div className="ExtensionListItem-version">{extension.version}</div>
+                    </div>
+                  </li>;
+                })}
+            </ul>
           </div>
         </div>
       </div>
@@ -85,37 +65,19 @@ export default class ExtensionsPage extends Component {
 
   controlItems(name) {
     const items = new ItemList();
-    const extension = app.extensions[name];
     const enabled = this.isEnabled(name);
 
     if (app.extensionSettings[name]) {
       items.add('settings', Button.component({
         icon: 'cog',
-        className: 'Button',
         children: 'Settings',
         onclick: app.extensionSettings[name]
       }));
     }
 
-    items.add('toggle', Button.component({
-      icon: 'power-off',
-      className: 'Button',
-      children: enabled ? 'Disable' : 'Enable',
-      onclick: () => {
-        app.request({
-          url: app.forum.attribute('apiUrl') + '/extensions/' + name,
-          method: 'PATCH',
-          data: {enabled: !enabled}
-        }).then(() => window.location.reload());
-
-        app.modal.show(new LoadingModal());
-      }
-    }));
-
     if (!enabled) {
       items.add('uninstall', Button.component({
         icon: 'trash-o',
-        className: 'Button',
         children: 'Uninstall',
         onclick: () => {
           app.request({
@@ -135,5 +97,20 @@ export default class ExtensionsPage extends Component {
     const enabled = JSON.parse(app.settings.extensions_enabled);
 
     return enabled.indexOf(name) !== -1;
+  }
+
+  toggle(id) {
+    const enabled = this.isEnabled(id);
+
+    app.request({
+      url: app.forum.attribute('apiUrl') + '/extensions/' + id,
+      method: 'PATCH',
+      data: {enabled: !enabled}
+    }).then(() => {
+      if (enabled) localStorage.setItem('enabledExtension', id);
+      window.location.reload();
+    });
+
+    app.modal.show(new LoadingModal());
   }
 }
