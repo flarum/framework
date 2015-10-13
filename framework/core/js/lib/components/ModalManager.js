@@ -7,9 +7,7 @@ import Modal from 'flarum/components/Modal';
  * overwrite the previous one.
  */
 export default class ModalManager extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.showing = false;
     this.component = null;
   }

@@ -6,9 +6,7 @@ import Button from 'flarum/components/Button';
  * forum.
  */
 export default class WelcomeHero extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.hidden = localStorage.getItem('welcomeHidden');
   }
 

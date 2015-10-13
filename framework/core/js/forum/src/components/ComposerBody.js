@@ -22,9 +22,7 @@ import ItemList from 'flarum/utils/ItemList';
  * @abstract
  */
 export default class ComposerBody extends Component {
-  constructor(props) {
-    super(props);
-
+  init() {
     /**
      * Whether or not the component is loading.
      *

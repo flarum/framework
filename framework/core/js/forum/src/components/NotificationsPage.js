@@ -6,8 +6,8 @@ import NotificationList from 'flarum/components/NotificationList';
  * used on mobile devices where the notifications dropdown is within the drawer.
  */
 export default class NotificationsPage extends Page {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     app.history.push('notifications');
 

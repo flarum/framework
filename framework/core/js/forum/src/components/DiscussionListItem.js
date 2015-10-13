@@ -25,9 +25,7 @@ import classList from 'flarum/utils/classList';
  * - `params`
  */
 export default class DiscussionListItem extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Set up a subtree retainer so that the discussion will not be redrawn
      * unless new data comes in.

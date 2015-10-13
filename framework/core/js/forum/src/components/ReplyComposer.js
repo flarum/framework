@@ -14,8 +14,8 @@ import extractText from 'flarum/utils/extractText';
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.editor.props.preview = () => {
       m.route(app.route.discussion(this.props.discussion, 'reply'));

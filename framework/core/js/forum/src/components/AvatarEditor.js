@@ -16,9 +16,7 @@ import LoadingIndicator from 'flarum/components/LoadingIndicator';
  * - `user`
  */
 export default class AvatarEditor extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not an avatar upload is in progress.
      *

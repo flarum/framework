@@ -6,9 +6,7 @@ import ItemList from 'flarum/utils/ItemList';
 import icon from 'flarum/helpers/icon';
 
 export default class PermissionGrid extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.permissions = this.permissionItems().toArray();
   }
 

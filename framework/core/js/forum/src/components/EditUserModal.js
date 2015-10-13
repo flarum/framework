@@ -8,8 +8,8 @@ import extractText from 'flarum/utils/extractText';
  * The `EditUserModal` component displays a modal dialog with a login form.
  */
 export default class EditUserModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     const user = this.props.user;
 

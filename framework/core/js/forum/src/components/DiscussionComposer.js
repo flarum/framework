@@ -13,8 +13,8 @@ import extractText from 'flarum/utils/extractText';
  * - `titlePlaceholder`
  */
 export default class DiscussionComposer extends ComposerBody {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * The value of the title input.
