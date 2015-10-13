@@ -231,6 +231,8 @@ class InstallCommand extends AbstractCommand
 
         $this->info('Writing default settings');
 
+        $settings->set('version', $this->application->version());
+
         foreach ($this->settings as $k => $v) {
             $settings->set($k, $v);
         }
