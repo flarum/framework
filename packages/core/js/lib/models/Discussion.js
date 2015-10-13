@@ -5,7 +5,9 @@ import ItemList from 'flarum/utils/ItemList';
 import { slug } from 'flarum/utils/string';
 import Badge from 'flarum/components/Badge';
 
-export default class Discussion extends mixin(Model, {
+export default class Discussion extends Model {}
+
+Object.assign(Discussion.prototype, {
   title: Model.attribute('title'),
   slug: computed('title', slug),
 
@@ -35,8 +37,8 @@ export default class Discussion extends mixin(Model, {
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
   canHide: Model.attribute('canHide'),
-  canDelete: Model.attribute('canDelete')
-}) {
+  canDelete: Model.attribute('canDelete'),
+
   /**
    * Remove a post from the discussion's posts relationship.
    *
@@ -55,7 +57,7 @@ export default class Discussion extends mixin(Model, {
         }
       });
     }
-  }
+  },
 
   /**
    * Get the estimated number of unread posts in this discussion for the current
@@ -72,7 +74,7 @@ export default class Discussion extends mixin(Model, {
     }
 
     return 0;
-  }
+  },
 
   /**
    * Get the Badge components that apply to this discussion.
@@ -88,7 +90,7 @@ export default class Discussion extends mixin(Model, {
     }
 
     return items;
-  }
+  },
 
   /**
    * Get a list of all of the post IDs in this discussion.
@@ -99,4 +101,6 @@ export default class Discussion extends mixin(Model, {
   postIds() {
     return this.data.relationships.posts.data.map(link => link.id);
   }
-}
+});
+
+export default Discussion;

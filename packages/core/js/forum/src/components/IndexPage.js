@@ -143,7 +143,7 @@ export default class IndexPage extends Page {
    */
   sidebarItems() {
     const items = new ItemList();
-    const canStartDiscussion = app.forum.canStartDiscussion() || !app.session.user;
+    const canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
 
     items.add('newDiscussion',
       Button.component({
