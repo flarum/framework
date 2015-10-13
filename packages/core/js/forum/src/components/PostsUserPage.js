@@ -8,8 +8,8 @@ import CommentPost from 'flarum/components/CommentPost';
  * profile.
  */
 export default class PostsUserPage extends UserPage {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * Whether or not the activity feed is currently loading.

@@ -12,8 +12,8 @@ import extractText from 'flarum/utils/extractText';
  * - `email`
  */
 export default class ForgotPasswordModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * The value of the email input.

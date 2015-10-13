@@ -8,9 +8,7 @@ import extractText from 'flarum/utils/extractText';
  * edit it.
  */
 export default class UserBio extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not the bio is currently being edited.
      *

@@ -3,9 +3,7 @@ import Button from 'flarum/components/Button';
 import saveSettings from 'flarum/utils/saveSettings';
 
 export default class EditCustomCssModal extends Modal {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.customLess = m.prop(app.settings.custom_less || '');
   }
 

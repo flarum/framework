@@ -16,8 +16,8 @@ import listItems from 'flarum/helpers/listItems';
  * @abstract
  */
 export default class UserPage extends Page {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * The user this page is for.

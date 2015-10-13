@@ -13,8 +13,8 @@ import DiscussionControls from 'flarum/utils/DiscussionControls';
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
 export default class DiscussionPage extends Page {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * The discussion that is being viewed.

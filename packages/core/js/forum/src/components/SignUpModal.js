@@ -16,8 +16,8 @@ import extractText from 'flarum/utils/extractText';
  * - `token` An email token to sign up with.
  */
 export default class SignUpModal extends Modal {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * The value of the username input.

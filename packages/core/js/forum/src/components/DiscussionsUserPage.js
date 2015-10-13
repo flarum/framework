@@ -6,8 +6,8 @@ import DiscussionList from 'flarum/components/DiscussionList';
  * page.
  */
 export default class DiscussionsUserPage extends UserPage {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     this.loadUser(m.route.param('username'));
   }

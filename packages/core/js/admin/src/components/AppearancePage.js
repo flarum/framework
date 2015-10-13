@@ -5,9 +5,7 @@ import EditCustomCssModal from 'flarum/components/EditCustomCssModal';
 import saveSettings from 'flarum/utils/saveSettings';
 
 export default class AppearancePage extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     this.primaryColor = m.prop(app.settings.theme_primary_color);
     this.secondaryColor = m.prop(app.settings.theme_secondary_color);
     this.darkMode = m.prop(app.settings.theme_dark_mode === '1');

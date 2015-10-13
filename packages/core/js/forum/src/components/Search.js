@@ -17,9 +17,7 @@ import UsersSearchSource from 'flarum/components/UsersSearchSource';
  * `clearSearch` method on the controller.
  */
 export default class Search extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * The value of the search input.
      *

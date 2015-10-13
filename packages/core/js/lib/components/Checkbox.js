@@ -14,9 +14,7 @@ import icon from 'flarum/helpers/icon';
  * - `children` A text label to display next to the checkbox.
  */
 export default class Checkbox extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not the checkbox's value is in the process of being saved.
      *

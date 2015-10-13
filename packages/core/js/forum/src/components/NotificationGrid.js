@@ -12,9 +12,7 @@ import ItemList from 'flarum/utils/ItemList';
  * - `user`
  */
 export default class NotificationGrid extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Information about the available notification methods.
      *

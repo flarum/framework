@@ -9,9 +9,7 @@ import Discussion from 'flarum/models/Discussion';
  * notifications, grouped by discussion.
  */
 export default class NotificationList extends Component {
-  constructor(...args) {
-    super(...args);
-
+  init() {
     /**
      * Whether or not the notifications are loading.
      *
