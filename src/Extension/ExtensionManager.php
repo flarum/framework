@@ -14,10 +14,11 @@ use Flarum\Core;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\ExtensionWasUninstalled;
+use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepository;
-use Illuminate\Contracts\Container\Container;
 use Flarum\Database\Migrator;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Filesystem\Filesystem;
 
 class ExtensionManager
 {
@@ -32,12 +33,18 @@ class ExtensionManager
      */
     protected $dispatcher;
 
-    public function __construct(SettingsRepository $config, Container $app, Migrator $migrator, Dispatcher $dispatcher)
+    /**
+     * @var Filesystem
+     */
+    protected $filesystem;
+
+    public function __construct(SettingsRepository $config, Application $app, Migrator $migrator, Dispatcher $dispatcher, Filesystem $filesystem)
     {
         $this->config = $config;
         $this->app = $app;
         $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
+        $this->filesystem = $filesystem;
     }
 
     public function getInfo()
@@ -137,7 +144,10 @@ class ExtensionManager
      */
     protected function publishAssets($extension)
     {
-        // TODO: implement
+        $this->filesystem->copyDirectory(
+            $this->app->basePath().'/extensions/'.$extension.'/assets',
+            $this->app->basePath().'/assets/extensions/'.$extension
+        );
     }
 
     /**
@@ -147,7 +157,7 @@ class ExtensionManager
      */
     protected function unpublishAssets($extension)
     {
-        // TODO: implement
+        $this->filesystem->deleteDirectory($this->app->basePath().'/assets/extensions/'.$extension);
     }
 
     /**
@@ -159,7 +169,7 @@ class ExtensionManager
      */
     public function getAsset($extension, $path)
     {
-        // TODO: implement
+        return $this->app->basePath().'/assets/extensions/'.$extension.$path;
     }
 
     public function migrate($extension, $up = true)
