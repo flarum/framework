@@ -17,6 +17,7 @@ use Flarum\Core\User;
 use Flarum\Core\Group;
 use Flarum\Core\Permission;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use PDO;
@@ -38,11 +39,21 @@ class InstallCommand extends AbstractCommand
      */
     protected $application;
 
-    public function __construct(Application $application)
+    /**
+     * @var Filesystem
+     */
+    protected $filesystem;
+
+    /**
+     * @param Application $application
+     * @param Filesystem $filesystem
+     */
+    public function __construct(Application $application, Filesystem $filesystem)
     {
         $this->application = $application;
 
         parent::__construct();
+        $this->filesystem = $filesystem;
     }
 
     protected function configure()
@@ -331,7 +342,10 @@ class InstallCommand extends AbstractCommand
 
     protected function publishAssets()
     {
-        // TODO
+        $this->filesystem->copyDirectory(
+            __DIR__.'/../../../assets',
+            $this->application->basePath().'/assets'
+        );
     }
 
     protected function getConfigFile()
