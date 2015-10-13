@@ -42,6 +42,8 @@ class InstallServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.install.routes', function () {
             return $this->getRoutes();
         });
+
+        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
     }
 
     /**
@@ -56,7 +58,7 @@ class InstallServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/',
             'index',
-            $toController('Flarum\Install\Controller\IndexAction')
+            $toController('Flarum\Install\Controller\IndexController')
         );
 
         $routes->post(
