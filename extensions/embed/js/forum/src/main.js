@@ -4,7 +4,7 @@ import Composer from 'flarum/components/Composer';
 import ModalManager from 'flarum/components/ModalManager';
 import AlertManager from 'flarum/components/AlertManager';
 
-import DiscussionPage from 'embed/components/DiscussionPage';
+import DiscussionPage from 'flarum/embed/components/DiscussionPage';
 
 app.initializers.add('boot', () => {
   override(m, 'route', function(original, root, arg1, arg2, vdom) {
