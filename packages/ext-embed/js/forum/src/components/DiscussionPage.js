@@ -2,8 +2,8 @@ import Component from 'flarum/Component';
 import PostStream from 'flarum/components/PostStream';
 
 export default class DiscussionPage extends Component {
-  constructor(...args) {
-    super(...args);
+  init() {
+    super.init();
 
     /**
      * The discussion that is being viewed.
