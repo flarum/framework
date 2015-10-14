@@ -38,7 +38,7 @@ export default class Translator {
    * @param {VirtualElement} fallback
    * @return {VirtualElement}
    */
-  trans(key, input = {}, fallback) {
+  trans(key, input = {}, fallback = null) {
     const parts = key.split('.');
     let translation = this.translations;
 
@@ -69,16 +69,32 @@ export default class Translator {
     // If we've found the appropriate translation string, then we'll sub in the
     // input.
     if (typeof translation === 'string') {
-      translation = translation.split(new RegExp('({[^}]+})', 'gi'));
+      translation = translation.split(new RegExp('({[a-z0-9_]+}|</?[a-z0-9_]+>)', 'gi'));
 
-      translation.forEach((part, i) => {
-        const match = part.match(/^{(.+)}$/i);
+      const hydrated = [];
+      const open = [hydrated];
+
+      translation.forEach(part => {
+        const match = part.match(new RegExp('{([a-z0-9_]+)}|<(/?)([a-z0-9_]+)>', 'i'));
+
         if (match) {
-          translation[i] = input[match[1]];
+          if (match[1]) {
+            open[0].push(input[match[1]]);
+          } else if (match[3]) {
+            if (match[2]) {
+              open.shift();
+            } else {
+              let tag = input[match[3]] || [];
+              open[0].push(tag);
+              open.unshift(tag.children || tag);
+            }
+          }
+        } else {
+          open[0].push(part);
         }
       });
 
-      return translation.filter(part => part);
+      return hydrated.filter(part => part);
     }
 
     return fallback || [key];
