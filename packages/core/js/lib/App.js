@@ -6,6 +6,7 @@ import Translator from 'flarum/Translator';
 import extract from 'flarum/utils/extract';
 import patchMithril from 'flarum/utils/patchMithril';
 import RequestError from 'flarum/utils/RequestError';
+import { extend } from 'flarum/extend';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -188,6 +189,15 @@ export default class App {
     // prevent redraws from occurring.
     options.config = options.config || this.session.authorize.bind(this.session);
     options.background = options.background || true;
+
+    // If the method is something like PATCH or DELETE, which not all servers
+    // support, then we'll send it as a POST request with a the intended method
+    // specified in the X-Fake-Http-Method header.
+    if (options.method !== 'GET' && options.method !== 'POST') {
+      const method = options.method;
+      extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-Fake-Http-Method', method));
+      options.method = 'POST';
+    }
 
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an
