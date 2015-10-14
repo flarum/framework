@@ -54,8 +54,6 @@ trait AuthenticateUserTrait
         // unique token for these attributes and add it to the response, along
         // with the suggested account information.
         if ($user) {
-            $accessToken = $this->bus->dispatch(new GenerateAccessToken($user->id));
-
             $payload = ['authenticated' => true];
         } else {
             $token = AuthToken::generate($identification);
@@ -64,16 +62,17 @@ trait AuthenticateUserTrait
             $payload = array_merge($identification, $suggestions, ['token' => $token->id]);
         }
 
-        $content = sprintf('<script>
-window.opener.app.authenticationComplete(%s);
-window.close();
-</script>', json_encode($payload));
+        $content = sprintf(
+            '<script>window.opener.app.authenticationComplete(%s); window.close();</script>',
+            json_encode($payload)
+        );
 
         $response = new HtmlResponse($content);
 
-        if (isset($accessToken)) {
+        if ($user) {
             // Extend the token's expiry to 2 weeks so that we can set a
             // remember cookie
+            $accessToken = $this->bus->dispatch(new GenerateAccessToken($user->id));
             $accessToken::unguard();
             $accessToken->update(['expires_at' => new DateTime('+2 weeks')]);
 
