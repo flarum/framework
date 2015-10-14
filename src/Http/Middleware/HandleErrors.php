@@ -14,6 +14,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
+use Franzl\Middleware\Whoops\Middleware as WhoopsMiddleware;
 
 class HandleErrors implements ErrorMiddlewareInterface
 {
@@ -23,11 +24,18 @@ class HandleErrors implements ErrorMiddlewareInterface
     protected $templateDir;
 
     /**
-     * @param string $templateDir
+     * @var bool
      */
-    public function __construct($templateDir)
+    protected $debug;
+
+    /**
+     * @param string $templateDir
+     * @param bool $debug
+     */
+    public function __construct($templateDir, $debug = false)
     {
         $this->templateDir = $templateDir;
+        $this->debug = $debug;
     }
 
     /**
@@ -44,11 +52,21 @@ class HandleErrors implements ErrorMiddlewareInterface
             $status = $errorCode;
         }
 
+        if ($this->debug && $errorCode !== 404) {
+            $whoops = new WhoopsMiddleware;
+
+            return $whoops($error, $request, $response, $out);;
+        }
+
         $errorPage = $this->getErrorPage($status);
 
         return new HtmlResponse($errorPage, $status);
     }
 
+    /**
+     * @param string $status
+     * @return string
+     */
     protected function getErrorPage($status)
     {
         if (! file_exists($errorPage = $this->templateDir."/$status.html")) {
