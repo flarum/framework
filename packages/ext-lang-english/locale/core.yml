@@ -161,7 +161,7 @@ core:
     sign_up_confirmation_message: => core.confirmation_email_sent
     sign_up_email_placeholder: => core.email
     sign_up_dismiss_button: => core.okay
-    sign_up_log_in_text: => "Already have an account? <a>Sign Up</a>"
+    sign_up_log_in_text: "Already have an account? <a>Sign Up</a>"
     sign_up_password_placeholder: => core.password
     sign_up_submit_button: => core.sign_up
     sign_up_title: => core.sign_up
