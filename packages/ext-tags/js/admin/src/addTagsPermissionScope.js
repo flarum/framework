@@ -16,23 +16,13 @@ export default function() {
         label: tagLabel(tag),
         onremove: () => tag.save({isRestricted: false}),
         render: item => {
-          if (item.permission) {
-            let permission;
-
-            if (item.permission === 'forum.view') {
-              permission = 'view';
-            } else if (item.permission === 'forum.startDiscussion') {
-              permission = 'startDiscussion';
-            } else if (item.permission.indexOf('discussion.') === 0) {
-              permission = item.permission;
-            }
-
-            if (permission) {
-              return PermissionDropdown.component({
-                permission: 'tag' + tag.id() + '.' + permission,
-                allowGuest: item.allowGuest
-              });
-            }
+          if (item.permission === 'viewDiscussions'
+            || item.permission === 'startDiscussion'
+            || (item.permission && item.permission.indexOf('discussion.') === 0)) {
+            return PermissionDropdown.component({
+              permission: 'tag' + tag.id() + '.' + item.permission,
+              allowGuest: item.allowGuest
+            });
           }
 
           return '';

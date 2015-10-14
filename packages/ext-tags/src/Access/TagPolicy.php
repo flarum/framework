@@ -29,7 +29,7 @@ class TagPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
-        $query->whereNotIn('id', Tag::getIdsWhereCannot($actor, 'view'));
+        $query->whereNotIn('id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'));
     }
 
     /**

@@ -132,7 +132,7 @@ class Tag extends AbstractModel
         }
 
         $ids = [];
-        $hasGlobalPermission = $user->hasPermission($permission === 'view' ? 'forum.view' : $permission);
+        $hasGlobalPermission = $user->hasPermission($permission);
 
         foreach ($tags as $tag) {
             if (($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
@@ -157,7 +157,7 @@ class Tag extends AbstractModel
         }
 
         $ids = [];
-        $hasGlobalPermission = $user->hasPermission($permission === 'view' ? 'forum.view' : $permission);
+        $hasGlobalPermission = $user->hasPermission($permission);
 
         foreach ($tags as $tag) {
             if (($tag->is_restricted || ! $hasGlobalPermission) && ! $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
