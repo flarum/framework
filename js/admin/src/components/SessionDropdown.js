@@ -43,7 +43,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('logOut',
       Button.component({
         icon: 'sign-out',
-        children: app.trans('core.log_out'),
+        children: app.trans('core.admin.header_log_out_button'),
         onclick: app.session.logout.bind(app.session)
       }),
       -100

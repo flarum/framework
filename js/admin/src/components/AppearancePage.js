@@ -18,9 +18,9 @@ export default class AppearancePage extends Component {
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             <fieldset className="AppearancePage-colors">
-              <legend>Colors</legend>
+              <legend>{app.trans('core.admin.appearance_colors_heading')}</legend>
               <div className="helpText">
-                Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements.
+                {app.trans('core.admin.appearance_colors_text')}
               </div>
 
               <div className="AppearancePage-colors-input">
@@ -30,33 +30,33 @@ export default class AppearancePage extends Component {
 
               {Switch.component({
                 state: this.darkMode(),
-                children: 'Dark Mode',
+                children: app.trans('core.admin.appearance_dark_mode_label'),
                 onchange: this.darkMode
               })}
 
               {Switch.component({
                 state: this.coloredHeader(),
-                children: 'Colored Header',
+                children: app.trans('core.admin.appearance_colored_header_label'),
                 onchange: this.coloredHeader
               })}
 
               {Button.component({
                 className: 'Button Button--primary',
                 type: 'submit',
-                children: 'Save Changes',
+                children: app.trans('core.admin.appearance_submit_button'),
                 loading: this.loading
               })}
             </fieldset>
           </form>
 
           <fieldset>
-            <legend>Custom Styles</legend>
+            <legend>{app.trans('core.admin.appearance_custom_styles_heading')}</legend>
             <div className="helpText">
-              Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles.
+              {app.trans('core.admin.appearance_custom_styles_text')}
             </div>
             {Button.component({
               className: 'Button',
-              children: 'Edit Custom CSS',
+              children: app.trans('core.admin.appearance_edit_css_button'),
               onclick: () => app.modal.show(new EditCustomCssModal())
             })}
           </fieldset>
@@ -71,7 +71,7 @@ export default class AppearancePage extends Component {
     const hex = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
 
     if (!hex.test(this.primaryColor()) || !hex.test(this.secondaryColor())) {
-      alert('Please enter a hexadecimal color code.');
+      alert(app.trans('core.admin.appearance_enter_hex_message'));
       return;
     }
 
