@@ -20,7 +20,7 @@ class ConfigureForumRoutes extends AbstractConfigureRoutes
     /**
      * {@inheritdoc}
      */
-    public function get($url, $name, $handler = 'Flarum\Forum\Action\ClientAction')
+    public function get($url, $name, $handler = 'Flarum\Forum\Controller\ClientController')
     {
         parent::get($url, $name, $handler);
     }
