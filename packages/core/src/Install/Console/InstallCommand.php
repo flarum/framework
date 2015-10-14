@@ -274,10 +274,10 @@ class InstallCommand extends AbstractCommand
     {
         $permissions = [
             // Guests can view the forum
-            [2, 'forum.view'],
+            [2, 'viewDiscussions'],
 
             // Members can create and reply to discussions
-            [3, 'forum.startDiscussion'],
+            [3, 'startDiscussion'],
             [3, 'discussion.reply'],
 
             // Moderators can edit + delete stuff
