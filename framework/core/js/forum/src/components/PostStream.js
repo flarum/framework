@@ -464,7 +464,7 @@ class PostStream extends Component {
 
       if (top + height > scrollTop) {
         if (!startNumber) {
-          startNumber = $item.data('number');
+          startNumber = endNumber = $item.data('number');
         }
 
         if (top + height < scrollTop + viewportHeight) {
