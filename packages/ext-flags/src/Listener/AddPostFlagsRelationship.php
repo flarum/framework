@@ -119,10 +119,12 @@ class AddPostFlagsRelationship
             $postsWithPermission = [];
 
             foreach ($posts as $post) {
-                $post->setRelation('flags', null);
+                if (is_object($post)) {
+                    $post->setRelation('flags', null);
 
-                if ($actor->can('viewFlags', $post->discussion)) {
-                    $postsWithPermission[] = $post;
+                    if ($actor->can('viewFlags', $post->discussion)) {
+                        $postsWithPermission[] = $post;
+                    }
                 }
             }
 
