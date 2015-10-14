@@ -37,11 +37,8 @@ class Server extends AbstractServer
             $pipe->pipe($adminPath, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
             $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', compact('routes')));
 
-            if ($app->inDebugMode()) {
-                $pipe->pipe(new WhoopsMiddleware);
-            } else {
-                $pipe->pipe(new HandleErrors(__DIR__.'/../../error'));
-            }
+            $pipe->pipe(new HandleErrors(__DIR__.'/../../error', $app->inDebugMode()));
+
         }
 
         return $pipe;
