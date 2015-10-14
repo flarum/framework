@@ -81,7 +81,7 @@ class DiscussionPolicy extends AbstractPolicy
         $query->whereNotExists(function ($query) use ($actor) {
             return $query->select(new Expression(1))
                 ->from('discussions_tags')
-                ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'view'))
+                ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'))
                 ->where('discussions.id', new Expression('discussion_id'));
         });
     }
