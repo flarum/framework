@@ -15,7 +15,6 @@ use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
 use Zend\Stratigility\MiddlewarePipe;
 use Flarum\Http\Middleware\HandleErrors;
-use Franzl\Middleware\Whoops\Middleware as WhoopsMiddleware;
 
 class Server extends AbstractServer
 {
@@ -44,11 +43,7 @@ class Server extends AbstractServer
 
         $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\DispatchRoute', compact('routes')));
 
-        if ($app->inDebugMode() || ! $installed) {
-            $pipe->pipe(new WhoopsMiddleware);
-        } else {
-            $pipe->pipe(new HandleErrors(__DIR__.'/../../error'));
-        }
+        $pipe->pipe(new HandleErrors(__DIR__.'/../../error', $app->inDebugMode() || ! $installed));
 
         return $pipe;
     }
