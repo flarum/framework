@@ -35,36 +35,36 @@ export default class AdminNav extends Component {
     items.add('dashboard', AdminLinkButton.component({
       href: app.route('dashboard'),
       icon: 'bar-chart',
-      children: 'Dashboard',
-      description: 'Your forum at a glance.'
+      children: app.trans('core.admin.nav_dashboard_button'),
+      description: app.trans('core.admin.nav_dashboard_text')
     }));
 
     items.add('basics', AdminLinkButton.component({
       href: app.route('basics'),
       icon: 'pencil',
-      children: 'Basics',
-      description: 'Set your forum title, language, and other basic settings.'
+      children: app.trans('core.admin.nav_basics_button'),
+      description: app.trans('core.admin.nav_basics_text')
     }));
 
     items.add('permissions', AdminLinkButton.component({
       href: app.route('permissions'),
       icon: 'key',
-      children: 'Permissions',
-      description: 'Configure who can see and do what.'
+      children: app.trans('core.admin.nav_permissions_button'),
+      description: app.trans('core.admin.nav_permissions_text')
     }));
 
     items.add('appearance', AdminLinkButton.component({
       href: app.route('appearance'),
       icon: 'paint-brush',
-      children: 'Appearance',
-      description: 'Customize your forum\'s colors, logos, and other variables.'
+      children: app.trans('core.admin.nav_appearance_button'),
+      description: app.trans('core.admin.nav_appearance_text')
     }));
 
     items.add('extensions', AdminLinkButton.component({
       href: app.route('extensions'),
       icon: 'puzzle-piece',
-      children: 'Extensions',
-      description: 'Add extra functionality to your forum and make it your own.'
+      children: app.trans('core.admin.nav_extensions_button'),
+      description: app.trans('core.admin.nav_extensions_text')
     }));
 
     return items;
