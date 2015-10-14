@@ -78,8 +78,7 @@ export default class LogInModal extends Modal {
 
         {app.forum.attribute('allowSignUp') ? (
           <p className="LogInModal-signUp">
-            {app.trans('core.forum.log_in_no_account_text')}
-            <a onclick={this.signUp.bind(this)}>{app.trans('core.forum.log_in_sign_up_link')}</a>
+            {app.trans('core.forum.log_in_sign_up_text', {a: <a onclick={this.signUp.bind(this)}/>})}
           </p>
         ) : ''}
       </div>
