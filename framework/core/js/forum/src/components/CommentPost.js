@@ -57,42 +57,16 @@ export default class CommentPost extends Post {
 
     const contentHtml = this.isEditing() ? '' : this.props.post.contentHtml();
 
+    // If the post content has changed since the last render, we'll run through
+    // all of the <script> tags in the content and evaluate them. This is
+    // necessary because TextFormatter outputs them for e.g. syntax highlighting.
     if (context.contentHtml !== contentHtml) {
-      if (typeof hljs === 'undefined') {
-        this.loadHljs();
-      } else {
-        this.$('pre code').each(function(i, elm) {
-          hljs.highlightBlock(elm);
-        });
-      }
+      this.$('.Post-body script').each(function() {
+        eval.call(window, $(this).text());
+      });
     }
 
     context.contentHtml = contentHtml;
-  }
-
-  /**
-   * Load the highlight.js library and initialize highlighting when done.
-   *
-   * @private
-   */
-  loadHljs() {
-    const head = document.getElementsByTagName('head')[0];
-
-    const stylesheet = document.createElement('link');
-    stylesheet.type = 'text/css';
-    stylesheet.rel = 'stylesheet';
-    stylesheet.href = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/default.min.css';
-    head.appendChild(stylesheet);
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.onload = () => {
-      hljs._ = {};
-      hljs.initHighlighting();
-    };
-    script.async = true;
-    script.src = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/highlight.min.js';
-    head.appendChild(script);
   }
 
   isEditing() {
