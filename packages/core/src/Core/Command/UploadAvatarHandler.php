@@ -14,6 +14,7 @@ use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\AvatarWillBeSaved;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\Application;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Str;
 use League\Flysystem\Adapter\Local;
@@ -38,15 +39,21 @@ class UploadAvatarHandler
     protected $uploadDir;
 
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
      * @param Dispatcher $events
      * @param UserRepository $users
      * @param FilesystemInterface $uploadDir
      */
-    public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir)
+    public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir, Application $app)
     {
         $this->events = $events;
         $this->users = $users;
         $this->uploadDir = $uploadDir;
+        $this->app = $app;
     }
 
     /**
@@ -64,7 +71,7 @@ class UploadAvatarHandler
             $this->assertCan($actor, 'edit', $user);
         }
 
-        $tmpFile = tempnam(sys_get_temp_dir(), 'avatar');
+        $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
         $command->file->moveTo($tmpFile);
 
         $manager = new ImageManager;
