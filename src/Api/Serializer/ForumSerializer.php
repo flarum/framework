@@ -76,7 +76,6 @@ class ForumSerializer extends AbstractSerializer
             'allowSignUp'        => (bool) $this->settings->get('allow_sign_up'),
             'defaultRoute'       => $this->settings->get('default_route'),
             'canViewDiscussions' => $gate->allows('viewDiscussions'),
-            'canViewUserList'    => $gate->allows('viewUserList'),
             'canStartDiscussion' => $gate->allows('startDiscussion')
         ];
 
