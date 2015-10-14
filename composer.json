@@ -48,7 +48,7 @@
         "symfony/yaml": "^2.7",
         "doctrine/dbal": "^2.5",
         "monolog/monolog": "^1.16.0",
-        "franzl/whoops-middleware": "dev-master",
+        "franzl/whoops-middleware": "^0.1.0",
         "matthiasmullie/minify": "^1.3"
     },
     "require-dev": {
