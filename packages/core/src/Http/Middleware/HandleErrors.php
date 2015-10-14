@@ -55,7 +55,7 @@ class HandleErrors implements ErrorMiddlewareInterface
         if ($this->debug && $errorCode !== 404) {
             $whoops = new WhoopsMiddleware;
 
-            return $whoops($error, $request, $response, $out);;
+            return $whoops($error, $request, $response, $out);
         }
 
         $errorPage = $this->getErrorPage($status);
