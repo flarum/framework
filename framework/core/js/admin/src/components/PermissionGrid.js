@@ -84,10 +84,10 @@ export default class PermissionGrid extends Component {
   viewItems() {
     const items = new ItemList();
 
-    items.add('view', {
+    items.add('viewDiscussions', {
       icon: 'eye',
       label: app.trans('core.admin.permissions_view_discussions_label'),
-      permission: 'forum.view',
+      permission: 'viewDiscussions',
       allowGuest: true
     }, 100);
 
@@ -112,7 +112,7 @@ export default class PermissionGrid extends Component {
     items.add('start', {
       icon: 'edit',
       label: app.trans('core.admin.permissions_start_discussions_label'),
-      permission: 'forum.startDiscussion'
+      permission: 'startDiscussion'
     }, 100);
 
     items.add('allowRenaming', {
