@@ -14,6 +14,7 @@ use Flarum\Api\AccessToken;
 use Flarum\Api\ApiKey;
 use Flarum\Core\Guest;
 use Flarum\Core\User;
+use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -22,21 +23,21 @@ use Zend\Stratigility\MiddlewareInterface;
 class AuthenticateWithHeader implements MiddlewareInterface
 {
     /**
-     * @var Container
-     */
-    protected $app;
-
-    /**
      * @var string
      */
     protected $prefix = 'Token ';
 
     /**
-     * @param Container $app
+     * @var LocaleManager
      */
-    public function __construct(Container $app)
+    protected $locales;
+
+    /**
+     * @param LocaleManager $locales
+     */
+    public function __construct(LocaleManager $locales)
     {
-        $this->app = $app;
+        $this->locales = $locales;
     }
 
     /**
@@ -59,24 +60,34 @@ class AuthenticateWithHeader implements MiddlewareInterface
 
         $parts = explode(';', $header);
 
+        $actor = new Guest;
+
         if (isset($parts[0]) && starts_with($parts[0], $this->prefix)) {
             $token = substr($parts[0], strlen($this->prefix));
 
             if (($accessToken = AccessToken::find($token)) && $accessToken->isValid()) {
-                $user = $accessToken->user;
+                $actor = $accessToken->user;
 
-                $user->updateLastSeen()->save();
-
-                return $request->withAttribute('actor', $user);
+                $actor->updateLastSeen()->save();
             } elseif (isset($parts[1]) && ($apiKey = ApiKey::valid($token))) {
                 $userParts = explode('=', trim($parts[1]));
 
                 if (isset($userParts[0]) && $userParts[0] === 'userId') {
-                    return $request->withAttribute('actor', $user = User::find($userParts[1]));
+                    $actor = User::find($userParts[1]);
                 }
             }
         }
 
-        return $request->withAttribute('actor', new Guest);
+        if ($actor->exists) {
+            $locale = $actor->getPreference('locale');
+        } else {
+            $locale = array_get($request->getCookieParams(), 'locale');
+        }
+
+        if ($locale && $this->locales->hasLocale($locale)) {
+            $this->locales->setLocale($locale);
+        }
+
+        return $request->withAttribute('actor', $actor ?: new Guest);
     }
 }

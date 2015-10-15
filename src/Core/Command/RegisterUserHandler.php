@@ -13,6 +13,7 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\User;
 use Flarum\Core\AuthToken;
+use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepository;
@@ -30,13 +31,20 @@ class RegisterUserHandler
     protected $settings;
 
     /**
+     * @var UserValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param SettingsRepository $settings
+     * @param UserValidator $validator
      */
-    public function __construct(Dispatcher $events, SettingsRepository $settings)
+    public function __construct(Dispatcher $events, SettingsRepository $settings, UserValidator $validator)
     {
         $this->events = $events;
         $this->settings = $settings;
+        $this->validator = $validator;
     }
 
     /**
@@ -87,6 +95,8 @@ class RegisterUserHandler
         $this->events->fire(
             new UserWillBeSaved($user, $actor, $data)
         );
+
+        $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
 
         $user->save();
 

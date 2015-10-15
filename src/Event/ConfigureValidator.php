@@ -10,7 +10,7 @@
 
 namespace Flarum\Event;
 
-use Flarum\Database\AbstractModel;
+use Flarum\Core\Validator\AbstractValidator;
 use Illuminate\Validation\Validator;
 
 /**
@@ -18,12 +18,12 @@ use Illuminate\Validation\Validator;
  * model is being built. This event can be used to add custom rules/extensions
  * to the validator for when validation takes place.
  */
-class ConfigureModelValidator
+class ConfigureValidator
 {
     /**
-     * @var AbstractModel
+     * @var AbstractValidator
      */
-    public $model;
+    public $type;
 
     /**
      * @var Validator
@@ -31,12 +31,12 @@ class ConfigureModelValidator
     public $validator;
 
     /**
-     * @param AbstractModel $model
+     * @param AbstractValidator $type
      * @param Validator $validator
      */
-    public function __construct(AbstractModel $model, Validator $validator)
+    public function __construct(AbstractValidator $type, Validator $validator)
     {
-        $this->model = $model;
+        $this->type = $type;
         $this->validator = $validator;
     }
 }

@@ -46,6 +46,7 @@
         "dflydev/fig-cookies": "^1.0",
         "symfony/console": "^2.7",
         "symfony/yaml": "^2.7",
+        "symfony/translation": "^2.7",
         "doctrine/dbal": "^2.5",
         "monolog/monolog": "^1.16.0",
         "franzl/whoops-middleware": "^0.1.0",

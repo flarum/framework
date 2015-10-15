@@ -156,8 +156,6 @@ class User extends AbstractModel
     {
         $user = new static;
 
-        $user->assertValidPassword($password);
-
         $user->username  = $username;
         $user->email     = $email;
         $user->password  = $password;
@@ -227,15 +225,6 @@ class User extends AbstractModel
     public function requestEmailChange($email)
     {
         if ($email !== $this->email) {
-            $validator = $this->makeValidator();
-
-            $validator->setRules(array_only($validator->getRules(), 'email'));
-            $validator->setData(compact('email'));
-
-            if ($validator->fails()) {
-                $this->throwValidationException($validator);
-            }
-
             $this->raise(new UserEmailChangeWasRequested($this, $email));
         }
 
@@ -250,27 +239,11 @@ class User extends AbstractModel
      */
     public function changePassword($password)
     {
-        $this->assertValidPassword($password);
-
         $this->password = $password;
 
         $this->raise(new UserPasswordWasChanged($this));
 
         return $this;
-    }
-
-    /**
-     * Validate password input.
-     *
-     * @param string $password
-     * @return void
-     * @throws \Flarum\Core\Exception\ValidationException
-     */
-    protected function assertValidPassword($password)
-    {
-        if (strlen($password) < 8) {
-            throw new ValidationException(['password' => 'Password must be at least 8 characters']);
-        }
     }
 
     /**

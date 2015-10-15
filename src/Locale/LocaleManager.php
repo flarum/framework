@@ -10,15 +10,36 @@
 
 namespace Flarum\Locale;
 
+use Symfony\Component\Translation\Translator;
+
 class LocaleManager
 {
-    protected $locales = [];
+    /**
+     * @var Translator
+     */
+    protected $translator;
 
-    protected $translations = [];
+    protected $locales = [];
 
     protected $js = [];
 
-    protected $config = [];
+    /**
+     * @param Translator $translator
+     */
+    public function __construct(Translator $translator)
+    {
+        $this->translator = $translator;
+    }
+
+    public function getLocale()
+    {
+        return $this->translator->getLocale();
+    }
+
+    public function setLocale($locale)
+    {
+        $this->translator->setLocale($locale);
+    }
 
     public function addLocale($locale, $name)
     {
@@ -35,34 +56,14 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations($locale, $translations)
+    public function addTranslations($locale, $file)
     {
-        $this->translations[$locale][] = $translations;
+        $this->translator->addResource('yaml', $file, $locale);
     }
 
     public function addJsFile($locale, $js)
     {
         $this->js[$locale][] = $js;
-    }
-
-    public function addConfig($locale, $config)
-    {
-        $this->config[$locale][] = $config;
-    }
-
-    public function getTranslations($locale)
-    {
-        $files = array_get($this->translations, $locale, []);
-
-        $parts = explode('-', $locale);
-
-        if (count($parts) > 1) {
-            $files = array_merge(array_get($this->translations, $parts[0], []), $files);
-        }
-
-        $compiler = new TranslationCompiler($locale, $files);
-
-        return $compiler->getTranslations();
     }
 
     public function getJsFiles($locale)
@@ -78,18 +79,19 @@ class LocaleManager
         return $files;
     }
 
-    public function getConfig($locale)
+    /**
+     * @return Translator
+     */
+    public function getTranslator()
     {
-        if (empty($this->config[$locale])) {
-            return [];
-        }
+        return $this->translator;
+    }
 
-        $config = [];
-
-        foreach ($this->config[$locale] as $file) {
-            $config = array_merge($config, include $file);
-        }
-
-        return $config;
+    /**
+     * @param Translator $translator
+     */
+    public function setTranslator($translator)
+    {
+        $this->translator = $translator;
     }
 }
