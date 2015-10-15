@@ -66,12 +66,13 @@ export default class PostStreamScrubber extends Component {
 
   view() {
     const retain = this.subtree.retain();
+    const count = this.count();
     const unreadCount = this.props.stream.discussion.unreadCount();
-    const unreadPercent = Math.min(this.count() - this.index, unreadCount) / this.count();
+    const unreadPercent = Math.min(count - this.index, unreadCount) / count;
 
-    const viewing = app.trans('core.forum.post_scrubber_viewing_text', {
+    const viewing = app.translator.transChoice('core.forum.post_scrubber_viewing_text', count, {
       index: <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
-      count: <span className="Scrubber-count">{formatNumber(this.count())}</span>
+      count: <span className="Scrubber-count">{formatNumber(count)}</span>
     });
 
     function styleUnread(element, isInitialized, context) {

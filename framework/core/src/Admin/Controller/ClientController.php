@@ -13,13 +13,13 @@ namespace Flarum\Admin\Controller;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\AbstractClientController as BaseClientController;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Flarum\Core\Permission;
 use Flarum\Api\Client;
 use Flarum\Settings\SettingsRepository;
-use Flarum\Locale\LocaleManager;
 use Flarum\Event\PrepareUnserializedSettings;
 
 class ClientController extends BaseClientController

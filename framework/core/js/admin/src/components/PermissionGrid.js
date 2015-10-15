@@ -123,7 +123,7 @@ export default class PermissionGrid extends Component {
 
         return SettingDropdown.component({
           defaultLabel: minutes
-            ? app.trans('core.admin.permissions_allow_some_minutes_button', {count: minutes})
+            ? app.translator.transChoice('core.admin.permissions_allow_some_minutes_button', minutes, {count: minutes})
             : app.trans('core.admin.permissions_allow_indefinitely_button'),
           key: 'allow_renaming',
           options: [
@@ -155,7 +155,7 @@ export default class PermissionGrid extends Component {
 
         return SettingDropdown.component({
           defaultLabel: minutes
-            ? app.trans('core.admin.permissions_allow_some_minutes_button', {count: minutes})
+            ? app.translator.transChoice('core.admin.permissions_allow_some_minutes_button', minutes, {count: minutes})
             : app.trans('core.admin.permissions_allow_indefinitely_button'),
           key: 'allow_post_editing',
           options: [

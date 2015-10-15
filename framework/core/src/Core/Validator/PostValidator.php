@@ -13,14 +13,9 @@ namespace Flarum\Core\Validator;
 class PostValidator extends AbstractValidator
 {
     protected $rules = [
-        'discussion_id' => ['required', 'integer'],
-        'time' => ['required', 'date'],
-        'content' => ['required', 'max:65535'],
-        'number' => ['integer'],
-        'user_id' => ['integer'],
-        'edit_time' => ['date'],
-        'edit_user_id' => ['integer'],
-        'hide_time' => ['date'],
-        'hide_user_id' => ['integer']
+        'content' => [
+            'required',
+            'max:65535'
+        ]
     ];
 }

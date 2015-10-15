@@ -14,6 +14,7 @@ use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Core\Validator\DiscussionValidator;
 use Flarum\Event\DiscussionWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -28,13 +29,20 @@ class EditDiscussionHandler
     protected $discussions;
 
     /**
+     * @var DiscussionValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param DiscussionRepository $discussions
+     * @param DiscussionValidator $validator
      */
-    public function __construct(Dispatcher $events, DiscussionRepository $discussions)
+    public function __construct(Dispatcher $events, DiscussionRepository $discussions, DiscussionValidator $validator)
     {
         $this->events = $events;
         $this->discussions = $discussions;
+        $this->validator = $validator;
     }
 
     /**
@@ -69,6 +77,8 @@ class EditDiscussionHandler
         $this->events->fire(
             new DiscussionWillBeSaved($discussion, $actor, $data)
         );
+
+        $this->validator->assertValid($discussion->getDirty());
 
         $discussion->save();
 

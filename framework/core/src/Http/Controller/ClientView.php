@@ -96,22 +96,22 @@ class ClientView implements Renderable
     protected $request;
 
     /**
-     * @var \Flarum\Asset\AssetManager
+     * @var AssetManager
      */
     protected $assets;
 
     /**
      * @var JsCompiler
      */
-    protected $locale;
+    protected $localeJs;
 
     /**
      * @param Client $api
      * @param Request $request
      * @param User $actor
-     * @param \Flarum\Asset\AssetManager $assets
+     * @param AssetManager $assets
      * @param string $layout
-     * @param JsCompiler $locale
+     * @param JsCompiler $localeJs
      */
     public function __construct(
         Client $api,
@@ -119,14 +119,14 @@ class ClientView implements Renderable
         User $actor,
         AssetManager $assets,
         $layout,
-        JsCompiler $locale = null
+        JsCompiler $localeJs = null
     ) {
         $this->api = $api;
         $this->request = $request;
         $this->actor = $actor;
         $this->assets = $assets;
         $this->layout = $layout;
-        $this->locale = $locale;
+        $this->localeJs = $localeJs;
     }
 
     /**
@@ -214,7 +214,7 @@ class ClientView implements Renderable
     /**
      * Get the view's asset manager.
      *
-     * @return \Flarum\Asset\AssetManager
+     * @return AssetManager
      */
     public function getAssets()
     {
@@ -264,8 +264,8 @@ class ClientView implements Renderable
         $view->styles = [$this->assets->getCssFile()];
         $view->scripts = [$this->assets->getJsFile()];
 
-        if ($this->locale) {
-            $view->scripts[] = $this->locale->getFile();
+        if ($this->localeJs) {
+            $view->scripts[] = $this->localeJs->getFile();
         }
 
         $view->head = implode("\n", $this->headStrings);

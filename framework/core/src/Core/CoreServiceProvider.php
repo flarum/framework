@@ -85,10 +85,6 @@ class CoreServiceProvider extends AbstractServiceProvider
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->make('flarum.gate'));
 
-        $this->validateModelWith(User::class, 'Flarum\Core\Validator\UserValidator');
-        $this->validateModelWith(Group::class, 'Flarum\Core\Validator\GroupValidator');
-        $this->validateModelWith(Post::class, 'Flarum\Core\Validator\PostValidator');
-
         $events = $this->app->make('events');
 
         $events->subscribe('Flarum\Core\Listener\DiscussionMetadataUpdater');
@@ -128,16 +124,5 @@ class CoreServiceProvider extends AbstractServiceProvider
         $event->add('discloseOnline', 'boolval', true);
         $event->add('indexProfile', 'boolval', true);
         $event->add('locale');
-    }
-
-    /**
-     * @param string $model
-     * @param string $validator
-     */
-    protected function validateModelWith($model, $validator)
-    {
-        $model::saving(function ($model) use ($validator) {
-            $this->app->make($validator)->assertValid($model);
-        });
     }
 }

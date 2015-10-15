@@ -11,6 +11,7 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Post\CommentPost;
@@ -34,18 +35,26 @@ class PostReplyHandler
     protected $notifications;
 
     /**
+     * @var PostValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param DiscussionRepository $discussions
      * @param NotificationSyncer $notifications
+     * @param PostValidator $validator
      */
     public function __construct(
         Dispatcher $events,
         DiscussionRepository $discussions,
-        NotificationSyncer $notifications
+        NotificationSyncer $notifications,
+        PostValidator $validator
     ) {
         $this->events = $events;
         $this->discussions = $discussions;
         $this->notifications = $notifications;
+        $this->validator = $validator;
     }
 
     /**
@@ -78,6 +87,8 @@ class PostReplyHandler
         $this->events->fire(
             new PostWillBeSaved($post, $actor, $command->data)
         );
+
+        $this->validator->assertValid($post->getAttributes());
 
         $post->save();
 

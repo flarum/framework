@@ -12,12 +12,26 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Api\AccessToken;
 use Flarum\Core\Guest;
+use Flarum\Locale\LocaleManager;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Stratigility\MiddlewareInterface;
 
 class AuthenticateWithCookie implements MiddlewareInterface
 {
+    /**
+     * @var LocaleManager
+     */
+    protected $locales;
+
+    /**
+     * @param LocaleManager $locales
+     */
+    public function __construct(LocaleManager $locales)
+    {
+        $this->locales = $locales;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -36,17 +50,27 @@ class AuthenticateWithCookie implements MiddlewareInterface
      */
     protected function logIn(Request $request)
     {
+        $actor = new Guest;
+
         if ($token = $this->getToken($request)) {
             if (! $token->isValid()) {
                 // TODO: https://github.com/flarum/core/issues/253
-            } elseif ($user = $token->user) {
-                $user->updateLastSeen()->save();
-
-                return $request->withAttribute('actor', $user);
+            } elseif ($actor = $token->user) {
+                $actor->updateLastSeen()->save();
             }
         }
 
-        return $request->withAttribute('actor', new Guest);
+        if ($actor->exists) {
+            $locale = $actor->getPreference('locale');
+        } else {
+            $locale = array_get($request->getCookieParams(), 'locale');
+        }
+
+        if ($locale && $this->locales->hasLocale($locale)) {
+            $this->locales->setLocale($locale);
+        }
+
+        return $request->withAttribute('actor', $actor);
     }
 
     /**
