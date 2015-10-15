@@ -103,7 +103,7 @@ core:
     log_in_forgot_password_link: Forgot password?
     log_in_invalid_login_message: Your login details were incorrect.
     log_in_password_placeholder: => core.password
-    log_in_sign_up_text: "Don't have an account? <a>Log In</a>"
+    log_in_sign_up_text: "Don't have an account? <a>Sign Up</a>"
     log_in_submit_button: => core.log_in
     log_in_title: => core.log_in
     log_in_username_or_email_placeholder: Username or Email
@@ -129,9 +129,7 @@ core:
     post_scrubber_now_link: Now
     post_scrubber_original_post_link: Original Post
     post_scrubber_unread_text: "{count} unread"
-    post_scrubber_viewing_text:
-      one: "{index} of {count} post"
-      other: "{index} of {count} posts"
+    post_scrubber_viewing_text: "{index} of {count} post|{index} of {count} posts"
 
     # These strings are displayed between posts in the post stream.
     post_stream_discussion_renamed_text: "{username} changed the title from {old} to {new}."
@@ -161,7 +159,7 @@ core:
     sign_up_confirmation_message: => core.confirmation_email_sent
     sign_up_email_placeholder: => core.email
     sign_up_dismiss_button: => core.okay
-    sign_up_log_in_text: "Already have an account? <a>Sign Up</a>"
+    sign_up_log_in_text: "Already have an account? <a>Log In</a>"
     sign_up_password_placeholder: => core.password
     sign_up_submit_button: => core.sign_up
     sign_up_title: => core.sign_up
@@ -265,9 +263,7 @@ core:
     permissions_allow_indefinitely_button: Indefinitely
     permissions_allow_renaming_label: Allow renaming
     permissions_allow_post_editing_label: Allow post editing
-    permissions_allow_some_minutes_button:
-      one: "For {count} minute"
-      other: "For {count} minutes"
+    permissions_allow_some_minutes_button: "For {count} minute|For {count} minutes"
     permissions_allow_ten_minutes_button: For 10 minutes
     permissions_allow_until_reply_button: Until next reply
     permissions_create_heading: Create
@@ -339,3 +335,4 @@ core:
   group_members: Members
   group_mod: Mod
   group_mods: Mods
+

@@ -32,10 +32,6 @@ return function (Dispatcher $events) {
             $event->locales->addJsFile($locale, $file);
         }
 
-        if (file_exists($file = $localeDir.'/config.php')) {
-            $event->locales->addConfig($locale, $file);
-        }
-
         foreach (new DirectoryIterator($localeDir) as $file) {
             if ($file->isFile() && in_array($file->getExtension(), ['yml', 'yaml'])) {
                 $event->locales->addTranslations($locale, $file->getPathname());
