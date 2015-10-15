@@ -13,6 +13,8 @@ namespace Flarum\Locale;
 use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
+use Symfony\Component\Translation\MessageSelector;
+use Symfony\Component\Translation\Translator;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
@@ -21,9 +23,9 @@ class LocaleServiceProvider extends AbstractServiceProvider
      */
     public function boot(Dispatcher $events)
     {
-        $manager = $this->app->make('flarum.localeManager');
+        $locales = $this->app->make('flarum.localeManager');
 
-        $events->fire(new ConfigureLocales($manager));
+        $events->fire(new ConfigureLocales($locales));
     }
 
     /**
@@ -32,11 +34,18 @@ class LocaleServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->singleton('Flarum\Locale\LocaleManager');
-
         $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
 
-        $this->app->instance('translator', new Translator);
+        $this->app->singleton('translator', function () {
+            $defaultLocale = $this->app->make('flarum.settings')->get('default_locale');
 
+            $translator = new Translator($defaultLocale, new MessageSelector());
+            $translator->setFallbackLocales([$defaultLocale]);
+            $translator->addLoader('yaml', new YamlFileLoader());
+
+            return $translator;
+        });
+        $this->app->alias('translator', 'Symfony\Component\Translation\Translator');
         $this->app->alias('translator', 'Symfony\Component\Translation\TranslatorInterface');
     }
 }

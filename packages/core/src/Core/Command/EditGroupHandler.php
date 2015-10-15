@@ -14,6 +14,7 @@ use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Group;
 use Flarum\Core\Repository\GroupRepository;
+use Flarum\Core\Validator\GroupValidator;
 use Flarum\Event\GroupWillBeSaved;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -29,13 +30,20 @@ class EditGroupHandler
     protected $groups;
 
     /**
+     * @var GroupValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param GroupRepository $groups
+     * @param GroupValidator $validator
      */
-    public function __construct(Dispatcher $events, GroupRepository $groups)
+    public function __construct(Dispatcher $events, GroupRepository $groups, GroupValidator $validator)
     {
         $this->events = $events;
         $this->groups = $groups;
+        $this->validator = $validator;
     }
 
     /**
@@ -69,6 +77,8 @@ class EditGroupHandler
         $this->events->fire(
             new GroupWillBeSaved($group, $actor, $data)
         );
+
+        $this->validator->assertValid($group->getDirty());
 
         $group->save();
 

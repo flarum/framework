@@ -13,6 +13,7 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\User;
 use Flarum\Core\Repository\UserRepository;
+use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
 use Flarum\Event\UserGroupsWereChanged;
 use Flarum\Core\Support\DispatchEventsTrait;
@@ -29,13 +30,20 @@ class EditUserHandler
     protected $users;
 
     /**
+     * @var UserValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param UserRepository $users
+     * @param UserValidator $validator
      */
-    public function __construct(Dispatcher $events, UserRepository $users)
+    public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
     {
         $this->events = $events;
         $this->users = $users;
+        $this->validator = $validator;
     }
 
     /**
@@ -118,6 +126,8 @@ class EditUserHandler
         $this->events->fire(
             new UserWillBeSaved($user, $actor, $data)
         );
+
+        $this->validator->assertValid(array_merge($user->getDirty(), array_only($attributes, ['password', 'email'])));
 
         $user->save();
 

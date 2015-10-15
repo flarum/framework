@@ -13,12 +13,21 @@ namespace Flarum\Core\Validator;
 class UserValidator extends AbstractValidator
 {
     protected $rules = [
-        'username' => ['required', 'alpha_dash', 'unique', 'min:3', 'max:30'],
-        'email' => ['required', 'email', 'unique'],
-        'password' => ['required'],
-        'join_time' => ['date'],
-        'last_seen_time' => ['date'],
-        'discussions_count' => ['integer'],
-        'posts_count' => ['integer']
+        'username' => [
+            'required',
+            'alpha_dash',
+            'unique:users',
+            'min:3',
+            'max:8'
+        ],
+        'email' => [
+            'required',
+            'email',
+            'unique:users'
+        ],
+        'password' => [
+            'required',
+            'min:8'
+        ]
     ];
 }

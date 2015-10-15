@@ -125,6 +125,8 @@ export default class App {
    * @public
    */
   boot() {
+    this.translator.locale = this.locale;
+
     this.initializers.toArray().forEach(initializer => initializer(this));
   }
 
@@ -149,8 +151,6 @@ export default class App {
    * Set the <title> of the page.
    *
    * @param {String} title
-   * @param {Boolean} [separator] Whether or not to separate the given title and
-   *     the forum's title.
    * @public
    */
   setTitle(title) {

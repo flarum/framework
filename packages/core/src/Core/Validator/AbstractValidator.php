@@ -10,14 +10,14 @@
 
 namespace Flarum\Core\Validator;
 
-use Flarum\Database\AbstractModel;
-use Flarum\Event\ConfigureModelValidator;
+use Flarum\Event\ConfigureValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\Validator;
+use Symfony\Component\Translation\TranslatorInterface;
 
-class AbstractValidator
+abstract class AbstractValidator
 {
     /**
      * @var array
@@ -35,37 +35,61 @@ class AbstractValidator
     protected $events;
 
     /**
-     * @param Factory $validator
+     * @var TranslatorInterface
      */
-    public function __construct(Factory $validator, Dispatcher $events)
+    protected $translator;
+
+    /**
+     * @param Factory $validator
+     * @param Dispatcher $events
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(Factory $validator, Dispatcher $events, TranslatorInterface $translator)
     {
         $this->validator = $validator;
         $this->events = $events;
+        $this->translator = $translator;
     }
 
     /**
      * Check whether a model is valid.
      *
-     * @param AbstractModel $model
+     * @param array $attributes
      * @return bool
      */
-    public function valid(AbstractModel $model)
+    public function valid(array $attributes)
     {
-        return $this->makeValidator($model)->passes();
+        return $this->makeValidator($attributes)->passes();
     }
 
     /**
      * Throw an exception if a model is not valid.
      *
-     * @throws ValidationException
+     * @param array $attributes
      */
-    public function assertValid(AbstractModel $model)
+    public function assertValid(array $attributes)
     {
-        $validator = $this->makeValidator($model);
+        $validator = $this->makeValidator($attributes);
 
         if ($validator->fails()) {
             $this->throwValidationException($validator);
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getRules()
+    {
+        return $this->rules;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getMessages()
+    {
+        return [];
     }
 
     /**
@@ -80,72 +104,19 @@ class AbstractValidator
     /**
      * Make a new validator instance for this model.
      *
-     * @param AbstractModel $model
+     * @param array $attributes
      * @return \Illuminate\Validation\Validator
      */
-    protected function makeValidator(AbstractModel $model)
+    protected function makeValidator(array $attributes)
     {
-        $rules = $this->expandUniqueRules($this->rules, $model);
+        $rules = array_only($this->getRules(), array_keys($attributes));
 
-        $validator = $this->validator->make($model->getAttributes(), $rules);
+        $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
         $this->events->fire(
-            new ConfigureModelValidator($model, $validator)
+            new ConfigureValidator($this, $validator)
         );
 
         return $validator;
-    }
-
-    /**
-     * Expand 'unique' rules in a set of validation rules into a fuller form
-     * that Laravel's validator can understand.
-     *
-     * @param array $rules
-     * @param AbstractModel $model
-     * @return array
-     */
-    protected function expandUniqueRules($rules, AbstractModel $model)
-    {
-        foreach ($rules as $attribute => &$ruleset) {
-            if (is_string($ruleset)) {
-                $ruleset = explode('|', $ruleset);
-            }
-
-            foreach ($ruleset as &$rule) {
-                if (strpos($rule, 'unique') === 0) {
-                    $rule = $this->expandUniqueRule($attribute, $rule, $model);
-                }
-            }
-        }
-
-        return $rules;
-    }
-
-    /**
-     * Expand a 'unique' rule into a fuller form that Laravel's validator can
-     * understand, based on this model's properties.
-     *
-     * @param string $attribute
-     * @param string $rule
-     * @param AbstractModel $model
-     * @return string
-     */
-    protected function expandUniqueRule($attribute, $rule, AbstractModel $model)
-    {
-        $parts = explode(':', $rule);
-        $key = $model->getKey() ?: 'NULL';
-        $rule = 'unique:'.$model->getTable().','.$attribute.','.$key.','.$model->getKeyName();
-
-        if (! empty($parts[1])) {
-            $wheres = explode(',', $parts[1]);
-
-            foreach ($wheres as &$where) {
-                $where .= ','.$this->$where;
-            }
-
-            $rule .= ','.implode(',', $wheres);
-        }
-
-        return $rule;
     }
 }

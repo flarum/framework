@@ -129,7 +129,7 @@ abstract class AbstractClientController extends AbstractHtmlController
     {
         $actor = $request->getAttribute('actor');
         $assets = $this->getAssets();
-        $locale = $this->getLocale($actor, $request);
+        $locale = $this->locales->getLocale();
         $localeCompiler = $locale ? $this->getLocaleCompiler($locale) : null;
 
         $view = new ClientView(
@@ -157,7 +157,7 @@ abstract class AbstractClientController extends AbstractHtmlController
         );
 
         if ($localeCompiler) {
-            $translations = $this->locales->getTranslations($locale);
+            $translations = $this->locales->getTranslator()->getMessages()['messages'];
 
             $translations = $this->filterTranslations($translations, $keys);
 
@@ -294,30 +294,6 @@ abstract class AbstractClientController extends AbstractHtmlController
     }
 
     /**
-     * Get the name of the locale to use.
-     *
-     * @param User $actor
-     * @param Request $request
-     * @return string
-     */
-    protected function getLocale(User $actor, Request $request)
-    {
-        if ($actor->exists) {
-            $locale = $actor->getPreference('locale');
-        } else {
-            $locale = array_get($request->getCookieParams(), 'locale');
-        }
-
-        if (! $locale || ! $this->locales->hasLocale($locale)) {
-            $locale = $this->settings->get('default_locale', 'en');
-        }
-
-        if ($this->locales->hasLocale($locale)) {
-            return $locale;
-        }
-    }
-
-    /**
      * Get the path to the directory where assets should be written.
      *
      * @return string
@@ -336,19 +312,12 @@ abstract class AbstractClientController extends AbstractHtmlController
      */
     protected function filterTranslations(array $translations, array $keys)
     {
-        $filtered = [];
-
-        foreach ($keys as $key) {
-            $parts = explode('.', $key);
-            $level = &$filtered;
-
-            foreach ($parts as $part) {
-                $level = &$level[$part];
+        return array_filter($translations, function ($id) use ($keys) {
+            foreach ($keys as $key) {
+                if (substr($id, 0, strlen($key)) === $key) {
+                    return true;
+                }
             }
-
-            $level = array_get($translations, $key);
-        }
-
-        return $filtered;
+        }, ARRAY_FILTER_USE_KEY);
     }
 }

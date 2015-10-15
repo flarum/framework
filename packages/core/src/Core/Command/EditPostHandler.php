@@ -12,6 +12,7 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Repository\PostRepository;
+use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Post\CommentPost;
@@ -28,13 +29,20 @@ class EditPostHandler
     protected $posts;
 
     /**
+     * @var PostValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param PostRepository $posts
+     * @param PostValidator $validator
      */
-    public function __construct(Dispatcher $events, PostRepository $posts)
+    public function __construct(Dispatcher $events, PostRepository $posts, PostValidator $validator)
     {
         $this->events = $events;
         $this->posts = $posts;
+        $this->validator = $validator;
     }
 
     /**
@@ -72,6 +80,8 @@ class EditPostHandler
         $this->events->fire(
             new PostWillBeSaved($post, $actor, $data)
         );
+
+        $this->validator->assertValid($post->getDirty());
 
         $post->save();
 
