@@ -31,12 +31,14 @@ export default function() {
       // others" name to the end of the list. Clicking on it will display a modal
       // with a full list of names.
       if (likes.length > limit) {
+        const count = likes.length - limit;
+
         names.push(
           <a href="#" onclick={e => {
             e.preventDefault();
             app.modal.show(new PostLikesModal({post}));
           }}>
-            {app.trans('flarum-likes.forum.others', {count: likes.length - limit})}
+            {app.translator.transChoice('flarum-likes.forum.others', count, {count})}
           </a>
         );
       }
@@ -44,7 +46,7 @@ export default function() {
       items.add('liked', (
         <div className="Post-likedBy">
           {icon('thumbs-o-up')}
-          {app.trans('flarum-likes.forum.post_liked_by' + (likes[0] === app.session.user ? '_self' : ''), {
+          {app.translator.transChoice('flarum-likes.forum.post_liked_by' + (likes[0] === app.session.user ? '_self' : ''), names.length, {
             count: names.length,
             users: punctuateSeries(names)
           })}
