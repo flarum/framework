@@ -8,7 +8,7 @@ export default class DiscussionTaggedPost extends EventPost {
   }
 
   descriptionKey() {
-    return 'tags.discussion_tagged_post';
+    return 'flarum-tags.forum.discussion_tagged_post';
   }
 
   descriptionData() {
@@ -27,14 +27,14 @@ export default class DiscussionTaggedPost extends EventPost {
     const actions = [];
 
     if (added.length) {
-      actions.push(app.trans('tags.added_tags', {
+      actions.push(app.translator.transChoice('flarum-tags.forum.added_tags', added, {
         tags: tagsLabel(added, {link: true}),
         count: added
       }));
     }
 
     if (removed.length) {
-      actions.push(app.trans('tags.removed_tags', {
+      actions.push(app.translator.transChoice('flarum-tags.forum.removed_tags', removed, {
         tags: tagsLabel(removed, {link: true}),
         count: removed
       }));
