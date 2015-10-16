@@ -157,7 +157,7 @@ abstract class AbstractClientController extends AbstractHtmlController
         );
 
         if ($localeCompiler) {
-            $translations = $this->locales->getTranslator()->getMessages()['messages'];
+            $translations = array_get($this->locales->getTranslator()->getMessages(), 'messages', []);
 
             $translations = $this->filterTranslations($translations, $keys);
 
