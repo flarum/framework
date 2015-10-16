@@ -34,7 +34,7 @@ export default class EventPost extends Post {
     return [
       icon(this.icon(), {className: 'EventPost-icon'}),
       <div class="EventPost-info">
-        {app.trans(this.descriptionKey(), data)}
+        {app.translator.transChoice(this.descriptionKey(), data.count, data)}
       </div>
     ];
   }
