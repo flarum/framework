@@ -45,18 +45,18 @@ class LessCompiler extends RevisionCompiler
             'cache_dir' => $this->cachePath
         ]);
 
-        foreach ($this->files as $file) {
-            $parser->parseFile($file);
-        }
-
-        foreach ($this->strings as $callback) {
-            try {
-                $parser->parse($callback());
-            } catch (Less_Exception_Parser $e) {
-                // TODO: log an error somewhere?
+        try {
+            foreach ($this->files as $file) {
+                $parser->parseFile($file);
             }
-        }
 
-        return $parser->getCss();
+            foreach ($this->strings as $callback) {
+                $parser->parse($callback());
+            }
+
+            return $parser->getCss();
+        } catch (Less_Exception_Parser $e) {
+            // TODO: log an error somewhere?
+        }
     }
 }
