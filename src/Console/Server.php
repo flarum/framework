@@ -32,12 +32,9 @@ class Server extends AbstractServer
 
         $console = new Application('Flarum', $app::VERSION);
 
-        if (! $app->isInstalled()) {
-            $app->register('Flarum\Install\InstallServiceProvider');
+        $app->register('Flarum\Install\InstallServiceProvider');
 
-            $console->add($app->make('Flarum\Install\Console\InstallCommand'));
-        }
-
+        $console->add($app->make('Flarum\Install\Console\InstallCommand'));
         $console->add($app->make('Flarum\Console\Command\UpgradeCommand'));
         $console->add($app->make('Flarum\Console\Command\GenerateExtensionCommand'));
         $console->add($app->make('Flarum\Console\Command\GenerateMigrationCommand'));
