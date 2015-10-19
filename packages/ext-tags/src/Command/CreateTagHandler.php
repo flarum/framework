@@ -12,10 +12,24 @@ namespace Flarum\Tags\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\Tag;
+use Flarum\Tags\TagValidator;
 
 class CreateTagHandler
 {
     use AssertPermissionTrait;
+
+    /**
+     * @var TagValidator
+     */
+    protected $validator;
+
+    /**
+     * @param TagValidator $validator
+     */
+    public function __construct(TagValidator $validator)
+    {
+        $this->validator = $validator;
+    }
 
     /**
      * @param CreateTag $command
@@ -35,6 +49,8 @@ class CreateTagHandler
             array_get($data, 'attributes.color'),
             array_get($data, 'attributes.isHidden')
         );
+
+        $this->validator->assertValid($tag->getAttributes());
 
         $tag->save();
 

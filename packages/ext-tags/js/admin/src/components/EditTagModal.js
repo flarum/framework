@@ -101,9 +101,9 @@ export default class EditTagModal extends Modal {
       isHidden: this.isHidden()
     }).then(
       () => this.hide(),
-      () => {
+      response => {
         this.loading = false;
-        m.redraw();
+        this.handleErrors(response);
       }
     );
   }

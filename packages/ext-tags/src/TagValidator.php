@@ -19,6 +19,6 @@ class TagValidator extends AbstractValidator
      */
     protected $rules = [
         'name' => ['required'],
-        'slug' => ['required', 'unique:slug']
+        'slug' => ['required', 'unique:tags']
     ];
 }

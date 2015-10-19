@@ -12,6 +12,7 @@ namespace Flarum\Tags\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\TagRepository;
+use Flarum\Tags\TagValidator;
 
 class EditTagHandler
 {
@@ -23,11 +24,18 @@ class EditTagHandler
     protected $tags;
 
     /**
-     * @param TagRepository $tags
+     * @var TagValidator
      */
-    public function __construct(TagRepository $tags)
+    protected $validator;
+
+    /**
+     * @param TagRepository $tags
+     * @param TagValidator $validator
+     */
+    public function __construct(TagRepository $tags, TagValidator $validator)
     {
         $this->tags = $tags;
+        $this->validator = $validator;
     }
 
     /**
@@ -69,6 +77,8 @@ class EditTagHandler
         if (isset($attributes['isRestricted'])) {
             $tag->is_restricted = (bool) $attributes['isRestricted'];
         }
+
+        $this->validator->assertValid($tag->getDirty());
 
         $tag->save();
 
