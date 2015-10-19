@@ -14,20 +14,20 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\PrepareApiAttributes;
 use Flarum\Pusher\Api\Controller\AuthController;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPusherApi
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepository $settings)
+    public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
     }

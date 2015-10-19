@@ -11,7 +11,7 @@
 namespace Flarum\Pusher\Api\Controller;
 
 use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Pusher;
 use Zend\Diactoros\Response\EmptyResponse;
@@ -20,14 +20,14 @@ use Zend\Diactoros\Response\JsonResponse;
 class AuthController implements ControllerInterface
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepository $settings)
+    public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
     }
