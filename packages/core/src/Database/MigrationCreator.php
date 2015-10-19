@@ -92,8 +92,10 @@ class MigrationCreator
      */
     protected function populateStub($extension, $name, $stub, $table)
     {
+        list($vendor, $package) = explode('-', $extension, 2);
+
         $replacements = [
-            '{{namespace}}' => Str::studly($extension) ?: 'Flarum\Core',
+            '{{namespace}}' => Str::studly($vendor).'\\'.Str::studly($package) ?: 'Flarum\Core',
             '{{name}}' => Str::studly($name),
             '{{table}}' => $table
         ];
