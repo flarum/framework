@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Flarum\Core\Discussion;
 use Flarum\Core\User;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -26,7 +26,7 @@ class DiscussionPolicy extends AbstractPolicy
     protected $model = Discussion::class;
 
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -41,10 +41,10 @@ class DiscussionPolicy extends AbstractPolicy
     protected $events;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      * @param Gate $gate
      */
-    public function __construct(SettingsRepository $settings, Gate $gate, Dispatcher $events)
+    public function __construct(SettingsRepositoryInterface $settings, Gate $gate, Dispatcher $events)
     {
         $this->settings = $settings;
         $this->gate = $gate;

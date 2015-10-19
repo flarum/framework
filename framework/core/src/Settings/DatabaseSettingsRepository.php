@@ -13,7 +13,7 @@ namespace Flarum\Settings;
 
 use Illuminate\Database\ConnectionInterface;
 
-class DatabaseSettingsRepository implements SettingsRepository
+class DatabaseSettingsRepository implements SettingsRepositoryInterface
 {
     protected $database;
 

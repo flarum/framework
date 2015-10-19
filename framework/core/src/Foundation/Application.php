@@ -110,6 +110,17 @@ class Application extends Container implements ApplicationContract
         return $this->bound('flarum.config');
     }
 
+    public function isUpToDate()
+    {
+        $settings = $this->make('Flarum\Settings\SettingsRepositoryInterface');
+
+        try {
+            $version = $settings->get('version');
+        } finally {
+            return isset($version) && $version === $this->version();
+        }
+    }
+
     /**
      * @param string $key
      * @param mixed $default
@@ -600,7 +611,7 @@ class Application extends Container implements ApplicationContract
      */
     public function isDownForMaintenance()
     {
-        return file_exists($this->storagePath().'/framework/down');
+        return false;
     }
 
     /**

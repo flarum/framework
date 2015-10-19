@@ -16,7 +16,7 @@ use Flarum\Core\AuthToken;
 use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
 use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -26,7 +26,7 @@ class RegisterUserHandler
     use AssertPermissionTrait;
 
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -37,10 +37,10 @@ class RegisterUserHandler
 
     /**
      * @param Dispatcher $events
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      * @param UserValidator $validator
      */
-    public function __construct(Dispatcher $events, SettingsRepository $settings, UserValidator $validator)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator)
     {
         $this->events = $events;
         $this->settings = $settings;

@@ -107,18 +107,8 @@ abstract class AbstractServer
         $app->register('Illuminate\View\ViewServiceProvider');
         $app->register('Illuminate\Validation\ValidationServiceProvider');
 
-        if ($app->isInstalled()) {
-            $settings = $app->make('Flarum\Settings\SettingsRepository');
-
-            try {
-                $version = $settings->get('version');
-            } finally {
-                if (! isset($version) || $version !== $app->version()) {
-                    die('run upgrade script');
-//                    $command = $app->make('Flarum\Console\Command\UpgradeCommand');
-//                    $command->upgrade();
-                }
-            }
+        if ($app->isInstalled() && $app->isUpToDate()) {
+            $settings = $app->make('Flarum\Settings\SettingsRepositoryInterface');
 
             $config->set('mail.driver', $settings->get('mail_driver'));
             $config->set('mail.host', $settings->get('mail_host'));

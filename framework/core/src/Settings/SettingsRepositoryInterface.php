@@ -11,7 +11,7 @@
 
 namespace Flarum\Settings;
 
-interface SettingsRepository
+interface SettingsRepositoryInterface
 {
     public function all();
 

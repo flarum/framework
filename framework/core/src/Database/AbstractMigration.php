@@ -11,7 +11,7 @@
 namespace Flarum\Database;
 
 use Illuminate\Database\Schema\Builder;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 
 abstract class AbstractMigration
 {
@@ -21,15 +21,15 @@ abstract class AbstractMigration
     protected $schema;
 
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
      * @param Builder $schema
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(Builder $schema, SettingsRepository $settings)
+    public function __construct(Builder $schema, SettingsRepositoryInterface $settings)
     {
         $this->schema = $schema;
         $this->settings = $settings;

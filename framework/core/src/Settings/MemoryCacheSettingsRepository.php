@@ -11,7 +11,7 @@
 
 namespace Flarum\Settings;
 
-class MemoryCacheSettingsRepository implements SettingsRepository
+class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 {
     protected $inner;
 
@@ -19,7 +19,7 @@ class MemoryCacheSettingsRepository implements SettingsRepository
 
     protected $cache = [];
 
-    public function __construct(SettingsRepository $inner)
+    public function __construct(SettingsRepositoryInterface $inner)
     {
         $this->inner = $inner;
     }
