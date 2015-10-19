@@ -15,14 +15,14 @@ use Flarum\Core;
 use Flarum\Event\PostWillBeSaved;
 use Flarum\Flags\Flag;
 use Flarum\Foundation\Application;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use TijsVerkoyen\Akismet\Akismet;
 
 class FilterNewPosts
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -32,10 +32,10 @@ class FilterNewPosts
     protected $app;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      * @param Application $app
      */
-    public function __construct(SettingsRepository $settings, Application $app)
+    public function __construct(SettingsRepositoryInterface $settings, Application $app)
     {
         $this->settings = $settings;
         $this->app = $app;
