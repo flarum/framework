@@ -27,8 +27,4 @@ return function (Dispatcher $events) {
     $events->subscribe(Access\DiscussionPolicy::class);
     $events->subscribe(Access\TagPolicy::class);
     $events->subscribe(Access\FlagPolicy::class);
-
-    Tag::saving(function ($model) {
-        $this->app->make('Flarum\Tags\TagValidator')->assertValid($model);
-    });
 };
