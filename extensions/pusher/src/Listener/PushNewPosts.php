@@ -13,21 +13,21 @@ namespace Flarum\Pusher\Listener;
 use Flarum\Core\Guest;
 use Flarum\Event\NotificationWillBeSent;
 use Flarum\Event\PostWasPosted;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Pusher;
 
 class PushNewPosts
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepository $settings)
+    public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
     }
