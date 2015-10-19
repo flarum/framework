@@ -10,9 +10,9 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Core\Group;
 use InvalidArgumentException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class GroupSerializer extends AbstractSerializer
 {
@@ -20,6 +20,19 @@ class GroupSerializer extends AbstractSerializer
      * {@inheritdoc}
      */
     protected $type = 'groups';
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
 
     /**
      * {@inheritdoc}
@@ -35,8 +48,8 @@ class GroupSerializer extends AbstractSerializer
         }
 
         return [
-            'nameSingular' => $group->name_singular,
-            'namePlural'   => $group->name_plural,
+            'nameSingular' => $this->translateGroupName($group->name_singular),
+            'namePlural'   => $this->translateGroupName($group->name_plural),
             'color'        => $group->color,
             'icon'         => $group->icon,
         ];
@@ -48,5 +61,20 @@ class GroupSerializer extends AbstractSerializer
     protected function permissions()
     {
         return $this->hasMany('Flarum\Api\Serializers\PermissionSerializer');
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    private function translateGroupName($name)
+    {
+        $translation = $this->translator->trans('core.group.'.strtolower($name));
+
+        if ($translation !== $name) {
+            return $translation;
+        }
+
+        return $name;
     }
 }

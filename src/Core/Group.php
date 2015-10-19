@@ -11,7 +11,6 @@
 namespace Flarum\Core;
 
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\GroupWasCreated;
