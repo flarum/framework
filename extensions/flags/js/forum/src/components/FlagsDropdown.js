@@ -21,10 +21,10 @@ export default class FlagsDropdown extends NotificationsDropdown {
   }
 
   getUnreadCount() {
-    return app.forum.attribute('unreadFlagsCount');
+    return app.cache.flags ? app.cache.flags.length : app.forum.attribute('flagsCount');
   }
 
   getNewCount() {
-    return app.forum.attribute('newFlagsCount');
+    return app.session.user.attribute('newFlagsCount');
   }
 }

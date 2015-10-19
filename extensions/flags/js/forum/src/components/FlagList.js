@@ -63,7 +63,7 @@ export default class FlagList extends Component {
    * been loaded.
    */
   load() {
-    if (app.cache.flags && !app.forum.attribute('unreadFlagsCount')) {
+    if (app.cache.flags && !app.session.user.attribute('newFlagsCount')) {
       return;
     }
 
@@ -71,7 +71,7 @@ export default class FlagList extends Component {
     m.redraw();
 
     app.store.find('flags').then(flags => {
-      app.forum.pushAttributes({unreadFlagsCount: 0});
+      app.session.user.pushAttributes({newFlagsCount: 0});
       app.cache.flags = flags.sort((a, b) => b.time() - a.time());
 
       this.loading = false;
