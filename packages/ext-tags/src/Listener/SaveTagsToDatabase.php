@@ -13,7 +13,7 @@ namespace Flarum\Tags\Listener;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Exception\ValidationException;
 use Flarum\Event\DiscussionWillBeSaved;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -21,14 +21,14 @@ use Illuminate\Contracts\Events\Dispatcher;
 class SaveTagsToDatabase
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepository $settings)
+    public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
     }
