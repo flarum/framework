@@ -15,7 +15,7 @@ use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\ExtensionWasUninstalled;
 use Flarum\Foundation\Application;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Database\Migrator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
@@ -38,7 +38,7 @@ class ExtensionManager
      */
     protected $filesystem;
 
-    public function __construct(SettingsRepository $config, Application $app, Migrator $migrator, Dispatcher $dispatcher, Filesystem $filesystem)
+    public function __construct(SettingsRepositoryInterface $config, Application $app, Migrator $migrator, Dispatcher $dispatcher, Filesystem $filesystem)
     {
         $this->config = $config;
         $this->app = $app;

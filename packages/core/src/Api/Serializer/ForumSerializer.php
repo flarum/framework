@@ -12,7 +12,7 @@ namespace Flarum\Api\Serializer;
 
 use Flarum\Foundation\Application;
 use Flarum\Core\Access\Gate;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 
 class ForumSerializer extends AbstractSerializer
 {
@@ -32,16 +32,16 @@ class ForumSerializer extends AbstractSerializer
     protected $app;
 
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
      * @param Gate $gate
      * @param Application $app
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(Gate $gate, Application $app, SettingsRepository $settings)
+    public function __construct(Gate $gate, Application $app, SettingsRepositoryInterface $settings)
     {
         $this->gate = $gate;
         $this->app = $app;

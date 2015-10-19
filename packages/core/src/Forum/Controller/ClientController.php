@@ -14,7 +14,7 @@ use Flarum\Api\Client;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\Application;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Http\Controller\AbstractClientController;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -43,7 +43,7 @@ class ClientController extends AbstractClientController
         Application $app,
         Client $api,
         LocaleManager $locales,
-        SettingsRepository $settings,
+        SettingsRepositoryInterface $settings,
         Dispatcher $events,
         Repository $cache,
         Formatter $formatter

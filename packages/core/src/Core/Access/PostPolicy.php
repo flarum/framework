@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Flarum\Core\Post;
 use Flarum\Core\User;
 use Flarum\Event\ScopePostVisibility;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class PostPolicy extends AbstractPolicy
@@ -25,7 +25,7 @@ class PostPolicy extends AbstractPolicy
     protected $model = Post::class;
 
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -35,10 +35,10 @@ class PostPolicy extends AbstractPolicy
     protected $gate;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      * @param Gate $gate
      */
-    public function __construct(SettingsRepository $settings, Gate $gate)
+    public function __construct(SettingsRepositoryInterface $settings, Gate $gate)
     {
         $this->settings = $settings;
         $this->gate = $gate;

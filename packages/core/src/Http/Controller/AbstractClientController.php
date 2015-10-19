@@ -20,7 +20,7 @@ use Flarum\Event\ConfigureClientView;
 use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -82,7 +82,7 @@ abstract class AbstractClientController extends AbstractHtmlController
     protected $locales;
 
     /**
-     * @var \Flarum\Settings\SettingsRepository
+     * @var \Flarum\Settings\SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -100,7 +100,7 @@ abstract class AbstractClientController extends AbstractHtmlController
      * @param \Flarum\Foundation\Application $app
      * @param Client $api
      * @param LocaleManager $locales
-     * @param \Flarum\Settings\SettingsRepository $settings
+     * @param \Flarum\Settings\SettingsRepositoryInterface $settings
      * @param Dispatcher $events
      * @param Repository $cache
      */
@@ -108,7 +108,7 @@ abstract class AbstractClientController extends AbstractHtmlController
         Application $app,
         Client $api,
         LocaleManager $locales,
-        SettingsRepository $settings,
+        SettingsRepositoryInterface $settings,
         Dispatcher $events,
         Repository $cache
     ) {
