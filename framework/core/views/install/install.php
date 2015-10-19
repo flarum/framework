@@ -83,7 +83,7 @@ $(function() {
         window.location.reload();
       })
       .fail(function(data) {
-        $('#error').show().text('Something went wrong:\n\n' + data.responseJSON.error);
+        $('#error').show().text('Something went wrong:\n\n' + data.responseText);
 
         $button.prop('disabled', false).text('Install Flarum');
       });

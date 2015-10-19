@@ -8,9 +8,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Install\Controller;
+namespace Flarum\Update\Controller;
 
-use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\View\Factory;
@@ -23,18 +22,11 @@ class IndexController extends AbstractHtmlController
     protected $view;
 
     /**
-     * @var \Flarum\Install\Prerequisite\PrerequisiteInterface
-     */
-    protected $prerequisite;
-
-    /**
      * @param Factory $view
-     * @param PrerequisiteInterface $prerequisite
      */
-    public function __construct(Factory $view, PrerequisiteInterface $prerequisite)
+    public function __construct(Factory $view)
     {
         $this->view = $view;
-        $this->prerequisite = $prerequisite;
     }
 
     /**
@@ -44,16 +36,9 @@ class IndexController extends AbstractHtmlController
      */
     public function render(Request $request, array $routeParams = [])
     {
-        $view = $this->view->make('flarum.install::app')->with('title', 'Install Flarum');
+        $view = $this->view->make('flarum.update::app')->with('title', 'Update Flarum');
 
-        $this->prerequisite->check();
-        $errors = $this->prerequisite->getErrors();
-
-        if (count($errors)) {
-            $view->with('content', $this->view->make('flarum.install::errors')->with('errors', $errors));
-        } else {
-            $view->with('content', $this->view->make('flarum.install::install'));
-        }
+        $view->with('content', $this->view->make('flarum.update::update'));
 
         return $view;
     }

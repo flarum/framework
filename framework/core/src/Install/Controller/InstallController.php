@@ -12,8 +12,7 @@ namespace Flarum\Install\Controller;
 
 use Flarum\Http\Controller\ControllerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response;
 use Flarum\Install\Console\InstallCommand;
 use Flarum\Install\Console\DefaultsDataProvider;
@@ -85,9 +84,7 @@ class InstallController implements ControllerInterface
         try {
             $this->command->run($input, $output);
         } catch (Exception $e) {
-            return new JsonResponse([
-                'error' => $e->getMessage()
-            ], 500);
+            return new HtmlResponse($e->getMessage(), 500);
         }
 
         $token = $this->bus->dispatch(

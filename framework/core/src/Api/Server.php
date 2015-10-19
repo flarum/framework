@@ -13,6 +13,7 @@ namespace Flarum\Api;
 
 use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
+use Tobscure\JsonApi\Document;
 use Zend\Stratigility\MiddlewarePipe;
 
 class Server extends AbstractServer
@@ -24,19 +25,27 @@ class Server extends AbstractServer
     {
         $pipe = new MiddlewarePipe;
 
-        if ($app->isInstalled()) {
-            $app->register('Flarum\Api\ApiServiceProvider');
+        $apiPath = parse_url($app->url('api'), PHP_URL_PATH);
 
-            $routes = $app->make('flarum.api.routes');
-            $apiPath = parse_url($app->url('api'), PHP_URL_PATH);
-
+        if ($app->isInstalled() && $app->isUpToDate()) {
             $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
             $pipe->pipe($apiPath, $app->make('Flarum\Api\Middleware\AuthenticateWithHeader'));
             $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
             $pipe->pipe($apiPath, $app->make('Flarum\Api\Middleware\FakeHttpMethods'));
-            $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\DispatchRoute', compact('routes')));
-
+            $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.api.routes')]));
             $pipe->pipe($apiPath, $app->make('Flarum\Api\Middleware\HandleErrors'));
+        } else {
+            $pipe->pipe($apiPath, function () {
+                $document = new Document;
+                $document->setErrors([
+                    [
+                        'code' => 503,
+                        'title' => 'Service Unavailable'
+                    ]
+                ]);
+
+                return new JsonApiResponse($document, 503);
+            });
         }
 
         return $pipe;
