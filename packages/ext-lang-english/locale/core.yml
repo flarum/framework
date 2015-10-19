@@ -8,15 +8,15 @@ core:
   forum:
 
     # These strings are used in the Change Email modal dialog.
-    change_email_confirmation_message: => core.confirmation_email_sent
-    change_email_dismiss_button: => core.okay
-    change_email_submit_button: => core.save_changes
-    change_email_title: => core.change_email
+    change_email_confirmation_message: => core.ref.confirmation_email_sent
+    change_email_dismiss_button: => core.ref.okay
+    change_email_submit_button: => core.ref.save_changes
+    change_email_title: => core.ref.change_email
 
     # These strings are used in the Change Password modal dialog.
     change_password_send_button: Send Password Reset Email
     change_password_text: Click the button below and check your email for a link to change your password.
-    change_password_title: => core.change_password
+    change_password_title: => core.ref.change_password
 
     # These strings are used by the composer controls.
     composer_close_tooltip: Close
@@ -33,10 +33,10 @@ core:
     # These strings are used by the composer when editing a post.
     composer_edit_discard_confirmation: You have not saved your changes. Do you wish to discard them?
     composer_edit_post_link: "Post #{number} in {discussion}"
-    composer_edit_submit_button: => core.save_changes
+    composer_edit_submit_button: => core.ref.save_changes
 
     # These strings are used by the composer when replying to a discussion.
-    composer_reply_body_placeholder: => core.write_a_reply
+    composer_reply_body_placeholder: => core.ref.write_a_reply
     composer_reply_discard_confirmation: You have not posted your reply. Do you wish to discard it?
     composer_reply_posted_message: Your reply was posted.
     composer_reply_submit_button: Post Reply
@@ -45,31 +45,31 @@ core:
     # These strings are used by the discussion control buttons.
     discussion_controls_cannot_reply_button: Can't Reply
     discussion_controls_cannot_reply_text: You don't have permission to reply to this discussion.
-    discussion_controls_delete_button: => core.delete
+    discussion_controls_delete_button: => core.ref.delete
     discussion_controls_delete_confirmation: Are you sure you want to delete this discussion?
-    discussion_controls_delete_forever_button: => core.delete_forever
+    discussion_controls_delete_forever_button: => core.ref.delete_forever
     discussion_controls_log_in_to_reply_button: Log In to Reply
     discussion_controls_rename_button: Rename
     discussion_controls_rename_text: Enter a new title for this discussion:
     discussion_controls_reply_button: Reply
-    discussion_controls_restore_button: => core.restore
+    discussion_controls_restore_button: => core.ref.restore
 
     # These strings are used in the discussion list.
     discussion_list_empty_text: Looks like there are no discussions here. Why don't you create a new one?
-    discussion_list_load_more_button: => core.load_more
+    discussion_list_load_more_button: => core.ref.load_more
     discussion_list_mark_as_read_tooltip: Mark as Read
     discussion_list_replied_text: "{username} replied {ago}"
     discussion_list_started_text: "{username} started {ago}"
 
     # These strings are used in the Edit User modal dialog (admin function).
-    edit_user_email_label: => core.email
-    edit_user_password_label: => core.password
-    edit_user_submit_button: => core.save_changes
-    edit_user_username_label: => core.username
+    edit_user_email_label: => core.ref.email
+    edit_user_password_label: => core.ref.password
+    edit_user_submit_button: => core.ref.save_changes
+    edit_user_username_label: => core.ref.username
 
     # These strings are used in the Forgot Password modal dialog.
-    forgot_password_dismiss_button: => core.okay
-    forgot_password_email_placeholder: => core.email
+    forgot_password_dismiss_button: => core.ref.okay
+    forgot_password_email_placeholder: => core.ref.email
     forgot_password_email_sent_message: We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
     forgot_password_submit_button: Recover Password
     forgot_password_text: Enter your email address and we will send you a link to reset your password.
@@ -77,17 +77,17 @@ core:
 
     # These strings are used in the header and session dropdown menu.
     header_admin_button: Administration
-    header_log_in_link: => core.log_in
-    header_log_out_button: => core.log_out
+    header_log_in_link: => core.ref.log_in
+    header_log_out_button: => core.ref.log_out
     header_profile_button: Profile
     header_search_placeholder: Search Forum
-    header_settings_button: => core.settings
-    header_sign_up_link: => core.sign_up
+    header_settings_button: => core.ref.settings
+    header_sign_up_link: => core.ref.sign_up
 
     # These strings are used on the index page, peripheral to the discussion list.
-    index_all_discussions_link: => core.all_discussions
+    index_all_discussions_link: => core.ref.all_discussions
     index_cannot_start_discussion_button: Can't Start Discussion
-    index_mark_all_as_read_tooltip: => core.mark_all_as_read
+    index_mark_all_as_read_tooltip: => core.ref.mark_all_as_read
     index_refresh_tooltip: Refresh
     index_start_discussion_button: Start a Discussion
 
@@ -102,28 +102,28 @@ core:
     log_in_confirmation_required_message: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     log_in_forgot_password_link: Forgot password?
     log_in_invalid_login_message: Your login details were incorrect.
-    log_in_password_placeholder: => core.password
+    log_in_password_placeholder: => core.ref.password
     log_in_sign_up_text: "Don't have an account? <a>Sign Up</a>"
-    log_in_submit_button: => core.log_in
-    log_in_title: => core.log_in
+    log_in_submit_button: => core.ref.log_in
+    log_in_title: => core.ref.log_in
     log_in_username_or_email_placeholder: Username or Email
 
     # These strings are used by the Notifications dropdown, a.k.a. "the bell".
     notifications_discussion_renamed_text: "{username} changed the title"
     notifications_empty_text: No Notifications
-    notifications_mark_all_as_read_tooltip: => core.mark_all_as_read
-    notifications_title: => core.notifications
-    notifications_tooltip: => core.notifications
+    notifications_mark_all_as_read_tooltip: => core.ref.mark_all_as_read
+    notifications_title: => core.ref.notifications
+    notifications_tooltip: => core.ref.notifications
 
     # These strings are used by tooltips displayed for individual posts.
     post_edited_tooltip: "{username} edited {ago}"
     post_number_tooltip: "Post #{number}"
 
     # These strings are used by the post control buttons.
-    post_controls_delete_button: => core.delete
-    post_controls_delete_forever_button: => core.delete_forever
-    post_controls_edit_button: => core.edit
-    post_controls_restore_button: => core.restore
+    post_controls_delete_button: => core.ref.delete
+    post_controls_delete_forever_button: => core.ref.delete_forever
+    post_controls_edit_button: => core.ref.edit
+    post_controls_restore_button: => core.ref.restore
 
     # These strings are used in the scrubber to the right of the post stream.
     post_scrubber_now_link: Now
@@ -133,48 +133,48 @@ core:
 
     # These strings are displayed between posts in the post stream.
     post_stream_discussion_renamed_text: "{username} changed the title from {old} to {new}."
-    post_stream_reply_placeholder: => core.write_a_reply
+    post_stream_reply_placeholder: => core.ref.write_a_reply
     post_stream_time_lapsed_text: "{period} later"
 
     # These strings are used by the search results dropdown list.
     search_all_discussions_button: 'Search all discussions for "{query}"'
-    search_discussions_heading: => core.discussions
+    search_discussions_heading: => core.ref.discussions
     search_users_heading: Users
 
     # These strings are used in the Settings page.
     settings_account_heading: Account
-    settings_change_email_button: => core.change_email
-    settings_change_password_button: => core.change_password
-    settings_notifications_heading: => core.notifications
+    settings_change_email_button: => core.ref.change_email
+    settings_change_password_button: => core.ref.change_password
+    settings_notifications_heading: => core.ref.notifications
     settings_privacy_disclose_online_label: Allow others to see when I am online
     settings_privacy_heading: Privacy
-    settings_title: => core.settings
+    settings_title: => core.ref.settings
 
     # These strings are used in the Notifications grid on the Settings page.
-    settings_notify_by_email_heading: => core.email
+    settings_notify_by_email_heading: => core.ref.email
     settings_notify_by_web_heading: Web
     settings_notify_discussion_renamed_label: Someone renames a discussion I started
 
     # These strings are used in the Sign Up modal dialog.
-    sign_up_confirmation_message: => core.confirmation_email_sent
-    sign_up_email_placeholder: => core.email
-    sign_up_dismiss_button: => core.okay
+    sign_up_confirmation_message: => core.ref.confirmation_email_sent
+    sign_up_email_placeholder: => core.ref.email
+    sign_up_dismiss_button: => core.ref.okay
     sign_up_log_in_text: "Already have an account? <a>Log In</a>"
-    sign_up_password_placeholder: => core.password
-    sign_up_submit_button: => core.sign_up
-    sign_up_title: => core.sign_up
-    sign_up_username_placeholder: => core.username
+    sign_up_password_placeholder: => core.ref.password
+    sign_up_submit_button: => core.ref.sign_up
+    sign_up_title: => core.ref.sign_up
+    sign_up_username_placeholder: => core.ref.username
     sign_up_welcome_text: "Welcome, {username}!"
 
     # These strings are used in the user profile page and profile popup.
     user_bio_placeholder: Write something about yourself
     user_deleted_text: "[deleted]"
-    user_discussions_link: => core.discussions
+    user_discussions_link: => core.ref.discussions
     user_joined_date_text: "Joined {ago}"
     user_online_text: Online
-    user_posts_load_more_button: => core.load_more
+    user_posts_load_more_button: => core.ref.load_more
     user_posts_link: Posts
-    user_settings_link: => core.settings
+    user_settings_link: => core.ref.settings
 
     # These strings are used to control the avatar in the user profile page.
     user_avatar_remove_button: Remove
@@ -182,9 +182,9 @@ core:
 
     # These strings are found on the user profile page (admin function).
     user_controls_button: Controls
-    user_controls_delete_button: => core.delete
+    user_controls_delete_button: => core.ref.delete
     user_controls_delete_confirmation: Are you sure you want to delete this user? All of the user's posts will be deleted.
-    user_controls_edit_button: => core.edit
+    user_controls_edit_button: => core.ref.edit
 
   # Strings in this namespace are used by the admin interface.
   admin:
@@ -198,10 +198,10 @@ core:
     appearance_dark_mode_label: Dark Mode
     appearance_edit_css_button: Edit Custom CSS
     appearance_enter_hex_message: Please enter a hexadecimal color code.
-    appearance_submit_button: => core.save_changes
+    appearance_submit_button: => core.ref.save_changes
 
     # These strings are used in the Basics page.
-    basics_all_discussions_label: => core.all_discussions
+    basics_all_discussions_label: => core.ref.all_discussions
     basics_default_language_heading: Default Language
     basics_forum_description_heading: Forum Description
     basics_forum_description_text: Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
@@ -209,7 +209,7 @@ core:
     basics_home_page_heading: Home Page
     basics_home_page_text: Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root.
     basics_saved_message: Your changes were saved.
-    basics_submit_button: => core.save_changes
+    basics_submit_button: => core.ref.save_changes
     basics_welcome_banner_heading: Welcome Banner
     basics_welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
 
@@ -231,21 +231,21 @@ core:
     edit_group_name_label: Name
     edit_group_plural_placeholder: Plural (e.g. Mods)
     edit_group_singular_placeholder: Singular (e.g. Mod)
-    edit_group_submit_button: => core.save_changes
+    edit_group_submit_button: => core.ref.save_changes
     edit_group_title: Create Group
 
     # These strings are used in the Extensions page.
     extensions_add_button: Add Extension
     extensions_disable_button: Disable
     extensions_enable_button: Enable
-    extensions_settings_button: => core.settings
+    extensions_settings_button: => core.ref.settings
     extensions_uninstall_button: Uninstall
 
     # This string is used in the Extensions loading modal dialog.
     extensions_loading_title: Please Wait...
 
     # This string is used in the session dropdown menu.
-    header_log_out_button: => core.log_out
+    header_log_out_button: => core.ref.log_out
 
     # These strings are used in the navigation bar.
     nav_appearance_button: Appearance
@@ -300,39 +300,77 @@ core:
   # REUSED STRINGS - The following keys are referenced by two or more unique keys.
   ##
 
-  all_discussions: All Discussions
-  change_email: Change Email
-  change_password: Change Password
-  confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
-  delete: Delete
-  delete_forever: Delete Forever
-  discussions: Discussions
-  edit: Edit
-  email: Email
-  load_more: Load More
-  log_in: Log In
-  log_out: Log Out
-  mark_all_as_read: Mark All as Read
-  notifications: Notifications
-  okay: OK
-  password: Password
-  restore: Restore
-  save_changes: Save Changes
-  settings: Settings
-  sign_up: Sign Up
-  username: Username
-  write_a_reply: Write a Reply...
+  ref:
+    all_discussions: All Discussions
+    change_email: Change Email
+    change_password: Change Password
+    confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
+    delete: Delete
+    delete_forever: Delete Forever
+    discussions: Discussions
+    edit: Edit
+    email: Email
+    load_more: Load More
+    log_in: Log In
+    log_out: Log Out
+    mark_all_as_read: Mark All as Read
+    notifications: Notifications
+    okay: OK
+    password: Password
+    restore: Restore
+    save_changes: Save Changes
+    settings: Settings
+    sign_up: Sign Up
+    username: Username
+    write_a_reply: Write a Reply...
 
   ##
   # DEFAULT GROUP NAMES - Translations for the forum's default language are used.
   ##
 
-  group_admin: Admin
-  group_admins: Admins
-  group_guest: Guest
-  group_guests: Guests
-  group_member: Member
-  group_members: Members
-  group_mod: Mod
-  group_mods: Mods
+  group:
+    admin: Admin
+    admins: Admins
+    guest: Guest
+    guests: Guests
+    member: Member
+    members: Members
+    mod: Mod
+    mods: Mods
 
+  email:
+    activate_account:
+      subject: Activate Your New Account
+      body: |
+        Hey {username}!
+
+        Someone (hopefully you!) has signed up to {forum} with this email address.
+
+        If this was you, simply click the following link and your account will be activated:
+        {url}
+
+        If you did not sign up, please ignore this email.
+
+    confirm_email:
+      subject: Activate Your New Account
+      body: |
+        Hey {username}!
+
+        Someone (hopefully you!) has changed their email address on {forum} to this one.
+
+        If this was you, simply click the following link and your email will be confirmed:
+        {url}
+
+        If this was not you, please ignore this email.
+
+    reset_password:
+      subject: Activate Your New Account
+      body: |
+        Hey {username}!
+
+        Someone (hopefully you!) has submitted a forgotten password request for your account on {forum}.
+
+        If this was you, click the following link to reset your password:
+        {url}
+
+        If you do not wish to change your password, just ignore this email and nothing will happen.
