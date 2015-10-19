@@ -352,7 +352,7 @@ core:
         If you did not sign up, please ignore this email.
 
     confirm_email:
-      subject: Activate Your New Account
+      subject: Confirm Your New Email Address
       body: |
         Hey {username}!
 
@@ -364,7 +364,7 @@ core:
         If this was not you, please ignore this email.
 
     reset_password:
-      subject: Activate Your New Account
+      subject: Reset Your Password
       body: |
         Hey {username}!
 
