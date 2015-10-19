@@ -16,21 +16,21 @@ use Flarum\Event\ConfigureApiController;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\PrepareApiAttributes;
 use Flarum\Event\PrepareApiData;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddForumTagsRelationship
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepository $settings)
+    public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
     }
