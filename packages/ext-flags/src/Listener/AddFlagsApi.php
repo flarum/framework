@@ -10,6 +10,7 @@
 
 namespace Flarum\Flags\Listener;
 
+use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Core\User;
@@ -51,14 +52,12 @@ class AddFlagsApi
             $event->attributes['canViewFlags'] = $event->actor->hasPermissionLike('discussion.viewFlags');
 
             if ($event->attributes['canViewFlags']) {
-                $query = Flag::whereVisibleTo($event->actor);
-
-                if ($time = $event->actor->flags_read_time) {
-                    $query->where('flags.time', '>', $time);
-                }
-
-                $event->attributes['unreadFlagsCount'] = $query->distinct('flags.post_id')->count();
+                $event->attributes['flagsCount'] = (int) $this->getFlagsCount($event->actor);
             }
+        }
+
+        if ($event->isSerializer(CurrentUserSerializer::class)) {
+            $event->attributes['newFlagsCount'] = (int) $this->getNewFlagsCount($event->model);
         }
 
         if ($event->isSerializer(PostSerializer::class)) {
@@ -74,5 +73,29 @@ class AddFlagsApi
         $event->get('/flags', 'flags.index', Controller\ListFlagsController::class);
         $event->post('/flags', 'flags.create', Controller\CreateFlagController::class);
         $event->delete('/posts/{id}/flags', 'flags.delete', Controller\DeleteFlagsController::class);
+    }
+
+    /**
+     * @param User $actor
+     * @return int
+     */
+    protected function getFlagsCount(User $actor)
+    {
+        return Flag::whereVisibleTo($actor)->distinct('flags.post_id')->count();
+    }
+
+    /**
+     * @param User $actor
+     * @return int
+     */
+    protected function getNewFlagsCount(User $actor)
+    {
+        $query = Flag::whereVisibleTo($actor);
+
+        if ($time = $actor->flags_read_time) {
+            $query->where('flags.time', '>', $time);
+        }
+
+        return $query->distinct('flags.post_id')->count();
     }
 }
