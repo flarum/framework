@@ -18,6 +18,7 @@ use Illuminate\Mail\Message;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Flarum\Core;
 use Flarum\Forum\UrlGenerator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class RequestPasswordResetHandler
 {
@@ -42,17 +43,24 @@ class RequestPasswordResetHandler
     protected $url;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * @param UserRepository $users
      * @param SettingsRepository $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
+     * @param TranslatorInterface $translator
      */
-    public function __construct(UserRepository $users, SettingsRepository $settings, Mailer $mailer, UrlGenerator $url)
+    public function __construct(UserRepository $users, SettingsRepository $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->users = $users;
         $this->settings = $settings;
         $this->mailer = $mailer;
         $this->url = $url;
+        $this->translator = $translator;
     }
 
     /**
@@ -72,14 +80,16 @@ class RequestPasswordResetHandler
         $token->save();
 
         $data = [
-            'username' => $user->username,
-            'url' => $this->url->toRoute('resetPassword', ['token' => $token->id]),
-            'forumTitle' => $this->settings->get('forum_title'),
+            '{username}' => $user->username,
+            '{url}' => $this->url->toRoute('resetPassword', ['token' => $token->id]),
+            '{forum}' => $this->settings->get('forum_title'),
         ];
 
-        $this->mailer->send(['text' => 'flarum::emails.resetPassword'], $data, function (Message $message) use ($user) {
+        $body = $this->translator->trans('core.email.reset_password.body', $data);
+
+        $this->mailer->raw($body, function (Message $message) use ($user, $data) {
             $message->to($user->email);
-            $message->subject('Reset Your Password');
+            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.reset_password.subject'));
         });
 
         return $user;
