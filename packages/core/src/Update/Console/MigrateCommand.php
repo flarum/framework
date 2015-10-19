@@ -8,15 +8,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Console\Command;
+namespace Flarum\Update\Console;
 
+use Flarum\Console\Command\AbstractCommand;
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpgradeCommand extends AbstractCommand
+class MigrateCommand extends AbstractCommand
 {
     /**
      * @var Container
@@ -39,8 +40,8 @@ class UpgradeCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('upgrade')
-            ->setDescription("Run Flarum's upgrade script");
+            ->setName('migrate')
+            ->setDescription("Run outstanding migrations.");
     }
 
     /**
@@ -48,7 +49,7 @@ class UpgradeCommand extends AbstractCommand
      */
     protected function fire()
     {
-        $this->info('Upgrading Flarum...');
+        $this->info('Migrating Flarum...');
 
         $this->upgrade();
 
@@ -66,7 +67,7 @@ class UpgradeCommand extends AbstractCommand
         $migrator->run(base_path('core/migrations'));
 
         foreach ($migrator->getNotes() as $note) {
-//            $this->info($note);
+            $this->info($note);
         }
 
         $extensions = $this->container->make('Flarum\Extension\ExtensionManager');
@@ -78,13 +79,15 @@ class UpgradeCommand extends AbstractCommand
                 continue;
             }
 
-//            $this->info('Upgrading extension: '.$extension->name);
+            $this->info('Migrating extension: '.$name);
 
             $extensions->migrate($name);
 
             foreach ($migrator->getNotes() as $note) {
-//                $this->info($note);
+                $this->info($note);
             }
         }
+
+        $this->container->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->container->version());
     }
 }

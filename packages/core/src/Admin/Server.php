@@ -15,7 +15,6 @@ use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
 use Zend\Stratigility\MiddlewarePipe;
 use Flarum\Http\Middleware\HandleErrors;
-use Franzl\Middleware\Whoops\Middleware as WhoopsMiddleware;
 
 class Server extends AbstractServer
 {
@@ -27,18 +26,21 @@ class Server extends AbstractServer
         $pipe = new MiddlewarePipe;
 
         if ($app->isInstalled()) {
-            $app->register('Flarum\Admin\AdminServiceProvider');
-
             $adminPath = parse_url($app->url('admin'), PHP_URL_PATH);
-            $routes = $app->make('flarum.admin.routes');
+            $errorDir = __DIR__ . '/../../error';
 
-            $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
-            $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
-            $pipe->pipe($adminPath, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
-            $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', compact('routes')));
+            if ($app->isUpToDate()) {
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.admin.routes')]));
+                $pipe->pipe($adminPath, new HandleErrors($errorDir, $app->inDebugMode()));
+            } else {
+                $app->register('Flarum\Update\UpdateServiceProvider');
 
-            $pipe->pipe(new HandleErrors(__DIR__.'/../../error', $app->inDebugMode()));
-
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.update.routes')]));
+                $pipe->pipe($adminPath, new HandleErrors($errorDir, true));
+            }
         }
 
         return $pipe;
