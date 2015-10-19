@@ -34,8 +34,8 @@ class ResetPasswordController extends AbstractHtmlController
 
     /**
      * @param Request $request
-     * @param array $routeParams
      * @return \Illuminate\Contracts\View\View
+     * @throws InvalidConfirmationTokenException
      */
     public function render(Request $request)
     {

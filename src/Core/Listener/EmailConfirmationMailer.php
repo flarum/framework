@@ -20,6 +20,7 @@ use Flarum\Settings\SettingsRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class EmailConfirmationMailer
 {
@@ -32,21 +33,29 @@ class EmailConfirmationMailer
      * @var Mailer
      */
     protected $mailer;
+
     /**
      * @var UrlGenerator
      */
-    private $url;
+    protected $url;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
 
     /**
      * @param \Flarum\Settings\SettingsRepository $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
+     * @param TranslatorInterface $translator
      */
-    public function __construct(SettingsRepository $settings, Mailer $mailer, UrlGenerator $url)
+    public function __construct(SettingsRepository $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->settings = $settings;
         $this->mailer = $mailer;
         $this->url = $url;
+        $this->translator = $translator;
     }
 
     /**
@@ -71,9 +80,11 @@ class EmailConfirmationMailer
 
         $data = $this->getEmailData($user, $user->email);
 
-        $this->mailer->send(['text' => 'flarum::emails.activateAccount'], $data, function (Message $message) use ($user) {
+        $body = $this->translator->trans('core.email.activate_account.body', $data);
+
+        $this->mailer->raw($body, function (Message $message) use ($user, $data) {
             $message->to($user->email);
-            $message->subject('Activate Your New Account');
+            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject'));
         });
     }
 
@@ -85,16 +96,17 @@ class EmailConfirmationMailer
         $email = $event->email;
         $data = $this->getEmailData($event->user, $email);
 
-        $this->mailer->send(['text' => 'flarum::emails.confirmEmail'], $data, function (Message $message) use ($email) {
+        $body = $this->translator->trans('core.email.confirm_email.body', $data);
+
+        $this->mailer->raw($body, function (Message $message) use ($email, $data) {
             $message->to($email);
-            $message->subject('Confirm Your New Email Address');
+            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject'));
         });
     }
 
     /**
      * @param User $user
      * @param string $email
-     *
      * @return EmailToken
      */
     protected function generateToken(User $user, $email)
@@ -110,20 +122,16 @@ class EmailConfirmationMailer
      *
      * @param User $user
      * @param string $email
-     *
      * @return array
      */
     protected function getEmailData(User $user, $email)
     {
         $token = $this->generateToken($user, $email);
 
-        // TODO: Need to use AbstractUrlGenerator, but since this is part of core we
-        // don't know that the forum routes will be loaded. Should the confirm
-        // email route be part of core??
         return [
-            'username' => $user->username,
-            'url' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
-            'forumTitle' => $this->settings->get('forum_title')
+            '{username}' => $user->username,
+            '{url}' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
+            '{forum}' => $this->settings->get('forum_title')
         ];
     }
 }
