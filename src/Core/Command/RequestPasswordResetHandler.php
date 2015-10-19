@@ -10,7 +10,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Core\PasswordToken;
 use Flarum\Core\Repository\UserRepository;
 use Illuminate\Contracts\Mail\Mailer;
@@ -28,7 +28,7 @@ class RequestPasswordResetHandler
     protected $users;
 
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -49,12 +49,12 @@ class RequestPasswordResetHandler
 
     /**
      * @param UserRepository $users
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
      * @param TranslatorInterface $translator
      */
-    public function __construct(UserRepository $users, SettingsRepository $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(UserRepository $users, SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->users = $users;
         $this->settings = $settings;

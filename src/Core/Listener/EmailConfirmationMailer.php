@@ -16,7 +16,7 @@ use Flarum\Core\User;
 use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Event\UserWasRegistered;
 use Flarum\Forum\UrlGenerator;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
@@ -25,7 +25,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 class EmailConfirmationMailer
 {
     /**
-     * @var SettingsRepository
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -45,12 +45,12 @@ class EmailConfirmationMailer
     protected $translator;
 
     /**
-     * @param \Flarum\Settings\SettingsRepository $settings
+     * @param \Flarum\Settings\SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
      * @param TranslatorInterface $translator
      */
-    public function __construct(SettingsRepository $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
     {
         $this->settings = $settings;
         $this->mailer = $mailer;

@@ -12,7 +12,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Settings\SettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Event\SettingWasSet;
 use Flarum\Event\PrepareSerializedSetting;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -24,7 +24,7 @@ class SetSettingsController implements ControllerInterface
     use AssertPermissionTrait;
 
     /**
-     * @var \Flarum\Settings\SettingsRepository
+     * @var \Flarum\Settings\SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -34,9 +34,9 @@ class SetSettingsController implements ControllerInterface
     protected $dispatcher;
 
     /**
-     * @param SettingsRepository $settings
+     * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepository $settings, Dispatcher $dispatcher)
+    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $dispatcher)
     {
         $this->settings = $settings;
         $this->dispatcher = $dispatcher;
