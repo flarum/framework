@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -129,7 +129,7 @@ class UpdatePostMentionsMetadata
             ->whereIn('id', $mentioned)
             ->get()
             ->filter(function ($post) use ($reply) {
-                return $post->user->id !== $reply->user->id;
+                return $post->user && $post->user->id !== $reply->user_id;
             })
             ->all();
 
