@@ -65,7 +65,7 @@ export default class EditGroupModal extends Modal {
               children: app.trans('core.admin.edit_group_submit_button')
             })}
             {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
-              <button type="button" className="Button EditGroupModal-delete" onclick={this.delete.bind(this)}>
+              <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
                 {app.trans('core.admin.edit_group_delete_button')}
               </button>
             ) : ''}
@@ -87,14 +87,14 @@ export default class EditGroupModal extends Modal {
       icon: this.icon()
     }).then(
       () => this.hide(),
-      () => {
+      (response) => {
         this.loading = false;
-        m.redraw();
+        this.handleErrors(response);
       }
     );
   }
 
-  delete() {
+  deleteGroup() {
     if (confirm(app.trans('core.admin.edit_group_delete_confirmation'))) {
       this.group.delete().then(() => m.redraw());
       this.hide();
