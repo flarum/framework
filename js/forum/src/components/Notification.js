@@ -77,7 +77,10 @@ export default class Notification extends Component {
    * Mark the notification as read.
    */
   markAsRead() {
+    if (this.props.notification.isRead()) return;
+
     app.session.user.pushAttributes({unreadNotificationsCount: app.session.user.unreadNotificationsCount() - 1});
+
     this.props.notification.save({isRead: true});
   }
 }
