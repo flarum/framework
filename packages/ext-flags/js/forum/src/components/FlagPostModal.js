@@ -77,10 +77,7 @@ export default class FlagPostModal extends Modal {
       }
     }).then(
       () => this.hide(),
-      () => {
-        this.loading = false;
-        m.redraw();
-      }
+      this.loaded.bind(this)
     );
   }
 }
