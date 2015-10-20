@@ -129,18 +129,13 @@ export default class LogInModal extends Modal {
   }
 
   onerror(error) {
-    switch (error.status) {
-      case 401:
+    if (error.status === 401) {
+      if (error.response.emailConfirmationRequired) {
         error.alert.props.children = app.trans('core.forum.log_in_confirmation_required_message', {email: error.response.emailConfirmationRequired});
         delete error.alert.props.type;
-        break;
-
-      case 404:
+      } else {
         error.alert.props.children = app.trans('core.forum.log_in_invalid_login_message');
-        break;
-
-      default:
-        // no default
+      }
     }
 
     super.onerror(error);

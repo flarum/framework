@@ -236,7 +236,7 @@ export default class App {
       return responseText;
     };
 
-    if (this.requestError) this.requestError.hideAlert();
+    if (this.requestError) this.alerts.dismiss(this.requestError.alert);
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
