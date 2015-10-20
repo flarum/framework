@@ -65,23 +65,6 @@ export default class DiscussionComposer extends ComposerBody {
     m.redraw.strategy('none');
   }
 
-  config(isInitialized, context) {
-    super.config(isInitialized, context);
-
-    // If the user presses the backspace key in the text editor, and the cursor
-    // is already at the start, then we'll move the focus back into the title
-    // input.
-    this.editor.$('textarea').keydown((e) => {
-      if (e.which === 8 && e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
-        e.preventDefault();
-
-        const $title = this.$(':input:enabled:visible:first')[0];
-        $title.focus();
-        $title.selectionStart = $title.selectionEnd = $title.value.length;
-      }
-    });
-  }
-
   preventExit() {
     return (this.title() || this.content()) && this.props.confirmExit;
   }
