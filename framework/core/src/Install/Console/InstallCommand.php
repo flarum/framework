@@ -238,7 +238,7 @@ class InstallCommand extends AbstractCommand
 
     protected function writeSettings()
     {
-        $settings = $this->application->make('Flarum\Settings\SettingsRepository');
+        $settings = $this->application->make('Flarum\Settings\SettingsRepositoryInterface');
 
         $this->info('Writing default settings');
 
