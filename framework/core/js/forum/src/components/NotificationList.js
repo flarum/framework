@@ -120,7 +120,10 @@ export default class NotificationList extends Component {
         app.session.user.pushAttributes({newNotificationsCount: 0});
         app.cache.notifications = notifications.sort((a, b) => b.time() - a.time());
       })
-      .finally(this.loaded.bind(this));
+      .finally(() => {
+        this.loading = false;
+        m.redraw();
+      });
   }
 
   /**
