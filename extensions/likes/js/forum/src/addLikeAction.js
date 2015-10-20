@@ -13,7 +13,7 @@ export default function() {
 
     items.add('like',
       Button.component({
-        children: app.trans(isLiked ? 'flarum-likes.forum.unlike_action' : 'flarum-likes.forum.like_action'),
+        children: app.translator.trans(isLiked ? 'flarum-likes.forum.unlike_action' : 'flarum-likes.forum.like_action'),
         className: 'Button Button--link',
         onclick: () => {
           isLiked = !isLiked;

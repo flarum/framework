@@ -8,7 +8,7 @@ export default class PostLikesModal extends Modal {
   }
 
   title() {
-    return app.trans('flarum-likes.forum.post_likes_modal_title');
+    return app.translator.trans('flarum-likes.forum.post_likes_modal_title');
   }
 
   content() {
