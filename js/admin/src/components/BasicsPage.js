@@ -36,17 +36,17 @@ export default class BasicsPage extends Component {
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             {FieldSet.component({
-              label: app.trans('core.admin.basics_forum_title_heading'),
+              label: app.translator.trans('core.admin.basics.forum_title_heading'),
               children: [
                 <input className="FormControl" value={this.values.forum_title()} oninput={m.withAttr('value', this.values.forum_title)}/>
               ]
             })}
 
             {FieldSet.component({
-              label: app.trans('core.admin.basics_forum_description_heading'),
+              label: app.translator.trans('core.admin.basics.forum_description_heading'),
               children: [
                 <div className="helpText">
-                  {app.trans('core.admin.basics_forum_description_text')}
+                  {app.translator.trans('core.admin.basics.forum_description_text')}
                 </div>,
                 <textarea className="FormControl" value={this.values.forum_description()} oninput={m.withAttr('value', this.values.forum_description)}/>
               ]
@@ -54,7 +54,7 @@ export default class BasicsPage extends Component {
 
             {Object.keys(this.localeOptions).length > 1
               ? FieldSet.component({
-                label: app.trans('core.admin.basics_default_language_heading'),
+                label: app.translator.trans('core.admin.basics.default_language_heading'),
                 children: [
                   Select.component({
                     options: this.localeOptions,
@@ -65,11 +65,11 @@ export default class BasicsPage extends Component {
               : ''}
 
             {FieldSet.component({
-              label: app.trans('core.admin.basics_home_page_heading'),
+              label: app.translator.trans('core.admin.basics.home_page_heading'),
               className: 'BasicsPage-homePage',
               children: [
                 <div className="helpText">
-                  {app.trans('core.admin.basics_home_page_text')}
+                  {app.translator.trans('core.admin.basics.home_page_text')}
                 </div>,
                 this.homePageItems().toArray().map(({path, label}) =>
                   <label className="checkbox">
@@ -81,11 +81,11 @@ export default class BasicsPage extends Component {
             })}
 
             {FieldSet.component({
-              label: app.trans('core.admin.basics_welcome_banner_heading'),
+              label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
               className: 'BasicsPage-welcomeBanner',
               children: [
                 <div className="helpText">
-                  {app.trans('core.admin.basics_welcome_banner_text')}
+                  {app.translator.trans('core.admin.basics.welcome_banner_text')}
                 </div>,
                 <div className="BasicsPage-welcomeBanner-input">
                   <input className="FormControl" value={this.values.welcome_title()} oninput={m.withAttr('value', this.values.welcome_title)}/>
@@ -97,7 +97,7 @@ export default class BasicsPage extends Component {
             {Button.component({
               type: 'submit',
               className: 'Button Button--primary',
-              children: app.trans('core.admin.basics_submit_button'),
+              children: app.translator.trans('core.admin.basics.submit_button'),
               loading: this.loading,
               disabled: !this.changed()
             })}
@@ -123,7 +123,7 @@ export default class BasicsPage extends Component {
 
     items.add('allDiscussions', {
       path: '/all',
-      label: app.trans('core.admin.basics_all_discussions_label')
+      label: app.translator.trans('core.admin.basics.all_discussions_label')
     });
 
     return items;
@@ -143,7 +143,7 @@ export default class BasicsPage extends Component {
 
     saveSettings(settings)
       .then(() => {
-        app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.trans('core.admin.basics_saved_message')}));
+        app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.translator.trans('core.admin.basics.saved_message')}));
       })
       .finally(() => {
         this.loading = false;

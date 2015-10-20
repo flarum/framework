@@ -60,7 +60,7 @@ export default {
     if (user.canEdit()) {
       items.add('edit', Button.component({
         icon: 'pencil',
-        children: app.trans('core.forum.user_controls_edit_button'),
+        children: app.translator.trans('core.forum.user_controls.edit_button'),
         onclick: this.editAction.bind(user)
       }));
     }
@@ -83,7 +83,7 @@ export default {
     if (user.id() !== '1' && user.canDelete()) {
       items.add('delete', Button.component({
         icon: 'times',
-        children: app.trans('core.forum.user_controls_delete_button'),
+        children: app.translator.trans('core.forum.user_controls.delete_button'),
         onclick: this.deleteAction.bind(user)
       }));
     }
@@ -95,7 +95,7 @@ export default {
    * Delete the user.
    */
   deleteAction() {
-    if (confirm(app.trans('core.forum.user_controls_delete_confirmation'))) {
+    if (confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
       this.delete().then(() => {
         if (app.current instanceof UserPage && app.current.user === this) {
           app.history.back();

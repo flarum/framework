@@ -14,7 +14,7 @@ export default class DiscussionRenamedPost extends EventPost {
   }
 
   descriptionKey() {
-    return 'core.forum.post_stream_discussion_renamed_text';
+    return 'core.forum.post_stream.discussion_renamed_text';
   }
 
   descriptionData() {
