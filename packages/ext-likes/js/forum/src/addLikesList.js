@@ -22,7 +22,7 @@ export default function() {
         .map(user => {
           return (
             <a href={app.route.user(user)} config={m.route}>
-              {user === app.session.user ? app.trans('flarum-likes.forum.you') : username(user)}
+              {user === app.session.user ? app.translator.trans('flarum-likes.forum.you') : username(user)}
             </a>
           );
         });
