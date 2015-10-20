@@ -75,6 +75,9 @@ export default class FlagList extends Component {
         app.session.user.pushAttributes({newFlagsCount: 0});
         app.cache.flags = flags.sort((a, b) => b.time() - a.time());
       })
-      .finally(this.loaded.bind(this));
+      .finally(() => {
+        this.loading = false;
+        m.redraw();
+      });
   }
 }
