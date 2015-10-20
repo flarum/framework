@@ -112,7 +112,7 @@ core:
       allow_ten_minutes_button: For 10 minutes
       allow_until_reply_button: Until next reply
       everyone_button: Everyone
-      members_button: => core.groups.members
+      members_button: => core.group.members
       signup_closed_button: Closed
       signup_open_button: Open
 
