@@ -55,6 +55,7 @@ export default class SuspendUserModal extends Modal {
                 {this.status() === 'limited' ? (
                   <div className="SuspendUserModal-days-input">
                     <input type="number"
+                      min="0"
                       value={this.daysRemaining()}
                       oninput={m.withAttr('value', this.daysRemaining)}
                       className="FormControl"/>
@@ -96,10 +97,7 @@ export default class SuspendUserModal extends Modal {
 
     this.props.user.save({suspendUntil}).then(
       () => this.hide(),
-      () => {
-        this.loading = false;
-        m.redraw();
-      }
+      this.loaded.bind(this)
     );
   }
 }
