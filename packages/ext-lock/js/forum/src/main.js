@@ -23,7 +23,7 @@ app.initializers.add('flarum-lock', () => {
     items.add('discussionLocked', {
       name: 'discussionLocked',
       icon: 'lock',
-      label: app.trans('flarum-lock.forum.notify_discussion_locked')
+      label: app.translator.trans('flarum-lock.forum.notify_discussion_locked')
     });
   });
 });
