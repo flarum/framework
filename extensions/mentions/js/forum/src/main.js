@@ -35,13 +35,13 @@ app.initializers.add('flarum-mentions', function() {
     items.add('postMentioned', {
       name: 'postMentioned',
       icon: 'reply',
-      label: app.trans('flarum-mentions.forum.notify_post_mentioned')
+      label: app.translator.trans('flarum-mentions.forum.notify_post_mentioned')
     });
 
     items.add('userMentioned', {
       name: 'userMentioned',
       icon: 'at',
-      label: app.trans('flarum-mentions.forum.notify_user_mentioned')
+      label: app.translator.trans('flarum-mentions.forum.notify_user_mentioned')
     });
   });
 
