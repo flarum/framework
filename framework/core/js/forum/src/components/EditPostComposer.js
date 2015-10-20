@@ -37,7 +37,7 @@ export default class EditPostComposer extends ComposerBody {
 
     items.add('title', (
       <h3>
-        {icon('pencil')}{' '}
+        {icon('pencil')} {' '}
         <a href={app.route.discussion(post.discussion(), post.number())} config={m.route}>
           {app.trans('core.forum.composer_edit_post_link', {number: post.number(), discussion: post.discussion().title()})}
         </a>
@@ -64,14 +64,8 @@ export default class EditPostComposer extends ComposerBody {
     const data = this.data();
 
     this.props.post.save(data).then(
-      () => {
-        app.composer.hide();
-        m.redraw();
-      },
-      () => {
-        this.loading = false;
-        m.redraw();
-      }
+      () => app.composer.hide(),
+      this.loaded.bind(this)
     );
   }
 }

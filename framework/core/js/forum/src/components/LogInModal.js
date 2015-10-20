@@ -124,25 +124,25 @@ export default class LogInModal extends Modal {
     const email = this.email();
     const password = this.password();
 
-    app.session.login(email, password).then(
-      null,
-      response => {
-        this.loading = false;
+    app.session.login(email, password, {errorHandler: this.onerror.bind(this)})
+      .catch(this.loaded.bind(this));
+  }
 
-        if (response && response.code === 'confirm_email') {
-          this.alert = Alert.component({
-            children: app.trans('core.forum.log_in_confirmation_required_message', {email: response.email})
-          });
-        } else {
-          this.alert = Alert.component({
-            type: 'error',
-            children: app.trans('core.forum.log_in_invalid_login_message')
-          });
-        }
+  onerror(error) {
+    switch (error.status) {
+      case 401:
+        error.alert.props.children = app.trans('core.forum.log_in_confirmation_required_message', {email: error.response.emailConfirmationRequired});
+        delete error.alert.props.type;
+        break;
 
-        m.redraw();
-        this.onready();
-      }
-    );
+      case 404:
+        error.alert.props.children = app.trans('core.forum.log_in_invalid_login_message');
+        break;
+
+      default:
+        // no default
+    }
+
+    super.onerror(error);
   }
 }

@@ -12,11 +12,11 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Command\GenerateAccessToken;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\JsonResponse;
 
@@ -62,16 +62,13 @@ class TokenController implements ControllerInterface
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            throw new PermissionDeniedException;
+            throw new ModelNotFoundException;
         }
 
         if (! $user->is_activated) {
             $this->events->fire(new UserEmailChangeWasRequested($user, $user->email));
 
-            return new JsonResponse([
-                'code' => 'confirm_email',
-                'email' => $user->email
-            ], 401);
+            return new JsonResponse(['emailConfirmationRequired' => $user->email], 401);
         }
 
         $token = $this->bus->dispatch(

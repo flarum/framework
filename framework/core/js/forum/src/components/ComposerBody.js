@@ -102,4 +102,12 @@ export default class ComposerBody extends Component {
    */
   onsubmit() {
   }
+
+  /**
+   * Stop loading.
+   */
+  loaded() {
+    this.loading = false;
+    m.redraw();
+  }
 }

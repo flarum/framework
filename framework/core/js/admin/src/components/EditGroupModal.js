@@ -85,13 +85,12 @@ export default class EditGroupModal extends Modal {
       namePlural: this.namePlural(),
       color: this.color(),
       icon: this.icon()
-    }).then(
-      () => this.hide(),
-      (response) => {
+    }, {errorHandler: this.onerror.bind(this)})
+      .then(this.hide.bind(this))
+      .catch(() => {
         this.loading = false;
-        this.handleErrors(response);
-      }
-    );
+        m.redraw();
+      });
   }
 
   deleteGroup() {

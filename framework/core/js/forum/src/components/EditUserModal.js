@@ -102,11 +102,7 @@ export default class EditUserModal extends Modal {
     );
   }
 
-  onsubmit(e) {
-    e.preventDefault();
-
-    this.loading = true;
-
+  data() {
     const groups = Object.keys(this.groups)
       .filter(id => this.groups[id]())
       .map(id => app.store.getById('groups', id));
@@ -121,12 +117,19 @@ export default class EditUserModal extends Modal {
       data.password = this.password();
     }
 
-    this.props.user.save(data).then(
-      () => this.hide(),
-      response => {
+    return data;
+  }
+
+  onsubmit(e) {
+    e.preventDefault();
+
+    this.loading = true;
+
+    this.props.user.save(this.data(), {errorHandler: this.onerror.bind(this)})
+      .then(this.hide.bind(this))
+      .catch(() => {
         this.loading = false;
-        this.handleErrors(response);
-      }
-    );
+        m.redraw();
+      });
   }
 }

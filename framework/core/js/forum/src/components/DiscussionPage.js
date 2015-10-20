@@ -128,7 +128,7 @@ export default class DiscussionPage extends Page {
       // component for the first time on page load, then any calls to m.redraw
       // will be ineffective and thus any configs (scroll code) will be run
       // before stuff is drawn to the page.
-      setTimeout(this.show.bind(this, preloadedDiscussion));
+      setTimeout(this.show.bind(this, preloadedDiscussion), 0);
     } else {
       const params = this.requestParams();
 

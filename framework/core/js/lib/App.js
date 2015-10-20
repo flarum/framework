@@ -206,8 +206,12 @@ export default class App {
       try {
         return JSON.parse(responseText);
       } catch (e) {
-        throw new RequestError(e.message, responseText);
+        throw new RequestError(500, responseText);
       }
+    });
+
+    options.errorHandler = options.errorHandler || (error => {
+      throw error;
     });
 
     // When extracting the data from the response, we can check the server
@@ -225,26 +229,56 @@ export default class App {
 
       const status = xhr.status;
 
-      if (status >= 500 && status <= 599) {
-        throw new RequestError('Internal Server Error', responseText);
+      if (status < 200 || status > 299) {
+        throw new RequestError(status, responseText, xhr);
       }
 
       return responseText;
     };
 
-    this.alerts.dismiss(this.requestErrorAlert);
+    if (this.requestError) this.requestError.hideAlert();
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
     return m.request(options).then(null, error => {
-      if (error instanceof RequestError) {
-        this.alerts.show(this.requestErrorAlert = new Alert({
-          type: 'error',
-          children: 'Oops! Something went wrong. Please reload the page and try again.',
-          controls: app.forum.attribute('debug') ? [
-            <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
-          ] : undefined
-        }));
+      this.requestError = error;
+
+      let children;
+
+      switch (error.status) {
+        case 422:
+          children = error.response.errors
+            .map(error => [error.detail, <br/>])
+            .reduce((a, b) => a.concat(b), [])
+            .slice(0, -1);
+          break;
+
+        case 401:
+        case 403:
+          children = 'You do not have permission to do that.';
+          break;
+
+        case 404:
+        case 410:
+          children = 'The requested resource was not found.';
+          break;
+
+        default:
+          children = 'Oops! Something went wrong. Please reload the page and try again.';
+      }
+
+      error.alert = new Alert({
+        type: 'error',
+        children,
+        controls: app.forum.attribute('debug') ? [
+          <Button className="Button Button--link" onclick={this.showDebug.bind(this, error)}>Debug</Button>
+        ] : undefined
+      });
+
+      try {
+        options.errorHandler(error);
+      } catch (error) {
+        this.alerts.show(error.alert);
       }
 
       throw error;
@@ -264,16 +298,18 @@ export default class App {
   /**
    * Show alert error messages for each error returned in an API response.
    *
-   * @param {Array} errors
+   * @param {Object} response
    * @public
    */
-  alertErrors(errors) {
-    errors.forEach(error => {
-      this.alerts.show(new Alert({
-        type: 'error',
-        children: error.detail
-      }));
-    });
+  alertErrors(response) {
+    if (response.errors) {
+      response.errors.forEach(error => {
+        this.alerts.show(new Alert({
+          type: 'error',
+          children: error.detail
+        }));
+      });
+    }
   }
 
   /**

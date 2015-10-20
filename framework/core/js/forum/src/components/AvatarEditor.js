@@ -163,5 +163,6 @@ export default class AvatarEditor extends Component {
    */
   failure() {
     this.loading = false;
+    m.redraw();
   }
 }
