@@ -11,7 +11,7 @@
  */
 export default function punctuateSeries(items) {
   if (items.length === 2) {
-    return app.trans('core.lib.series_two_text', {
+    return app.translator.trans('core.lib.series.two_text', {
       first: items[0],
       second: items[1]
     });
@@ -21,10 +21,10 @@ export default function punctuateSeries(items) {
     // into the translator along with the first and last item.
     const second = items
       .slice(1, items.length - 1)
-      .reduce((list, item) => list.concat([item, app.trans('core.lib.series_glue_text')]), [])
+      .reduce((list, item) => list.concat([item, app.translator.trans('core.lib.series.glue_text')]), [])
       .slice(0, -1);
 
-    return app.trans('core.lib.series_three_text', {
+    return app.translator.trans('core.lib.series.three_text', {
       first: items[0],
       second,
       third: items[items.length - 1]

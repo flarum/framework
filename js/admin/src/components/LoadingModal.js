@@ -10,7 +10,7 @@ export default class LoadingModal extends Modal {
   }
 
   title() {
-    return app.trans('core.admin.extensions_loading_title');
+    return app.translator.trans('core.admin.loading.title');
   }
 
   content() {

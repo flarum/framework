@@ -18,7 +18,7 @@ export default class ExtensionsPage extends Component {
         <div className="ExtensionsPage-header">
           <div className="container">
             {Button.component({
-              children: app.trans('core.admin.extensions_add_button'),
+              children: app.translator.trans('core.admin.extensions.add_button'),
               icon: 'plus',
               className: 'Button Button--primary',
               onclick: () => app.modal.show(new AddExtensionModal())
@@ -70,7 +70,7 @@ export default class ExtensionsPage extends Component {
     if (app.extensionSettings[name]) {
       items.add('settings', Button.component({
         icon: 'cog',
-        children: app.trans('core.admin.extensions_settings_button'),
+        children: app.translator.trans('core.admin.extensions.settings_button'),
         onclick: app.extensionSettings[name]
       }));
     }
@@ -78,7 +78,7 @@ export default class ExtensionsPage extends Component {
     if (!enabled) {
       items.add('uninstall', Button.component({
         icon: 'trash-o',
-        children: app.trans('core.admin.extensions_uninstall_button'),
+        children: app.translator.trans('core.admin.extensions.uninstall_button'),
         onclick: () => {
           app.request({
             url: app.forum.attribute('apiUrl') + '/extensions/' + name,

@@ -28,7 +28,7 @@ export default class EditGroupModal extends Modal {
         style: {backgroundColor: this.color()}
       }) : '',
       ' ',
-      this.namePlural() || app.trans('core.admin.edit_group_title')
+      this.namePlural() || app.translator.trans('core.admin.edit_group.title')
     ];
   }
 
@@ -37,22 +37,22 @@ export default class EditGroupModal extends Modal {
       <div className="Modal-body">
         <div className="Form">
           <div className="Form-group">
-            <label>{app.trans('core.admin.edit_group_name_label')}</label>
+            <label>{app.translator.trans('core.admin.edit_group.name_label')}</label>
             <div className="EditGroupModal-name-input">
-              <input className="FormControl" placeholder="Singular (e.g. Mod)" value={this.nameSingular()} oninput={m.withAttr('value', this.nameSingular)}/>
-              <input className="FormControl" placeholder="Plural (e.g. Mods)" value={this.namePlural()} oninput={m.withAttr('value', this.namePlural)}/>
+              <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')} value={this.nameSingular()} oninput={m.withAttr('value', this.nameSingular)}/>
+              <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')} value={this.namePlural()} oninput={m.withAttr('value', this.namePlural)}/>
             </div>
           </div>
 
           <div className="Form-group">
-            <label>{app.trans('core.admin.edit_group_color_label')}</label>
+            <label>{app.translator.trans('core.admin.edit_group.color_label')}</label>
             <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
           </div>
 
           <div className="Form-group">
-            <label>{app.trans('core.admin.edit_group_icon_label')}</label>
+            <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
             <div className="helpText">
-              {app.trans('core.admin.edit_group_icon_text', {a: <a href="http://fortawesome.github.io/Font-Awesome/icons/" tabindex="-1"/>}, {em: <em/>}, {code: <code/>})}
+              {app.translator.trans('core.admin.edit_group.icon_text', {a: <a href="http://fortawesome.github.io/Font-Awesome/icons/" tabindex="-1"/>}, {em: <em/>}, {code: <code/>})}
             </div>
             <input className="FormControl" placeholder="bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
           </div>
@@ -62,11 +62,11 @@ export default class EditGroupModal extends Modal {
               type: 'submit',
               className: 'Button Button--primary EditGroupModal-save',
               loading: this.loading,
-              children: app.trans('core.admin.edit_group_submit_button')
+              children: app.translator.trans('core.admin.edit_group.submit_button')
             })}
             {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
               <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
-                {app.trans('core.admin.edit_group_delete_button')}
+                {app.translator.trans('core.admin.edit_group.delete_button')}
               </button>
             ) : ''}
           </div>
@@ -94,7 +94,7 @@ export default class EditGroupModal extends Modal {
   }
 
   deleteGroup() {
-    if (confirm(app.trans('core.admin.edit_group_delete_confirmation'))) {
+    if (confirm(app.translator.trans('core.admin.edit_group.delete_confirmation'))) {
       this.group.delete().then(() => m.redraw());
       this.hide();
     }
