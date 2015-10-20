@@ -35,7 +35,7 @@ export default class ForgotPasswordModal extends Modal {
   }
 
   title() {
-    return app.trans('core.forum.forgot_password_title');
+    return app.translator.trans('core.forum.forgot_password.title');
   }
 
   content() {
@@ -43,10 +43,10 @@ export default class ForgotPasswordModal extends Modal {
       return (
         <div className="Modal-body">
           <div className="Form Form--centered">
-            <p className="helpText">{app.trans('core.forum.forgot_password_email_sent_message')}</p>
+            <p className="helpText">{app.translator.trans('core.forum.forgot_password.email_sent_message')}</p>
             <div className="Form-group">
               <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
-                {app.trans('core.forum.forgot_password_dismiss_button')}
+                {app.translator.trans('core.forum.forgot_password.dismiss_button')}
               </Button>
             </div>
           </div>
@@ -57,9 +57,9 @@ export default class ForgotPasswordModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">{app.trans('core.forum.forgot_password_text')}</p>
+          <p className="helpText">{app.translator.trans('core.forum.forgot_password.text')}</p>
           <div className="Form-group">
-            <input className="FormControl" name="email" type="email" placeholder={extractText(app.trans('core.forum.forgot_password_email_placeholder'))}
+            <input className="FormControl" name="email" type="email" placeholder={extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
@@ -69,7 +69,7 @@ export default class ForgotPasswordModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.forum.forgot_password_submit_button')
+              children: app.translator.trans('core.forum.forgot_password.submit_button')
             })}
           </div>
         </div>

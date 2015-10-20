@@ -221,7 +221,7 @@ class PostStream extends Component {
             if (dt > 1000 * 60 * 60 * 24 * 4) {
               content = [
                 <div className="PostStream-timeGap">
-                  <span>{app.trans('core.forum.post_stream_time_lapsed_text', {period: moment.duration(dt).humanize()})}</span>
+                  <span>{app.translator.trans('core.forum.post_stream.time_lapsed_text', {period: moment.duration(dt).humanize()})}</span>
                 </div>,
                 content
               ];
