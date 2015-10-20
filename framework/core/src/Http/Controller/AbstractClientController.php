@@ -312,12 +312,14 @@ abstract class AbstractClientController extends AbstractHtmlController
      */
     protected function filterTranslations(array $translations, array $keys)
     {
-        return array_filter($translations, function ($id) use ($keys) {
+        $filtered = array_filter(array_keys($translations), function ($id) use ($keys) {
             foreach ($keys as $key) {
                 if (substr($id, 0, strlen($key)) === $key) {
                     return true;
                 }
             }
-        }, ARRAY_FILTER_USE_KEY);
+        });
+
+        return array_only($translations, $filtered);
     }
 }
