@@ -70,12 +70,11 @@ export default class FlagList extends Component {
     this.loading = true;
     m.redraw();
 
-    app.store.find('flags').then(flags => {
-      app.session.user.pushAttributes({newFlagsCount: 0});
-      app.cache.flags = flags.sort((a, b) => b.time() - a.time());
-
-      this.loading = false;
-      m.redraw();
-    });
+    app.store.find('flags')
+      .then(flags => {
+        app.session.user.pushAttributes({newFlagsCount: 0});
+        app.cache.flags = flags.sort((a, b) => b.time() - a.time());
+      })
+      .finally(this.loaded.bind(this));
   }
 }
