@@ -38,7 +38,7 @@ export default class LogInModal extends Modal {
   }
 
   title() {
-    return app.trans('core.forum.log_in_title');
+    return app.translator.trans('core.forum.log_in.title');
   }
 
   content() {
@@ -48,14 +48,14 @@ export default class LogInModal extends Modal {
 
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" placeholder={extractText(app.trans('core.forum.log_in_username_or_email_placeholder'))}
+            <input className="FormControl" name="email" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
           </div>
 
           <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={extractText(app.trans('core.forum.log_in_password_placeholder'))}
+            <input className="FormControl" name="password" type="password" placeholder={extractText(app.translator.trans('core.forum.log_in.password_placeholder'))}
               value={this.password()}
               onchange={m.withAttr('value', this.password)}
               disabled={this.loading} />
@@ -66,19 +66,19 @@ export default class LogInModal extends Modal {
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.forum.log_in_submit_button')
+              children: app.translator.trans('core.forum.log_in.submit_button')
             })}
           </div>
         </div>
       </div>,
       <div className="Modal-footer">
         <p className="LogInModal-forgotPassword">
-          <a onclick={this.forgotPassword.bind(this)}>{app.trans('core.forum.log_in_forgot_password_link')}</a>
+          <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
         </p>
 
         {app.forum.attribute('allowSignUp') ? (
           <p className="LogInModal-signUp">
-            {app.trans('core.forum.log_in_sign_up_text', {a: <a onclick={this.signUp.bind(this)}/>})}
+            {app.translator.trans('core.forum.log_in.sign_up_text', {a: <a onclick={this.signUp.bind(this)}/>})}
           </p>
         ) : ''}
       </div>
@@ -131,12 +131,12 @@ export default class LogInModal extends Modal {
   onerror(error) {
     switch (error.status) {
       case 401:
-        error.alert.props.children = app.trans('core.forum.log_in_confirmation_required_message', {email: error.response.emailConfirmationRequired});
+        error.alert.props.children = app.translator.trans('core.forum.log_in.confirmation_required_message', {email: error.response.emailConfirmationRequired});
         delete error.alert.props.type;
         break;
 
       case 404:
-        error.alert.props.children = app.trans('core.forum.log_in_invalid_login_message');
+        error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
         break;
 
       default:

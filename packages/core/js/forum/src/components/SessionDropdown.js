@@ -47,7 +47,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('profile',
       LinkButton.component({
         icon: 'user',
-        children: app.trans('core.forum.header_profile_button'),
+        children: app.translator.trans('core.forum.header.profile_button'),
         href: app.route.user(user)
       }),
       100
@@ -56,7 +56,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('settings',
       LinkButton.component({
         icon: 'cog',
-        children: app.trans('core.forum.header_settings_button'),
+        children: app.translator.trans('core.forum.header.settings_button'),
         href: app.route('settings')
       }),
       50
@@ -66,7 +66,7 @@ export default class SessionDropdown extends Dropdown {
       items.add('administration',
         LinkButton.component({
           icon: 'wrench',
-          children: app.trans('core.forum.header_admin_button'),
+          children: app.translator.trans('core.forum.header.admin_button'),
           href: app.forum.attribute('baseUrl') + '/admin',
           target: '_blank',
           config: () => {}
@@ -80,7 +80,7 @@ export default class SessionDropdown extends Dropdown {
     items.add('logOut',
       Button.component({
         icon: 'sign-out',
-        children: app.trans('core.forum.header_log_out_button'),
+        children: app.translator.trans('core.forum.header.log_out_button'),
         onclick: app.session.logout.bind(app.session)
       }),
       -100

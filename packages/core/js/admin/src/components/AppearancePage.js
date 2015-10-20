@@ -18,9 +18,9 @@ export default class AppearancePage extends Component {
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
             <fieldset className="AppearancePage-colors">
-              <legend>{app.trans('core.admin.appearance_colors_heading')}</legend>
+              <legend>{app.translator.trans('core.admin.appearance.colors_heading')}</legend>
               <div className="helpText">
-                {app.trans('core.admin.appearance_colors_text')}
+                {app.translator.trans('core.admin.appearance.colors_text')}
               </div>
 
               <div className="AppearancePage-colors-input">
@@ -30,33 +30,33 @@ export default class AppearancePage extends Component {
 
               {Switch.component({
                 state: this.darkMode(),
-                children: app.trans('core.admin.appearance_dark_mode_label'),
+                children: app.translator.trans('core.admin.appearance.dark_mode_label'),
                 onchange: this.darkMode
               })}
 
               {Switch.component({
                 state: this.coloredHeader(),
-                children: app.trans('core.admin.appearance_colored_header_label'),
+                children: app.translator.trans('core.admin.appearance.colored_header_label'),
                 onchange: this.coloredHeader
               })}
 
               {Button.component({
                 className: 'Button Button--primary',
                 type: 'submit',
-                children: app.trans('core.admin.appearance_submit_button'),
+                children: app.translator.trans('core.admin.appearance.submit_button'),
                 loading: this.loading
               })}
             </fieldset>
           </form>
 
           <fieldset>
-            <legend>{app.trans('core.admin.appearance_custom_styles_heading')}</legend>
+            <legend>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</legend>
             <div className="helpText">
-              {app.trans('core.admin.appearance_custom_styles_text')}
+              {app.translator.trans('core.admin.appearance.custom_styles_text')}
             </div>
             {Button.component({
               className: 'Button',
-              children: app.trans('core.admin.appearance_edit_css_button'),
+              children: app.translator.trans('core.admin.appearance.edit_css_button'),
               onclick: () => app.modal.show(new EditCustomCssModal())
             })}
           </fieldset>
@@ -71,7 +71,7 @@ export default class AppearancePage extends Component {
     const hex = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
 
     if (!hex.test(this.primaryColor()) || !hex.test(this.secondaryColor())) {
-      alert(app.trans('core.admin.appearance_enter_hex_message'));
+      alert(app.translator.trans('core.admin.appearance.enter_hex_message'));
       return;
     }
 
