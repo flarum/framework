@@ -9,18 +9,18 @@ export default class SubscriptionMenu extends Component {
     const discussion = this.props.discussion;
     const subscription = discussion.subscription();
 
-    let buttonLabel = app.trans('flarum-subscriptions.forum.follow');
+    let buttonLabel = app.translator.trans('flarum-subscriptions.forum.follow');
     let buttonIcon = 'star-o';
     const buttonClass = 'SubscriptionMenu-button--' + subscription;
 
     switch (subscription) {
       case 'follow':
-        buttonLabel = app.trans('flarum-subscriptions.forum.following');
+        buttonLabel = app.translator.trans('flarum-subscriptions.forum.following');
         buttonIcon = 'star';
         break;
 
       case 'ignore':
-        buttonLabel = app.trans('flarum-subscriptions.forum.ignoring');
+        buttonLabel = app.translator.trans('flarum-subscriptions.forum.ignoring');
         buttonIcon = 'eye-slash';
         break;
 
@@ -32,20 +32,20 @@ export default class SubscriptionMenu extends Component {
       {
         subscription: false,
         icon: 'star-o',
-        label: app.trans('flarum-subscriptions.forum.not_following'),
-        description: app.trans('flarum-subscriptions.forum.not_following_description')
+        label: app.translator.trans('flarum-subscriptions.forum.not_following'),
+        description: app.translator.trans('flarum-subscriptions.forum.not_following_description')
       },
       {
         subscription: 'follow',
         icon: 'star',
-        label: app.trans('flarum-subscriptions.forum.following'),
-        description: app.trans('flarum-subscriptions.forum.following_description')
+        label: app.translator.trans('flarum-subscriptions.forum.following'),
+        description: app.translator.trans('flarum-subscriptions.forum.following_description')
       },
       {
         subscription: 'ignore',
         icon: 'eye-slash',
-        label: app.trans('flarum-subscriptions.forum.ignoring'),
-        description: app.trans('flarum-subscriptions.forum.ignoring_description')
+        label: app.translator.trans('flarum-subscriptions.forum.ignoring'),
+        description: app.translator.trans('flarum-subscriptions.forum.ignoring_description')
       }
     ];
 
