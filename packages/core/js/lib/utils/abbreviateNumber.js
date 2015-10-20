@@ -11,9 +11,9 @@
 export default function abbreviateNumber(number) {
   // TODO: translation
   if (number >= 1000000) {
-    return Math.floor(number / 1000000) + 'M';
+    return Math.floor(number / 1000000) + app.translator.trans('core.lib.number_suffix.mega_text');
   } else if (number >= 1000) {
-    return Math.floor(number / 1000) + 'K';
+    return Math.floor(number / 1000) + app.translator.trans('core.lib.number_suffix.kilo_text');
   } else {
     return number.toString();
   }

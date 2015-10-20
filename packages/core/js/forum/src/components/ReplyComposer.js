@@ -25,9 +25,9 @@ export default class ReplyComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.placeholder = props.placeholder || extractText(app.trans('core.forum.composer_reply_body_placeholder'));
-    props.submitLabel = props.submitLabel || app.trans('core.forum.composer_reply_submit_button');
-    props.confirmExit = props.confirmExit || extractText(app.trans('core.forum.composer_reply_discard_confirmation'));
+    props.placeholder = props.placeholder || extractText(app.translator.trans('core.forum.composer_reply.body_placeholder'));
+    props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_reply.submit_button');
+    props.confirmExit = props.confirmExit || extractText(app.translator.trans('core.forum.composer_reply.discard_confirmation'));
   }
 
   headerItems() {
@@ -77,7 +77,7 @@ export default class ReplyComposer extends ComposerBody {
           let alert;
           const viewButton = Button.component({
             className: 'Button Button--link',
-            children: app.trans('core.forum.composer_reply_view_button'),
+            children: app.translator.trans('core.forum.composer_reply.view_button'),
             onclick: () => {
               m.route(app.route.post(post));
               app.alerts.dismiss(alert);
@@ -86,7 +86,7 @@ export default class ReplyComposer extends ComposerBody {
           app.alerts.show(
             alert = new Alert({
               type: 'success',
-              message: app.trans('core.forum.composer_reply_posted_message'),
+              message: app.translator.trans('core.forum.composer_reply.posted_message'),
               controls: [viewButton]
             })
           );
