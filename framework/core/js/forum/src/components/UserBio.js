@@ -29,7 +29,7 @@ export default class UserBio extends Component {
     let content;
 
     if (this.editing) {
-      content = <textarea className="FormControl" placeholder={extractText(app.trans('core.forum.user_bio_placeholder'))} rows="3" value={user.bio()}/>;
+      content = <textarea className="FormControl" placeholder={extractText(app.translator.trans('core.forum.user.bio_placeholder'))} rows="3" value={user.bio()}/>;
     } else {
       let subContent;
 
@@ -41,7 +41,7 @@ export default class UserBio extends Component {
         if (bioHtml) {
           subContent = m.trust(bioHtml);
         } else if (this.props.editable) {
-          subContent = <p className="UserBio-placeholder">{app.trans('core.forum.user_bio_placeholder')}</p>;
+          subContent = <p className="UserBio-placeholder">{app.translator.trans('core.forum.user.bio_placeholder')}</p>;
         }
       }
 

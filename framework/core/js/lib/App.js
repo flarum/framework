@@ -255,16 +255,16 @@ export default class App {
 
         case 401:
         case 403:
-          children = 'You do not have permission to do that.';
+          children = app.translator.trans('core.lib.error.permission_denied_message');
           break;
 
         case 404:
         case 410:
-          children = 'The requested resource was not found.';
+          children = app.translator.trans('core.lib.error.not_found_message');
           break;
 
         default:
-          children = 'Oops! Something went wrong. Please reload the page and try again.';
+          children = app.translator.trans('core.lib.error.generic_message');
       }
 
       error.alert = new Alert({
