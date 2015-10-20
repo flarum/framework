@@ -91,7 +91,7 @@ export default function addMentionedByList() {
               config={m.route}
               onclick={hidePreview}
               data-number={reply.number()}>
-              {app.session.user === user ? app.trans('flarum-mentions.forum.you') : username(user)}
+              {app.session.user === user ? app.translator.trans('flarum-mentions.forum.you') : username(user)}
             </a>
           );
         });
@@ -100,7 +100,7 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy" config={config}>
           <span className="Post-mentionedBy-summary">
             {icon('reply')}
-            {app.trans('flarum-mentions.forum.post_mentioned_by', {
+            {app.translator.trans('flarum-mentions.forum.post_mentioned_by', {
               count: names.length,
               users: punctuateSeries(names)
             })}
