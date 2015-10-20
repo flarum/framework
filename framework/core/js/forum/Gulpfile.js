@@ -13,9 +13,9 @@ gulp({
     bowerDir + '/m.attrs.bidi/bidi.js',
     bowerDir + '/jquery/dist/jquery.js',
     bowerDir + '/jquery.hotkeys/jquery.hotkeys.js',
-    bowerDir + '/color-thief/js/color-thief.js',
+    bowerDir + '/color-thief/src/color-thief.js',
     bowerDir + '/moment/moment.js',
-    bowerDir + '/autolink/autolink.js',
+    bowerDir + '/autolink/autolink.min.js',
 
     bowerDir + '/bootstrap/js/affix.js',
     bowerDir + '/bootstrap/js/dropdown.js',
