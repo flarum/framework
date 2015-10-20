@@ -11,20 +11,20 @@ export default class ChangePasswordModal extends Modal {
   }
 
   title() {
-    return app.trans('core.forum.change_password_title');
+    return app.translator.trans('core.forum.change_password.title');
   }
 
   content() {
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
-          <p className="helpText">{app.trans('core.forum.change_password_text')}</p>
+          <p className="helpText">{app.translator.trans('core.forum.change_password.text')}</p>
           <div className="Form-group">
             {Button.component({
               className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
-              children: app.trans('core.forum.change_password_send_button')
+              children: app.translator.trans('core.forum.change_password.send_button')
             })}
           </div>
         </div>

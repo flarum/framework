@@ -22,7 +22,7 @@ export default class UsersSearchResults {
     if (!results.length) return '';
 
     return [
-      <li className="Dropdown-header">{app.trans('core.forum.search_users_heading')}</li>,
+      <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
       results.map(user => (
         <li className="UserSearchResult" data-index={'users' + user.id()}>
           <a href={app.route.user(user)} config={m.route}>
