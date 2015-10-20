@@ -5,10 +5,6 @@ export default class RequestErrorModal extends Modal {
     return 'RequestErrorModal Modal--large';
   }
 
-  title() {
-    return this.props.error.message;
-  }
-
   content() {
     let responseText;
 

@@ -83,16 +83,8 @@ export default class ChangeEmailModal extends Modal {
 
     this.loading = true;
 
-    app.session.user.save({email: this.email()}).then(
-      () => {
-        this.loading = false;
-        this.success = true;
-        m.redraw();
-      },
-      response => {
-        this.loading = false;
-        this.handleErrors(response);
-      }
-    );
+    app.session.user.save({email: this.email()}, {errorHandler: this.onerror.bind(this)})
+      .then(() => this.success = true)
+      .finally(this.loaded.bind(this));
   }
 }

@@ -109,11 +109,7 @@ export default class DiscussionComposer extends ComposerBody {
         app.cache.discussionList.addDiscussion(discussion);
         m.route(app.route.discussion(discussion));
       },
-      response => {
-        this.loading = false;
-        m.redraw();
-        app.alertErrors(response.errors);
-      }
+      this.loaded.bind(this)
     );
   }
 }

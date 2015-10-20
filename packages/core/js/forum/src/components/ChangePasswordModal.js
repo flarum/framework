@@ -42,8 +42,8 @@ export default class ChangePasswordModal extends Modal {
       url: app.forum.attribute('apiUrl') + '/forgot',
       data: {email: app.session.user.email()}
     }).then(
-      () => this.hide(),
-      () => this.loading = false
+      this.hide.bind(this),
+      this.loaded.bind(this)
     );
   }
 }

@@ -36,7 +36,8 @@ export default class ReplyComposer extends ComposerBody {
 
     items.add('title', (
       <h3>
-        {icon('reply')}{' '}<a href={app.route.discussion(discussion)} config={m.route}>{discussion.title()}</a>
+        {icon('reply')} {' '}
+        <a href={app.route.discussion(discussion)} config={m.route}>{discussion.title()}</a>
       </h3>
     ));
 
@@ -93,11 +94,7 @@ export default class ReplyComposer extends ComposerBody {
 
         app.composer.hide();
       },
-      response => {
-        this.loading = false;
-        m.redraw();
-        app.alertErrors(response.errors);
-      }
+      this.loaded.bind(this)
     );
   }
 }

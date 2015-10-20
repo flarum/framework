@@ -85,24 +85,12 @@ export default class ForgotPasswordModal extends Modal {
     app.request({
       method: 'POST',
       url: app.forum.attribute('apiUrl') + '/forgot',
-      data: {email: this.email()},
-      handlers: {
-        404: () => {
-          this.alert = new Alert({type: 'warning', message: 'That email wasn\'t found in our database.'});
-          throw new Error();
-        }
-      }
-    }).then(
-      () => {
-        this.loading = false;
+      data: {email: this.email()}
+    })
+      .then(() => {
         this.success = true;
         this.alert = null;
-        m.redraw();
-      },
-      response => {
-        this.loading = false;
-        this.handleErrors(response);
-      }
-    );
+      })
+      .finally(this.loaded.bind(this));
   }
 }

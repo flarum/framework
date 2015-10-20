@@ -26,15 +26,16 @@ export default class Session {
    *
    * @param {String} identification The username/email.
    * @param {String} password
+   * @param {Object} [options]
    * @return {Promise}
    * @public
    */
-  login(identification, password) {
-    return app.request({
+  login(identification, password, options = {}) {
+    return app.request(Object.assign({
       method: 'POST',
       url: app.forum.attribute('baseUrl') + '/login',
       data: {identification, password}
-    })
+    }, options))
       .then(() => window.location.reload());
   }
 

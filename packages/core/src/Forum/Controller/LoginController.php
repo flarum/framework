@@ -55,12 +55,11 @@ class LoginController implements ControllerInterface
         $actor = $request->getAttribute('actor');
         $params = array_only($request->getParsedBody(), ['identification', 'password']);
 
-        $data = json_decode($this->apiClient->send($controller, $actor, [], $params)->getBody());
+        $response = $this->apiClient->send($controller, $actor, [], $params);
 
-        // TODO: The client needs to pass through exceptions(?) or the whole
-        // response so we can look at the response code. For now if there isn't
-        // any useful data we just assume it's a 401.
-        if (isset($data->userId)) {
+        if ($response->getStatusCode() === 200) {
+            $data = json_decode($response->getBody());
+
             // Extend the token's expiry to 2 weeks so that we can set a
             // remember cookie
             AccessToken::where('id', $data->token)->update(['expires_at' => new DateTime('+2 weeks')]);
@@ -68,11 +67,11 @@ class LoginController implements ControllerInterface
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
 
             return $this->withRememberCookie(
-                new JsonResponse($data),
+                $response,
                 $data->token
             );
         } else {
-            return new EmptyResponse(401);
+            return $response;
         }
     }
 }
