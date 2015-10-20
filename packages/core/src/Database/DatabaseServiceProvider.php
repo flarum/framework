@@ -27,7 +27,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.db', function () {
             $factory = new ConnectionFactory($this->app);
 
-            $connection = $factory->make($this->app->make('flarum.config')['database']);
+            $connection = $factory->make($this->app->config('database'));
             $connection->setEventDispatcher($this->app->make('Illuminate\Contracts\Events\Dispatcher'));
             $connection->setFetchMode(PDO::FETCH_CLASS);
 
