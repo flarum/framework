@@ -55,14 +55,14 @@ export default {
         !app.session.user || discussion.canReply()
           ? Button.component({
             icon: 'reply',
-            children: app.trans(app.session.user ? 'core.forum.discussion_controls_reply_button' : 'core.forum.discussion_controls_log_in_to_reply_button'),
+            children: app.translator.trans(app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'),
             onclick: this.replyAction.bind(discussion, true, false)
           })
           : Button.component({
             icon: 'reply',
-            children: app.trans('core.forum.discussion_controls_cannot_reply_button'),
+            children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
             className: 'disabled',
-            title: app.trans('core.forum.discussion_controls_cannot_reply_text')
+            title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text')
           })
       );
     }
@@ -85,7 +85,7 @@ export default {
     if (discussion.canRename()) {
       items.add('rename', Button.component({
         icon: 'pencil',
-        children: app.trans('core.forum.discussion_controls_rename_button'),
+        children: app.translator.trans('core.forum.discussion_controls.rename_button'),
         onclick: this.renameAction.bind(discussion)
       }));
     }
@@ -109,21 +109,21 @@ export default {
       if (discussion.canHide()) {
         items.add('hide', Button.component({
           icon: 'trash-o',
-          children: app.trans('core.forum.discussion_controls_delete_button'),
+          children: app.translator.trans('core.forum.discussion_controls.delete_button'),
           onclick: this.hideAction.bind(discussion)
         }));
       }
     } else if (discussion.canDelete()) {
       items.add('restore', Button.component({
         icon: 'reply',
-        children: app.trans('core.forum.discussion_controls_restore_button'),
+        children: app.translator.trans('core.forum.discussion_controls.restore_button'),
         onclick: this.restoreAction.bind(discussion),
         disabled: discussion.commentsCount() === 0
       }));
 
       items.add('delete', Button.component({
         icon: 'times',
-        children: app.trans('core.forum.discussion_controls_delete_forever_button'),
+        children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
         onclick: this.deleteAction.bind(discussion)
       }));
     }
@@ -216,7 +216,7 @@ export default {
    * @return {Promise}
    */
   deleteAction() {
-    if (confirm(extractText(app.trans('core.forum.discussion_controls_delete_confirmation')))) {
+    if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
       // If there is a discussion list in the cache, remove this discussion.
       if (app.cache.discussionList) {
         app.cache.discussionList.removeDiscussion(this);
@@ -239,7 +239,7 @@ export default {
    */
   renameAction() {
     const currentTitle = this.title();
-    const title = prompt(extractText(app.trans('core.forum.discussion_controls_rename_text')), currentTitle);
+    const title = prompt(extractText(app.translator.trans('core.forum.discussion_controls.rename_text')), currentTitle);
 
     // If the title is different to what it was before, then save it. After the
     // save has completed, update the post stream as there will be a new post

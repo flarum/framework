@@ -27,10 +27,10 @@ export default class DiscussionComposer extends ComposerBody {
   static initProps(props) {
     super.initProps(props);
 
-    props.placeholder = props.placeholder || extractText(app.trans('core.forum.composer_discussion_body_placeholder'));
-    props.submitLabel = props.submitLabel || app.trans('core.forum.composer_discussion_submit_button');
-    props.confirmExit = props.confirmExit || extractText(app.trans('core.forum.composer_discussion_discard_confirmation'));
-    props.titlePlaceholder = props.titlePlaceholder || extractText(app.trans('core.forum.composer_discussion_title_placeholder'));
+    props.placeholder = props.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));
+    props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
+    props.confirmExit = props.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
+    props.titlePlaceholder = props.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
   }
 
   headerItems() {

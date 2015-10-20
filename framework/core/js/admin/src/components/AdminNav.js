@@ -35,36 +35,36 @@ export default class AdminNav extends Component {
     items.add('dashboard', AdminLinkButton.component({
       href: app.route('dashboard'),
       icon: 'bar-chart',
-      children: app.trans('core.admin.nav_dashboard_button'),
-      description: app.trans('core.admin.nav_dashboard_text')
+      children: app.translator.trans('core.admin.nav.dashboard_button'),
+      description: app.translator.trans('core.admin.nav.dashboard_text')
     }));
 
     items.add('basics', AdminLinkButton.component({
       href: app.route('basics'),
       icon: 'pencil',
-      children: app.trans('core.admin.nav_basics_button'),
-      description: app.trans('core.admin.nav_basics_text')
+      children: app.translator.trans('core.admin.nav.basics_button'),
+      description: app.translator.trans('core.admin.nav.basics_text')
     }));
 
     items.add('permissions', AdminLinkButton.component({
       href: app.route('permissions'),
       icon: 'key',
-      children: app.trans('core.admin.nav_permissions_button'),
-      description: app.trans('core.admin.nav_permissions_text')
+      children: app.translator.trans('core.admin.nav.permissions_button'),
+      description: app.translator.trans('core.admin.nav.permissions_text')
     }));
 
     items.add('appearance', AdminLinkButton.component({
       href: app.route('appearance'),
       icon: 'paint-brush',
-      children: app.trans('core.admin.nav_appearance_button'),
-      description: app.trans('core.admin.nav_appearance_text')
+      children: app.translator.trans('core.admin.nav.appearance_button'),
+      description: app.translator.trans('core.admin.nav.appearance_text')
     }));
 
     items.add('extensions', AdminLinkButton.component({
       href: app.route('extensions'),
       icon: 'puzzle-piece',
-      children: app.trans('core.admin.nav_extensions_button'),
-      description: app.trans('core.admin.nav_extensions_text')
+      children: app.translator.trans('core.admin.nav.extensions_button'),
+      description: app.translator.trans('core.admin.nav.extensions_text')
     }));
 
     return items;

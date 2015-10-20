@@ -46,14 +46,14 @@ export default class DiscussionList extends Component {
       loading = LoadingIndicator.component();
     } else if (this.moreResults) {
       loading = Button.component({
-        children: app.trans('core.forum.discussion_list_load_more_button'),
+        children: app.translator.trans('core.forum.discussion_list.load_more_button'),
         className: 'Button',
         onclick: this.loadMore.bind(this)
       });
     }
 
     if (this.discussions.length === 0 && !this.loading) {
-      const text = app.trans('core.forum.discussion_list_empty_text');
+      const text = app.translator.trans('core.forum.discussion_list.empty_text');
       return (
         <div className="DiscussionList">
           {Placeholder.component({text})}
