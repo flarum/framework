@@ -19,8 +19,8 @@ export default class NotificationGrid extends Component {
      * @type {Array}
      */
     this.methods = [
-      {name: 'alert', icon: 'bell', label: app.trans('core.forum.settings_notify_by_web_heading')},
-      {name: 'email', icon: 'envelope-o', label: app.trans('core.forum.settings_notify_by_email_heading')}
+      {name: 'alert', icon: 'bell', label: app.translator.trans('core.forum.settings.notify_by_web_heading')},
+      {name: 'email', icon: 'envelope-o', label: app.translator.trans('core.forum.settings.notify_by_email_heading')}
     ];
 
     /**
@@ -180,7 +180,7 @@ export default class NotificationGrid extends Component {
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
       icon: 'pencil',
-      label: app.trans('core.forum.settings_notify_discussion_renamed_label')
+      label: app.translator.trans('core.forum.settings.notify_discussion_renamed_label')
     });
 
     return items;

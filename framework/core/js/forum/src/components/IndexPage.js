@@ -147,7 +147,7 @@ export default class IndexPage extends Page {
 
     items.add('newDiscussion',
       Button.component({
-        children: app.trans(canStartDiscussion ? 'core.forum.index_start_discussion_button' : 'core.forum.index_cannot_start_discussion_button'),
+        children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
         icon: 'edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
@@ -180,7 +180,7 @@ export default class IndexPage extends Page {
     items.add('allDiscussions',
       LinkButton.component({
         href: app.route('index', params),
-        children: app.trans('core.forum.index_all_discussions_link'),
+        children: app.translator.trans('core.forum.index.all_discussions_link'),
         icon: 'comments-o'
       }),
       100
@@ -201,7 +201,7 @@ export default class IndexPage extends Page {
 
     const sortOptions = {};
     for (const i in app.cache.discussionList.sortMap()) {
-      sortOptions[i] = app.trans('core.forum.index_sort_' + i + '_button');
+      sortOptions[i] = app.translator.trans('core.forum.index.sort_' + i + '_button');
     }
 
     items.add('sort',
@@ -226,7 +226,7 @@ export default class IndexPage extends Page {
 
     items.add('refresh',
       Button.component({
-        title: app.trans('core.forum.index_refresh_tooltip'),
+        title: app.translator.trans('core.forum.index.refresh_tooltip'),
         icon: 'refresh',
         className: 'Button Button--icon',
         onclick: () => app.cache.discussionList.refresh()
@@ -236,7 +236,7 @@ export default class IndexPage extends Page {
     if (app.session.user) {
       items.add('markAllAsRead',
         Button.component({
-          title: app.trans('core.forum.index_mark_all_as_read_tooltip'),
+          title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
           icon: 'check',
           className: 'Button Button--icon',
           onclick: this.markAllAsRead.bind(this)
