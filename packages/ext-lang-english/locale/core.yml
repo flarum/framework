@@ -323,22 +323,25 @@ core:
     # This string is displayed in place of the username of deleted user account.
     deleted_user_text: "[deleted]"
 
+    # Thes strings are displayed as error messages.
+    error:
+      generic_message: Oops! Something went wrong. Please reload the page and try again.
+      permission_denied_message: You do not have permission to do that.
+      not_found_message: The requested resource was not found.
+
     # This string is displayed as the tooltip for the badge on a soft-deleted discussion.
     hidden_discussion_tooltip: Hidden
 
-    # This string is displayed when an error occurs.
-    oops_message: Oops! Something went wrong. Please reload the page and try again.
+    #These strings are used as suffixes when abbreviating numbers.
+    number_suffix:
+      kilo_text: K
+      mega_text: M
 
     # These strings are used to punctuate a series of items.
     series:
       glue_text: ", "
       two_text: "{first} and {second}"
       three_text: "{first}, {second}, and {third}"
-
-    #These strings are used as suffixes when abbreviating numbers.
-    suffix:
-      kilo_text: K
-      mega_text: M
 
   ##
   # REUSED STRINGS - These keys should not be used directly in code!
