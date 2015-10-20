@@ -178,7 +178,8 @@ export default class SignUpModal extends Modal {
     app.request({
       url: app.forum.attribute('baseUrl') + '/register',
       method: 'POST',
-      data
+      data,
+      errorHandler: this.onerror.bind(this)
     }).then(
       payload => {
         const user = app.store.pushPayload(payload);
@@ -190,14 +191,10 @@ export default class SignUpModal extends Modal {
           window.location.reload();
         } else {
           this.welcomeUser = user;
-          this.loading = false;
-          m.redraw();
+          this.loaded();
         }
       },
-      response => {
-        this.loading = false;
-        this.handleErrors(response);
-      }
+      this.loaded.bind(this)
     );
   }
 

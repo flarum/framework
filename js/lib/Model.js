@@ -117,10 +117,11 @@ export default class Model {
    *
    * @param {Object} attributes The attributes to save. If a 'relationships' key
    *     exists, it will be extracted and relationships will also be saved.
+   * @param {Object} [options]
    * @return {Promise}
    * @public
    */
-  save(attributes) {
+  save(attributes, options = {}) {
     const data = {
       type: this.data.type,
       id: this.data.id,
@@ -153,11 +154,11 @@ export default class Model {
 
     this.pushData(data);
 
-    return app.request({
+    return app.request(Object.assign({
       method: this.exists ? 'PATCH' : 'POST',
       url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
       data: {data}
-    }).then(
+    }, options)).then(
       // If everything went well, we'll make sure the store knows that this
       // model exists now (if it didn't already), and we'll push the data that
       // the API returned into the store.
@@ -181,17 +182,18 @@ export default class Model {
    * Send a request to delete the resource.
    *
    * @param {Object} data Data to send along with the DELETE request.
+   * @param {Object} [options]
    * @return {Promise}
    * @public
    */
-  delete(data) {
+  delete(data, options = {}) {
     if (!this.exists) return m.deferred.resolve().promise;
 
-    return app.request({
+    return app.request(Object.assign({
       method: 'DELETE',
       url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
       data
-    }).then(() => {
+    }, options)).then(() => {
       this.exists = false;
       this.store.remove(this);
     });

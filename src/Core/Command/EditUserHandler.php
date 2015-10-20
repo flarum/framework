@@ -63,6 +63,7 @@ class EditUserHandler
 
         $attributes = array_get($data, 'attributes', []);
         $relationships = array_get($data, 'relationships', []);
+        $validate = [];
 
         if (isset($attributes['username'])) {
             $this->assertPermission($canEdit);
@@ -72,6 +73,10 @@ class EditUserHandler
         if (isset($attributes['email'])) {
             if ($isSelf) {
                 $user->requestEmailChange($attributes['email']);
+
+                if ($attributes['email'] !== $user->email) {
+                    $validate['email'] = $attributes['email'];
+                }
             } else {
                 $this->assertPermission($canEdit);
                 $user->changeEmail($attributes['email']);
@@ -81,6 +86,8 @@ class EditUserHandler
         if (isset($attributes['password'])) {
             $this->assertPermission($canEdit);
             $user->changePassword($attributes['password']);
+
+            $validate['password'] = $attributes['password'];
         }
 
         if (isset($attributes['bio'])) {
@@ -127,7 +134,7 @@ class EditUserHandler
             new UserWillBeSaved($user, $actor, $data)
         );
 
-        $this->validator->assertValid(array_merge($user->getDirty(), array_only($attributes, ['password', 'email'])));
+        $this->validator->assertValid(array_merge($user->getDirty(), $validate));
 
         $user->save();
 
