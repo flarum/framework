@@ -327,16 +327,4 @@ export default class App {
 
     return prefix + url + (queryString ? '?' + queryString : '');
   }
-
-  /**
-   * Shortcut to translate the given key.
-   *
-   * @param {String} key
-   * @param {Object} input
-   * @return {String}
-   * @public
-   */
-  trans(key, input) {
-    return this.translator.trans(key, input);
-  }
 }
