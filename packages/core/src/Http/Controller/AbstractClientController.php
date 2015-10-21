@@ -164,6 +164,8 @@ abstract class AbstractClientController extends AbstractHtmlController
             $localeCompiler->setTranslations($translations);
         }
 
+        app('view')->share('translator', $this->locales->getTranslator());
+
         return $view;
     }
 
