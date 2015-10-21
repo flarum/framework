@@ -85,8 +85,8 @@ export default class TagDiscussionModal extends Modal {
 
   title() {
     return this.props.discussion
-      ? app.trans('flarum-tags.forum.edit_discussion_tags_title', {title: <em>{this.props.discussion.title()}</em>})
-      : app.trans('flarum-tags.forum.tag_new_discussion_title');
+      ? app.translator.trans('flarum-tags.forum.edit_discussion_tags_title', {title: <em>{this.props.discussion.title()}</em>})
+      : app.translator.trans('flarum-tags.forum.tag_new_discussion_title');
   }
 
   getInstruction(primaryCount, secondaryCount) {
@@ -162,7 +162,7 @@ export default class TagDiscussionModal extends Modal {
               className: 'Button Button--primary',
               disabled: primaryCount < this.minPrimary || secondaryCount < this.minSecondary,
               icon: 'check',
-              children: app.trans('flarum-tags.forum.confirm')
+              children: app.translator.trans('flarum-tags.forum.confirm')
             })}
           </div>
         </div>
