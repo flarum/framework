@@ -25,7 +25,7 @@ export default function tagLabel(tag, attrs = {}) {
   return (
     m((link ? 'a' : 'span'), attrs,
       <span className="TagLabel-text">
-        {tag ? tag.name() : app.trans('flarum-tags.forum.deleted')}
+        {tag ? tag.name() : app.translator.trans('flarum-tags.forum.deleted')}
       </span>
     )
   );

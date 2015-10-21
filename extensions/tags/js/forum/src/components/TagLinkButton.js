@@ -22,6 +22,6 @@ export default class TagLinkButton extends LinkButton {
 
     props.params.tags = tag ? tag.slug() : 'untagged';
     props.href = app.route('tag', props.params);
-    props.children = tag ? tag.name() : app.trans('flarum-tags.forum.untagged');
+    props.children = tag ? tag.name() : app.translator.trans('flarum-tags.forum.untagged');
   }
 }
