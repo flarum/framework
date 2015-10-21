@@ -320,6 +320,10 @@ core:
   # Strings in this namespace are used by the forum and admin interfaces.
   lib:
 
+    # These strings are displayed as tooltips for discussion badges.
+    badge:
+      hidden_discussion_tooltip: Hidden
+
     # This string is displayed in place of the username of deleted user account.
     deleted_user_text: "[deleted]"
 
@@ -328,9 +332,6 @@ core:
       generic_message: Oops! Something went wrong. Please reload the page and try again.
       permission_denied_message: You do not have permission to do that.
       not_found_message: The requested resource was not found.
-
-    # This string is displayed as the tooltip for the badge on a soft-deleted discussion.
-    hidden_discussion_tooltip: Hidden
 
     #These strings are used as suffixes when abbreviating numbers.
     number_suffix:
