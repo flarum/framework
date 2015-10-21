@@ -18,7 +18,7 @@ class UserValidator extends AbstractValidator
             'alpha_dash',
             'unique:users',
             'min:3',
-            'max:8'
+            'max:30'
         ],
         'email' => [
             'required',
