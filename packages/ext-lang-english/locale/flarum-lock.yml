@@ -20,16 +20,17 @@ flarum-lock:
 
     # These strings are used by the discussion control buttons.
     discussion_controls:
-      lock: Lock
-      unlock: Unlock
+      lock_button: Lock
+      unlock_button: Unlock
 
     # These strings are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
-      discussion_locked_notification: "{username} locked"
+      discussion_locked_text: "{username} locked"
 
+    # These strings are displayed between posts in the post stream.
     post_stream:
-      discussion_locked_post: "{username} locked the discussion."
-      discussion_unlocked_post: "{username} unlocked the discussion."
+      discussion_locked_text: "{username} locked the discussion."
+      discussion_unlocked_text: "{username} unlocked the discussion."
 
     # These strings are used in the Settings page.
     settings:
