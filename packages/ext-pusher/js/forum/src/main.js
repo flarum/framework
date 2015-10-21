@@ -79,7 +79,7 @@ app.initializers.add('flarum-pusher', () => {
               this.loadingUpdated = true;
             },
             loading: this.loadingUpdated,
-            children: app.translator.transChoice('flarum-pusher.forum.show_updated_discussions', count, {count})
+            children: app.translator.transChoice('flarum-pusher.forum.discussion_list.show_updates_text', count, {count})
           })
         );
       }
