@@ -10,7 +10,7 @@ export default function() {
     if (post.isHidden() || post.contentType() !== 'comment' || !post.canFlag() || post.user() === app.session.user) return;
 
     items.add('flag',
-      <Button icon="flag" onclick={() => app.modal.show(new FlagPostModal({post}))}>Flag</Button>
+      <Button icon="flag" onclick={() => app.modal.show(new FlagPostModal({post}))}>{app.translator.trans('flarum-flags.forum.post_controls.flag_button')}</Button>
     );
   });
 }

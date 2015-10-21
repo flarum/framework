@@ -65,7 +65,7 @@ export default function() {
 
     items.merge(controls);
 
-    items.add('dismiss', <Button className="Button Button--icon Button--link" icon="times" onclick={this.dismissFlag.bind(this)} title="Dismiss Flag"/>, -100);
+    items.add('dismiss', <Button className="Button Button--icon Button--link" icon="times" onclick={this.dismissFlag.bind(this)} title={app.translator.trans('flarum-flags.forum.post.dismiss_flag_tooltip')}/>, -100);
 
     return items;
   };
@@ -101,7 +101,7 @@ export default function() {
       const detail = flag.reasonDetail();
 
       return [
-        app.translator.trans(reason ? 'flarum-flags.forum.flagged_by_with_reason' : 'flarum-flags.forum.flagged_by', {user, reason}),
+        app.translator.trans(reason ? 'flarum-flags.forum.post.flagged_by_with_reason' : 'flarum-flags.forum.post.flagged_by', {user, reason}),
         detail ? <span className="Post-flagged-detail">{detail}</span> : ''
       ];
     }
