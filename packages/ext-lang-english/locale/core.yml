@@ -343,6 +343,13 @@ core:
       two_text: "{first} and {second}"
       three_text: "{first}, {second}, and {third}"
 
+  # Strings in this namespace are used in basic HTML interface.
+  basic:
+    load_error_message: Something went wrong while trying to load the full version of this site.
+    javascript_disabled_message: This site is best viewed in a modern browser with JavaScript enabled.
+    next_page_button: Next Page
+    previous_page_button: Previous Page
+
   ##
   # REUSED STRINGS - These keys should not be used directly in code!
   ##
@@ -432,4 +439,3 @@ core:
     members: Members
     mod: Mod
     mods: Mods
-
