@@ -5,6 +5,12 @@ export default class RequestErrorModal extends Modal {
     return 'RequestErrorModal Modal--large';
   }
 
+  title() {
+    return this.props.error.xhr
+      ? this.props.error.xhr.status+' '+this.props.error.xhr.statusText
+      : '';
+  }
+
   content() {
     let responseText;
 
@@ -15,7 +21,10 @@ export default class RequestErrorModal extends Modal {
     }
 
     return <div className="Modal-body">
-      <pre>{responseText}</pre>
+      <pre>
+        {this.props.error.options.method} {this.props.error.options.url}<br/><br/>
+        {responseText}
+      </pre>
     </div>;
   }
 }
