@@ -1,3 +1,22 @@
 flarum-pusher:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Strings in this namespace are used by the admin interface.
+  admin:
+
+    # These strings are used in the Pusher Settings modal dialog.
+    pusher_settings:
+      app_id_label: App ID
+      app_key_label: App Key
+      app_secret_label: App Secret
+      title: Pusher Settings
+
+  # Strings in this namespace are used by the admin interface.
   forum:
-    show_updated_discussions: "Show {count} updated discussion|Show {count} updated discussions"
+
+    # These strings are used in the discussion list.
+    discussion_list:
+      show_updates_text: "Show {count} updated discussion|Show {count} updated discussions"
