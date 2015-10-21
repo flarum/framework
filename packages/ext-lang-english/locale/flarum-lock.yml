@@ -34,4 +34,3 @@ flarum-lock:
     # These strings are used in the Settings page.
     settings:
       notify_discussion_locked_label: Someone locks a discussion I started
-
