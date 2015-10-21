@@ -6,7 +6,7 @@ app.initializers.add('lock', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('lock', {
       icon: 'lock',
-      label: 'Lock discussions',
+      label: app.translator.trans('flarum-lock.admin.permissions.lock_discussions_label'),
       permission: 'discussion.lock'
     }, 95);
   });

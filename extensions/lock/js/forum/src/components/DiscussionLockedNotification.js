@@ -12,6 +12,6 @@ export default class DiscussionLockedNotification extends Notification {
   }
 
   content() {
-    return app.translator.trans('flarum-lock.forum.discussion_locked_notification', {user: this.props.notification.sender()});
+    return app.translator.trans('flarum-lock.forum.notifications.discussion_locked_text', {user: this.props.notification.sender()});
   }
 }
