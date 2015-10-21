@@ -327,7 +327,7 @@ core:
     # This string is displayed in place of the username of deleted user account.
     deleted_user_text: "[deleted]"
 
-    # Thes strings are displayed as error messages.
+    # These strings are displayed as error messages.
     error:
       generic_message: Oops! Something went wrong. Please reload the page and try again.
       permission_denied_message: You do not have permission to do that.
