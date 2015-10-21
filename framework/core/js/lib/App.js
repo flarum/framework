@@ -206,7 +206,7 @@ export default class App {
       try {
         return JSON.parse(responseText);
       } catch (e) {
-        throw new RequestError(500, responseText);
+        throw new RequestError(500, responseText, options, xhr);
       }
     });
 
@@ -230,7 +230,7 @@ export default class App {
       const status = xhr.status;
 
       if (status < 200 || status > 299) {
-        throw new RequestError(status, responseText, xhr);
+        throw new RequestError(status, responseText, options, xhr);
       }
 
       return responseText;
