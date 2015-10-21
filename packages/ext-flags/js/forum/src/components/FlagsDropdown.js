@@ -4,7 +4,7 @@ import FlagList from 'flarum/flags/components/FlagList';
 
 export default class FlagsDropdown extends NotificationsDropdown {
   static initProps(props) {
-    props.label = props.label || 'Flagged Posts';
+    props.label = props.label || app.translator.trans('flarum-flags.forum.flagged_posts.tooltip');
     props.icon = props.icon || 'flag';
 
     super.initProps(props);

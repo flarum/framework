@@ -6,7 +6,7 @@ app.initializers.add('flarum-flags', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('viewFlags', {
       icon: 'flag',
-      label: 'View flagged posts',
+      label: app.translator.trans('flarum-flags.admin.permissions.view_flags'),
       permission: 'discussion.viewFlags'
     }, 65);
   });
@@ -14,7 +14,7 @@ app.initializers.add('flarum-flags', () => {
   extend(PermissionGrid.prototype, 'replyItems', items => {
     items.add('flagPosts', {
       icon: 'flag',
-      label: 'Flag posts',
+      label: app.translator.trans('flarum-flags.admin.permissions.flag_posts'),
       permission: 'discussion.flagPosts'
     }, 70);
   });

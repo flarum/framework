@@ -14,7 +14,7 @@ export default class FlagPostModal extends Modal {
   }
 
   title() {
-    return 'Flag Post';
+    return {app.translator.trans('flarum-flags.forum.flag_post.title')};
   }
 
   content() {
@@ -22,26 +22,26 @@ export default class FlagPostModal extends Modal {
       <div className="Modal-body">
         <div className="Form">
           <div className="Form-group">
-            <label>Choose a Reason</label>
+            <label>{app.translator.trans('flarum-flags.forum.flag_post.reason_heading')}</label>
             <div>
               <label className="checkbox">
                 <input type="radio" name="reason" checked={this.reason() === 'off_topic'} value="off_topic" onclick={m.withAttr('value', this.reason)}/>
-                Off-topic
+                {app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_label')}
               </label>
 
               <label className="checkbox">
                 <input type="radio" name="reason" checked={this.reason() === 'inappropriate'} value="inappropriate" onclick={m.withAttr('value', this.reason)}/>
-                Inappropriate
+                {app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_label')}
               </label>
 
               <label className="checkbox">
                 <input type="radio" name="reason" checked={this.reason() === 'spam'} value="spam" onclick={m.withAttr('value', this.reason)}/>
-                Spam
+                {app.translator.trans('flarum-flags.forum.flag_post.reason_spam_label')}
               </label>
 
               <label className="checkbox">
                 <input type="radio" name="reason" checked={this.reason() === 'other'} value="other" onclick={m.withAttr('value', this.reason)}/>
-                Other
+                {app.translator.trans('flarum-flags.forum.flag_post.reason_other_label')}
                 {this.reason() === 'other' ? (
                   <textarea className="FormControl" value={this.reasonDetail()} oninput={m.withAttr('value', this.reasonDetail)}></textarea>
                 ) : ''}
@@ -55,7 +55,7 @@ export default class FlagPostModal extends Modal {
               type="submit"
               loading={this.loading}
               disabled={!this.reason()}>
-              Flag Post
+              {app.translator.trans('flarum-flags.forum.flag_post.submit_button')}
             </Button>
           </div>
         </div>
