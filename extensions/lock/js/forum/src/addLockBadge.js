@@ -7,7 +7,7 @@ export default function addLockBadge() {
     if (this.isLocked()) {
       badges.add('locked', Badge.component({
         type: 'locked',
-        label: app.translator.trans('flarum-lock.forum.locked'),
+        label: app.translator.trans('flarum-lock.forum.badge.locked'),
         icon: 'lock'
       }));
     }
