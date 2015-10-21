@@ -21,7 +21,7 @@ export default class FlagList extends Component {
     return (
       <div className="NotificationList FlagList">
         <div className="NotificationList-header">
-          <h4 className="App-titleControl App-titleControl--text">Flagged Posts</h4>
+          <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('flarum-flags.forum.flagged_posts.title')}</h4>
         </div>
         <div className="NotificationList-content">
           <ul className="NotificationGroup-content">
@@ -50,7 +50,7 @@ export default class FlagList extends Component {
                 );
               })
               : !this.loading
-                ? <div className="NotificationList-empty">{app.translator.trans('flarum-flags.forum.no_flags')}</div>
+                ? <div className="NotificationList-empty">{app.translator.trans('flarum-flags.forum.flagged_posts.no_flags')}</div>
                 : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
           </ul>
         </div>
