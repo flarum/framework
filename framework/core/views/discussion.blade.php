@@ -9,7 +9,7 @@ $postsCount = count($discussion->relationships->posts->data);
         @foreach ($posts as $post)
             <div>
                 <?php $user = $getResource($post->relationships->user->data); ?>
-                <h3>{{ $user ? $user->attributes->username : '[deleted]' }}</h3>
+                <h3>{{ $user ? $user->attributes->username : $translator->trans('core.lib.deleted_user_text') }}</h3>
                 <div class="Post-body">
                     {!! $post->attributes->contentHtml !!}
                 </div>
@@ -20,10 +20,10 @@ $postsCount = count($discussion->relationships->posts->data);
     </div>
 
     @if ($page > 1)
-        <a href="{{ $url(['page' => $page - 1]) }}">&laquo; Previous Page</a>
+        <a href="{{ $url(['page' => $page - 1]) }}">&laquo; {{ $translator->trans('core.basic.previous_page_button') }}</a>
     @endif
 
     @if ($page < $postsCount / 20)
-        <a href="{{ $url(['page' => $page + 1]) }}">Next Page &raquo;</a>
+        <a href="{{ $url(['page' => $page + 1]) }}">{{ $translator->trans('core.basic.next_page_button') }} &raquo;</a>
     @endif
 </div>
