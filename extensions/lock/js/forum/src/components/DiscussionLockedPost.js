@@ -9,7 +9,7 @@ export default class DiscussionLockedPost extends EventPost {
 
   descriptionKey() {
     return this.props.post.content().locked
-      ? 'flarum-lock.forum.post_stream.discussion_locked_post'
-      : 'flarum-lock.forum.post_stream.discussion_unlocked_post';
+      ? 'flarum-lock.forum.post_stream.discussion_locked_text'
+      : 'flarum-lock.forum.post_stream.discussion_unlocked_text';
   }
 }
