@@ -13,12 +13,13 @@ export default function() {
     const likes = post.likes();
 
     if (likes && likes.length) {
-      const limit = 3;
+      const limit = 4;
+      const overLimit = likes.length > limit;
 
-      // Construct a list of names of users who have like this post. Make sure the
-      // current user is first in the list, and cap a maximum of 3 names.
+      // Construct a list of names of users who have liked this post. Make sure the
+      // current user is first in the list, and cap a maximum of 4 items.
       const names = likes.sort(a => a === app.session.user ? -1 : 1)
-        .slice(0, limit)
+        .slice(0, overLimit ? limit - 1 : limit)
         .map(user => {
           return (
             <a href={app.route.user(user)} config={m.route}>
@@ -30,8 +31,8 @@ export default function() {
       // If there are more users that we've run out of room to display, add a "x
       // others" name to the end of the list. Clicking on it will display a modal
       // with a full list of names.
-      if (likes.length > limit) {
-        const count = likes.length - limit;
+      if (overLimit) {
+        const count = likes.length - names.length;
 
         names.push(
           <a href="#" onclick={e => {
