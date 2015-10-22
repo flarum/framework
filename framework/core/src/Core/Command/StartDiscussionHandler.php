@@ -60,7 +60,7 @@ class StartDiscussionHandler
         $this->assertCan($actor, 'startDiscussion');
 
         // Create a new Discussion entity, persist it, and dispatch domain
-        // events. Before persistance, though, fire an event to give plugins
+        // events. Before persistence, though, fire an event to give plugins
         // an opportunity to alter the discussion entity based on data in the
         // command they may have passed through in the controller.
         $discussion = Discussion::start(

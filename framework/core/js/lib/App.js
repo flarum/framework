@@ -263,6 +263,10 @@ export default class App {
           children = app.translator.trans('core.lib.error.not_found_message');
           break;
 
+        case 429:
+          children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+          break;
+
         default:
           children = app.translator.trans('core.lib.error.generic_message');
       }
