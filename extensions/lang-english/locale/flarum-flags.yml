@@ -42,9 +42,10 @@ flarum-flags:
       flag_button: Flag
 
   ##
-  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  # REUSED STRINGS - These keys should not be used directly in code!
   ##
 
+  # Strings in this namespace are referenced by two or more unique keys.
   ref:
     flag_post: Flag Post
     flagged_posts: Flagged Posts

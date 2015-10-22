@@ -29,8 +29,9 @@ flarum-sticky:
       discussion_unstickied_text: "{username} unstickied the discussion."
 
   ##
-  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  # REUSED STRINGS - These keys should not be used directly in code!
   ##
 
+  # Strings in this namespace are referenced by two or more unique keys.
   ref:
     sticky: Sticky
