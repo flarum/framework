@@ -425,7 +425,8 @@
     return obj && obj.__esModule ? obj["default"] : obj;
   };
 })(typeof global === "undefined" ? self : global);
-;(function(exports) {
+;
+(function(exports) {
 
 'use strict';
 
@@ -605,7 +606,8 @@ var System = {
 exports.System = System;
 
 })(window);
-;var m = (function app(window, undefined) {
+;
+var m = (function app(window, undefined) {
 	"use strict";
   	var VERSION = "v0.2.1";
 	function isFunction(object) {
@@ -2019,7 +2021,8 @@ exports.System = System;
 
 if (typeof module === "object" && module != null && module.exports) module.exports = m;
 else if (typeof define === "function" && define.amd) define(function() { return m });
-;( function package( factory ){
+;
+( function _package( factory ){
 	if( typeof define === 'function' && define.amd ){
 		define( [ 'mithril' ], factory )
 	}
@@ -2091,7 +2094,8 @@ else if (typeof define === "function" && define.amd) define(function() { return 
 
 	return bidi
 } ) )
-;/*!
+;
+/*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
  *
@@ -11301,7 +11305,8 @@ if ( typeof noGlobal === strundefined ) {
 return jQuery;
 
 }));
-;//! moment.js
+;
+//! moment.js
 //! version : 2.8.4
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
@@ -14237,7 +14242,8 @@ return jQuery;
         makeGlobal();
     }
 }).call(this);
-;/* ========================================================================
+;
+/* ========================================================================
  * Bootstrap: affix.js v3.3.5
  * http://getbootstrap.com/javascript/#affix
  * ========================================================================
@@ -14399,7 +14405,8 @@ return jQuery;
   })
 
 }(jQuery);
-;/* ========================================================================
+;
+/* ========================================================================
  * Bootstrap: dropdown.js v3.3.5
  * http://getbootstrap.com/javascript/#dropdowns
  * ========================================================================
@@ -14564,7 +14571,8 @@ return jQuery;
     .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
 
 }(jQuery);
-;/* ========================================================================
+;
+/* ========================================================================
  * Bootstrap: modal.js v3.3.5
  * http://getbootstrap.com/javascript/#modals
  * ========================================================================
@@ -14901,7 +14909,8 @@ return jQuery;
   })
 
 }(jQuery);
-;/* ========================================================================
+;
+/* ========================================================================
  * Bootstrap: tooltip.js v3.3.5
  * http://getbootstrap.com/javascript/#tooltip
  * Inspired by the original jQuery.tipsy by Jason Frame
@@ -15415,7 +15424,8 @@ return jQuery;
   }
 
 }(jQuery);
-;/* ========================================================================
+;
+/* ========================================================================
  * Bootstrap: transition.js v3.3.5
  * http://getbootstrap.com/javascript/#transitions
  * ========================================================================
@@ -15474,7 +15484,8 @@ return jQuery;
   })
 
 }(jQuery);
-;/**
+;
+/**
  * Copyright (c) 2011-2014 Felix Gnass
  * Licensed under the MIT license
  */
@@ -15811,7 +15822,8 @@ return jQuery;
   return Spinner
 
 }));
-;/**
+;
+/**
  * Copyright (c) 2011-2014 Felix Gnass
  * Licensed under the MIT license
  */
@@ -15891,7 +15903,8 @@ $('#el').spin('flower', 'red');
   }
 
 }));
-;System.register('flarum/app', ['flarum/App', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/boot'], function (_export) {
+;
+System.register('flarum/app', ['flarum/App', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/boot'], function (_export) {
   'use strict';
 
   var App, store, preload, routes, boot, app;
@@ -15921,119 +15934,8 @@ $('#el').spin('flower', 'red');
       _export('default', app);
     }
   };
-});;System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/AdminNav', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
-  /*global FastClick*/
-
-  /**
-   * The `boot` initializer boots up the admin app. It initializes some app
-   * globals, mounts components to the page, and begins routing.
-   *
-   * @param {ForumApp} app
-   */
-  'use strict';
-
-  var ScrollListener, Drawer, mapRoutes, Navigation, HeaderPrimary, HeaderSecondary, AdminNav, ModalManager, AlertManager;
-
-  _export('default', boot);
-
-  function boot(app) {
-    m.startComputation();
-
-    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
-    m.mount(document.getElementById('header-navigation'), Navigation.component());
-    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
-    m.mount(document.getElementById('admin-navigation'), AdminNav.component());
-
-    app.drawer = new Drawer();
-    app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
-    app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
-    app.history = {
-      canGoBack: function canGoBack() {
-        return true;
-      },
-      backUrl: function backUrl() {
-        return app.forum.attribute('baseUrl');
-      },
-      back: function back() {
-        window.location = this.backUrl();
-      }
-    };
-
-    m.route.mode = 'hash';
-    m.route(document.getElementById('content'), '/', mapRoutes(app.routes));
-
-    m.endComputation();
-
-    // Add a class to the body which indicates that the page has been scrolled
-    // down.
-    new ScrollListener(function (top) {
-      var $app = $('#app');
-      var offset = $app.offset().top;
-
-      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
-    }).start();
-
-    app.booted = true;
-  }
-
-  return {
-    setters: [function (_flarumUtilsScrollListener) {
-      ScrollListener = _flarumUtilsScrollListener['default'];
-    }, function (_flarumUtilsDrawer) {
-      Drawer = _flarumUtilsDrawer['default'];
-    }, function (_flarumUtilsMapRoutes) {
-      mapRoutes = _flarumUtilsMapRoutes['default'];
-    }, function (_flarumComponentsNavigation) {
-      Navigation = _flarumComponentsNavigation['default'];
-    }, function (_flarumComponentsHeaderPrimary) {
-      HeaderPrimary = _flarumComponentsHeaderPrimary['default'];
-    }, function (_flarumComponentsHeaderSecondary) {
-      HeaderSecondary = _flarumComponentsHeaderSecondary['default'];
-    }, function (_flarumComponentsAdminNav) {
-      AdminNav = _flarumComponentsAdminNav['default'];
-    }, function (_flarumComponentsModalManager) {
-      ModalManager = _flarumComponentsModalManager['default'];
-    }, function (_flarumComponentsAlertManager) {
-      AlertManager = _flarumComponentsAlertManager['default'];
-    }],
-    execute: function () {}
-  };
-});;System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage'], function (_export) {
-
-  /**
-   * The `routes` initializer defines the admin app's routes.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
-  var DashboardPage, BasicsPage, PermissionsPage, AppearancePage, ExtensionsPage;
-  return {
-    setters: [function (_flarumComponentsDashboardPage) {
-      DashboardPage = _flarumComponentsDashboardPage['default'];
-    }, function (_flarumComponentsBasicsPage) {
-      BasicsPage = _flarumComponentsBasicsPage['default'];
-    }, function (_flarumComponentsPermissionsPage) {
-      PermissionsPage = _flarumComponentsPermissionsPage['default'];
-    }, function (_flarumComponentsAppearancePage) {
-      AppearancePage = _flarumComponentsAppearancePage['default'];
-    }, function (_flarumComponentsExtensionsPage) {
-      ExtensionsPage = _flarumComponentsExtensionsPage['default'];
-    }],
-    execute: function () {
-      _export('default', function (app) {
-        app.routes = {
-          'dashboard': { path: '/', component: DashboardPage.component() },
-          'basics': { path: '/basics', component: BasicsPage.component() },
-          'permissions': { path: '/permissions', component: PermissionsPage.component() },
-          'appearance': { path: '/appearance', component: AppearancePage.component() },
-          'extensions': { path: '/extensions', component: ExtensionsPage.component() }
-        };
-      });
-    }
-  };
-});;System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal'], function (_export) {
+});;
+System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal'], function (_export) {
   /*
    * This file is part of Flarum.
    *
@@ -16111,7 +16013,8 @@ $('#el').spin('flower', 'red');
       _export('default', AddExtensionModal);
     }
   };
-});;System.register("flarum/components/AdminLinkButton", ["flarum/components/LinkButton"], function (_export) {
+});;
+System.register("flarum/components/AdminLinkButton", ["flarum/components/LinkButton"], function (_export) {
   /*
    * This file is part of Flarum.
    *
@@ -16157,7 +16060,8 @@ $('#el').spin('flower', 'red');
       _export("default", AdminLinkButton);
     }
   };
-});;System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/components/AdminLinkButton', 'flarum/components/SelectDropdown', 'flarum/utils/ItemList'], function (_export) {
+});;
+System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/components/AdminLinkButton', 'flarum/components/SelectDropdown', 'flarum/utils/ItemList'], function (_export) {
   /*
    * This file is part of Flarum.
    *
@@ -16212,36 +16116,36 @@ $('#el').spin('flower', 'red');
             items.add('dashboard', AdminLinkButton.component({
               href: app.route('dashboard'),
               icon: 'bar-chart',
-              children: 'Dashboard',
-              description: 'Your forum at a glance.'
+              children: app.translator.trans('core.admin.nav.dashboard_button'),
+              description: app.translator.trans('core.admin.nav.dashboard_text')
             }));
 
             items.add('basics', AdminLinkButton.component({
               href: app.route('basics'),
               icon: 'pencil',
-              children: 'Basics',
-              description: 'Set your forum title, language, and other basic settings.'
+              children: app.translator.trans('core.admin.nav.basics_button'),
+              description: app.translator.trans('core.admin.nav.basics_text')
             }));
 
             items.add('permissions', AdminLinkButton.component({
               href: app.route('permissions'),
               icon: 'key',
-              children: 'Permissions',
-              description: 'Configure who can see and do what.'
+              children: app.translator.trans('core.admin.nav.permissions_button'),
+              description: app.translator.trans('core.admin.nav.permissions_text')
             }));
 
             items.add('appearance', AdminLinkButton.component({
               href: app.route('appearance'),
               icon: 'paint-brush',
-              children: 'Appearance',
-              description: 'Customize your forum\'s colors, logos, and other variables.'
+              children: app.translator.trans('core.admin.nav.appearance_button'),
+              description: app.translator.trans('core.admin.nav.appearance_text')
             }));
 
             items.add('extensions', AdminLinkButton.component({
               href: app.route('extensions'),
               icon: 'puzzle-piece',
-              children: 'Extensions',
-              description: 'Add extra functionality to your forum and make it your own.'
+              children: app.translator.trans('core.admin.nav.extensions_button'),
+              description: app.translator.trans('core.admin.nav.extensions_text')
             }));
 
             return items;
@@ -16253,7 +16157,8 @@ $('#el').spin('flower', 'red');
       _export('default', AdminNav);
     }
   };
-});;System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/utils/saveSettings'], function (_export) {
+});;
+System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/utils/saveSettings'], function (_export) {
   'use strict';
 
   var Component, Button, Switch, EditCustomCssModal, saveSettings, AppearancePage;
@@ -16275,20 +16180,18 @@ $('#el').spin('flower', 'red');
 
         function AppearancePage() {
           babelHelpers.classCallCheck(this, AppearancePage);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(AppearancePage.prototype), 'constructor', this).apply(this, args);
-
-          this.primaryColor = m.prop(app.settings.theme_primary_color);
-          this.secondaryColor = m.prop(app.settings.theme_secondary_color);
-          this.darkMode = m.prop(app.settings.theme_dark_mode === '1');
-          this.coloredHeader = m.prop(app.settings.theme_colored_header === '1');
+          babelHelpers.get(Object.getPrototypeOf(AppearancePage.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(AppearancePage, [{
+          key: 'init',
+          value: function init() {
+            this.primaryColor = m.prop(app.settings.theme_primary_color);
+            this.secondaryColor = m.prop(app.settings.theme_secondary_color);
+            this.darkMode = m.prop(app.settings.theme_dark_mode === '1');
+            this.coloredHeader = m.prop(app.settings.theme_colored_header === '1');
+          }
+        }, {
           key: 'view',
           value: function view() {
             return m(
@@ -16306,12 +16209,12 @@ $('#el').spin('flower', 'red');
                     m(
                       'legend',
                       null,
-                      'Colors'
+                      app.translator.trans('core.admin.appearance.colors_heading')
                     ),
                     m(
                       'div',
                       { className: 'helpText' },
-                      'Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements.'
+                      app.translator.trans('core.admin.appearance.colors_text')
                     ),
                     m(
                       'div',
@@ -16321,18 +16224,18 @@ $('#el').spin('flower', 'red');
                     ),
                     Switch.component({
                       state: this.darkMode(),
-                      children: 'Dark Mode',
+                      children: app.translator.trans('core.admin.appearance.dark_mode_label'),
                       onchange: this.darkMode
                     }),
                     Switch.component({
                       state: this.coloredHeader(),
-                      children: 'Colored Header',
+                      children: app.translator.trans('core.admin.appearance.colored_header_label'),
                       onchange: this.coloredHeader
                     }),
                     Button.component({
                       className: 'Button Button--primary',
                       type: 'submit',
-                      children: 'Save Changes',
+                      children: app.translator.trans('core.admin.appearance.submit_button'),
                       loading: this.loading
                     })
                   )
@@ -16343,16 +16246,16 @@ $('#el').spin('flower', 'red');
                   m(
                     'legend',
                     null,
-                    'Custom Styles'
+                    app.translator.trans('core.admin.appearance.custom_styles_heading')
                   ),
                   m(
                     'div',
                     { className: 'helpText' },
-                    'Customize your forum\'s appearance by adding your own LESS/CSS code to be applied on top of Flarum\'s default styles.'
+                    app.translator.trans('core.admin.appearance.custom_styles_text')
                   ),
                   Button.component({
                     className: 'Button',
-                    children: 'Edit Custom CSS',
+                    children: app.translator.trans('core.admin.appearance.edit_css_button'),
                     onclick: function onclick() {
                       return app.modal.show(new EditCustomCssModal());
                     }
@@ -16369,7 +16272,7 @@ $('#el').spin('flower', 'red');
             var hex = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
 
             if (!hex.test(this.primaryColor()) || !hex.test(this.secondaryColor())) {
-              alert('Please enter a hexadecimal color code.');
+              alert(app.translator.trans('core.admin.appearance.enter_hex_message'));
               return;
             }
 
@@ -16391,7 +16294,8 @@ $('#el').spin('flower', 'red');
       _export('default', AppearancePage);
     }
   };
-});;System.register('flarum/components/BasicsPage', ['flarum/Component', 'flarum/components/FieldSet', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export) {
+});;
+System.register('flarum/components/BasicsPage', ['flarum/Component', 'flarum/components/FieldSet', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export) {
   'use strict';
 
   var Component, FieldSet, Select, Button, Alert, saveSettings, ItemList, BasicsPage;
@@ -16456,31 +16360,31 @@ $('#el').spin('flower', 'red');
                   'form',
                   { onsubmit: this.onsubmit.bind(this) },
                   FieldSet.component({
-                    label: 'Forum Title',
+                    label: app.translator.trans('core.admin.basics.forum_title_heading'),
                     children: [m('input', { className: 'FormControl', value: this.values.forum_title(), oninput: m.withAttr('value', this.values.forum_title) })]
                   }),
                   FieldSet.component({
-                    label: 'Forum Description',
+                    label: app.translator.trans('core.admin.basics.forum_description_heading'),
                     children: [m(
                       'div',
                       { className: 'helpText' },
-                      'Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.'
+                      app.translator.trans('core.admin.basics.forum_description_text')
                     ), m('textarea', { className: 'FormControl', value: this.values.forum_description(), oninput: m.withAttr('value', this.values.forum_description) })]
                   }),
                   Object.keys(this.localeOptions).length > 1 ? FieldSet.component({
-                    label: 'Default Language',
+                    label: app.translator.trans('core.admin.basics.default_language_heading'),
                     children: [Select.component({
                       options: this.localeOptions,
                       onchange: this.values.default_locale
                     })]
                   }) : '',
                   FieldSet.component({
-                    label: 'Home Page',
+                    label: app.translator.trans('core.admin.basics.home_page_heading'),
                     className: 'BasicsPage-homePage',
                     children: [m(
                       'div',
                       { className: 'helpText' },
-                      'Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root.'
+                      app.translator.trans('core.admin.basics.home_page_text')
                     ), this.homePageItems().toArray().map(function (_ref) {
                       var path = _ref.path;
                       var label = _ref.label;
@@ -16493,12 +16397,12 @@ $('#el').spin('flower', 'red');
                     })]
                   }),
                   FieldSet.component({
-                    label: 'Welcome Banner',
+                    label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
                     className: 'BasicsPage-welcomeBanner',
                     children: [m(
                       'div',
                       { className: 'helpText' },
-                      'Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.'
+                      app.translator.trans('core.admin.basics.welcome_banner_text')
                     ), m(
                       'div',
                       { className: 'BasicsPage-welcomeBanner-input' },
@@ -16509,7 +16413,7 @@ $('#el').spin('flower', 'red');
                   Button.component({
                     type: 'submit',
                     className: 'Button Button--primary',
-                    children: 'Save Changes',
+                    children: app.translator.trans('core.admin.basics.submit_button'),
                     loading: this.loading,
                     disabled: !this.changed()
                   })
@@ -16541,7 +16445,7 @@ $('#el').spin('flower', 'red');
 
             items.add('allDiscussions', {
               path: '/all',
-              label: 'All Discussions'
+              label: app.translator.trans('core.admin.basics.all_discussions_label')
             });
 
             return items;
@@ -16565,7 +16469,7 @@ $('#el').spin('flower', 'red');
             });
 
             saveSettings(settings).then(function () {
-              app.alerts.show(_this4.successAlert = new Alert({ type: 'success', children: 'Your changes were saved.' }));
+              app.alerts.show(_this4.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') }));
             })['finally'](function () {
               _this4.loading = false;
               m.redraw();
@@ -16578,7 +16482,8 @@ $('#el').spin('flower', 'red');
       _export('default', BasicsPage);
     }
   };
-});;System.register("flarum/components/DashboardPage", ["flarum/Component"], function (_export) {
+});;
+System.register("flarum/components/DashboardPage", ["flarum/Component"], function (_export) {
   "use strict";
 
   var Component, DashboardPage;
@@ -16612,24 +16517,16 @@ $('#el').spin('flower', 'red');
                 m(
                   "p",
                   null,
-                  "Thanks for trying out Flarum! You are running version ",
-                  m(
-                    "strong",
-                    null,
-                    app.forum.attribute('version')
-                  ),
-                  "."
+                  app.translator.trans('core.admin.dashboard.version_text', { version: m(
+                      "strong",
+                      null,
+                      app.forum.attribute('version')
+                    ) })
                 ),
                 m(
                   "p",
                   null,
-                  "This ",
-                  m(
-                    "strong",
-                    null,
-                    "beta software"
-                  ),
-                  " is provided primarily so that you can help us test it and make it better; it should not be used in production."
+                  app.translator.trans('core.admin.dashboard.beta_warning_text', { strong: m("strong", null) })
                 ),
                 m(
                   "ul",
@@ -16637,57 +16534,27 @@ $('#el').spin('flower', 'red');
                   m(
                     "li",
                     null,
-                    "Want to look for bugs and contribute? Read the ",
-                    m(
-                      "a",
-                      { href: "http://flarum.org/docs/contributing", target: "_blank" },
-                      "Contributing docs"
-                    ),
-                    "."
+                    app.translator.trans('core.admin.dashboard.contributing_text', { a: m("a", { href: "http://flarum.org/docs/contributing", target: "_blank" }) })
                   ),
                   m(
                     "li",
                     null,
-                    "Having problems? Follow the instructions in the ",
-                    m(
-                      "a",
-                      { href: "http://flarum.org/docs/troubleshooting", target: "_blank" },
-                      "Troubleshooting docs"
-                    ),
-                    "."
+                    app.translator.trans('core.admin.dashboard.troubleshooting_text', { a: m("a", { href: "http://flarum.org/docs/troubleshooting", target: "_blank" }) })
                   ),
                   m(
                     "li",
                     null,
-                    "Found a bug? Please report it in our forum, under the ",
-                    m(
-                      "a",
-                      { href: "http://discuss.flarum.org/t/support", target: "_blank" },
-                      "Support tag"
-                    ),
-                    "."
+                    app.translator.trans('core.admin.dashboard.support_text', { a: m("a", { href: "http://discuss.flarum.org/t/support", target: "_blank" }) })
                   ),
                   m(
                     "li",
                     null,
-                    "Got an idea to improve a feature? Tell us about it under the ",
-                    m(
-                      "a",
-                      { href: "http://discuss.flarum.org/t/features", target: "_blank" },
-                      "Features tag"
-                    ),
-                    "."
+                    app.translator.trans('core.admin.dashboard.features_text', { a: m("a", { href: "http://discuss.flarum.org/t/features", target: "_blank" }) })
                   ),
                   m(
                     "li",
                     null,
-                    "Interested in developing extensions? Read the ",
-                    m(
-                      "a",
-                      { href: "http://flarum.org/docs/extend", target: "_blank" },
-                      "Extension docs"
-                    ),
-                    "."
+                    app.translator.trans('core.admin.dashboard.extension_text', { a: m("a", { href: "http://flarum.org/docs/extend", target: "_blank" }) })
                   )
                 )
               )
@@ -16700,7 +16567,8 @@ $('#el').spin('flower', 'red');
       _export("default", DashboardPage);
     }
   };
-});;System.register('flarum/components/EditCustomCssModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export) {
+});;
+System.register('flarum/components/EditCustomCssModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export) {
   'use strict';
 
   var Modal, Button, saveSettings, EditCustomCssModal;
@@ -16718,17 +16586,15 @@ $('#el').spin('flower', 'red');
 
         function EditCustomCssModal() {
           babelHelpers.classCallCheck(this, EditCustomCssModal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(EditCustomCssModal.prototype), 'constructor', this).apply(this, args);
-
-          this.customLess = m.prop(app.settings.custom_less || '');
+          babelHelpers.get(Object.getPrototypeOf(EditCustomCssModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(EditCustomCssModal, [{
+          key: 'init',
+          value: function init() {
+            this.customLess = m.prop(app.settings.custom_less || '');
+          }
+        }, {
           key: 'className',
           value: function className() {
             return 'EditCustomCssModal Modal--large';
@@ -16796,7 +16662,8 @@ $('#el').spin('flower', 'red');
       _export('default', EditCustomCssModal);
     }
   };
-});;System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/models/Group'], function (_export) {
+});;
+System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/models/Group'], function (_export) {
 
   /**
    * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -16821,22 +16688,20 @@ $('#el').spin('flower', 'red');
 
         function EditGroupModal() {
           babelHelpers.classCallCheck(this, EditGroupModal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(EditGroupModal.prototype), 'constructor', this).apply(this, args);
-
-          this.group = this.props.group || app.store.createRecord('groups');
-
-          this.nameSingular = m.prop(this.group.nameSingular() || '');
-          this.namePlural = m.prop(this.group.namePlural() || '');
-          this.icon = m.prop(this.group.icon() || '');
-          this.color = m.prop(this.group.color() || '');
+          babelHelpers.get(Object.getPrototypeOf(EditGroupModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(EditGroupModal, [{
+          key: 'init',
+          value: function init() {
+            this.group = this.props.group || app.store.createRecord('groups');
+
+            this.nameSingular = m.prop(this.group.nameSingular() || '');
+            this.namePlural = m.prop(this.group.namePlural() || '');
+            this.icon = m.prop(this.group.icon() || '');
+            this.color = m.prop(this.group.color() || '');
+          }
+        }, {
           key: 'className',
           value: function className() {
             return 'EditGroupModal Modal--small';
@@ -16847,7 +16712,7 @@ $('#el').spin('flower', 'red');
             return [this.color() || this.icon() ? Badge.component({
               icon: this.icon(),
               style: { backgroundColor: this.color() }
-            }) : '', ' ', this.namePlural() || 'Create Group'];
+            }) : '', ' ', this.namePlural() || app.translator.trans('core.admin.edit_group.title')];
           }
         }, {
           key: 'content',
@@ -16864,13 +16729,13 @@ $('#el').spin('flower', 'red');
                   m(
                     'label',
                     null,
-                    'Name'
+                    app.translator.trans('core.admin.edit_group.name_label')
                   ),
                   m(
                     'div',
                     { className: 'EditGroupModal-name-input' },
-                    m('input', { className: 'FormControl', placeholder: 'Singular (e.g. Mod)', value: this.nameSingular(), oninput: m.withAttr('value', this.nameSingular) }),
-                    m('input', { className: 'FormControl', placeholder: 'Plural (e.g. Mods)', value: this.namePlural(), oninput: m.withAttr('value', this.namePlural) })
+                    m('input', { className: 'FormControl', placeholder: app.translator.trans('core.admin.edit_group.singular_placeholder'), value: this.nameSingular(), oninput: m.withAttr('value', this.nameSingular) }),
+                    m('input', { className: 'FormControl', placeholder: app.translator.trans('core.admin.edit_group.plural_placeholder'), value: this.namePlural(), oninput: m.withAttr('value', this.namePlural) })
                   )
                 ),
                 m(
@@ -16879,7 +16744,7 @@ $('#el').spin('flower', 'red');
                   m(
                     'label',
                     null,
-                    'Color'
+                    app.translator.trans('core.admin.edit_group.color_label')
                   ),
                   m('input', { className: 'FormControl', placeholder: '#aaaaaa', value: this.color(), oninput: m.withAttr('value', this.color) })
                 ),
@@ -16889,30 +16754,12 @@ $('#el').spin('flower', 'red');
                   m(
                     'label',
                     null,
-                    'Icon'
+                    app.translator.trans('core.admin.edit_group.icon_label')
                   ),
                   m(
                     'div',
                     { className: 'helpText' },
-                    'Enter the name of any ',
-                    m(
-                      'a',
-                      { href: 'http://fortawesome.github.io/Font-Awesome/icons/', tabindex: '-1' },
-                      'FontAwesome'
-                    ),
-                    ' icon class, ',
-                    m(
-                      'em',
-                      null,
-                      'without'
-                    ),
-                    ' the ',
-                    m(
-                      'code',
-                      null,
-                      'fa-'
-                    ),
-                    ' prefix.'
+                    app.translator.trans('core.admin.edit_group.icon_text', { a: m('a', { href: 'http://fortawesome.github.io/Font-Awesome/icons/', tabindex: '-1' }) }, { em: m('em', null) }, { code: m('code', null) })
                   ),
                   m('input', { className: 'FormControl', placeholder: 'bolt', value: this.icon(), oninput: m.withAttr('value', this.icon) })
                 ),
@@ -16923,12 +16770,12 @@ $('#el').spin('flower', 'red');
                     type: 'submit',
                     className: 'Button Button--primary EditGroupModal-save',
                     loading: this.loading,
-                    children: 'Save Changes'
+                    children: app.translator.trans('core.admin.edit_group.submit_button')
                   }),
                   this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? m(
                     'button',
-                    { type: 'button', className: 'Button EditGroupModal-delete', onclick: this['delete'].bind(this) },
-                    'Delete Group'
+                    { type: 'button', className: 'Button EditGroupModal-delete', onclick: this.deleteGroup.bind(this) },
+                    app.translator.trans('core.admin.edit_group.delete_button')
                   ) : ''
                 )
               )
@@ -16948,17 +16795,15 @@ $('#el').spin('flower', 'red');
               namePlural: this.namePlural(),
               color: this.color(),
               icon: this.icon()
-            }).then(function () {
-              return _this.hide();
-            }, function () {
+            }, { errorHandler: this.onerror.bind(this) }).then(this.hide.bind(this))['catch'](function () {
               _this.loading = false;
               m.redraw();
             });
           }
         }, {
-          key: 'delete',
-          value: function _delete() {
-            if (confirm('Are you sure you want to delete this group? The group members will NOT be deleted.')) {
+          key: 'deleteGroup',
+          value: function deleteGroup() {
+            if (confirm(app.translator.trans('core.admin.edit_group.delete_confirmation'))) {
               this.group['delete']().then(function () {
                 return m.redraw();
               });
@@ -16972,10 +16817,11 @@ $('#el').spin('flower', 'red');
       _export('default', EditGroupModal);
     }
   };
-});;System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/components/Dropdown', 'flarum/components/Separator', 'flarum/components/AddExtensionModal', 'flarum/components/LoadingModal', 'flarum/utils/ItemList', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/components/Dropdown', 'flarum/components/Separator', 'flarum/components/AddExtensionModal', 'flarum/components/LoadingModal', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
   'use strict';
 
-  var Component, LinkButton, Button, Dropdown, Separator, AddExtensionModal, LoadingModal, ItemList, icon, ExtensionsPage;
+  var Component, LinkButton, Button, Dropdown, Separator, AddExtensionModal, LoadingModal, ItemList, icon, listItems, ExtensionsPage;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent['default'];
@@ -16995,6 +16841,8 @@ $('#el').spin('flower', 'red');
       ItemList = _flarumUtilsItemList['default'];
     }, function (_flarumHelpersIcon) {
       icon = _flarumHelpersIcon['default'];
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems['default'];
     }],
     execute: function () {
       ExtensionsPage = (function (_Component) {
@@ -17010,6 +16858,10 @@ $('#el').spin('flower', 'red');
           value: function view() {
             var _this = this;
 
+            var extensions = Object.keys(app.extensions).map(function (id) {
+              return app.extensions[id];
+            });
+
             return m(
               'div',
               { className: 'ExtensionsPage' },
@@ -17020,7 +16872,7 @@ $('#el').spin('flower', 'red');
                   'div',
                   { className: 'container' },
                   Button.component({
-                    children: 'Add Extension',
+                    children: app.translator.trans('core.admin.extensions.add_button'),
                     icon: 'plus',
                     className: 'Button Button--primary',
                     onclick: function onclick() {
@@ -17038,21 +16890,14 @@ $('#el').spin('flower', 'red');
                   m(
                     'ul',
                     { className: 'ExtensionList' },
-                    Object.keys(app.extensions).sort(function (a, b) {
-                      return app.extensions[a].extra['flarum-extension'].title.localeCompare(app.extensions[b].extra['flarum-extension'].title);
-                    }).map(function (name) {
-                      var extension = app.extensions[name];
+                    extensions.sort(function (a, b) {
+                      return a.extra['flarum-extension'].title.localeCompare(b.extra['flarum-extension'].title);
+                    }).map(function (extension) {
+                      var controls = _this.controlItems(extension.id).toArray();
 
                       return m(
                         'li',
-                        { className: 'ExtensionListItem ' + (!_this.isEnabled(name) ? 'disabled' : '') },
-                        Dropdown.component({
-                          icon: 'ellipsis-v',
-                          children: _this.controlItems(name).toArray(),
-                          className: 'ExtensionListItem-controls',
-                          buttonClassName: 'Button Button--icon Button--flat',
-                          menuClassName: 'Dropdown-menu--right'
-                        }),
+                        { className: 'ExtensionListItem ' + (!_this.isEnabled(extension.id) ? 'disabled' : '') },
                         m(
                           'div',
                           { className: 'ExtensionListItem-content' },
@@ -17061,21 +16906,27 @@ $('#el').spin('flower', 'red');
                             { className: 'ExtensionListItem-icon ExtensionIcon', style: extension.extra['flarum-extension'].icon },
                             extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''
                           ),
+                          controls.length ? m(
+                            Dropdown,
+                            {
+                              className: 'ExtensionListItem-controls',
+                              buttonClassName: 'Button Button--icon Button--flat',
+                              menuClassName: 'Dropdown-menu--right',
+                              icon: 'ellipsis-h' },
+                            controls
+                          ) : '',
                           m(
-                            'h4',
+                            'label',
                             { className: 'ExtensionListItem-title' },
-                            extension.extra['flarum-extension'].title,
+                            m('input', { type: 'checkbox', checked: _this.isEnabled(extension.id), onclick: _this.toggle.bind(_this, extension.id) }),
                             ' ',
-                            m(
-                              'small',
-                              { className: 'ExtensionListItem-version' },
-                              extension.version
-                            )
+                            ' ',
+                            extension.extra['flarum-extension'].title
                           ),
                           m(
                             'div',
-                            { className: 'ExtensionListItem-description' },
-                            extension.description
+                            { className: 'ExtensionListItem-version' },
+                            extension.version
                           )
                         )
                       );
@@ -17089,47 +16940,20 @@ $('#el').spin('flower', 'red');
           key: 'controlItems',
           value: function controlItems(name) {
             var items = new ItemList();
-            var extension = app.extensions[name];
             var enabled = this.isEnabled(name);
 
-            items.add('info', m(
-              'span',
-              null,
-              'Package Name: ',
-              extension.name,
-              m('br', null),
-              'Installed in: ',
-              name
-            ));
-
-            if (app.extensionSettings[extension.name]) {
+            if (app.extensionSettings[name]) {
               items.add('settings', Button.component({
                 icon: 'cog',
-                children: 'Settings',
-                onclick: app.extensionSettings[extension.name]
+                children: app.translator.trans('core.admin.extensions.settings_button'),
+                onclick: app.extensionSettings[name]
               }));
             }
-
-            items.add('toggle', Button.component({
-              icon: 'power-off',
-              children: enabled ? 'Disable' : 'Enable',
-              onclick: function onclick() {
-                app.request({
-                  url: app.forum.attribute('apiUrl') + '/extensions/' + name,
-                  method: 'PATCH',
-                  data: { enabled: !enabled }
-                }).then(function () {
-                  return window.location.reload();
-                });
-
-                app.modal.show(new LoadingModal());
-              }
-            }));
 
             if (!enabled) {
               items.add('uninstall', Button.component({
                 icon: 'trash-o',
-                children: 'Uninstall',
+                children: app.translator.trans('core.admin.extensions.uninstall_button'),
                 onclick: function onclick() {
                   app.request({
                     url: app.forum.attribute('apiUrl') + '/extensions/' + name,
@@ -17143,13 +16967,6 @@ $('#el').spin('flower', 'red');
               }));
             }
 
-            // items.add('separator2', Separator.component());
-
-            // items.add('support', LinkButton.component({
-            //   icon: 'support',
-            //   children: 'Support'
-            // }));
-
             return items;
           }
         }, {
@@ -17159,6 +16976,22 @@ $('#el').spin('flower', 'red');
 
             return enabled.indexOf(name) !== -1;
           }
+        }, {
+          key: 'toggle',
+          value: function toggle(id) {
+            var enabled = this.isEnabled(id);
+
+            app.request({
+              url: app.forum.attribute('apiUrl') + '/extensions/' + id,
+              method: 'PATCH',
+              data: { enabled: !enabled }
+            }).then(function () {
+              if (enabled) localStorage.setItem('enabledExtension', id);
+              window.location.reload();
+            });
+
+            app.modal.show(new LoadingModal());
+          }
         }]);
         return ExtensionsPage;
       })(Component);
@@ -17166,7 +16999,8 @@ $('#el').spin('flower', 'red');
       _export('default', ExtensionsPage);
     }
   };
-});;System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
+});;
+System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `HeaderPrimary` component displays primary header controls. On the
@@ -17219,7 +17053,8 @@ $('#el').spin('flower', 'red');
       _export('default', HeaderPrimary);
     }
   };
-});;System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/SessionDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
+});;
+System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/SessionDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `HeaderSecondary` component displays secondary header controls.
@@ -17277,7 +17112,8 @@ $('#el').spin('flower', 'red');
       _export('default', HeaderSecondary);
     }
   };
-});;System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], function (_export) {
+});;
+System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], function (_export) {
   'use strict';
 
   var Modal, LoadingModal;
@@ -17307,7 +17143,7 @@ $('#el').spin('flower', 'red');
         }, {
           key: 'title',
           value: function title() {
-            return 'Please Wait...';
+            return app.translator.trans('core.admin.loading.title');
           }
         }, {
           key: 'content',
@@ -17321,7 +17157,8 @@ $('#el').spin('flower', 'red');
       _export('default', LoadingModal);
     }
   };
-});;System.register('flarum/components/PermissionDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/models/Group', 'flarum/components/GroupBadge'], function (_export) {
+});;
+System.register('flarum/components/PermissionDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/models/Group', 'flarum/components/GroupBadge'], function (_export) {
   'use strict';
 
   var Dropdown, Button, Separator, Group, GroupBadge, PermissionDropdown;
@@ -17366,16 +17203,16 @@ $('#el').spin('flower', 'red');
             var adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
 
             if (everyone) {
-              this.props.label = 'Everyone';
+              this.props.label = app.translator.trans('core.admin.permissions_controls.everyone_button');
             } else if (members) {
-              this.props.label = 'Members';
+              this.props.label = app.translator.trans('core.admin.permissions_controls.members_button');
             } else {
               this.props.label = [badgeForId(Group.ADMINISTRATOR_ID), groupIds.map(badgeForId)];
             }
 
             if (this.props.allowGuest) {
               this.props.children.push(Button.component({
-                children: 'Everyone',
+                children: app.translator.trans('core.admin.permissions_controls.everyone_button'),
                 icon: everyone ? 'check' : true,
                 onclick: function onclick() {
                   return _this.save([Group.GUEST_ID]);
@@ -17384,7 +17221,7 @@ $('#el').spin('flower', 'red');
             }
 
             this.props.children.push(Button.component({
-              children: 'Members',
+              children: app.translator.trans('core.admin.permissions_controls.members_button'),
               icon: members ? 'check' : true,
               onclick: function onclick() {
                 return _this.save([Group.MEMBER_ID]);
@@ -17462,7 +17299,8 @@ $('#el').spin('flower', 'red');
       _export('default', PermissionDropdown);
     }
   };
-});;System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum/components/PermissionDropdown', 'flarum/components/SettingDropdown', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum/components/PermissionDropdown', 'flarum/components/SettingDropdown', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/helpers/icon'], function (_export) {
   'use strict';
 
   var Component, PermissionDropdown, SettingDropdown, Button, ItemList, icon, PermissionGrid;
@@ -17486,17 +17324,15 @@ $('#el').spin('flower', 'red');
 
         function PermissionGrid() {
           babelHelpers.classCallCheck(this, PermissionGrid);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(PermissionGrid.prototype), 'constructor', this).apply(this, args);
-
-          this.permissions = this.permissionItems().toArray();
+          babelHelpers.get(Object.getPrototypeOf(PermissionGrid.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(PermissionGrid, [{
+          key: 'init',
+          value: function init() {
+            this.permissions = this.permissionItems().toArray();
+          }
+        }, {
           key: 'view',
           value: function view() {
             var scopes = this.scopeItems().toArray();
@@ -17576,22 +17412,22 @@ $('#el').spin('flower', 'red');
             var items = new ItemList();
 
             items.add('view', {
-              label: 'Read',
+              label: app.translator.trans('core.admin.permissions.read_heading'),
               children: this.viewItems().toArray()
             }, 100);
 
             items.add('start', {
-              label: 'Create',
+              label: app.translator.trans('core.admin.permissions.create_heading'),
               children: this.startItems().toArray()
             }, 90);
 
             items.add('reply', {
-              label: 'Participate',
+              label: app.translator.trans('core.admin.permissions.participate_heading'),
               children: this.replyItems().toArray()
             }, 80);
 
             items.add('moderate', {
-              label: 'Moderate',
+              label: app.translator.trans('core.admin.permissions.moderate_heading'),
               children: this.moderateItems().toArray()
             }, 70);
 
@@ -17602,20 +17438,20 @@ $('#el').spin('flower', 'red');
           value: function viewItems() {
             var items = new ItemList();
 
-            items.add('view', {
+            items.add('viewDiscussions', {
               icon: 'eye',
-              label: 'View discussions',
-              permission: 'forum.view',
+              label: app.translator.trans('core.admin.permissions.view_discussions_label'),
+              permission: 'viewDiscussions',
               allowGuest: true
             }, 100);
 
             items.add('signUp', {
               icon: 'user-plus',
-              label: 'Sign up',
+              label: app.translator.trans('core.admin.permissions.sign_up_label'),
               setting: function setting() {
                 return SettingDropdown.component({
                   key: 'allow_sign_up',
-                  options: [{ value: '1', label: 'Open' }, { value: '0', label: 'Closed' }]
+                  options: [{ value: '1', label: app.translator.trans('core.admin.permissions_controls.signup_open_button') }, { value: '0', label: app.translator.trans('core.admin.permissions_controls.signup_closed_button') }]
                 });
               }
             }, 90);
@@ -17629,20 +17465,20 @@ $('#el').spin('flower', 'red');
 
             items.add('start', {
               icon: 'edit',
-              label: 'Start discussions',
-              permission: 'forum.startDiscussion'
+              label: app.translator.trans('core.admin.permissions.start_discussions_label'),
+              permission: 'startDiscussion'
             }, 100);
 
             items.add('allowRenaming', {
               icon: 'i-cursor',
-              label: 'Allow renaming',
+              label: app.translator.trans('core.admin.permissions.allow_renaming_label'),
               setting: function setting() {
                 var minutes = parseInt(app.settings.allow_renaming, 10);
 
                 return SettingDropdown.component({
-                  defaultLabel: minutes ? 'For ' + minutes + ' minutes' : 'Indefinitely',
+                  defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
                   key: 'allow_renaming',
-                  options: [{ value: '-1', label: 'Indefinitely' }, { value: '10', label: 'For 10 minutes' }, { value: 'reply', label: 'Until next reply' }]
+                  options: [{ value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') }, { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') }, { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') }]
                 });
               }
             }, 90);
@@ -17656,20 +17492,20 @@ $('#el').spin('flower', 'red');
 
             items.add('reply', {
               icon: 'reply',
-              label: 'Reply to discussions',
+              label: app.translator.trans('core.admin.permissions.reply_to_discussions_label'),
               permission: 'discussion.reply'
             }, 100);
 
             items.add('allowPostEditing', {
               icon: 'pencil',
-              label: 'Allow post editing',
+              label: app.translator.trans('core.admin.permissions.allow_post_editing_label'),
               setting: function setting() {
                 var minutes = parseInt(app.settings.allow_post_editing, 10);
 
                 return SettingDropdown.component({
-                  defaultLabel: minutes ? 'For ' + minutes + ' minutes' : 'Indefinitely',
+                  defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
                   key: 'allow_post_editing',
-                  options: [{ value: '-1', label: 'Indefinitely' }, { value: '10', label: 'For 10 minutes' }, { value: 'reply', label: 'Until next reply' }]
+                  options: [{ value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') }, { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') }, { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') }]
                 });
               }
             }, 90);
@@ -17683,31 +17519,31 @@ $('#el').spin('flower', 'red');
 
             items.add('renameDiscussions', {
               icon: 'i-cursor',
-              label: 'Rename discussions',
+              label: app.translator.trans('core.admin.permissions.rename_discussions_label'),
               permission: 'discussion.rename'
             }, 100);
 
             items.add('hideDiscussions', {
               icon: 'trash-o',
-              label: 'Delete discussions',
+              label: app.translator.trans('core.admin.permissions.delete_discussions_label'),
               permission: 'discussion.hide'
             }, 90);
 
             items.add('deleteDiscussions', {
               icon: 'times',
-              label: 'Delete discussions forever',
+              label: app.translator.trans('core.admin.permissions.delete_discussions_forever_label'),
               permission: 'discussion.delete'
             }, 80);
 
             items.add('editPosts', {
               icon: 'pencil',
-              label: 'Edit and delete posts',
+              label: app.translator.trans('core.admin.permissions.edit_and_delete_posts_label'),
               permission: 'discussion.editPosts'
             }, 70);
 
             items.add('deletePosts', {
               icon: 'times',
-              label: 'Delete posts forever',
+              label: app.translator.trans('core.admin.permissions.delete_posts_forever_label'),
               permission: 'discussion.deletePosts'
             }, 60);
 
@@ -17719,7 +17555,7 @@ $('#el').spin('flower', 'red');
             var items = new ItemList();
 
             items.add('global', {
-              label: 'Global',
+              label: app.translator.trans('core.admin.permissions.global_heading'),
               render: function render(item) {
                 if (item.setting) {
                   return item.setting();
@@ -17748,7 +17584,8 @@ $('#el').spin('flower', 'red');
       _export('default', PermissionGrid);
     }
   };
-});;System.register('flarum/components/PermissionsPage', ['flarum/Component', 'flarum/components/GroupBadge', 'flarum/components/EditGroupModal', 'flarum/models/Group', 'flarum/helpers/icon', 'flarum/components/PermissionGrid'], function (_export) {
+});;
+System.register('flarum/components/PermissionsPage', ['flarum/Component', 'flarum/components/GroupBadge', 'flarum/components/EditGroupModal', 'flarum/models/Group', 'flarum/helpers/icon', 'flarum/components/PermissionGrid'], function (_export) {
   'use strict';
 
   var Component, GroupBadge, EditGroupModal, Group, icon, PermissionGrid, PermissionsPage;
@@ -17816,7 +17653,7 @@ $('#el').spin('flower', 'red');
                     m(
                       'span',
                       { className: 'Group-name' },
-                      'New Group'
+                      app.translator.trans('core.admin.permissions.new_group_button')
                     )
                   )
                 )
@@ -17839,7 +17676,8 @@ $('#el').spin('flower', 'red');
       _export('default', PermissionsPage);
     }
   };
-});;System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/utils/ItemList'], function (_export) {
+});;
+System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `SessionDropdown` component shows a button with the current user's
@@ -17900,7 +17738,7 @@ $('#el').spin('flower', 'red');
 
             items.add('logOut', Button.component({
               icon: 'sign-out',
-              children: app.trans('core.log_out'),
+              children: app.translator.trans('core.admin.header.log_out_button'),
               onclick: app.session.logout.bind(app.session)
             }), -100);
 
@@ -17922,7 +17760,8 @@ $('#el').spin('flower', 'red');
       _export('default', SessionDropdown);
     }
   };
-});;System.register('flarum/components/SettingDropdown', ['flarum/components/SelectDropdown', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export) {
+});;
+System.register('flarum/components/SettingDropdown', ['flarum/components/SelectDropdown', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export) {
   'use strict';
 
   var SelectDropdown, Button, saveSettings, SettingDropdown;
@@ -17976,7 +17815,8 @@ $('#el').spin('flower', 'red');
       _export('default', SettingDropdown);
     }
   };
-});;System.register('flarum/components/SettingsModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export) {
+});;
+System.register('flarum/components/SettingsModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export) {
   'use strict';
 
   var Modal, Button, saveSettings, SettingsModal;
@@ -18073,18 +17913,11 @@ $('#el').spin('flower', 'red');
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this2 = this;
-
             e.preventDefault();
 
             this.loading = true;
 
-            saveSettings(this.dirty()).then(function () {
-              return _this2.hide();
-            }, function () {
-              _this2.loading = false;
-              m.redraw();
-            });
+            saveSettings(this.dirty()).then(this.hide.bind(this), this.loaded.bind(this));
           }
         }]);
         return SettingsModal;
@@ -18093,7 +17926,130 @@ $('#el').spin('flower', 'red');
       _export('default', SettingsModal);
     }
   };
-});;System.register('flarum/utils/saveSettings', [], function (_export) {
+});;
+System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/AdminNav', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
+  /*global FastClick*/
+
+  /**
+   * The `boot` initializer boots up the admin app. It initializes some app
+   * globals, mounts components to the page, and begins routing.
+   *
+   * @param {ForumApp} app
+   */
+  'use strict';
+
+  var ScrollListener, Drawer, mapRoutes, Navigation, HeaderPrimary, HeaderSecondary, AdminNav, ModalManager, AlertManager;
+
+  _export('default', boot);
+
+  function boot(app) {
+    m.startComputation();
+
+    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
+    m.mount(document.getElementById('header-navigation'), Navigation.component());
+    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
+    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
+    m.mount(document.getElementById('admin-navigation'), AdminNav.component());
+
+    app.drawer = new Drawer();
+    app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
+    app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
+    app.history = {
+      canGoBack: function canGoBack() {
+        return true;
+      },
+      backUrl: function backUrl() {
+        return app.forum.attribute('baseUrl');
+      },
+      back: function back() {
+        window.location = this.backUrl();
+      }
+    };
+
+    m.route.mode = 'hash';
+    m.route(document.getElementById('content'), '/', mapRoutes(app.routes));
+
+    m.endComputation();
+
+    // Add a class to the body which indicates that the page has been scrolled
+    // down.
+    new ScrollListener(function (top) {
+      var $app = $('#app');
+      var offset = $app.offset().top;
+
+      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
+    }).start();
+
+    app.booted = true;
+
+    // If an extension has just been enabled, then we will run its settings
+    // callback.
+    var enabled = localStorage.getItem('enabledExtension');
+    if (enabled && app.extensionSettings[enabled]) {
+      app.extensionSettings[enabled]();
+      localStorage.removeItem('enabledExtension');
+    }
+  }
+
+  return {
+    setters: [function (_flarumUtilsScrollListener) {
+      ScrollListener = _flarumUtilsScrollListener['default'];
+    }, function (_flarumUtilsDrawer) {
+      Drawer = _flarumUtilsDrawer['default'];
+    }, function (_flarumUtilsMapRoutes) {
+      mapRoutes = _flarumUtilsMapRoutes['default'];
+    }, function (_flarumComponentsNavigation) {
+      Navigation = _flarumComponentsNavigation['default'];
+    }, function (_flarumComponentsHeaderPrimary) {
+      HeaderPrimary = _flarumComponentsHeaderPrimary['default'];
+    }, function (_flarumComponentsHeaderSecondary) {
+      HeaderSecondary = _flarumComponentsHeaderSecondary['default'];
+    }, function (_flarumComponentsAdminNav) {
+      AdminNav = _flarumComponentsAdminNav['default'];
+    }, function (_flarumComponentsModalManager) {
+      ModalManager = _flarumComponentsModalManager['default'];
+    }, function (_flarumComponentsAlertManager) {
+      AlertManager = _flarumComponentsAlertManager['default'];
+    }],
+    execute: function () {}
+  };
+});;
+System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage'], function (_export) {
+
+  /**
+   * The `routes` initializer defines the admin app's routes.
+   *
+   * @param {App} app
+   */
+  'use strict';
+
+  var DashboardPage, BasicsPage, PermissionsPage, AppearancePage, ExtensionsPage;
+  return {
+    setters: [function (_flarumComponentsDashboardPage) {
+      DashboardPage = _flarumComponentsDashboardPage['default'];
+    }, function (_flarumComponentsBasicsPage) {
+      BasicsPage = _flarumComponentsBasicsPage['default'];
+    }, function (_flarumComponentsPermissionsPage) {
+      PermissionsPage = _flarumComponentsPermissionsPage['default'];
+    }, function (_flarumComponentsAppearancePage) {
+      AppearancePage = _flarumComponentsAppearancePage['default'];
+    }, function (_flarumComponentsExtensionsPage) {
+      ExtensionsPage = _flarumComponentsExtensionsPage['default'];
+    }],
+    execute: function () {
+      _export('default', function (app) {
+        app.routes = {
+          'dashboard': { path: '/', component: DashboardPage.component() },
+          'basics': { path: '/basics', component: BasicsPage.component() },
+          'permissions': { path: '/permissions', component: PermissionsPage.component() },
+          'appearance': { path: '/appearance', component: AppearancePage.component() },
+          'extensions': { path: '/extensions', component: ExtensionsPage.component() }
+        };
+      });
+    }
+  };
+});;
+System.register('flarum/utils/saveSettings', [], function (_export) {
   'use strict';
 
   _export('default', saveSettings);
@@ -18117,7 +18073,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError'], function (_export) {
+});;
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
 
   /**
    * The `App` class provides a container for an application, as well as various
@@ -18125,7 +18082,7 @@ $('#el').spin('flower', 'red');
    */
   'use strict';
 
-  var ItemList, Alert, Button, RequestErrorModal, Translator, extract, patchMithril, RequestError, App;
+  var ItemList, Alert, Button, RequestErrorModal, Translator, extract, patchMithril, RequestError, extend, App;
   return {
     setters: [function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList['default'];
@@ -18143,6 +18100,8 @@ $('#el').spin('flower', 'red');
       patchMithril = _flarumUtilsPatchMithril['default'];
     }, function (_flarumUtilsRequestError) {
       RequestError = _flarumUtilsRequestError['default'];
+    }, function (_flarumExtend) {
+      extend = _flarumExtend.extend;
     }],
     execute: function () {
       App = (function () {
@@ -18264,6 +18223,8 @@ $('#el').spin('flower', 'red');
           value: function boot() {
             var _this = this;
 
+            this.translator.locale = this.locale;
+
             this.initializers.toArray().forEach(function (initializer) {
               return initializer(_this);
             });
@@ -18292,8 +18253,6 @@ $('#el').spin('flower', 'red');
            * Set the <title> of the page.
            *
            * @param {String} title
-           * @param {Boolean} [separator] Whether or not to separate the given title and
-           *     the forum's title.
            * @public
            */
         }, {
@@ -18340,6 +18299,19 @@ $('#el').spin('flower', 'red');
             options.config = options.config || this.session.authorize.bind(this.session);
             options.background = options.background || true;
 
+            // If the method is something like PATCH or DELETE, which not all servers
+            // support, then we'll send it as a POST request with a the intended method
+            // specified in the X-Fake-Http-Method header.
+            if (options.method !== 'GET' && options.method !== 'POST') {
+              (function () {
+                var method = options.method;
+                extend(options, 'config', function (result, xhr) {
+                  return xhr.setRequestHeader('X-Fake-Http-Method', method);
+                });
+                options.method = 'POST';
+              })();
+            }
+
             // When we deserialize JSON data, if for some reason the server has provided
             // a dud response, we don't want the application to crash. We'll show an
             // error message to the user instead.
@@ -18347,8 +18319,12 @@ $('#el').spin('flower', 'red');
               try {
                 return JSON.parse(responseText);
               } catch (e) {
-                throw new RequestError(e.message, responseText);
+                throw new RequestError(500, responseText, options);
               }
+            };
+
+            options.errorHandler = options.errorHandler || function (error) {
+              throw error;
             };
 
             // When extracting the data from the response, we can check the server
@@ -18366,28 +18342,63 @@ $('#el').spin('flower', 'red');
 
               var status = xhr.status;
 
-              if (status >= 500 && status <= 599) {
-                throw new RequestError('Internal Server Error', responseText);
+              if (status < 200 || status > 299) {
+                throw new RequestError(status, responseText, options, xhr);
               }
 
               return responseText;
             };
 
-            this.alerts.dismiss(this.requestErrorAlert);
+            if (this.requestError) this.alerts.dismiss(this.requestError.alert);
 
             // Now make the request. If it's a failure, inspect the error that was
             // returned and show an alert containing its contents.
             return m.request(options).then(null, function (error) {
-              if (error instanceof RequestError) {
-                _this2.alerts.show(_this2.requestErrorAlert = new Alert({
-                  type: 'error',
-                  children: 'Oops! Something went wrong. Please reload the page and try again.',
-                  controls: app.forum.attribute('debug') ? [m(
-                    Button,
-                    { className: 'Button Button--link', onclick: _this2.showDebug.bind(_this2, error) },
-                    'Debug'
-                  )] : undefined
-                }));
+              _this2.requestError = error;
+
+              var children = undefined;
+
+              switch (error.status) {
+                case 422:
+                  children = error.response.errors.map(function (error) {
+                    return [error.detail, m('br', null)];
+                  }).reduce(function (a, b) {
+                    return a.concat(b);
+                  }, []).slice(0, -1);
+                  break;
+
+                case 401:
+                case 403:
+                  children = app.translator.trans('core.lib.error.permission_denied_message');
+                  break;
+
+                case 404:
+                case 410:
+                  children = app.translator.trans('core.lib.error.not_found_message');
+                  break;
+
+                case 429:
+                  children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+                  break;
+
+                default:
+                  children = app.translator.trans('core.lib.error.generic_message');
+              }
+
+              error.alert = new Alert({
+                type: 'error',
+                children: children,
+                controls: app.forum.attribute('debug') ? [m(
+                  Button,
+                  { className: 'Button Button--link', onclick: _this2.showDebug.bind(_this2, error) },
+                  'Debug'
+                )] : undefined
+              });
+
+              try {
+                options.errorHandler(error);
+              } catch (error) {
+                _this2.alerts.show(error.alert);
               }
 
               throw error;
@@ -18404,25 +18415,6 @@ $('#el').spin('flower', 'red');
             this.alerts.dismiss(this.requestErrorAlert);
 
             this.modal.show(new RequestErrorModal({ error: error }));
-          }
-
-          /**
-           * Show alert error messages for each error returned in an API response.
-           *
-           * @param {Array} errors
-           * @public
-           */
-        }, {
-          key: 'alertErrors',
-          value: function alertErrors(errors) {
-            var _this3 = this;
-
-            errors.forEach(function (error) {
-              _this3.alerts.show(new Alert({
-                type: 'error',
-                children: error.detail
-              }));
-            });
           }
 
           /**
@@ -18446,20 +18438,6 @@ $('#el').spin('flower', 'red');
 
             return prefix + url + (queryString ? '?' + queryString : '');
           }
-
-          /**
-           * Shortcut to translate the given key.
-           *
-           * @param {String} key
-           * @param {Object} input
-           * @return {String}
-           * @public
-           */
-        }, {
-          key: 'trans',
-          value: function trans(key, input) {
-            return this.translator.trans(key, input);
-          }
         }]);
         return App;
       })();
@@ -18467,7 +18445,8 @@ $('#el').spin('flower', 'red');
       _export('default', App);
     }
   };
-});;System.register('flarum/Component', [], function (_export) {
+});;
+System.register('flarum/Component', [], function (_export) {
   /*
    * This file is part of Flarum.
    *
@@ -18511,8 +18490,9 @@ $('#el').spin('flower', 'red');
          * @public
          */
 
-        function Component(props, children) {
-          if (props === undefined) props = {};
+        function Component() {
+          var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+          var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
           babelHelpers.classCallCheck(this, Component);
 
           if (children) props.children = children;
@@ -18663,6 +18643,7 @@ $('#el').spin('flower', 'red');
            *
            * @see https://lhorie.github.io/mithril/mithril.component.html
            * @param {Object} [props] Properties to set on the component
+           * @param children
            * @return {Object} The Mithril component object
            * @property {function} controller
            * @property {function} view
@@ -18672,8 +18653,9 @@ $('#el').spin('flower', 'red');
            */
         }], [{
           key: 'component',
-          value: function component(props, children) {
-            if (props === undefined) props = {};
+          value: function component() {
+            var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+            var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
             var componentProps = babelHelpers._extends({}, props);
 
@@ -18730,7 +18712,8 @@ $('#el').spin('flower', 'red');
       _export('default', Component);
     }
   };
-});;System.register('flarum/Model', [], function (_export) {
+});;
+System.register('flarum/Model', [], function (_export) {
   /**
    * The `Model` class represents a local data resource. It provides methods to
    * persist changes via the API.
@@ -18750,8 +18733,9 @@ $('#el').spin('flower', 'red');
          * @public
          */
 
-        function Model(data, store) {
-          if (data === undefined) data = {};
+        function Model() {
+          var data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+          var store = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
           babelHelpers.classCallCheck(this, Model);
 
           /**
@@ -18868,6 +18852,7 @@ $('#el').spin('flower', 'red');
            *
            * @param {Object} attributes The attributes to save. If a 'relationships' key
            *     exists, it will be extracted and relationships will also be saved.
+           * @param {Object} [options]
            * @return {Promise}
            * @public
            */
@@ -18875,6 +18860,8 @@ $('#el').spin('flower', 'red');
           key: 'save',
           value: function save(attributes) {
             var _this = this;
+
+            var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
             var data = {
               type: this.data.type,
@@ -18906,11 +18893,11 @@ $('#el').spin('flower', 'red');
 
             this.pushData(data);
 
-            return app.request({
+            return app.request(babelHelpers._extends({
               method: this.exists ? 'PATCH' : 'POST',
               url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
               data: { data: data }
-            }).then(
+            }, options)).then(
             // If everything went well, we'll make sure the store knows that this
             // model exists now (if it didn't already), and we'll push the data that
             // the API returned into the store.
@@ -18933,6 +18920,7 @@ $('#el').spin('flower', 'red');
            * Send a request to delete the resource.
            *
            * @param {Object} data Data to send along with the DELETE request.
+           * @param {Object} [options]
            * @return {Promise}
            * @public
            */
@@ -18941,13 +18929,15 @@ $('#el').spin('flower', 'red');
           value: function _delete(data) {
             var _this2 = this;
 
+            var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
             if (!this.exists) return m.deferred.resolve().promise;
 
-            return app.request({
+            return app.request(babelHelpers._extends({
               method: 'DELETE',
               url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
               data: data
-            }).then(function () {
+            }, options)).then(function () {
               _this2.exists = false;
               _this2.store.remove(_this2);
             });
@@ -19072,7 +19062,8 @@ $('#el').spin('flower', 'red');
       _export('default', Model);
     }
   };
-});;System.register('flarum/Session', [], function (_export) {
+});;
+System.register('flarum/Session', [], function (_export) {
   /**
    * The `Session` class defines the current user session. It stores a reference
    * to the current authenticated user, and provides methods to log in/out.
@@ -19109,17 +19100,20 @@ $('#el').spin('flower', 'red');
          *
          * @param {String} identification The username/email.
          * @param {String} password
+         * @param {Object} [options]
          * @return {Promise}
          * @public
          */
         babelHelpers.createClass(Session, [{
           key: 'login',
           value: function login(identification, password) {
-            return app.request({
+            var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+            return app.request(babelHelpers._extends({
               method: 'POST',
               url: app.forum.attribute('baseUrl') + '/login',
               data: { identification: identification, password: password }
-            }).then(function () {
+            }, options)).then(function () {
               return window.location.reload();
             });
           }
@@ -19156,7 +19150,8 @@ $('#el').spin('flower', 'red');
       _export('default', Session);
     }
   };
-});;System.register('flarum/Store', [], function (_export) {
+});;
+System.register('flarum/Store', [], function (_export) {
   /**
    * The `Store` class defines a local data store, and provides methods to
    * retrieve data from the API.
@@ -19248,6 +19243,7 @@ $('#el').spin('flower', 'red');
            *     Alternatively, if an object is passed, it will be handled as the
            *     `query` parameter.
            * @param {Object} [query]
+           * @param {Object} [options]
            * @return {Promise}
            * @public
            */
@@ -19255,6 +19251,7 @@ $('#el').spin('flower', 'red');
           key: 'find',
           value: function find(type, id) {
             var query = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+            var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
 
             var data = query;
             var url = app.forum.attribute('apiUrl') + '/' + type;
@@ -19267,11 +19264,11 @@ $('#el').spin('flower', 'red');
               url += '/' + id;
             }
 
-            return app.request({
+            return app.request(babelHelpers._extends({
               method: 'GET',
               url: url,
               data: data
-            }).then(this.pushPayload.bind(this));
+            }, options)).then(this.pushPayload.bind(this));
           }
 
           /**
@@ -19357,10 +19354,15 @@ $('#el').spin('flower', 'red');
       _export('default', Store);
     }
   };
-});;System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export) {
+});;
+System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export) {
 
   /**
-   * The `Translator` class translates strings using the loaded localization.
+   * Translator with the same API as Symfony's.
+   *
+   * Derived from https://github.com/willdurand/BazingaJsTranslationBundle
+   * which is available under the MIT License.
+   * Copyright (c) William Durand <william.durand1@gmail.com>
    */
   'use strict';
 
@@ -19387,52 +19389,39 @@ $('#el').spin('flower', 'red');
            * @public
            */
           this.translations = {};
+
+          this.locale = null;
         }
 
-        /**
-         * Determine the key of a translation that should be used for the given count.
-         * The default implementation is for English plurals. It should be overridden
-         * by a locale's JavaScript file if necessary.
-         *
-         * @param {Integer} count
-         * @return {String}
-         * @public
-         */
         babelHelpers.createClass(Translator, [{
-          key: 'plural',
-          value: function plural(count) {
-            return count === 1 ? 'one' : 'other';
-          }
-
-          /**
-           * Translate a string.
-           *
-           * @param {String} key
-           * @param {Object} input
-           * @param {VirtualElement} fallback
-           * @return {VirtualElement}
-           */
-        }, {
           key: 'trans',
-          value: function trans(key, input, fallback) {
-            if (input === undefined) input = {};
+          value: function trans(id, parameters) {
+            var translation = this.translations[id];
 
-            var parts = key.split('.');
-            var translation = this.translations;
-
-            // Drill down into the translation tree to find the translation for this
-            // key.
-            parts.forEach(function (part) {
-              translation = translation && translation[part];
-            });
-
-            // If this translation has multiple options and a 'count' has been provided
-            // in the input, we'll work out which option to choose using the `plural`
-            // method.
-            if (translation && typeof translation === 'object' && typeof input.count !== 'undefined') {
-              translation = translation[this.plural(extractText(input.count))];
+            if (translation) {
+              return this.apply(translation, parameters || {});
             }
 
+            return id;
+          }
+        }, {
+          key: 'transChoice',
+          value: function transChoice(id, number, parameters) {
+            var translation = this.translations[id];
+
+            if (translation) {
+              number = parseInt(number, 10);
+
+              translation = this.pluralize(translation, number);
+
+              return this.apply(translation, parameters || {});
+            }
+
+            return id;
+          }
+        }, {
+          key: 'apply',
+          value: function apply(translation, input) {
             // If we've been given a user model as one of the input parameters, then
             // we'll extract the username and use that for the translation. In the
             // future there should be a hook here to inspect the user and change the
@@ -19444,24 +19433,233 @@ $('#el').spin('flower', 'red');
               if (!input.username) input.username = username(user);
             }
 
-            // If we've found the appropriate translation string, then we'll sub in the
-            // input.
-            if (typeof translation === 'string') {
-              translation = translation.split(new RegExp('({[^}]+})', 'gi'));
+            translation = translation.split(new RegExp('({[a-z0-9_]+}|</?[a-z0-9_]+>)', 'gi'));
 
-              translation.forEach(function (part, i) {
-                var match = part.match(/^{(.+)}$/i);
-                if (match) {
-                  translation[i] = input[match[1]];
+            var hydrated = [];
+            var open = [hydrated];
+
+            translation.forEach(function (part) {
+              var match = part.match(new RegExp('{([a-z0-9_]+)}|<(/?)([a-z0-9_]+)>', 'i'));
+
+              if (match) {
+                if (match[1]) {
+                  open[0].push(input[match[1]]);
+                } else if (match[3]) {
+                  if (match[2]) {
+                    open.shift();
+                  } else {
+                    var tag = input[match[3]] || [];
+                    open[0].push(tag);
+                    open.unshift(tag.children || tag);
+                  }
                 }
-              });
+              } else {
+                open[0].push(part);
+              }
+            });
 
-              return translation.filter(function (part) {
-                return part;
-              });
+            return hydrated.filter(function (part) {
+              return part;
+            });
+          }
+        }, {
+          key: 'pluralize',
+          value: function pluralize(translation, number) {
+            var _this = this;
+
+            var sPluralRegex = new RegExp(/^\w+\: +(.+)$/),
+                cPluralRegex = new RegExp(/^\s*((\{\s*(\-?\d+[\s*,\s*\-?\d+]*)\s*\})|([\[\]])\s*(-Inf|\-?\d+)\s*,\s*(\+?Inf|\-?\d+)\s*([\[\]]))\s?(.+?)$/),
+                iPluralRegex = new RegExp(/^\s*(\{\s*(\-?\d+[\s*,\s*\-?\d+]*)\s*\})|([\[\]])\s*(-Inf|\-?\d+)\s*,\s*(\+?Inf|\-?\d+)\s*([\[\]])/),
+                standardRules = [],
+                explicitRules = [];
+
+            translation.split('|').forEach(function (part) {
+              if (cPluralRegex.test(part)) {
+                var matches = part.match(cPluralRegex);
+                explicitRules[matches[0]] = matches[matches.length - 1];
+              } else if (sPluralRegex.test(part)) {
+                var matches = part.match(sPluralRegex);
+                standardRules.push(matches[1]);
+              } else {
+                standardRules.push(part);
+              }
+            });
+
+            explicitRules.forEach(function (rule, e) {
+              if (iPluralRegex.test(e)) {
+                var matches = e.match(iPluralRegex);
+
+                if (matches[1]) {
+                  var ns = matches[2].split(',');
+
+                  for (var n in ns) {
+                    if (number == ns[n]) {
+                      return explicitRules[e];
+                    }
+                  }
+                } else {
+                  var leftNumber = _this.convertNumber(matches[4]);
+                  var rightNumber = _this.convertNumber(matches[5]);
+
+                  if (('[' === matches[3] ? number >= leftNumber : number > leftNumber) && (']' === matches[6] ? number <= rightNumber : number < rightNumber)) {
+                    return explicitRules[e];
+                  }
+                }
+              }
+            });
+
+            return standardRules[this.pluralPosition(number, this.locale)] || standardRules[0] || undefined;
+          }
+        }, {
+          key: 'convertNumber',
+          value: function convertNumber(number) {
+            if ('-Inf' === number) {
+              return Number.NEGATIVE_INFINITY;
+            } else if ('+Inf' === number || 'Inf' === number) {
+              return Number.POSITIVE_INFINITY;
             }
 
-            return fallback || [key];
+            return parseInt(number, 10);
+          }
+        }, {
+          key: 'pluralPosition',
+          value: function pluralPosition(number, locale) {
+            if ('pt_BR' === locale) {
+              locale = 'xbr';
+            }
+
+            if (locale.length > 3) {
+              locale = locale.split('_')[0];
+            }
+
+            switch (locale) {
+              case 'bo':
+              case 'dz':
+              case 'id':
+              case 'ja':
+              case 'jv':
+              case 'ka':
+              case 'km':
+              case 'kn':
+              case 'ko':
+              case 'ms':
+              case 'th':
+              case 'tr':
+              case 'vi':
+              case 'zh':
+                return 0;
+              case 'af':
+              case 'az':
+              case 'bn':
+              case 'bg':
+              case 'ca':
+              case 'da':
+              case 'de':
+              case 'el':
+              case 'en':
+              case 'eo':
+              case 'es':
+              case 'et':
+              case 'eu':
+              case 'fa':
+              case 'fi':
+              case 'fo':
+              case 'fur':
+              case 'fy':
+              case 'gl':
+              case 'gu':
+              case 'ha':
+              case 'he':
+              case 'hu':
+              case 'is':
+              case 'it':
+              case 'ku':
+              case 'lb':
+              case 'ml':
+              case 'mn':
+              case 'mr':
+              case 'nah':
+              case 'nb':
+              case 'ne':
+              case 'nl':
+              case 'nn':
+              case 'no':
+              case 'om':
+              case 'or':
+              case 'pa':
+              case 'pap':
+              case 'ps':
+              case 'pt':
+              case 'so':
+              case 'sq':
+              case 'sv':
+              case 'sw':
+              case 'ta':
+              case 'te':
+              case 'tk':
+              case 'ur':
+              case 'zu':
+                return number == 1 ? 0 : 1;
+
+              case 'am':
+              case 'bh':
+              case 'fil':
+              case 'fr':
+              case 'gun':
+              case 'hi':
+              case 'ln':
+              case 'mg':
+              case 'nso':
+              case 'xbr':
+              case 'ti':
+              case 'wa':
+                return number === 0 || number == 1 ? 0 : 1;
+
+              case 'be':
+              case 'bs':
+              case 'hr':
+              case 'ru':
+              case 'sr':
+              case 'uk':
+                return number % 10 == 1 && number % 100 != 11 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
+
+              case 'cs':
+              case 'sk':
+                return number == 1 ? 0 : number >= 2 && number <= 4 ? 1 : 2;
+
+              case 'ga':
+                return number == 1 ? 0 : number == 2 ? 1 : 2;
+
+              case 'lt':
+                return number % 10 == 1 && number % 100 != 11 ? 0 : number % 10 >= 2 && (number % 100 < 10 || number % 100 >= 20) ? 1 : 2;
+
+              case 'sl':
+                return number % 100 == 1 ? 0 : number % 100 == 2 ? 1 : number % 100 == 3 || number % 100 == 4 ? 2 : 3;
+
+              case 'mk':
+                return number % 10 == 1 ? 0 : 1;
+
+              case 'mt':
+                return number == 1 ? 0 : number === 0 || number % 100 > 1 && number % 100 < 11 ? 1 : number % 100 > 10 && number % 100 < 20 ? 2 : 3;
+
+              case 'lv':
+                return number === 0 ? 0 : number % 10 == 1 && number % 100 != 11 ? 1 : 2;
+
+              case 'pl':
+                return number == 1 ? 0 : number % 10 >= 2 && number % 10 <= 4 && (number % 100 < 12 || number % 100 > 14) ? 1 : 2;
+
+              case 'cy':
+                return number == 1 ? 0 : number == 2 ? 1 : number == 8 || number == 11 ? 2 : 3;
+
+              case 'ro':
+                return number == 1 ? 0 : number === 0 || number % 100 > 0 && number % 100 < 20 ? 1 : 2;
+
+              case 'ar':
+                return number === 0 ? 0 : number == 1 ? 1 : number == 2 ? 2 : number >= 3 && number <= 10 ? 3 : number >= 11 && number <= 99 ? 4 : 5;
+
+              default:
+                return 0;
+            }
           }
         }]);
         return Translator;
@@ -19470,7 +19668,8 @@ $('#el').spin('flower', 'red');
       _export('default', Translator);
     }
   };
-});;System.register("flarum/extend", [], function (_export) {
+});;
+System.register("flarum/extend", [], function (_export) {
   /**
    * Extend an object's method by running its output through a mutating callback
    * every time it is called.
@@ -19556,7 +19755,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
+});;
+System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
 
   /**
    * The `Alert` component represents an alert box, which contains a message,
@@ -19641,7 +19841,8 @@ $('#el').spin('flower', 'red');
       _export('default', Alert);
     }
   };
-});;System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
+});;
+System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
 
   /**
    * The `AlertManager` component provides an area in which `Alert` components can
@@ -19662,23 +19863,21 @@ $('#el').spin('flower', 'red');
 
         function AlertManager() {
           babelHelpers.classCallCheck(this, AlertManager);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(AlertManager.prototype), 'constructor', this).apply(this, args);
-
-          /**
-           * An array of Alert components which are currently showing.
-           *
-           * @type {Alert[]}
-           * @protected
-           */
-          this.components = [];
+          babelHelpers.get(Object.getPrototypeOf(AlertManager.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(AlertManager, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * An array of Alert components which are currently showing.
+             *
+             * @type {Alert[]}
+             * @protected
+             */
+            this.components = [];
+          }
+        }, {
           key: 'view',
           value: function view() {
             return m(
@@ -19748,7 +19947,8 @@ $('#el').spin('flower', 'red');
       _export('default', AlertManager);
     }
   };
-});;System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
+});;
+System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
 
   /**
    * The `Badge` component represents a user/discussion badge, indicating some
@@ -19818,7 +20018,8 @@ $('#el').spin('flower', 'red');
       _export('default', Badge);
     }
   };
-});;System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
+});;
+System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
 
   /**
    * The `Button` component defines an element which, when clicked, performs an
@@ -19908,7 +20109,8 @@ $('#el').spin('flower', 'red');
       _export('default', Button);
     }
   };
-});;System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `Checkbox` component defines a checkbox input.
@@ -19938,23 +20140,21 @@ $('#el').spin('flower', 'red');
 
         function Checkbox() {
           babelHelpers.classCallCheck(this, Checkbox);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(Checkbox.prototype), 'constructor', this).apply(this, args);
-
-          /**
-           * Whether or not the checkbox's value is in the process of being saved.
-           *
-           * @type {Boolean}
-           * @public
-           */
-          this.loading = false;
+          babelHelpers.get(Object.getPrototypeOf(Checkbox.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(Checkbox, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * Whether or not the checkbox's value is in the process of being saved.
+             *
+             * @type {Boolean}
+             * @public
+             */
+            this.loading = false;
+          }
+        }, {
           key: 'view',
           value: function view() {
             var className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
@@ -20007,7 +20207,8 @@ $('#el').spin('flower', 'red');
       _export('default', Checkbox);
     }
   };
-});;System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
+});;
+System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `Dropdown` component displays a button which, when clicked, shows a
@@ -20147,7 +20348,8 @@ $('#el').spin('flower', 'red');
       _export('default', Dropdown);
     }
   };
-});;System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
+});;
+System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `FieldSet` component defines a collection of fields, displayed in a list
@@ -20201,7 +20403,8 @@ $('#el').spin('flower', 'red');
       _export('default', FieldSet);
     }
   };
-});;System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
+});;
+System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
   'use strict';
 
   var Badge, GroupBadge;
@@ -20239,7 +20442,8 @@ $('#el').spin('flower', 'red');
       _export('default', GroupBadge);
     }
   };
-});;System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
+});;
+System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
 
   /**
    * The `LinkButton` component defines a `Button` which links to a route.
@@ -20303,7 +20507,8 @@ $('#el').spin('flower', 'red');
       _export('default', LinkButton);
     }
   };
-});;System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
+});;
+System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
 
   /**
    * The `LoadingIndicator` component displays a loading spinner with spin.js. It
@@ -20358,7 +20563,8 @@ $('#el').spin('flower', 'red');
       _export('default', LoadingIndicator);
     }
   };
-});;System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
+});;
+System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
@@ -20383,22 +20589,20 @@ $('#el').spin('flower', 'red');
 
         function Modal() {
           babelHelpers.classCallCheck(this, Modal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(Modal.prototype), 'constructor', this).apply(this, args);
-
-          /**
-           * An alert component to show below the header.
-           *
-           * @type {Alert}
-           */
-          this.alert = null;
+          babelHelpers.get(Object.getPrototypeOf(Modal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(Modal, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * An alert component to show below the header.
+             *
+             * @type {Alert}
+             */
+            this.alert = null;
+          }
+        }, {
           key: 'view',
           value: function view() {
             if (this.alert) {
@@ -20512,31 +20716,32 @@ $('#el').spin('flower', 'red');
           }
 
           /**
-           * Show an alert describing errors returned from the API, and give focus to
-           * the first relevant field.
-           *
-           * @param {Object} response
+           * Stop loading.
            */
         }, {
-          key: 'handleErrors',
-          value: function handleErrors(response) {
-            var errors = response && response.errors;
+          key: 'loaded',
+          value: function loaded() {
+            this.loading = false;
+            m.redraw();
+          }
 
-            if (errors) {
-              this.alert = new Alert({
-                type: 'error',
-                children: errors.map(function (error, k) {
-                  return [error.detail, k < errors.length - 1 ? m('br') : ''];
-                })
-              });
-            }
+          /**
+           * Show an alert describing an error returned from the API, and give focus to
+           * the first relevant field.
+           *
+           * @param {RequestError} error
+           */
+        }, {
+          key: 'onerror',
+          value: function onerror(error) {
+            this.alert = error.alert;
 
             m.redraw();
 
-            if (errors) {
-              this.$('form [name=' + errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
+            if (error.status === 422 && error.response.errors) {
+              this.$('form [name=' + error.response.errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
             } else {
-              this.$('form :input:first').select();
+              this.onready();
             }
           }
         }]);
@@ -20546,7 +20751,8 @@ $('#el').spin('flower', 'red');
       _export('default', Modal);
     }
   };
-});;System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
+});;
+System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
 
   /**
    * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -20568,18 +20774,16 @@ $('#el').spin('flower', 'red');
 
         function ModalManager() {
           babelHelpers.classCallCheck(this, ModalManager);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(ModalManager.prototype), 'constructor', this).apply(this, args);
-
-          this.showing = false;
-          this.component = null;
+          babelHelpers.get(Object.getPrototypeOf(ModalManager.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(ModalManager, [{
+          key: 'init',
+          value: function init() {
+            this.showing = false;
+            this.component = null;
+          }
+        }, {
           key: 'view',
           value: function view() {
             return m(
@@ -20677,7 +20881,8 @@ $('#el').spin('flower', 'red');
       _export('default', ModalManager);
     }
   };
-});;System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
+});;
+System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
 
   /**
    * The `Navigation` component displays a set of navigation buttons. Typically
@@ -20816,7 +21021,8 @@ $('#el').spin('flower', 'red');
       _export('default', Navigation);
     }
   };
-});;System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
+});;
+System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
 
   /**
    * The `Placeholder` component displays a muted text with some call to action,
@@ -20862,7 +21068,8 @@ $('#el').spin('flower', 'red');
       _export("default", Placeholder);
     }
   };
-});;System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
+});;
+System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
   'use strict';
 
   var Modal, RequestErrorModal;
@@ -20887,7 +21094,7 @@ $('#el').spin('flower', 'red');
         }, {
           key: 'title',
           value: function title() {
-            return this.props.error.message;
+            return this.props.error.xhr ? this.props.error.xhr.status + ' ' + this.props.error.xhr.statusText : '';
           }
         }, {
           key: 'content',
@@ -20906,6 +21113,11 @@ $('#el').spin('flower', 'red');
               m(
                 'pre',
                 null,
+                this.props.error.options.method,
+                ' ',
+                this.props.error.options.url,
+                m('br', null),
+                m('br', null),
                 responseText
               )
             );
@@ -20917,7 +21129,8 @@ $('#el').spin('flower', 'red');
       _export('default', RequestErrorModal);
     }
   };
-});;System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `Select` component displays a <select> input, surrounded with some extra
@@ -20977,7 +21190,8 @@ $('#el').spin('flower', 'red');
       _export('default', Select);
     }
   };
-});;System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
@@ -21039,7 +21253,8 @@ $('#el').spin('flower', 'red');
       _export('default', SelectDropdown);
     }
   };
-});;System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
+});;
+System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
 
   /**
    * The `Separator` component defines a menu separator item.
@@ -21074,7 +21289,8 @@ $('#el').spin('flower', 'red');
       _export("default", Separator);
     }
   };
-});;System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `SplitDropdown` component is similar to `Dropdown`, but the first child
@@ -21151,7 +21367,8 @@ $('#el').spin('flower', 'red');
       _export('default', SplitDropdown);
     }
   };
-});;System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
+});;
+System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
 
   /**
    * The `Switch` component is a `Checkbox`, but with a switch display instead of
@@ -21192,7 +21409,8 @@ $('#el').spin('flower', 'red');
       _export('default', Switch);
     }
   };
-});;System.register('flarum/helpers/avatar', [], function (_export) {
+});;
+System.register('flarum/helpers/avatar', [], function (_export) {
   /**
    * The `avatar` helper displays a user's avatar.
    *
@@ -21244,7 +21462,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/helpers/fullTime', [], function (_export) {
+});;
+System.register('flarum/helpers/fullTime', [], function (_export) {
   /**
    * The `fullTime` helper displays a formatted time string wrapped in a <time>
    * tag.
@@ -21273,7 +21492,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
+});;
+System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
 
   /**
    * The `highlight` helper searches for a word phrase in a string, and wraps
@@ -21323,7 +21543,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+});;
+System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
 
   /**
    * The `humanTime` helper displays a time in a human-friendly time-ago format
@@ -21359,7 +21580,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/helpers/icon', [], function (_export) {
+});;
+System.register('flarum/helpers/icon', [], function (_export) {
   /**
    * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
    *
@@ -21383,7 +21605,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
+});;
+System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
   'use strict';
 
   var Separator, classList;
@@ -21439,7 +21662,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/helpers/punctuateSeries', [], function (_export) {
+});;
+System.register('flarum/helpers/punctuateSeries', [], function (_export) {
   /**
    * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
    * fluently in the application's locale.
@@ -21457,21 +21681,21 @@ $('#el').spin('flower', 'red');
 
   function punctuateSeries(items) {
     if (items.length === 2) {
-      return app.trans('core.lib.series_two_text', {
+      return app.translator.trans('core.lib.series.two_text', {
         first: items[0],
         second: items[1]
       });
     } else if (items.length >= 3) {
-      // If there are three or more items, we will join all of the items up until
-      // the second-to-last one with the equivalent of a comma, and then we will
-      // feed that into the translator along with the last two items.
-      var first = items.slice(0, items.length - 2).reduce(function (list, item) {
-        return list.concat([item, app.trans('core.lib.series_glue_text')]);
+      // If there are three or more items, we will join all but the first and
+      // last items with the equivalent of a comma, and then we will feed that
+      // into the translator along with the first and last item.
+      var second = items.slice(1, items.length - 1).reduce(function (list, item) {
+        return list.concat([item, app.translator.trans('core.lib.series.glue_text')]);
       }, []).slice(0, -1);
 
-      return app.trans('core.lib.series_three_text', {
-        first: first,
-        second: items[items.length - 2],
+      return app.translator.trans('core.lib.series.three_text', {
+        first: items[0],
+        second: second,
         third: items[items.length - 1]
       });
     }
@@ -21483,7 +21707,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register("flarum/helpers/username", [], function (_export) {
+});;
+System.register("flarum/helpers/username", [], function (_export) {
   /**
    * The `username` helper displays a user's username in a <span class="username">
    * tag. If the user doesn't exist, the username will be displayed as [deleted].
@@ -21496,7 +21721,7 @@ $('#el').spin('flower', 'red');
   _export("default", username);
 
   function username(user) {
-    var name = user && user.username() || app.trans('core.forum.user_deleted_text');
+    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
 
     return m(
       "span",
@@ -21509,7 +21734,467 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+});;
+System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, ItemList, slug, Badge, Discussion;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList['default'];
+    }, function (_flarumUtilsString) {
+      slug = _flarumUtilsString.slug;
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge['default'];
+    }],
+    execute: function () {
+      Discussion = (function (_Model) {
+        babelHelpers.inherits(Discussion, _Model);
+
+        function Discussion() {
+          babelHelpers.classCallCheck(this, Discussion);
+          babelHelpers.get(Object.getPrototypeOf(Discussion.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Discussion;
+      })(Model);
+
+      _export('default', Discussion);
+
+      babelHelpers._extends(Discussion.prototype, {
+        title: Model.attribute('title'),
+        slug: computed('title', slug),
+
+        startTime: Model.attribute('startTime', Model.transformDate),
+        startUser: Model.hasOne('startUser'),
+        startPost: Model.hasOne('startPost'),
+
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastUser: Model.hasOne('lastUser'),
+        lastPost: Model.hasOne('lastPost'),
+        lastPostNumber: Model.attribute('lastPostNumber'),
+
+        commentsCount: Model.attribute('commentsCount'),
+        repliesCount: computed('commentsCount', function (commentsCount) {
+          return Math.max(0, commentsCount - 1);
+        }),
+        posts: Model.hasMany('posts'),
+        relevantPosts: Model.hasMany('relevantPosts'),
+
+        readTime: Model.attribute('readTime', Model.transformDate),
+        readNumber: Model.attribute('readNumber'),
+        isUnread: computed('unreadCount', function (unreadCount) {
+          return !!unreadCount;
+        }),
+        isRead: computed('unreadCount', function (unreadCount) {
+          return app.session.user && !unreadCount;
+        }),
+
+        hideTime: Model.attribute('hideTime', Model.transformDate),
+        hideUser: Model.hasOne('hideUser'),
+        isHidden: computed('hideTime', 'commentsCount', function (hideTime, commentsCount) {
+          return !!hideTime || commentsCount === 0;
+        }),
+
+        canReply: Model.attribute('canReply'),
+        canRename: Model.attribute('canRename'),
+        canHide: Model.attribute('canHide'),
+        canDelete: Model.attribute('canDelete'),
+
+        /**
+         * Remove a post from the discussion's posts relationship.
+         *
+         * @param {Integer} id The ID of the post to remove.
+         * @public
+         */
+        removePost: function removePost(id) {
+          var relationships = this.data.relationships;
+          var posts = relationships && relationships.posts;
+
+          if (posts) {
+            posts.data.some(function (data, i) {
+              if (id === data.id) {
+                posts.data.splice(i, 1);
+                return true;
+              }
+            });
+          }
+        },
+
+        /**
+         * Get the estimated number of unread posts in this discussion for the current
+         * user.
+         *
+         * @return {Integer}
+         * @public
+         */
+        unreadCount: function unreadCount() {
+          var user = app.session.user;
+
+          if (user && user.readTime() < this.lastTime()) {
+            return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
+          }
+
+          return 0;
+        },
+
+        /**
+         * Get the Badge components that apply to this discussion.
+         *
+         * @return {ItemList}
+         * @public
+         */
+        badges: function badges() {
+          var items = new ItemList();
+
+          if (this.isHidden()) {
+            items.add('hidden', m(Badge, { type: 'hidden', icon: 'trash', label: app.translator.trans('core.lib.badge.hidden_tooltip') }));
+          }
+
+          return items;
+        },
+
+        /**
+         * Get a list of all of the post IDs in this discussion.
+         *
+         * @return {Array}
+         * @public
+         */
+        postIds: function postIds() {
+          return this.data.relationships.posts.data.map(function (link) {
+            return link.id;
+          });
+        }
+      });
+
+      _export('default', Discussion);
+    }
+  };
+});;
+System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+  'use strict';
+
+  var Model, mixin, Forum;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }],
+    execute: function () {
+      Forum = (function (_Model) {
+        babelHelpers.inherits(Forum, _Model);
+
+        function Forum() {
+          babelHelpers.classCallCheck(this, Forum);
+          babelHelpers.get(Object.getPrototypeOf(Forum.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Forum, [{
+          key: 'apiEndpoint',
+          value: function apiEndpoint() {
+            return '/forum';
+          }
+        }]);
+        return Forum;
+      })(Model);
+
+      _export('default', Forum);
+    }
+  };
+});;
+System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+  'use strict';
+
+  var Model, mixin, Group;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }],
+    execute: function () {
+      Group = (function (_Model) {
+        babelHelpers.inherits(Group, _Model);
+
+        function Group() {
+          babelHelpers.classCallCheck(this, Group);
+          babelHelpers.get(Object.getPrototypeOf(Group.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Group;
+      })(Model);
+
+      babelHelpers._extends(Group.prototype, {
+        nameSingular: Model.attribute('nameSingular'),
+        namePlural: Model.attribute('namePlural'),
+        color: Model.attribute('color'),
+        icon: Model.attribute('icon')
+      });
+
+      Group.ADMINISTRATOR_ID = '1';
+      Group.GUEST_ID = '2';
+      Group.MEMBER_ID = '3';
+
+      _export('default', Group);
+    }
+  };
+});;
+System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Notification;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Notification = (function (_Model) {
+        babelHelpers.inherits(Notification, _Model);
+
+        function Notification() {
+          babelHelpers.classCallCheck(this, Notification);
+          babelHelpers.get(Object.getPrototypeOf(Notification.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Notification;
+      })(Model);
+
+      _export('default', Notification);
+
+      babelHelpers._extends(Notification.prototype, {
+        contentType: Model.attribute('contentType'),
+        subjectId: Model.attribute('subjectId'),
+        content: Model.attribute('content'),
+        time: Model.attribute('time', Model.date),
+
+        isRead: Model.attribute('isRead'),
+        unreadCount: Model.attribute('unreadCount'),
+        additionalUnreadCount: computed('unreadCount', function (unreadCount) {
+          return Math.max(0, unreadCount - 1);
+        }),
+
+        user: Model.hasOne('user'),
+        sender: Model.hasOne('sender'),
+        subject: Model.hasOne('subject')
+      });
+
+      _export('default', Notification);
+    }
+  };
+});;
+System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, getPlainContent, Post;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }, function (_flarumUtilsString) {
+      getPlainContent = _flarumUtilsString.getPlainContent;
+    }],
+    execute: function () {
+      Post = (function (_Model) {
+        babelHelpers.inherits(Post, _Model);
+
+        function Post() {
+          babelHelpers.classCallCheck(this, Post);
+          babelHelpers.get(Object.getPrototypeOf(Post.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Post;
+      })(Model);
+
+      _export('default', Post);
+
+      babelHelpers._extends(Post.prototype, {
+        number: Model.attribute('number'),
+        discussion: Model.hasOne('discussion'),
+
+        time: Model.attribute('time', Model.transformDate),
+        user: Model.hasOne('user'),
+        contentType: Model.attribute('contentType'),
+        content: Model.attribute('content'),
+        contentHtml: Model.attribute('contentHtml'),
+        contentPlain: computed('contentHtml', getPlainContent),
+
+        editTime: Model.attribute('editTime', Model.transformDate),
+        editUser: Model.hasOne('editUser'),
+        isEdited: computed('editTime', function (editTime) {
+          return !!editTime;
+        }),
+
+        hideTime: Model.attribute('hideTime', Model.transformDate),
+        hideUser: Model.hasOne('hideUser'),
+        isHidden: computed('hideTime', function (hideTime) {
+          return !!hideTime;
+        }),
+
+        canEdit: Model.attribute('canEdit'),
+        canDelete: Model.attribute('canDelete')
+      });
+
+      _export('default', Post);
+    }
+  };
+});;
+System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
+  /*global ColorThief*/
+
+  'use strict';
+
+  var Model, mixin, stringToColor, ItemList, computed, GroupBadge, User;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsStringToColor) {
+      stringToColor = _flarumUtilsStringToColor['default'];
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }, function (_flarumComponentsGroupBadge) {
+      GroupBadge = _flarumComponentsGroupBadge['default'];
+    }],
+    execute: function () {
+      User = (function (_Model) {
+        babelHelpers.inherits(User, _Model);
+
+        function User() {
+          babelHelpers.classCallCheck(this, User);
+          babelHelpers.get(Object.getPrototypeOf(User.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return User;
+      })(Model);
+
+      _export('default', User);
+
+      babelHelpers._extends(User.prototype, {
+        username: Model.attribute('username'),
+        email: Model.attribute('email'),
+        isActivated: Model.attribute('isActivated'),
+        password: Model.attribute('password'),
+
+        avatarUrl: Model.attribute('avatarUrl'),
+        bio: Model.attribute('bio'),
+        bioHtml: computed('bio', function (bio) {
+          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : '';
+        }),
+        preferences: Model.attribute('preferences'),
+        groups: Model.hasMany('groups'),
+
+        joinTime: Model.attribute('joinTime', Model.transformDate),
+        lastSeenTime: Model.attribute('lastSeenTime', Model.transformDate),
+        readTime: Model.attribute('readTime', Model.transformDate),
+        unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
+        newNotificationsCount: Model.attribute('newNotificationsCount'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        commentsCount: Model.attribute('commentsCount'),
+
+        canEdit: Model.attribute('canEdit'),
+        canDelete: Model.attribute('canDelete'),
+
+        avatarColor: null,
+        color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
+          // If we've already calculated and cached the dominant color of the user's
+          // avatar, then we can return that in RGB format. If we haven't, we'll want
+          // to calculate it. Unless the user doesn't have an avatar, in which case
+          // we generate a color from their username.
+          if (avatarColor) {
+            return 'rgb(' + avatarColor.join(', ') + ')';
+          } else if (avatarUrl) {
+            this.calculateAvatarColor();
+            return '';
+          }
+
+          return '#' + stringToColor(username);
+        }),
+
+        /**
+         * Check whether or not the user has been seen in the last 5 minutes.
+         *
+         * @return {Boolean}
+         * @public
+         */
+        isOnline: function isOnline() {
+          return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate();
+        },
+
+        /**
+         * Get the Badge components that apply to this user.
+         *
+         * @return {ItemList}
+         */
+        badges: function badges() {
+          var items = new ItemList();
+          var groups = this.groups();
+
+          if (groups) {
+            groups.forEach(function (group) {
+              items.add('group' + group.id(), GroupBadge.component({ group: group }));
+            });
+          }
+
+          return items;
+        },
+
+        /**
+         * Calculate the dominant color of the user's avatar. The dominant color will
+         * be set to the `avatarColor` property once it has been calculated.
+         *
+         * @protected
+         */
+        calculateAvatarColor: function calculateAvatarColor() {
+          var image = new Image();
+          var user = this;
+
+          image.onload = function () {
+            var colorThief = new ColorThief();
+            user.avatarColor = colorThief.getColor(this);
+            user.freshness = new Date();
+            m.redraw();
+          };
+          image.src = this.avatarUrl();
+        },
+
+        /**
+         * Update the user's preferences.
+         *
+         * @param {Object} newPreferences
+         * @return {Promise}
+         */
+        savePreferences: function savePreferences(newPreferences) {
+          var preferences = this.preferences();
+
+          babelHelpers._extends(preferences, newPreferences);
+
+          return this.save({ preferences: preferences });
+        }
+      });
+
+      _export('default', User);
+    }
+  };
+});;
+System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
   'use strict';
 
   var humanTimeUtil;
@@ -21539,7 +22224,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
+});;
+System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
 
   /**
    * The `preload` initializer creates the application session and preloads it
@@ -21573,7 +22259,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
+});;
+System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
 
   /**
    * The `store` initializer creates the application's data store and registers
@@ -21619,462 +22306,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, ItemList, slug, Badge, Discussion;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
-    }, function (_flarumUtilsString) {
-      slug = _flarumUtilsString.slug;
-    }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
-    }],
-    execute: function () {
-      Discussion = (function (_mixin) {
-        babelHelpers.inherits(Discussion, _mixin);
-
-        function Discussion() {
-          babelHelpers.classCallCheck(this, Discussion);
-          babelHelpers.get(Object.getPrototypeOf(Discussion.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Discussion, [{
-          key: 'removePost',
-
-          /**
-           * Remove a post from the discussion's posts relationship.
-           *
-           * @param {Integer} id The ID of the post to remove.
-           * @public
-           */
-          value: function removePost(id) {
-            var relationships = this.data.relationships;
-            var posts = relationships && relationships.posts;
-
-            if (posts) {
-              posts.data.some(function (data, i) {
-                if (id === data.id) {
-                  posts.data.splice(i, 1);
-                  return true;
-                }
-              });
-            }
-          }
-
-          /**
-           * Get the estimated number of unread posts in this discussion for the current
-           * user.
-           *
-           * @return {Integer}
-           * @public
-           */
-        }, {
-          key: 'unreadCount',
-          value: function unreadCount() {
-            var user = app.session.user;
-
-            if (user && user.readTime() < this.lastTime()) {
-              return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
-            }
-
-            return 0;
-          }
-
-          /**
-           * Get the Badge components that apply to this discussion.
-           *
-           * @return {ItemList}
-           * @public
-           */
-        }, {
-          key: 'badges',
-          value: function badges() {
-            var items = new ItemList();
-
-            if (this.isHidden()) {
-              items.add('hidden', m(Badge, { type: 'hidden', icon: 'trash', label: 'Hidden' }));
-            }
-
-            return items;
-          }
-
-          /**
-           * Get a list of all of the post IDs in this discussion.
-           *
-           * @return {Array}
-           * @public
-           */
-        }, {
-          key: 'postIds',
-          value: function postIds() {
-            return this.data.relationships.posts.data.map(function (link) {
-              return link.id;
-            });
-          }
-        }]);
-        return Discussion;
-      })(mixin(Model, {
-        title: Model.attribute('title'),
-        slug: computed('title', slug),
-
-        startTime: Model.attribute('startTime', Model.transformDate),
-        startUser: Model.hasOne('startUser'),
-        startPost: Model.hasOne('startPost'),
-
-        lastTime: Model.attribute('lastTime', Model.transformDate),
-        lastUser: Model.hasOne('lastUser'),
-        lastPost: Model.hasOne('lastPost'),
-        lastPostNumber: Model.attribute('lastPostNumber'),
-
-        commentsCount: Model.attribute('commentsCount'),
-        repliesCount: computed('commentsCount', function (commentsCount) {
-          return Math.max(0, commentsCount - 1);
-        }),
-        posts: Model.hasMany('posts'),
-        relevantPosts: Model.hasMany('relevantPosts'),
-
-        readTime: Model.attribute('readTime', Model.transformDate),
-        readNumber: Model.attribute('readNumber'),
-        isUnread: computed('unreadCount', function (unreadCount) {
-          return !!unreadCount;
-        }),
-        isRead: computed('unreadCount', function (unreadCount) {
-          return app.session.user && !unreadCount;
-        }),
-
-        hideTime: Model.attribute('hideTime', Model.transformDate),
-        hideUser: Model.hasOne('hideUser'),
-        isHidden: computed('hideTime', 'commentsCount', function (hideTime, commentsCount) {
-          return !!hideTime || commentsCount === 0;
-        }),
-
-        canReply: Model.attribute('canReply'),
-        canRename: Model.attribute('canRename'),
-        canHide: Model.attribute('canHide'),
-        canDelete: Model.attribute('canDelete')
-      }));
-
-      _export('default', Discussion);
-    }
-  };
-});;System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
-  'use strict';
-
-  var Model, mixin, Forum;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }],
-    execute: function () {
-      Forum = (function (_mixin) {
-        babelHelpers.inherits(Forum, _mixin);
-
-        function Forum() {
-          babelHelpers.classCallCheck(this, Forum);
-          babelHelpers.get(Object.getPrototypeOf(Forum.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Forum, [{
-          key: 'apiEndpoint',
-          value: function apiEndpoint() {
-            return '/forum';
-          }
-        }]);
-        return Forum;
-      })(mixin(Model, {
-        canStartDiscussion: Model.attribute('canStartDiscussion')
-      }));
-
-      _export('default', Forum);
-    }
-  };
-});;System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
-  'use strict';
-
-  var Model, mixin, Group;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }],
-    execute: function () {
-      Group = (function (_mixin) {
-        babelHelpers.inherits(Group, _mixin);
-
-        function Group() {
-          babelHelpers.classCallCheck(this, Group);
-          babelHelpers.get(Object.getPrototypeOf(Group.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Group;
-      })(mixin(Model, {
-        nameSingular: Model.attribute('nameSingular'),
-        namePlural: Model.attribute('namePlural'),
-        color: Model.attribute('color'),
-        icon: Model.attribute('icon')
-      }));
-
-      Group.ADMINISTRATOR_ID = '1';
-      Group.GUEST_ID = '2';
-      Group.MEMBER_ID = '3';
-
-      _export('default', Group);
-    }
-  };
-});;System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, Notification;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }],
-    execute: function () {
-      Notification = (function (_mixin) {
-        babelHelpers.inherits(Notification, _mixin);
-
-        function Notification() {
-          babelHelpers.classCallCheck(this, Notification);
-          babelHelpers.get(Object.getPrototypeOf(Notification.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Notification;
-      })(mixin(Model, {
-        contentType: Model.attribute('contentType'),
-        subjectId: Model.attribute('subjectId'),
-        content: Model.attribute('content'),
-        time: Model.attribute('time', Model.date),
-
-        isRead: Model.attribute('isRead'),
-        unreadCount: Model.attribute('unreadCount'),
-        additionalUnreadCount: computed('unreadCount', function (unreadCount) {
-          return Math.max(0, unreadCount - 1);
-        }),
-
-        user: Model.hasOne('user'),
-        sender: Model.hasOne('sender'),
-        subject: Model.hasOne('subject')
-      }));
-
-      _export('default', Notification);
-    }
-  };
-});;System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, getPlainContent, Post;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }, function (_flarumUtilsString) {
-      getPlainContent = _flarumUtilsString.getPlainContent;
-    }],
-    execute: function () {
-      Post = (function (_mixin) {
-        babelHelpers.inherits(Post, _mixin);
-
-        function Post() {
-          babelHelpers.classCallCheck(this, Post);
-          babelHelpers.get(Object.getPrototypeOf(Post.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Post;
-      })(mixin(Model, {
-        number: Model.attribute('number'),
-        discussion: Model.hasOne('discussion'),
-
-        time: Model.attribute('time', Model.transformDate),
-        user: Model.hasOne('user'),
-        contentType: Model.attribute('contentType'),
-        content: Model.attribute('content'),
-        contentHtml: Model.attribute('contentHtml'),
-        contentPlain: computed('contentHtml', getPlainContent),
-
-        editTime: Model.attribute('editTime', Model.transformDate),
-        editUser: Model.hasOne('editUser'),
-        isEdited: computed('editTime', function (editTime) {
-          return !!editTime;
-        }),
-
-        hideTime: Model.attribute('hideTime', Model.transformDate),
-        hideUser: Model.hasOne('hideUser'),
-        isHidden: computed('hideTime', function (hideTime) {
-          return !!hideTime;
-        }),
-
-        canEdit: Model.attribute('canEdit'),
-        canDelete: Model.attribute('canDelete')
-      }));
-
-      _export('default', Post);
-    }
-  };
-});;System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
-  /*global ColorThief*/
-
-  'use strict';
-
-  var Model, mixin, stringToColor, ItemList, computed, GroupBadge, User;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsStringToColor) {
-      stringToColor = _flarumUtilsStringToColor['default'];
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }, function (_flarumComponentsGroupBadge) {
-      GroupBadge = _flarumComponentsGroupBadge['default'];
-    }],
-    execute: function () {
-      User = (function (_mixin) {
-        babelHelpers.inherits(User, _mixin);
-
-        function User() {
-          babelHelpers.classCallCheck(this, User);
-          babelHelpers.get(Object.getPrototypeOf(User.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(User, [{
-          key: 'isOnline',
-
-          /**
-           * Check whether or not the user has been seen in the last 5 minutes.
-           *
-           * @return {Boolean}
-           * @public
-           */
-          value: function isOnline() {
-            return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate();
-          }
-
-          /**
-           * Get the Badge components that apply to this user.
-           *
-           * @return {ItemList}
-           */
-        }, {
-          key: 'badges',
-          value: function badges() {
-            var items = new ItemList();
-            var groups = this.groups();
-
-            if (groups) {
-              groups.forEach(function (group) {
-                items.add('group' + group.id(), GroupBadge.component({ group: group }));
-              });
-            }
-
-            return items;
-          }
-
-          /**
-           * Calculate the dominant color of the user's avatar. The dominant color will
-           * be set to the `avatarColor` property once it has been calculated.
-           *
-           * @protected
-           */
-        }, {
-          key: 'calculateAvatarColor',
-          value: function calculateAvatarColor() {
-            var image = new Image();
-            var user = this;
-
-            image.onload = function () {
-              var colorThief = new ColorThief();
-              user.avatarColor = colorThief.getColor(this);
-              user.freshness = new Date();
-              m.redraw();
-            };
-            image.src = this.avatarUrl();
-          }
-
-          /**
-           * Update the user's preferences.
-           *
-           * @param {Object} newPreferences
-           * @return {Promise}
-           */
-        }, {
-          key: 'savePreferences',
-          value: function savePreferences(newPreferences) {
-            var preferences = this.preferences();
-
-            babelHelpers._extends(preferences, newPreferences);
-
-            return this.save({ preferences: preferences });
-          }
-        }]);
-        return User;
-      })(mixin(Model, {
-        username: Model.attribute('username'),
-        email: Model.attribute('email'),
-        isActivated: Model.attribute('isActivated'),
-        password: Model.attribute('password'),
-
-        avatarUrl: Model.attribute('avatarUrl'),
-        bio: Model.attribute('bio'),
-        bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : '';
-        }),
-        preferences: Model.attribute('preferences'),
-        groups: Model.hasMany('groups'),
-
-        joinTime: Model.attribute('joinTime', Model.transformDate),
-        lastSeenTime: Model.attribute('lastSeenTime', Model.transformDate),
-        readTime: Model.attribute('readTime', Model.transformDate),
-        unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
-        newNotificationsCount: Model.attribute('newNotificationsCount'),
-
-        discussionsCount: Model.attribute('discussionsCount'),
-        commentsCount: Model.attribute('commentsCount'),
-
-        canEdit: Model.attribute('canEdit'),
-        canDelete: Model.attribute('canDelete'),
-
-        avatarColor: null,
-        color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
-          // If we've already calculated and cached the dominant color of the user's
-          // avatar, then we can return that in RGB format. If we haven't, we'll want
-          // to calculate it. Unless the user doesn't have an avatar, in which case
-          // we generate a color from their username.
-          if (avatarColor) {
-            return 'rgb(' + avatarColor.join(', ') + ')';
-          } else if (avatarUrl) {
-            this.calculateAvatarColor();
-            return '';
-          }
-
-          return '#' + stringToColor(username);
-        })
-      }));
-
-      _export('default', User);
-    }
-  };
-});;System.register('flarum/utils/Drawer', [], function (_export) {
+});;
+System.register('flarum/utils/Drawer', [], function (_export) {
   /**
    * The `Drawer` class controls the page's drawer. The drawer is the area the
    * slides out from the left on mobile devices; it contains the header and the
@@ -22154,7 +22387,8 @@ $('#el').spin('flower', 'red');
       _export('default', Drawer);
     }
   };
-});;System.register("flarum/utils/ItemList", [], function (_export) {
+});;
+System.register("flarum/utils/ItemList", [], function (_export) {
   "use strict";
 
   var Item, ItemList;
@@ -22254,24 +22488,36 @@ $('#el').spin('flower', 'red');
       _export("default", ItemList);
     }
   };
-});;System.register("flarum/utils/RequestError", [], function (_export) {
+});;
+System.register("flarum/utils/RequestError", [], function (_export) {
   "use strict";
 
   var RequestError;
   return {
     setters: [],
     execute: function () {
-      RequestError = function RequestError(message, responseText) {
+      RequestError = function RequestError(status, responseText, options, xhr) {
         babelHelpers.classCallCheck(this, RequestError);
 
-        this.message = message;
+        this.status = status;
         this.responseText = responseText;
+        this.options = options;
+        this.xhr = xhr;
+
+        try {
+          this.response = JSON.parse(responseText);
+        } catch (e) {
+          this.response = null;
+        }
+
+        this.alert = null;
       };
 
       _export("default", RequestError);
     }
   };
-});;System.register("flarum/utils/ScrollListener", [], function (_export) {
+});;
+System.register("flarum/utils/ScrollListener", [], function (_export) {
   "use strict";
 
   var scroll, ScrollListener;
@@ -22366,7 +22612,8 @@ $('#el').spin('flower', 'red');
       _export("default", ScrollListener);
     }
   };
-});;System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
+});;
+System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
   /**
    * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
    * keeps track of a number of pieces of data, allowing the subtree to be
@@ -22466,7 +22713,8 @@ $('#el').spin('flower', 'red');
       _export('default', SubtreeRetainer);
     }
   };
-});;System.register('flarum/utils/abbreviateNumber', [], function (_export) {
+});;
+System.register('flarum/utils/abbreviateNumber', [], function (_export) {
   /**
    * The `abbreviateNumber` utility converts a number to a shorter localized form.
    *
@@ -22484,9 +22732,9 @@ $('#el').spin('flower', 'red');
   function abbreviateNumber(number) {
     // TODO: translation
     if (number >= 1000000) {
-      return Math.floor(number / 1000000) + 'M';
+      return Math.floor(number / 1000000) + app.translator.trans('core.lib.number_suffix.mega_text');
     } else if (number >= 1000) {
-      return Math.floor(number / 1000) + 'K';
+      return Math.floor(number / 1000) + app.translator.trans('core.lib.number_suffix.kilo_text');
     } else {
       return number.toString();
     }
@@ -22496,7 +22744,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register("flarum/utils/anchorScroll", [], function (_export) {
+});;
+System.register("flarum/utils/anchorScroll", [], function (_export) {
   /**
    * The `anchorScroll` utility saves the scroll position relative to an element,
    * and then restores it after a callback has been run.
@@ -22527,7 +22776,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/utils/classList', [], function (_export) {
+});;
+System.register('flarum/utils/classList', [], function (_export) {
   /**
    * The `classList` utility creates a list of class names by joining an object's
    * keys, but only for values which are truthy.
@@ -22565,7 +22815,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/utils/computed', [], function (_export) {
+});;
+System.register('flarum/utils/computed', [], function (_export) {
   /**
    * The `computed` utility creates a function that will cache its output until
    * any of the dependent values are dirty.
@@ -22620,7 +22871,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register("flarum/utils/evented", [], function (_export) {
+});;
+System.register("flarum/utils/evented", [], function (_export) {
   /**
    * The `evented` mixin provides methods allowing an object to trigger events,
    * running externally registered event handlers.
@@ -22717,7 +22969,8 @@ $('#el').spin('flower', 'red');
       });
     }
   };
-});;System.register("flarum/utils/extract", [], function (_export) {
+});;
+System.register("flarum/utils/extract", [], function (_export) {
   /**
    * The `extract` utility deletes a property from an object and returns its
    * value.
@@ -22742,7 +22995,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/utils/extractText', [], function (_export) {
+});;
+System.register('flarum/utils/extractText', [], function (_export) {
   /**
    * Extract the text nodes from a virtual element.
    *
@@ -22773,7 +23027,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/utils/formatNumber', [], function (_export) {
+});;
+System.register('flarum/utils/formatNumber', [], function (_export) {
   /**
    * The `formatNumber` utility localizes a number into a string with the
    * appropriate punctuation.
@@ -22797,7 +23052,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/utils/humanTime', [], function (_export) {
+});;
+System.register('flarum/utils/humanTime', [], function (_export) {
   /**
    * The `humanTime` utility converts a date to a localized, human-readable time-
    * ago string.
@@ -22837,7 +23093,8 @@ $('#el').spin('flower', 'red');
       ;
     }
   };
-});;System.register('flarum/utils/mapRoutes', [], function (_export) {
+});;
+System.register('flarum/utils/mapRoutes', [], function (_export) {
   /**
    * The `mapRoutes` utility converts a map of named application routes into a
    * format that can be understood by Mithril.
@@ -22871,7 +23128,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register("flarum/utils/mixin", [], function (_export) {
+});;
+System.register("flarum/utils/mixin", [], function (_export) {
   /**
    * The `mixin` utility assigns the properties of a set of 'mixin' objects to
    * the prototype of a parent object.
@@ -22914,7 +23172,8 @@ $('#el').spin('flower', 'red');
     setters: [],
     execute: function () {}
   };
-});;System.register('flarum/utils/patchMithril', ['../Component'], function (_export) {
+});;
+System.register('flarum/utils/patchMithril', ['../Component'], function (_export) {
   'use strict';
 
   var Component;
@@ -22972,7 +23231,8 @@ $('#el').spin('flower', 'red');
     }],
     execute: function () {}
   };
-});;System.register('flarum/utils/string', [], function (_export) {
+});;
+System.register('flarum/utils/string', [], function (_export) {
   /**
    * Truncate a string to the given length, appending ellipses if necessary.
    *
@@ -23048,7 +23308,8 @@ $('#el').spin('flower', 'red');
       getPlainContent.removeSelectors = ['blockquote', 'script'];
     }
   };
-});;System.register('flarum/utils/stringToColor', [], function (_export) {
+});;
+System.register('flarum/utils/stringToColor', [], function (_export) {
   'use strict';
 
   _export('default', stringToColor);
