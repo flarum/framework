@@ -11,17 +11,19 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Event\AvatarWillBeSaved;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Core\Validator\AvatarValidator;
+use Flarum\Event\AvatarWillBeSaved;
 use Flarum\Foundation\Application;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\MountManager;
-use Intervention\Image\ImageManager;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadAvatarHandler
 {
@@ -44,16 +46,24 @@ class UploadAvatarHandler
     protected $app;
 
     /**
+     * @var AvatarValidator
+     */
+    protected $validator;
+
+    /**
      * @param Dispatcher $events
      * @param UserRepository $users
      * @param FilesystemInterface $uploadDir
+     * @param Application $app
+     * @param AvatarValidator $validator
      */
-    public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir, Application $app)
+    public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir, Application $app, AvatarValidator $validator)
     {
         $this->events = $events;
         $this->users = $users;
         $this->uploadDir = $uploadDir;
         $this->app = $app;
+        $this->validator = $validator;
     }
 
     /**
@@ -73,6 +83,17 @@ class UploadAvatarHandler
 
         $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
         $command->file->moveTo($tmpFile);
+
+        $file = new UploadedFile(
+            $tmpFile,
+            $command->file->getClientFilename(),
+            $command->file->getClientMediaType(),
+            $command->file->getSize(),
+            $command->file->getError(),
+            true
+        );
+
+        $this->validator->assertValid(['avatar' => $file]);
 
         $manager = new ImageManager;
         $manager->make($tmpFile)->fit(100, 100)->save();
