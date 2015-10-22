@@ -12,6 +12,6 @@ export default class DiscussionStickiedNotification extends Notification {
   }
 
   content() {
-    return app.translator.trans('flarum-sticky.forum.discussion_stickied_notification', {user: this.props.notification.sender()});
+    return '{username} stickied';
   }
 }

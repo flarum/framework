@@ -6,7 +6,7 @@ app.initializers.add('flarum-sticky', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('sticky', {
       icon: 'thumb-tack',
-      label: 'Sticky discussions',
+      label: app.translator.trans('flarum-sticky.admin.permissions.sticky_discussions_label'),
       permission: 'discussion.sticky'
     }, 95);
   });
