@@ -79,13 +79,14 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
           var likes = post.likes();
 
           if (likes && likes.length) {
-            var limit = 3;
+            var limit = 4;
+            var overLimit = likes.length > limit;
 
-            // Construct a list of names of users who have like this post. Make sure the
-            // current user is first in the list, and cap a maximum of 3 names.
+            // Construct a list of names of users who have liked this post. Make sure the
+            // current user is first in the list, and cap a maximum of 4 items.
             var names = likes.sort(function (a) {
               return a === app.session.user ? -1 : 1;
-            }).slice(0, limit).map(function (user) {
+            }).slice(0, overLimit ? limit - 1 : limit).map(function (user) {
               return m(
                 'a',
                 { href: app.route.user(user), config: m.route },
@@ -96,8 +97,8 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
             // If there are more users that we've run out of room to display, add a "x
             // others" name to the end of the list. Clicking on it will display a modal
             // with a full list of names.
-            if (likes.length > limit) {
-              var count = likes.length - limit;
+            if (overLimit) {
+              var count = likes.length - names.length;
 
               names.push(m(
                 'a',
