@@ -10,8 +10,8 @@ bower install
 
 cd "${base}/js/forum"
 npm install
-gulp --production
+gulp
 
 cd "${base}/js/admin"
 npm install
-gulp --production
+gulp
