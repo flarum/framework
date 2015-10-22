@@ -28,6 +28,6 @@ class AddEmbedRoute
      */
     public function addEmbedRoute(ConfigureForumRoutes $event)
     {
-        $event->get('/embed/{id:\d+}', 'embed.discussion', 'Flarum\Embed\DiscussionController');
+        $event->get('/embed/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]', 'embed.discussion', 'Flarum\Embed\DiscussionController');
     }
 }
