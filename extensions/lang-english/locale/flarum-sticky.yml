@@ -1,9 +1,29 @@
 flarum-sticky:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Strings in this namespace are used by the admin interface.
+  admin:
+
+    # These strings are used in the Permissions page of the admin interface.
+    permissions:
+      sticky_discussions_label: Sticky discussions
+
+  # Strings in this namespace are used by the forum user interface.
   forum:
-    discussion_stickied_notification: "{username} stickied"
-    discussion_stickied_post: "{username} stickied the discussion."
-    discussion_unstickied_post: "{username} unstickied the discussion."
-    notify_discussion_stickied: Someone stickies a discussion I started
-    stickied: Sticky
-    sticky: Sticky
-    unsticky: Unsticky
+
+    # These strings are displayed as tooltips for discussion badges.
+    badge:
+      sticky_tooltip: Sticky
+
+    # These strings are used by the discussion control buttons.
+    discussion_controls:
+      sticky_button: Sticky
+      unsticky_button: Unsticky
+
+    # These strings are displayed between posts in the post stream.
+    post_stream:
+      discussion_stickied_text: "{username} stickied the discussion."
+      discussion_unstickied_text: "{username} unstickied the discussion."
