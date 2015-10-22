@@ -296,23 +296,6 @@ export default class App {
   }
 
   /**
-   * Show alert error messages for each error returned in an API response.
-   *
-   * @param {Object} response
-   * @public
-   */
-  alertErrors(response) {
-    if (response.errors) {
-      response.errors.forEach(error => {
-        this.alerts.show(new Alert({
-          type: 'error',
-          children: error.detail
-        }));
-      });
-    }
-  }
-
-  /**
    * Construct a URL to the route with the given name.
    *
    * @param {String} name
