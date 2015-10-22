@@ -9,18 +9,18 @@ export default class SubscriptionMenu extends Component {
     const discussion = this.props.discussion;
     const subscription = discussion.subscription();
 
-    let buttonLabel = app.translator.trans('flarum-subscriptions.forum.follow');
+    let buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.follow_button');
     let buttonIcon = 'star-o';
     const buttonClass = 'SubscriptionMenu-button--' + subscription;
 
     switch (subscription) {
       case 'follow':
-        buttonLabel = app.translator.trans('flarum-subscriptions.forum.following');
+        buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button');
         buttonIcon = 'star';
         break;
 
       case 'ignore':
-        buttonLabel = app.translator.trans('flarum-subscriptions.forum.ignoring');
+        buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button');
         buttonIcon = 'eye-slash';
         break;
 
@@ -32,20 +32,20 @@ export default class SubscriptionMenu extends Component {
       {
         subscription: false,
         icon: 'star-o',
-        label: app.translator.trans('flarum-subscriptions.forum.not_following'),
-        description: app.translator.trans('flarum-subscriptions.forum.not_following_description')
+        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
+        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
       },
       {
         subscription: 'follow',
         icon: 'star',
-        label: app.translator.trans('flarum-subscriptions.forum.following'),
-        description: app.translator.trans('flarum-subscriptions.forum.following_description')
+        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
+        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
       },
       {
         subscription: 'ignore',
         icon: 'eye-slash',
-        label: app.translator.trans('flarum-subscriptions.forum.ignoring'),
-        description: app.translator.trans('flarum-subscriptions.forum.ignoring_description')
+        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
+        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
       }
     ];
 
