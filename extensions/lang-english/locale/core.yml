@@ -322,7 +322,7 @@ core:
 
     # These strings are displayed as tooltips for discussion badges.
     badge:
-      hidden_discussion_tooltip: Hidden
+      hidden_tooltip: Hidden
 
     # This string is displayed in place of the username of deleted user account.
     deleted_user_text: "[deleted]"
