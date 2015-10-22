@@ -22,7 +22,7 @@ app.initializers.add('subscriptions', function() {
     items.add('newPost', {
       name: 'newPost',
       icon: 'star',
-      label: app.translator.trans('flarum-subscriptions.forum.notify_new_post')
+      label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label')
     });
   });
 });

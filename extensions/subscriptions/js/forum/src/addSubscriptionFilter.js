@@ -12,7 +12,7 @@ export default function addSubscriptionFilter() {
 
       items.add('following', LinkButton.component({
         href: app.route('index.filter', params),
-        children: app.translator.trans('flarum-subscriptions.forum.following'),
+        children: app.translator.trans('flarum-subscriptions.forum.index.following_link'),
         icon: 'star'
       }), 50);
     }
