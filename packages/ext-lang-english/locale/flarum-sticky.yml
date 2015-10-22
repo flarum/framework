@@ -16,14 +16,21 @@ flarum-sticky:
 
     # These strings are displayed as tooltips for discussion badges.
     badge:
-      sticky_tooltip: Sticky
+      sticky_tooltip: => flarum-sticky.ref.sticky
 
     # These strings are used by the discussion control buttons.
     discussion_controls:
-      sticky_button: Sticky
+      sticky_button: => flarum-sticky.ref.sticky
       unsticky_button: Unsticky
 
     # These strings are displayed between posts in the post stream.
     post_stream:
       discussion_stickied_text: "{username} stickied the discussion."
       discussion_unstickied_text: "{username} unstickied the discussion."
+
+  ##
+  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  ##
+
+  ref:
+    sticky: Sticky
