@@ -86,7 +86,7 @@ Object.assign(Discussion.prototype, {
     const items = new ItemList();
 
     if (this.isHidden()) {
-      items.add('hidden', <Badge type="hidden" icon="trash" label={app.translator.trans('core.lib.badge.hidden_discussion_tooltip')}/>);
+      items.add('hidden', <Badge type="hidden" icon="trash" label={app.translator.trans('core.lib.badge.hidden_tooltip')}/>);
     }
 
     return items;
