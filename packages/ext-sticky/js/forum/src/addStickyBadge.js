@@ -7,7 +7,7 @@ export default function addStickyBadge() {
     if (this.isSticky()) {
       badges.add('sticky', Badge.component({
         type: 'sticky',
-        label: app.translator.trans('flarum-sticky.forum.stickied'),
+        label: app.translator.trans('flarum-sticky.forum.badge.sticky_tooltip'),
         icon: 'thumb-tack'
       }), 10);
     }
