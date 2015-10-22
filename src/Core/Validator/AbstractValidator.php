@@ -52,17 +52,6 @@ abstract class AbstractValidator
     }
 
     /**
-     * Check whether a model is valid.
-     *
-     * @param array $attributes
-     * @return bool
-     */
-    public function valid(array $attributes)
-    {
-        return $this->makeValidator($attributes)->passes();
-    }
-
-    /**
      * Throw an exception if a model is not valid.
      *
      * @param array $attributes
@@ -72,7 +61,7 @@ abstract class AbstractValidator
         $validator = $this->makeValidator($attributes);
 
         if ($validator->fails()) {
-            $this->throwValidationException($validator);
+            throw new ValidationException($validator);
         }
     }
 
@@ -90,15 +79,6 @@ abstract class AbstractValidator
     protected function getMessages()
     {
         return [];
-    }
-
-    /**
-     * @param Validator $validator
-     * @throws ValidationException
-     */
-    protected function throwValidationException(Validator $validator)
-    {
-        throw new ValidationException($validator);
     }
 
     /**

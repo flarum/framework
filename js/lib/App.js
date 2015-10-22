@@ -206,7 +206,7 @@ export default class App {
       try {
         return JSON.parse(responseText);
       } catch (e) {
-        throw new RequestError(500, responseText, options, xhr);
+        throw new RequestError(500, responseText, options);
       }
     });
 
