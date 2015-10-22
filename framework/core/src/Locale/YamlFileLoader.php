@@ -33,7 +33,7 @@ class YamlFileLoader extends BaseYamlFileLoader
     {
         $translation = $messages->get($id, $domain);
 
-        if (preg_match('/^=>\s*([a-z0-9_\.]+)$/i', $translation, $matches)) {
+        if (preg_match('/^=>\s*([a-z0-9_\-\.]+)$/i', $translation, $matches)) {
             return $this->getTranslation($messages, $matches[1], $domain);
         }
 
