@@ -69,7 +69,9 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
-        if (! $actor->hasPermission('discussion.hide')) {
+        if (! $actor->hasPermission('viewDiscussions')) {
+            $query->whereRaw('FALSE');
+        } elseif (! $actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('discussions.hide_time')
                     ->where('comments_count', '>', 0)
