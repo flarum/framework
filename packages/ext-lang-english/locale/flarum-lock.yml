@@ -16,7 +16,7 @@ flarum-lock:
 
     # These strings are displayed as tooltips for discussion badges.
     badge:
-      locked_discussion_tooltip: Locked
+      locked_tooltip: Locked
 
     # These strings are used by the discussion control buttons.
     discussion_controls:
