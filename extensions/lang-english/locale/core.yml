@@ -332,8 +332,9 @@ core:
       generic_message: Oops! Something went wrong. Please reload the page and try again.
       permission_denied_message: You do not have permission to do that.
       not_found_message: The requested resource was not found.
+      rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
 
-    #These strings are used as suffixes when abbreviating numbers.
+    # These strings are used as suffixes when abbreviating numbers.
     number_suffix:
       kilo_text: K
       mega_text: M
