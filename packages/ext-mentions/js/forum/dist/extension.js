@@ -112,7 +112,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
 }
 
 }());
-;System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
+;
+System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
   /*global getCaretCoordinates*/
 
   'use strict';
@@ -225,7 +226,7 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
                   return user && user.username().toLowerCase().substr(0, typed.length) === typed;
                 }).splice(0, 5).forEach(function (post) {
                   var user = post.user();
-                  suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.trans('flarum-mentions.forum.reply_to_post', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
+                  suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.translator.trans('flarum-mentions.forum.reply_to_post', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
                 });
               }
 
@@ -302,7 +303,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
     }],
     execute: function () {}
   };
-});;System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
   'use strict';
 
   var extend, Model, Post, CommentPost, PostPreview, punctuateSeries, username, icon;
@@ -404,7 +406,7 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
                 config: m.route,
                 onclick: hidePreview,
                 'data-number': reply.number() },
-              app.session.user === user ? app.trans('flarum-mentions.forum.you') : username(user)
+              app.session.user === user ? app.translator.trans('flarum-mentions.forum.you') : username(user)
             );
           });
 
@@ -415,7 +417,7 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
               'span',
               { className: 'Post-mentionedBy-summary' },
               icon('reply'),
-              app.trans('flarum-mentions.forum.post_mentioned_by', {
+              app.translator.trans('flarum-mentions.forum.post_mentioned_by', {
                 count: names.length,
                 users: punctuateSeries(names)
               })
@@ -448,7 +450,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
     }],
     execute: function () {}
   };
-});;System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
+});;
+System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
   'use strict';
 
   var extend, CommentPost, PostPreview, LoadingIndicator;
@@ -586,7 +589,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
     }],
     execute: function () {}
   };
-});;System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
+});;
+System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
   'use strict';
 
   var extend, Button, CommentPost, DiscussionControls;
@@ -608,7 +612,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
           if (post.isHidden() || app.session.user && !post.discussion().canReply()) return;
 
           function insertMention(component, quote) {
-            var mention = '@' + post.user().username() + '#' + post.id() + ' ';
+            var user = post.user();
+            var mention = '@' + (user ? user.username() : post.number()) + '#' + post.id() + ' ';
 
             // If the composer is empty, then assume we're starting a new reply.
             // In which case we don't want the user to have to confirm if they
@@ -622,7 +627,7 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
 
           items.add('reply', Button.component({
             className: 'Button Button--link',
-            children: app.trans('flarum-mentions.forum.reply_link'),
+            children: app.translator.trans('flarum-mentions.forum.reply_link'),
             onclick: function onclick() {
               var quote = window.getSelection().toString();
 
@@ -640,7 +645,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       });
     }
   };
-});;System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
+});;
+System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
   'use strict';
 
   var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification;
@@ -693,13 +699,13 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
           items.add('postMentioned', {
             name: 'postMentioned',
             icon: 'reply',
-            label: app.trans('flarum-mentions.forum.notify_post_mentioned')
+            label: app.translator.trans('flarum-mentions.forum.notify_post_mentioned')
           });
 
           items.add('userMentioned', {
             name: 'userMentioned',
             icon: 'at',
-            label: app.trans('flarum-mentions.forum.notify_user_mentioned')
+            label: app.translator.trans('flarum-mentions.forum.notify_user_mentioned')
           });
         });
 
@@ -707,7 +713,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       });
     }
   };
-});;System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
+});;
+System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
   'use strict';
 
   var Component, AutocompleteDropdown;
@@ -721,19 +728,17 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
 
         function AutocompleteDropdown() {
           babelHelpers.classCallCheck(this, AutocompleteDropdown);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(AutocompleteDropdown.prototype), 'constructor', this).apply(this, args);
-
-          this.active = false;
-          this.index = 0;
-          this.keyWasJustPressed = false;
+          babelHelpers.get(Object.getPrototypeOf(AutocompleteDropdown.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(AutocompleteDropdown, [{
+          key: 'init',
+          value: function init() {
+            this.active = false;
+            this.index = 0;
+            this.keyWasJustPressed = false;
+          }
+        }, {
           key: 'view',
           value: function view() {
             return m(
@@ -844,7 +849,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       _export('default', AutocompleteDropdown);
     }
   };
-});;System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuate'], function (_export) {
+});;
+System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuate'], function (_export) {
   'use strict';
 
   var Notification, username, punctuate, PostMentionedNotification;
@@ -887,9 +893,9 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
             var auc = notification.additionalUnreadCount();
             var user = notification.sender();
 
-            return app.trans('flarum-mentions.forum.post_mentioned_notification', {
+            return app.translator.trans('flarum-mentions.forum.post_mentioned_notification', {
               user: user,
-              username: auc ? punctuate([username(user), app.trans('flarum-mentions.forum.others', { count: auc })]) : undefined
+              username: auc ? punctuate([username(user), app.translator.trans('flarum-mentions.forum.others', { count: auc })]) : undefined
             });
           }
         }, {
@@ -904,7 +910,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       _export('default', PostMentionedNotification);
     }
   };
-});;System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
+});;
+System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
   'use strict';
 
   var Notification, UserMentionedNotification;
@@ -938,7 +945,7 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
           value: function content() {
             var user = this.props.notification.sender();
 
-            return app.trans('flarum-mentions.forum.user_mentioned_notification', { user: user });
+            return app.translator.trans('flarum-mentions.forum.user_mentioned_notification', { user: user });
           }
         }, {
           key: 'excerpt',
