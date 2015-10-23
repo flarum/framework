@@ -70,6 +70,8 @@ export default function addMentionedByList() {
         });
       };
 
+// NEEDS TO BE FIXED: The next two blocks of code. See https://github.com/flarum/core/issues/597 for details.
+
       // Create a list of unique users who have replied. So even if a user has
       // replied twice, they will only be in this array once.
       const used = [];
@@ -91,7 +93,7 @@ export default function addMentionedByList() {
               config={m.route}
               onclick={hidePreview}
               data-number={reply.number()}>
-              {app.session.user === user ? app.translator.trans('flarum-mentions.forum.you') : username(user)}
+              {app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)}
             </a>
           );
         });
@@ -100,7 +102,8 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy" config={config}>
           <span className="Post-mentionedBy-summary">
             {icon('reply')}
-            {app.translator.trans('flarum-mentions.forum.post_mentioned_by', {
+            // PLEASE CHECK: Using the syntax from "addLikesList.js" with "repliers[0]" in place of "likes[0]".
+            {app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (repliers[0] === app.session.user ? '_self' : '') + '_text', names.length, {
               count: names.length,
               users: punctuateSeries(names)
             })}
