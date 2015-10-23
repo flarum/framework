@@ -36,17 +36,17 @@ export default class TagsPage extends Component {
         <div className="TagsPage-header">
           <div className="container">
             <p>
-              Tags are used to categorize discussions. Primary tags are like traditional forum categories: They can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization.
+              {app.translator.trans('flarum-tags.admin.tags.about_tags_text')}
             </p>
             {Button.component({
               className: 'Button Button--primary',
               icon: 'plus',
-              children: 'Create Tag',
+              children: app.translator.trans('flarum-tags.admin.tags.create_tag_button'),
               onclick: () => app.modal.show(new EditTagModal())
             })}
             {Button.component({
               className: 'Button',
-              children: 'Settings',
+              children: app.translator.trans('flarum-tags.admin.tags.settings_button'),
               onclick: () => app.modal.show(new TagSettingsModal())
             })}
           </div>
@@ -54,7 +54,7 @@ export default class TagsPage extends Component {
         <div className="TagsPage-list">
           <div className="container">
             <div className="TagGroup">
-              <label>Primary Tags</label>
+              <label>{app.translator.trans('flarum-tags.admin.tags.primary_heading')}</label>
               <ol className="TagList TagList--primary">
                 {sortTags(app.store.all('tags'))
                   .filter(tag => tag.position() !== null && !tag.isChild())
@@ -63,7 +63,7 @@ export default class TagsPage extends Component {
             </div>
 
             <div className="TagGroup">
-              <label>Secondary Tags</label>
+              <label>{app.translator.trans('flarum-tags.admin.tags.secondary_heading')}</label>
               <ul className="TagList">
                 {app.store.all('tags')
                   .filter(tag => tag.position() === null)

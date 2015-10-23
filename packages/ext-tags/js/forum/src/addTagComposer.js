@@ -35,7 +35,7 @@ export default function() {
       <a className="DiscussionComposer-changeTags" onclick={this.chooseTags.bind(this)}>
         {this.tags.length
           ? tagsLabel(this.tags)
-          : <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.tag_new_discussion_link')}</span>}
+          : <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')}</span>}
       </a>
     ), 10);
   });
