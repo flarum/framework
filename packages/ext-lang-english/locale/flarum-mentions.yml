@@ -22,7 +22,7 @@ flarum-mentions:
       mentioned_by_text: "{users} replied to this."       # Can be pluralized to agree with the number of users!
       mentioned_by_self_text: "{users} replied to this."  # Can be pluralized to agree with the number of users!
       others_link: => flarum-mentions.ref.others
-      reply_link: Reply
+      reply_link: => core.ref.reply
       you_text: You
 
     # These strings are used in the Settings page.
