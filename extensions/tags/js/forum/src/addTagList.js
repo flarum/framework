@@ -13,7 +13,7 @@ export default function() {
   extend(IndexPage.prototype, 'navItems', function(items) {
     items.add('tags', LinkButton.component({
       icon: 'th-large',
-      children: app.translator.trans('flarum-tags.forum.tags'),
+      children: app.translator.trans('flarum-tags.forum.index.tags_link'),
       href: app.route('tags')
     }), -10);
 
@@ -47,7 +47,7 @@ export default function() {
 
     if (more.length) {
       items.add('moreTags', LinkButton.component({
-        children: app.translator.trans('flarum-tags.forum.more'),
+        children: app.translator.trans('flarum-tags.forum.index.more_link'),
         href: app.route('tags')
       }), -10);
     }
