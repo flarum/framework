@@ -85,17 +85,17 @@ export default class TagDiscussionModal extends Modal {
 
   title() {
     return this.props.discussion
-      ? app.translator.trans('flarum-tags.forum.edit_discussion_tags_title', {title: <em>{this.props.discussion.title()}</em>})
-      : app.translator.trans('flarum-tags.forum.tag_new_discussion_title');
+      ? app.translator.trans('flarum-tags.forum.choose_tags.edit_title', {title: <em>{this.props.discussion.title()}</em>})
+      : app.translator.trans('flarum-tags.forum.choose_tags.title');
   }
 
   getInstruction(primaryCount, secondaryCount) {
     if (primaryCount < this.minPrimary) {
       const remaining = this.minPrimary - primaryCount;
-      return app.translator.transChoice('flarum-tags.forum.choose_primary_tags', remaining, {count: remaining});
+      return app.translator.transChoice('flarum-tags.forum.choose_tags.choose_primary_placeholder', remaining, {count: remaining});
     } else if (secondaryCount < this.minSecondary) {
       const remaining = this.minSecondary - secondaryCount;
-      return app.translator.transChoice('flarum-tags.forum.choose_secondary_tags', remaining, {count: remaining});
+      return app.translator.transChoice('flarum-tags.forum.choose_tags.choose_secondary_placeholder', remaining, {count: remaining});
     }
 
     return '';
@@ -162,7 +162,7 @@ export default class TagDiscussionModal extends Modal {
               className: 'Button Button--primary',
               disabled: primaryCount < this.minPrimary || secondaryCount < this.minSecondary,
               icon: 'check',
-              children: app.translator.trans('flarum-tags.forum.confirm')
+              children: app.translator.trans('flarum-tags.forum.choose_tags.submit_button')
             })}
           </div>
         </div>

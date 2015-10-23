@@ -13,8 +13,8 @@ export default function() {
     items.add('tags', AdminLinkButton.component({
       href: app.route('tags'),
       icon: 'tags',
-      children: 'Tags',
-      description: 'Manage the list of tags available to organise discussions with.'
+      children: app.translator.trans('flarum-tags.admin.nav.tags_button'),
+      description: app.translator.trans('flarum-tags.admin.nav.tags_text')
     }));
   });
 }
