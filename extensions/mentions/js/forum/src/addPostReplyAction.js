@@ -31,7 +31,7 @@ export default function() {
     items.add('reply',
       Button.component({
         className: 'Button Button--link',
-        children: app.translator.trans('flarum-mentions.forum.reply_link'),
+        children: app.translator.trans('flarum-mentions.forum.post.reply_link'),
         onclick: () => {
           const quote = window.getSelection().toString();
 
