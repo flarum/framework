@@ -59,7 +59,7 @@ flarum-tags:
       choose_primary_placeholder: "Choose a primary tag|Choose {count} primary tags"
       choose_secondary_placeholder: "Choose 1 more tag|Choose {count} more tags"
       edit_title: "Edit Tags for {title}"
-      submit_button: Confirm
+      submit_button: => core.ref.okay
       title: Choose Tags for Your Discussion
 
     # These strings are used by the composer when starting a discussion.
