@@ -16,7 +16,7 @@ export default class PostLikedNotification extends Notification {
     const user = notification.sender();
     const auc = notification.additionalUnreadCount();
 
-    return app.translator.trans('flarum-likes.forum.post_liked_notification', {
+    return app.translator.trans('flarum-likes.forum.notifications.post_liked_text', {
       user,
       username: auc ? punctuateSeries([
         username(user),
