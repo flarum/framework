@@ -1,6 +1,6 @@
 import Notification from 'flarum/components/Notification';
 import username from 'flarum/helpers/username';
-import punctuate from 'flarum/helpers/punctuate';
+import punctuateSeries from 'flarum/helpers/punctuateSeries';
 
 export default class PostMentionedNotification extends Notification {
   icon() {
@@ -21,11 +21,11 @@ export default class PostMentionedNotification extends Notification {
     const auc = notification.additionalUnreadCount();
     const user = notification.sender();
 
-    return app.translator.trans('flarum-mentions.forum.post_mentioned_notification', {
+    return app.translator.trans('flarum-mentions.forum.notifications.post_mentioned_text', {
       user,
-      username: auc ? punctuate([
+      username: auc ? punctuateSeries([
         username(user),
-        app.translator.trans('flarum-mentions.forum.others', {count: auc})
+        app.translator.trans('flarum-mentions.forum.notifications.others_text', {count: auc})
       ]) : undefined
     });
   }
