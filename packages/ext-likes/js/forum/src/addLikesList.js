@@ -23,7 +23,7 @@ export default function() {
         .map(user => {
           return (
             <a href={app.route.user(user)} config={m.route}>
-              {user === app.session.user ? app.translator.trans('flarum-likes.forum.you') : username(user)}
+              {user === app.session.user ? app.translator.trans('flarum-likes.forum.post.you_text') : username(user)}
             </a>
           );
         });
@@ -39,7 +39,7 @@ export default function() {
             e.preventDefault();
             app.modal.show(new PostLikesModal({post}));
           }}>
-            {app.translator.transChoice('flarum-likes.forum.others', count, {count})}
+            {app.translator.transChoice('flarum-likes.forum.post.others_link', count, {count})}
           </a>
         );
       }
@@ -47,7 +47,7 @@ export default function() {
       items.add('liked', (
         <div className="Post-likedBy">
           {icon('thumbs-o-up')}
-          {app.translator.transChoice('flarum-likes.forum.post_liked_by' + (likes[0] === app.session.user ? '_self' : ''), names.length, {
+          {app.translator.transChoice('flarum-likes.forum.post.liked_by' + (likes[0] === app.session.user ? '_self' : '') + '_text', names.length, {
             count: names.length,
             users: punctuateSeries(names)
           })}
