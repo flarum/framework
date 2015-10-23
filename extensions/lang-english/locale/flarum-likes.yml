@@ -33,4 +33,4 @@ flarum-likes:
 
     # These strings are used in the Settings page.
     settings:
-      notify_post_liked_label: Someone likes my post
+      notify_post_liked_label: Someone likes one of my posts
