@@ -170,7 +170,7 @@ core:
       log_in_to_reply_button: Log In to Reply
       rename_button: Rename
       rename_text: Enter a new title for this discussion:
-      reply_button: Reply
+      reply_button: => core.ref.reply
       restore_button: => core.ref.restore
 
     # These strings are used in the discussion list.
@@ -374,6 +374,7 @@ core:
     notifications: Notifications
     okay: OK
     password: Password
+    reply: Reply
     restore: Restore
     save_changes: Save Changes
     settings: Settings
