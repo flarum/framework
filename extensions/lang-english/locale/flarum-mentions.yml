@@ -27,7 +27,7 @@ flarum-mentions:
 
     # These strings are used in the Settings page.
     settings:
-      notify_post_mentioned_label: Someone replies to my post
+      notify_post_mentioned_label: Someone replies to one of my posts
       notify_user_mentioned_label: Someone mentions me in a post
 
   ##
