@@ -1,11 +1,36 @@
 flarum-likes:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Strings in this namespace are used by the admin interface.
+  admin:
+
+    # These strings are used in the Permissions page of the admin interface.
+    permissions:
+      like_posts_label: Like posts
+
+  # Strings in this namespace are used by the forum user interface.
   forum:
-    post_liked_notification: "{username} liked your post"
-    post_likes_modal_title: Users Who Like This
-    post_liked_by_self: "{users} like this."
-    post_liked_by: "{users} likes this.|{users} like this."
-    unlike_action: Unlike
-    like_action: Like
-    notify_post_liked: Someone likes my post
-    others: "{count} others"
-    you: You
+
+    # These strings are used by the Notifications dropdown, a.k.a. "the bell".
+    notifications:
+      post_liked_text: "{username} liked your post"
+
+    # These strings are displayed beneath individual posts.
+    post:
+      like_link: Like
+      liked_by_text: "{users} likes this.|{users} like this."
+      liked_by_self_text: "{users} like this."  # Can be pluralized to agree with the number of users!
+      others_link: "{count} others"
+      unlike_link: Unlike
+      you_text: You
+
+    # These strings are used by the Users Who Like This modal dialog.
+    post_likes:
+      title: Users Who Like This
+
+    # These strings are used in the Settings page.
+    settings:
+      notify_post_liked_label: Someone likes my post
