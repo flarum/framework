@@ -70,40 +70,53 @@ export default function addMentionedByList() {
         });
       };
 
-// NEEDS TO BE FIXED: The next two blocks of code. See https://github.com/flarum/core/issues/597 for details.
+      const users = [];
+      const repliers = replies
+        .sort(reply => reply.user() === app.session.user ? -1 : 0)
+        .filter(reply => {
+          const user = reply.user();
+          if (users.indexOf(user) === -1) {
+            users.push(user);
+            return true;
+          }
+        });
+
+      const limit = 4;
+      const overLimit = repliers.length > limit;
 
       // Create a list of unique users who have replied. So even if a user has
       // replied twice, they will only be in this array once.
-      const used = [];
-      const repliers = replies.filter(reply => {
-        const user = reply.user();
-        const id = user && user.id();
-        if (used.indexOf(id) === -1) {
-          used.push(id);
-          return true;
-        }
-      });
-
-      const names = repliers.sort(a => a === app.session.user ? -1 : 1)
+      const names = repliers
+        .slice(0, overLimit ? limit - 1 : limit)
         .map(reply => {
           const user = reply.user();
 
           return (
             <a href={app.route.post(reply)}
-              config={m.route}
-              onclick={hidePreview}
-              data-number={reply.number()}>
+               config={m.route}
+               onclick={hidePreview}
+               data-number={reply.number()}>
               {app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)}
             </a>
           );
         });
 
+      // If there are more users that we've run out of room to display, add a "x
+      // others" name to the end of the list. Clicking on it will display a modal
+      // with a full list of names.
+      if (overLimit) {
+        const count = repliers.length - names.length;
+
+        names.push(
+          app.translator.transChoice('flarum-mentions.forum.post.others_text', count, {count})
+        );
+      }
+
       items.add('replies',
         <div className="Post-mentionedBy" config={config}>
           <span className="Post-mentionedBy-summary">
             {icon('reply')}
-            // PLEASE CHECK: Using the syntax from "addLikesList.js" with "repliers[0]" in place of "likes[0]".
-            {app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (repliers[0] === app.session.user ? '_self' : '') + '_text', names.length, {
+            {app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (replies[0] === app.session.user ? '_self' : '') + '_text', names.length, {
               count: names.length,
               users: punctuateSeries(names)
             })}
