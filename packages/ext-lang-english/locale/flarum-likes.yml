@@ -23,9 +23,9 @@ flarum-likes:
       like_link: Like
       liked_by_text: "{users} likes this.|{users} like this."
       liked_by_self_text: "{users} like this."  # Can be pluralized to agree with the number of users!
-      others_link: "{count} others"
+      others_link: => core.ref.some_others
       unlike_link: Unlike
-      you_text: You
+      you_text: => core.ref.you
 
     # These strings are used by the Users Who Like This modal dialog.
     post_likes:
