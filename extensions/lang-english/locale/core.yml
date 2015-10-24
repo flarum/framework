@@ -374,13 +374,15 @@ core:
     notifications: Notifications
     okay: OK
     password: Password
-    reply: Reply
+    reply: Reply                                 # Referenced by flarum-mentions.yml
     restore: Restore
-    save_changes: Save Changes
+    save_changes: Save Changes                   # Referenced by flarum-tags.yml
     settings: Settings
     sign_up: Sign Up
+    some_others: "{count} other|{count} others"  # Referenced by flarum-likes.yml, flarum-mentions.yml
     username: Username
     write_a_reply: Write a Reply...
+    you: You                                     # Referenced by flarum-likes.yml, flarum-mentions.yml
 
   ##
   # EMAIL CONTENT
