@@ -54,9 +54,10 @@ class CreatePostController extends AbstractCreateController
         $actor = $request->getAttribute('actor');
         $data = array_get($request->getParsedBody(), 'data');
         $discussionId = array_get($data, 'relationships.discussion.data.id');
+        $ipAddress = array_get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
         $post = $this->bus->dispatch(
-            new PostReply($discussionId, $actor, $data)
+            new PostReply($discussionId, $actor, $data, $ipAddress)
         );
 
         // After replying, we assume that the user has seen all of the posts
