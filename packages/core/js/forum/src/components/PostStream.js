@@ -179,7 +179,7 @@ class PostStream extends Component {
       .map(id => {
         const post = app.store.getById('posts', id);
 
-        return post && post.discussion() && post.canEdit() !== null ? post : null;
+        return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
       });
   }
 
@@ -391,7 +391,7 @@ class PostStream extends Component {
     this.discussion.postIds().slice(start, end).forEach(id => {
       const post = app.store.getById('posts', id);
 
-      if (post && post.discussion()) {
+      if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
         loaded.push(post);
       } else {
         loadIds.push(id);
