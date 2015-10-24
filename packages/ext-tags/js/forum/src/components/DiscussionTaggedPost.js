@@ -3,24 +3,11 @@ import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import tagsLabel from 'flarum/tags/helpers/tagsLabel';
 
 export default class DiscussionTaggedPost extends EventPost {
-  icon() {
-    return 'tag';
-  }
+  static initProps(props) {
+    super.initProps(props);
 
-  // NEED TO FIX:
-  // This should return one of three strings, depending on whether tags are added, removed, or both:
-  //   if added: app.translator.trans('flarum-tags.forum.post_stream.added_tags_text')
-  //   if removed: app.translator.trans('flarum-tags.forum.post_stream.removed_tags_text')
-  //   if both: app.translator.trans('flarum-tags.forum.post_stream.added_and_removed_tags_text')
-  // The 'flarum-tags.forum.discussion_tagged_post' key has been removed from the YAML.
-  descriptionKey() {
-    return 'flarum-tags.forum.discussion_tagged_post';
-  }
-
-  descriptionData() {
-    const post = this.props.post;
-    const oldTags = post.content()[0];
-    const newTags = post.content()[1];
+    const oldTags = props.post.content()[0];
+    const newTags = props.post.content()[1];
 
     function diffTags(tags1, tags2) {
       return tags1
@@ -28,30 +15,43 @@ export default class DiscussionTaggedPost extends EventPost {
         .map(id => app.store.getById('tags', id));
     }
 
-    const added = diffTags(newTags, oldTags);
-    const removed = diffTags(oldTags, newTags);
-    const actions = [];
+    props.tagsAdded = diffTags(newTags, oldTags);
+    props.tagsRemoved = diffTags(oldTags, newTags);
+  }
 
-    // PLEASE CHECK:
-    // Both {addedTags} and {removedTags} in the above three strings can be returned using the same key.
-    // The key names has been changed ... Is it possible to combine these two operations?
-    if (added.length) {
-      actions.push(app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', added, {
-        tags: tagsLabel(added, {link: true}),
-        count: added
-      }));
+  icon() {
+    return 'tag';
+  }
+
+  descriptionKey() {
+    if (this.props.tagsAdded.length) {
+      if (this.props.tagsRemoved.length) {
+        return 'flarum-tags.forum.post_stream.added_and_removed_tags_text';
+      }
+
+      return 'flarum-tags.forum.post_stream.added_tags_text';
     }
 
-    if (removed.length) {
-      actions.push(app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', removed, {
-        tags: tagsLabel(removed, {link: true}),
-        count: removed
-      }));
+    return 'flarum-tags.forum.post_stream.removed_tags_text';
+  }
+
+  descriptionData() {
+    const data = {};
+
+    if (this.props.tagsAdded.length) {
+      data.tagsAdded = app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', this.props.tagsAdded.length, {
+        tags: tagsLabel(this.props.tagsAdded, {link: true}),
+        count: this.props.tagsAdded.length
+      });
     }
 
-    return {
-      action: punctuateSeries(actions),
-      count: added.length + removed.length
-    };
+    if (this.props.tagsRemoved.length) {
+      data.tagsRemoved = app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', this.props.tagsRemoved.length, {
+        tags: tagsLabel(this.props.tagsRemoved, {link: true}),
+        count: this.props.tagsRemoved.length
+      });
+    }
+
+    return data;
   }
 }
