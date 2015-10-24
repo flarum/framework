@@ -16,11 +16,11 @@ export default class PostLikedNotification extends Notification {
     const user = notification.sender();
     const auc = notification.additionalUnreadCount();
 
-    return app.translator.trans('flarum-likes.forum.notifications.post_liked_text', {
+    return app.translator.transChoice('flarum-likes.forum.notifications.post_liked_text', auc + 1, {
       user,
       username: auc ? punctuateSeries([
         username(user),
-        app.translator.trans('flarum-likes.forum.others', {count: auc})
+        app.translator.transChoice('flarum-likes.forum.notifications.others_text', auc, {count: auc})
       ]) : undefined
     });
   }
