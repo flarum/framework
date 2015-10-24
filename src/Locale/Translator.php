@@ -10,25 +10,33 @@
 
 namespace Flarum\Locale;
 
-use Symfony\Component\Translation\Loader\YamlFileLoader as BaseYamlFileLoader;
 use Symfony\Component\Translation\MessageCatalogueInterface;
+use Symfony\Component\Translation\Translator as BaseTranslator;
 
-class YamlFileLoader extends BaseYamlFileLoader
+class Translator extends BaseTranslator
 {
     /**
      * {@inheritdoc}
      */
-    public function load($resource, $locale, $domain = 'messages')
+    public function getCatalogue($locale = null)
     {
-        $messages = parent::load($resource, $locale, $domain);
+        $catalogue = parent::getCatalogue($locale);
 
-        foreach ($messages->all($domain) as $id => $translation) {
-            $messages->set($id, $this->getTranslation($messages, $id, $domain));
+        foreach ($catalogue->all() as $domain => $messages) {
+            foreach ($messages as $id => $translation) {
+                $catalogue->set($id, $this->getTranslation($catalogue, $id, $domain), $domain);
+            }
         }
 
-        return $messages;
+        return $catalogue;
     }
 
+    /**
+     * @param MessageCatalogueInterface $messages
+     * @param string $id
+     * @param string $domain
+     * @return string
+     */
     private function getTranslation(MessageCatalogueInterface $messages, $id, $domain)
     {
         $translation = $messages->get($id, $domain);
