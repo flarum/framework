@@ -13,8 +13,8 @@ namespace Flarum\Locale;
 use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
+use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Symfony\Component\Translation\MessageSelector;
-use Symfony\Component\Translation\Translator;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
