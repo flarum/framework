@@ -18,7 +18,9 @@ use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\RouteCollection;
 use Flarum\Foundation\AbstractServiceProvider;
-use Psr\Http\Message\ServerRequestInterface;
+use Tobscure\JsonApi\ErrorHandler;
+use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
+use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
@@ -35,6 +37,21 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.api.routes', function () {
             return $this->getRoutes();
+        });
+
+        $this->app->singleton(ErrorHandler::class, function () {
+            $handler = new ErrorHandler;
+
+            $handler->registerHandler(new Handler\FloodingExceptionHandler);
+            $handler->registerHandler(new Handler\IlluminateValidationExceptionHandler);
+            $handler->registerHandler(new Handler\InvalidConfirmationTokenExceptionHandler);
+            $handler->registerHandler(new Handler\ModelNotFoundExceptionHandler);
+            $handler->registerHandler(new Handler\PermissionDeniedExceptionHandler);
+            $handler->registerHandler(new Handler\ValidationExceptionHandler);
+            $handler->registerHandler(new InvalidParameterExceptionHandler);
+            $handler->registerHandler(new FallbackExceptionHandler($this->app->inDebugMode()));
+
+            return $handler;
         });
     }
 
