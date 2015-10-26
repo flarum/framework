@@ -11,23 +11,7 @@
 namespace Flarum\Core\Exception;
 
 use Exception;
-use Tobscure\JsonApi\Exception\JsonApiSerializableInterface;
 
-class InvalidConfirmationTokenException extends Exception implements JsonApiSerializableInterface
+class InvalidConfirmationTokenException extends Exception
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getStatusCode()
-    {
-        return 403;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getErrors()
-    {
-        return ['code' => 'invalid_confirmation_token'];
-    }
 }

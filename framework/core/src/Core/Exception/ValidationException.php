@@ -11,9 +11,8 @@
 namespace Flarum\Core\Exception;
 
 use Exception;
-use Tobscure\JsonApi\Exception\JsonApiSerializableInterface;
 
-class ValidationException extends Exception implements JsonApiSerializableInterface
+class ValidationException extends Exception
 {
     protected $messages;
 
@@ -27,25 +26,5 @@ class ValidationException extends Exception implements JsonApiSerializableInterf
     public function getMessages()
     {
         return $this->messages;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getStatusCode()
-    {
-        return 422;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getErrors()
-    {
-        return array_map(function ($path, $detail) {
-            $source = ['pointer' => '/data/attributes/' . $path];
-
-            return compact('source', 'detail');
-        }, array_keys($this->messages), $this->messages);
     }
 }
