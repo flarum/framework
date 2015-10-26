@@ -25,11 +25,18 @@ class Client
     protected $container;
 
     /**
-     * @param Container $container
+     * @var ErrorHandler
      */
-    public function __construct(Container $container)
+    protected $errorHandler;
+
+    /**
+     * @param Container $container
+     * @param ErrorHandler $errorHandler
+     */
+    public function __construct(Container $container, ErrorHandler $errorHandler)
     {
         $this->container = $container;
+        $this->errorHandler = $errorHandler;
     }
 
     /**
@@ -55,11 +62,9 @@ class Client
         }
 
         try {
-            $response = $controller->handle($request);
+            return $controller->handle($request);
         } catch (Exception $e) {
-            $response = $this->container->make('Flarum\Api\Middleware\HandleErrors')->handle($e);
+            return $this->errorHandler->handle($e);
         }
-
-        return $response;
     }
 }
