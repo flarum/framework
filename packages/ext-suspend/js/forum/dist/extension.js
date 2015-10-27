@@ -68,27 +68,27 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
 
         function SuspendUserModal() {
           babelHelpers.classCallCheck(this, SuspendUserModal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(SuspendUserModal.prototype), 'constructor', this).apply(this, args);
-
-          var until = this.props.user.suspendUntil();
-          var status = null;
-
-          if (new Date() > until) until = null;
-
-          if (until) {
-            if (until.getFullYear() === 9999) status = 'indefinitely';else status = 'limited';
-          }
-
-          this.status = m.prop(status);
-          this.daysRemaining = m.prop(status === 'limited' && -moment().diff(until, 'days') + 1);
+          babelHelpers.get(Object.getPrototypeOf(SuspendUserModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(SuspendUserModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(SuspendUserModal.prototype), 'init', this).call(this);
+
+            var until = this.props.user.suspendUntil();
+            var status = null;
+
+            if (new Date() > until) until = null;
+
+            if (until) {
+              if (until.getFullYear() === 9999) status = 'indefinitely';else status = 'limited';
+            }
+
+            this.status = m.prop(status);
+            this.daysRemaining = m.prop(status === 'limited' && -moment().diff(until, 'days') + 1);
+          }
+        }, {
           key: 'className',
           value: function className() {
             return 'SuspendUserModal Modal--small';
@@ -146,6 +146,7 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
                         'div',
                         { className: 'SuspendUserModal-days-input' },
                         m('input', { type: 'number',
+                          min: '0',
                           value: this.daysRemaining(),
                           oninput: m.withAttr('value', this.daysRemaining),
                           className: 'FormControl' }),
@@ -191,10 +192,7 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
 
             this.props.user.save({ suspendUntil: suspendUntil }).then(function () {
               return _this2.hide();
-            }, function () {
-              _this2.loading = false;
-              m.redraw();
-            });
+            }, this.loaded.bind(this));
           }
         }]);
         return SuspendUserModal;
