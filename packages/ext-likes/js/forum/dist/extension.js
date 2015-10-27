@@ -24,7 +24,7 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
           });
 
           items.add('like', Button.component({
-            children: app.translator.trans(isLiked ? 'flarum-likes.forum.unlike_action' : 'flarum-likes.forum.like_action'),
+            children: app.translator.trans(isLiked ? 'flarum-likes.forum.post.unlike_link' : 'flarum-likes.forum.post.like_link'),
             className: 'Button Button--link',
             onclick: function onclick() {
               isLiked = !isLiked;
@@ -51,8 +51,7 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
       });
     }
   };
-});;
-System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/likes/components/PostLikesModal'], function (_export) {
+});;System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/likes/components/PostLikesModal'], function (_export) {
   'use strict';
 
   var extend, app, CommentPost, punctuateSeries, username, icon, PostLikesModal;
@@ -90,7 +89,7 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
               return m(
                 'a',
                 { href: app.route.user(user), config: m.route },
-                user === app.session.user ? app.translator.trans('flarum-likes.forum.you') : username(user)
+                user === app.session.user ? app.translator.trans('flarum-likes.forum.post.you_text') : username(user)
               );
             });
 
@@ -106,7 +105,7 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
                     e.preventDefault();
                     app.modal.show(new PostLikesModal({ post: post }));
                   } },
-                app.translator.transChoice('flarum-likes.forum.others', count, { count: count })
+                app.translator.transChoice('flarum-likes.forum.post.others_link', count, { count: count })
               ));
             }
 
@@ -114,7 +113,7 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
               'div',
               { className: 'Post-likedBy' },
               icon('thumbs-o-up'),
-              app.translator.transChoice('flarum-likes.forum.post_liked_by' + (likes[0] === app.session.user ? '_self' : ''), names.length, {
+              app.translator.transChoice('flarum-likes.forum.post.liked_by' + (likes[0] === app.session.user ? '_self' : '') + '_text', names.length, {
                 count: names.length,
                 users: punctuateSeries(names)
               })
@@ -124,8 +123,7 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
       });
     }
   };
-});;
-System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post', 'flarum/Model', 'flarum/components/NotificationGrid', 'flarum/likes/addLikeAction', 'flarum/likes/addLikesList', 'flarum/likes/components/PostLikedNotification'], function (_export) {
+});;System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post', 'flarum/Model', 'flarum/components/NotificationGrid', 'flarum/likes/addLikeAction', 'flarum/likes/addLikesList', 'flarum/likes/components/PostLikedNotification'], function (_export) {
   'use strict';
 
   var extend, app, Post, Model, NotificationGrid, addLikeAction, addLikesList, PostLikedNotification;
@@ -162,14 +160,13 @@ System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/mod
           items.add('postLiked', {
             name: 'postLiked',
             icon: 'thumbs-o-up',
-            label: app.translator.trans('flarum-likes.forum.notify_post_liked')
+            label: app.translator.trans('flarum-likes.forum.settings.notify_post_liked_label')
           });
         });
       });
     }
   };
-});;
-System.register('flarum/likes/components/PostLikedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
+});;System.register('flarum/likes/components/PostLikedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
   'use strict';
 
   var Notification, username, punctuateSeries, PostLikedNotification;
@@ -207,9 +204,9 @@ System.register('flarum/likes/components/PostLikedNotification', ['flarum/compon
             var user = notification.sender();
             var auc = notification.additionalUnreadCount();
 
-            return app.translator.trans('flarum-likes.forum.post_liked_notification', {
+            return app.translator.transChoice('flarum-likes.forum.notifications.post_liked_text', auc + 1, {
               user: user,
-              username: auc ? punctuateSeries([username(user), app.translator.trans('flarum-likes.forum.others', { count: auc })]) : undefined
+              username: auc ? punctuateSeries([username(user), app.translator.transChoice('flarum-likes.forum.notifications.others_text', auc, { count: auc })]) : undefined
             });
           }
         }, {
@@ -224,8 +221,7 @@ System.register('flarum/likes/components/PostLikedNotification', ['flarum/compon
       _export('default', PostLikedNotification);
     }
   };
-});;
-System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Modal', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export) {
+});;System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Modal', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export) {
   'use strict';
 
   var Modal, avatar, username, PostLikesModal;
@@ -254,7 +250,7 @@ System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Mo
         }, {
           key: 'title',
           value: function title() {
-            return app.translator.trans('flarum-likes.forum.post_likes_modal_title');
+            return app.translator.trans('flarum-likes.forum.post_likes.title');
           }
         }, {
           key: 'content',
