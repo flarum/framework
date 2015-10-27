@@ -1,5 +1,5 @@
 <?php
-namespace tests\Flarum\Core\Settings;
+namespace Tests\Flarum\Core\Settings;
 
 use Flarum\Settings\MemoryCacheSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
