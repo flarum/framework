@@ -1,5 +1,5 @@
 <?php
-namespace tests\Flarum\Admin\Middleware;
+namespace Tests\Flarum\Admin\Middleware;
 
 use Flarum\Admin\Middleware\AuthenticateWithCookie;
 use Flarum\Admin\Middleware\RequireAdministrateAbility;
