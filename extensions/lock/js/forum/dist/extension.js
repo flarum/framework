@@ -10,7 +10,7 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
       if (this.isLocked()) {
         badges.add('locked', Badge.component({
           type: 'locked',
-          label: app.trans('flarum-lock.forum.locked'),
+          label: app.translator.trans('flarum-lock.forum.badge.locked_tooltip'),
           icon: 'lock'
         }));
       }
@@ -38,7 +38,7 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
       if (discussion.canLock()) {
         items.add('lock', Button.component({
-          children: app.trans(discussion.isLocked() ? 'flarum-lock.forum.unlock' : 'flarum-lock.forum.lock'),
+          children: app.translator.trans(discussion.isLocked() ? 'flarum-lock.forum.discussion_controls.unlock_button' : 'flarum-lock.forum.discussion_controls.lock_button'),
           icon: 'lock',
           onclick: this.lockAction.bind(discussion)
         }));
@@ -108,7 +108,7 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
           items.add('discussionLocked', {
             name: 'discussionLocked',
             icon: 'lock',
-            label: app.trans('flarum-lock.forum.notify_discussion_locked')
+            label: app.translator.trans('flarum-lock.forum.settings.notify_discussion_locked_label')
           });
         });
       });
@@ -146,7 +146,7 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
         }, {
           key: 'content',
           value: function content() {
-            return app.trans('flarum-lock.forum.discussion_locked_notification', { user: this.props.notification.sender() });
+            return app.translator.trans('flarum-lock.forum.notifications.discussion_locked_text', { user: this.props.notification.sender() });
           }
         }]);
         return DiscussionLockedNotification;
@@ -180,7 +180,7 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
         }, {
           key: 'descriptionKey',
           value: function descriptionKey() {
-            return this.props.post.content().locked ? 'flarum-lock.forum.discussion_locked_post' : 'flarum-lock.forum.discussion_unlocked_post';
+            return this.props.post.content().locked ? 'flarum-lock.forum.post_stream.discussion_locked_text' : 'flarum-lock.forum.post_stream.discussion_unlocked_text';
           }
         }]);
         return DiscussionLockedPost;
