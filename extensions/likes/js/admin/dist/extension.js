@@ -16,7 +16,7 @@ System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/com
         extend(PermissionGrid.prototype, 'replyItems', function (items) {
           items.add('likePosts', {
             icon: 'thumbs-o-up',
-            label: 'Like posts',
+            label: app.translator.trans('flarum-likes.admin.permissions.like_posts_label'),
             permission: 'discussion.likePosts'
           });
         });
