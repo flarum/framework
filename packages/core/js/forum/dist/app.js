@@ -425,8 +425,7 @@
     return obj && obj.__esModule ? obj["default"] : obj;
   };
 })(typeof global === "undefined" ? self : global);
-;
-(function(exports) {
+;(function(exports) {
 
 'use strict';
 
@@ -606,8 +605,7 @@ var System = {
 exports.System = System;
 
 })(window);
-;
-var m = (function app(window, undefined) {
+;var m = (function app(window, undefined) {
 	"use strict";
   	var VERSION = "v0.2.1";
 	function isFunction(object) {
@@ -2021,8 +2019,7 @@ var m = (function app(window, undefined) {
 
 if (typeof module === "object" && module != null && module.exports) module.exports = m;
 else if (typeof define === "function" && define.amd) define(function() { return m });
-;
-( function _package( factory ){
+;( function _package( factory ){
 	if( typeof define === 'function' && define.amd ){
 		define( [ 'mithril' ], factory )
 	}
@@ -2094,8 +2091,7 @@ else if (typeof define === "function" && define.amd) define(function() { return 
 
 	return bidi
 } ) )
-;
-/*!
+;/*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
  *
@@ -11305,8 +11301,7 @@ if ( typeof noGlobal === strundefined ) {
 return jQuery;
 
 }));
-;
-/*jslint browser: true*/
+;/*jslint browser: true*/
 /*jslint jquery: true*/
 
 /*
@@ -11502,8 +11497,7 @@ return jQuery;
   });
 
 })(jQuery || this.jQuery || window.jQuery);
-;
-/*!
+;/*!
  * Color Thief v2.0
  * by Lokesh Dhakar - http://www.lokeshdhakar.com
  *
@@ -12113,8 +12107,7 @@ var MMCQ = (function() {
         quantize: quantize
     };
 })();
-;
-//! moment.js
+;//! moment.js
 //! version : 2.8.4
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
@@ -15050,11 +15043,9 @@ var MMCQ = (function() {
         makeGlobal();
     }
 }).call(this);
-;
-(function(){var h=[].slice;String.prototype.autoLink=function(){var b,f,d,a,e,g;a=1<=arguments.length?h.call(arguments,0):[];e=/(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;if(!(0<a.length))return this.replace(e,"$1<a href='$2'>$2</a>");d=a[0];f=function(){var c;c=[];for(b in d)g=d[b],"callback"!==b&&c.push(" "+b+"='"+g+"'");return c}().join("");return this.replace(e,function(c,b,a){c=("function"===typeof d.callback?d.callback(a):void 0)||"<a href='"+
+;(function(){var h=[].slice;String.prototype.autoLink=function(){var b,f,d,a,e,g;a=1<=arguments.length?h.call(arguments,0):[];e=/(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;if(!(0<a.length))return this.replace(e,"$1<a href='$2'>$2</a>");d=a[0];f=function(){var c;c=[];for(b in d)g=d[b],"callback"!==b&&c.push(" "+b+"='"+g+"'");return c}().join("");return this.replace(e,function(c,b,a){c=("function"===typeof d.callback?d.callback(a):void 0)||"<a href='"+
 a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
-;
-/* ========================================================================
+;/* ========================================================================
  * Bootstrap: affix.js v3.3.5
  * http://getbootstrap.com/javascript/#affix
  * ========================================================================
@@ -15216,8 +15207,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
   })
 
 }(jQuery);
-;
-/* ========================================================================
+;/* ========================================================================
  * Bootstrap: dropdown.js v3.3.5
  * http://getbootstrap.com/javascript/#dropdowns
  * ========================================================================
@@ -15382,8 +15372,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
     .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
 
 }(jQuery);
-;
-/* ========================================================================
+;/* ========================================================================
  * Bootstrap: modal.js v3.3.5
  * http://getbootstrap.com/javascript/#modals
  * ========================================================================
@@ -15720,8 +15709,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
   })
 
 }(jQuery);
-;
-/* ========================================================================
+;/* ========================================================================
  * Bootstrap: tooltip.js v3.3.5
  * http://getbootstrap.com/javascript/#tooltip
  * Inspired by the original jQuery.tipsy by Jason Frame
@@ -16235,8 +16223,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
   }
 
 }(jQuery);
-;
-/* ========================================================================
+;/* ========================================================================
  * Bootstrap: transition.js v3.3.5
  * http://getbootstrap.com/javascript/#transitions
  * ========================================================================
@@ -16295,8 +16282,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
   })
 
 }(jQuery);
-;
-/**
+;/**
  * Copyright (c) 2011-2014 Felix Gnass
  * Licensed under the MIT license
  */
@@ -16633,8 +16619,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
   return Spinner
 
 }));
-;
-/**
+;/**
  * Copyright (c) 2011-2014 Felix Gnass
  * Licensed under the MIT license
  */
@@ -16714,8 +16699,7 @@ $('#el').spin('flower', 'red');
   }
 
 }));
-;
-;(function () {
+;;(function () {
 	'use strict';
 
 	/**
@@ -17556,8 +17540,7 @@ $('#el').spin('flower', 'red');
 		window.FastClick = FastClick;
 	}
 }());
-;
-System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flarum/components/Search', 'flarum/components/Composer', 'flarum/components/ReplyComposer', 'flarum/components/DiscussionPage', 'flarum/components/SignUpModal'], function (_export) {
+;System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flarum/components/Search', 'flarum/components/Composer', 'flarum/components/ReplyComposer', 'flarum/components/DiscussionPage', 'flarum/components/SignUpModal'], function (_export) {
   'use strict';
 
   var History, App, Search, Composer, ReplyComposer, DiscussionPage, SignUpModal, ForumApp;
@@ -17690,8 +17673,7 @@ System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flaru
       _export('default', ForumApp);
     }
   };
-});;
-System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot'], function (_export) {
+});;System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot'], function (_export) {
   'use strict';
 
   var ForumApp, store, preload, routes, components, humanTime, boot, app;
@@ -17725,8 +17707,222 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
       _export('default', app);
     }
   };
-});;
-System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList', 'flarum/components/Button', 'flarum/components/LoadingIndicator'], function (_export) {
+});;System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
+  /*global FastClick*/
+
+  /**
+   * The `boot` initializer boots up the forum app. It initializes some app
+   * globals, mounts components to the page, and begins routing.
+   *
+   * @param {ForumApp} app
+   */
+  'use strict';
+
+  var ScrollListener, Pane, Drawer, mapRoutes, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
+
+  _export('default', boot);
+
+  function boot(app) {
+    // Get the configured default route and update that route's path to be '/'.
+    // Push the homepage as the first route, so that the user will always be
+    // able to click on the 'back' button to go home, regardless of which page
+    // they started on.
+    var defaultRoute = app.forum.attribute('defaultRoute');
+    var defaultAction = 'index';
+
+    for (var i in app.routes) {
+      if (app.routes[i].path === defaultRoute) defaultAction = i;
+    }
+
+    app.routes[defaultAction].path = '/';
+    app.history.push(defaultAction, '/');
+
+    m.startComputation();
+
+    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
+    m.mount(document.getElementById('header-navigation'), Navigation.component());
+    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
+    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
+
+    app.pane = new Pane(document.getElementById('app'));
+    app.drawer = new Drawer();
+    app.composer = m.mount(document.getElementById('composer'), Composer.component());
+    app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
+    app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
+
+    var basePath = app.forum.attribute('basePath');
+    m.route.mode = 'pathname';
+    m.route(document.getElementById('content'), basePath + '/', mapRoutes(app.routes, basePath));
+
+    m.endComputation();
+
+    // Route the home link back home when clicked. We do not want it to register
+    // if the user is opening it in a new tab, however.
+    $('#home-link').click(function (e) {
+      if (e.ctrlKey || e.metaKey || e.which === 2) return;
+      e.preventDefault();
+      app.history.home();
+    });
+
+    // Add a class to the body which indicates that the page has been scrolled
+    // down.
+    new ScrollListener(function (top) {
+      var $app = $('#app');
+      var offset = $app.offset().top;
+
+      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
+    }).start();
+
+    // Initialize FastClick, which makes links and buttons much more responsive on
+    // touch devices.
+    $(function () {
+      FastClick.attach(document.body);
+
+      $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
+    });
+
+    app.booted = true;
+  }
+
+  return {
+    setters: [function (_flarumUtilsScrollListener) {
+      ScrollListener = _flarumUtilsScrollListener['default'];
+    }, function (_flarumUtilsPane) {
+      Pane = _flarumUtilsPane['default'];
+    }, function (_flarumUtilsDrawer) {
+      Drawer = _flarumUtilsDrawer['default'];
+    }, function (_flarumUtilsMapRoutes) {
+      mapRoutes = _flarumUtilsMapRoutes['default'];
+    }, function (_flarumComponentsNavigation) {
+      Navigation = _flarumComponentsNavigation['default'];
+    }, function (_flarumComponentsHeaderPrimary) {
+      HeaderPrimary = _flarumComponentsHeaderPrimary['default'];
+    }, function (_flarumComponentsHeaderSecondary) {
+      HeaderSecondary = _flarumComponentsHeaderSecondary['default'];
+    }, function (_flarumComponentsComposer) {
+      Composer = _flarumComponentsComposer['default'];
+    }, function (_flarumComponentsModalManager) {
+      ModalManager = _flarumComponentsModalManager['default'];
+    }, function (_flarumComponentsAlertManager) {
+      AlertManager = _flarumComponentsAlertManager['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/PostedActivity', 'flarum/components/JoinedActivity', 'flarum/components/DiscussionRenamedNotification'], function (_export) {
+
+  /**
+   * The `components` initializer registers components to display the default post
+   * types, activity types, and notifications type with the application.
+   *
+   * @param {ForumApp} app
+   */
+  'use strict';
+
+  var CommentPost, DiscussionRenamedPost, PostedActivity, JoinedActivity, DiscussionRenamedNotification;
+
+  _export('default', components);
+
+  function components(app) {
+    app.postComponents.comment = CommentPost;
+    app.postComponents.discussionRenamed = DiscussionRenamedPost;
+
+    app.notificationComponents.discussionRenamed = DiscussionRenamedNotification;
+  }
+
+  return {
+    setters: [function (_flarumComponentsCommentPost) {
+      CommentPost = _flarumComponentsCommentPost['default'];
+    }, function (_flarumComponentsDiscussionRenamedPost) {
+      DiscussionRenamedPost = _flarumComponentsDiscussionRenamedPost['default'];
+    }, function (_flarumComponentsPostedActivity) {
+      PostedActivity = _flarumComponentsPostedActivity['default'];
+    }, function (_flarumComponentsJoinedActivity) {
+      JoinedActivity = _flarumComponentsJoinedActivity['default'];
+    }, function (_flarumComponentsDiscussionRenamedNotification) {
+      DiscussionRenamedNotification = _flarumComponentsDiscussionRenamedNotification['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'flarum/components/DiscussionPage', 'flarum/components/PostsUserPage', 'flarum/components/DiscussionsUserPage', 'flarum/components/SettingsPage', 'flarum/components/NotificationsPage'], function (_export) {
+
+  /**
+   * The `routes` initializer defines the forum app's routes.
+   *
+   * @param {App} app
+   */
+  'use strict';
+
+  var IndexPage, DiscussionPage, PostsUserPage, DiscussionsUserPage, SettingsPage, NotificationsPage;
+  return {
+    setters: [function (_flarumComponentsIndexPage) {
+      IndexPage = _flarumComponentsIndexPage['default'];
+    }, function (_flarumComponentsDiscussionPage) {
+      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+    }, function (_flarumComponentsPostsUserPage) {
+      PostsUserPage = _flarumComponentsPostsUserPage['default'];
+    }, function (_flarumComponentsDiscussionsUserPage) {
+      DiscussionsUserPage = _flarumComponentsDiscussionsUserPage['default'];
+    }, function (_flarumComponentsSettingsPage) {
+      SettingsPage = _flarumComponentsSettingsPage['default'];
+    }, function (_flarumComponentsNotificationsPage) {
+      NotificationsPage = _flarumComponentsNotificationsPage['default'];
+    }],
+    execute: function () {
+      _export('default', function (app) {
+        app.routes = {
+          'index': { path: '/all', component: IndexPage.component() },
+          'index.filter': { path: '/:filter', component: IndexPage.component() },
+
+          'discussion': { path: '/d/:id', component: DiscussionPage.component() },
+          'discussion.near': { path: '/d/:id/:near', component: DiscussionPage.component() },
+
+          'user': { path: '/u/:username', component: PostsUserPage.component() },
+          'user.posts': { path: '/u/:username', component: PostsUserPage.component() },
+          'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage.component() },
+
+          'settings': { path: '/settings', component: SettingsPage.component() },
+          'notifications': { path: '/notifications', component: NotificationsPage.component() }
+        };
+
+        /**
+         * Generate a URL to a discussion.
+         *
+         * @param {Discussion} discussion
+         * @param {Integer} [near]
+         * @return {String}
+         */
+        app.route.discussion = function (discussion, near) {
+          return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
+            id: discussion.id() + '-' + discussion.slug(),
+            near: near && near !== 1 ? near : undefined
+          });
+        };
+
+        /**
+         * Generate a URL to a post.
+         *
+         * @param {Post} post
+         * @return {String}
+         */
+        app.route.post = function (post) {
+          return app.route.discussion(post.discussion(), post.number());
+        };
+
+        /**
+         * Generate a URL to a user.
+         *
+         * @param {User} user
+         * @return {String}
+         */
+        app.route.user = function (user) {
+          return app.route('user', {
+            username: user.username()
+          });
+        };
+      });
+    }
+  };
+});;System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList', 'flarum/components/Button', 'flarum/components/LoadingIndicator'], function (_export) {
 
   /**
    * The `AvatarEditor` component displays a user's avatar along with a dropdown
@@ -17935,8 +18131,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
       _export('default', AvatarEditor);
     }
   };
-});;
-System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `ChangeEmailModal` component shows a modal dialog which allows the user
@@ -18076,8 +18271,7 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
       _export('default', ChangeEmailModal);
     }
   };
-});;
-System.register('flarum/components/ChangePasswordModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/ChangePasswordModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `ChangePasswordModal` component shows a modal dialog which allows the
@@ -18158,8 +18352,7 @@ System.register('flarum/components/ChangePasswordModal', ['flarum/components/Mod
       _export('default', ChangePasswordModal);
     }
   };
-});;
-System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/components/Composer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/components/Composer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export) {
   /*global s9e, hljs*/
 
   /**
@@ -18356,8 +18549,7 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
       _export('default', CommentPost);
     }
   };
-});;
-System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList', 'flarum/utils/computed'], function (_export) {
+});;System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList', 'flarum/utils/computed'], function (_export) {
 
   /**
    * The `Composer` component displays the composer. It can be loaded with a
@@ -18922,8 +19114,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
       _export('default', Composer);
     }
   };
-});;
-System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/components/TextEditor', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export) {
+});;System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/components/TextEditor', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `ComposerBody` component handles the body, or the content, of the
@@ -19084,8 +19275,7 @@ System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/c
       _export('default', ComposerBody);
     }
   };
-});;
-System.register('flarum/components/ComposerButton', ['flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/ComposerButton', ['flarum/components/Button'], function (_export) {
 
   /**
    * The `ComposerButton` component displays a button suitable for the composer
@@ -19121,8 +19311,7 @@ System.register('flarum/components/ComposerButton', ['flarum/components/Button']
       _export('default', ComposerButton);
     }
   };
-});;
-System.register('flarum/components/DiscussionComposer', ['flarum/components/ComposerBody', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/DiscussionComposer', ['flarum/components/ComposerBody', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `DiscussionComposer` component displays the composer content for starting
@@ -19250,8 +19439,7 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
       _export('default', DiscussionComposer);
     }
   };
-});;
-System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `DiscussionHero` component displays the hero on a discussion page.
@@ -19333,8 +19521,7 @@ System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum
       _export('default', DiscussionHero);
     }
   };
-});;
-System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum/components/DiscussionListItem', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/components/Placeholder'], function (_export) {
+});;System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum/components/DiscussionListItem', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/components/Placeholder'], function (_export) {
 
   /**
    * The `DiscussionList` component displays a list of discussions.
@@ -19600,8 +19787,7 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
       _export('default', DiscussionList);
     }
   };
-});;
-System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/helpers/highlight', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/abbreviateNumber', 'flarum/components/Dropdown', 'flarum/components/TerminalPost', 'flarum/components/PostPreview', 'flarum/utils/SubtreeRetainer', 'flarum/utils/DiscussionControls', 'flarum/utils/slidable', 'flarum/utils/extractText', 'flarum/utils/classList'], function (_export) {
+});;System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/helpers/highlight', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/abbreviateNumber', 'flarum/components/Dropdown', 'flarum/components/TerminalPost', 'flarum/components/PostPreview', 'flarum/utils/SubtreeRetainer', 'flarum/utils/DiscussionControls', 'flarum/utils/slidable', 'flarum/utils/extractText', 'flarum/utils/classList'], function (_export) {
 
   /**
    * The `DiscussionListItem` component shows a single discussion in the
@@ -19869,8 +20055,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
       _export('default', DiscussionListItem);
     }
   };
-});;
-System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHero', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export) {
+});;System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHero', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export) {
 
   /**
    * The `DiscussionPage` component displays a whole discussion page, including
@@ -20204,8 +20389,7 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
       _export('default', DiscussionPage);
     }
   };
-});;
-System.register('flarum/components/DiscussionRenamedNotification', ['flarum/components/Notification'], function (_export) {
+});;System.register('flarum/components/DiscussionRenamedNotification', ['flarum/components/Notification'], function (_export) {
 
   /**
    * The `DiscussionRenamedNotification` component displays a notification which
@@ -20255,8 +20439,7 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
       _export('default', DiscussionRenamedNotification);
     }
   };
-});;
-System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export) {
+});;System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export) {
 
   /**
    * The `DiscussionRenamedPost` component displays a discussion event post
@@ -20319,8 +20502,7 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
       _export('default', DiscussionRenamedPost);
     }
   };
-});;
-System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/highlight', 'flarum/components/LinkButton'], function (_export) {
+});;System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/highlight', 'flarum/components/LinkButton'], function (_export) {
 
   /**
    * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -20410,8 +20592,7 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
       _export('default', DiscussionsSearchSource);
     }
   };
-});;
-System.register('flarum/components/DiscussionsUserPage', ['flarum/components/UserPage', 'flarum/components/DiscussionList'], function (_export) {
+});;System.register('flarum/components/DiscussionsUserPage', ['flarum/components/UserPage', 'flarum/components/DiscussionList'], function (_export) {
 
   /**
    * The `DiscussionsUserPage` component shows a discussion list inside of a user
@@ -20462,8 +20643,7 @@ System.register('flarum/components/DiscussionsUserPage', ['flarum/components/Use
       _export('default', DiscussionsUserPage);
     }
   };
-});;
-System.register('flarum/components/EditPostComposer', ['flarum/components/ComposerBody', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/EditPostComposer', ['flarum/components/ComposerBody', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `EditPostComposer` component displays the composer content for editing a
@@ -20568,8 +20748,7 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
       _export('default', EditPostComposer);
     }
   };
-});;
-System.register('flarum/components/EditUserModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/GroupBadge', 'flarum/models/Group', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/EditUserModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/GroupBadge', 'flarum/models/Group', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `EditUserModal` component displays a modal dialog with a login form.
@@ -20780,8 +20959,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
       _export('default', EditUserModal);
     }
   };
-});;
-System.register('flarum/components/EventPost', ['flarum/components/Post', 'flarum/utils/string', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/EventPost', ['flarum/components/Post', 'flarum/utils/string', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `EventPost` component displays a post which indicating a discussion
@@ -20883,8 +21061,7 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
       _export('default', EventPost);
     }
   };
-});;
-System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Modal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Modal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `ForgotPasswordModal` component displays a modal which allows the user to
@@ -21030,8 +21207,7 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
       _export('default', ForgotPasswordModal);
     }
   };
-});;
-System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/SelectDropdown', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/SelectDropdown', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `HeaderPrimary` component displays primary header controls. On the
@@ -21088,8 +21264,7 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
       _export('default', HeaderPrimary);
     }
   };
-});;
-System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LogInModal', 'flarum/components/SignUpModal', 'flarum/components/SessionDropdown', 'flarum/components/SelectDropdown', 'flarum/components/NotificationsDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LogInModal', 'flarum/components/SignUpModal', 'flarum/components/SessionDropdown', 'flarum/components/SelectDropdown', 'flarum/components/NotificationsDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `HeaderSecondary` component displays secondary header controls, such as
@@ -21213,8 +21388,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
       _export('default', HeaderSecondary);
     }
   };
-});;
-System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export) {
+});;System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export) {
 
   /**
    * The `IndexPage` component displays the index page, including the welcome
@@ -21649,8 +21823,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
       _export('default', IndexPage);
     }
   };
-});;
-System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/helpers/avatar'], function (_export) {
+});;System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/helpers/avatar'], function (_export) {
 
   /**
    * The `LoadingPost` component shows a placeholder that looks like a post,
@@ -21702,8 +21875,7 @@ System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/he
       _export('default', LoadingPost);
     }
   };
-});;
-System.register('flarum/components/LogInButton', ['flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/LogInButton', ['flarum/components/Button'], function (_export) {
 
   /**
    * The `LogInButton` component displays a social login button which will open
@@ -21751,8 +21923,7 @@ System.register('flarum/components/LogInButton', ['flarum/components/Button'], f
       _export('default', LogInButton);
     }
   };
-});;
-System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/utils/ItemList'], function (_export) {
+});;System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `LogInButtons` component displays a collection of social login buttons.
@@ -21803,8 +21974,7 @@ System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/u
       _export('default', LogInButtons);
     }
   };
-});;
-System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `LogInModal` component displays a modal dialog with a login form.
@@ -21996,8 +22166,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
       _export('default', LogInModal);
     }
   };
-});;
-System.register('flarum/components/Notification', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export) {
+});;System.register('flarum/components/Notification', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export) {
 
   /**
    * The `Notification` component abstract displays a single notification.
@@ -22121,8 +22290,7 @@ System.register('flarum/components/Notification', ['flarum/Component', 'flarum/h
       _export('default', Notification);
     }
   };
-});;
-System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flarum/components/Checkbox', 'flarum/helpers/icon', 'flarum/utils/ItemList'], function (_export) {
+});;System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flarum/components/Checkbox', 'flarum/helpers/icon', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `NotificationGrid` component displays a table of notification types and
@@ -22380,8 +22548,7 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
       _export('default', NotificationGrid);
     }
   };
-});;
-System.register('flarum/components/NotificationList', ['flarum/Component', 'flarum/helpers/listItems', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/models/Discussion'], function (_export) {
+});;System.register('flarum/components/NotificationList', ['flarum/Component', 'flarum/helpers/listItems', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/models/Discussion'], function (_export) {
 
   /**
    * The `NotificationList` component displays a list of the logged-in user's
@@ -22578,8 +22745,7 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
       _export('default', NotificationList);
     }
   };
-});;
-System.register('flarum/components/NotificationsDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon', 'flarum/components/NotificationList'], function (_export) {
+});;System.register('flarum/components/NotificationsDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon', 'flarum/components/NotificationList'], function (_export) {
   'use strict';
 
   var Dropdown, icon, NotificationList, NotificationsDropdown;
@@ -22701,8 +22867,7 @@ System.register('flarum/components/NotificationsDropdown', ['flarum/components/D
       _export('default', NotificationsDropdown);
     }
   };
-});;
-System.register('flarum/components/NotificationsPage', ['flarum/components/Page', 'flarum/components/NotificationList'], function (_export) {
+});;System.register('flarum/components/NotificationsPage', ['flarum/components/Page', 'flarum/components/NotificationList'], function (_export) {
 
   /**
    * The `NotificationsPage` component shows the notifications list. It is only
@@ -22754,8 +22919,7 @@ System.register('flarum/components/NotificationsPage', ['flarum/components/Page'
       _export('default', NotificationsPage);
     }
   };
-});;
-System.register('flarum/components/Page', ['flarum/Component'], function (_export) {
+});;System.register('flarum/components/Page', ['flarum/Component'], function (_export) {
 
   /**
    * The `Page` component
@@ -22816,8 +22980,7 @@ System.register('flarum/components/Page', ['flarum/Component'], function (_expor
       _export('default', Page);
     }
   };
-});;
-System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/SubtreeRetainer', 'flarum/components/Dropdown', 'flarum/utils/PostControls', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export) {
+});;System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/SubtreeRetainer', 'flarum/components/Dropdown', 'flarum/utils/PostControls', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `Post` component displays a single post. The basic post template just
@@ -22995,8 +23158,7 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
       _export('default', Post);
     }
   };
-});;
-System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `PostEdited` component displays information about when and by whom a post
@@ -23055,8 +23217,7 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/hel
       _export('default', PostEdited);
     }
   };
-});;
-System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/fullTime'], function (_export) {
+});;System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/fullTime'], function (_export) {
 
   /**
    * The `PostMeta` component displays the time of a post, and when clicked, shows
@@ -23092,7 +23253,7 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
           value: function view() {
             var post = this.props.post;
             var time = post.time();
-            var permalink = window.location.origin + app.route.post(post);
+            var permalink = this.getPermalink(post);
             var touch = ('ontouchstart' in document.documentElement);
 
             // When the dropdown menu is shown, select the contents of the permalink
@@ -23135,6 +23296,18 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
               )
             );
           }
+
+          /**
+           * Get the permalink for the given post.
+           *
+           * @param {Post} post
+           * @returns {String}
+           */
+        }, {
+          key: 'getPermalink',
+          value: function getPermalink(post) {
+            return window.location.origin + app.route.post(post);
+          }
         }]);
         return PostMeta;
       })(Component);
@@ -23142,8 +23315,7 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
       _export('default', PostMeta);
     }
   };
-});;
-System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight'], function (_export) {
+});;System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight'], function (_export) {
 
   /**
    * The `PostPreview` component shows a link to a post containing the avatar and
@@ -23206,8 +23378,7 @@ System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/he
       _export('default', PostPreview);
     }
   };
-});;
-System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder'], function (_export) {
+});;System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder'], function (_export) {
 
   /**
    * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -23442,7 +23613,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             return this.discussion.postIds().slice(this.visibleStart, this.visibleEnd).map(function (id) {
               var post = app.store.getById('posts', id);
 
-              return post && post.discussion() && post.canEdit() !== null ? post : null;
+              return post && post.discussion() && typeof post.canEdit() !== 'undefined' ? post : null;
             });
           }
         }, {
@@ -23679,7 +23850,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             this.discussion.postIds().slice(start, end).forEach(function (id) {
               var post = app.store.getById('posts', id);
 
-              if (post && post.discussion()) {
+              if (post && post.discussion() && typeof post.canEdit() !== 'undefined') {
                 loaded.push(post);
               } else {
                 loadIds.push(id);
@@ -23891,8 +24062,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
       _export('default', PostStream);
     }
   };
-});;
-System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/ScrollListener', 'flarum/utils/SubtreeRetainer', 'flarum/utils/computed', 'flarum/utils/formatNumber'], function (_export) {
+});;System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/ScrollListener', 'flarum/utils/SubtreeRetainer', 'flarum/utils/computed', 'flarum/utils/formatNumber'], function (_export) {
 
   /**
    * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -24436,8 +24606,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
       _export('default', PostStreamScrubber);
     }
   };
-});;
-System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `PostUser` component shows the avatar and username of a post's author.
@@ -24587,8 +24756,7 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
       _export('default', PostUser);
     }
   };
-});;
-System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage', 'flarum/components/LoadingIndicator', 'flarum/components/Button', 'flarum/components/CommentPost'], function (_export) {
+});;System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage', 'flarum/components/LoadingIndicator', 'flarum/components/Button', 'flarum/components/CommentPost'], function (_export) {
 
   /**
    * The `PostsUserPage` component shows a user's activity feed inside of their
@@ -24783,8 +24951,7 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
       _export('default', PostsUserPage);
     }
   };
-});;
-System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `ReplyComposer` component displays the composer content for replying to a
@@ -24921,8 +25088,7 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
       _export('default', ReplyComposer);
     }
   };
-});;
-System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/utils/DiscussionControls'], function (_export) {
+});;System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/utils/DiscussionControls'], function (_export) {
   /*global s9e*/
 
   /**
@@ -25038,8 +25204,7 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
       _export('default', ReplyPlaceholder);
     }
   };
-});;
-System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export) {
+});;System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export) {
 
   /**
    * The `Search` component displays a menu of as-you-type results from a variety
@@ -25393,8 +25558,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
       _export('default', Search);
     }
   };
-});;
-System.register("flarum/components/SearchSource", [], function (_export) {
+});;System.register("flarum/components/SearchSource", [], function (_export) {
   /**
    * The `SearchSource` interface defines a section of search results in the
    * search dropdown.
@@ -25446,8 +25610,7 @@ System.register("flarum/components/SearchSource", [], function (_export) {
       _export("default", SearchSource);
     }
   };
-});;
-System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/components/Separator', 'flarum/models/Group'], function (_export) {
+});;System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/components/Separator', 'flarum/models/Group'], function (_export) {
 
   /**
    * The `SessionDropdown` component shows a button with the current user's
@@ -25563,8 +25726,7 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
       _export('default', SessionDropdown);
     }
   };
-});;
-System.register('flarum/components/SettingsPage', ['flarum/components/UserPage', 'flarum/utils/ItemList', 'flarum/components/Switch', 'flarum/components/Button', 'flarum/components/FieldSet', 'flarum/components/NotificationGrid', 'flarum/components/ChangePasswordModal', 'flarum/components/ChangeEmailModal', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/SettingsPage', ['flarum/components/UserPage', 'flarum/utils/ItemList', 'flarum/components/Switch', 'flarum/components/Button', 'flarum/components/FieldSet', 'flarum/components/NotificationGrid', 'flarum/components/ChangePasswordModal', 'flarum/components/ChangeEmailModal', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `SettingsPage` component displays the user's settings control panel, in
@@ -25736,8 +25898,7 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
       _export('default', SettingsPage);
     }
   };
-});;
-System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'flarum/components/LogInModal', 'flarum/helpers/avatar', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'flarum/components/LogInModal', 'flarum/helpers/avatar', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `SignUpModal` component displays a modal dialog with a singup form.
@@ -26018,8 +26179,7 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
       _export('default', SignUpModal);
     }
   };
-});;
-System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * Displays information about a the first or last post in a discussion.
@@ -26076,8 +26236,7 @@ System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/h
       _export('default', TerminalPost);
     }
   };
-});;
-System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `TextEditor` component displays a textarea with controls, including a
@@ -26282,8 +26441,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
       _export('default', TextEditor);
     }
   };
-});;
-System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `UserBio` component displays a user's bio, optionally letting the user
@@ -26424,8 +26582,7 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
       _export('default', UserBio);
     }
   };
-});;
-System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `UserCard` component displays a user's profile card. This is used both on
@@ -26572,8 +26729,7 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
       _export('default', UserCard);
     }
   };
-});;
-System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/utils/affixSidebar', 'flarum/components/UserCard', 'flarum/components/LoadingIndicator', 'flarum/components/SelectDropdown', 'flarum/components/LinkButton', 'flarum/components/Separator', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/utils/affixSidebar', 'flarum/components/UserCard', 'flarum/components/LoadingIndicator', 'flarum/components/SelectDropdown', 'flarum/components/LinkButton', 'flarum/components/Separator', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `UserPage` component shows a user's profile. It can be extended to show
@@ -26781,8 +26937,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
       _export('default', UserPage);
     }
   };
-});;
-System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar'], function (_export) {
+});;System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar'], function (_export) {
 
   /**
    * The `UsersSearchSource` finds and displays user search results in the search
@@ -26846,8 +27001,7 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
       _export('default', UsersSearchResults);
     }
   };
-});;
-System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `WelcomeHero` component displays a hero that welcomes the user to the
@@ -26933,226 +27087,7 @@ System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/co
       _export('default', WelcomeHero);
     }
   };
-});;
-System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
-  /*global FastClick*/
-
-  /**
-   * The `boot` initializer boots up the forum app. It initializes some app
-   * globals, mounts components to the page, and begins routing.
-   *
-   * @param {ForumApp} app
-   */
-  'use strict';
-
-  var ScrollListener, Pane, Drawer, mapRoutes, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
-
-  _export('default', boot);
-
-  function boot(app) {
-    // Get the configured default route and update that route's path to be '/'.
-    // Push the homepage as the first route, so that the user will always be
-    // able to click on the 'back' button to go home, regardless of which page
-    // they started on.
-    var defaultRoute = app.forum.attribute('defaultRoute');
-    var defaultAction = 'index';
-
-    for (var i in app.routes) {
-      if (app.routes[i].path === defaultRoute) defaultAction = i;
-    }
-
-    app.routes[defaultAction].path = '/';
-    app.history.push(defaultAction, '/');
-
-    m.startComputation();
-
-    m.mount(document.getElementById('app-navigation'), Navigation.component({ className: 'App-backControl', drawer: true }));
-    m.mount(document.getElementById('header-navigation'), Navigation.component());
-    m.mount(document.getElementById('header-primary'), HeaderPrimary.component());
-    m.mount(document.getElementById('header-secondary'), HeaderSecondary.component());
-
-    app.pane = new Pane(document.getElementById('app'));
-    app.drawer = new Drawer();
-    app.composer = m.mount(document.getElementById('composer'), Composer.component());
-    app.modal = m.mount(document.getElementById('modal'), ModalManager.component());
-    app.alerts = m.mount(document.getElementById('alerts'), AlertManager.component());
-
-    var basePath = app.forum.attribute('basePath');
-    m.route.mode = 'pathname';
-    m.route(document.getElementById('content'), basePath + '/', mapRoutes(app.routes, basePath));
-
-    m.endComputation();
-
-    // Route the home link back home when clicked. We do not want it to register
-    // if the user is opening it in a new tab, however.
-    $('#home-link').click(function (e) {
-      if (e.ctrlKey || e.metaKey || e.which === 2) return;
-      e.preventDefault();
-      app.history.home();
-    });
-
-    // Add a class to the body which indicates that the page has been scrolled
-    // down.
-    new ScrollListener(function (top) {
-      var $app = $('#app');
-      var offset = $app.offset().top;
-
-      $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
-    }).start();
-
-    // Initialize FastClick, which makes links and buttons much more responsive on
-    // touch devices.
-    $(function () {
-      FastClick.attach(document.body);
-
-      $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
-    });
-
-    app.booted = true;
-  }
-
-  return {
-    setters: [function (_flarumUtilsScrollListener) {
-      ScrollListener = _flarumUtilsScrollListener['default'];
-    }, function (_flarumUtilsPane) {
-      Pane = _flarumUtilsPane['default'];
-    }, function (_flarumUtilsDrawer) {
-      Drawer = _flarumUtilsDrawer['default'];
-    }, function (_flarumUtilsMapRoutes) {
-      mapRoutes = _flarumUtilsMapRoutes['default'];
-    }, function (_flarumComponentsNavigation) {
-      Navigation = _flarumComponentsNavigation['default'];
-    }, function (_flarumComponentsHeaderPrimary) {
-      HeaderPrimary = _flarumComponentsHeaderPrimary['default'];
-    }, function (_flarumComponentsHeaderSecondary) {
-      HeaderSecondary = _flarumComponentsHeaderSecondary['default'];
-    }, function (_flarumComponentsComposer) {
-      Composer = _flarumComponentsComposer['default'];
-    }, function (_flarumComponentsModalManager) {
-      ModalManager = _flarumComponentsModalManager['default'];
-    }, function (_flarumComponentsAlertManager) {
-      AlertManager = _flarumComponentsAlertManager['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/PostedActivity', 'flarum/components/JoinedActivity', 'flarum/components/DiscussionRenamedNotification'], function (_export) {
-
-  /**
-   * The `components` initializer registers components to display the default post
-   * types, activity types, and notifications type with the application.
-   *
-   * @param {ForumApp} app
-   */
-  'use strict';
-
-  var CommentPost, DiscussionRenamedPost, PostedActivity, JoinedActivity, DiscussionRenamedNotification;
-
-  _export('default', components);
-
-  function components(app) {
-    app.postComponents.comment = CommentPost;
-    app.postComponents.discussionRenamed = DiscussionRenamedPost;
-
-    app.notificationComponents.discussionRenamed = DiscussionRenamedNotification;
-  }
-
-  return {
-    setters: [function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
-    }, function (_flarumComponentsDiscussionRenamedPost) {
-      DiscussionRenamedPost = _flarumComponentsDiscussionRenamedPost['default'];
-    }, function (_flarumComponentsPostedActivity) {
-      PostedActivity = _flarumComponentsPostedActivity['default'];
-    }, function (_flarumComponentsJoinedActivity) {
-      JoinedActivity = _flarumComponentsJoinedActivity['default'];
-    }, function (_flarumComponentsDiscussionRenamedNotification) {
-      DiscussionRenamedNotification = _flarumComponentsDiscussionRenamedNotification['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'flarum/components/DiscussionPage', 'flarum/components/PostsUserPage', 'flarum/components/DiscussionsUserPage', 'flarum/components/SettingsPage', 'flarum/components/NotificationsPage'], function (_export) {
-
-  /**
-   * The `routes` initializer defines the forum app's routes.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
-  var IndexPage, DiscussionPage, PostsUserPage, DiscussionsUserPage, SettingsPage, NotificationsPage;
-  return {
-    setters: [function (_flarumComponentsIndexPage) {
-      IndexPage = _flarumComponentsIndexPage['default'];
-    }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
-    }, function (_flarumComponentsPostsUserPage) {
-      PostsUserPage = _flarumComponentsPostsUserPage['default'];
-    }, function (_flarumComponentsDiscussionsUserPage) {
-      DiscussionsUserPage = _flarumComponentsDiscussionsUserPage['default'];
-    }, function (_flarumComponentsSettingsPage) {
-      SettingsPage = _flarumComponentsSettingsPage['default'];
-    }, function (_flarumComponentsNotificationsPage) {
-      NotificationsPage = _flarumComponentsNotificationsPage['default'];
-    }],
-    execute: function () {
-      _export('default', function (app) {
-        app.routes = {
-          'index': { path: '/all', component: IndexPage.component() },
-          'index.filter': { path: '/:filter', component: IndexPage.component() },
-
-          'discussion': { path: '/d/:id', component: DiscussionPage.component() },
-          'discussion.near': { path: '/d/:id/:near', component: DiscussionPage.component() },
-
-          'user': { path: '/u/:username', component: PostsUserPage.component() },
-          'user.posts': { path: '/u/:username', component: PostsUserPage.component() },
-          'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage.component() },
-
-          'settings': { path: '/settings', component: SettingsPage.component() },
-          'notifications': { path: '/notifications', component: NotificationsPage.component() }
-        };
-
-        /**
-         * Generate a URL to a discussion.
-         *
-         * @param {Discussion} discussion
-         * @param {Integer} [near]
-         * @return {String}
-         */
-        app.route.discussion = function (discussion, near) {
-          return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
-            id: discussion.id() + '-' + discussion.slug(),
-            near: near && near !== 1 ? near : undefined
-          });
-        };
-
-        /**
-         * Generate a URL to a post.
-         *
-         * @param {Post} post
-         * @return {String}
-         */
-        app.route.post = function (post) {
-          return app.route.discussion(post.discussion(), post.number());
-        };
-
-        /**
-         * Generate a URL to a user.
-         *
-         * @param {User} user
-         * @return {String}
-         */
-        app.route.user = function (user) {
-          return app.route('user', {
-            username: user.username()
-          });
-        };
-      });
-    }
-  };
-});;
-System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export) {
+});;System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export) {
 
   /**
    * The `DiscussionControls` utility constructs a list of buttons for a
@@ -27428,8 +27363,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
       });
     }
   };
-});;
-System.register('flarum/utils/History', [], function (_export) {
+});;System.register('flarum/utils/History', [], function (_export) {
   /**
    * The `History` class keeps track and manages a stack of routes that the user
    * has navigated to in their session.
@@ -27562,8 +27496,7 @@ System.register('flarum/utils/History', [], function (_export) {
       _export('default', History);
     }
   };
-});;
-System.register('flarum/utils/Pane', [], function (_export) {
+});;System.register('flarum/utils/Pane', [], function (_export) {
   /**
    * The `Pane` class manages the page's discussion list sidepane. The pane is a
    * part of the content view (DiscussionPage component), but its visibility is
@@ -27718,8 +27651,7 @@ System.register('flarum/utils/Pane', [], function (_export) {
       _export('default', Pane);
     }
   };
-});;
-System.register('flarum/utils/PostControls', ['flarum/components/EditPostComposer', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList'], function (_export) {
+});;System.register('flarum/utils/PostControls', ['flarum/components/EditPostComposer', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `PostControls` utility constructs a list of buttons for a post which
@@ -27892,8 +27824,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
       });
     }
   };
-});;
-System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flarum/components/Separator', 'flarum/components/EditUserModal', 'flarum/components/UserPage', 'flarum/utils/ItemList'], function (_export) {
+});;System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flarum/components/Separator', 'flarum/components/EditUserModal', 'flarum/components/UserPage', 'flarum/utils/ItemList'], function (_export) {
 
   /**
    * The `UserControls` utility constructs a list of buttons for a user which
@@ -28028,8 +27959,7 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
       });
     }
   };
-});;
-System.register('flarum/utils/affixSidebar', [], function (_export) {
+});;System.register('flarum/utils/affixSidebar', [], function (_export) {
   /**
    * Setup the sidebar DOM element to be affixed to the top of the viewport
    * using Bootstrap's affix plugin.
@@ -28070,8 +28000,7 @@ System.register('flarum/utils/affixSidebar', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/slidable', [], function (_export) {
+});;System.register('flarum/utils/slidable', [], function (_export) {
   /**
    * The `slidable` utility adds touch gestures to an element so that it can be
    * slid away to reveal controls underneath, and then released to activate those
@@ -28230,8 +28159,7 @@ System.register('flarum/utils/slidable', [], function (_export) {
       ;
     }
   };
-});;
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
+});;System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
 
   /**
    * The `App` class provides a container for an application, as well as various
@@ -28602,8 +28530,7 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
       _export('default', App);
     }
   };
-});;
-System.register('flarum/Component', [], function (_export) {
+});;System.register('flarum/Component', [], function (_export) {
   /*
    * This file is part of Flarum.
    *
@@ -28869,8 +28796,7 @@ System.register('flarum/Component', [], function (_export) {
       _export('default', Component);
     }
   };
-});;
-System.register('flarum/Model', [], function (_export) {
+});;System.register('flarum/Model', [], function (_export) {
   /**
    * The `Model` class represents a local data resource. It provides methods to
    * persist changes via the API.
@@ -29219,8 +29145,7 @@ System.register('flarum/Model', [], function (_export) {
       _export('default', Model);
     }
   };
-});;
-System.register('flarum/Session', [], function (_export) {
+});;System.register('flarum/Session', [], function (_export) {
   /**
    * The `Session` class defines the current user session. It stores a reference
    * to the current authenticated user, and provides methods to log in/out.
@@ -29307,8 +29232,7 @@ System.register('flarum/Session', [], function (_export) {
       _export('default', Session);
     }
   };
-});;
-System.register('flarum/Store', [], function (_export) {
+});;System.register('flarum/Store', [], function (_export) {
   /**
    * The `Store` class defines a local data store, and provides methods to
    * retrieve data from the API.
@@ -29511,8 +29435,7 @@ System.register('flarum/Store', [], function (_export) {
       _export('default', Store);
     }
   };
-});;
-System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export) {
+});;System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export) {
 
   /**
    * Translator with the same API as Symfony's.
@@ -29825,8 +29748,7 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
       _export('default', Translator);
     }
   };
-});;
-System.register("flarum/extend", [], function (_export) {
+});;System.register("flarum/extend", [], function (_export) {
   /**
    * Extend an object's method by running its output through a mutating callback
    * every time it is called.
@@ -29912,8 +29834,7 @@ System.register("flarum/extend", [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
+});;System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
 
   /**
    * The `Alert` component represents an alert box, which contains a message,
@@ -29998,8 +29919,7 @@ System.register('flarum/components/Alert', ['flarum/Component', 'flarum/componen
       _export('default', Alert);
     }
   };
-});;
-System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
+});;System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
 
   /**
    * The `AlertManager` component provides an area in which `Alert` components can
@@ -30104,8 +30024,7 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
       _export('default', AlertManager);
     }
   };
-});;
-System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
+});;System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
 
   /**
    * The `Badge` component represents a user/discussion badge, indicating some
@@ -30175,8 +30094,7 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
       _export('default', Badge);
     }
   };
-});;
-System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
+});;System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
 
   /**
    * The `Button` component defines an element which, when clicked, performs an
@@ -30266,8 +30184,7 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
       _export('default', Button);
     }
   };
-});;
-System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `Checkbox` component defines a checkbox input.
@@ -30364,8 +30281,7 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
       _export('default', Checkbox);
     }
   };
-});;
-System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `Dropdown` component displays a button which, when clicked, shows a
@@ -30505,8 +30421,7 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
       _export('default', Dropdown);
     }
   };
-});;
-System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
+});;System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `FieldSet` component defines a collection of fields, displayed in a list
@@ -30560,8 +30475,7 @@ System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpe
       _export('default', FieldSet);
     }
   };
-});;
-System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
+});;System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
   'use strict';
 
   var Badge, GroupBadge;
@@ -30599,8 +30513,7 @@ System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], fun
       _export('default', GroupBadge);
     }
   };
-});;
-System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
 
   /**
    * The `LinkButton` component defines a `Button` which links to a route.
@@ -30664,8 +30577,7 @@ System.register('flarum/components/LinkButton', ['flarum/components/Button'], fu
       _export('default', LinkButton);
     }
   };
-});;
-System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
+});;System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
 
   /**
    * The `LoadingIndicator` component displays a loading spinner with spin.js. It
@@ -30720,8 +30632,7 @@ System.register('flarum/components/LoadingIndicator', ['flarum/Component'], func
       _export('default', LoadingIndicator);
     }
   };
-});;
-System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
+});;System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
@@ -30908,8 +30819,7 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
       _export('default', Modal);
     }
   };
-});;
-System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
+});;System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
 
   /**
    * The `ModalManager` component manages a modal dialog. Only one modal dialog
@@ -31038,8 +30948,7 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
       _export('default', ModalManager);
     }
   };
-});;
-System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
+});;System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
 
   /**
    * The `Navigation` component displays a set of navigation buttons. Typically
@@ -31178,8 +31087,7 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
       _export('default', Navigation);
     }
   };
-});;
-System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
+});;System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
 
   /**
    * The `Placeholder` component displays a muted text with some call to action,
@@ -31225,8 +31133,7 @@ System.register("flarum/components/Placeholder", ["flarum/Component"], function 
       _export("default", Placeholder);
     }
   };
-});;
-System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
+});;System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
   'use strict';
 
   var Modal, RequestErrorModal;
@@ -31286,8 +31193,7 @@ System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal
       _export('default', RequestErrorModal);
     }
   };
-});;
-System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `Select` component displays a <select> input, surrounded with some extra
@@ -31347,8 +31253,7 @@ System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers
       _export('default', Select);
     }
   };
-});;
-System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
@@ -31410,8 +31315,7 @@ System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown
       _export('default', SelectDropdown);
     }
   };
-});;
-System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
+});;System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
 
   /**
    * The `Separator` component defines a menu separator item.
@@ -31446,8 +31350,7 @@ System.register("flarum/components/Separator", ["flarum/Component"], function (_
       _export("default", Separator);
     }
   };
-});;
-System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
 
   /**
    * The `SplitDropdown` component is similar to `Dropdown`, but the first child
@@ -31524,8 +31427,7 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
       _export('default', SplitDropdown);
     }
   };
-});;
-System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
+});;System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
 
   /**
    * The `Switch` component is a `Checkbox`, but with a switch display instead of
@@ -31566,333 +31468,7 @@ System.register('flarum/components/Switch', ['flarum/components/Checkbox'], func
       _export('default', Switch);
     }
   };
-});;
-System.register('flarum/helpers/avatar', [], function (_export) {
-  /**
-   * The `avatar` helper displays a user's avatar.
-   *
-   * @param {User} user
-   * @param {Object} attrs Attributes to apply to the avatar element
-   * @return {Object}
-   */
-  'use strict';
-
-  _export('default', avatar);
-
-  function avatar(user) {
-    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    attrs.className = 'Avatar ' + (attrs.className || '');
-    var content = '';
-
-    // If the `title` attribute is set to null or false, we don't want to give the
-    // avatar a title. On the other hand, if it hasn't been given at all, we can
-    // safely default it to the user's username.
-    var hasTitle = attrs.title === 'undefined' || attrs.title;
-    if (!hasTitle) delete attrs.title;
-
-    // If a user has been passed, then we will set up an avatar using their
-    // uploaded image, or the first letter of their username if they haven't
-    // uploaded one.
-    if (user) {
-      var username = user.username() || '?';
-      var avatarUrl = user.avatarUrl();
-
-      if (hasTitle) attrs.title = attrs.title || username;
-
-      if (avatarUrl) {
-        return m('img', babelHelpers._extends({}, attrs, { src: avatarUrl }));
-      }
-
-      content = username.charAt(0).toUpperCase();
-      attrs.style = { background: user.color() };
-    }
-
-    return m(
-      'span',
-      attrs,
-      content
-    );
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/fullTime', [], function (_export) {
-  /**
-   * The `fullTime` helper displays a formatted time string wrapped in a <time>
-   * tag.
-   *
-   * @param {Date} time
-   * @return {Object}
-   */
-  'use strict';
-
-  _export('default', fullTime);
-
-  function fullTime(time) {
-    var mo = moment(time);
-
-    var datetime = mo.format();
-    var full = mo.format('LLLL');
-
-    return m(
-      'time',
-      { pubdate: true, datetime: datetime },
-      full
-    );
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
-
-  /**
-   * The `highlight` helper searches for a word phrase in a string, and wraps
-   * matches with the <mark> tag.
-   *
-   * @param {String} string The string to highlight.
-   * @param {String|RegExp} phrase The word or words to highlight.
-   * @param {Integer} [length] The number of characters to truncate the string to.
-   *     The string will be truncated surrounding the first match.
-   * @return {Object}
-   */
-  'use strict';
-
-  var truncate;
-
-  _export('default', highlight);
-
-  function highlight(string, phrase, length) {
-    if (!phrase && !length) return string;
-
-    // Convert the word phrase into a global regular expression (if it isn't
-    // already) so we can search the string for matched.
-    var regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
-
-    var highlighted = string;
-    var start = 0;
-
-    // If a length was given, the truncate the string surrounding the first match.
-    if (length) {
-      if (phrase) start = Math.max(0, string.search(regexp) - length / 2);
-
-      highlighted = truncate(highlighted, length, start);
-    }
-
-    // Convert the string into HTML entities, then highlight all matches with
-    // <mark> tags. Then we will return the result as a trusted HTML string.
-    highlighted = $('<div/>').text(highlighted).html();
-
-    if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
-
-    return m.trust(highlighted);
-  }
-
-  return {
-    setters: [function (_flarumUtilsString) {
-      truncate = _flarumUtilsString.truncate;
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
-
-  /**
-   * The `humanTime` helper displays a time in a human-friendly time-ago format
-   * (e.g. '12 days ago'), wrapped in a <time> tag with other information about
-   * the time.
-   *
-   * @param {Date} time
-   * @return {Object}
-   */
-  'use strict';
-
-  var humanTimeUtil;
-
-  _export('default', humanTime);
-
-  function humanTime(time) {
-    var mo = moment(time);
-
-    var datetime = mo.format();
-    var full = mo.format('LLLL');
-    var ago = humanTimeUtil(time);
-
-    return m(
-      'time',
-      { pubdate: true, datetime: datetime, title: full, 'data-humantime': true },
-      ago
-    );
-  }
-
-  return {
-    setters: [function (_flarumUtilsHumanTime) {
-      humanTimeUtil = _flarumUtilsHumanTime['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/icon', [], function (_export) {
-  /**
-   * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
-   *
-   * @param {String} name The name of the icon class, without the `fa-` prefix.
-   * @param {Object} attrs Any other attributes to apply.
-   * @return {Object}
-   */
-  'use strict';
-
-  _export('default', icon);
-
-  function icon(name) {
-    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
-
-    return m('i', attrs);
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
-  'use strict';
-
-  var Separator, classList;
-
-  _export('default', listItems);
-
-  /**
-   * The `listItems` helper wraps a collection of components in <li> tags,
-   * stripping out any unnecessary `Separator` components.
-   *
-   * @param {*} items
-   * @return {Array}
-   */
-
-  function isSeparator(item) {
-    return item && item.component === Separator;
-  }
-
-  function withoutUnnecessarySeparators(items) {
-    var newItems = [];
-    var prevItem = undefined;
-
-    items.forEach(function (item, i) {
-      if (!isSeparator(item) || prevItem && !isSeparator(prevItem) && i !== items.length - 1) {
-        prevItem = item;
-        newItems.push(item);
-      }
-    });
-
-    return newItems;
-  }
-  function listItems(items) {
-    if (!(items instanceof Array)) items = [items];
-
-    return withoutUnnecessarySeparators(items).map(function (item) {
-      var isListItem = item.component && item.component.isListItem;
-      var active = item.component && item.component.isActive && item.component.isActive(item.props);
-      var className = item.props ? item.props.itemClassName : item.itemClassName;
-
-      return [isListItem ? item : m(
-        'li',
-        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']) },
-        item
-      ), ' '];
-    });
-  }
-
-  return {
-    setters: [function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
-    }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/punctuateSeries', [], function (_export) {
-  /**
-   * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
-   * fluently in the application's locale.
-   *
-   * ```js
-   * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
-   * ```
-   *
-   * @param {Array} items
-   * @return {VirtualElement}
-   */
-  'use strict';
-
-  _export('default', punctuateSeries);
-
-  function punctuateSeries(items) {
-    if (items.length === 2) {
-      return app.translator.trans('core.lib.series.two_text', {
-        first: items[0],
-        second: items[1]
-      });
-    } else if (items.length >= 3) {
-      // If there are three or more items, we will join all but the first and
-      // last items with the equivalent of a comma, and then we will feed that
-      // into the translator along with the first and last item.
-      var second = items.slice(1, items.length - 1).reduce(function (list, item) {
-        return list.concat([item, app.translator.trans('core.lib.series.glue_text')]);
-      }, []).slice(0, -1);
-
-      return app.translator.trans('core.lib.series.three_text', {
-        first: items[0],
-        second: second,
-        third: items[items.length - 1]
-      });
-    }
-
-    return items;
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register("flarum/helpers/username", [], function (_export) {
-  /**
-   * The `username` helper displays a user's username in a <span class="username">
-   * tag. If the user doesn't exist, the username will be displayed as [deleted].
-   *
-   * @param {User} user
-   * @return {Object}
-   */
-  "use strict";
-
-  _export("default", username);
-
-  function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
-
-    return m(
-      "span",
-      { className: "username" },
-      name
-    );
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+});;System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
   'use strict';
 
   var humanTimeUtil;
@@ -31922,8 +31498,7 @@ System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], fun
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
+});;System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
 
   /**
    * The `preload` initializer creates the application session and preloads it
@@ -31957,8 +31532,7 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
+});;System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
 
   /**
    * The `store` initializer creates the application's data store and registers
@@ -32004,8 +31578,7 @@ System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/For
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
+});;System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
   'use strict';
 
   var Model, mixin, computed, ItemList, slug, Badge, Discussion;
@@ -32146,8 +31719,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
       _export('default', Discussion);
     }
   };
-});;
-System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+});;System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
   'use strict';
 
   var Model, mixin, Forum;
@@ -32178,8 +31750,7 @@ System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], f
       _export('default', Forum);
     }
   };
-});;
-System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+});;System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
   'use strict';
 
   var Model, mixin, Group;
@@ -32215,8 +31786,7 @@ System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], f
       _export('default', Group);
     }
   };
-});;
-System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+});;System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
   'use strict';
 
   var Model, mixin, computed, Notification;
@@ -32262,8 +31832,7 @@ System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mix
       _export('default', Notification);
     }
   };
-});;
-System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
+});;System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
   'use strict';
 
   var Model, mixin, computed, getPlainContent, Post;
@@ -32321,8 +31890,7 @@ System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'fl
       _export('default', Post);
     }
   };
-});;
-System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
+});;System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
   /*global ColorThief*/
 
   'use strict';
@@ -32463,8 +32031,324 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
       _export('default', User);
     }
   };
-});;
-System.register('flarum/utils/Drawer', [], function (_export) {
+});;System.register('flarum/helpers/avatar', [], function (_export) {
+  /**
+   * The `avatar` helper displays a user's avatar.
+   *
+   * @param {User} user
+   * @param {Object} attrs Attributes to apply to the avatar element
+   * @return {Object}
+   */
+  'use strict';
+
+  _export('default', avatar);
+
+  function avatar(user) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    attrs.className = 'Avatar ' + (attrs.className || '');
+    var content = '';
+
+    // If the `title` attribute is set to null or false, we don't want to give the
+    // avatar a title. On the other hand, if it hasn't been given at all, we can
+    // safely default it to the user's username.
+    var hasTitle = attrs.title === 'undefined' || attrs.title;
+    if (!hasTitle) delete attrs.title;
+
+    // If a user has been passed, then we will set up an avatar using their
+    // uploaded image, or the first letter of their username if they haven't
+    // uploaded one.
+    if (user) {
+      var username = user.username() || '?';
+      var avatarUrl = user.avatarUrl();
+
+      if (hasTitle) attrs.title = attrs.title || username;
+
+      if (avatarUrl) {
+        return m('img', babelHelpers._extends({}, attrs, { src: avatarUrl }));
+      }
+
+      content = username.charAt(0).toUpperCase();
+      attrs.style = { background: user.color() };
+    }
+
+    return m(
+      'span',
+      attrs,
+      content
+    );
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register('flarum/helpers/fullTime', [], function (_export) {
+  /**
+   * The `fullTime` helper displays a formatted time string wrapped in a <time>
+   * tag.
+   *
+   * @param {Date} time
+   * @return {Object}
+   */
+  'use strict';
+
+  _export('default', fullTime);
+
+  function fullTime(time) {
+    var mo = moment(time);
+
+    var datetime = mo.format();
+    var full = mo.format('LLLL');
+
+    return m(
+      'time',
+      { pubdate: true, datetime: datetime },
+      full
+    );
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
+
+  /**
+   * The `highlight` helper searches for a word phrase in a string, and wraps
+   * matches with the <mark> tag.
+   *
+   * @param {String} string The string to highlight.
+   * @param {String|RegExp} phrase The word or words to highlight.
+   * @param {Integer} [length] The number of characters to truncate the string to.
+   *     The string will be truncated surrounding the first match.
+   * @return {Object}
+   */
+  'use strict';
+
+  var truncate;
+
+  _export('default', highlight);
+
+  function highlight(string, phrase, length) {
+    if (!phrase && !length) return string;
+
+    // Convert the word phrase into a global regular expression (if it isn't
+    // already) so we can search the string for matched.
+    var regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+
+    var highlighted = string;
+    var start = 0;
+
+    // If a length was given, the truncate the string surrounding the first match.
+    if (length) {
+      if (phrase) start = Math.max(0, string.search(regexp) - length / 2);
+
+      highlighted = truncate(highlighted, length, start);
+    }
+
+    // Convert the string into HTML entities, then highlight all matches with
+    // <mark> tags. Then we will return the result as a trusted HTML string.
+    highlighted = $('<div/>').text(highlighted).html();
+
+    if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
+
+    return m.trust(highlighted);
+  }
+
+  return {
+    setters: [function (_flarumUtilsString) {
+      truncate = _flarumUtilsString.truncate;
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+
+  /**
+   * The `humanTime` helper displays a time in a human-friendly time-ago format
+   * (e.g. '12 days ago'), wrapped in a <time> tag with other information about
+   * the time.
+   *
+   * @param {Date} time
+   * @return {Object}
+   */
+  'use strict';
+
+  var humanTimeUtil;
+
+  _export('default', humanTime);
+
+  function humanTime(time) {
+    var mo = moment(time);
+
+    var datetime = mo.format();
+    var full = mo.format('LLLL');
+    var ago = humanTimeUtil(time);
+
+    return m(
+      'time',
+      { pubdate: true, datetime: datetime, title: full, 'data-humantime': true },
+      ago
+    );
+  }
+
+  return {
+    setters: [function (_flarumUtilsHumanTime) {
+      humanTimeUtil = _flarumUtilsHumanTime['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/helpers/icon', [], function (_export) {
+  /**
+   * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
+   *
+   * @param {String} name The name of the icon class, without the `fa-` prefix.
+   * @param {Object} attrs Any other attributes to apply.
+   * @return {Object}
+   */
+  'use strict';
+
+  _export('default', icon);
+
+  function icon(name) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
+
+    return m('i', attrs);
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
+  'use strict';
+
+  var Separator, classList;
+
+  _export('default', listItems);
+
+  /**
+   * The `listItems` helper wraps a collection of components in <li> tags,
+   * stripping out any unnecessary `Separator` components.
+   *
+   * @param {*} items
+   * @return {Array}
+   */
+
+  function isSeparator(item) {
+    return item && item.component === Separator;
+  }
+
+  function withoutUnnecessarySeparators(items) {
+    var newItems = [];
+    var prevItem = undefined;
+
+    items.forEach(function (item, i) {
+      if (!isSeparator(item) || prevItem && !isSeparator(prevItem) && i !== items.length - 1) {
+        prevItem = item;
+        newItems.push(item);
+      }
+    });
+
+    return newItems;
+  }
+  function listItems(items) {
+    if (!(items instanceof Array)) items = [items];
+
+    return withoutUnnecessarySeparators(items).map(function (item) {
+      var isListItem = item.component && item.component.isListItem;
+      var active = item.component && item.component.isActive && item.component.isActive(item.props);
+      var className = item.props ? item.props.itemClassName : item.itemClassName;
+
+      return [isListItem ? item : m(
+        'li',
+        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']) },
+        item
+      ), ' '];
+    });
+  }
+
+  return {
+    setters: [function (_flarumComponentsSeparator) {
+      Separator = _flarumComponentsSeparator['default'];
+    }, function (_flarumUtilsClassList) {
+      classList = _flarumUtilsClassList['default'];
+    }],
+    execute: function () {}
+  };
+});;System.register('flarum/helpers/punctuateSeries', [], function (_export) {
+  /**
+   * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
+   * fluently in the application's locale.
+   *
+   * ```js
+   * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
+   * ```
+   *
+   * @param {Array} items
+   * @return {VirtualElement}
+   */
+  'use strict';
+
+  _export('default', punctuateSeries);
+
+  function punctuateSeries(items) {
+    if (items.length === 2) {
+      return app.translator.trans('core.lib.series.two_text', {
+        first: items[0],
+        second: items[1]
+      });
+    } else if (items.length >= 3) {
+      // If there are three or more items, we will join all but the first and
+      // last items with the equivalent of a comma, and then we will feed that
+      // into the translator along with the first and last item.
+      var second = items.slice(1, items.length - 1).reduce(function (list, item) {
+        return list.concat([item, app.translator.trans('core.lib.series.glue_text')]);
+      }, []).slice(0, -1);
+
+      return app.translator.trans('core.lib.series.three_text', {
+        first: items[0],
+        second: second,
+        third: items[items.length - 1]
+      });
+    }
+
+    return items;
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register("flarum/helpers/username", [], function (_export) {
+  /**
+   * The `username` helper displays a user's username in a <span class="username">
+   * tag. If the user doesn't exist, the username will be displayed as [deleted].
+   *
+   * @param {User} user
+   * @return {Object}
+   */
+  "use strict";
+
+  _export("default", username);
+
+  function username(user) {
+    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
+
+    return m(
+      "span",
+      { className: "username" },
+      name
+    );
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;System.register('flarum/utils/Drawer', [], function (_export) {
   /**
    * The `Drawer` class controls the page's drawer. The drawer is the area the
    * slides out from the left on mobile devices; it contains the header and the
@@ -32544,8 +32428,7 @@ System.register('flarum/utils/Drawer', [], function (_export) {
       _export('default', Drawer);
     }
   };
-});;
-System.register("flarum/utils/ItemList", [], function (_export) {
+});;System.register("flarum/utils/ItemList", [], function (_export) {
   "use strict";
 
   var Item, ItemList;
@@ -32645,8 +32528,7 @@ System.register("flarum/utils/ItemList", [], function (_export) {
       _export("default", ItemList);
     }
   };
-});;
-System.register("flarum/utils/RequestError", [], function (_export) {
+});;System.register("flarum/utils/RequestError", [], function (_export) {
   "use strict";
 
   var RequestError;
@@ -32673,8 +32555,7 @@ System.register("flarum/utils/RequestError", [], function (_export) {
       _export("default", RequestError);
     }
   };
-});;
-System.register("flarum/utils/ScrollListener", [], function (_export) {
+});;System.register("flarum/utils/ScrollListener", [], function (_export) {
   "use strict";
 
   var scroll, ScrollListener;
@@ -32769,8 +32650,7 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
       _export("default", ScrollListener);
     }
   };
-});;
-System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
+});;System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
   /**
    * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
    * keeps track of a number of pieces of data, allowing the subtree to be
@@ -32870,8 +32750,7 @@ System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
       _export('default', SubtreeRetainer);
     }
   };
-});;
-System.register('flarum/utils/abbreviateNumber', [], function (_export) {
+});;System.register('flarum/utils/abbreviateNumber', [], function (_export) {
   /**
    * The `abbreviateNumber` utility converts a number to a shorter localized form.
    *
@@ -32901,8 +32780,7 @@ System.register('flarum/utils/abbreviateNumber', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register("flarum/utils/anchorScroll", [], function (_export) {
+});;System.register("flarum/utils/anchorScroll", [], function (_export) {
   /**
    * The `anchorScroll` utility saves the scroll position relative to an element,
    * and then restores it after a callback has been run.
@@ -32933,8 +32811,7 @@ System.register("flarum/utils/anchorScroll", [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/classList', [], function (_export) {
+});;System.register('flarum/utils/classList', [], function (_export) {
   /**
    * The `classList` utility creates a list of class names by joining an object's
    * keys, but only for values which are truthy.
@@ -32972,8 +32849,7 @@ System.register('flarum/utils/classList', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/computed', [], function (_export) {
+});;System.register('flarum/utils/computed', [], function (_export) {
   /**
    * The `computed` utility creates a function that will cache its output until
    * any of the dependent values are dirty.
@@ -33028,8 +32904,7 @@ System.register('flarum/utils/computed', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register("flarum/utils/evented", [], function (_export) {
+});;System.register("flarum/utils/evented", [], function (_export) {
   /**
    * The `evented` mixin provides methods allowing an object to trigger events,
    * running externally registered event handlers.
@@ -33126,8 +33001,7 @@ System.register("flarum/utils/evented", [], function (_export) {
       });
     }
   };
-});;
-System.register("flarum/utils/extract", [], function (_export) {
+});;System.register("flarum/utils/extract", [], function (_export) {
   /**
    * The `extract` utility deletes a property from an object and returns its
    * value.
@@ -33152,8 +33026,7 @@ System.register("flarum/utils/extract", [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/extractText', [], function (_export) {
+});;System.register('flarum/utils/extractText', [], function (_export) {
   /**
    * Extract the text nodes from a virtual element.
    *
@@ -33184,8 +33057,7 @@ System.register('flarum/utils/extractText', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/formatNumber', [], function (_export) {
+});;System.register('flarum/utils/formatNumber', [], function (_export) {
   /**
    * The `formatNumber` utility localizes a number into a string with the
    * appropriate punctuation.
@@ -33209,8 +33081,7 @@ System.register('flarum/utils/formatNumber', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/humanTime', [], function (_export) {
+});;System.register('flarum/utils/humanTime', [], function (_export) {
   /**
    * The `humanTime` utility converts a date to a localized, human-readable time-
    * ago string.
@@ -33250,8 +33121,7 @@ System.register('flarum/utils/humanTime', [], function (_export) {
       ;
     }
   };
-});;
-System.register('flarum/utils/mapRoutes', [], function (_export) {
+});;System.register('flarum/utils/mapRoutes', [], function (_export) {
   /**
    * The `mapRoutes` utility converts a map of named application routes into a
    * format that can be understood by Mithril.
@@ -33285,8 +33155,7 @@ System.register('flarum/utils/mapRoutes', [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register("flarum/utils/mixin", [], function (_export) {
+});;System.register("flarum/utils/mixin", [], function (_export) {
   /**
    * The `mixin` utility assigns the properties of a set of 'mixin' objects to
    * the prototype of a parent object.
@@ -33329,8 +33198,7 @@ System.register("flarum/utils/mixin", [], function (_export) {
     setters: [],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/patchMithril', ['../Component'], function (_export) {
+});;System.register('flarum/utils/patchMithril', ['../Component'], function (_export) {
   'use strict';
 
   var Component;
@@ -33388,8 +33256,7 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/utils/string', [], function (_export) {
+});;System.register('flarum/utils/string', [], function (_export) {
   /**
    * Truncate a string to the given length, appending ellipses if necessary.
    *
@@ -33465,8 +33332,7 @@ System.register('flarum/utils/string', [], function (_export) {
       getPlainContent.removeSelectors = ['blockquote', 'script'];
     }
   };
-});;
-System.register('flarum/utils/stringToColor', [], function (_export) {
+});;System.register('flarum/utils/stringToColor', [], function (_export) {
   'use strict';
 
   _export('default', stringToColor);
