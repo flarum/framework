@@ -19,4 +19,12 @@ class FloodingExceptionHandlerTest extends TestCase
         $this->assertFalse($this->handler->manages(new \Exception));
         $this->assertTrue($this->handler->manages(new FloodingException));
     }
+
+    public function test_it_provides_expected_output()
+    {
+        $result = $this->handler->handle(new FloodingException);
+
+        $this->assertEquals(429, $result->getStatus());
+        $this->assertEquals([[]], $result->getErrors());
+    }
 }
