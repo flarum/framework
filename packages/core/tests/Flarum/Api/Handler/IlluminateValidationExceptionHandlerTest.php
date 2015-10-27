@@ -25,7 +25,7 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
     public function test_it_creates_the_desired_output()
     {
         $this->markTestIncomplete();
-        
+
         $exception = new ValidationException(['field' => ['Some error']]);
 
         $response = $this->handler->handle($exception);
