@@ -16,7 +16,7 @@ System.register('flarum/lock/main', ['flarum/extend', 'flarum/app', 'flarum/comp
         extend(PermissionGrid.prototype, 'moderateItems', function (items) {
           items.add('lock', {
             icon: 'lock',
-            label: 'Lock discussions',
+            label: app.translator.trans('flarum-lock.admin.permissions.lock_discussions_label'),
             permission: 'discussion.lock'
           }, 95);
         });
