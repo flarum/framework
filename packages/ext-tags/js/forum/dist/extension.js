@@ -1,4 +1,56 @@
-System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
+System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Tag;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Tag = (function (_mixin) {
+        babelHelpers.inherits(Tag, _mixin);
+
+        function Tag() {
+          babelHelpers.classCallCheck(this, Tag);
+          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Tag;
+      })(mixin(Model, {
+        name: Model.attribute('name'),
+        slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
+
+        color: Model.attribute('color'),
+        backgroundUrl: Model.attribute('backgroundUrl'),
+        backgroundMode: Model.attribute('backgroundMode'),
+
+        position: Model.attribute('position'),
+        parent: Model.hasOne('parent'),
+        defaultSort: Model.attribute('defaultSort'),
+        isChild: Model.attribute('isChild'),
+        isHidden: Model.attribute('isHidden'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastDiscussion: Model.hasOne('lastDiscussion'),
+
+        isRestricted: Model.attribute('isRestricted'),
+        canStartDiscussion: Model.attribute('canStartDiscussion'),
+
+        isPrimary: computed('position', 'parent', function (position, parent) {
+          return position !== null && parent === false;
+        })
+      }));
+
+      _export('default', Tag);
+    }
+  };
+});;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
   'use strict';
 
   _export('default', tagIcon);
@@ -56,7 +108,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
     return m(link ? 'a' : 'span', attrs, m(
       'span',
       { className: 'TagLabel-text' },
-      tag ? tag.name() : app.trans('tags.deleted')
+      tag ? tag.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text')
     ));
   }
 
@@ -108,58 +160,6 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
     }],
     execute: function () {}
   };
-});;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, Tag;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }],
-    execute: function () {
-      Tag = (function (_mixin) {
-        babelHelpers.inherits(Tag, _mixin);
-
-        function Tag() {
-          babelHelpers.classCallCheck(this, Tag);
-          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Tag;
-      })(mixin(Model, {
-        name: Model.attribute('name'),
-        slug: Model.attribute('slug'),
-        description: Model.attribute('description'),
-
-        color: Model.attribute('color'),
-        backgroundUrl: Model.attribute('backgroundUrl'),
-        backgroundMode: Model.attribute('backgroundMode'),
-
-        position: Model.attribute('position'),
-        parent: Model.hasOne('parent'),
-        defaultSort: Model.attribute('defaultSort'),
-        isChild: Model.attribute('isChild'),
-        isHidden: Model.attribute('isHidden'),
-
-        discussionsCount: Model.attribute('discussionsCount'),
-        lastTime: Model.attribute('lastTime', Model.transformDate),
-        lastDiscussion: Model.hasOne('lastDiscussion'),
-
-        isRestricted: Model.attribute('isRestricted'),
-        canStartDiscussion: Model.attribute('canStartDiscussion'),
-
-        isPrimary: computed('position', 'parent', function (position, parent) {
-          return position !== null && parent === false;
-        })
-      }));
-
-      _export('default', Tag);
-    }
-  };
 });;System.register("flarum/tags/utils/sortTags", [], function (_export) {
   "use strict";
 
@@ -170,22 +170,32 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
       var aPos = a.position();
       var bPos = b.position();
 
+      // If they're both secondary tags, sort them by their discussions count,
+      // descending.
+      if (aPos === null && bPos === null) return b.discussionsCount() - a.discussionsCount();
+
+      // If just one is a secondary tag, then the primary tag should
+      // come first.
+      if (bPos === null) return -1;
+      if (aPos === null) return 1;
+
+      // If we've made it this far, we know they're both primary tags. So we'll
+      // need to see if they have parents.
       var aParent = a.parent();
       var bParent = b.parent();
 
-      if (aPos === null && bPos === null) {
-        return b.discussionsCount() - a.discussionsCount();
-      } else if (bPos === null) {
-        return -1;
-      } else if (aPos === null) {
-        return 1;
-      } else if (aParent === bParent) {
-        return aPos - bPos;
-      } else if (aParent) {
-        return aParent === b ? 1 : aParent.position() - bPos;
-      } else if (bParent) {
-        return bParent === a ? -1 : aPos - bParent.position();
-      }
+      // If they both have the same parent, then their positions are local,
+      // so we can compare them directly.
+      if (aParent === bParent) return aPos - bPos;
+
+      // If they are both child tags, then we will compare the positions of their
+      // parents.
+      else if (aParent && bParent) return aParent.position() - bParent.position();
+
+        // If we are comparing a child tag with its parent, then we let the parent
+        // come first. If we are comparing an unrelated parent/child, then we
+        // compare both of the parents.
+        else if (aParent) return aParent === b ? 1 : aParent.position() - bPos;else if (bParent) return bParent === a ? -1 : aPos - bParent.position();
 
       return 0;
     });
@@ -247,7 +257,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
             this.tags.length ? tagsLabel(this.tags) : m(
               'span',
               { className: 'TagLabel untagged' },
-              app.trans('tags.tag_new_discussion_link')
+              app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')
             )
           ), 10);
         });
@@ -296,7 +306,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
         extend(DiscussionControls, 'moderationControls', function (items, discussion) {
           if (discussion.canTag()) {
             items.add('tags', Button.component({
-              children: app.trans('tags.edit_discussion_tags_link'),
+              children: app.translator.trans('flarum-tags.forum.discussion_controls.edit_tags_button'),
               icon: 'tag',
               onclick: function onclick() {
                 return app.modal.show(new TagDiscussionModal({ discussion: discussion }));
@@ -456,7 +466,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
         extend(IndexPage.prototype, 'navItems', function (items) {
           items.add('tags', LinkButton.component({
             icon: 'th-large',
-            children: app.trans('tags.tags'),
+            children: app.translator.trans('flarum-tags.forum.index.tags_link'),
             href: app.route('tags')
           }), -10);
 
@@ -492,7 +502,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
 
           if (more.length) {
             items.add('moreTags', LinkButton.component({
-              children: app.trans('tags.more'),
+              children: app.translator.trans('flarum-tags.forum.index.more_link'),
               href: app.route('tags')
             }), -10);
           }
@@ -582,14 +592,44 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
         }, {
           key: 'descriptionKey',
           value: function descriptionKey() {
-            return 'tags.discussion_tagged_post';
+            if (this.props.tagsAdded.length) {
+              if (this.props.tagsRemoved.length) {
+                return 'flarum-tags.forum.post_stream.added_and_removed_tags_text';
+              }
+
+              return 'flarum-tags.forum.post_stream.added_tags_text';
+            }
+
+            return 'flarum-tags.forum.post_stream.removed_tags_text';
           }
         }, {
           key: 'descriptionData',
           value: function descriptionData() {
-            var post = this.props.post;
-            var oldTags = post.content()[0];
-            var newTags = post.content()[1];
+            var data = {};
+
+            if (this.props.tagsAdded.length) {
+              data.tagsAdded = app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', this.props.tagsAdded.length, {
+                tags: tagsLabel(this.props.tagsAdded, { link: true }),
+                count: this.props.tagsAdded.length
+              });
+            }
+
+            if (this.props.tagsRemoved.length) {
+              data.tagsRemoved = app.translator.transChoice('flarum-tags.forum.post_stream.tags_text', this.props.tagsRemoved.length, {
+                tags: tagsLabel(this.props.tagsRemoved, { link: true }),
+                count: this.props.tagsRemoved.length
+              });
+            }
+
+            return data;
+          }
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            babelHelpers.get(Object.getPrototypeOf(DiscussionTaggedPost), 'initProps', this).call(this, props);
+
+            var oldTags = props.post.content()[0];
+            var newTags = props.post.content()[1];
 
             function diffTags(tags1, tags2) {
               return tags1.filter(function (tag) {
@@ -599,28 +639,8 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
               });
             }
 
-            var added = diffTags(newTags, oldTags);
-            var removed = diffTags(oldTags, newTags);
-            var actions = [];
-
-            if (added.length) {
-              actions.push(app.trans('tags.added_tags', {
-                tags: tagsLabel(added, { link: true }),
-                count: added
-              }));
-            }
-
-            if (removed.length) {
-              actions.push(app.trans('tags.removed_tags', {
-                tags: tagsLabel(removed, { link: true }),
-                count: removed
-              }));
-            }
-
-            return {
-              action: punctuateSeries(actions),
-              count: added.length + removed.length
-            };
+            props.tagsAdded = diffTags(newTags, oldTags);
+            props.tagsRemoved = diffTags(oldTags, newTags);
           }
         }]);
         return DiscussionTaggedPost;
@@ -659,35 +679,35 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
 
         function TagDiscussionModal() {
           babelHelpers.classCallCheck(this, TagDiscussionModal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(TagDiscussionModal.prototype), 'constructor', this).apply(this, args);
-
-          this.tags = sortTags(app.store.all('tags').filter(function (tag) {
-            return tag.canStartDiscussion();
-          }));
-
-          this.selected = [];
-          this.filter = m.prop('');
-          this.index = this.tags[0].id();
-          this.focused = false;
-
-          if (this.props.selectedTags) {
-            this.props.selectedTags.map(this.addTag.bind(this));
-          } else if (this.props.discussion) {
-            this.props.discussion.tags().map(this.addTag.bind(this));
-          }
-
-          this.minPrimary = app.forum.attribute('minPrimaryTags');
-          this.maxPrimary = app.forum.attribute('maxPrimaryTags');
-          this.minSecondary = app.forum.attribute('minSecondaryTags');
-          this.maxSecondary = app.forum.attribute('maxSecondaryTags');
+          babelHelpers.get(Object.getPrototypeOf(TagDiscussionModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(TagDiscussionModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(TagDiscussionModal.prototype), 'init', this).call(this);
+
+            this.tags = sortTags(app.store.all('tags').filter(function (tag) {
+              return tag.canStartDiscussion();
+            }));
+
+            this.selected = [];
+            this.filter = m.prop('');
+            this.index = this.tags[0].id();
+            this.focused = false;
+
+            if (this.props.selectedTags) {
+              this.props.selectedTags.map(this.addTag.bind(this));
+            } else if (this.props.discussion) {
+              this.props.discussion.tags().map(this.addTag.bind(this));
+            }
+
+            this.minPrimary = app.forum.attribute('minPrimaryTags');
+            this.maxPrimary = app.forum.attribute('maxPrimaryTags');
+            this.minSecondary = app.forum.attribute('minSecondaryTags');
+            this.maxSecondary = app.forum.attribute('maxSecondaryTags');
+          }
+        }, {
           key: 'primaryCount',
           value: function primaryCount() {
             return this.selected.filter(function (tag) {
@@ -752,19 +772,21 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
         }, {
           key: 'title',
           value: function title() {
-            return this.props.discussion ? app.trans('tags.edit_discussion_tags_title', { title: m(
+            return this.props.discussion ? app.translator.trans('flarum-tags.forum.choose_tags.edit_title', { title: m(
                 'em',
                 null,
                 this.props.discussion.title()
-              ) }) : app.trans('tags.tag_new_discussion_title');
+              ) }) : app.translator.trans('flarum-tags.forum.choose_tags.title');
           }
         }, {
           key: 'getInstruction',
           value: function getInstruction(primaryCount, secondaryCount) {
             if (primaryCount < this.minPrimary) {
-              return app.trans('tags.choose_primary_tags', { count: this.minPrimary - primaryCount });
+              var remaining = this.minPrimary - primaryCount;
+              return app.translator.transChoice('flarum-tags.forum.choose_tags.choose_primary_placeholder', remaining, { count: remaining });
             } else if (secondaryCount < this.minSecondary) {
-              return app.trans('tags.choose_secondary_tags', { count: this.minSecondary - secondaryCount });
+              var remaining = this.minSecondary - secondaryCount;
+              return app.translator.transChoice('flarum-tags.forum.choose_tags.choose_secondary_placeholder', remaining, { count: remaining });
             }
 
             return '';
@@ -857,7 +879,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
                     className: 'Button Button--primary',
                     disabled: primaryCount < this.minPrimary || secondaryCount < this.minSecondary,
                     icon: 'check',
-                    children: app.trans('tags.confirm')
+                    children: app.translator.trans('flarum-tags.forum.choose_tags.submit_button')
                   })
                 )
               )
@@ -1133,7 +1155,7 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
 
             props.params.tags = tag ? tag.slug() : 'untagged';
             props.href = app.route('tag', props.params);
-            props.children = tag ? tag.name() : app.trans('tags.untagged');
+            props.children = tag ? tag.name() : app.translator.trans('flarum-tags.forum.index.untagged_link');
           }
         }]);
         return TagLinkButton;
@@ -1166,24 +1188,22 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
 
         function TagsPage() {
           babelHelpers.classCallCheck(this, TagsPage);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, args);
-
-          this.tags = sortTags(app.store.all('tags').filter(function (tag) {
-            return !tag.parent();
-          }));
-
-          app.current = this;
-          app.history.push('tags');
-          app.drawer.hide();
-          app.modal.close();
+          babelHelpers.get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(TagsPage, [{
+          key: 'init',
+          value: function init() {
+            this.tags = sortTags(app.store.all('tags').filter(function (tag) {
+              return !tag.parent();
+            }));
+
+            app.current = this;
+            app.history.push('tags');
+            app.drawer.hide();
+            app.modal.close();
+          }
+        }, {
           key: 'view',
           value: function view() {
             var pinned = this.tags.filter(function (tag) {

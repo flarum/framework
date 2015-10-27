@@ -411,7 +411,59 @@ $.fn.sortable = function(options) {
 
 return sortable;
 }));
-;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
+;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Tag;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Tag = (function (_mixin) {
+        babelHelpers.inherits(Tag, _mixin);
+
+        function Tag() {
+          babelHelpers.classCallCheck(this, Tag);
+          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Tag;
+      })(mixin(Model, {
+        name: Model.attribute('name'),
+        slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
+
+        color: Model.attribute('color'),
+        backgroundUrl: Model.attribute('backgroundUrl'),
+        backgroundMode: Model.attribute('backgroundMode'),
+
+        position: Model.attribute('position'),
+        parent: Model.hasOne('parent'),
+        defaultSort: Model.attribute('defaultSort'),
+        isChild: Model.attribute('isChild'),
+        isHidden: Model.attribute('isHidden'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastDiscussion: Model.hasOne('lastDiscussion'),
+
+        isRestricted: Model.attribute('isRestricted'),
+        canStartDiscussion: Model.attribute('canStartDiscussion'),
+
+        isPrimary: computed('position', 'parent', function (position, parent) {
+          return position !== null && parent === false;
+        })
+      }));
+
+      _export('default', Tag);
+    }
+  };
+});;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
   'use strict';
 
   _export('default', tagIcon);
@@ -469,7 +521,7 @@ return sortable;
     return m(link ? 'a' : 'span', attrs, m(
       'span',
       { className: 'TagLabel-text' },
-      tag ? tag.name() : app.trans('tags.deleted')
+      tag ? tag.name() : app.translator.trans('flarum-tags.forum.deleted')
     ));
   }
 
@@ -521,58 +573,6 @@ return sortable;
     }],
     execute: function () {}
   };
-});;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, Tag;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }],
-    execute: function () {
-      Tag = (function (_mixin) {
-        babelHelpers.inherits(Tag, _mixin);
-
-        function Tag() {
-          babelHelpers.classCallCheck(this, Tag);
-          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Tag;
-      })(mixin(Model, {
-        name: Model.attribute('name'),
-        slug: Model.attribute('slug'),
-        description: Model.attribute('description'),
-
-        color: Model.attribute('color'),
-        backgroundUrl: Model.attribute('backgroundUrl'),
-        backgroundMode: Model.attribute('backgroundMode'),
-
-        position: Model.attribute('position'),
-        parent: Model.hasOne('parent'),
-        defaultSort: Model.attribute('defaultSort'),
-        isChild: Model.attribute('isChild'),
-        isHidden: Model.attribute('isHidden'),
-
-        discussionsCount: Model.attribute('discussionsCount'),
-        lastTime: Model.attribute('lastTime', Model.transformDate),
-        lastDiscussion: Model.hasOne('lastDiscussion'),
-
-        isRestricted: Model.attribute('isRestricted'),
-        canStartDiscussion: Model.attribute('canStartDiscussion'),
-
-        isPrimary: computed('position', 'parent', function (position, parent) {
-          return position !== null && parent === false;
-        })
-      }));
-
-      _export('default', Tag);
-    }
-  };
 });;System.register("flarum/tags/utils/sortTags", [], function (_export) {
   "use strict";
 
@@ -583,22 +583,32 @@ return sortable;
       var aPos = a.position();
       var bPos = b.position();
 
+      // If they're both secondary tags, sort them by their discussions count,
+      // descending.
+      if (aPos === null && bPos === null) return b.discussionsCount() - a.discussionsCount();
+
+      // If just one is a secondary tag, then the primary tag should
+      // come first.
+      if (bPos === null) return -1;
+      if (aPos === null) return 1;
+
+      // If we've made it this far, we know they're both primary tags. So we'll
+      // need to see if they have parents.
       var aParent = a.parent();
       var bParent = b.parent();
 
-      if (aPos === null && bPos === null) {
-        return b.discussionsCount() - a.discussionsCount();
-      } else if (bPos === null) {
-        return -1;
-      } else if (aPos === null) {
-        return 1;
-      } else if (aParent === bParent) {
-        return aPos - bPos;
-      } else if (aParent) {
-        return aParent === b ? 1 : aParent.position() - bPos;
-      } else if (bParent) {
-        return bParent === a ? -1 : aPos - bParent.position();
-      }
+      // If they both have the same parent, then their positions are local,
+      // so we can compare them directly.
+      if (aParent === bParent) return aPos - bPos;
+
+      // If they are both child tags, then we will compare the positions of their
+      // parents.
+      else if (aParent && bParent) return aParent.position() - bParent.position();
+
+        // If we are comparing a child tag with its parent, then we let the parent
+        // come first. If we are comparing an unrelated parent/child, then we
+        // compare both of the parents.
+        else if (aParent) return aParent === b ? 1 : aParent.position() - bPos;else if (bParent) return bParent === a ? -1 : aPos - bParent.position();
 
       return 0;
     });
@@ -718,23 +728,11 @@ return sortable;
                 return tag.save({ isRestricted: false });
               },
               render: function render(item) {
-                if (item.permission) {
-                  var permission = undefined;
-
-                  if (item.permission === 'forum.view') {
-                    permission = 'view';
-                  } else if (item.permission === 'forum.startDiscussion') {
-                    permission = 'startDiscussion';
-                  } else if (item.permission.indexOf('discussion.') === 0) {
-                    permission = item.permission;
-                  }
-
-                  if (permission) {
-                    return PermissionDropdown.component({
-                      permission: 'tag' + tag.id() + '.' + permission,
-                      allowGuest: item.allowGuest
-                    });
-                  }
+                if (item.permission === 'viewDiscussions' || item.permission === 'startDiscussion' || item.permission && item.permission.indexOf('discussion.') === 0) {
+                  return PermissionDropdown.component({
+                    permission: 'tag' + tag.id() + '.' + item.permission,
+                    allowGuest: item.allowGuest
+                  });
                 }
 
                 return '';
@@ -753,7 +751,7 @@ return sortable;
               className: 'Dropdown--restrictByTag',
               buttonClassName: 'Button Button--text',
               label: 'Restrict by Tag',
-              icon: 'plus',
+              icon: 'tag',
               caretIcon: null,
               children: tags.map(function (tag) {
                 return Button.component({
@@ -823,23 +821,23 @@ return sortable;
 
         function EditTagModal() {
           babelHelpers.classCallCheck(this, EditTagModal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(EditTagModal.prototype), 'constructor', this).apply(this, args);
-
-          this.tag = this.props.tag || app.store.createRecord('tags');
-
-          this.name = m.prop(this.tag.name() || '');
-          this.slug = m.prop(this.tag.slug() || '');
-          this.description = m.prop(this.tag.description() || '');
-          this.color = m.prop(this.tag.color() || '');
-          this.isHidden = m.prop(this.tag.isHidden() || false);
+          babelHelpers.get(Object.getPrototypeOf(EditTagModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(EditTagModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(EditTagModal.prototype), 'init', this).call(this);
+
+            this.tag = this.props.tag || app.store.createRecord('tags');
+
+            this.name = m.prop(this.tag.name() || '');
+            this.slug = m.prop(this.tag.slug() || '');
+            this.description = m.prop(this.tag.description() || '');
+            this.color = m.prop(this.tag.color() || '');
+            this.isHidden = m.prop(this.tag.isHidden() || false);
+          }
+        }, {
           key: 'className',
           value: function className() {
             return 'EditTagModal Modal--small';
@@ -955,9 +953,9 @@ return sortable;
               isHidden: this.isHidden()
             }).then(function () {
               return _this2.hide();
-            }, function () {
+            }, function (response) {
               _this2.loading = false;
-              m.redraw();
+              _this2.handleErrors(response);
             });
           }
         }, {
