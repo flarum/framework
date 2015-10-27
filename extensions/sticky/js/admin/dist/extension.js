@@ -12,11 +12,11 @@ System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/co
     }],
     execute: function () {
 
-      app.initializers.add('sticky', function () {
+      app.initializers.add('flarum-sticky', function () {
         extend(PermissionGrid.prototype, 'moderateItems', function (items) {
           items.add('sticky', {
             icon: 'thumb-tack',
-            label: 'Sticky discussions',
+            label: app.translator.trans('flarum-sticky.admin.permissions.sticky_discussions_label'),
             permission: 'discussion.sticky'
           }, 95);
         });
