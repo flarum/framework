@@ -44,7 +44,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pu
         }, {
           key: 'title',
           value: function title() {
-            return 'Pusher Settings';
+            return app.translator.trans('flarum-pusher.admin.pusher_settings.title');
           }
         }, {
           key: 'form',
@@ -55,7 +55,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pu
               m(
                 'label',
                 null,
-                'App ID'
+                app.translator.trans('flarum-pusher.admin.pusher_settings.app_id_label')
               ),
               m('input', { className: 'FormControl', bidi: this.setting('flarum-pusher.app_id') })
             ), m(
@@ -64,7 +64,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pu
               m(
                 'label',
                 null,
-                'App Key'
+                app.translator.trans('flarum-pusher.admin.pusher_settings.app_key_label')
               ),
               m('input', { className: 'FormControl', bidi: this.setting('flarum-pusher.app_key') })
             ), m(
@@ -73,7 +73,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pu
               m(
                 'label',
                 null,
-                'App Secret'
+                app.translator.trans('flarum-pusher.admin.pusher_settings.app_secret_label')
               ),
               m('input', { className: 'FormControl', bidi: this.setting('flarum-pusher.app_secret') })
             )];
