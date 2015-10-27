@@ -411,59 +411,7 @@ $.fn.sortable = function(options) {
 
 return sortable;
 }));
-;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, Tag;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }],
-    execute: function () {
-      Tag = (function (_mixin) {
-        babelHelpers.inherits(Tag, _mixin);
-
-        function Tag() {
-          babelHelpers.classCallCheck(this, Tag);
-          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Tag;
-      })(mixin(Model, {
-        name: Model.attribute('name'),
-        slug: Model.attribute('slug'),
-        description: Model.attribute('description'),
-
-        color: Model.attribute('color'),
-        backgroundUrl: Model.attribute('backgroundUrl'),
-        backgroundMode: Model.attribute('backgroundMode'),
-
-        position: Model.attribute('position'),
-        parent: Model.hasOne('parent'),
-        defaultSort: Model.attribute('defaultSort'),
-        isChild: Model.attribute('isChild'),
-        isHidden: Model.attribute('isHidden'),
-
-        discussionsCount: Model.attribute('discussionsCount'),
-        lastTime: Model.attribute('lastTime', Model.transformDate),
-        lastDiscussion: Model.hasOne('lastDiscussion'),
-
-        isRestricted: Model.attribute('isRestricted'),
-        canStartDiscussion: Model.attribute('canStartDiscussion'),
-
-        isPrimary: computed('position', 'parent', function (position, parent) {
-          return position !== null && parent === false;
-        })
-      }));
-
-      _export('default', Tag);
-    }
-  };
-});;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
+;System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
   'use strict';
 
   _export('default', tagIcon);
@@ -521,7 +469,7 @@ return sortable;
     return m(link ? 'a' : 'span', attrs, m(
       'span',
       { className: 'TagLabel-text' },
-      tag ? tag.name() : app.translator.trans('flarum-tags.forum.deleted')
+      tag ? tag.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text')
     ));
   }
 
@@ -572,6 +520,58 @@ return sortable;
       sortTags = _flarumTagsUtilsSortTags['default'];
     }],
     execute: function () {}
+  };
+});;System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Tag;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Tag = (function (_mixin) {
+        babelHelpers.inherits(Tag, _mixin);
+
+        function Tag() {
+          babelHelpers.classCallCheck(this, Tag);
+          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Tag;
+      })(mixin(Model, {
+        name: Model.attribute('name'),
+        slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
+
+        color: Model.attribute('color'),
+        backgroundUrl: Model.attribute('backgroundUrl'),
+        backgroundMode: Model.attribute('backgroundMode'),
+
+        position: Model.attribute('position'),
+        parent: Model.hasOne('parent'),
+        defaultSort: Model.attribute('defaultSort'),
+        isChild: Model.attribute('isChild'),
+        isHidden: Model.attribute('isHidden'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastDiscussion: Model.hasOne('lastDiscussion'),
+
+        isRestricted: Model.attribute('isRestricted'),
+        canStartDiscussion: Model.attribute('canStartDiscussion'),
+
+        isPrimary: computed('position', 'parent', function (position, parent) {
+          return position !== null && parent === false;
+        })
+      }));
+
+      _export('default', Tag);
+    }
   };
 });;System.register("flarum/tags/utils/sortTags", [], function (_export) {
   "use strict";
@@ -633,7 +633,7 @@ return sortable;
         extend(PermissionGrid.prototype, 'moderateItems', function (items) {
           items.add('tag', {
             icon: 'tag',
-            label: 'Tag discussions',
+            label: app.translator.trans('flarum-tags.admin.permissions.tag_discussions_label'),
             permission: 'discussion.tag'
           }, 95);
         });
@@ -655,7 +655,7 @@ return sortable;
         extend(BasicsPage.prototype, 'homePageItems', function (items) {
           items.add('tags', {
             path: '/tags',
-            label: 'Tags'
+            label: app.translator.trans('flarum-tags.admin.basics.tags_label')
           });
         });
       });
@@ -687,8 +687,8 @@ return sortable;
           items.add('tags', AdminLinkButton.component({
             href: app.route('tags'),
             icon: 'tags',
-            children: 'Tags',
-            description: 'Manage the list of tags available to organise discussions with.'
+            children: app.translator.trans('flarum-tags.admin.nav.tags_button'),
+            description: app.translator.trans('flarum-tags.admin.nav.tags_text')
           }));
         });
       });
@@ -750,8 +750,8 @@ return sortable;
             items.add('tag', Dropdown.component({
               className: 'Dropdown--restrictByTag',
               buttonClassName: 'Button Button--text',
-              label: 'Restrict by Tag',
-              icon: 'tag',
+              label: app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
+              icon: 'plus',
               caretIcon: null,
               children: tags.map(function (tag) {
                 return Button.component({
@@ -848,7 +848,7 @@ return sortable;
             return this.name() ? tagLabel({
               name: this.name,
               color: this.color
-            }) : 'Create Tag';
+            }) : app.translator.trans('flarum-tags.admin.edit_tag.title');
           }
         }, {
           key: 'content',
@@ -867,9 +867,9 @@ return sortable;
                   m(
                     'label',
                     null,
-                    'Name'
+                    app.translator.trans('flarum-tags.admin.edit_tag.name_label')
                   ),
-                  m('input', { className: 'FormControl', placeholder: 'Name', value: this.name(), oninput: function (e) {
+                  m('input', { className: 'FormControl', placeholder: app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder'), value: this.name(), oninput: function (e) {
                       _this.name(e.target.value);
                       _this.slug(slug(e.target.value));
                     } })
@@ -880,7 +880,7 @@ return sortable;
                   m(
                     'label',
                     null,
-                    'Slug'
+                    app.translator.trans('flarum-tags.admin.edit_tag.slug_label')
                   ),
                   m('input', { className: 'FormControl', value: this.slug(), oninput: m.withAttr('value', this.slug) })
                 ),
@@ -890,7 +890,7 @@ return sortable;
                   m(
                     'label',
                     null,
-                    'Description'
+                    app.translator.trans('flarum-tags.admin.edit_tag.description_label')
                   ),
                   m('textarea', { className: 'FormControl', value: this.description(), oninput: m.withAttr('value', this.description) })
                 ),
@@ -900,7 +900,7 @@ return sortable;
                   m(
                     'label',
                     null,
-                    'Color'
+                    app.translator.trans('flarum-tags.admin.edit_tag.color_label')
                   ),
                   m('input', { className: 'FormControl', placeholder: '#aaaaaa', value: this.color(), oninput: m.withAttr('value', this.color) })
                 ),
@@ -914,7 +914,7 @@ return sortable;
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'checkbox', value: '1', checked: this.isHidden(), onchange: m.withAttr('checked', this.isHidden) }),
-                      'Hide from All Discussions'
+                      app.translator.trans('flarum-tags.admin.edit_tag.hide_label')
                     )
                   )
                 ),
@@ -925,12 +925,12 @@ return sortable;
                     type: 'submit',
                     className: 'Button Button--primary EditTagModal-save',
                     loading: this.loading,
-                    children: 'Save Changes'
+                    children: app.translator.trans('flarum-tags.admin.edit_tag.submit_button')
                   }),
                   this.tag.exists ? m(
                     'button',
                     { type: 'button', className: 'Button EditTagModal-delete', onclick: this['delete'].bind(this) },
-                    'Delete Tag'
+                    app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')
                   ) : ''
                 )
               )
@@ -961,7 +961,7 @@ return sortable;
         }, {
           key: 'delete',
           value: function _delete() {
-            if (confirm('Are you sure you want to delete this tag? The tag\'s discussions will NOT be deleted.')) {
+            if (confirm(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation'))) {
               this.tag['delete']().then(function () {
                 return m.redraw();
               });
@@ -1006,7 +1006,7 @@ return sortable;
         }, {
           key: 'title',
           value: function title() {
-            return 'Tag Settings';
+            return app.translator.trans('flarum-tags.admin.tag_settings.title');
           }
         }, {
           key: 'form',
@@ -1023,12 +1023,12 @@ return sortable;
               m(
                 'label',
                 null,
-                'Required Number of Primary Tags'
+                app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading')
               ),
               m(
                 'div',
                 { className: 'helpText' },
-                'Enter the minimum and maximum number of primary tags that may be applied to a discussion.'
+                app.translator.trans('flarum-tags.admin.tag_settings.required_primary_text')
               ),
               m(
                 'div',
@@ -1038,7 +1038,7 @@ return sortable;
                   min: '0',
                   value: minPrimaryTags(),
                   oninput: m.withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags)) }),
-                ' to ',
+                app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text'),
                 m('input', { className: 'FormControl',
                   type: 'number',
                   min: minPrimaryTags(),
@@ -1050,12 +1050,12 @@ return sortable;
               m(
                 'label',
                 null,
-                'Required Number of Secondary Tags'
+                app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading')
               ),
               m(
                 'div',
                 { className: 'helpText' },
-                'Enter the minimum and maximum number of secondary tags that may be applied to a discussion.'
+                app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_text')
               ),
               m(
                 'div',
@@ -1065,7 +1065,7 @@ return sortable;
                   min: '0',
                   value: minSecondaryTags(),
                   oninput: m.withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags)) }),
-                ' to ',
+                app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text'),
                 m('input', { className: 'FormControl',
                   type: 'number',
                   min: minSecondaryTags(),
@@ -1154,19 +1154,19 @@ return sortable;
                   m(
                     'p',
                     null,
-                    'Tags are used to categorize discussions. Primary tags are like traditional forum categories: They can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization.'
+                    app.translator.trans('flarum-tags.admin.tags.about_tags_text')
                   ),
                   Button.component({
                     className: 'Button Button--primary',
                     icon: 'plus',
-                    children: 'Create Tag',
+                    children: app.translator.trans('flarum-tags.admin.tags.create_tag_button'),
                     onclick: function onclick() {
                       return app.modal.show(new EditTagModal());
                     }
                   }),
                   Button.component({
                     className: 'Button',
-                    children: 'Settings',
+                    children: app.translator.trans('flarum-tags.admin.tags.settings_button'),
                     onclick: function onclick() {
                       return app.modal.show(new TagSettingsModal());
                     }
@@ -1185,7 +1185,7 @@ return sortable;
                     m(
                       'label',
                       null,
-                      'Primary Tags'
+                      app.translator.trans('flarum-tags.admin.tags.primary_heading')
                     ),
                     m(
                       'ol',
@@ -1201,7 +1201,7 @@ return sortable;
                     m(
                       'label',
                       null,
-                      'Secondary Tags'
+                      app.translator.trans('flarum-tags.admin.tags.secondary_heading')
                     ),
                     m(
                       'ul',
