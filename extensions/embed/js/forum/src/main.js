@@ -3,6 +3,7 @@ import app from 'flarum/app';
 import Composer from 'flarum/components/Composer';
 import ModalManager from 'flarum/components/ModalManager';
 import AlertManager from 'flarum/components/AlertManager';
+import PostMeta from 'flarum/components/PostMeta';
 import mapRoutes from 'flarum/utils/mapRoutes';
 import Pane from 'flarum/utils/Pane';
 import Drawer from 'flarum/utils/Drawer';
@@ -27,6 +28,11 @@ app.initializers.boot.content = app => {
     }
 
     return original.apply(this, Array.prototype.slice.call(arguments, 1));
+  });
+
+  // Trim the /embed prefix off of post permalinks
+  override(PostMeta.prototype, 'getPermalink', (original, post) => {
+    return original(post).replace('/embed', '');
   });
 
   app.pane = new Pane(document.getElementById('app'));
