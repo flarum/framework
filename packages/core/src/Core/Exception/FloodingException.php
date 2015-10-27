@@ -11,23 +11,7 @@
 namespace Flarum\Core\Exception;
 
 use Exception;
-use Tobscure\JsonApi\Exception\JsonApiSerializableInterface;
 
-class FloodingException extends Exception implements JsonApiSerializableInterface
+class FloodingException extends Exception
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getStatusCode()
-    {
-        return 429;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getErrors()
-    {
-        return [];
-    }
 }
