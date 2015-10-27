@@ -1,5 +1,5 @@
 <?php
-namespace tests\Flarum\Api\Handler;
+namespace Tests\Flarum\Api\Handler;
 
 use Flarum\Api\Handler\FloodingExceptionHandler;
 use Flarum\Core\Exception\FloodingException;
