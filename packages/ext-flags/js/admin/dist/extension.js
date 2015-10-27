@@ -16,7 +16,7 @@ System.register('flarum/flags/main', ['flarum/extend', 'flarum/app', 'flarum/com
         extend(PermissionGrid.prototype, 'moderateItems', function (items) {
           items.add('viewFlags', {
             icon: 'flag',
-            label: 'View flagged posts',
+            label: app.translator.trans('flarum-flags.admin.permissions.view_flags_label'),
             permission: 'discussion.viewFlags'
           }, 65);
         });
@@ -24,7 +24,7 @@ System.register('flarum/flags/main', ['flarum/extend', 'flarum/app', 'flarum/com
         extend(PermissionGrid.prototype, 'replyItems', function (items) {
           items.add('flagPosts', {
             icon: 'flag',
-            label: 'Flag posts',
+            label: app.translator.trans('flarum-flags.admin.permissions.flag_posts_label'),
             permission: 'discussion.flagPosts'
           }, 70);
         });

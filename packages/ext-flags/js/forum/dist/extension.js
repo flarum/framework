@@ -24,7 +24,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
             { icon: 'flag', onclick: function () {
                 return app.modal.show(new FlagPostModal({ post: post }));
               } },
-            'Flag'
+            app.translator.trans('flarum-flags.forum.post_controls.flag_button')
           ));
         });
       });
@@ -139,7 +139,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
 
           items.merge(controls);
 
-          items.add('dismiss', m(Button, { className: 'Button Button--icon Button--link', icon: 'times', onclick: this.dismissFlag.bind(this), title: 'Dismiss Flag' }), -100);
+          items.add('dismiss', m(Button, { className: 'Button Button--icon Button--link', icon: 'times', onclick: this.dismissFlag.bind(this), title: app.translator.trans('flarum-flags.forum.post.dismiss_flag_tooltip') }), -100);
 
           return items;
         };
@@ -182,7 +182,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
             var reason = flag.reason();
             var detail = flag.reasonDetail();
 
-            return [app.translator.trans(reason ? 'flarum-flags.forum.flagged_by_with_reason' : 'flarum-flags.forum.flagged_by', { user: user, reason: reason }), detail ? m(
+            return [app.translator.trans(reason ? 'flarum-flags.forum.post.flagged_by_with_reason_text' : 'flarum-flags.forum.post.flagged_by_text', { user: user, reason: reason }), detail ? m(
               'span',
               { className: 'Post-flagged-detail' },
               detail
@@ -279,7 +279,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
                 m(
                   'h4',
                   { className: 'App-titleControl App-titleControl--text' },
-                  'Flagged Posts'
+                  app.translator.trans('flarum-flags.forum.flagged_posts.title')
                 )
               ),
               m(
@@ -327,7 +327,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
                   }) : !this.loading ? m(
                     'div',
                     { className: 'NotificationList-empty' },
-                    app.translator.trans('flarum-flags.forum.no_flags')
+                    app.translator.trans('flarum-flags.forum.flagged_posts.empty_text')
                   ) : LoadingIndicator.component({ className: 'LoadingIndicator--block' })
                 )
               )
@@ -402,7 +402,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
         }, {
           key: 'title',
           value: function title() {
-            return 'Flag Post';
+            return app.translator.trans('flarum-flags.forum.flag_post.title');
           }
         }, {
           key: 'content',
@@ -419,7 +419,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
                   m(
                     'label',
                     null,
-                    'Choose a Reason'
+                    app.translator.trans('flarum-flags.forum.flag_post.reason_heading')
                   ),
                   m(
                     'div',
@@ -428,25 +428,25 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'off_topic', value: 'off_topic', onclick: m.withAttr('value', this.reason) }),
-                      'Off-topic'
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_label')
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'inappropriate', value: 'inappropriate', onclick: m.withAttr('value', this.reason) }),
-                      'Inappropriate'
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_label')
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'spam', value: 'spam', onclick: m.withAttr('value', this.reason) }),
-                      'Spam'
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_spam_label')
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'other', value: 'other', onclick: m.withAttr('value', this.reason) }),
-                      'Other',
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_other_label'),
                       this.reason() === 'other' ? m('textarea', { className: 'FormControl', value: this.reasonDetail(), oninput: m.withAttr('value', this.reasonDetail) }) : ''
                     )
                   )
@@ -461,7 +461,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
                       type: 'submit',
                       loading: this.loading,
                       disabled: !this.reason() },
-                    'Flag Post'
+                    app.translator.trans('flarum-flags.forum.flag_post.submit_button')
                   )
                 )
               )
@@ -538,7 +538,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            props.label = props.label || 'Flagged Posts';
+            props.label = props.label || app.translator.trans('flarum-flags.forum.flagged_posts.tooltip');
             props.icon = props.icon || 'flag';
 
             babelHelpers.get(Object.getPrototypeOf(FlagsDropdown), 'initProps', this).call(this, props);
