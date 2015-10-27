@@ -10,7 +10,7 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
       if (this.isSticky()) {
         badges.add('sticky', Badge.component({
           type: 'sticky',
-          label: app.trans('flarum-sticky.forum.stickied'),
+          label: app.translator.trans('flarum-sticky.forum.badge.sticky_tooltip'),
           icon: 'thumb-tack'
         }), 10);
       }
@@ -38,7 +38,7 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
       if (discussion.canSticky()) {
         items.add('sticky', Button.component({
-          children: app.trans(discussion.isSticky() ? 'flarum-sticky.forum.unsticky' : 'flarum-sticky.forum.sticky'),
+          children: app.translator.trans(discussion.isSticky() ? 'flarum-sticky.forum.discussion_controls.unsticky_button' : 'flarum-sticky.forum.discussion_controls.sticky_button'),
           icon: 'thumb-tack',
           onclick: this.stickyAction.bind(discussion)
         }));
@@ -136,55 +136,16 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
     }],
     execute: function () {
 
-      app.postComponents.discussionStickied = DiscussionStickiedPost;
+      app.initializers.add('flarum-sticky', function () {
+        app.postComponents.discussionStickied = DiscussionStickiedPost;
 
-      Discussion.prototype.isSticky = Model.attribute('isSticky');
-      Discussion.prototype.canSticky = Model.attribute('canSticky');
+        Discussion.prototype.isSticky = Model.attribute('isSticky');
+        Discussion.prototype.canSticky = Model.attribute('canSticky');
 
-      addStickyBadge();
-      addStickyControl();
-      addStickyExcerpt();
-    }
-  };
-});;System.register('flarum/sticky/components/DiscussionStickiedNotification', ['flarum/components/Notification'], function (_export) {
-  'use strict';
-
-  var Notification, DiscussionStickiedNotification;
-  return {
-    setters: [function (_flarumComponentsNotification) {
-      Notification = _flarumComponentsNotification['default'];
-    }],
-    execute: function () {
-      DiscussionStickiedNotification = (function (_Notification) {
-        babelHelpers.inherits(DiscussionStickiedNotification, _Notification);
-
-        function DiscussionStickiedNotification() {
-          babelHelpers.classCallCheck(this, DiscussionStickiedNotification);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionStickiedNotification.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(DiscussionStickiedNotification, [{
-          key: 'icon',
-          value: function icon() {
-            return 'thumb-tack';
-          }
-        }, {
-          key: 'href',
-          value: function href() {
-            var notification = this.props.notification;
-
-            return app.route.discussion(notification.subject(), notification.content().postNumber);
-          }
-        }, {
-          key: 'content',
-          value: function content() {
-            return app.trans('flarum-sticky.forum.discussion_stickied_notification', { user: this.props.notification.sender() });
-          }
-        }]);
-        return DiscussionStickiedNotification;
-      })(Notification);
-
-      _export('default', DiscussionStickiedNotification);
+        addStickyBadge();
+        addStickyControl();
+        addStickyExcerpt();
+      });
     }
   };
 });;System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/components/EventPost'], function (_export) {
@@ -212,7 +173,7 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
         }, {
           key: 'descriptionKey',
           value: function descriptionKey() {
-            return this.props.post.content().sticky ? 'flarum-sticky.forum.discussion_stickied_post' : 'flarum-sticky.forum.discussion_unstickied_post';
+            return this.props.post.content().sticky ? 'flarum-sticky.forum.post_stream.discussion_stickied_text' : 'flarum-sticky.forum.post_stream.discussion_unstickied_text';
           }
         }]);
         return DiscussionStickiedPost;
