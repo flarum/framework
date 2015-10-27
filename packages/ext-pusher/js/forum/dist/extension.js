@@ -97,7 +97,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
                   _this2.loadingUpdated = true;
                 },
                 loading: this.loadingUpdated,
-                children: app.trans('pusher.show_updated_discussions', { count: count })
+                children: app.translator.transChoice('flarum-pusher.forum.show_updated_discussions', count, { count: count })
               }));
             }
           }
