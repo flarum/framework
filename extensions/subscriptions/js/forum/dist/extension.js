@@ -12,7 +12,7 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
       switch (this.subscription()) {
         case 'follow':
           badge = Badge.component({
-            label: app.trans('flarum-subscriptions.forum.following'),
+            label: app.translator.trans('flarum-subscriptions.forum.badge.following_tooltip'),
             icon: 'star',
             type: 'following'
           });
@@ -20,7 +20,7 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
 
         case 'ignore':
           badge = Badge.component({
-            label: app.trans('flarum-subscriptions.forum.ignoring'),
+            label: app.translator.trans('flarum-subscriptions.forum.badge.ignoring_tooltip'),
             icon: 'eye-slash',
             type: 'ignoring'
           });
@@ -57,9 +57,9 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
     extend(DiscussionControls, 'userControls', function (items, discussion, context) {
       if (app.session.user && !(context instanceof DiscussionPage)) {
         var states = {
-          none: { label: app.trans('flarum-subscriptions.forum.follow'), icon: 'star', save: 'follow' },
-          follow: { label: app.trans('flarum-subscriptions.forum.unfollow'), icon: 'star-o', save: false },
-          ignore: { label: app.trans('flarum-subscriptions.forum.unignore'), icon: 'eye', save: false }
+          none: { label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.follow_button'), icon: 'star', save: 'follow' },
+          follow: { label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.unfollow_button'), icon: 'star-o', save: false },
+          ignore: { label: app.translator.trans('flarum-subscriptions.forum.discussion_controls.unignore_button'), icon: 'eye', save: false }
         };
 
         var subscription = discussion.subscription() || 'none';
@@ -111,7 +111,7 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
 
         items.add('following', LinkButton.component({
           href: app.route('index.filter', params),
-          children: app.trans('flarum-subscriptions.forum.following'),
+          children: app.translator.trans('flarum-subscriptions.forum.index.following_link'),
           icon: 'star'
         }), 50);
       }
@@ -175,7 +175,7 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
           items.add('newPost', {
             name: 'newPost',
             icon: 'star',
-            label: app.trans('flarum-subscriptions.forum.notify_new_post')
+            label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label')
           });
         });
       });
@@ -217,7 +217,7 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
         }, {
           key: 'content',
           value: function content() {
-            return app.trans('flarum-subscriptions.forum.new_post_notification', { user: this.props.notification.sender() });
+            return app.translator.trans('flarum-subscriptions.forum.notifications:new_post_text', { user: this.props.notification.sender() });
           }
         }]);
         return NewPostNotification;
@@ -257,18 +257,18 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
             var discussion = this.props.discussion;
             var subscription = discussion.subscription();
 
-            var buttonLabel = app.trans('flarum-subscriptions.forum.follow');
+            var buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.follow_button');
             var buttonIcon = 'star-o';
             var buttonClass = 'SubscriptionMenu-button--' + subscription;
 
             switch (subscription) {
               case 'follow':
-                buttonLabel = app.trans('flarum-subscriptions.forum.following');
+                buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button');
                 buttonIcon = 'star';
                 break;
 
               case 'ignore':
-                buttonLabel = app.trans('flarum-subscriptions.forum.ignoring');
+                buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button');
                 buttonIcon = 'eye-slash';
                 break;
 
@@ -279,18 +279,18 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
             var options = [{
               subscription: false,
               icon: 'star-o',
-              label: app.trans('flarum-subscriptions.forum.not_following'),
-              description: app.trans('flarum-subscriptions.forum.not_following_description')
+              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
+              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
             }, {
               subscription: 'follow',
               icon: 'star',
-              label: app.trans('flarum-subscriptions.forum.following'),
-              description: app.trans('flarum-subscriptions.forum.following_description')
+              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
+              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
             }, {
               subscription: 'ignore',
               icon: 'eye-slash',
-              label: app.trans('flarum-subscriptions.forum.ignoring'),
-              description: app.trans('flarum-subscriptions.forum.ignoring_description')
+              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
+              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
             }];
 
             return m(
