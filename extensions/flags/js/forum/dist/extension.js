@@ -182,7 +182,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
             var reason = flag.reason();
             var detail = flag.reasonDetail();
 
-            return [app.trans(reason ? 'flarum-flags.forum.flagged_by_with_reason' : 'flarum-flags.forum.flagged_by', { user: user, reason: reason }), detail ? m(
+            return [app.translator.trans(reason ? 'flarum-flags.forum.flagged_by_with_reason' : 'flarum-flags.forum.flagged_by', { user: user, reason: reason }), detail ? m(
               'span',
               { className: 'Post-flagged-detail' },
               detail
@@ -252,22 +252,20 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
 
         function FlagList() {
           babelHelpers.classCallCheck(this, FlagList);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(FlagList.prototype), 'constructor', this).apply(this, args);
-
-          /**
-           * Whether or not the notifications are loading.
-           *
-           * @type {Boolean}
-           */
-          this.loading = false;
+          babelHelpers.get(Object.getPrototypeOf(FlagList.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(FlagList, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * Whether or not the notifications are loading.
+             *
+             * @type {Boolean}
+             */
+            this.loading = false;
+          }
+        }, {
           key: 'view',
           value: function view() {
             var flags = app.cache.flags || [];
@@ -329,7 +327,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
                   }) : !this.loading ? m(
                     'div',
                     { className: 'NotificationList-empty' },
-                    app.trans('flarum-flags.forum.no_flags')
+                    app.translator.trans('flarum-flags.forum.no_flags')
                   ) : LoadingIndicator.component({ className: 'LoadingIndicator--block' })
                 )
               )
@@ -345,7 +343,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
           value: function load() {
             var _this = this;
 
-            if (app.cache.flags && !app.forum.attribute('unreadFlagsCount')) {
+            if (app.cache.flags && !app.session.user.attribute('newFlagsCount')) {
               return;
             }
 
@@ -353,11 +351,11 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
             m.redraw();
 
             app.store.find('flags').then(function (flags) {
-              app.forum.pushAttributes({ unreadFlagsCount: 0 });
+              app.session.user.pushAttributes({ newFlagsCount: 0 });
               app.cache.flags = flags.sort(function (a, b) {
                 return b.time() - a.time();
               });
-
+            })['finally'](function () {
               _this.loading = false;
               m.redraw();
             });
@@ -385,18 +383,18 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
 
         function FlagPostModal() {
           babelHelpers.classCallCheck(this, FlagPostModal);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(FlagPostModal.prototype), 'constructor', this).apply(this, args);
-
-          this.reason = m.prop('');
-          this.reasonDetail = m.prop('');
+          babelHelpers.get(Object.getPrototypeOf(FlagPostModal.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(FlagPostModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(FlagPostModal.prototype), 'init', this).call(this);
+
+            this.reason = m.prop('');
+            this.reasonDetail = m.prop('');
+          }
+        }, {
           key: 'className',
           value: function className() {
             return 'FlagPostModal Modal--small';
@@ -487,10 +485,7 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
               }
             }).then(function () {
               return _this.hide();
-            }, function () {
-              _this.loading = false;
-              m.redraw();
-            });
+            }, this.loaded.bind(this));
           }
         }]);
         return FlagPostModal;
@@ -512,29 +507,20 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
     execute: function () {
       FlagsDropdown = (function (_NotificationsDropdown) {
         babelHelpers.inherits(FlagsDropdown, _NotificationsDropdown);
-        babelHelpers.createClass(FlagsDropdown, null, [{
-          key: 'initProps',
-          value: function initProps(props) {
-            props.label = props.label || 'Flagged Posts';
-            props.icon = props.icon || 'flag';
-
-            babelHelpers.get(Object.getPrototypeOf(FlagsDropdown), 'initProps', this).call(this, props);
-          }
-        }]);
 
         function FlagsDropdown() {
           babelHelpers.classCallCheck(this, FlagsDropdown);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(FlagsDropdown.prototype), 'constructor', this).apply(this, args);
-
-          this.list = new FlagList();
+          babelHelpers.get(Object.getPrototypeOf(FlagsDropdown.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(FlagsDropdown, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(FlagsDropdown.prototype), 'init', this).call(this);
+
+            this.list = new FlagList();
+          }
+        }, {
           key: 'goToRoute',
           value: function goToRoute() {
             m.route(app.route('flags'));
@@ -542,12 +528,20 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
         }, {
           key: 'getUnreadCount',
           value: function getUnreadCount() {
-            return app.forum.attribute('unreadFlagsCount');
+            return app.cache.flags ? app.cache.flags.length : app.forum.attribute('flagsCount');
           }
         }, {
           key: 'getNewCount',
           value: function getNewCount() {
-            return app.forum.attribute('newFlagsCount');
+            return app.session.user.attribute('newFlagsCount');
+          }
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            props.label = props.label || 'Flagged Posts';
+            props.icon = props.icon || 'flag';
+
+            babelHelpers.get(Object.getPrototypeOf(FlagsDropdown), 'initProps', this).call(this, props);
           }
         }]);
         return FlagsDropdown;
@@ -577,22 +571,22 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
 
         function FlagsPage() {
           babelHelpers.classCallCheck(this, FlagsPage);
-
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          babelHelpers.get(Object.getPrototypeOf(FlagsPage.prototype), 'constructor', this).apply(this, args);
-
-          app.history.push('flags');
-
-          this.list = new FlagList();
-          this.list.load();
-
-          this.bodyClass = 'App--flags';
+          babelHelpers.get(Object.getPrototypeOf(FlagsPage.prototype), 'constructor', this).apply(this, arguments);
         }
 
         babelHelpers.createClass(FlagsPage, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(FlagsPage.prototype), 'init', this).call(this);
+
+            app.history.push('flags');
+
+            this.list = new FlagList();
+            this.list.load();
+
+            this.bodyClass = 'App--flags';
+          }
+        }, {
           key: 'view',
           value: function view() {
             return m(
