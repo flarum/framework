@@ -112,8 +112,7 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
 }
 
 }());
-;
-System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
+;System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
   /*global getCaretCoordinates*/
 
   'use strict';
@@ -226,7 +225,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
                   return user && user.username().toLowerCase().substr(0, typed.length) === typed;
                 }).splice(0, 5).forEach(function (post) {
                   var user = post.user();
-                  suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.translator.trans('flarum-mentions.forum.reply_to_post', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
+                  suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
                 });
               }
 
@@ -303,8 +302,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
+});;System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
   'use strict';
 
   var extend, Model, Post, CommentPost, PostPreview, punctuateSeries, username, icon;
@@ -383,21 +381,23 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
             });
           };
 
-          // Create a list of unique users who have replied. So even if a user has
-          // replied twice, they will only be in this array once.
-          var used = [];
-          var repliers = replies.filter(function (reply) {
+          var users = [];
+          var repliers = replies.sort(function (reply) {
+            return reply.user() === app.session.user ? -1 : 0;
+          }).filter(function (reply) {
             var user = reply.user();
-            var id = user && user.id();
-            if (used.indexOf(id) === -1) {
-              used.push(id);
+            if (users.indexOf(user) === -1) {
+              users.push(user);
               return true;
             }
           });
 
-          var names = repliers.sort(function (a) {
-            return a === app.session.user ? -1 : 1;
-          }).map(function (reply) {
+          var limit = 4;
+          var overLimit = repliers.length > limit;
+
+          // Create a list of unique users who have replied. So even if a user has
+          // replied twice, they will only be in this array once.
+          var names = repliers.slice(0, overLimit ? limit - 1 : limit).map(function (reply) {
             var user = reply.user();
 
             return m(
@@ -406,9 +406,18 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
                 config: m.route,
                 onclick: hidePreview,
                 'data-number': reply.number() },
-              app.session.user === user ? app.translator.trans('flarum-mentions.forum.you') : username(user)
+              app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)
             );
           });
+
+          // If there are more users that we've run out of room to display, add a "x
+          // others" name to the end of the list. Clicking on it will display a modal
+          // with a full list of names.
+          if (overLimit) {
+            var count = repliers.length - names.length;
+
+            names.push(app.translator.transChoice('flarum-mentions.forum.post.others_text', count, { count: count }));
+          }
 
           items.add('replies', m(
             'div',
@@ -417,7 +426,7 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
               'span',
               { className: 'Post-mentionedBy-summary' },
               icon('reply'),
-              app.translator.trans('flarum-mentions.forum.post_mentioned_by', {
+              app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (replies[0] === app.session.user ? '_self' : '') + '_text', names.length, {
                 count: names.length,
                 users: punctuateSeries(names)
               })
@@ -450,8 +459,7 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
+});;System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
   'use strict';
 
   var extend, CommentPost, PostPreview, LoadingIndicator;
@@ -589,8 +597,7 @@ System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'fla
     }],
     execute: function () {}
   };
-});;
-System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
+});;System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
   'use strict';
 
   var extend, Button, CommentPost, DiscussionControls;
@@ -627,7 +634,7 @@ System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/
 
           items.add('reply', Button.component({
             className: 'Button Button--link',
-            children: app.translator.trans('flarum-mentions.forum.reply_link'),
+            children: app.translator.trans('flarum-mentions.forum.post.reply_link'),
             onclick: function onclick() {
               var quote = window.getSelection().toString();
 
@@ -645,8 +652,7 @@ System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/
       });
     }
   };
-});;
-System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
+});;System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
   'use strict';
 
   var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification;
@@ -699,13 +705,13 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
           items.add('postMentioned', {
             name: 'postMentioned',
             icon: 'reply',
-            label: app.translator.trans('flarum-mentions.forum.notify_post_mentioned')
+            label: app.translator.trans('flarum-mentions.forum.settings.notify_post_mentioned_label')
           });
 
           items.add('userMentioned', {
             name: 'userMentioned',
             icon: 'at',
-            label: app.translator.trans('flarum-mentions.forum.notify_user_mentioned')
+            label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label')
           });
         });
 
@@ -713,8 +719,7 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
       });
     }
   };
-});;
-System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
+});;System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
   'use strict';
 
   var Component, AutocompleteDropdown;
@@ -849,18 +854,17 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
       _export('default', AutocompleteDropdown);
     }
   };
-});;
-System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuate'], function (_export) {
+});;System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
   'use strict';
 
-  var Notification, username, punctuate, PostMentionedNotification;
+  var Notification, username, punctuateSeries, PostMentionedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
       Notification = _flarumComponentsNotification['default'];
     }, function (_flarumHelpersUsername) {
       username = _flarumHelpersUsername['default'];
-    }, function (_flarumHelpersPunctuate) {
-      punctuate = _flarumHelpersPunctuate['default'];
+    }, function (_flarumHelpersPunctuateSeries) {
+      punctuateSeries = _flarumHelpersPunctuateSeries['default'];
     }],
     execute: function () {
       PostMentionedNotification = (function (_Notification) {
@@ -893,9 +897,9 @@ System.register('flarum/mentions/components/PostMentionedNotification', ['flarum
             var auc = notification.additionalUnreadCount();
             var user = notification.sender();
 
-            return app.translator.trans('flarum-mentions.forum.post_mentioned_notification', {
+            return app.translator.transChoice('flarum-mentions.forum.notifications.post_mentioned_text', auc + 1, {
               user: user,
-              username: auc ? punctuate([username(user), app.translator.trans('flarum-mentions.forum.others', { count: auc })]) : undefined
+              username: auc ? punctuateSeries([username(user), app.translator.transChoice('flarum-mentions.forum.notifications.others_text', auc, { count: auc })]) : undefined
             });
           }
         }, {
@@ -910,8 +914,7 @@ System.register('flarum/mentions/components/PostMentionedNotification', ['flarum
       _export('default', PostMentionedNotification);
     }
   };
-});;
-System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
+});;System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
   'use strict';
 
   var Notification, UserMentionedNotification;
@@ -945,7 +948,7 @@ System.register('flarum/mentions/components/UserMentionedNotification', ['flarum
           value: function content() {
             var user = this.props.notification.sender();
 
-            return app.translator.trans('flarum-mentions.forum.user_mentioned_notification', { user: user });
+            return app.translator.trans('flarum-mentions.forum.notifications.user_mentioned_text', { user: user });
           }
         }, {
           key: 'excerpt',
