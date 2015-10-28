@@ -1,10 +1,10 @@
 <?php
-namespace tests\Flarum\Core\Settings;
+namespace Tests\Flarum\Core\Settings;
 
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
 use Mockery as m;
-use tests\Test\TestCase;
+use Tests\Test\TestCase;
 
 class DatabaseSettingsRepositoryTest extends TestCase
 {

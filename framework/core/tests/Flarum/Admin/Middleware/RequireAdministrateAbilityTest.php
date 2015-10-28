@@ -1,15 +1,14 @@
 <?php
-namespace tests\Flarum\Admin\Middleware;
+namespace Tests\Flarum\Admin\Middleware;
 
 use Flarum\Admin\Middleware\AuthenticateWithCookie;
 use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Core\Access\Gate;
 use Flarum\Core\Exception\PermissionDeniedException;
-use Illuminate\Contracts\Container\Container;
 use Mockery as m;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use tests\Test\TestCase;
+use Tests\Test\TestCase;
 
 class RequireAdministrateAbilityTest extends TestCase
 {
