@@ -31,8 +31,17 @@ class IlluminateValidationExceptionHandler implements ExceptionHandlerInterface
     public function handle(Exception $e)
     {
         $status = 422;
+        $errors = $this->formatErrors($e->errors()->toArray());
 
-        $errors = $e->errors()->toArray();
+        return new ResponseBag($status, $errors);
+    }
+
+    /**
+     * @param array $errors
+     * @return array
+     */
+    protected function formatErrors(array $errors)
+    {
         $errors = array_map(function ($field, $messages) {
             return [
                 'detail' => implode("\n", $messages),
@@ -40,6 +49,6 @@ class IlluminateValidationExceptionHandler implements ExceptionHandlerInterface
             ];
         }, array_keys($errors), $errors);
 
-        return new ResponseBag($status, $errors);
+        return $errors;
     }
 }
