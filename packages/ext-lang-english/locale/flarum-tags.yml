@@ -16,7 +16,7 @@ flarum-tags:
       color_label: Color
       description_label: Description
       delete_tag_button: Delete Tag
-      delete_tag_confirmation: Are you sure you want to delete this tag? The tag's discussions will NOT be deleted.
+      delete_tag_confirmation: "Are you sure you want to delete this tag? The tag's discussions will NOT be deleted."
       hide_label: Hide from All Discussions
       name_label: => flarum-tags.ref.name
       name_placeholder: => flarum-tags.ref.name
@@ -45,7 +45,7 @@ flarum-tags:
 
     # These strings are used in the Tags page.
     tags:
-      about_tags_text: Tags are used to categorize discussions. Primary tags are like traditional forum categories: they can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization.
+      about_tags_text: "Tags are used to categorize discussions. Primary tags are like traditional forum categories: they can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization."
       create_tag_button: => flarum-tags.ref.create_tag
       primary_heading: Primary Tags
       secondary_heading: Secondary Tags

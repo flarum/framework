@@ -19,7 +19,7 @@ flarum-flags:
     flag_post:
       reason_heading: Choose a Reason
       reason_inappropriate_label: Inappropriate
-      reason_off_topic_label: Off-topic
+      reason_off_topic_label: "Off-topic"
       reason_other_label: Other
       reason_spam_label: Spam
       submit_button: => flarum-flags.ref.flag_post
