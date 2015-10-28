@@ -11,7 +11,7 @@ core:
     appearance:
       colored_header_label: Colored Header
       colors_heading: Colors
-      colors_text: Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements.
+      colors_text: "Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles.
       dark_mode_label: Dark Mode
@@ -27,7 +27,7 @@ core:
       forum_description_text: Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
       forum_title_heading: Forum Title
       home_page_heading: Home Page
-      home_page_text: Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root.
+      home_page_text: "Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root."
       saved_message: Your changes were saved.
       submit_button: => core.ref.save_changes
       welcome_banner_heading: Welcome Banner
@@ -47,7 +47,7 @@ core:
     edit_group:
       color_label: Color
       delete_button: Delete Group
-      delete_confirmation: Are you sure you want to delete this group? The group members will NOT be deleted.
+      delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
       icon_label: Icon
       icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>without</em> the <code>fa-</code> prefix."
       name_label: Name
@@ -75,9 +75,9 @@ core:
     # These strings are used in the navigation bar.
     nav:
       appearance_button: Appearance
-      appearance_text: Customize your forum's colors, logos, and other variables.
+      appearance_text: "Customize your forum's colors, logos, and other variables."
       basics_button: Basics
-      basics_text: Set your forum title, language, and other basic settings.
+      basics_text: "Set your forum title, language, and other basic settings."
       dashboard_button: Dashboard
       dashboard_text: Your forum at a glance.
       extensions_button: Extensions
@@ -142,20 +142,20 @@ core:
     # These strings are used by the composer when starting a discussion.
     composer_discussion:
       body_placeholder: Write a Post...
-      discard_confirmation: You have not posted your discussion. Do you wish to discard it?
+      discard_confirmation: "You have not posted your discussion. Do you wish to discard it?"
       submit_button: Post Discussion
       title_placeholder: Discussion Title
 
     # These strings are used by the composer when editing a post.
     composer_edit:
-      discard_confirmation: You have not saved your changes. Do you wish to discard them?
+      discard_confirmation: "You have not saved your changes. Do you wish to discard them?"
       post_link: "Post #{number} in {discussion}"
       submit_button: => core.ref.save_changes
 
     # These strings are used by the composer when replying to a discussion.
     composer_reply:
       body_placeholder: => core.ref.write_a_reply
-      discard_confirmation: You have not posted your reply. Do you wish to discard it?
+      discard_confirmation: "You have not posted your reply. Do you wish to discard it?"
       posted_message: Your reply was posted.
       submit_button: Post Reply
       view_button: View
@@ -165,17 +165,17 @@ core:
       cannot_reply_button: Can't Reply
       cannot_reply_text: You don't have permission to reply to this discussion.
       delete_button: => core.ref.delete
-      delete_confirmation: Are you sure you want to delete this discussion?
+      delete_confirmation: "Are you sure you want to delete this discussion?"
       delete_forever_button: => core.ref.delete_forever
       log_in_to_reply_button: Log In to Reply
       rename_button: Rename
-      rename_text: Enter a new title for this discussion:
+      rename_text: "Enter a new title for this discussion:"
       reply_button: => core.ref.reply
       restore_button: => core.ref.restore
 
     # These strings are used in the discussion list.
     discussion_list:
-      empty_text: Looks like there are no discussions here. Why don't you create a new one?
+      empty_text: "Looks like there are no discussions here. Why don't you create a new one?"
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as Read
       replied_text: "{username} replied {ago}"
@@ -226,7 +226,7 @@ core:
     # These strings are used in the Log In modal dialog.
     log_in:
       confirmation_required_message: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
-      forgot_password_link: Forgot password?
+      forgot_password_link: "Forgot password?"
       invalid_login_message: Your login details were incorrect.
       password_placeholder: => core.ref.password
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
@@ -314,7 +314,7 @@ core:
     user_controls:
       button: Controls
       delete_button: => core.ref.delete
-      delete_confirmation: Are you sure you want to delete this user? All of the user's posts will be deleted.
+      delete_confirmation: "Are you sure you want to delete this user? All of the user's posts will be deleted."
       edit_button: => core.ref.edit
 
   # Strings in this namespace are used by the forum and admin interfaces.
@@ -329,7 +329,7 @@ core:
 
     # These strings are displayed as error messages.
     error:
-      generic_message: Oops! Something went wrong. Please reload the page and try again.
+      generic_message: "Oops! Something went wrong. Please reload the page and try again."
       permission_denied_message: You do not have permission to do that.
       not_found_message: The requested resource was not found.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
