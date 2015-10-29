@@ -325,8 +325,16 @@ class InstallCommand extends AbstractCommand
 
         $migrator = $extensions->getMigrator();
 
+        $disabled = [
+            'flarum-akismet',
+            'flarum-auth-facebook',
+            'flarum-auth-github',
+            'flarum-auth-twitter',
+            'flarum-pusher',
+        ];
+
         foreach ($extensions->getInfo() as $name => $extension) {
-            if ($name === 'flarum-pusher') {
+            if (in_array($name, $disabled)) {
                 continue;
             }
 
