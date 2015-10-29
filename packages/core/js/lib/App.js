@@ -202,13 +202,7 @@ export default class App {
     // When we deserialize JSON data, if for some reason the server has provided
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
-    options.deserialize = options.deserialize || (responseText => {
-      try {
-        return JSON.parse(responseText);
-      } catch (e) {
-        throw new RequestError(500, responseText, options);
-      }
-    });
+    options.deserialize = options.deserialize || (responseText => responseText);
 
     options.errorHandler = options.errorHandler || (error => {
       throw error;
@@ -233,7 +227,13 @@ export default class App {
         throw new RequestError(status, responseText, options, xhr);
       }
 
-      return responseText;
+      if (xhr.getResponseHeader('content-type').indexOf('json') !== -1) {
+        try {
+          return JSON.parse(responseText);
+        } catch (e) {
+          throw new RequestError(500, responseText, options, xhr);
+        }
+      }
     };
 
     if (this.requestError) this.alerts.dismiss(this.requestError.alert);
