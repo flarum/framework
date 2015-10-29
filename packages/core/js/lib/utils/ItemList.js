@@ -10,6 +10,21 @@ class Item {
  * by priority.
  */
 export default class ItemList {
+  constructor() {
+    this.list = {};
+  }
+
+  /**
+   * Get an item.
+   *
+   * @param {String} key
+   * @return {Item}
+   * @public
+   */
+  get(key) {
+    return this.list[key];
+  }
+
   /**
    * Add an item to the list.
    *
@@ -20,7 +35,37 @@ export default class ItemList {
    * @public
    */
   add(key, content, priority = 0) {
-    this[key] = new Item(content, priority);
+    this.list[key] = new Item(content, priority);
+  }
+
+  /**
+   * Replace an item in the list, only if it is already present.
+   *
+   * @param {String} key
+   * @param {*} [content]
+   * @param {Integer} [priority]
+   * @public
+   */
+  replace(key, content = null, priority = null) {
+    if (this.list[key]) {
+      if (content !== null) {
+        this.list[key].content = content;
+      }
+
+      if (priority !== null) {
+        this.list[key].priority = priority;
+      }
+    }
+  }
+
+  /**
+   * Remove an item from the list.
+   *
+   * @param {String} key
+   * @public
+   */
+  remove(key) {
+    delete this.list[key];
   }
 
   /**
@@ -30,9 +75,9 @@ export default class ItemList {
    * @public
    */
   merge(items) {
-    for (const i in items) {
-      if (items.hasOwnProperty(i) && items[i] instanceof Item) {
-        this[i] = items[i];
+    for (const i in items.list) {
+      if (items.list.hasOwnProperty(i) && items.list[i] instanceof Item) {
+        this.list[i] = items.list[i];
       }
     }
   }
@@ -48,13 +93,13 @@ export default class ItemList {
   toArray() {
     const items = [];
 
-    for (const i in this) {
-      if (this.hasOwnProperty(i) && this[i] instanceof Item) {
-        this[i].content = Object(this[i].content);
+    for (const i in this.list) {
+      if (this.list.hasOwnProperty(i) && this.list[i] instanceof Item) {
+        this.list[i].content = Object(this.list[i].content);
 
-        this[i].content.itemName = i;
-        items.push(this[i]);
-        this[i].key = items.length;
+        this.list[i].content.itemName = i;
+        items.push(this.list[i]);
+        this.list[i].key = items.length;
       }
     }
 
