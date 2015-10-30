@@ -40,10 +40,10 @@ class UserBasicSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasManyBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function groups()
+    protected function groups($user)
     {
-        return $this->hasMany('Flarum\Api\Serializer\GroupSerializer');
+        return $this->hasMany($user, 'Flarum\Api\Serializer\GroupSerializer');
     }
 }

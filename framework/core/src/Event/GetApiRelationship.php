@@ -16,8 +16,8 @@ use Flarum\Api\Serializer\AbstractSerializer;
  * Get an API serializer relationship.
  *
  * This event is fired when a relationship is to be included on an API document.
- * If a handler wishes to control the given relationship, then it should return
- * an instance of `Tobscure\JsonApi\Relationship\BuilderInterface`.
+ * If a handler wishes to fulfil the given relationship, then it should return
+ * an instance of `Tobscure\JsonApi\Relationship`.
  *
  * @see AbstractSerializer::hasOne()
  * @see AbstractSerializer::hasMany()
@@ -36,13 +36,20 @@ class GetApiRelationship
     public $relationship;
 
     /**
+     * @var mixed
+     */
+    public $model;
+
+    /**
      * @param AbstractSerializer $serializer
      * @param string $relationship
+     * @param mixed $model
      */
-    public function __construct(AbstractSerializer $serializer, $relationship)
+    public function __construct(AbstractSerializer $serializer, $relationship, $model)
     {
         $this->serializer = $serializer;
         $this->relationship = $relationship;
+        $this->model = $model;
     }
 
     /**

@@ -51,27 +51,27 @@ class NotificationSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function user()
+    protected function user($notification)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($notification, 'Flarum\Api\Serializer\UserBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function sender()
+    protected function sender($notification)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($notification, 'Flarum\Api\Serializer\UserBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function subject()
+    protected function subject($notification)
     {
-        return $this->hasOne(function ($notification) {
+        return $this->hasOne($notification, function ($notification) {
             return static::$subjectSerializers[$notification->type];
         });
     }
