@@ -29,7 +29,7 @@ export default class DiscussionPage extends BaseDiscussionPage {
   sidebarItems() {
     const items = super.sidebarItems();
 
-    delete items.scrubber;
+    items.remove('scrubber');
 
     return items;
   }

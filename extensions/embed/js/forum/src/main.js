@@ -10,7 +10,7 @@ import Drawer from 'flarum/utils/Drawer';
 
 import DiscussionPage from 'flarum/embed/components/DiscussionPage';
 
-app.initializers.boot.content = app => {
+app.initializers.replace('boot', () => {
   m.route.mode = 'pathname';
 
   override(m, 'route', function(original, root, arg1, arg2, vdom) {
@@ -56,4 +56,4 @@ app.initializers.boot.content = app => {
     basePath + '/',
     mapRoutes(app.routes, basePath)
   );
-};
+});
