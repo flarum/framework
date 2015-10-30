@@ -55,20 +55,20 @@ class AddPostMentionedByRelationship
 
     /**
      * @param GetApiRelationship $event
-     * @return \Flarum\Api\Relationship\HasManyBuilder|null
+     * @return \Tobscure\JsonApi\Relationship|null
      */
     public function getApiRelationship(GetApiRelationship $event)
     {
         if ($event->isRelationship(PostBasicSerializer::class, 'mentionedBy')) {
-            return $event->serializer->hasMany(PostBasicSerializer::class, 'mentionedBy');
+            return $event->serializer->hasMany($event->model, PostBasicSerializer::class, 'mentionedBy');
         }
 
         if ($event->isRelationship(PostBasicSerializer::class, 'mentionsPosts')) {
-            return $event->serializer->hasMany(PostBasicSerializer::class, 'mentionsPosts');
+            return $event->serializer->hasMany($event->model, PostBasicSerializer::class, 'mentionsPosts');
         }
 
         if ($event->isRelationship(PostBasicSerializer::class, 'mentionsUsers')) {
-            return $event->serializer->hasMany(PostBasicSerializer::class, 'mentionsUsers');
+            return $event->serializer->hasMany($event->model, PostBasicSerializer::class, 'mentionsUsers');
         }
     }
 
