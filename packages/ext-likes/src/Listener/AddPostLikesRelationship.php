@@ -47,12 +47,12 @@ class AddPostLikesRelationship
 
     /**
      * @param GetApiRelationship $event
-     * @return \Flarum\Api\Relationship\HasManyBuilder|null
+     * @return \Tobscure\JsonApi\Relationship|null
      */
     public function getApiAttributes(GetApiRelationship $event)
     {
         if ($event->isRelationship(PostSerializer::class, 'likes')) {
-            return $event->serializer->hasMany(UserBasicSerializer::class, 'likes');
+            return $event->serializer->hasMany($event->model, UserBasicSerializer::class, 'likes');
         }
     }
 
