@@ -17,11 +17,16 @@ use Flarum\Event\PrepareApiAttributes;
 use Flarum\Event\GetApiRelationship;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use InvalidArgumentException;
 use LogicException;
 use Tobscure\JsonApi\AbstractSerializer as BaseAbstractSerializer;
 use Flarum\Api\Relationship\HasOneBuilder;
 use Flarum\Api\Relationship\HasManyBuilder;
+use Tobscure\JsonApi\Collection;
+use Tobscure\JsonApi\Relationship;
 use Tobscure\JsonApi\Relationship\BuilderInterface;
+use Tobscure\JsonApi\Resource;
+use Tobscure\JsonApi\SerializerInterface;
 
 abstract class AbstractSerializer extends BaseAbstractSerializer
 {
@@ -96,77 +101,139 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * {@inheritdoc}
      */
-    public function getRelationshipBuilder($name)
+    public function getRelationship($model, $name)
     {
-        if ($relationship = $this->getCustomRelationship($name)) {
+        if ($relationship = $this->getCustomRelationship($model, $name)) {
             return $relationship;
         }
 
-        return parent::getRelationshipBuilder($name);
+        return parent::getRelationship($model, $name);
     }
 
     /**
      * Get a custom relationship.
      *
+     * @param mixed $model
      * @param string $name
-     * @return BuilderInterface|null
+     * @return Relationship|null
      */
-    protected function getCustomRelationship($name)
+    protected function getCustomRelationship($model, $name)
     {
-        $builder = static::$dispatcher->until(
-            new GetApiRelationship($this, $name)
+        $relationship = static::$dispatcher->until(
+            new GetApiRelationship($this, $name, $model)
         );
 
-        if ($builder && ! ($builder instanceof BuilderInterface)) {
+        if ($relationship && ! ($relationship instanceof Relationship)) {
             throw new LogicException('GetApiRelationship handler must return an instance of '
-                . BuilderInterface::class);
+                . Relationship::class);
         }
 
-        return $builder;
+        return $relationship;
     }
 
     /**
      * Get a relationship builder for a has-one relationship.
      *
+     * @param mixed $model
      * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
      * @param string|Closure|null $relation
-     * @return HasOneBuilder
+     * @return Relationship
      */
-    public function hasOne($serializer, $relation = null)
+    public function hasOne($model, $serializer, $relation = null)
     {
-        if (is_null($relation)) {
-            $relation = $this->getRelationCaller();
-        }
-
-        return new HasOneBuilder($serializer, $relation, $this->actor, static::$container);
+        return $this->buildRelationship($model, $serializer, $relation);
     }
 
     /**
      * Get a relationship builder for a has-many relationship.
      *
+     * @param mixed $model
      * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|Closure|null $relation
-     * @return HasManyBuilder
+     * @param string|null $relation
+     * @return Relationship
      */
-    public function hasMany($serializer, $relation = null)
+    public function hasMany($model, $serializer, $relation = null)
     {
-        if (is_null($relation)) {
-            $relation = $this->getRelationCaller();
-        }
-
-        return new HasManyBuilder($serializer, $relation, $this->actor, static::$container);
+        return $this->buildRelationship($model, $serializer, $relation, true);
     }
 
     /**
-     * Guess the name of a relation from the stack trace.
-     *
-     * @return string
+     * @param mixed $model
+     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
+     * @param string|null $relation
+     * @param bool $many
+     * @return Relationship
      */
-    protected function getRelationCaller()
+    protected function buildRelationship($model, $serializer, $relation = null, $many = false)
     {
-        list(, , $caller) = debug_backtrace(false, 3);
+        if (is_null($relation)) {
+            list(, , $caller) = debug_backtrace(false, 3);
 
-        return $caller['function'];
+            $relation = $caller['function'];
+        }
+
+        $data = $this->getRelationshipData($model, $relation);
+
+        if ($data) {
+            $serializer = $this->resolveSerializer($serializer, $model, $data);
+
+            $type = $many ? Collection::class : Resource::class;
+
+            $element = new $type($data, $serializer);
+
+            return new Relationship($element);
+        }
+    }
+
+    /**
+     * @param mixed $model
+     * @return mixed
+     */
+    protected function getRelationshipData($model, $relation)
+    {
+        if (is_object($model)) {
+            return $model->$relation;
+        } elseif (is_array($model)) {
+            return $model[$relation];
+        }
+    }
+
+    /**
+     * @param mixed $serializer
+     * @param mixed $model
+     * @param mixed $data
+     * @return SerializerInterface
+     * @throws InvalidArgumentException
+     */
+    protected function resolveSerializer($serializer, $model, $data)
+    {
+        if ($serializer instanceof Closure) {
+            $serializer = call_user_func($serializer, $model, $data);
+        }
+
+        if (is_string($serializer)) {
+            $serializer = $this->resolveSerializerClass($serializer);
+        }
+
+        if (! ($serializer instanceof SerializerInterface)) {
+            throw new InvalidArgumentException('Serializer must be an instance of '
+                .SerializerInterface::class);
+        }
+
+        return $serializer;
+    }
+
+    /**
+     * @param string $class
+     * @return object
+     */
+    protected function resolveSerializerClass($class)
+    {
+        $serializer = static::$container->make($class);
+
+        $serializer->setActor($this->actor);
+
+        return $serializer;
     }
 
     /**

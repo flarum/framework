@@ -69,34 +69,34 @@ class PostSerializer extends PostBasicSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function user()
+    protected function user($post)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function discussion()
+    protected function discussion($post)
     {
-        return $this->hasOne('Flarum\Api\Serializer\DiscussionSerializer');
+        return $this->hasOne($post, 'Flarum\Api\Serializer\DiscussionSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function editUser()
+    protected function editUser($post)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function hideUser()
+    protected function hideUser($post)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
     }
 }
