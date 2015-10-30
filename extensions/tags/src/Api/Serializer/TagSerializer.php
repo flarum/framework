@@ -50,18 +50,18 @@ class TagSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function parent()
+    protected function parent($tag)
     {
-        return $this->hasOne(TagSerializer::class);
+        return $this->hasOne($tag, TagSerializer::class);
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function lastDiscussion()
+    protected function lastDiscussion($tag)
     {
-        return $this->hasOne(DiscussionSerializer::class);
+        return $this->hasOne($tag, DiscussionSerializer::class);
     }
 }
