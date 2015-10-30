@@ -6,13 +6,11 @@ import CommentPost from 'flarum/components/CommentPost';
 
 app.initializers.add('flarum-akismet', () => {
   extend(PostControls, 'destructiveControls', function(items, post) {
-    if (items.approve) {
+    if (items.has('approve')) {
       const flags = post.flags();
 
       if (flags && flags.some(flag => flag.type() === 'akismet')) {
-        Object.assign(items.approve.content.props, {
-          children: 'Not Spam'
-        });
+        items.get('approve').props.children = 'Not Spam';
       }
     }
   });
