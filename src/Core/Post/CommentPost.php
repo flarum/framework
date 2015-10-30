@@ -45,9 +45,10 @@ class CommentPost extends Post
      * @param int $discussionId
      * @param string $content
      * @param int $userId
+     * @param string $ipAddress
      * @return static
      */
-    public static function reply($discussionId, $content, $userId)
+    public static function reply($discussionId, $content, $userId, $ipAddress)
     {
         $post = new static;
 
@@ -55,6 +56,7 @@ class CommentPost extends Post
         $post->discussion_id = $discussionId;
         $post->user_id       = $userId;
         $post->type          = static::$type;
+        $post->ip_address    = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
         $post->content = $content;
