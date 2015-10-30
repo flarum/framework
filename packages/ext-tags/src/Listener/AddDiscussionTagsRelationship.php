@@ -46,12 +46,12 @@ class AddDiscussionTagsRelationship
 
     /**
      * @param GetApiRelationship $event
-     * @return \Flarum\Api\Relationship\HasManyBuilder|null
+     * @return \Tobscure\JsonApi\Relationship|null
      */
     public function getApiRelationship(GetApiRelationship $event)
     {
         if ($event->isRelationship(DiscussionSerializer::class, 'tags')) {
-            return $event->serializer->hasMany('Flarum\Tags\Api\Serializer\TagSerializer', 'tags');
+            return $event->serializer->hasMany($event->model, 'Flarum\Tags\Api\Serializer\TagSerializer', 'tags');
         }
     }
 
