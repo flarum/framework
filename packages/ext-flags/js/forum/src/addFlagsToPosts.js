@@ -55,8 +55,8 @@ export default function() {
 
     const controls = PostControls.destructiveControls(this.props.post);
 
-    Object.keys(controls).forEach(k => {
-      const props = controls[k].content.props;
+    Object.keys(controls.items).forEach(k => {
+      const props = controls.get(k).props;
 
       props.className = 'Button';
 
