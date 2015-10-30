@@ -34,18 +34,18 @@ class FlagSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function post()
+    protected function post($flag)
     {
-        return $this->hasOne(PostSerializer::class);
+        return $this->hasOne($flag, PostSerializer::class);
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function user()
+    protected function user($flag)
     {
-        return $this->hasOne(UserBasicSerializer::class);
+        return $this->hasOne($flag, UserBasicSerializer::class);
     }
 }
