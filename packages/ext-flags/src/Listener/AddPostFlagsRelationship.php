@@ -59,12 +59,12 @@ class AddPostFlagsRelationship
 
     /**
      * @param GetApiRelationship $event
-     * @return \Flarum\Api\Relationship\HasManyBuilder|null
+     * @return \Tobscure\JsonApi\Relationship|null
      */
     public function getApiRelationship(GetApiRelationship $event)
     {
         if ($event->isRelationship(PostSerializer::class, 'flags')) {
-            return $event->serializer->hasMany(FlagSerializer::class, 'flags');
+            return $event->serializer->hasMany($event->model, FlagSerializer::class, 'flags');
         }
     }
 
