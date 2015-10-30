@@ -81,7 +81,8 @@ class PostReplyHandler
         $post = CommentPost::reply(
             $discussion->id,
             array_get($command->data, 'attributes.content'),
-            $actor->id
+            $actor->id,
+            $command->ipAddress
         );
 
         $this->events->fire(
