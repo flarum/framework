@@ -39,50 +39,50 @@ class DiscussionBasicSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function startUser()
+    protected function startUser($discussion)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\UserBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function startPost()
+    protected function startPost($discussion)
     {
-        return $this->hasOne('Flarum\Api\Serializer\PostBasicSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\PostBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function lastUser()
+    protected function lastUser($discussion)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\UserBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function lastPost()
+    protected function lastPost($discussion)
     {
-        return $this->hasOne('Flarum\Api\Serializer\PostBasicSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\PostBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasManyBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function posts()
+    protected function posts($discussion)
     {
-        return $this->hasMany('Flarum\Api\Serializer\PostSerializer');
+        return $this->hasMany($discussion, 'Flarum\Api\Serializer\PostSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasManyBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function relevantPosts()
+    protected function relevantPosts($discussion)
     {
-        return $this->hasMany('Flarum\Api\Serializer\PostBasicSerializer');
+        return $this->hasMany($discussion, 'Flarum\Api\Serializer\PostBasicSerializer');
     }
 }

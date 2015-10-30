@@ -65,10 +65,10 @@ class DiscussionSerializer extends DiscussionBasicSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function hideUser()
+    protected function hideUser($discussion)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\UserSerializer');
     }
 }

@@ -51,18 +51,18 @@ class PostBasicSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function user()
+    protected function user($post)
     {
-        return $this->hasOne('Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($post, 'Flarum\Api\Serializer\UserBasicSerializer');
     }
 
     /**
-     * @return \Flarum\Api\Relationship\HasOneBuilder
+     * @return \Tobscure\JsonApi\Relationship
      */
-    protected function discussion()
+    protected function discussion($post)
     {
-        return $this->hasOne('Flarum\Api\Serializer\DiscussionBasicSerializer');
+        return $this->hasOne($post, 'Flarum\Api\Serializer\DiscussionBasicSerializer');
     }
 }
