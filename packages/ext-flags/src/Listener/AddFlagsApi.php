@@ -81,7 +81,7 @@ class AddFlagsApi
      */
     protected function getFlagsCount(User $actor)
     {
-        return Flag::whereVisibleTo($actor)->distinct('flags.post_id')->count();
+        return Flag::whereVisibleTo($actor)->distinct()->count('flags.post_id');
     }
 
     /**
@@ -96,6 +96,6 @@ class AddFlagsApi
             $query->where('flags.time', '>', $time);
         }
 
-        return $query->distinct('flags.post_id')->count();
+        return $query->distinct()->count('flags.post_id');
     }
 }
