@@ -64,7 +64,7 @@ class MigrateCommand extends AbstractCommand
 
         $migrator = $this->container->make('Flarum\Database\Migrator');
 
-        $migrator->run(base_path('core/migrations'));
+        $migrator->run(__DIR__.'/../../../migrations');
 
         foreach ($migrator->getNotes() as $note) {
             $this->info($note);
