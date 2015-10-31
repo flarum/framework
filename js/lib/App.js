@@ -227,12 +227,10 @@ export default class App {
         throw new RequestError(status, responseText, options, xhr);
       }
 
-      if (xhr.getResponseHeader('content-type').indexOf('json') !== -1) {
-        try {
-          return JSON.parse(responseText);
-        } catch (e) {
-          throw new RequestError(500, responseText, options, xhr);
-        }
+      try {
+        return JSON.parse(responseText);
+      } catch (e) {
+        throw new RequestError(500, responseText, options, xhr);
       }
     };
 
