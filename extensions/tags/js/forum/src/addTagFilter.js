@@ -29,7 +29,7 @@ export default function() {
       const color = tag.color();
 
       if (color) {
-        items.newDiscussion.content.props.style = {backgroundColor: color};
+        items.get('newDiscussion').props.style = {backgroundColor: color};
       }
     }
   });
