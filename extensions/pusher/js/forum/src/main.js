@@ -131,7 +131,7 @@ app.initializers.add('flarum-pusher', () => {
   });
 
   extend(IndexPage.prototype, 'actionItems', items => {
-    delete items.refresh;
+    items.remove('refresh');
   });
 
   app.pusher.then(channels => {
