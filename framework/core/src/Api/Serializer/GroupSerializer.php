@@ -69,9 +69,9 @@ class GroupSerializer extends AbstractSerializer
      */
     private function translateGroupName($name)
     {
-        $translation = $this->translator->trans('core.group.'.strtolower($name));
+        $translation = $this->translator->trans($key = 'core.group.'.strtolower($name));
 
-        if ($translation !== $name) {
+        if ($translation !== $key) {
             return $translation;
         }
 
