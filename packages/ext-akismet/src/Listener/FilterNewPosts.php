@@ -11,7 +11,7 @@
 namespace Flarum\Akismet\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Core;
+use Flarum\Event\PostWasHidden;
 use Flarum\Event\PostWillBeSaved;
 use Flarum\Flags\Flag;
 use Flarum\Foundation\Application;
@@ -48,6 +48,7 @@ class FilterNewPosts
     {
         $events->listen(PostWillBeSaved::class, [$this, 'validatePost']);
         $events->listen(PostWasApproved::class, [$this, 'submitHam']);
+        $events->listen(PostWasHidden::class, [$this, 'submitSpam']);
     }
 
     /**
@@ -61,9 +62,7 @@ class FilterNewPosts
             return;
         }
 
-        $akismet = new Akismet($this->settings->get('flarum-akismet.api_key'), $this->app->url());
-
-        $isSpam = $akismet->isSpam(
+        $isSpam = $this->getAkismet()->isSpam(
             $post->content,
             $post->user->username,
             $post->user->email,
@@ -73,9 +72,7 @@ class FilterNewPosts
 
         if ($isSpam) {
             $post->is_approved = false;
-
-            // TODO:
-            // $post->is_spam = true;
+            $post->is_spam = true;
 
             $post->afterSave(function ($post) {
                 $flag = new Flag;
@@ -94,7 +91,45 @@ class FilterNewPosts
      */
     public function submitHam(PostWasApproved $event)
     {
-        // TODO
-        // if ($post->is_spam)
+        $post = $event->post;
+
+        if ($post->is_spam) {
+            $this->getAkismet()->submitHam(
+                $post->ip_address,
+                null,
+                $post->content,
+                $post->user->username,
+                $post->user->email
+            );
+        }
+    }
+
+    /**
+     * @param PostWasHidden $event
+     */
+    public function submitSpam(PostWasHidden $event)
+    {
+        $post = $event->post;
+
+        if ($post->is_spam) {
+            $this->getAkismet()->submitSpam(
+                $post->ip_address,
+                null,
+                $post->content,
+                $post->user->username,
+                $post->user->email
+            );
+        }
+    }
+
+    /**
+     * @return Akismet
+     */
+    protected function getAkismet()
+    {
+        return new Akismet(
+            $this->settings->get('flarum-akismet.api_key'),
+            $this->app->url()
+        );
     }
 }
