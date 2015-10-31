@@ -10,6 +10,7 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Api\Serializer\PostBasicSerializer;
 use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Core\Post;
 use Flarum\Core\User;
@@ -56,11 +57,7 @@ class UpdateUserMentionsMetadata
      */
     public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(
-            UserMentionedBlueprint::class,
-            'Flarum\Api\Serializers\PostBasicSerializer',
-            ['alert']
-        );
+        $event->add(UserMentionedBlueprint::class, PostBasicSerializer::class, ['alert']);
     }
 
     /**
