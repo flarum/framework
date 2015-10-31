@@ -37,7 +37,9 @@ class LocaleServiceProvider extends AbstractServiceProvider
         $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
 
         $this->app->singleton('translator', function () {
-            $defaultLocale = $this->app->isInstalled() ? $this->app->make('flarum.settings')->get('default_locale') : 'en';
+            $defaultLocale = $this->app->isInstalled() && $this->app->isUpToDate()
+                ? $this->app->make('flarum.settings')->get('default_locale', 'en')
+                : 'en';
 
             $translator = new Translator($defaultLocale, new MessageSelector());
             $translator->setFallbackLocales([$defaultLocale]);
