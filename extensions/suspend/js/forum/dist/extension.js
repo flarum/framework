@@ -1,58 +1,4 @@
-System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal'], function (_export) {
-  'use strict';
-
-  var extend, app, UserControls, Button, Badge, Model, User, SuspendUserModal;
-  return {
-    setters: [function (_flarumExtend) {
-      extend = _flarumExtend.extend;
-    }, function (_flarumApp) {
-      app = _flarumApp['default'];
-    }, function (_flarumUtilsUserControls) {
-      UserControls = _flarumUtilsUserControls['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
-    }, function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumModelsUser) {
-      User = _flarumModelsUser['default'];
-    }, function (_flarumSuspendComponentsSuspendUserModal) {
-      SuspendUserModal = _flarumSuspendComponentsSuspendUserModal['default'];
-    }],
-    execute: function () {
-
-      app.initializers.add('flarum-suspend', function () {
-        User.prototype.canSuspend = Model.attribute('canSuspend');
-        User.prototype.suspendUntil = Model.attribute('suspendUntil', Model.transformDate);
-
-        extend(UserControls, 'moderationControls', function (items, user) {
-          if (user.canSuspend()) {
-            items.add('suspend', Button.component({
-              children: 'Suspend',
-              icon: 'ban',
-              onclick: function onclick() {
-                return app.modal.show(new SuspendUserModal({ user: user }));
-              }
-            }));
-          }
-        });
-
-        extend(User.prototype, 'badges', function (items) {
-          var until = this.suspendUntil();
-
-          if (new Date() < until) {
-            items.add('suspended', Badge.component({
-              icon: 'ban',
-              type: 'suspended',
-              label: 'Suspended'
-            }));
-          }
-        });
-      });
-    }
-  };
-});;System.register('flarum/suspend/components/SuspendUserModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
+System.register('flarum/suspend/components/SuspendUserModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
   'use strict';
 
   var Modal, Button, SuspendUserModal;
@@ -199,6 +145,61 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
       })(Modal);
 
       _export('default', SuspendUserModal);
+    }
+  };
+});;
+System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal'], function (_export) {
+  'use strict';
+
+  var extend, app, UserControls, Button, Badge, Model, User, SuspendUserModal;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumUtilsUserControls) {
+      UserControls = _flarumUtilsUserControls['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge['default'];
+    }, function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumModelsUser) {
+      User = _flarumModelsUser['default'];
+    }, function (_flarumSuspendComponentsSuspendUserModal) {
+      SuspendUserModal = _flarumSuspendComponentsSuspendUserModal['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('flarum-suspend', function () {
+        User.prototype.canSuspend = Model.attribute('canSuspend');
+        User.prototype.suspendUntil = Model.attribute('suspendUntil', Model.transformDate);
+
+        extend(UserControls, 'moderationControls', function (items, user) {
+          if (user.canSuspend()) {
+            items.add('suspend', Button.component({
+              children: 'Suspend',
+              icon: 'ban',
+              onclick: function onclick() {
+                return app.modal.show(new SuspendUserModal({ user: user }));
+              }
+            }));
+          }
+        });
+
+        extend(User.prototype, 'badges', function (items) {
+          var until = this.suspendUntil();
+
+          if (new Date() < until) {
+            items.add('suspended', Badge.component({
+              icon: 'ban',
+              type: 'suspended',
+              label: 'Suspended'
+            }));
+          }
+        });
+      });
     }
   };
 });
