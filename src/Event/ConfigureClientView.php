@@ -18,30 +18,23 @@ use Flarum\Forum\Controller\ClientController as ForumClientAction;
 class ConfigureClientView
 {
     /**
-     * @var \Flarum\Http\Controller\AbstractClientController
+     * @var AbstractClientController
      */
     public $action;
 
     /**
-     * @var \Flarum\Http\\Flarum\Http\Controller\ClientView
+     * @var ClientView
      */
     public $view;
 
     /**
-     * @var array
+     * @param AbstractClientController $action
+     * @param ClientView $view
      */
-    public $keys;
-
-    /**
-     * @param \Flarum\Http\\Flarum\Http\Controller\AbstractClientController $action
-     * @param \Flarum\Http\\Flarum\Http\Controller\ClientView $view
-     * @param array $keys
-     */
-    public function __construct(AbstractClientController $action, ClientView $view, array &$keys)
+    public function __construct(AbstractClientController $action, ClientView $view)
     {
         $this->action = $action;
         $this->view = $view;
-        $this->keys = &$keys;
     }
 
     public function isForum()
@@ -62,12 +55,5 @@ class ConfigureClientView
     public function addBootstrapper($bootstrapper)
     {
         $this->view->addBootstrapper($bootstrapper);
-    }
-
-    public function addTranslations($keys)
-    {
-        foreach ((array) $keys as $key) {
-            $this->keys[] = $key;
-        }
     }
 }
