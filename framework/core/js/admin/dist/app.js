@@ -15935,6 +15935,645 @@ System.register('flarum/app', ['flarum/App', 'flarum/initializers/store', 'flaru
     }
   };
 });;
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
+
+  /**
+   * The `App` class provides a container for an application, as well as various
+   * utilities for the rest of the app to use.
+   */
+  'use strict';
+
+  var ItemList, Alert, Button, RequestErrorModal, Translator, extract, patchMithril, RequestError, extend, App;
+  return {
+    setters: [function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList['default'];
+    }, function (_flarumComponentsAlert) {
+      Alert = _flarumComponentsAlert['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumComponentsRequestErrorModal) {
+      RequestErrorModal = _flarumComponentsRequestErrorModal['default'];
+    }, function (_flarumTranslator) {
+      Translator = _flarumTranslator['default'];
+    }, function (_flarumUtilsExtract) {
+      extract = _flarumUtilsExtract['default'];
+    }, function (_flarumUtilsPatchMithril) {
+      patchMithril = _flarumUtilsPatchMithril['default'];
+    }, function (_flarumUtilsRequestError) {
+      RequestError = _flarumUtilsRequestError['default'];
+    }, function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }],
+    execute: function () {
+      App = (function () {
+        function App() {
+          babelHelpers.classCallCheck(this, App);
+
+          patchMithril(window);
+
+          /**
+           * The forum model for this application.
+           *
+           * @type {Forum}
+           * @public
+           */
+          this.forum = null;
+
+          /**
+           * A map of routes, keyed by a unique route name. Each route is an object
+           * containing the following properties:
+           *
+           * - `path` The path that the route is accessed at.
+           * - `component` The Mithril component to render when this route is active.
+           *
+           * @example
+           * app.routes.discussion = {path: '/d/:id', component: DiscussionPage.component()};
+           *
+           * @type {Object}
+           * @public
+           */
+          this.routes = {};
+
+          /**
+           * An object containing data to preload into the application.
+           *
+           * @type {Object}
+           * @property {Object} preload.data An array of resource objects to preload
+           *     into the data store.
+           * @property {Object} preload.document An API response document to be used
+           *     by the route that is first activated.
+           * @property {Object} preload.session A response from the /api/token
+           *     endpoint containing the session's authentication token and user ID.
+           * @public
+           */
+          this.preload = {
+            data: null,
+            document: null,
+            session: null
+          };
+
+          /**
+           * An ordered list of initializers to bootstrap the application.
+           *
+           * @type {ItemList}
+           * @public
+           */
+          this.initializers = new ItemList();
+
+          /**
+           * The app's session.
+           *
+           * @type {Session}
+           * @public
+           */
+          this.session = null;
+
+          /**
+           * The app's translator.
+           *
+           * @type {Translator}
+           * @public
+           */
+          this.translator = new Translator();
+
+          /**
+           * The app's data store.
+           *
+           * @type {Store}
+           * @public
+           */
+          this.store = null;
+
+          /**
+           * A local cache that can be used to store data at the application level, so
+           * that is persists between different routes.
+           *
+           * @type {Object}
+           * @public
+           */
+          this.cache = {};
+
+          /**
+           * Whether or not the app has been booted.
+           *
+           * @type {Boolean}
+           * @public
+           */
+          this.booted = false;
+
+          /**
+           * An Alert that was shown as a result of an AJAX request error. If present,
+           * it will be dismissed on the next successful request.
+           *
+           * @type {null|Alert}
+           * @private
+           */
+          this.requestError = null;
+
+          this.title = '';
+          this.titleCount = 0;
+        }
+
+        /**
+         * Boot the application by running all of the registered initializers.
+         *
+         * @public
+         */
+        babelHelpers.createClass(App, [{
+          key: 'boot',
+          value: function boot() {
+            var _this = this;
+
+            this.translator.locale = this.locale;
+
+            this.initializers.toArray().forEach(function (initializer) {
+              return initializer(_this);
+            });
+          }
+
+          /**
+           * Get the API response document that has been preloaded into the application.
+           *
+           * @return {Object|null}
+           * @public
+           */
+        }, {
+          key: 'preloadedDocument',
+          value: function preloadedDocument() {
+            if (app.preload.document) {
+              var results = app.store.pushPayload(app.preload.document);
+              app.preload.document = null;
+
+              return results;
+            }
+
+            return null;
+          }
+
+          /**
+           * Set the <title> of the page.
+           *
+           * @param {String} title
+           * @public
+           */
+        }, {
+          key: 'setTitle',
+          value: function setTitle(title) {
+            this.title = title;
+            this.updateTitle();
+          }
+
+          /**
+           * Set a number to display in the <title> of the page.
+           *
+           * @param {Integer} count
+           */
+        }, {
+          key: 'setTitleCount',
+          value: function setTitleCount(count) {
+            this.titleCount = count;
+            this.updateTitle();
+          }
+        }, {
+          key: 'updateTitle',
+          value: function updateTitle() {
+            document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+          }
+
+          /**
+           * Make an AJAX request, handling any low-level errors that may occur.
+           *
+           * @see https://lhorie.github.io/mithril/mithril.request.html
+           * @param {Object} options
+           * @return {Promise}
+           * @public
+           */
+        }, {
+          key: 'request',
+          value: function request(options) {
+            var _this2 = this;
+
+            // Set some default options if they haven't been overridden. We want to
+            // authenticate all requests with the session token. We also want all
+            // requests to run asynchronously in the background, so that they don't
+            // prevent redraws from occurring.
+            options.config = options.config || this.session.authorize.bind(this.session);
+            options.background = options.background || true;
+
+            // If the method is something like PATCH or DELETE, which not all servers
+            // support, then we'll send it as a POST request with a the intended method
+            // specified in the X-Fake-Http-Method header.
+            if (options.method !== 'GET' && options.method !== 'POST') {
+              (function () {
+                var method = options.method;
+                extend(options, 'config', function (result, xhr) {
+                  return xhr.setRequestHeader('X-Fake-Http-Method', method);
+                });
+                options.method = 'POST';
+              })();
+            }
+
+            // When we deserialize JSON data, if for some reason the server has provided
+            // a dud response, we don't want the application to crash. We'll show an
+            // error message to the user instead.
+            options.deserialize = options.deserialize || function (responseText) {
+              return responseText;
+            };
+
+            options.errorHandler = options.errorHandler || function (error) {
+              throw error;
+            };
+
+            // When extracting the data from the response, we can check the server
+            // response code and show an error message to the user if something's gone
+            // awry.
+            var original = options.extract;
+            options.extract = function (xhr) {
+              var responseText = undefined;
+
+              if (original) {
+                responseText = original(xhr.responseText);
+              } else {
+                responseText = xhr.responseText.length > 0 ? xhr.responseText : null;
+              }
+
+              var status = xhr.status;
+
+              if (status < 200 || status > 299) {
+                throw new RequestError(status, responseText, options, xhr);
+              }
+
+              try {
+                return JSON.parse(responseText);
+              } catch (e) {
+                throw new RequestError(500, responseText, options, xhr);
+              }
+            };
+
+            if (this.requestError) this.alerts.dismiss(this.requestError.alert);
+
+            // Now make the request. If it's a failure, inspect the error that was
+            // returned and show an alert containing its contents.
+            return m.request(options).then(null, function (error) {
+              _this2.requestError = error;
+
+              var children = undefined;
+
+              switch (error.status) {
+                case 422:
+                  children = error.response.errors.map(function (error) {
+                    return [error.detail, m('br', null)];
+                  }).reduce(function (a, b) {
+                    return a.concat(b);
+                  }, []).slice(0, -1);
+                  break;
+
+                case 401:
+                case 403:
+                  children = app.translator.trans('core.lib.error.permission_denied_message');
+                  break;
+
+                case 404:
+                case 410:
+                  children = app.translator.trans('core.lib.error.not_found_message');
+                  break;
+
+                case 429:
+                  children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
+                  break;
+
+                default:
+                  children = app.translator.trans('core.lib.error.generic_message');
+              }
+
+              error.alert = new Alert({
+                type: 'error',
+                children: children,
+                controls: app.forum.attribute('debug') ? [m(
+                  Button,
+                  { className: 'Button Button--link', onclick: _this2.showDebug.bind(_this2, error) },
+                  'Debug'
+                )] : undefined
+              });
+
+              try {
+                options.errorHandler(error);
+              } catch (error) {
+                _this2.alerts.show(error.alert);
+              }
+
+              throw error;
+            });
+          }
+
+          /**
+           * @param {RequestError} error
+           * @private
+           */
+        }, {
+          key: 'showDebug',
+          value: function showDebug(error) {
+            this.alerts.dismiss(this.requestErrorAlert);
+
+            this.modal.show(new RequestErrorModal({ error: error }));
+          }
+
+          /**
+           * Construct a URL to the route with the given name.
+           *
+           * @param {String} name
+           * @param {Object} params
+           * @return {String}
+           * @public
+           */
+        }, {
+          key: 'route',
+          value: function route(name) {
+            var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+            var url = this.routes[name].path.replace(/:([^\/]+)/g, function (m, key) {
+              return extract(params, key);
+            });
+            var queryString = m.route.buildQueryString(params);
+            var prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
+
+            return prefix + url + (queryString ? '?' + queryString : '');
+          }
+        }]);
+        return App;
+      })();
+
+      _export('default', App);
+    }
+  };
+});;
+System.register('flarum/Component', [], function (_export) {
+  /*
+   * This file is part of Flarum.
+   *
+   * (c) Toby Zerner <toby.zerner@gmail.com>
+   *
+   * For the full copyright and license information, please view the LICENSE
+   * file that was distributed with this source code.
+   */
+
+  /**
+   * The `Component` class defines a user interface 'building block'. A component
+   * can generate a virtual DOM to be rendered on each redraw.
+   *
+   * An instance's virtual DOM can be retrieved directly using the {@link
+   * Component#render} method.
+   *
+   * @example
+   * this.myComponentInstance = new MyComponent({foo: 'bar'});
+   * return m('div', this.myComponentInstance.render());
+   *
+   * Alternatively, components can be nested, letting Mithril take care of
+   * instance persistence. For this, the static {@link Component.component} method
+   * can be used.
+   *
+   * @example
+   * return m('div', MyComponent.component({foo: 'bar'));
+   *
+   * @see https://lhorie.github.io/mithril/mithril.component.html
+   * @abstract
+   */
+  'use strict';
+
+  var Component;
+  return {
+    setters: [],
+    execute: function () {
+      Component = (function () {
+        /**
+         * @param {Object} props
+         * @param {Array|Object} children
+         * @public
+         */
+
+        function Component() {
+          var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+          var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+          babelHelpers.classCallCheck(this, Component);
+
+          if (children) props.children = children;
+
+          this.constructor.initProps(props);
+
+          /**
+           * The properties passed into the component.
+           *
+           * @type {Object}
+           */
+          this.props = props;
+
+          /**
+           * The root DOM element for the component.
+           *
+           * @type DOMElement
+           * @public
+           */
+          this.element = null;
+
+          this.init();
+        }
+
+        /**
+         * Called when the component is constructed.
+         *
+         * @protected
+         */
+        babelHelpers.createClass(Component, [{
+          key: 'init',
+          value: function init() {}
+
+          /**
+           * Called when the component is destroyed, i.e. after a redraw where it is no
+           * longer a part of the view.
+           *
+           * @see https://lhorie.github.io/mithril/mithril.component.html#unloading-components
+           * @param {Object} e
+           * @public
+           */
+        }, {
+          key: 'onunload',
+          value: function onunload() {}
+
+          /**
+           * Get the renderable virtual DOM that represents the component's view.
+           *
+           * This should NOT be overridden by subclasses. Subclasses wishing to define
+           * their virtual DOM should override Component#view instead.
+           *
+           * @example
+           * this.myComponentInstance = new MyComponent({foo: 'bar'});
+           * return m('div', this.myComponentInstance.render());
+           *
+           * @returns {Object}
+           * @final
+           * @public
+           */
+        }, {
+          key: 'render',
+          value: function render() {
+            var _this = this;
+
+            var vdom = this.view();
+
+            // Override the root element's config attribute with our own function, which
+            // will set the component instance's element property to the root DOM
+            // element, and then run the component class' config method.
+            vdom.attrs = vdom.attrs || {};
+
+            var originalConfig = vdom.attrs.config;
+
+            vdom.attrs.config = function () {
+              for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+              }
+
+              _this.element = args[0];
+              _this.config.apply(_this, args.slice(1));
+              if (originalConfig) originalConfig.apply(_this, args);
+            };
+
+            return vdom;
+          }
+
+          /**
+           * Returns a jQuery object for this component's element. If you pass in a
+           * selector string, this method will return a jQuery object, using the current
+           * element as its buffer.
+           *
+           * For example, calling `component.$('li')` will return a jQuery object
+           * containing all of the `li` elements inside the DOM element of this
+           * component.
+           *
+           * @param {String} [selector] a jQuery-compatible selector string
+           * @returns {jQuery} the jQuery object for the DOM node
+           * @final
+           * @public
+           */
+        }, {
+          key: '$',
+          value: (function (_$) {
+            function $(_x) {
+              return _$.apply(this, arguments);
+            }
+
+            $.toString = function () {
+              return _$.toString();
+            };
+
+            return $;
+          })(function (selector) {
+            var $element = $(this.element);
+
+            return selector ? $element.find(selector) : $element;
+          })
+
+          /**
+           * Called after the component's root element is redrawn. This hook can be used
+           * to perform any actions on the DOM, both on the initial draw and any
+           * subsequent redraws. See Mithril's documentation for more information.
+           *
+           * @see https://lhorie.github.io/mithril/mithril.html#the-config-attribute
+           * @param {Boolean} isInitialized
+           * @param {Object} context
+           * @param {Object} vdom
+           * @public
+           */
+        }, {
+          key: 'config',
+          value: function config() {}
+
+          /**
+           * Get the virtual DOM that represents the component's view.
+           *
+           * @return {Object} The virtual DOM
+           * @protected
+           */
+        }, {
+          key: 'view',
+          value: function view() {
+            throw new Error('Component#view must be implemented by subclass');
+          }
+
+          /**
+           * Get a Mithril component object for this component, preloaded with props.
+           *
+           * @see https://lhorie.github.io/mithril/mithril.component.html
+           * @param {Object} [props] Properties to set on the component
+           * @param children
+           * @return {Object} The Mithril component object
+           * @property {function} controller
+           * @property {function} view
+           * @property {Object} component The class of this component
+           * @property {Object} props The props that were passed to the component
+           * @public
+           */
+        }], [{
+          key: 'component',
+          value: function component() {
+            var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+            var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+            var componentProps = babelHelpers._extends({}, props);
+
+            if (children) componentProps.children = children;
+
+            this.initProps(componentProps);
+
+            // Set up a function for Mithril to get the component's view. It will accept
+            // the component's controller (which happens to be the component itself, in
+            // our case), update its props with the ones supplied, and then render the view.
+            var view = function view(component) {
+              component.props = componentProps;
+              return component.render();
+            };
+
+            // Mithril uses this property on the view function to cache component
+            // controllers between redraws, thus persisting component state.
+            view.$original = this.prototype.view;
+
+            // Our output object consists of a controller constructor + a view function
+            // which Mithril will use to instantiate and render the component. We also
+            // attach a reference to the props that were passed through and the
+            // component's class for reference.
+            var output = {
+              controller: this.bind(undefined, componentProps),
+              view: view,
+              props: componentProps,
+              component: this
+            };
+
+            // If a `key` prop was set, then we'll assume that we want that to actually
+            // show up as an attribute on the component object so that Mithril's key
+            // algorithm can be applied.
+            if (componentProps.key) {
+              output.attrs = { key: componentProps.key };
+            }
+
+            return output;
+          }
+
+          /**
+           * Initialize the component's props.
+           *
+           * @param {Object} props
+           * @public
+           */
+        }, {
+          key: 'initProps',
+          value: function initProps(props) {}
+        }]);
+        return Component;
+      })();
+
+      _export('default', Component);
+    }
+  };
+});;
 System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal'], function (_export) {
   /*
    * This file is part of Flarum.
@@ -16158,6 +16797,198 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
     }
   };
 });;
+System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
+
+  /**
+   * The `Alert` component represents an alert box, which contains a message,
+   * some controls, and may be dismissible.
+   *
+   * The alert may have the following special props:
+   *
+   * - `type` The type of alert this is. Will be used to give the alert a class
+   *   name of `Alert--{type}`.
+   * - `controls` An array of controls to show in the alert.
+   * - `dismissible` Whether or not the alert can be dismissed.
+   * - `ondismiss` A callback to run when the alert is dismissed.
+   *
+   * All other props will be assigned as attributes on the alert element.
+   */
+  'use strict';
+
+  var Component, Button, listItems, extract, Alert;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems['default'];
+    }, function (_flarumUtilsExtract) {
+      extract = _flarumUtilsExtract['default'];
+    }],
+    execute: function () {
+      Alert = (function (_Component) {
+        babelHelpers.inherits(Alert, _Component);
+
+        function Alert() {
+          babelHelpers.classCallCheck(this, Alert);
+          babelHelpers.get(Object.getPrototypeOf(Alert.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Alert, [{
+          key: 'view',
+          value: function view() {
+            var attrs = babelHelpers._extends({}, this.props);
+
+            var type = extract(attrs, 'type');
+            attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
+
+            var children = extract(attrs, 'children');
+            var controls = extract(attrs, 'controls') || [];
+
+            // If the alert is meant to be dismissible (which is the case by default),
+            // then we will create a dismiss button to append as the final control in
+            // the alert.
+            var dismissible = extract(attrs, 'dismissible');
+            var ondismiss = extract(attrs, 'ondismiss');
+            var dismissControl = [];
+
+            if (dismissible || dismissible === undefined) {
+              dismissControl.push(m(Button, {
+                icon: 'times',
+                className: 'Button Button--link Button--icon Alert-dismiss',
+                onclick: ondismiss }));
+            }
+
+            return m(
+              'div',
+              attrs,
+              m(
+                'span',
+                { className: 'Alert-body' },
+                children
+              ),
+              m(
+                'ul',
+                { className: 'Alert-controls' },
+                listItems(controls.concat(dismissControl))
+              )
+            );
+          }
+        }]);
+        return Alert;
+      })(Component);
+
+      _export('default', Alert);
+    }
+  };
+});;
+System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
+
+  /**
+   * The `AlertManager` component provides an area in which `Alert` components can
+   * be shown and dismissed.
+   */
+  'use strict';
+
+  var Component, Alert, AlertManager;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsAlert) {
+      Alert = _flarumComponentsAlert['default'];
+    }],
+    execute: function () {
+      AlertManager = (function (_Component) {
+        babelHelpers.inherits(AlertManager, _Component);
+
+        function AlertManager() {
+          babelHelpers.classCallCheck(this, AlertManager);
+          babelHelpers.get(Object.getPrototypeOf(AlertManager.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(AlertManager, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * An array of Alert components which are currently showing.
+             *
+             * @type {Alert[]}
+             * @protected
+             */
+            this.components = [];
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: 'AlertManager' },
+              this.components.map(function (component) {
+                return m(
+                  'div',
+                  { className: 'AlertManager-alert' },
+                  component
+                );
+              })
+            );
+          }
+
+          /**
+           * Show an Alert in the alerts area.
+           *
+           * @param {Alert} component
+           * @public
+           */
+        }, {
+          key: 'show',
+          value: function show(component) {
+            if (!(component instanceof Alert)) {
+              throw new Error('The AlertManager component can only show Alert components');
+            }
+
+            component.props.ondismiss = this.dismiss.bind(this, component);
+
+            this.components.push(component);
+            m.redraw();
+          }
+
+          /**
+           * Dismiss an alert.
+           *
+           * @param {Alert} component
+           * @public
+           */
+        }, {
+          key: 'dismiss',
+          value: function dismiss(component) {
+            var index = this.components.indexOf(component);
+
+            if (index !== -1) {
+              this.components.splice(index, 1);
+              m.redraw();
+            }
+          }
+
+          /**
+           * Clear all alerts.
+           *
+           * @public
+           */
+        }, {
+          key: 'clear',
+          value: function clear() {
+            this.components = [];
+            m.redraw();
+          }
+        }]);
+        return AlertManager;
+      })(Component);
+
+      _export('default', AlertManager);
+    }
+  };
+});;
 System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/utils/saveSettings'], function (_export) {
   'use strict';
 
@@ -16292,6 +17123,77 @@ System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum
       })(Component);
 
       _export('default', AppearancePage);
+    }
+  };
+});;
+System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
+
+  /**
+   * The `Badge` component represents a user/discussion badge, indicating some
+   * status (e.g. a discussion is stickied, a user is an admin).
+   *
+   * A badge may have the following special props:
+   *
+   * - `type` The type of badge this is. This will be used to give the badge a
+   *   class name of `Badge--{type}`.
+   * - `icon` The name of an icon to show inside the badge.
+   * - `label`
+   *
+   * All other props will be assigned as attributes on the badge element.
+   */
+  'use strict';
+
+  var Component, icon, extract, Badge;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }, function (_flarumUtilsExtract) {
+      extract = _flarumUtilsExtract['default'];
+    }],
+    execute: function () {
+      Badge = (function (_Component) {
+        babelHelpers.inherits(Badge, _Component);
+
+        function Badge() {
+          babelHelpers.classCallCheck(this, Badge);
+          babelHelpers.get(Object.getPrototypeOf(Badge.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Badge, [{
+          key: 'view',
+          value: function view() {
+            var attrs = babelHelpers._extends({}, this.props);
+            var type = extract(attrs, 'type');
+            var iconName = extract(attrs, 'icon');
+
+            attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
+            attrs.title = extract(attrs, 'label') || '';
+
+            // Give the badge a unique key so that when badges are displayed together,
+            // and then one is added/removed, Mithril will correctly redraw the series
+            // of badges.
+            attrs.key = attrs.type;
+
+            return m(
+              'span',
+              attrs,
+              iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')
+            );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized) {
+            if (isInitialized) return;
+
+            if (this.props.label) this.$().tooltip({ container: 'body' });
+          }
+        }]);
+        return Badge;
+      })(Component);
+
+      _export('default', Badge);
     }
   };
 });;
@@ -16483,6 +17385,195 @@ System.register('flarum/components/BasicsPage', ['flarum/Component', 'flarum/com
     }
   };
 });;
+System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
+
+  /**
+   * The `Button` component defines an element which, when clicked, performs an
+   * action. The button may have the following special props:
+   *
+   * - `icon` The name of the icon class. If specified, the button will be given a
+   *   'has-icon' class name.
+   * - `disabled` Whether or not the button is disabled. If truthy, the button
+   *   will be given a 'disabled' class name, and any `onclick` handler will be
+   *   removed.
+   * - `loading` Whether or not the button should be in a disabled loading state.
+   *
+   * All other props will be assigned as attributes on the button element.
+   *
+   * Note that a Button has no default class names. This is because a Button can
+   * be used to represent any generic clickable control, like a menu item.
+   */
+  'use strict';
+
+  var Component, icon, extract, LoadingIndicator, Button;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }, function (_flarumUtilsExtract) {
+      extract = _flarumUtilsExtract['default'];
+    }, function (_flarumComponentsLoadingIndicator) {
+      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+    }],
+    execute: function () {
+      Button = (function (_Component) {
+        babelHelpers.inherits(Button, _Component);
+
+        function Button() {
+          babelHelpers.classCallCheck(this, Button);
+          babelHelpers.get(Object.getPrototypeOf(Button.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Button, [{
+          key: 'view',
+          value: function view() {
+            var attrs = babelHelpers._extends({}, this.props);
+
+            delete attrs.children;
+
+            attrs.className = attrs.className || '';
+            attrs.type = attrs.type || 'button';
+
+            var iconName = extract(attrs, 'icon');
+            if (iconName) attrs.className += ' hasIcon';
+
+            var loading = extract(attrs, 'loading');
+            if (attrs.disabled || loading) {
+              attrs.className += ' disabled' + (loading ? ' loading' : '');
+              delete attrs.onclick;
+            }
+
+            return m(
+              'button',
+              attrs,
+              this.getButtonContent()
+            );
+          }
+
+          /**
+           * Get the template for the button's content.
+           *
+           * @return {*}
+           * @protected
+           */
+        }, {
+          key: 'getButtonContent',
+          value: function getButtonContent() {
+            var iconName = this.props.icon;
+
+            return [iconName && iconName !== true ? icon(iconName, { className: 'Button-icon' }) : '', this.props.children ? m(
+              'span',
+              { className: 'Button-label' },
+              this.props.children
+            ) : '', this.props.loading ? LoadingIndicator.component({ size: 'tiny', className: 'LoadingIndicator--inline' }) : ''];
+          }
+        }]);
+        return Button;
+      })(Component);
+
+      _export('default', Button);
+    }
+  };
+});;
+System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
+
+  /**
+   * The `Checkbox` component defines a checkbox input.
+   *
+   * ### Props
+   *
+   * - `state` Whether or not the checkbox is checked.
+   * - `className` The class name for the root element.
+   * - `disabled` Whether or not the checkbox is disabled.
+   * - `onchange` A callback to run when the checkbox is checked/unchecked.
+   * - `children` A text label to display next to the checkbox.
+   */
+  'use strict';
+
+  var Component, LoadingIndicator, icon, Checkbox;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsLoadingIndicator) {
+      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }],
+    execute: function () {
+      Checkbox = (function (_Component) {
+        babelHelpers.inherits(Checkbox, _Component);
+
+        function Checkbox() {
+          babelHelpers.classCallCheck(this, Checkbox);
+          babelHelpers.get(Object.getPrototypeOf(Checkbox.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Checkbox, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * Whether or not the checkbox's value is in the process of being saved.
+             *
+             * @type {Boolean}
+             * @public
+             */
+            this.loading = false;
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            var className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
+            if (this.loading) className += ' loading';
+            if (this.props.disabled) className += ' disabled';
+
+            return m(
+              'label',
+              { className: className },
+              m('input', { type: 'checkbox',
+                checked: this.props.state,
+                disabled: this.props.disabled,
+                onchange: m.withAttr('checked', this.onchange.bind(this)) }),
+              m(
+                'div',
+                { className: 'Checkbox-display' },
+                this.getDisplay()
+              ),
+              this.props.children
+            );
+          }
+
+          /**
+           * Get the template for the checkbox's display (tick/cross icon).
+           *
+           * @return {*}
+           * @protected
+           */
+        }, {
+          key: 'getDisplay',
+          value: function getDisplay() {
+            return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'check' : 'times');
+          }
+
+          /**
+           * Run a callback when the state of the checkbox is changed.
+           *
+           * @param {Boolean} checked
+           * @protected
+           */
+        }, {
+          key: 'onchange',
+          value: function onchange(checked) {
+            if (this.props.onchange) this.props.onchange(checked, this);
+          }
+        }]);
+        return Checkbox;
+      })(Component);
+
+      _export('default', Checkbox);
+    }
+  };
+});;
 System.register("flarum/components/DashboardPage", ["flarum/Component"], function (_export) {
   "use strict";
 
@@ -16565,6 +17656,147 @@ System.register("flarum/components/DashboardPage", ["flarum/Component"], functio
       })(Component);
 
       _export("default", DashboardPage);
+    }
+  };
+});;
+System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
+
+  /**
+   * The `Dropdown` component displays a button which, when clicked, shows a
+   * dropdown menu beneath it.
+   *
+   * ### Props
+   *
+   * - `buttonClassName` A class name to apply to the dropdown toggle button.
+   * - `menuClassName` A class name to apply to the dropdown menu.
+   * - `icon` The name of an icon to show in the dropdown toggle button.
+   * - `caretIcon` The name of an icon to show on the right of the button.
+   * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
+   * - `onhide`
+   * - `onshow`
+   *
+   * The children will be displayed as a list inside of the dropdown menu.
+   */
+  'use strict';
+
+  var Component, icon, listItems, Dropdown;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems['default'];
+    }],
+    execute: function () {
+      Dropdown = (function (_Component) {
+        babelHelpers.inherits(Dropdown, _Component);
+
+        function Dropdown() {
+          babelHelpers.classCallCheck(this, Dropdown);
+          babelHelpers.get(Object.getPrototypeOf(Dropdown.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Dropdown, [{
+          key: 'view',
+          value: function view() {
+            var items = this.props.children ? listItems(this.props.children) : [];
+
+            return m(
+              'div',
+              { className: 'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length },
+              this.getButton(),
+              this.getMenu(items)
+            );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized) {
+            var _this = this;
+
+            if (isInitialized) return;
+
+            // When opening the dropdown menu, work out if the menu goes beyond the
+            // bottom of the viewport. If it does, we will apply class to make it show
+            // above the toggle button instead of below it.
+            this.$().on('shown.bs.dropdown', function () {
+              var $menu = _this.$('.Dropdown-menu').removeClass('Dropdown-menu--top');
+
+              $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+
+              if (_this.props.onshow) {
+                _this.props.onshow();
+                m.redraw();
+              }
+            });
+
+            this.$().on('hidden.bs.dropdown', function () {
+              if (_this.props.onhide) {
+                _this.props.onhide();
+                m.redraw();
+              }
+            });
+          }
+
+          /**
+           * Get the template for the button.
+           *
+           * @return {*}
+           * @protected
+           */
+        }, {
+          key: 'getButton',
+          value: function getButton() {
+            return m(
+              'button',
+              {
+                className: 'Dropdown-toggle ' + this.props.buttonClassName,
+                'data-toggle': 'dropdown',
+                onclick: this.props.onclick },
+              this.getButtonContent()
+            );
+          }
+
+          /**
+           * Get the template for the button's content.
+           *
+           * @return {*}
+           * @protected
+           */
+        }, {
+          key: 'getButtonContent',
+          value: function getButtonContent() {
+            return [this.props.icon ? icon(this.props.icon, { className: 'Button-icon' }) : '', m(
+              'span',
+              { className: 'Button-label' },
+              this.props.label
+            ), this.props.caretIcon ? icon(this.props.caretIcon, { className: 'Button-caret' }) : ''];
+          }
+        }, {
+          key: 'getMenu',
+          value: function getMenu(items) {
+            return m(
+              'ul',
+              { className: 'Dropdown-menu dropdown-menu ' + this.props.menuClassName },
+              items
+            );
+          }
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            babelHelpers.get(Object.getPrototypeOf(Dropdown), 'initProps', this).call(this, props);
+
+            props.className = props.className || '';
+            props.buttonClassName = props.buttonClassName || '';
+            props.menuClassName = props.menuClassName || '';
+            props.label = props.label || '';
+            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
+          }
+        }]);
+        return Dropdown;
+      })(Component);
+
+      _export('default', Dropdown);
     }
   };
 });;
@@ -17000,6 +18232,100 @@ System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum
     }
   };
 });;
+System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
+
+  /**
+   * The `FieldSet` component defines a collection of fields, displayed in a list
+   * underneath a title. Accepted properties are:
+   *
+   * - `className` The class name for the fieldset.
+   * - `label` The title of this group of fields.
+   *
+   * The children should be an array of items to show in the fieldset.
+   */
+  'use strict';
+
+  var Component, listItems, FieldSet;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems['default'];
+    }],
+    execute: function () {
+      FieldSet = (function (_Component) {
+        babelHelpers.inherits(FieldSet, _Component);
+
+        function FieldSet() {
+          babelHelpers.classCallCheck(this, FieldSet);
+          babelHelpers.get(Object.getPrototypeOf(FieldSet.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(FieldSet, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'fieldset',
+              { className: this.props.className },
+              m(
+                'legend',
+                null,
+                this.props.label
+              ),
+              m(
+                'ul',
+                null,
+                listItems(this.props.children)
+              )
+            );
+          }
+        }]);
+        return FieldSet;
+      })(Component);
+
+      _export('default', FieldSet);
+    }
+  };
+});;
+System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
+  'use strict';
+
+  var Badge, GroupBadge;
+  return {
+    setters: [function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge['default'];
+    }],
+    execute: function () {
+      GroupBadge = (function (_Badge) {
+        babelHelpers.inherits(GroupBadge, _Badge);
+
+        function GroupBadge() {
+          babelHelpers.classCallCheck(this, GroupBadge);
+          babelHelpers.get(Object.getPrototypeOf(GroupBadge.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(GroupBadge, null, [{
+          key: 'initProps',
+          value: function initProps(props) {
+            babelHelpers.get(Object.getPrototypeOf(GroupBadge), 'initProps', this).call(this, props);
+
+            if (props.group) {
+              props.icon = props.group.icon();
+              props.style = { backgroundColor: props.group.color() };
+              props.label = typeof props.label === 'undefined' ? props.group.nameSingular() : props.label;
+              props.type = 'group--' + props.group.nameSingular();
+
+              delete props.group;
+            }
+          }
+        }]);
+        return GroupBadge;
+      })(Badge);
+
+      _export('default', GroupBadge);
+    }
+  };
+});;
 System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
 
   /**
@@ -17113,6 +18439,127 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
     }
   };
 });;
+System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
+
+  /**
+   * The `LinkButton` component defines a `Button` which links to a route.
+   *
+   * ### Props
+   *
+   * All of the props accepted by `Button`, plus:
+   *
+   * - `active` Whether or not the page that this button links to is currently
+   *   active.
+   * - `href` The URL to link to. If the current URL `m.route()` matches this,
+   *   the `active` prop will automatically be set to true.
+   */
+  'use strict';
+
+  var Button, LinkButton;
+  return {
+    setters: [function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }],
+    execute: function () {
+      LinkButton = (function (_Button) {
+        babelHelpers.inherits(LinkButton, _Button);
+
+        function LinkButton() {
+          babelHelpers.classCallCheck(this, LinkButton);
+          babelHelpers.get(Object.getPrototypeOf(LinkButton.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(LinkButton, [{
+          key: 'view',
+          value: function view() {
+            var vdom = babelHelpers.get(Object.getPrototypeOf(LinkButton.prototype), 'view', this).call(this);
+
+            vdom.tag = 'a';
+
+            return vdom;
+          }
+
+          /**
+           * Determine whether a component with the given props is 'active'.
+           *
+           * @param {Object} props
+           * @return {Boolean}
+           */
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            props.active = this.isActive(props);
+            props.config = props.config || m.route;
+          }
+        }, {
+          key: 'isActive',
+          value: function isActive(props) {
+            return typeof props.active !== 'undefined' ? props.active : m.route() === props.href;
+          }
+        }]);
+        return LinkButton;
+      })(Button);
+
+      _export('default', LinkButton);
+    }
+  };
+});;
+System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
+
+  /**
+   * The `LoadingIndicator` component displays a loading spinner with spin.js. It
+   * may have the following special props:
+   *
+   * - `size` The spin.js size preset to use. Defaults to 'small'.
+   *
+   * All other props will be assigned as attributes on the element.
+   */
+  'use strict';
+
+  var Component, LoadingIndicator;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }],
+    execute: function () {
+      LoadingIndicator = (function (_Component) {
+        babelHelpers.inherits(LoadingIndicator, _Component);
+
+        function LoadingIndicator() {
+          babelHelpers.classCallCheck(this, LoadingIndicator);
+          babelHelpers.get(Object.getPrototypeOf(LoadingIndicator.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(LoadingIndicator, [{
+          key: 'view',
+          value: function view() {
+            var attrs = babelHelpers._extends({}, this.props);
+
+            attrs.className = 'LoadingIndicator ' + (attrs.className || '');
+            delete attrs.size;
+
+            return m(
+              'div',
+              attrs,
+              m.trust('&nbsp;')
+            );
+          }
+        }, {
+          key: 'config',
+          value: function config() {
+            var size = this.props.size || 'small';
+
+            $.fn.spin.presets[size].zIndex = 'auto';
+            this.$().spin(size);
+          }
+        }]);
+        return LoadingIndicator;
+      })(Component);
+
+      _export('default', LoadingIndicator);
+    }
+  };
+});;
 System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], function (_export) {
   'use strict';
 
@@ -17155,6 +18602,464 @@ System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], f
       })(Modal);
 
       _export('default', LoadingModal);
+    }
+  };
+});;
+System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
+
+  /**
+   * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
+   * should implement the `className`, `title`, and `content` methods.
+   *
+   * @abstract
+   */
+  'use strict';
+
+  var Component, Alert, Button, Modal;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsAlert) {
+      Alert = _flarumComponentsAlert['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }],
+    execute: function () {
+      Modal = (function (_Component) {
+        babelHelpers.inherits(Modal, _Component);
+
+        function Modal() {
+          babelHelpers.classCallCheck(this, Modal);
+          babelHelpers.get(Object.getPrototypeOf(Modal.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Modal, [{
+          key: 'init',
+          value: function init() {
+            /**
+             * An alert component to show below the header.
+             *
+             * @type {Alert}
+             */
+            this.alert = null;
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            if (this.alert) {
+              this.alert.props.dismissible = false;
+            }
+
+            return m(
+              'div',
+              { className: 'Modal modal-dialog ' + this.className() },
+              m(
+                'div',
+                { className: 'Modal-content' },
+                this.isDismissible() ? m(
+                  'div',
+                  { className: 'Modal-close App-backControl' },
+                  Button.component({
+                    icon: 'times',
+                    onclick: this.hide.bind(this),
+                    className: 'Button Button--icon Button--link'
+                  })
+                ) : '',
+                m(
+                  'form',
+                  { onsubmit: this.onsubmit.bind(this) },
+                  m(
+                    'div',
+                    { className: 'Modal-header' },
+                    m(
+                      'h3',
+                      { className: 'App-titleControl App-titleControl--text' },
+                      this.title()
+                    )
+                  ),
+                  alert ? m(
+                    'div',
+                    { className: 'Modal-alert' },
+                    this.alert
+                  ) : '',
+                  this.content()
+                )
+              )
+            );
+          }
+
+          /**
+           * Determine whether or not the modal should be dismissible via an 'x' button.
+           *
+           * @return {Boolean}
+           */
+        }, {
+          key: 'isDismissible',
+          value: function isDismissible() {
+            return true;
+          }
+
+          /**
+           * Get the class name to apply to the modal.
+           *
+           * @return {String}
+           * @abstract
+           */
+        }, {
+          key: 'className',
+          value: function className() {}
+
+          /**
+           * Get the title of the modal dialog.
+           *
+           * @return {String}
+           * @abstract
+           */
+        }, {
+          key: 'title',
+          value: function title() {}
+
+          /**
+           * Get the content of the modal.
+           *
+           * @return {VirtualElement}
+           * @abstract
+           */
+        }, {
+          key: 'content',
+          value: function content() {}
+
+          /**
+           * Handle the modal form's submit event.
+           *
+           * @param {Event} e
+           */
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit() {}
+
+          /**
+           * Focus on the first input when the modal is ready to be used.
+           */
+        }, {
+          key: 'onready',
+          value: function onready() {
+            this.$('form :input:first').focus().select();
+          }
+
+          /**
+           * Hide the modal.
+           */
+        }, {
+          key: 'hide',
+          value: function hide() {
+            app.modal.close();
+          }
+
+          /**
+           * Stop loading.
+           */
+        }, {
+          key: 'loaded',
+          value: function loaded() {
+            this.loading = false;
+            m.redraw();
+          }
+
+          /**
+           * Show an alert describing an error returned from the API, and give focus to
+           * the first relevant field.
+           *
+           * @param {RequestError} error
+           */
+        }, {
+          key: 'onerror',
+          value: function onerror(error) {
+            this.alert = error.alert;
+
+            m.redraw();
+
+            if (error.status === 422 && error.response.errors) {
+              this.$('form [name=' + error.response.errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
+            } else {
+              this.onready();
+            }
+          }
+        }]);
+        return Modal;
+      })(Component);
+
+      _export('default', Modal);
+    }
+  };
+});;
+System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
+
+  /**
+   * The `ModalManager` component manages a modal dialog. Only one modal dialog
+   * can be shown at once; loading a new component into the ModalManager will
+   * overwrite the previous one.
+   */
+  'use strict';
+
+  var Component, Modal, ModalManager;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal['default'];
+    }],
+    execute: function () {
+      ModalManager = (function (_Component) {
+        babelHelpers.inherits(ModalManager, _Component);
+
+        function ModalManager() {
+          babelHelpers.classCallCheck(this, ModalManager);
+          babelHelpers.get(Object.getPrototypeOf(ModalManager.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(ModalManager, [{
+          key: 'init',
+          value: function init() {
+            this.showing = false;
+            this.component = null;
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: 'ModalManager modal fade' },
+              this.component && this.component.render()
+            );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            if (isInitialized) return;
+
+            context.retain = true;
+
+            this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));
+          }
+
+          /**
+           * Show a modal dialog.
+           *
+           * @param {Modal} component
+           * @public
+           */
+        }, {
+          key: 'show',
+          value: function show(component) {
+            if (!(component instanceof Modal)) {
+              throw new Error('The ModalManager component can only show Modal components');
+            }
+
+            clearTimeout(this.hideTimeout);
+
+            this.showing = true;
+            this.component = component;
+
+            m.redraw(true);
+
+            this.$().modal({ backdrop: this.component.isDismissible() ? true : 'static' }).modal('show');
+            this.onready();
+          }
+
+          /**
+           * Close the modal dialog.
+           *
+           * @public
+           */
+        }, {
+          key: 'close',
+          value: function close() {
+            var _this = this;
+
+            if (!this.showing) return;
+
+            // Don't hide the modal immediately, because if the consumer happens to call
+            // the `show` method straight after to show another modal dialog, it will
+            // cause Bootstrap's modal JS to misbehave. Instead we will wait for a tiny
+            // bit to give the `show` method the opportunity to prevent this from going
+            // ahead.
+            this.hideTimeout = setTimeout(function () {
+              _this.$().modal('hide');
+              _this.showing = false;
+            });
+          }
+
+          /**
+           * Clear content from the modal area.
+           *
+           * @protected
+           */
+        }, {
+          key: 'clear',
+          value: function clear() {
+            this.component = null;
+
+            m.lazyRedraw();
+          }
+
+          /**
+           * When the modal dialog is ready to be used, tell it!
+           *
+           * @protected
+           */
+        }, {
+          key: 'onready',
+          value: function onready() {
+            if (this.component && this.component.onready) {
+              this.component.onready(this.$());
+            }
+          }
+        }]);
+        return ModalManager;
+      })(Component);
+
+      _export('default', ModalManager);
+    }
+  };
+});;
+System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
+
+  /**
+   * The `Navigation` component displays a set of navigation buttons. Typically
+   * this is just a back button which pops the app's History. If the user is on
+   * the root page and there is no history to pop, then in some instances it may
+   * show a button that toggles the app's drawer.
+   *
+   * If the app has a pane, it will also include a 'pin' button which toggles the
+   * pinned state of the pane.
+   *
+   * Accepts the following props:
+   *
+   * - `className` The name of a class to set on the root element.
+   * - `drawer` Whether or not to show a button to toggle the app's drawer if
+   *   there is no more history to pop.
+   */
+  'use strict';
+
+  var Component, Button, LinkButton, Navigation;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumComponentsLinkButton) {
+      LinkButton = _flarumComponentsLinkButton['default'];
+    }],
+    execute: function () {
+      Navigation = (function (_Component) {
+        babelHelpers.inherits(Navigation, _Component);
+
+        function Navigation() {
+          babelHelpers.classCallCheck(this, Navigation);
+          babelHelpers.get(Object.getPrototypeOf(Navigation.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Navigation, [{
+          key: 'view',
+          value: function view() {
+            var _app = app;
+            var history = _app.history;
+            var pane = _app.pane;
+
+            return m(
+              'div',
+              { className: 'Navigation ButtonGroup ' + (this.props.className || ''),
+                onmouseenter: pane && pane.show.bind(pane),
+                onmouseleave: pane && pane.onmouseleave.bind(pane) },
+              history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()
+            );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
+          }
+
+          /**
+           * Get the back button.
+           *
+           * @return {Object}
+           * @protected
+           */
+        }, {
+          key: 'getBackButton',
+          value: function getBackButton() {
+            var _app2 = app;
+            var history = _app2.history;
+
+            return LinkButton.component({
+              className: 'Button Button--icon Navigation-back',
+              href: history.backUrl(),
+              icon: 'chevron-left',
+              config: function config() {},
+              onclick: function onclick(e) {
+                if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
+                e.preventDefault();
+                history.back();
+              }
+            });
+          }
+
+          /**
+           * Get the pane pinned toggle button.
+           *
+           * @return {Object|String}
+           * @protected
+           */
+        }, {
+          key: 'getPaneButton',
+          value: function getPaneButton() {
+            var _app3 = app;
+            var pane = _app3.pane;
+
+            if (!pane || !pane.active) return '';
+
+            return Button.component({
+              className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
+              onclick: pane.togglePinned.bind(pane),
+              icon: 'thumb-tack'
+            });
+          }
+
+          /**
+           * Get the drawer toggle button.
+           *
+           * @return {Object|String}
+           * @protected
+           */
+        }, {
+          key: 'getDrawerButton',
+          value: function getDrawerButton() {
+            if (!this.props.drawer) return '';
+
+            var _app4 = app;
+            var drawer = _app4.drawer;
+
+            var user = app.session.user;
+
+            return Button.component({
+              className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationsCount() ? ' new' : ''),
+              onclick: function onclick(e) {
+                e.stopPropagation();
+                drawer.show();
+              },
+              icon: 'reorder'
+            });
+          }
+        }]);
+        return Navigation;
+      })(Component);
+
+      _export('default', Navigation);
     }
   };
 });;
@@ -17677,6 +19582,274 @@ System.register('flarum/components/PermissionsPage', ['flarum/Component', 'flaru
     }
   };
 });;
+System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
+
+  /**
+   * The `Placeholder` component displays a muted text with some call to action,
+   * usually used as an empty state.
+   *
+   * ### Props
+   *
+   * - `text`
+   */
+  "use strict";
+
+  var Component, Placeholder;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent["default"];
+    }],
+    execute: function () {
+      Placeholder = (function (_Component) {
+        babelHelpers.inherits(Placeholder, _Component);
+
+        function Placeholder() {
+          babelHelpers.classCallCheck(this, Placeholder);
+          babelHelpers.get(Object.getPrototypeOf(Placeholder.prototype), "constructor", this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Placeholder, [{
+          key: "view",
+          value: function view() {
+            return m(
+              "div",
+              { className: "Placeholder" },
+              m(
+                "p",
+                null,
+                this.props.text
+              )
+            );
+          }
+        }]);
+        return Placeholder;
+      })(Component);
+
+      _export("default", Placeholder);
+    }
+  };
+});;
+System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
+  'use strict';
+
+  var Modal, RequestErrorModal;
+  return {
+    setters: [function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal['default'];
+    }],
+    execute: function () {
+      RequestErrorModal = (function (_Modal) {
+        babelHelpers.inherits(RequestErrorModal, _Modal);
+
+        function RequestErrorModal() {
+          babelHelpers.classCallCheck(this, RequestErrorModal);
+          babelHelpers.get(Object.getPrototypeOf(RequestErrorModal.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(RequestErrorModal, [{
+          key: 'className',
+          value: function className() {
+            return 'RequestErrorModal Modal--large';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return this.props.error.xhr ? this.props.error.xhr.status + ' ' + this.props.error.xhr.statusText : '';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            var responseText = undefined;
+
+            try {
+              responseText = JSON.stringify(JSON.parse(this.props.error.responseText), null, 2);
+            } catch (e) {
+              responseText = this.props.error.responseText;
+            }
+
+            return m(
+              'div',
+              { className: 'Modal-body' },
+              m(
+                'pre',
+                null,
+                this.props.error.options.method,
+                ' ',
+                this.props.error.options.url,
+                m('br', null),
+                m('br', null),
+                responseText
+              )
+            );
+          }
+        }]);
+        return RequestErrorModal;
+      })(Modal);
+
+      _export('default', RequestErrorModal);
+    }
+  };
+});;
+System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
+
+  /**
+   * The `Select` component displays a <select> input, surrounded with some extra
+   * elements for styling. It accepts the following props:
+   *
+   * - `options` A map of option values to labels.
+   * - `onchange` A callback to run when the selected value is changed.
+   * - `value` The value of the selected option.
+   */
+  'use strict';
+
+  var Component, icon, Select;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }],
+    execute: function () {
+      Select = (function (_Component) {
+        babelHelpers.inherits(Select, _Component);
+
+        function Select() {
+          babelHelpers.classCallCheck(this, Select);
+          babelHelpers.get(Object.getPrototypeOf(Select.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Select, [{
+          key: 'view',
+          value: function view() {
+            var _props = this.props;
+            var options = _props.options;
+            var onchange = _props.onchange;
+            var value = _props.value;
+
+            return m(
+              'span',
+              { className: 'Select' },
+              m(
+                'select',
+                { className: 'Select-input FormControl', onchange: onchange ? m.withAttr('value', onchange.bind(this)) : undefined, value: value },
+                Object.keys(options).map(function (key) {
+                  return m(
+                    'option',
+                    { value: key },
+                    options[key]
+                  );
+                })
+              ),
+              icon('sort', { className: 'Select-caret' })
+            );
+          }
+        }]);
+        return Select;
+      })(Component);
+
+      _export('default', Select);
+    }
+  };
+});;
+System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
+
+  /**
+   * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
+   * button's label is set as the label of the first child which has a truthy
+   * `active` prop.
+   *
+   * ### Props
+   *
+   * - `caretIcon`
+   * - `defaultLabel`
+   */
+  'use strict';
+
+  var Dropdown, icon, SelectDropdown;
+  return {
+    setters: [function (_flarumComponentsDropdown) {
+      Dropdown = _flarumComponentsDropdown['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }],
+    execute: function () {
+      SelectDropdown = (function (_Dropdown) {
+        babelHelpers.inherits(SelectDropdown, _Dropdown);
+
+        function SelectDropdown() {
+          babelHelpers.classCallCheck(this, SelectDropdown);
+          babelHelpers.get(Object.getPrototypeOf(SelectDropdown.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(SelectDropdown, [{
+          key: 'getButtonContent',
+          value: function getButtonContent() {
+            var activeChild = this.props.children.filter(function (child) {
+              return child.props.active;
+            })[0];
+            var label = activeChild && activeChild.props.children || this.props.defaultLabel;
+
+            if (label instanceof Array) label = label[0];
+
+            return [m(
+              'span',
+              { className: 'Button-label' },
+              label
+            ), icon(this.props.caretIcon, { className: 'Button-caret' })];
+          }
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'sort';
+
+            babelHelpers.get(Object.getPrototypeOf(SelectDropdown), 'initProps', this).call(this, props);
+
+            props.className += ' Dropdown--select';
+          }
+        }]);
+        return SelectDropdown;
+      })(Dropdown);
+
+      _export('default', SelectDropdown);
+    }
+  };
+});;
+System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
+
+  /**
+   * The `Separator` component defines a menu separator item.
+   */
+  "use strict";
+
+  var Component, Separator;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent["default"];
+    }],
+    execute: function () {
+      Separator = (function (_Component) {
+        babelHelpers.inherits(Separator, _Component);
+
+        function Separator() {
+          babelHelpers.classCallCheck(this, Separator);
+          babelHelpers.get(Object.getPrototypeOf(Separator.prototype), "constructor", this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Separator, [{
+          key: "view",
+          value: function view() {
+            return m("li", { className: "Dropdown-separator" });
+          }
+        }]);
+        return Separator;
+      })(Component);
+
+      Separator.isListItem = true;
+
+      _export("default", Separator);
+    }
+  };
+});;
 System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/utils/ItemList'], function (_export) {
 
   /**
@@ -17927,6 +20100,538 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
     }
   };
 });;
+System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
+
+  /**
+   * The `SplitDropdown` component is similar to `Dropdown`, but the first child
+   * is displayed as its own button prior to the toggle button.
+   */
+  'use strict';
+
+  var Dropdown, Button, icon, SplitDropdown;
+  return {
+    setters: [function (_flarumComponentsDropdown) {
+      Dropdown = _flarumComponentsDropdown['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
+    }],
+    execute: function () {
+      SplitDropdown = (function (_Dropdown) {
+        babelHelpers.inherits(SplitDropdown, _Dropdown);
+
+        function SplitDropdown() {
+          babelHelpers.classCallCheck(this, SplitDropdown);
+          babelHelpers.get(Object.getPrototypeOf(SplitDropdown.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(SplitDropdown, [{
+          key: 'getButton',
+          value: function getButton() {
+            // Make a copy of the props of the first child component. We will assign
+            // these props to a new button, so that it has exactly the same behaviour as
+            // the first child.
+            var firstChild = this.getFirstChild();
+            var buttonProps = babelHelpers._extends({}, firstChild.props);
+            buttonProps.className = (buttonProps.className || '') + ' SplitDropdown-button Button ' + this.props.buttonClassName;
+
+            return [Button.component(buttonProps), m(
+              'button',
+              {
+                className: 'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName,
+                'data-toggle': 'dropdown' },
+              icon(this.props.icon, { className: 'Button-icon' }),
+              icon('caret-down', { className: 'Button-caret' })
+            )];
+          }
+
+          /**
+           * Get the first child. If the first child is an array, the first item in that
+           * array will be returned.
+           *
+           * @return {*}
+           * @protected
+           */
+        }, {
+          key: 'getFirstChild',
+          value: function getFirstChild() {
+            var firstChild = this.props.children;
+
+            while (firstChild instanceof Array) firstChild = firstChild[0];
+
+            return firstChild;
+          }
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            babelHelpers.get(Object.getPrototypeOf(SplitDropdown), 'initProps', this).call(this, props);
+
+            props.className += ' Dropdown--split';
+            props.menuClassName += ' Dropdown-menu--right';
+          }
+        }]);
+        return SplitDropdown;
+      })(Dropdown);
+
+      _export('default', SplitDropdown);
+    }
+  };
+});;
+System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
+
+  /**
+   * The `Switch` component is a `Checkbox`, but with a switch display instead of
+   * a tick/cross one.
+   */
+  'use strict';
+
+  var Checkbox, Switch;
+  return {
+    setters: [function (_flarumComponentsCheckbox) {
+      Checkbox = _flarumComponentsCheckbox['default'];
+    }],
+    execute: function () {
+      Switch = (function (_Checkbox) {
+        babelHelpers.inherits(Switch, _Checkbox);
+
+        function Switch() {
+          babelHelpers.classCallCheck(this, Switch);
+          babelHelpers.get(Object.getPrototypeOf(Switch.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Switch, [{
+          key: 'getDisplay',
+          value: function getDisplay() {
+            return this.loading ? babelHelpers.get(Object.getPrototypeOf(Switch.prototype), 'getDisplay', this).call(this) : '';
+          }
+        }], [{
+          key: 'initProps',
+          value: function initProps(props) {
+            babelHelpers.get(Object.getPrototypeOf(Switch), 'initProps', this).call(this, props);
+
+            props.className = (props.className || '') + ' Checkbox--switch';
+          }
+        }]);
+        return Switch;
+      })(Checkbox);
+
+      _export('default', Switch);
+    }
+  };
+});;
+System.register("flarum/extend", [], function (_export) {
+  /**
+   * Extend an object's method by running its output through a mutating callback
+   * every time it is called.
+   *
+   * The callback accepts the method's return value and should perform any
+   * mutations directly on this value. For this reason, this function will not be
+   * effective on methods which return scalar values (numbers, strings, booleans).
+   *
+   * Care should be taken to extend the correct object – in most cases, a class'
+   * prototype will be the desired target of extension, not the class itself.
+   *
+   * @example
+   * extend(Discussion.prototype, 'badges', function(badges) {
+   *   // do something with `badges`
+   * });
+   *
+   * @param {Object} object The object that owns the method
+   * @param {String} method The name of the method to extend
+   * @param {function} callback A callback which mutates the method's output
+   */
+  "use strict";
+
+  /**
+   * Override an object's method by replacing it with a new function, so that the
+   * new function will be run every time the object's method is called.
+   *
+   * The replacement function accepts the original method as its first argument,
+   * which is like a call to 'super'. Any arguments passed to the original method
+   * are also passed to the replacement.
+   *
+   * Care should be taken to extend the correct object – in most cases, a class'
+   * prototype will be the desired target of extension, not the class itself.
+   *
+   * @example
+   * override(Discussion.prototype, 'badges', function(original) {
+   *   const badges = original();
+   *   // do something with badges
+   *   return badges;
+   * });
+   *
+   * @param {Object} object The object that owns the method
+   * @param {String} method The name of the method to override
+   * @param {function} newMethod The method to replace it with
+   */
+
+  _export("extend", extend);
+
+  _export("override", override);
+
+  function extend(object, method, callback) {
+    var original = object[method];
+
+    object[method] = function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var value = original ? original.apply(this, args) : undefined;
+
+      callback.apply(this, [value].concat(args));
+
+      return value;
+    };
+
+    babelHelpers._extends(object[method], original);
+  }
+
+  function override(object, method, newMethod) {
+    var original = object[method];
+
+    object[method] = function () {
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return newMethod.apply(this, [original.bind(this)].concat(args));
+    };
+
+    babelHelpers._extends(object[method], original);
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/avatar', [], function (_export) {
+  /**
+   * The `avatar` helper displays a user's avatar.
+   *
+   * @param {User} user
+   * @param {Object} attrs Attributes to apply to the avatar element
+   * @return {Object}
+   */
+  'use strict';
+
+  _export('default', avatar);
+
+  function avatar(user) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    attrs.className = 'Avatar ' + (attrs.className || '');
+    var content = '';
+
+    // If the `title` attribute is set to null or false, we don't want to give the
+    // avatar a title. On the other hand, if it hasn't been given at all, we can
+    // safely default it to the user's username.
+    var hasTitle = attrs.title === 'undefined' || attrs.title;
+    if (!hasTitle) delete attrs.title;
+
+    // If a user has been passed, then we will set up an avatar using their
+    // uploaded image, or the first letter of their username if they haven't
+    // uploaded one.
+    if (user) {
+      var username = user.username() || '?';
+      var avatarUrl = user.avatarUrl();
+
+      if (hasTitle) attrs.title = attrs.title || username;
+
+      if (avatarUrl) {
+        return m('img', babelHelpers._extends({}, attrs, { src: avatarUrl }));
+      }
+
+      content = username.charAt(0).toUpperCase();
+      attrs.style = { background: user.color() };
+    }
+
+    return m(
+      'span',
+      attrs,
+      content
+    );
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/fullTime', [], function (_export) {
+  /**
+   * The `fullTime` helper displays a formatted time string wrapped in a <time>
+   * tag.
+   *
+   * @param {Date} time
+   * @return {Object}
+   */
+  'use strict';
+
+  _export('default', fullTime);
+
+  function fullTime(time) {
+    var mo = moment(time);
+
+    var datetime = mo.format();
+    var full = mo.format('LLLL');
+
+    return m(
+      'time',
+      { pubdate: true, datetime: datetime },
+      full
+    );
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
+
+  /**
+   * The `highlight` helper searches for a word phrase in a string, and wraps
+   * matches with the <mark> tag.
+   *
+   * @param {String} string The string to highlight.
+   * @param {String|RegExp} phrase The word or words to highlight.
+   * @param {Integer} [length] The number of characters to truncate the string to.
+   *     The string will be truncated surrounding the first match.
+   * @return {Object}
+   */
+  'use strict';
+
+  var truncate;
+
+  _export('default', highlight);
+
+  function highlight(string, phrase, length) {
+    if (!phrase && !length) return string;
+
+    // Convert the word phrase into a global regular expression (if it isn't
+    // already) so we can search the string for matched.
+    var regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
+
+    var highlighted = string;
+    var start = 0;
+
+    // If a length was given, the truncate the string surrounding the first match.
+    if (length) {
+      if (phrase) start = Math.max(0, string.search(regexp) - length / 2);
+
+      highlighted = truncate(highlighted, length, start);
+    }
+
+    // Convert the string into HTML entities, then highlight all matches with
+    // <mark> tags. Then we will return the result as a trusted HTML string.
+    highlighted = $('<div/>').text(highlighted).html();
+
+    if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
+
+    return m.trust(highlighted);
+  }
+
+  return {
+    setters: [function (_flarumUtilsString) {
+      truncate = _flarumUtilsString.truncate;
+    }],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+
+  /**
+   * The `humanTime` helper displays a time in a human-friendly time-ago format
+   * (e.g. '12 days ago'), wrapped in a <time> tag with other information about
+   * the time.
+   *
+   * @param {Date} time
+   * @return {Object}
+   */
+  'use strict';
+
+  var humanTimeUtil;
+
+  _export('default', humanTime);
+
+  function humanTime(time) {
+    var mo = moment(time);
+
+    var datetime = mo.format();
+    var full = mo.format('LLLL');
+    var ago = humanTimeUtil(time);
+
+    return m(
+      'time',
+      { pubdate: true, datetime: datetime, title: full, 'data-humantime': true },
+      ago
+    );
+  }
+
+  return {
+    setters: [function (_flarumUtilsHumanTime) {
+      humanTimeUtil = _flarumUtilsHumanTime['default'];
+    }],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/icon', [], function (_export) {
+  /**
+   * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
+   *
+   * @param {String} name The name of the icon class, without the `fa-` prefix.
+   * @param {Object} attrs Any other attributes to apply.
+   * @return {Object}
+   */
+  'use strict';
+
+  _export('default', icon);
+
+  function icon(name) {
+    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
+
+    return m('i', attrs);
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
+  'use strict';
+
+  var Separator, classList;
+
+  _export('default', listItems);
+
+  /**
+   * The `listItems` helper wraps a collection of components in <li> tags,
+   * stripping out any unnecessary `Separator` components.
+   *
+   * @param {*} items
+   * @return {Array}
+   */
+
+  function isSeparator(item) {
+    return item && item.component === Separator;
+  }
+
+  function withoutUnnecessarySeparators(items) {
+    var newItems = [];
+    var prevItem = undefined;
+
+    items.forEach(function (item, i) {
+      if (!isSeparator(item) || prevItem && !isSeparator(prevItem) && i !== items.length - 1) {
+        prevItem = item;
+        newItems.push(item);
+      }
+    });
+
+    return newItems;
+  }
+  function listItems(items) {
+    if (!(items instanceof Array)) items = [items];
+
+    return withoutUnnecessarySeparators(items).map(function (item) {
+      var isListItem = item.component && item.component.isListItem;
+      var active = item.component && item.component.isActive && item.component.isActive(item.props);
+      var className = item.props ? item.props.itemClassName : item.itemClassName;
+
+      return [isListItem ? item : m(
+        'li',
+        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']) },
+        item
+      ), ' '];
+    });
+  }
+
+  return {
+    setters: [function (_flarumComponentsSeparator) {
+      Separator = _flarumComponentsSeparator['default'];
+    }, function (_flarumUtilsClassList) {
+      classList = _flarumUtilsClassList['default'];
+    }],
+    execute: function () {}
+  };
+});;
+System.register('flarum/helpers/punctuateSeries', [], function (_export) {
+  /**
+   * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
+   * fluently in the application's locale.
+   *
+   * ```js
+   * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
+   * ```
+   *
+   * @param {Array} items
+   * @return {VirtualElement}
+   */
+  'use strict';
+
+  _export('default', punctuateSeries);
+
+  function punctuateSeries(items) {
+    if (items.length === 2) {
+      return app.translator.trans('core.lib.series.two_text', {
+        first: items[0],
+        second: items[1]
+      });
+    } else if (items.length >= 3) {
+      // If there are three or more items, we will join all but the first and
+      // last items with the equivalent of a comma, and then we will feed that
+      // into the translator along with the first and last item.
+      var second = items.slice(1, items.length - 1).reduce(function (list, item) {
+        return list.concat([item, app.translator.trans('core.lib.series.glue_text')]);
+      }, []).slice(0, -1);
+
+      return app.translator.trans('core.lib.series.three_text', {
+        first: items[0],
+        second: second,
+        third: items[items.length - 1]
+      });
+    }
+
+    return items;
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
+System.register("flarum/helpers/username", [], function (_export) {
+  /**
+   * The `username` helper displays a user's username in a <span class="username">
+   * tag. If the user doesn't exist, the username will be displayed as [deleted].
+   *
+   * @param {User} user
+   * @return {Object}
+   */
+  "use strict";
+
+  _export("default", username);
+
+  function username(user) {
+    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
+
+    return m(
+      "span",
+      { className: "username" },
+      name
+    );
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
 System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/AdminNav', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
   /*global FastClick*/
 
@@ -18014,6 +20719,72 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
     execute: function () {}
   };
 });;
+System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+  'use strict';
+
+  var humanTimeUtil;
+
+  _export('default', humanTime);
+
+  /**
+   * The `humanTime` initializer sets up a loop every 1 second to update
+   * timestamps rendered with the `humanTime` helper.
+   */
+
+  function updateHumanTimes() {
+    $('[data-humantime]').each(function () {
+      var $this = $(this);
+      var ago = humanTimeUtil($this.attr('datetime'));
+
+      $this.html(ago);
+    });
+  }
+  function humanTime() {
+    setInterval(updateHumanTimes, 1000);
+  }
+
+  return {
+    setters: [function (_flarumUtilsHumanTime) {
+      humanTimeUtil = _flarumUtilsHumanTime['default'];
+    }],
+    execute: function () {}
+  };
+});;
+System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
+
+  /**
+   * The `preload` initializer creates the application session and preloads it
+   * with data that has been set on the application's `preload` property. It also
+   * preloads any data on the application's `preload` property into the store.
+   * Finally, it sets the application's `forum` instance to the one that was
+   * preloaded.
+   *
+   * `app.preload.session` should be the same as the response from the /api/token
+   * endpoint: it should contain `token` and `userId` keys.
+   *
+   * @param {App} app
+   */
+  'use strict';
+
+  var Session;
+
+  _export('default', preload);
+
+  function preload(app) {
+    app.store.pushPayload({ data: app.preload.data });
+
+    app.forum = app.store.getById('forums', 1);
+
+    app.session = new Session(app.preload.session.token, app.store.getById('users', app.preload.session.userId));
+  }
+
+  return {
+    setters: [function (_flarumSession) {
+      Session = _flarumSession['default'];
+    }],
+    execute: function () {}
+  };
+});;
 System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage'], function (_export) {
 
   /**
@@ -18049,668 +20820,51 @@ System.register('flarum/initializers/routes', ['flarum/components/DashboardPage'
     }
   };
 });;
-System.register('flarum/utils/saveSettings', [], function (_export) {
+System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
+
+  /**
+   * The `store` initializer creates the application's data store and registers
+   * the default resource types to their models.
+   *
+   * @param {App} app
+   */
   'use strict';
 
-  _export('default', saveSettings);
+  var Store, Forum, User, Discussion, Post, Group, Activity, Notification;
 
-  function saveSettings(settings) {
-    var oldSettings = JSON.parse(JSON.stringify(app.settings));
+  _export('default', store);
 
-    babelHelpers._extends(app.settings, settings);
-
-    return app.request({
-      method: 'POST',
-      url: app.forum.attribute('apiUrl') + '/settings',
-      data: settings
-    })['catch'](function (error) {
-      app.settings = oldSettings;
-      throw error;
+  function store(app) {
+    app.store = new Store({
+      forums: Forum,
+      users: User,
+      discussions: Discussion,
+      posts: Post,
+      groups: Group,
+      activity: Activity,
+      notifications: Notification
     });
   }
 
   return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
-
-  /**
-   * The `App` class provides a container for an application, as well as various
-   * utilities for the rest of the app to use.
-   */
-  'use strict';
-
-  var ItemList, Alert, Button, RequestErrorModal, Translator, extract, patchMithril, RequestError, extend, App;
-  return {
-    setters: [function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
-    }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }, function (_flarumComponentsRequestErrorModal) {
-      RequestErrorModal = _flarumComponentsRequestErrorModal['default'];
-    }, function (_flarumTranslator) {
-      Translator = _flarumTranslator['default'];
-    }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
-    }, function (_flarumUtilsPatchMithril) {
-      patchMithril = _flarumUtilsPatchMithril['default'];
-    }, function (_flarumUtilsRequestError) {
-      RequestError = _flarumUtilsRequestError['default'];
-    }, function (_flarumExtend) {
-      extend = _flarumExtend.extend;
+    setters: [function (_flarumStore) {
+      Store = _flarumStore['default'];
+    }, function (_flarumModelsForum) {
+      Forum = _flarumModelsForum['default'];
+    }, function (_flarumModelsUser) {
+      User = _flarumModelsUser['default'];
+    }, function (_flarumModelsDiscussion) {
+      Discussion = _flarumModelsDiscussion['default'];
+    }, function (_flarumModelsPost) {
+      Post = _flarumModelsPost['default'];
+    }, function (_flarumModelsGroup) {
+      Group = _flarumModelsGroup['default'];
+    }, function (_flarumModelsActivity) {
+      Activity = _flarumModelsActivity['default'];
+    }, function (_flarumModelsNotification) {
+      Notification = _flarumModelsNotification['default'];
     }],
-    execute: function () {
-      App = (function () {
-        function App() {
-          babelHelpers.classCallCheck(this, App);
-
-          patchMithril(window);
-
-          /**
-           * The forum model for this application.
-           *
-           * @type {Forum}
-           * @public
-           */
-          this.forum = null;
-
-          /**
-           * A map of routes, keyed by a unique route name. Each route is an object
-           * containing the following properties:
-           *
-           * - `path` The path that the route is accessed at.
-           * - `component` The Mithril component to render when this route is active.
-           *
-           * @example
-           * app.routes.discussion = {path: '/d/:id', component: DiscussionPage.component()};
-           *
-           * @type {Object}
-           * @public
-           */
-          this.routes = {};
-
-          /**
-           * An object containing data to preload into the application.
-           *
-           * @type {Object}
-           * @property {Object} preload.data An array of resource objects to preload
-           *     into the data store.
-           * @property {Object} preload.document An API response document to be used
-           *     by the route that is first activated.
-           * @property {Object} preload.session A response from the /api/token
-           *     endpoint containing the session's authentication token and user ID.
-           * @public
-           */
-          this.preload = {
-            data: null,
-            document: null,
-            session: null
-          };
-
-          /**
-           * An ordered list of initializers to bootstrap the application.
-           *
-           * @type {ItemList}
-           * @public
-           */
-          this.initializers = new ItemList();
-
-          /**
-           * The app's session.
-           *
-           * @type {Session}
-           * @public
-           */
-          this.session = null;
-
-          /**
-           * The app's translator.
-           *
-           * @type {Translator}
-           * @public
-           */
-          this.translator = new Translator();
-
-          /**
-           * The app's data store.
-           *
-           * @type {Store}
-           * @public
-           */
-          this.store = null;
-
-          /**
-           * A local cache that can be used to store data at the application level, so
-           * that is persists between different routes.
-           *
-           * @type {Object}
-           * @public
-           */
-          this.cache = {};
-
-          /**
-           * Whether or not the app has been booted.
-           *
-           * @type {Boolean}
-           * @public
-           */
-          this.booted = false;
-
-          /**
-           * An Alert that was shown as a result of an AJAX request error. If present,
-           * it will be dismissed on the next successful request.
-           *
-           * @type {null|Alert}
-           * @private
-           */
-          this.requestError = null;
-
-          this.title = '';
-          this.titleCount = 0;
-        }
-
-        /**
-         * Boot the application by running all of the registered initializers.
-         *
-         * @public
-         */
-        babelHelpers.createClass(App, [{
-          key: 'boot',
-          value: function boot() {
-            var _this = this;
-
-            this.translator.locale = this.locale;
-
-            this.initializers.toArray().forEach(function (initializer) {
-              return initializer(_this);
-            });
-          }
-
-          /**
-           * Get the API response document that has been preloaded into the application.
-           *
-           * @return {Object|null}
-           * @public
-           */
-        }, {
-          key: 'preloadedDocument',
-          value: function preloadedDocument() {
-            if (app.preload.document) {
-              var results = app.store.pushPayload(app.preload.document);
-              app.preload.document = null;
-
-              return results;
-            }
-
-            return null;
-          }
-
-          /**
-           * Set the <title> of the page.
-           *
-           * @param {String} title
-           * @public
-           */
-        }, {
-          key: 'setTitle',
-          value: function setTitle(title) {
-            this.title = title;
-            this.updateTitle();
-          }
-
-          /**
-           * Set a number to display in the <title> of the page.
-           *
-           * @param {Integer} count
-           */
-        }, {
-          key: 'setTitleCount',
-          value: function setTitleCount(count) {
-            this.titleCount = count;
-            this.updateTitle();
-          }
-        }, {
-          key: 'updateTitle',
-          value: function updateTitle() {
-            document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
-          }
-
-          /**
-           * Make an AJAX request, handling any low-level errors that may occur.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.request.html
-           * @param {Object} options
-           * @return {Promise}
-           * @public
-           */
-        }, {
-          key: 'request',
-          value: function request(options) {
-            var _this2 = this;
-
-            // Set some default options if they haven't been overridden. We want to
-            // authenticate all requests with the session token. We also want all
-            // requests to run asynchronously in the background, so that they don't
-            // prevent redraws from occurring.
-            options.config = options.config || this.session.authorize.bind(this.session);
-            options.background = options.background || true;
-
-            // If the method is something like PATCH or DELETE, which not all servers
-            // support, then we'll send it as a POST request with a the intended method
-            // specified in the X-Fake-Http-Method header.
-            if (options.method !== 'GET' && options.method !== 'POST') {
-              (function () {
-                var method = options.method;
-                extend(options, 'config', function (result, xhr) {
-                  return xhr.setRequestHeader('X-Fake-Http-Method', method);
-                });
-                options.method = 'POST';
-              })();
-            }
-
-            // When we deserialize JSON data, if for some reason the server has provided
-            // a dud response, we don't want the application to crash. We'll show an
-            // error message to the user instead.
-            options.deserialize = options.deserialize || function (responseText) {
-              try {
-                return JSON.parse(responseText);
-              } catch (e) {
-                throw new RequestError(500, responseText, options);
-              }
-            };
-
-            options.errorHandler = options.errorHandler || function (error) {
-              throw error;
-            };
-
-            // When extracting the data from the response, we can check the server
-            // response code and show an error message to the user if something's gone
-            // awry.
-            var original = options.extract;
-            options.extract = function (xhr) {
-              var responseText = undefined;
-
-              if (original) {
-                responseText = original(xhr.responseText);
-              } else {
-                responseText = xhr.responseText.length > 0 ? xhr.responseText : null;
-              }
-
-              var status = xhr.status;
-
-              if (status < 200 || status > 299) {
-                throw new RequestError(status, responseText, options, xhr);
-              }
-
-              return responseText;
-            };
-
-            if (this.requestError) this.alerts.dismiss(this.requestError.alert);
-
-            // Now make the request. If it's a failure, inspect the error that was
-            // returned and show an alert containing its contents.
-            return m.request(options).then(null, function (error) {
-              _this2.requestError = error;
-
-              var children = undefined;
-
-              switch (error.status) {
-                case 422:
-                  children = error.response.errors.map(function (error) {
-                    return [error.detail, m('br', null)];
-                  }).reduce(function (a, b) {
-                    return a.concat(b);
-                  }, []).slice(0, -1);
-                  break;
-
-                case 401:
-                case 403:
-                  children = app.translator.trans('core.lib.error.permission_denied_message');
-                  break;
-
-                case 404:
-                case 410:
-                  children = app.translator.trans('core.lib.error.not_found_message');
-                  break;
-
-                case 429:
-                  children = app.translator.trans('core.lib.error.rate_limit_exceeded_message');
-                  break;
-
-                default:
-                  children = app.translator.trans('core.lib.error.generic_message');
-              }
-
-              error.alert = new Alert({
-                type: 'error',
-                children: children,
-                controls: app.forum.attribute('debug') ? [m(
-                  Button,
-                  { className: 'Button Button--link', onclick: _this2.showDebug.bind(_this2, error) },
-                  'Debug'
-                )] : undefined
-              });
-
-              try {
-                options.errorHandler(error);
-              } catch (error) {
-                _this2.alerts.show(error.alert);
-              }
-
-              throw error;
-            });
-          }
-
-          /**
-           * @param {RequestError} error
-           * @private
-           */
-        }, {
-          key: 'showDebug',
-          value: function showDebug(error) {
-            this.alerts.dismiss(this.requestErrorAlert);
-
-            this.modal.show(new RequestErrorModal({ error: error }));
-          }
-
-          /**
-           * Construct a URL to the route with the given name.
-           *
-           * @param {String} name
-           * @param {Object} params
-           * @return {String}
-           * @public
-           */
-        }, {
-          key: 'route',
-          value: function route(name) {
-            var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-            var url = this.routes[name].path.replace(/:([^\/]+)/g, function (m, key) {
-              return extract(params, key);
-            });
-            var queryString = m.route.buildQueryString(params);
-            var prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
-
-            return prefix + url + (queryString ? '?' + queryString : '');
-          }
-        }]);
-        return App;
-      })();
-
-      _export('default', App);
-    }
-  };
-});;
-System.register('flarum/Component', [], function (_export) {
-  /*
-   * This file is part of Flarum.
-   *
-   * (c) Toby Zerner <toby.zerner@gmail.com>
-   *
-   * For the full copyright and license information, please view the LICENSE
-   * file that was distributed with this source code.
-   */
-
-  /**
-   * The `Component` class defines a user interface 'building block'. A component
-   * can generate a virtual DOM to be rendered on each redraw.
-   *
-   * An instance's virtual DOM can be retrieved directly using the {@link
-   * Component#render} method.
-   *
-   * @example
-   * this.myComponentInstance = new MyComponent({foo: 'bar'});
-   * return m('div', this.myComponentInstance.render());
-   *
-   * Alternatively, components can be nested, letting Mithril take care of
-   * instance persistence. For this, the static {@link Component.component} method
-   * can be used.
-   *
-   * @example
-   * return m('div', MyComponent.component({foo: 'bar'));
-   *
-   * @see https://lhorie.github.io/mithril/mithril.component.html
-   * @abstract
-   */
-  'use strict';
-
-  var Component;
-  return {
-    setters: [],
-    execute: function () {
-      Component = (function () {
-        /**
-         * @param {Object} props
-         * @param {Array|Object} children
-         * @public
-         */
-
-        function Component() {
-          var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-          var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-          babelHelpers.classCallCheck(this, Component);
-
-          if (children) props.children = children;
-
-          this.constructor.initProps(props);
-
-          /**
-           * The properties passed into the component.
-           *
-           * @type {Object}
-           */
-          this.props = props;
-
-          /**
-           * The root DOM element for the component.
-           *
-           * @type DOMElement
-           * @public
-           */
-          this.element = null;
-
-          this.init();
-        }
-
-        /**
-         * Called when the component is constructed.
-         *
-         * @protected
-         */
-        babelHelpers.createClass(Component, [{
-          key: 'init',
-          value: function init() {}
-
-          /**
-           * Called when the component is destroyed, i.e. after a redraw where it is no
-           * longer a part of the view.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.component.html#unloading-components
-           * @param {Object} e
-           * @public
-           */
-        }, {
-          key: 'onunload',
-          value: function onunload() {}
-
-          /**
-           * Get the renderable virtual DOM that represents the component's view.
-           *
-           * This should NOT be overridden by subclasses. Subclasses wishing to define
-           * their virtual DOM should override Component#view instead.
-           *
-           * @example
-           * this.myComponentInstance = new MyComponent({foo: 'bar'});
-           * return m('div', this.myComponentInstance.render());
-           *
-           * @returns {Object}
-           * @final
-           * @public
-           */
-        }, {
-          key: 'render',
-          value: function render() {
-            var _this = this;
-
-            var vdom = this.view();
-
-            // Override the root element's config attribute with our own function, which
-            // will set the component instance's element property to the root DOM
-            // element, and then run the component class' config method.
-            vdom.attrs = vdom.attrs || {};
-
-            var originalConfig = vdom.attrs.config;
-
-            vdom.attrs.config = function () {
-              for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                args[_key] = arguments[_key];
-              }
-
-              _this.element = args[0];
-              _this.config.apply(_this, args.slice(1));
-              if (originalConfig) originalConfig.apply(_this, args);
-            };
-
-            return vdom;
-          }
-
-          /**
-           * Returns a jQuery object for this component's element. If you pass in a
-           * selector string, this method will return a jQuery object, using the current
-           * element as its buffer.
-           *
-           * For example, calling `component.$('li')` will return a jQuery object
-           * containing all of the `li` elements inside the DOM element of this
-           * component.
-           *
-           * @param {String} [selector] a jQuery-compatible selector string
-           * @returns {jQuery} the jQuery object for the DOM node
-           * @final
-           * @public
-           */
-        }, {
-          key: '$',
-          value: (function (_$) {
-            function $(_x) {
-              return _$.apply(this, arguments);
-            }
-
-            $.toString = function () {
-              return _$.toString();
-            };
-
-            return $;
-          })(function (selector) {
-            var $element = $(this.element);
-
-            return selector ? $element.find(selector) : $element;
-          })
-
-          /**
-           * Called after the component's root element is redrawn. This hook can be used
-           * to perform any actions on the DOM, both on the initial draw and any
-           * subsequent redraws. See Mithril's documentation for more information.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.html#the-config-attribute
-           * @param {Boolean} isInitialized
-           * @param {Object} context
-           * @param {Object} vdom
-           * @public
-           */
-        }, {
-          key: 'config',
-          value: function config() {}
-
-          /**
-           * Get the virtual DOM that represents the component's view.
-           *
-           * @return {Object} The virtual DOM
-           * @protected
-           */
-        }, {
-          key: 'view',
-          value: function view() {
-            throw new Error('Component#view must be implemented by subclass');
-          }
-
-          /**
-           * Get a Mithril component object for this component, preloaded with props.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.component.html
-           * @param {Object} [props] Properties to set on the component
-           * @param children
-           * @return {Object} The Mithril component object
-           * @property {function} controller
-           * @property {function} view
-           * @property {Object} component The class of this component
-           * @property {Object} props The props that were passed to the component
-           * @public
-           */
-        }], [{
-          key: 'component',
-          value: function component() {
-            var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-            var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-
-            var componentProps = babelHelpers._extends({}, props);
-
-            if (children) componentProps.children = children;
-
-            this.initProps(componentProps);
-
-            // Set up a function for Mithril to get the component's view. It will accept
-            // the component's controller (which happens to be the component itself, in
-            // our case), update its props with the ones supplied, and then render the view.
-            var view = function view(component) {
-              component.props = componentProps;
-              return component.render();
-            };
-
-            // Mithril uses this property on the view function to cache component
-            // controllers between redraws, thus persisting component state.
-            view.$original = this.prototype.view;
-
-            // Our output object consists of a controller constructor + a view function
-            // which Mithril will use to instantiate and render the component. We also
-            // attach a reference to the props that were passed through and the
-            // component's class for reference.
-            var output = {
-              controller: this.bind(undefined, componentProps),
-              view: view,
-              props: componentProps,
-              component: this
-            };
-
-            // If a `key` prop was set, then we'll assume that we want that to actually
-            // show up as an attribute on the component object so that Mithril's key
-            // algorithm can be applied.
-            if (componentProps.key) {
-              output.attrs = { key: componentProps.key };
-            }
-
-            return output;
-          }
-
-          /**
-           * Initialize the component's props.
-           *
-           * @param {Object} props
-           * @public
-           */
-        }, {
-          key: 'initProps',
-          value: function initProps(props) {}
-        }]);
-        return Component;
-      })();
-
-      _export('default', Component);
-    }
+    execute: function () {}
   };
 });;
 System.register('flarum/Model', [], function (_export) {
@@ -19060,6 +21214,465 @@ System.register('flarum/Model', [], function (_export) {
       })();
 
       _export('default', Model);
+    }
+  };
+});;
+System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, ItemList, slug, Badge, Discussion;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList['default'];
+    }, function (_flarumUtilsString) {
+      slug = _flarumUtilsString.slug;
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge['default'];
+    }],
+    execute: function () {
+      Discussion = (function (_Model) {
+        babelHelpers.inherits(Discussion, _Model);
+
+        function Discussion() {
+          babelHelpers.classCallCheck(this, Discussion);
+          babelHelpers.get(Object.getPrototypeOf(Discussion.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Discussion;
+      })(Model);
+
+      _export('default', Discussion);
+
+      babelHelpers._extends(Discussion.prototype, {
+        title: Model.attribute('title'),
+        slug: computed('title', slug),
+
+        startTime: Model.attribute('startTime', Model.transformDate),
+        startUser: Model.hasOne('startUser'),
+        startPost: Model.hasOne('startPost'),
+
+        lastTime: Model.attribute('lastTime', Model.transformDate),
+        lastUser: Model.hasOne('lastUser'),
+        lastPost: Model.hasOne('lastPost'),
+        lastPostNumber: Model.attribute('lastPostNumber'),
+
+        commentsCount: Model.attribute('commentsCount'),
+        repliesCount: computed('commentsCount', function (commentsCount) {
+          return Math.max(0, commentsCount - 1);
+        }),
+        posts: Model.hasMany('posts'),
+        relevantPosts: Model.hasMany('relevantPosts'),
+
+        readTime: Model.attribute('readTime', Model.transformDate),
+        readNumber: Model.attribute('readNumber'),
+        isUnread: computed('unreadCount', function (unreadCount) {
+          return !!unreadCount;
+        }),
+        isRead: computed('unreadCount', function (unreadCount) {
+          return app.session.user && !unreadCount;
+        }),
+
+        hideTime: Model.attribute('hideTime', Model.transformDate),
+        hideUser: Model.hasOne('hideUser'),
+        isHidden: computed('hideTime', 'commentsCount', function (hideTime, commentsCount) {
+          return !!hideTime || commentsCount === 0;
+        }),
+
+        canReply: Model.attribute('canReply'),
+        canRename: Model.attribute('canRename'),
+        canHide: Model.attribute('canHide'),
+        canDelete: Model.attribute('canDelete'),
+
+        /**
+         * Remove a post from the discussion's posts relationship.
+         *
+         * @param {Integer} id The ID of the post to remove.
+         * @public
+         */
+        removePost: function removePost(id) {
+          var relationships = this.data.relationships;
+          var posts = relationships && relationships.posts;
+
+          if (posts) {
+            posts.data.some(function (data, i) {
+              if (id === data.id) {
+                posts.data.splice(i, 1);
+                return true;
+              }
+            });
+          }
+        },
+
+        /**
+         * Get the estimated number of unread posts in this discussion for the current
+         * user.
+         *
+         * @return {Integer}
+         * @public
+         */
+        unreadCount: function unreadCount() {
+          var user = app.session.user;
+
+          if (user && user.readTime() < this.lastTime()) {
+            return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
+          }
+
+          return 0;
+        },
+
+        /**
+         * Get the Badge components that apply to this discussion.
+         *
+         * @return {ItemList}
+         * @public
+         */
+        badges: function badges() {
+          var items = new ItemList();
+
+          if (this.isHidden()) {
+            items.add('hidden', m(Badge, { type: 'hidden', icon: 'trash', label: app.translator.trans('core.lib.badge.hidden_tooltip') }));
+          }
+
+          return items;
+        },
+
+        /**
+         * Get a list of all of the post IDs in this discussion.
+         *
+         * @return {Array}
+         * @public
+         */
+        postIds: function postIds() {
+          return this.data.relationships.posts.data.map(function (link) {
+            return link.id;
+          });
+        }
+      });
+
+      _export('default', Discussion);
+    }
+  };
+});;
+System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+  'use strict';
+
+  var Model, mixin, Forum;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }],
+    execute: function () {
+      Forum = (function (_Model) {
+        babelHelpers.inherits(Forum, _Model);
+
+        function Forum() {
+          babelHelpers.classCallCheck(this, Forum);
+          babelHelpers.get(Object.getPrototypeOf(Forum.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Forum, [{
+          key: 'apiEndpoint',
+          value: function apiEndpoint() {
+            return '/forum';
+          }
+        }]);
+        return Forum;
+      })(Model);
+
+      _export('default', Forum);
+    }
+  };
+});;
+System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+  'use strict';
+
+  var Model, mixin, Group;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }],
+    execute: function () {
+      Group = (function (_Model) {
+        babelHelpers.inherits(Group, _Model);
+
+        function Group() {
+          babelHelpers.classCallCheck(this, Group);
+          babelHelpers.get(Object.getPrototypeOf(Group.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Group;
+      })(Model);
+
+      babelHelpers._extends(Group.prototype, {
+        nameSingular: Model.attribute('nameSingular'),
+        namePlural: Model.attribute('namePlural'),
+        color: Model.attribute('color'),
+        icon: Model.attribute('icon')
+      });
+
+      Group.ADMINISTRATOR_ID = '1';
+      Group.GUEST_ID = '2';
+      Group.MEMBER_ID = '3';
+
+      _export('default', Group);
+    }
+  };
+});;
+System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, Notification;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }],
+    execute: function () {
+      Notification = (function (_Model) {
+        babelHelpers.inherits(Notification, _Model);
+
+        function Notification() {
+          babelHelpers.classCallCheck(this, Notification);
+          babelHelpers.get(Object.getPrototypeOf(Notification.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Notification;
+      })(Model);
+
+      _export('default', Notification);
+
+      babelHelpers._extends(Notification.prototype, {
+        contentType: Model.attribute('contentType'),
+        subjectId: Model.attribute('subjectId'),
+        content: Model.attribute('content'),
+        time: Model.attribute('time', Model.date),
+
+        isRead: Model.attribute('isRead'),
+        unreadCount: Model.attribute('unreadCount'),
+        additionalUnreadCount: computed('unreadCount', function (unreadCount) {
+          return Math.max(0, unreadCount - 1);
+        }),
+
+        user: Model.hasOne('user'),
+        sender: Model.hasOne('sender'),
+        subject: Model.hasOne('subject')
+      });
+
+      _export('default', Notification);
+    }
+  };
+});;
+System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
+  'use strict';
+
+  var Model, mixin, computed, getPlainContent, Post;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }, function (_flarumUtilsString) {
+      getPlainContent = _flarumUtilsString.getPlainContent;
+    }],
+    execute: function () {
+      Post = (function (_Model) {
+        babelHelpers.inherits(Post, _Model);
+
+        function Post() {
+          babelHelpers.classCallCheck(this, Post);
+          babelHelpers.get(Object.getPrototypeOf(Post.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return Post;
+      })(Model);
+
+      _export('default', Post);
+
+      babelHelpers._extends(Post.prototype, {
+        number: Model.attribute('number'),
+        discussion: Model.hasOne('discussion'),
+
+        time: Model.attribute('time', Model.transformDate),
+        user: Model.hasOne('user'),
+        contentType: Model.attribute('contentType'),
+        content: Model.attribute('content'),
+        contentHtml: Model.attribute('contentHtml'),
+        contentPlain: computed('contentHtml', getPlainContent),
+
+        editTime: Model.attribute('editTime', Model.transformDate),
+        editUser: Model.hasOne('editUser'),
+        isEdited: computed('editTime', function (editTime) {
+          return !!editTime;
+        }),
+
+        hideTime: Model.attribute('hideTime', Model.transformDate),
+        hideUser: Model.hasOne('hideUser'),
+        isHidden: computed('hideTime', function (hideTime) {
+          return !!hideTime;
+        }),
+
+        canEdit: Model.attribute('canEdit'),
+        canDelete: Model.attribute('canDelete')
+      });
+
+      _export('default', Post);
+    }
+  };
+});;
+System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
+  /*global ColorThief*/
+
+  'use strict';
+
+  var Model, mixin, stringToColor, ItemList, computed, GroupBadge, User;
+  return {
+    setters: [function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumUtilsMixin) {
+      mixin = _flarumUtilsMixin['default'];
+    }, function (_flarumUtilsStringToColor) {
+      stringToColor = _flarumUtilsStringToColor['default'];
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList['default'];
+    }, function (_flarumUtilsComputed) {
+      computed = _flarumUtilsComputed['default'];
+    }, function (_flarumComponentsGroupBadge) {
+      GroupBadge = _flarumComponentsGroupBadge['default'];
+    }],
+    execute: function () {
+      User = (function (_Model) {
+        babelHelpers.inherits(User, _Model);
+
+        function User() {
+          babelHelpers.classCallCheck(this, User);
+          babelHelpers.get(Object.getPrototypeOf(User.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        return User;
+      })(Model);
+
+      _export('default', User);
+
+      babelHelpers._extends(User.prototype, {
+        username: Model.attribute('username'),
+        email: Model.attribute('email'),
+        isActivated: Model.attribute('isActivated'),
+        password: Model.attribute('password'),
+
+        avatarUrl: Model.attribute('avatarUrl'),
+        bio: Model.attribute('bio'),
+        bioHtml: computed('bio', function (bio) {
+          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : '';
+        }),
+        preferences: Model.attribute('preferences'),
+        groups: Model.hasMany('groups'),
+
+        joinTime: Model.attribute('joinTime', Model.transformDate),
+        lastSeenTime: Model.attribute('lastSeenTime', Model.transformDate),
+        readTime: Model.attribute('readTime', Model.transformDate),
+        unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
+        newNotificationsCount: Model.attribute('newNotificationsCount'),
+
+        discussionsCount: Model.attribute('discussionsCount'),
+        commentsCount: Model.attribute('commentsCount'),
+
+        canEdit: Model.attribute('canEdit'),
+        canDelete: Model.attribute('canDelete'),
+
+        avatarColor: null,
+        color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
+          // If we've already calculated and cached the dominant color of the user's
+          // avatar, then we can return that in RGB format. If we haven't, we'll want
+          // to calculate it. Unless the user doesn't have an avatar, in which case
+          // we generate a color from their username.
+          if (avatarColor) {
+            return 'rgb(' + avatarColor.join(', ') + ')';
+          } else if (avatarUrl) {
+            this.calculateAvatarColor();
+            return '';
+          }
+
+          return '#' + stringToColor(username);
+        }),
+
+        /**
+         * Check whether or not the user has been seen in the last 5 minutes.
+         *
+         * @return {Boolean}
+         * @public
+         */
+        isOnline: function isOnline() {
+          return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate();
+        },
+
+        /**
+         * Get the Badge components that apply to this user.
+         *
+         * @return {ItemList}
+         */
+        badges: function badges() {
+          var items = new ItemList();
+          var groups = this.groups();
+
+          if (groups) {
+            groups.forEach(function (group) {
+              items.add('group' + group.id(), GroupBadge.component({ group: group }));
+            });
+          }
+
+          return items;
+        },
+
+        /**
+         * Calculate the dominant color of the user's avatar. The dominant color will
+         * be set to the `avatarColor` property once it has been calculated.
+         *
+         * @protected
+         */
+        calculateAvatarColor: function calculateAvatarColor() {
+          var image = new Image();
+          var user = this;
+
+          image.onload = function () {
+            var colorThief = new ColorThief();
+            user.avatarColor = colorThief.getColor(this);
+            user.freshness = new Date();
+            m.redraw();
+          };
+          image.src = this.avatarUrl();
+        },
+
+        /**
+         * Update the user's preferences.
+         *
+         * @param {Object} newPreferences
+         * @return {Promise}
+         */
+        savePreferences: function savePreferences(newPreferences) {
+          var preferences = this.preferences();
+
+          babelHelpers._extends(preferences, newPreferences);
+
+          return this.save({ preferences: preferences });
+        }
+      });
+
+      _export('default', User);
     }
   };
 });;
@@ -19669,3051 +22282,6 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
     }
   };
 });;
-System.register("flarum/extend", [], function (_export) {
-  /**
-   * Extend an object's method by running its output through a mutating callback
-   * every time it is called.
-   *
-   * The callback accepts the method's return value and should perform any
-   * mutations directly on this value. For this reason, this function will not be
-   * effective on methods which return scalar values (numbers, strings, booleans).
-   *
-   * Care should be taken to extend the correct object – in most cases, a class'
-   * prototype will be the desired target of extension, not the class itself.
-   *
-   * @example
-   * extend(Discussion.prototype, 'badges', function(badges) {
-   *   // do something with `badges`
-   * });
-   *
-   * @param {Object} object The object that owns the method
-   * @param {String} method The name of the method to extend
-   * @param {function} callback A callback which mutates the method's output
-   */
-  "use strict";
-
-  /**
-   * Override an object's method by replacing it with a new function, so that the
-   * new function will be run every time the object's method is called.
-   *
-   * The replacement function accepts the original method as its first argument,
-   * which is like a call to 'super'. Any arguments passed to the original method
-   * are also passed to the replacement.
-   *
-   * Care should be taken to extend the correct object – in most cases, a class'
-   * prototype will be the desired target of extension, not the class itself.
-   *
-   * @example
-   * override(Discussion.prototype, 'badges', function(original) {
-   *   const badges = original();
-   *   // do something with badges
-   *   return badges;
-   * });
-   *
-   * @param {Object} object The object that owns the method
-   * @param {String} method The name of the method to override
-   * @param {function} newMethod The method to replace it with
-   */
-
-  _export("extend", extend);
-
-  _export("override", override);
-
-  function extend(object, method, callback) {
-    var original = object[method];
-
-    object[method] = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      var value = original ? original.apply(this, args) : undefined;
-
-      callback.apply(this, [value].concat(args));
-
-      return value;
-    };
-
-    babelHelpers._extends(object[method], original);
-  }
-
-  function override(object, method, newMethod) {
-    var original = object[method];
-
-    object[method] = function () {
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
-      }
-
-      return newMethod.apply(this, [original.bind(this)].concat(args));
-    };
-
-    babelHelpers._extends(object[method], original);
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
-
-  /**
-   * The `Alert` component represents an alert box, which contains a message,
-   * some controls, and may be dismissible.
-   *
-   * The alert may have the following special props:
-   *
-   * - `type` The type of alert this is. Will be used to give the alert a class
-   *   name of `Alert--{type}`.
-   * - `controls` An array of controls to show in the alert.
-   * - `dismissible` Whether or not the alert can be dismissed.
-   * - `ondismiss` A callback to run when the alert is dismissed.
-   *
-   * All other props will be assigned as attributes on the alert element.
-   */
-  'use strict';
-
-  var Component, Button, listItems, extract, Alert;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
-    }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
-    }],
-    execute: function () {
-      Alert = (function (_Component) {
-        babelHelpers.inherits(Alert, _Component);
-
-        function Alert() {
-          babelHelpers.classCallCheck(this, Alert);
-          babelHelpers.get(Object.getPrototypeOf(Alert.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Alert, [{
-          key: 'view',
-          value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
-
-            var type = extract(attrs, 'type');
-            attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
-
-            var children = extract(attrs, 'children');
-            var controls = extract(attrs, 'controls') || [];
-
-            // If the alert is meant to be dismissible (which is the case by default),
-            // then we will create a dismiss button to append as the final control in
-            // the alert.
-            var dismissible = extract(attrs, 'dismissible');
-            var ondismiss = extract(attrs, 'ondismiss');
-            var dismissControl = [];
-
-            if (dismissible || dismissible === undefined) {
-              dismissControl.push(m(Button, {
-                icon: 'times',
-                className: 'Button Button--link Button--icon Alert-dismiss',
-                onclick: ondismiss }));
-            }
-
-            return m(
-              'div',
-              attrs,
-              m(
-                'span',
-                { className: 'Alert-body' },
-                children
-              ),
-              m(
-                'ul',
-                { className: 'Alert-controls' },
-                listItems(controls.concat(dismissControl))
-              )
-            );
-          }
-        }]);
-        return Alert;
-      })(Component);
-
-      _export('default', Alert);
-    }
-  };
-});;
-System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
-
-  /**
-   * The `AlertManager` component provides an area in which `Alert` components can
-   * be shown and dismissed.
-   */
-  'use strict';
-
-  var Component, Alert, AlertManager;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
-    }],
-    execute: function () {
-      AlertManager = (function (_Component) {
-        babelHelpers.inherits(AlertManager, _Component);
-
-        function AlertManager() {
-          babelHelpers.classCallCheck(this, AlertManager);
-          babelHelpers.get(Object.getPrototypeOf(AlertManager.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(AlertManager, [{
-          key: 'init',
-          value: function init() {
-            /**
-             * An array of Alert components which are currently showing.
-             *
-             * @type {Alert[]}
-             * @protected
-             */
-            this.components = [];
-          }
-        }, {
-          key: 'view',
-          value: function view() {
-            return m(
-              'div',
-              { className: 'AlertManager' },
-              this.components.map(function (component) {
-                return m(
-                  'div',
-                  { className: 'AlertManager-alert' },
-                  component
-                );
-              })
-            );
-          }
-
-          /**
-           * Show an Alert in the alerts area.
-           *
-           * @param {Alert} component
-           * @public
-           */
-        }, {
-          key: 'show',
-          value: function show(component) {
-            if (!(component instanceof Alert)) {
-              throw new Error('The AlertManager component can only show Alert components');
-            }
-
-            component.props.ondismiss = this.dismiss.bind(this, component);
-
-            this.components.push(component);
-            m.redraw();
-          }
-
-          /**
-           * Dismiss an alert.
-           *
-           * @param {Alert} component
-           * @public
-           */
-        }, {
-          key: 'dismiss',
-          value: function dismiss(component) {
-            var index = this.components.indexOf(component);
-
-            if (index !== -1) {
-              this.components.splice(index, 1);
-              m.redraw();
-            }
-          }
-
-          /**
-           * Clear all alerts.
-           *
-           * @public
-           */
-        }, {
-          key: 'clear',
-          value: function clear() {
-            this.components = [];
-            m.redraw();
-          }
-        }]);
-        return AlertManager;
-      })(Component);
-
-      _export('default', AlertManager);
-    }
-  };
-});;
-System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
-
-  /**
-   * The `Badge` component represents a user/discussion badge, indicating some
-   * status (e.g. a discussion is stickied, a user is an admin).
-   *
-   * A badge may have the following special props:
-   *
-   * - `type` The type of badge this is. This will be used to give the badge a
-   *   class name of `Badge--{type}`.
-   * - `icon` The name of an icon to show inside the badge.
-   * - `label`
-   *
-   * All other props will be assigned as attributes on the badge element.
-   */
-  'use strict';
-
-  var Component, icon, extract, Badge;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
-    }],
-    execute: function () {
-      Badge = (function (_Component) {
-        babelHelpers.inherits(Badge, _Component);
-
-        function Badge() {
-          babelHelpers.classCallCheck(this, Badge);
-          babelHelpers.get(Object.getPrototypeOf(Badge.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Badge, [{
-          key: 'view',
-          value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
-            var type = extract(attrs, 'type');
-            var iconName = extract(attrs, 'icon');
-
-            attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
-            attrs.title = extract(attrs, 'label') || '';
-
-            // Give the badge a unique key so that when badges are displayed together,
-            // and then one is added/removed, Mithril will correctly redraw the series
-            // of badges.
-            attrs.key = attrs.type;
-
-            return m(
-              'span',
-              attrs,
-              iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;')
-            );
-          }
-        }, {
-          key: 'config',
-          value: function config(isInitialized) {
-            if (isInitialized) return;
-
-            if (this.props.label) this.$().tooltip({ container: 'body' });
-          }
-        }]);
-        return Badge;
-      })(Component);
-
-      _export('default', Badge);
-    }
-  };
-});;
-System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
-
-  /**
-   * The `Button` component defines an element which, when clicked, performs an
-   * action. The button may have the following special props:
-   *
-   * - `icon` The name of the icon class. If specified, the button will be given a
-   *   'has-icon' class name.
-   * - `disabled` Whether or not the button is disabled. If truthy, the button
-   *   will be given a 'disabled' class name, and any `onclick` handler will be
-   *   removed.
-   * - `loading` Whether or not the button should be in a disabled loading state.
-   *
-   * All other props will be assigned as attributes on the button element.
-   *
-   * Note that a Button has no default class names. This is because a Button can
-   * be used to represent any generic clickable control, like a menu item.
-   */
-  'use strict';
-
-  var Component, icon, extract, LoadingIndicator, Button;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
-    }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
-    }],
-    execute: function () {
-      Button = (function (_Component) {
-        babelHelpers.inherits(Button, _Component);
-
-        function Button() {
-          babelHelpers.classCallCheck(this, Button);
-          babelHelpers.get(Object.getPrototypeOf(Button.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Button, [{
-          key: 'view',
-          value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
-
-            delete attrs.children;
-
-            attrs.className = attrs.className || '';
-            attrs.type = attrs.type || 'button';
-
-            var iconName = extract(attrs, 'icon');
-            if (iconName) attrs.className += ' hasIcon';
-
-            var loading = extract(attrs, 'loading');
-            if (attrs.disabled || loading) {
-              attrs.className += ' disabled' + (loading ? ' loading' : '');
-              delete attrs.onclick;
-            }
-
-            return m(
-              'button',
-              attrs,
-              this.getButtonContent()
-            );
-          }
-
-          /**
-           * Get the template for the button's content.
-           *
-           * @return {*}
-           * @protected
-           */
-        }, {
-          key: 'getButtonContent',
-          value: function getButtonContent() {
-            var iconName = this.props.icon;
-
-            return [iconName && iconName !== true ? icon(iconName, { className: 'Button-icon' }) : '', this.props.children ? m(
-              'span',
-              { className: 'Button-label' },
-              this.props.children
-            ) : '', this.props.loading ? LoadingIndicator.component({ size: 'tiny', className: 'LoadingIndicator--inline' }) : ''];
-          }
-        }]);
-        return Button;
-      })(Component);
-
-      _export('default', Button);
-    }
-  };
-});;
-System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
-
-  /**
-   * The `Checkbox` component defines a checkbox input.
-   *
-   * ### Props
-   *
-   * - `state` Whether or not the checkbox is checked.
-   * - `className` The class name for the root element.
-   * - `disabled` Whether or not the checkbox is disabled.
-   * - `onchange` A callback to run when the checkbox is checked/unchecked.
-   * - `children` A text label to display next to the checkbox.
-   */
-  'use strict';
-
-  var Component, LoadingIndicator, icon, Checkbox;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }],
-    execute: function () {
-      Checkbox = (function (_Component) {
-        babelHelpers.inherits(Checkbox, _Component);
-
-        function Checkbox() {
-          babelHelpers.classCallCheck(this, Checkbox);
-          babelHelpers.get(Object.getPrototypeOf(Checkbox.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Checkbox, [{
-          key: 'init',
-          value: function init() {
-            /**
-             * Whether or not the checkbox's value is in the process of being saved.
-             *
-             * @type {Boolean}
-             * @public
-             */
-            this.loading = false;
-          }
-        }, {
-          key: 'view',
-          value: function view() {
-            var className = 'Checkbox ' + (this.props.state ? 'on' : 'off') + ' ' + (this.props.className || '');
-            if (this.loading) className += ' loading';
-            if (this.props.disabled) className += ' disabled';
-
-            return m(
-              'label',
-              { className: className },
-              m('input', { type: 'checkbox',
-                checked: this.props.state,
-                disabled: this.props.disabled,
-                onchange: m.withAttr('checked', this.onchange.bind(this)) }),
-              m(
-                'div',
-                { className: 'Checkbox-display' },
-                this.getDisplay()
-              ),
-              this.props.children
-            );
-          }
-
-          /**
-           * Get the template for the checkbox's display (tick/cross icon).
-           *
-           * @return {*}
-           * @protected
-           */
-        }, {
-          key: 'getDisplay',
-          value: function getDisplay() {
-            return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'check' : 'times');
-          }
-
-          /**
-           * Run a callback when the state of the checkbox is changed.
-           *
-           * @param {Boolean} checked
-           * @protected
-           */
-        }, {
-          key: 'onchange',
-          value: function onchange(checked) {
-            if (this.props.onchange) this.props.onchange(checked, this);
-          }
-        }]);
-        return Checkbox;
-      })(Component);
-
-      _export('default', Checkbox);
-    }
-  };
-});;
-System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
-
-  /**
-   * The `Dropdown` component displays a button which, when clicked, shows a
-   * dropdown menu beneath it.
-   *
-   * ### Props
-   *
-   * - `buttonClassName` A class name to apply to the dropdown toggle button.
-   * - `menuClassName` A class name to apply to the dropdown menu.
-   * - `icon` The name of an icon to show in the dropdown toggle button.
-   * - `caretIcon` The name of an icon to show on the right of the button.
-   * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
-   * - `onhide`
-   * - `onshow`
-   *
-   * The children will be displayed as a list inside of the dropdown menu.
-   */
-  'use strict';
-
-  var Component, icon, listItems, Dropdown;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
-    }],
-    execute: function () {
-      Dropdown = (function (_Component) {
-        babelHelpers.inherits(Dropdown, _Component);
-
-        function Dropdown() {
-          babelHelpers.classCallCheck(this, Dropdown);
-          babelHelpers.get(Object.getPrototypeOf(Dropdown.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Dropdown, [{
-          key: 'view',
-          value: function view() {
-            var items = this.props.children ? listItems(this.props.children) : [];
-
-            return m(
-              'div',
-              { className: 'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length },
-              this.getButton(),
-              this.getMenu(items)
-            );
-          }
-        }, {
-          key: 'config',
-          value: function config(isInitialized) {
-            var _this = this;
-
-            if (isInitialized) return;
-
-            // When opening the dropdown menu, work out if the menu goes beyond the
-            // bottom of the viewport. If it does, we will apply class to make it show
-            // above the toggle button instead of below it.
-            this.$().on('shown.bs.dropdown', function () {
-              var $menu = _this.$('.Dropdown-menu').removeClass('Dropdown-menu--top');
-
-              $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
-
-              if (_this.props.onshow) {
-                _this.props.onshow();
-                m.redraw();
-              }
-            });
-
-            this.$().on('hidden.bs.dropdown', function () {
-              if (_this.props.onhide) {
-                _this.props.onhide();
-                m.redraw();
-              }
-            });
-          }
-
-          /**
-           * Get the template for the button.
-           *
-           * @return {*}
-           * @protected
-           */
-        }, {
-          key: 'getButton',
-          value: function getButton() {
-            return m(
-              'button',
-              {
-                className: 'Dropdown-toggle ' + this.props.buttonClassName,
-                'data-toggle': 'dropdown',
-                onclick: this.props.onclick },
-              this.getButtonContent()
-            );
-          }
-
-          /**
-           * Get the template for the button's content.
-           *
-           * @return {*}
-           * @protected
-           */
-        }, {
-          key: 'getButtonContent',
-          value: function getButtonContent() {
-            return [this.props.icon ? icon(this.props.icon, { className: 'Button-icon' }) : '', m(
-              'span',
-              { className: 'Button-label' },
-              this.props.label
-            ), this.props.caretIcon ? icon(this.props.caretIcon, { className: 'Button-caret' }) : ''];
-          }
-        }, {
-          key: 'getMenu',
-          value: function getMenu(items) {
-            return m(
-              'ul',
-              { className: 'Dropdown-menu dropdown-menu ' + this.props.menuClassName },
-              items
-            );
-          }
-        }], [{
-          key: 'initProps',
-          value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(Dropdown), 'initProps', this).call(this, props);
-
-            props.className = props.className || '';
-            props.buttonClassName = props.buttonClassName || '';
-            props.menuClassName = props.menuClassName || '';
-            props.label = props.label || '';
-            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
-          }
-        }]);
-        return Dropdown;
-      })(Component);
-
-      _export('default', Dropdown);
-    }
-  };
-});;
-System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
-
-  /**
-   * The `FieldSet` component defines a collection of fields, displayed in a list
-   * underneath a title. Accepted properties are:
-   *
-   * - `className` The class name for the fieldset.
-   * - `label` The title of this group of fields.
-   *
-   * The children should be an array of items to show in the fieldset.
-   */
-  'use strict';
-
-  var Component, listItems, FieldSet;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
-    }],
-    execute: function () {
-      FieldSet = (function (_Component) {
-        babelHelpers.inherits(FieldSet, _Component);
-
-        function FieldSet() {
-          babelHelpers.classCallCheck(this, FieldSet);
-          babelHelpers.get(Object.getPrototypeOf(FieldSet.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(FieldSet, [{
-          key: 'view',
-          value: function view() {
-            return m(
-              'fieldset',
-              { className: this.props.className },
-              m(
-                'legend',
-                null,
-                this.props.label
-              ),
-              m(
-                'ul',
-                null,
-                listItems(this.props.children)
-              )
-            );
-          }
-        }]);
-        return FieldSet;
-      })(Component);
-
-      _export('default', FieldSet);
-    }
-  };
-});;
-System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
-  'use strict';
-
-  var Badge, GroupBadge;
-  return {
-    setters: [function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
-    }],
-    execute: function () {
-      GroupBadge = (function (_Badge) {
-        babelHelpers.inherits(GroupBadge, _Badge);
-
-        function GroupBadge() {
-          babelHelpers.classCallCheck(this, GroupBadge);
-          babelHelpers.get(Object.getPrototypeOf(GroupBadge.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(GroupBadge, null, [{
-          key: 'initProps',
-          value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(GroupBadge), 'initProps', this).call(this, props);
-
-            if (props.group) {
-              props.icon = props.group.icon();
-              props.style = { backgroundColor: props.group.color() };
-              props.label = typeof props.label === 'undefined' ? props.group.nameSingular() : props.label;
-              props.type = 'group--' + props.group.nameSingular();
-
-              delete props.group;
-            }
-          }
-        }]);
-        return GroupBadge;
-      })(Badge);
-
-      _export('default', GroupBadge);
-    }
-  };
-});;
-System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
-
-  /**
-   * The `LinkButton` component defines a `Button` which links to a route.
-   *
-   * ### Props
-   *
-   * All of the props accepted by `Button`, plus:
-   *
-   * - `active` Whether or not the page that this button links to is currently
-   *   active.
-   * - `href` The URL to link to. If the current URL `m.route()` matches this,
-   *   the `active` prop will automatically be set to true.
-   */
-  'use strict';
-
-  var Button, LinkButton;
-  return {
-    setters: [function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }],
-    execute: function () {
-      LinkButton = (function (_Button) {
-        babelHelpers.inherits(LinkButton, _Button);
-
-        function LinkButton() {
-          babelHelpers.classCallCheck(this, LinkButton);
-          babelHelpers.get(Object.getPrototypeOf(LinkButton.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(LinkButton, [{
-          key: 'view',
-          value: function view() {
-            var vdom = babelHelpers.get(Object.getPrototypeOf(LinkButton.prototype), 'view', this).call(this);
-
-            vdom.tag = 'a';
-
-            return vdom;
-          }
-
-          /**
-           * Determine whether a component with the given props is 'active'.
-           *
-           * @param {Object} props
-           * @return {Boolean}
-           */
-        }], [{
-          key: 'initProps',
-          value: function initProps(props) {
-            props.active = this.isActive(props);
-            props.config = props.config || m.route;
-          }
-        }, {
-          key: 'isActive',
-          value: function isActive(props) {
-            return typeof props.active !== 'undefined' ? props.active : m.route() === props.href;
-          }
-        }]);
-        return LinkButton;
-      })(Button);
-
-      _export('default', LinkButton);
-    }
-  };
-});;
-System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
-
-  /**
-   * The `LoadingIndicator` component displays a loading spinner with spin.js. It
-   * may have the following special props:
-   *
-   * - `size` The spin.js size preset to use. Defaults to 'small'.
-   *
-   * All other props will be assigned as attributes on the element.
-   */
-  'use strict';
-
-  var Component, LoadingIndicator;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }],
-    execute: function () {
-      LoadingIndicator = (function (_Component) {
-        babelHelpers.inherits(LoadingIndicator, _Component);
-
-        function LoadingIndicator() {
-          babelHelpers.classCallCheck(this, LoadingIndicator);
-          babelHelpers.get(Object.getPrototypeOf(LoadingIndicator.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(LoadingIndicator, [{
-          key: 'view',
-          value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
-
-            attrs.className = 'LoadingIndicator ' + (attrs.className || '');
-            delete attrs.size;
-
-            return m(
-              'div',
-              attrs,
-              m.trust('&nbsp;')
-            );
-          }
-        }, {
-          key: 'config',
-          value: function config() {
-            var size = this.props.size || 'small';
-
-            $.fn.spin.presets[size].zIndex = 'auto';
-            this.$().spin(size);
-          }
-        }]);
-        return LoadingIndicator;
-      })(Component);
-
-      _export('default', LoadingIndicator);
-    }
-  };
-});;
-System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
-
-  /**
-   * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
-   * should implement the `className`, `title`, and `content` methods.
-   *
-   * @abstract
-   */
-  'use strict';
-
-  var Component, Alert, Button, Modal;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }],
-    execute: function () {
-      Modal = (function (_Component) {
-        babelHelpers.inherits(Modal, _Component);
-
-        function Modal() {
-          babelHelpers.classCallCheck(this, Modal);
-          babelHelpers.get(Object.getPrototypeOf(Modal.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Modal, [{
-          key: 'init',
-          value: function init() {
-            /**
-             * An alert component to show below the header.
-             *
-             * @type {Alert}
-             */
-            this.alert = null;
-          }
-        }, {
-          key: 'view',
-          value: function view() {
-            if (this.alert) {
-              this.alert.props.dismissible = false;
-            }
-
-            return m(
-              'div',
-              { className: 'Modal modal-dialog ' + this.className() },
-              m(
-                'div',
-                { className: 'Modal-content' },
-                this.isDismissible() ? m(
-                  'div',
-                  { className: 'Modal-close App-backControl' },
-                  Button.component({
-                    icon: 'times',
-                    onclick: this.hide.bind(this),
-                    className: 'Button Button--icon Button--link'
-                  })
-                ) : '',
-                m(
-                  'form',
-                  { onsubmit: this.onsubmit.bind(this) },
-                  m(
-                    'div',
-                    { className: 'Modal-header' },
-                    m(
-                      'h3',
-                      { className: 'App-titleControl App-titleControl--text' },
-                      this.title()
-                    )
-                  ),
-                  alert ? m(
-                    'div',
-                    { className: 'Modal-alert' },
-                    this.alert
-                  ) : '',
-                  this.content()
-                )
-              )
-            );
-          }
-
-          /**
-           * Determine whether or not the modal should be dismissible via an 'x' button.
-           *
-           * @return {Boolean}
-           */
-        }, {
-          key: 'isDismissible',
-          value: function isDismissible() {
-            return true;
-          }
-
-          /**
-           * Get the class name to apply to the modal.
-           *
-           * @return {String}
-           * @abstract
-           */
-        }, {
-          key: 'className',
-          value: function className() {}
-
-          /**
-           * Get the title of the modal dialog.
-           *
-           * @return {String}
-           * @abstract
-           */
-        }, {
-          key: 'title',
-          value: function title() {}
-
-          /**
-           * Get the content of the modal.
-           *
-           * @return {VirtualElement}
-           * @abstract
-           */
-        }, {
-          key: 'content',
-          value: function content() {}
-
-          /**
-           * Handle the modal form's submit event.
-           *
-           * @param {Event} e
-           */
-        }, {
-          key: 'onsubmit',
-          value: function onsubmit() {}
-
-          /**
-           * Focus on the first input when the modal is ready to be used.
-           */
-        }, {
-          key: 'onready',
-          value: function onready() {
-            this.$('form :input:first').focus().select();
-          }
-
-          /**
-           * Hide the modal.
-           */
-        }, {
-          key: 'hide',
-          value: function hide() {
-            app.modal.close();
-          }
-
-          /**
-           * Stop loading.
-           */
-        }, {
-          key: 'loaded',
-          value: function loaded() {
-            this.loading = false;
-            m.redraw();
-          }
-
-          /**
-           * Show an alert describing an error returned from the API, and give focus to
-           * the first relevant field.
-           *
-           * @param {RequestError} error
-           */
-        }, {
-          key: 'onerror',
-          value: function onerror(error) {
-            this.alert = error.alert;
-
-            m.redraw();
-
-            if (error.status === 422 && error.response.errors) {
-              this.$('form [name=' + error.response.errors[0].source.pointer.replace('/data/attributes/', '') + ']').select();
-            } else {
-              this.onready();
-            }
-          }
-        }]);
-        return Modal;
-      })(Component);
-
-      _export('default', Modal);
-    }
-  };
-});;
-System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
-
-  /**
-   * The `ModalManager` component manages a modal dialog. Only one modal dialog
-   * can be shown at once; loading a new component into the ModalManager will
-   * overwrite the previous one.
-   */
-  'use strict';
-
-  var Component, Modal, ModalManager;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
-    }],
-    execute: function () {
-      ModalManager = (function (_Component) {
-        babelHelpers.inherits(ModalManager, _Component);
-
-        function ModalManager() {
-          babelHelpers.classCallCheck(this, ModalManager);
-          babelHelpers.get(Object.getPrototypeOf(ModalManager.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(ModalManager, [{
-          key: 'init',
-          value: function init() {
-            this.showing = false;
-            this.component = null;
-          }
-        }, {
-          key: 'view',
-          value: function view() {
-            return m(
-              'div',
-              { className: 'ModalManager modal fade' },
-              this.component && this.component.render()
-            );
-          }
-        }, {
-          key: 'config',
-          value: function config(isInitialized, context) {
-            if (isInitialized) return;
-
-            context.retain = true;
-
-            this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));
-          }
-
-          /**
-           * Show a modal dialog.
-           *
-           * @param {Modal} component
-           * @public
-           */
-        }, {
-          key: 'show',
-          value: function show(component) {
-            if (!(component instanceof Modal)) {
-              throw new Error('The ModalManager component can only show Modal components');
-            }
-
-            clearTimeout(this.hideTimeout);
-
-            this.showing = true;
-            this.component = component;
-
-            m.redraw(true);
-
-            this.$().modal({ backdrop: this.component.isDismissible() ? true : 'static' }).modal('show');
-            this.onready();
-          }
-
-          /**
-           * Close the modal dialog.
-           *
-           * @public
-           */
-        }, {
-          key: 'close',
-          value: function close() {
-            var _this = this;
-
-            if (!this.showing) return;
-
-            // Don't hide the modal immediately, because if the consumer happens to call
-            // the `show` method straight after to show another modal dialog, it will
-            // cause Bootstrap's modal JS to misbehave. Instead we will wait for a tiny
-            // bit to give the `show` method the opportunity to prevent this from going
-            // ahead.
-            this.hideTimeout = setTimeout(function () {
-              _this.$().modal('hide');
-              _this.showing = false;
-            });
-          }
-
-          /**
-           * Clear content from the modal area.
-           *
-           * @protected
-           */
-        }, {
-          key: 'clear',
-          value: function clear() {
-            this.component = null;
-
-            m.lazyRedraw();
-          }
-
-          /**
-           * When the modal dialog is ready to be used, tell it!
-           *
-           * @protected
-           */
-        }, {
-          key: 'onready',
-          value: function onready() {
-            if (this.component && this.component.onready) {
-              this.component.onready(this.$());
-            }
-          }
-        }]);
-        return ModalManager;
-      })(Component);
-
-      _export('default', ModalManager);
-    }
-  };
-});;
-System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
-
-  /**
-   * The `Navigation` component displays a set of navigation buttons. Typically
-   * this is just a back button which pops the app's History. If the user is on
-   * the root page and there is no history to pop, then in some instances it may
-   * show a button that toggles the app's drawer.
-   *
-   * If the app has a pane, it will also include a 'pin' button which toggles the
-   * pinned state of the pane.
-   *
-   * Accepts the following props:
-   *
-   * - `className` The name of a class to set on the root element.
-   * - `drawer` Whether or not to show a button to toggle the app's drawer if
-   *   there is no more history to pop.
-   */
-  'use strict';
-
-  var Component, Button, LinkButton, Navigation;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
-    }],
-    execute: function () {
-      Navigation = (function (_Component) {
-        babelHelpers.inherits(Navigation, _Component);
-
-        function Navigation() {
-          babelHelpers.classCallCheck(this, Navigation);
-          babelHelpers.get(Object.getPrototypeOf(Navigation.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Navigation, [{
-          key: 'view',
-          value: function view() {
-            var _app = app;
-            var history = _app.history;
-            var pane = _app.pane;
-
-            return m(
-              'div',
-              { className: 'Navigation ButtonGroup ' + (this.props.className || ''),
-                onmouseenter: pane && pane.show.bind(pane),
-                onmouseleave: pane && pane.onmouseleave.bind(pane) },
-              history.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()
-            );
-          }
-        }, {
-          key: 'config',
-          value: function config(isInitialized, context) {
-            // Since this component is 'above' the content of the page (that is, it is a
-            // part of the global UI that persists between routes), we will flag the DOM
-            // to be retained across route changes.
-            context.retain = true;
-          }
-
-          /**
-           * Get the back button.
-           *
-           * @return {Object}
-           * @protected
-           */
-        }, {
-          key: 'getBackButton',
-          value: function getBackButton() {
-            var _app2 = app;
-            var history = _app2.history;
-
-            return LinkButton.component({
-              className: 'Button Button--icon Navigation-back',
-              href: history.backUrl(),
-              icon: 'chevron-left',
-              config: function config() {},
-              onclick: function onclick(e) {
-                if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
-                e.preventDefault();
-                history.back();
-              }
-            });
-          }
-
-          /**
-           * Get the pane pinned toggle button.
-           *
-           * @return {Object|String}
-           * @protected
-           */
-        }, {
-          key: 'getPaneButton',
-          value: function getPaneButton() {
-            var _app3 = app;
-            var pane = _app3.pane;
-
-            if (!pane || !pane.active) return '';
-
-            return Button.component({
-              className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
-              onclick: pane.togglePinned.bind(pane),
-              icon: 'thumb-tack'
-            });
-          }
-
-          /**
-           * Get the drawer toggle button.
-           *
-           * @return {Object|String}
-           * @protected
-           */
-        }, {
-          key: 'getDrawerButton',
-          value: function getDrawerButton() {
-            if (!this.props.drawer) return '';
-
-            var _app4 = app;
-            var drawer = _app4.drawer;
-
-            var user = app.session.user;
-
-            return Button.component({
-              className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationsCount() ? ' new' : ''),
-              onclick: function onclick(e) {
-                e.stopPropagation();
-                drawer.show();
-              },
-              icon: 'reorder'
-            });
-          }
-        }]);
-        return Navigation;
-      })(Component);
-
-      _export('default', Navigation);
-    }
-  };
-});;
-System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
-
-  /**
-   * The `Placeholder` component displays a muted text with some call to action,
-   * usually used as an empty state.
-   *
-   * ### Props
-   *
-   * - `text`
-   */
-  "use strict";
-
-  var Component, Placeholder;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent["default"];
-    }],
-    execute: function () {
-      Placeholder = (function (_Component) {
-        babelHelpers.inherits(Placeholder, _Component);
-
-        function Placeholder() {
-          babelHelpers.classCallCheck(this, Placeholder);
-          babelHelpers.get(Object.getPrototypeOf(Placeholder.prototype), "constructor", this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Placeholder, [{
-          key: "view",
-          value: function view() {
-            return m(
-              "div",
-              { className: "Placeholder" },
-              m(
-                "p",
-                null,
-                this.props.text
-              )
-            );
-          }
-        }]);
-        return Placeholder;
-      })(Component);
-
-      _export("default", Placeholder);
-    }
-  };
-});;
-System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
-  'use strict';
-
-  var Modal, RequestErrorModal;
-  return {
-    setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
-    }],
-    execute: function () {
-      RequestErrorModal = (function (_Modal) {
-        babelHelpers.inherits(RequestErrorModal, _Modal);
-
-        function RequestErrorModal() {
-          babelHelpers.classCallCheck(this, RequestErrorModal);
-          babelHelpers.get(Object.getPrototypeOf(RequestErrorModal.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(RequestErrorModal, [{
-          key: 'className',
-          value: function className() {
-            return 'RequestErrorModal Modal--large';
-          }
-        }, {
-          key: 'title',
-          value: function title() {
-            return this.props.error.xhr ? this.props.error.xhr.status + ' ' + this.props.error.xhr.statusText : '';
-          }
-        }, {
-          key: 'content',
-          value: function content() {
-            var responseText = undefined;
-
-            try {
-              responseText = JSON.stringify(JSON.parse(this.props.error.responseText), null, 2);
-            } catch (e) {
-              responseText = this.props.error.responseText;
-            }
-
-            return m(
-              'div',
-              { className: 'Modal-body' },
-              m(
-                'pre',
-                null,
-                this.props.error.options.method,
-                ' ',
-                this.props.error.options.url,
-                m('br', null),
-                m('br', null),
-                responseText
-              )
-            );
-          }
-        }]);
-        return RequestErrorModal;
-      })(Modal);
-
-      _export('default', RequestErrorModal);
-    }
-  };
-});;
-System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
-
-  /**
-   * The `Select` component displays a <select> input, surrounded with some extra
-   * elements for styling. It accepts the following props:
-   *
-   * - `options` A map of option values to labels.
-   * - `onchange` A callback to run when the selected value is changed.
-   * - `value` The value of the selected option.
-   */
-  'use strict';
-
-  var Component, icon, Select;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }],
-    execute: function () {
-      Select = (function (_Component) {
-        babelHelpers.inherits(Select, _Component);
-
-        function Select() {
-          babelHelpers.classCallCheck(this, Select);
-          babelHelpers.get(Object.getPrototypeOf(Select.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Select, [{
-          key: 'view',
-          value: function view() {
-            var _props = this.props;
-            var options = _props.options;
-            var onchange = _props.onchange;
-            var value = _props.value;
-
-            return m(
-              'span',
-              { className: 'Select' },
-              m(
-                'select',
-                { className: 'Select-input FormControl', onchange: onchange ? m.withAttr('value', onchange.bind(this)) : undefined, value: value },
-                Object.keys(options).map(function (key) {
-                  return m(
-                    'option',
-                    { value: key },
-                    options[key]
-                  );
-                })
-              ),
-              icon('sort', { className: 'Select-caret' })
-            );
-          }
-        }]);
-        return Select;
-      })(Component);
-
-      _export('default', Select);
-    }
-  };
-});;
-System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
-
-  /**
-   * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
-   * button's label is set as the label of the first child which has a truthy
-   * `active` prop.
-   *
-   * ### Props
-   *
-   * - `caretIcon`
-   * - `defaultLabel`
-   */
-  'use strict';
-
-  var Dropdown, icon, SelectDropdown;
-  return {
-    setters: [function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }],
-    execute: function () {
-      SelectDropdown = (function (_Dropdown) {
-        babelHelpers.inherits(SelectDropdown, _Dropdown);
-
-        function SelectDropdown() {
-          babelHelpers.classCallCheck(this, SelectDropdown);
-          babelHelpers.get(Object.getPrototypeOf(SelectDropdown.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(SelectDropdown, [{
-          key: 'getButtonContent',
-          value: function getButtonContent() {
-            var activeChild = this.props.children.filter(function (child) {
-              return child.props.active;
-            })[0];
-            var label = activeChild && activeChild.props.children || this.props.defaultLabel;
-
-            if (label instanceof Array) label = label[0];
-
-            return [m(
-              'span',
-              { className: 'Button-label' },
-              label
-            ), icon(this.props.caretIcon, { className: 'Button-caret' })];
-          }
-        }], [{
-          key: 'initProps',
-          value: function initProps(props) {
-            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'sort';
-
-            babelHelpers.get(Object.getPrototypeOf(SelectDropdown), 'initProps', this).call(this, props);
-
-            props.className += ' Dropdown--select';
-          }
-        }]);
-        return SelectDropdown;
-      })(Dropdown);
-
-      _export('default', SelectDropdown);
-    }
-  };
-});;
-System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
-
-  /**
-   * The `Separator` component defines a menu separator item.
-   */
-  "use strict";
-
-  var Component, Separator;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent["default"];
-    }],
-    execute: function () {
-      Separator = (function (_Component) {
-        babelHelpers.inherits(Separator, _Component);
-
-        function Separator() {
-          babelHelpers.classCallCheck(this, Separator);
-          babelHelpers.get(Object.getPrototypeOf(Separator.prototype), "constructor", this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Separator, [{
-          key: "view",
-          value: function view() {
-            return m("li", { className: "Dropdown-separator" });
-          }
-        }]);
-        return Separator;
-      })(Component);
-
-      Separator.isListItem = true;
-
-      _export("default", Separator);
-    }
-  };
-});;
-System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
-
-  /**
-   * The `SplitDropdown` component is similar to `Dropdown`, but the first child
-   * is displayed as its own button prior to the toggle button.
-   */
-  'use strict';
-
-  var Dropdown, Button, icon, SplitDropdown;
-  return {
-    setters: [function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
-    }],
-    execute: function () {
-      SplitDropdown = (function (_Dropdown) {
-        babelHelpers.inherits(SplitDropdown, _Dropdown);
-
-        function SplitDropdown() {
-          babelHelpers.classCallCheck(this, SplitDropdown);
-          babelHelpers.get(Object.getPrototypeOf(SplitDropdown.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(SplitDropdown, [{
-          key: 'getButton',
-          value: function getButton() {
-            // Make a copy of the props of the first child component. We will assign
-            // these props to a new button, so that it has exactly the same behaviour as
-            // the first child.
-            var firstChild = this.getFirstChild();
-            var buttonProps = babelHelpers._extends({}, firstChild.props);
-            buttonProps.className = (buttonProps.className || '') + ' SplitDropdown-button Button ' + this.props.buttonClassName;
-
-            return [Button.component(buttonProps), m(
-              'button',
-              {
-                className: 'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName,
-                'data-toggle': 'dropdown' },
-              icon(this.props.icon, { className: 'Button-icon' }),
-              icon('caret-down', { className: 'Button-caret' })
-            )];
-          }
-
-          /**
-           * Get the first child. If the first child is an array, the first item in that
-           * array will be returned.
-           *
-           * @return {*}
-           * @protected
-           */
-        }, {
-          key: 'getFirstChild',
-          value: function getFirstChild() {
-            var firstChild = this.props.children;
-
-            while (firstChild instanceof Array) firstChild = firstChild[0];
-
-            return firstChild;
-          }
-        }], [{
-          key: 'initProps',
-          value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(SplitDropdown), 'initProps', this).call(this, props);
-
-            props.className += ' Dropdown--split';
-            props.menuClassName += ' Dropdown-menu--right';
-          }
-        }]);
-        return SplitDropdown;
-      })(Dropdown);
-
-      _export('default', SplitDropdown);
-    }
-  };
-});;
-System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
-
-  /**
-   * The `Switch` component is a `Checkbox`, but with a switch display instead of
-   * a tick/cross one.
-   */
-  'use strict';
-
-  var Checkbox, Switch;
-  return {
-    setters: [function (_flarumComponentsCheckbox) {
-      Checkbox = _flarumComponentsCheckbox['default'];
-    }],
-    execute: function () {
-      Switch = (function (_Checkbox) {
-        babelHelpers.inherits(Switch, _Checkbox);
-
-        function Switch() {
-          babelHelpers.classCallCheck(this, Switch);
-          babelHelpers.get(Object.getPrototypeOf(Switch.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Switch, [{
-          key: 'getDisplay',
-          value: function getDisplay() {
-            return this.loading ? babelHelpers.get(Object.getPrototypeOf(Switch.prototype), 'getDisplay', this).call(this) : '';
-          }
-        }], [{
-          key: 'initProps',
-          value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(Switch), 'initProps', this).call(this, props);
-
-            props.className = (props.className || '') + ' Checkbox--switch';
-          }
-        }]);
-        return Switch;
-      })(Checkbox);
-
-      _export('default', Switch);
-    }
-  };
-});;
-System.register('flarum/helpers/avatar', [], function (_export) {
-  /**
-   * The `avatar` helper displays a user's avatar.
-   *
-   * @param {User} user
-   * @param {Object} attrs Attributes to apply to the avatar element
-   * @return {Object}
-   */
-  'use strict';
-
-  _export('default', avatar);
-
-  function avatar(user) {
-    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    attrs.className = 'Avatar ' + (attrs.className || '');
-    var content = '';
-
-    // If the `title` attribute is set to null or false, we don't want to give the
-    // avatar a title. On the other hand, if it hasn't been given at all, we can
-    // safely default it to the user's username.
-    var hasTitle = attrs.title === 'undefined' || attrs.title;
-    if (!hasTitle) delete attrs.title;
-
-    // If a user has been passed, then we will set up an avatar using their
-    // uploaded image, or the first letter of their username if they haven't
-    // uploaded one.
-    if (user) {
-      var username = user.username() || '?';
-      var avatarUrl = user.avatarUrl();
-
-      if (hasTitle) attrs.title = attrs.title || username;
-
-      if (avatarUrl) {
-        return m('img', babelHelpers._extends({}, attrs, { src: avatarUrl }));
-      }
-
-      content = username.charAt(0).toUpperCase();
-      attrs.style = { background: user.color() };
-    }
-
-    return m(
-      'span',
-      attrs,
-      content
-    );
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/fullTime', [], function (_export) {
-  /**
-   * The `fullTime` helper displays a formatted time string wrapped in a <time>
-   * tag.
-   *
-   * @param {Date} time
-   * @return {Object}
-   */
-  'use strict';
-
-  _export('default', fullTime);
-
-  function fullTime(time) {
-    var mo = moment(time);
-
-    var datetime = mo.format();
-    var full = mo.format('LLLL');
-
-    return m(
-      'time',
-      { pubdate: true, datetime: datetime },
-      full
-    );
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
-
-  /**
-   * The `highlight` helper searches for a word phrase in a string, and wraps
-   * matches with the <mark> tag.
-   *
-   * @param {String} string The string to highlight.
-   * @param {String|RegExp} phrase The word or words to highlight.
-   * @param {Integer} [length] The number of characters to truncate the string to.
-   *     The string will be truncated surrounding the first match.
-   * @return {Object}
-   */
-  'use strict';
-
-  var truncate;
-
-  _export('default', highlight);
-
-  function highlight(string, phrase, length) {
-    if (!phrase && !length) return string;
-
-    // Convert the word phrase into a global regular expression (if it isn't
-    // already) so we can search the string for matched.
-    var regexp = phrase instanceof RegExp ? phrase : new RegExp(phrase, 'gi');
-
-    var highlighted = string;
-    var start = 0;
-
-    // If a length was given, the truncate the string surrounding the first match.
-    if (length) {
-      if (phrase) start = Math.max(0, string.search(regexp) - length / 2);
-
-      highlighted = truncate(highlighted, length, start);
-    }
-
-    // Convert the string into HTML entities, then highlight all matches with
-    // <mark> tags. Then we will return the result as a trusted HTML string.
-    highlighted = $('<div/>').text(highlighted).html();
-
-    if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
-
-    return m.trust(highlighted);
-  }
-
-  return {
-    setters: [function (_flarumUtilsString) {
-      truncate = _flarumUtilsString.truncate;
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
-
-  /**
-   * The `humanTime` helper displays a time in a human-friendly time-ago format
-   * (e.g. '12 days ago'), wrapped in a <time> tag with other information about
-   * the time.
-   *
-   * @param {Date} time
-   * @return {Object}
-   */
-  'use strict';
-
-  var humanTimeUtil;
-
-  _export('default', humanTime);
-
-  function humanTime(time) {
-    var mo = moment(time);
-
-    var datetime = mo.format();
-    var full = mo.format('LLLL');
-    var ago = humanTimeUtil(time);
-
-    return m(
-      'time',
-      { pubdate: true, datetime: datetime, title: full, 'data-humantime': true },
-      ago
-    );
-  }
-
-  return {
-    setters: [function (_flarumUtilsHumanTime) {
-      humanTimeUtil = _flarumUtilsHumanTime['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/icon', [], function (_export) {
-  /**
-   * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
-   *
-   * @param {String} name The name of the icon class, without the `fa-` prefix.
-   * @param {Object} attrs Any other attributes to apply.
-   * @return {Object}
-   */
-  'use strict';
-
-  _export('default', icon);
-
-  function icon(name) {
-    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
-
-    return m('i', attrs);
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
-  'use strict';
-
-  var Separator, classList;
-
-  _export('default', listItems);
-
-  /**
-   * The `listItems` helper wraps a collection of components in <li> tags,
-   * stripping out any unnecessary `Separator` components.
-   *
-   * @param {*} items
-   * @return {Array}
-   */
-
-  function isSeparator(item) {
-    return item && item.component === Separator;
-  }
-
-  function withoutUnnecessarySeparators(items) {
-    var newItems = [];
-    var prevItem = undefined;
-
-    items.forEach(function (item, i) {
-      if (!isSeparator(item) || prevItem && !isSeparator(prevItem) && i !== items.length - 1) {
-        prevItem = item;
-        newItems.push(item);
-      }
-    });
-
-    return newItems;
-  }
-  function listItems(items) {
-    if (!(items instanceof Array)) items = [items];
-
-    return withoutUnnecessarySeparators(items).map(function (item) {
-      var isListItem = item.component && item.component.isListItem;
-      var active = item.component && item.component.isActive && item.component.isActive(item.props);
-      var className = item.props ? item.props.itemClassName : item.itemClassName;
-
-      return [isListItem ? item : m(
-        'li',
-        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']) },
-        item
-      ), ' '];
-    });
-  }
-
-  return {
-    setters: [function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
-    }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/helpers/punctuateSeries', [], function (_export) {
-  /**
-   * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
-   * fluently in the application's locale.
-   *
-   * ```js
-   * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
-   * ```
-   *
-   * @param {Array} items
-   * @return {VirtualElement}
-   */
-  'use strict';
-
-  _export('default', punctuateSeries);
-
-  function punctuateSeries(items) {
-    if (items.length === 2) {
-      return app.translator.trans('core.lib.series.two_text', {
-        first: items[0],
-        second: items[1]
-      });
-    } else if (items.length >= 3) {
-      // If there are three or more items, we will join all but the first and
-      // last items with the equivalent of a comma, and then we will feed that
-      // into the translator along with the first and last item.
-      var second = items.slice(1, items.length - 1).reduce(function (list, item) {
-        return list.concat([item, app.translator.trans('core.lib.series.glue_text')]);
-      }, []).slice(0, -1);
-
-      return app.translator.trans('core.lib.series.three_text', {
-        first: items[0],
-        second: second,
-        third: items[items.length - 1]
-      });
-    }
-
-    return items;
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register("flarum/helpers/username", [], function (_export) {
-  /**
-   * The `username` helper displays a user's username in a <span class="username">
-   * tag. If the user doesn't exist, the username will be displayed as [deleted].
-   *
-   * @param {User} user
-   * @return {Object}
-   */
-  "use strict";
-
-  _export("default", username);
-
-  function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
-
-    return m(
-      "span",
-      { className: "username" },
-      name
-    );
-  }
-
-  return {
-    setters: [],
-    execute: function () {}
-  };
-});;
-System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, ItemList, slug, Badge, Discussion;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
-    }, function (_flarumUtilsString) {
-      slug = _flarumUtilsString.slug;
-    }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
-    }],
-    execute: function () {
-      Discussion = (function (_Model) {
-        babelHelpers.inherits(Discussion, _Model);
-
-        function Discussion() {
-          babelHelpers.classCallCheck(this, Discussion);
-          babelHelpers.get(Object.getPrototypeOf(Discussion.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Discussion;
-      })(Model);
-
-      _export('default', Discussion);
-
-      babelHelpers._extends(Discussion.prototype, {
-        title: Model.attribute('title'),
-        slug: computed('title', slug),
-
-        startTime: Model.attribute('startTime', Model.transformDate),
-        startUser: Model.hasOne('startUser'),
-        startPost: Model.hasOne('startPost'),
-
-        lastTime: Model.attribute('lastTime', Model.transformDate),
-        lastUser: Model.hasOne('lastUser'),
-        lastPost: Model.hasOne('lastPost'),
-        lastPostNumber: Model.attribute('lastPostNumber'),
-
-        commentsCount: Model.attribute('commentsCount'),
-        repliesCount: computed('commentsCount', function (commentsCount) {
-          return Math.max(0, commentsCount - 1);
-        }),
-        posts: Model.hasMany('posts'),
-        relevantPosts: Model.hasMany('relevantPosts'),
-
-        readTime: Model.attribute('readTime', Model.transformDate),
-        readNumber: Model.attribute('readNumber'),
-        isUnread: computed('unreadCount', function (unreadCount) {
-          return !!unreadCount;
-        }),
-        isRead: computed('unreadCount', function (unreadCount) {
-          return app.session.user && !unreadCount;
-        }),
-
-        hideTime: Model.attribute('hideTime', Model.transformDate),
-        hideUser: Model.hasOne('hideUser'),
-        isHidden: computed('hideTime', 'commentsCount', function (hideTime, commentsCount) {
-          return !!hideTime || commentsCount === 0;
-        }),
-
-        canReply: Model.attribute('canReply'),
-        canRename: Model.attribute('canRename'),
-        canHide: Model.attribute('canHide'),
-        canDelete: Model.attribute('canDelete'),
-
-        /**
-         * Remove a post from the discussion's posts relationship.
-         *
-         * @param {Integer} id The ID of the post to remove.
-         * @public
-         */
-        removePost: function removePost(id) {
-          var relationships = this.data.relationships;
-          var posts = relationships && relationships.posts;
-
-          if (posts) {
-            posts.data.some(function (data, i) {
-              if (id === data.id) {
-                posts.data.splice(i, 1);
-                return true;
-              }
-            });
-          }
-        },
-
-        /**
-         * Get the estimated number of unread posts in this discussion for the current
-         * user.
-         *
-         * @return {Integer}
-         * @public
-         */
-        unreadCount: function unreadCount() {
-          var user = app.session.user;
-
-          if (user && user.readTime() < this.lastTime()) {
-            return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
-          }
-
-          return 0;
-        },
-
-        /**
-         * Get the Badge components that apply to this discussion.
-         *
-         * @return {ItemList}
-         * @public
-         */
-        badges: function badges() {
-          var items = new ItemList();
-
-          if (this.isHidden()) {
-            items.add('hidden', m(Badge, { type: 'hidden', icon: 'trash', label: app.translator.trans('core.lib.badge.hidden_tooltip') }));
-          }
-
-          return items;
-        },
-
-        /**
-         * Get a list of all of the post IDs in this discussion.
-         *
-         * @return {Array}
-         * @public
-         */
-        postIds: function postIds() {
-          return this.data.relationships.posts.data.map(function (link) {
-            return link.id;
-          });
-        }
-      });
-
-      _export('default', Discussion);
-    }
-  };
-});;
-System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
-  'use strict';
-
-  var Model, mixin, Forum;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }],
-    execute: function () {
-      Forum = (function (_Model) {
-        babelHelpers.inherits(Forum, _Model);
-
-        function Forum() {
-          babelHelpers.classCallCheck(this, Forum);
-          babelHelpers.get(Object.getPrototypeOf(Forum.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(Forum, [{
-          key: 'apiEndpoint',
-          value: function apiEndpoint() {
-            return '/forum';
-          }
-        }]);
-        return Forum;
-      })(Model);
-
-      _export('default', Forum);
-    }
-  };
-});;
-System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
-  'use strict';
-
-  var Model, mixin, Group;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }],
-    execute: function () {
-      Group = (function (_Model) {
-        babelHelpers.inherits(Group, _Model);
-
-        function Group() {
-          babelHelpers.classCallCheck(this, Group);
-          babelHelpers.get(Object.getPrototypeOf(Group.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Group;
-      })(Model);
-
-      babelHelpers._extends(Group.prototype, {
-        nameSingular: Model.attribute('nameSingular'),
-        namePlural: Model.attribute('namePlural'),
-        color: Model.attribute('color'),
-        icon: Model.attribute('icon')
-      });
-
-      Group.ADMINISTRATOR_ID = '1';
-      Group.GUEST_ID = '2';
-      Group.MEMBER_ID = '3';
-
-      _export('default', Group);
-    }
-  };
-});;
-System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, Notification;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }],
-    execute: function () {
-      Notification = (function (_Model) {
-        babelHelpers.inherits(Notification, _Model);
-
-        function Notification() {
-          babelHelpers.classCallCheck(this, Notification);
-          babelHelpers.get(Object.getPrototypeOf(Notification.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Notification;
-      })(Model);
-
-      _export('default', Notification);
-
-      babelHelpers._extends(Notification.prototype, {
-        contentType: Model.attribute('contentType'),
-        subjectId: Model.attribute('subjectId'),
-        content: Model.attribute('content'),
-        time: Model.attribute('time', Model.date),
-
-        isRead: Model.attribute('isRead'),
-        unreadCount: Model.attribute('unreadCount'),
-        additionalUnreadCount: computed('unreadCount', function (unreadCount) {
-          return Math.max(0, unreadCount - 1);
-        }),
-
-        user: Model.hasOne('user'),
-        sender: Model.hasOne('sender'),
-        subject: Model.hasOne('subject')
-      });
-
-      _export('default', Notification);
-    }
-  };
-});;
-System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
-  'use strict';
-
-  var Model, mixin, computed, getPlainContent, Post;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }, function (_flarumUtilsString) {
-      getPlainContent = _flarumUtilsString.getPlainContent;
-    }],
-    execute: function () {
-      Post = (function (_Model) {
-        babelHelpers.inherits(Post, _Model);
-
-        function Post() {
-          babelHelpers.classCallCheck(this, Post);
-          babelHelpers.get(Object.getPrototypeOf(Post.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return Post;
-      })(Model);
-
-      _export('default', Post);
-
-      babelHelpers._extends(Post.prototype, {
-        number: Model.attribute('number'),
-        discussion: Model.hasOne('discussion'),
-
-        time: Model.attribute('time', Model.transformDate),
-        user: Model.hasOne('user'),
-        contentType: Model.attribute('contentType'),
-        content: Model.attribute('content'),
-        contentHtml: Model.attribute('contentHtml'),
-        contentPlain: computed('contentHtml', getPlainContent),
-
-        editTime: Model.attribute('editTime', Model.transformDate),
-        editUser: Model.hasOne('editUser'),
-        isEdited: computed('editTime', function (editTime) {
-          return !!editTime;
-        }),
-
-        hideTime: Model.attribute('hideTime', Model.transformDate),
-        hideUser: Model.hasOne('hideUser'),
-        isHidden: computed('hideTime', function (hideTime) {
-          return !!hideTime;
-        }),
-
-        canEdit: Model.attribute('canEdit'),
-        canDelete: Model.attribute('canDelete')
-      });
-
-      _export('default', Post);
-    }
-  };
-});;
-System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
-  /*global ColorThief*/
-
-  'use strict';
-
-  var Model, mixin, stringToColor, ItemList, computed, GroupBadge, User;
-  return {
-    setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
-    }, function (_flarumUtilsStringToColor) {
-      stringToColor = _flarumUtilsStringToColor['default'];
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
-    }, function (_flarumComponentsGroupBadge) {
-      GroupBadge = _flarumComponentsGroupBadge['default'];
-    }],
-    execute: function () {
-      User = (function (_Model) {
-        babelHelpers.inherits(User, _Model);
-
-        function User() {
-          babelHelpers.classCallCheck(this, User);
-          babelHelpers.get(Object.getPrototypeOf(User.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        return User;
-      })(Model);
-
-      _export('default', User);
-
-      babelHelpers._extends(User.prototype, {
-        username: Model.attribute('username'),
-        email: Model.attribute('email'),
-        isActivated: Model.attribute('isActivated'),
-        password: Model.attribute('password'),
-
-        avatarUrl: Model.attribute('avatarUrl'),
-        bio: Model.attribute('bio'),
-        bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : '';
-        }),
-        preferences: Model.attribute('preferences'),
-        groups: Model.hasMany('groups'),
-
-        joinTime: Model.attribute('joinTime', Model.transformDate),
-        lastSeenTime: Model.attribute('lastSeenTime', Model.transformDate),
-        readTime: Model.attribute('readTime', Model.transformDate),
-        unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
-        newNotificationsCount: Model.attribute('newNotificationsCount'),
-
-        discussionsCount: Model.attribute('discussionsCount'),
-        commentsCount: Model.attribute('commentsCount'),
-
-        canEdit: Model.attribute('canEdit'),
-        canDelete: Model.attribute('canDelete'),
-
-        avatarColor: null,
-        color: computed('username', 'avatarUrl', 'avatarColor', function (username, avatarUrl, avatarColor) {
-          // If we've already calculated and cached the dominant color of the user's
-          // avatar, then we can return that in RGB format. If we haven't, we'll want
-          // to calculate it. Unless the user doesn't have an avatar, in which case
-          // we generate a color from their username.
-          if (avatarColor) {
-            return 'rgb(' + avatarColor.join(', ') + ')';
-          } else if (avatarUrl) {
-            this.calculateAvatarColor();
-            return '';
-          }
-
-          return '#' + stringToColor(username);
-        }),
-
-        /**
-         * Check whether or not the user has been seen in the last 5 minutes.
-         *
-         * @return {Boolean}
-         * @public
-         */
-        isOnline: function isOnline() {
-          return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate();
-        },
-
-        /**
-         * Get the Badge components that apply to this user.
-         *
-         * @return {ItemList}
-         */
-        badges: function badges() {
-          var items = new ItemList();
-          var groups = this.groups();
-
-          if (groups) {
-            groups.forEach(function (group) {
-              items.add('group' + group.id(), GroupBadge.component({ group: group }));
-            });
-          }
-
-          return items;
-        },
-
-        /**
-         * Calculate the dominant color of the user's avatar. The dominant color will
-         * be set to the `avatarColor` property once it has been calculated.
-         *
-         * @protected
-         */
-        calculateAvatarColor: function calculateAvatarColor() {
-          var image = new Image();
-          var user = this;
-
-          image.onload = function () {
-            var colorThief = new ColorThief();
-            user.avatarColor = colorThief.getColor(this);
-            user.freshness = new Date();
-            m.redraw();
-          };
-          image.src = this.avatarUrl();
-        },
-
-        /**
-         * Update the user's preferences.
-         *
-         * @param {Object} newPreferences
-         * @return {Promise}
-         */
-        savePreferences: function savePreferences(newPreferences) {
-          var preferences = this.preferences();
-
-          babelHelpers._extends(preferences, newPreferences);
-
-          return this.save({ preferences: preferences });
-        }
-      });
-
-      _export('default', User);
-    }
-  };
-});;
-System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
-  'use strict';
-
-  var humanTimeUtil;
-
-  _export('default', humanTime);
-
-  /**
-   * The `humanTime` initializer sets up a loop every 1 second to update
-   * timestamps rendered with the `humanTime` helper.
-   */
-
-  function updateHumanTimes() {
-    $('[data-humantime]').each(function () {
-      var $this = $(this);
-      var ago = humanTimeUtil($this.attr('datetime'));
-
-      $this.html(ago);
-    });
-  }
-  function humanTime() {
-    setInterval(updateHumanTimes, 1000);
-  }
-
-  return {
-    setters: [function (_flarumUtilsHumanTime) {
-      humanTimeUtil = _flarumUtilsHumanTime['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
-
-  /**
-   * The `preload` initializer creates the application session and preloads it
-   * with data that has been set on the application's `preload` property. It also
-   * preloads any data on the application's `preload` property into the store.
-   * Finally, it sets the application's `forum` instance to the one that was
-   * preloaded.
-   *
-   * `app.preload.session` should be the same as the response from the /api/token
-   * endpoint: it should contain `token` and `userId` keys.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
-  var Session;
-
-  _export('default', preload);
-
-  function preload(app) {
-    app.store.pushPayload({ data: app.preload.data });
-
-    app.forum = app.store.getById('forums', 1);
-
-    app.session = new Session(app.preload.session.token, app.store.getById('users', app.preload.session.userId));
-  }
-
-  return {
-    setters: [function (_flarumSession) {
-      Session = _flarumSession['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
-
-  /**
-   * The `store` initializer creates the application's data store and registers
-   * the default resource types to their models.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
-  var Store, Forum, User, Discussion, Post, Group, Activity, Notification;
-
-  _export('default', store);
-
-  function store(app) {
-    app.store = new Store({
-      forums: Forum,
-      users: User,
-      discussions: Discussion,
-      posts: Post,
-      groups: Group,
-      activity: Activity,
-      notifications: Notification
-    });
-  }
-
-  return {
-    setters: [function (_flarumStore) {
-      Store = _flarumStore['default'];
-    }, function (_flarumModelsForum) {
-      Forum = _flarumModelsForum['default'];
-    }, function (_flarumModelsUser) {
-      User = _flarumModelsUser['default'];
-    }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
-    }, function (_flarumModelsPost) {
-      Post = _flarumModelsPost['default'];
-    }, function (_flarumModelsGroup) {
-      Group = _flarumModelsGroup['default'];
-    }, function (_flarumModelsActivity) {
-      Activity = _flarumModelsActivity['default'];
-    }, function (_flarumModelsNotification) {
-      Notification = _flarumModelsNotification['default'];
-    }],
-    execute: function () {}
-  };
-});;
-System.register('flarum/utils/Drawer', [], function (_export) {
-  /**
-   * The `Drawer` class controls the page's drawer. The drawer is the area the
-   * slides out from the left on mobile devices; it contains the header and the
-   * footer.
-   */
-  'use strict';
-
-  var Drawer;
-  return {
-    setters: [],
-    execute: function () {
-      Drawer = (function () {
-        function Drawer() {
-          var _this = this;
-
-          babelHelpers.classCallCheck(this, Drawer);
-
-          // Set up an event handler so that whenever the content area is tapped,
-          // the drawer will close.
-          $('#content').click(function (e) {
-            if (_this.isOpen()) {
-              e.preventDefault();
-              _this.hide();
-            }
-          });
-        }
-
-        /**
-         * Check whether or not the drawer is currently open.
-         *
-         * @return {Boolean}
-         * @public
-         */
-        babelHelpers.createClass(Drawer, [{
-          key: 'isOpen',
-          value: function isOpen() {
-            return $('#app').hasClass('drawerOpen');
-          }
-
-          /**
-           * Hide the drawer.
-           *
-           * @public
-           */
-        }, {
-          key: 'hide',
-          value: function hide() {
-            $('#app').removeClass('drawerOpen');
-
-            if (this.$backdrop) this.$backdrop.remove();
-          }
-
-          /**
-           * Show the drawer.
-           *
-           * @public
-           */
-        }, {
-          key: 'show',
-          value: function show() {
-            var _this2 = this;
-
-            $('#app').addClass('drawerOpen');
-
-            this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').click(function () {
-              return _this2.hide();
-            });
-
-            setTimeout(function () {
-              return _this2.$backdrop.addClass('in');
-            });
-          }
-        }]);
-        return Drawer;
-      })();
-
-      _export('default', Drawer);
-    }
-  };
-});;
-System.register("flarum/utils/ItemList", [], function (_export) {
-  "use strict";
-
-  var Item, ItemList;
-  return {
-    setters: [],
-    execute: function () {
-      Item = function Item(content, priority) {
-        babelHelpers.classCallCheck(this, Item);
-
-        this.content = content;
-        this.priority = priority;
-      }
-
-      /**
-       * The `ItemList` class collects items and then arranges them into an array
-       * by priority.
-       */
-      ;
-
-      ItemList = (function () {
-        function ItemList() {
-          babelHelpers.classCallCheck(this, ItemList);
-        }
-
-        babelHelpers.createClass(ItemList, [{
-          key: "add",
-
-          /**
-           * Add an item to the list.
-           *
-           * @param {String} key A unique key for the item.
-           * @param {*} content The item's content.
-           * @param {Integer} [priority] The priority of the item. Items with a higher
-           *     priority will be positioned before items with a lower priority.
-           * @public
-           */
-          value: function add(key, content) {
-            var priority = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-
-            this[key] = new Item(content, priority);
-          }
-
-          /**
-           * Merge another list's items into this one.
-           *
-           * @param {ItemList} items
-           * @public
-           */
-        }, {
-          key: "merge",
-          value: function merge(items) {
-            for (var i in items) {
-              if (items.hasOwnProperty(i) && items[i] instanceof Item) {
-                this[i] = items[i];
-              }
-            }
-          }
-
-          /**
-           * Convert the list into an array of item content arranged by priority. Each
-           * item's content will be assigned an `itemName` property equal to the item's
-           * unique key.
-           *
-           * @return {Array}
-           * @public
-           */
-        }, {
-          key: "toArray",
-          value: function toArray() {
-            var items = [];
-
-            for (var i in this) {
-              if (this.hasOwnProperty(i) && this[i] instanceof Item) {
-                this[i].content = Object(this[i].content);
-
-                this[i].content.itemName = i;
-                items.push(this[i]);
-                this[i].key = items.length;
-              }
-            }
-
-            return items.sort(function (a, b) {
-              if (a.priority === b.priority) {
-                return a.key - b.key;
-              } else if (a.priority > b.priority) {
-                return -1;
-              }
-              return 1;
-            }).map(function (item) {
-              return item.content;
-            });
-          }
-        }]);
-        return ItemList;
-      })();
-
-      _export("default", ItemList);
-    }
-  };
-});;
-System.register("flarum/utils/RequestError", [], function (_export) {
-  "use strict";
-
-  var RequestError;
-  return {
-    setters: [],
-    execute: function () {
-      RequestError = function RequestError(status, responseText, options, xhr) {
-        babelHelpers.classCallCheck(this, RequestError);
-
-        this.status = status;
-        this.responseText = responseText;
-        this.options = options;
-        this.xhr = xhr;
-
-        try {
-          this.response = JSON.parse(responseText);
-        } catch (e) {
-          this.response = null;
-        }
-
-        this.alert = null;
-      };
-
-      _export("default", RequestError);
-    }
-  };
-});;
-System.register("flarum/utils/ScrollListener", [], function (_export) {
-  "use strict";
-
-  var scroll, ScrollListener;
-  return {
-    setters: [],
-    execute: function () {
-      scroll = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
-        return window.setTimeout(callback, 1000 / 60);
-      };
-
-      /**
-       * The `ScrollListener` class sets up a listener that handles window scroll
-       * events.
-       */
-
-      ScrollListener = (function () {
-        /**
-         * @param {Function} callback The callback to run when the scroll position
-         *     changes.
-         * @public
-         */
-
-        function ScrollListener(callback) {
-          babelHelpers.classCallCheck(this, ScrollListener);
-
-          this.callback = callback;
-          this.lastTop = -1;
-        }
-
-        /**
-         * On each animation frame, as long as the listener is active, run the
-         * `update` method.
-         *
-         * @protected
-         */
-        babelHelpers.createClass(ScrollListener, [{
-          key: "loop",
-          value: function loop() {
-            if (!this.active) return;
-
-            this.update();
-
-            scroll(this.loop.bind(this));
-          }
-
-          /**
-           * Check if the scroll position has changed; if it has, run the handler.
-           *
-           * @param {Boolean} [force=false] Whether or not to force the handler to be
-           *     run, even if the scroll position hasn't changed.
-           * @public
-           */
-        }, {
-          key: "update",
-          value: function update(force) {
-            var top = window.pageYOffset;
-
-            if (this.lastTop !== top || force) {
-              this.callback(top);
-              this.lastTop = top;
-            }
-          }
-
-          /**
-           * Start listening to and handling the window's scroll position.
-           *
-           * @public
-           */
-        }, {
-          key: "start",
-          value: function start() {
-            if (!this.active) {
-              this.active = true;
-              this.loop();
-            }
-          }
-
-          /**
-           * Stop listening to and handling the window's scroll position.
-           *
-           * @public
-           */
-        }, {
-          key: "stop",
-          value: function stop() {
-            this.active = false;
-          }
-        }]);
-        return ScrollListener;
-      })();
-
-      _export("default", ScrollListener);
-    }
-  };
-});;
-System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
-  /**
-   * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
-   * keeps track of a number of pieces of data, allowing the subtree to be
-   * retained if none of them have changed.
-   *
-   * @example
-   * // constructor
-   * this.subtree = new SubtreeRetainer(
-   *   () => this.props.post.freshness,
-   *   () => this.showing
-   * );
-   * this.subtree.check(() => this.props.user.freshness);
-   *
-   * // view
-   * this.subtree.retain() || 'expensive expression'
-   *
-   * @see https://lhorie.github.io/mithril/mithril.html#persisting-dom-elements-across-route-changes
-   */
-  'use strict';
-
-  var SubtreeRetainer;
-  return {
-    setters: [],
-    execute: function () {
-      SubtreeRetainer = (function () {
-        /**
-         * @param {...callbacks} callbacks Functions returning data to keep track of.
-         */
-
-        function SubtreeRetainer() {
-          babelHelpers.classCallCheck(this, SubtreeRetainer);
-
-          for (var _len = arguments.length, callbacks = Array(_len), _key = 0; _key < _len; _key++) {
-            callbacks[_key] = arguments[_key];
-          }
-
-          this.callbacks = callbacks;
-          this.data = {};
-        }
-
-        /**
-         * Return a virtual DOM directive that will retain a subtree if no data has
-         * changed since the last check.
-         *
-         * @return {Object|false}
-         * @public
-         */
-        babelHelpers.createClass(SubtreeRetainer, [{
-          key: 'retain',
-          value: function retain() {
-            var _this = this;
-
-            var needsRebuild = false;
-
-            this.callbacks.forEach(function (callback, i) {
-              var result = callback();
-
-              if (result !== _this.data[i]) {
-                _this.data[i] = result;
-                needsRebuild = true;
-              }
-            });
-
-            return needsRebuild ? false : { subtree: 'retain' };
-          }
-
-          /**
-           * Add another callback to be checked.
-           *
-           * @param {...Function} callbacks
-           * @public
-           */
-        }, {
-          key: 'check',
-          value: function check() {
-            for (var _len2 = arguments.length, callbacks = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-              callbacks[_key2] = arguments[_key2];
-            }
-
-            this.callbacks = this.callbacks.concat(callbacks);
-          }
-
-          /**
-           * Invalidate the subtree, forcing it to be rerendered.
-           *
-           * @public
-           */
-        }, {
-          key: 'invalidate',
-          value: function invalidate() {
-            this.data = {};
-          }
-        }]);
-        return SubtreeRetainer;
-      })();
-
-      _export('default', SubtreeRetainer);
-    }
-  };
-});;
 System.register('flarum/utils/abbreviateNumber', [], function (_export) {
   /**
    * The `abbreviateNumber` utility converts a number to a shorter localized form.
@@ -22870,6 +22438,87 @@ System.register('flarum/utils/computed', [], function (_export) {
   return {
     setters: [],
     execute: function () {}
+  };
+});;
+System.register('flarum/utils/Drawer', [], function (_export) {
+  /**
+   * The `Drawer` class controls the page's drawer. The drawer is the area the
+   * slides out from the left on mobile devices; it contains the header and the
+   * footer.
+   */
+  'use strict';
+
+  var Drawer;
+  return {
+    setters: [],
+    execute: function () {
+      Drawer = (function () {
+        function Drawer() {
+          var _this = this;
+
+          babelHelpers.classCallCheck(this, Drawer);
+
+          // Set up an event handler so that whenever the content area is tapped,
+          // the drawer will close.
+          $('#content').click(function (e) {
+            if (_this.isOpen()) {
+              e.preventDefault();
+              _this.hide();
+            }
+          });
+        }
+
+        /**
+         * Check whether or not the drawer is currently open.
+         *
+         * @return {Boolean}
+         * @public
+         */
+        babelHelpers.createClass(Drawer, [{
+          key: 'isOpen',
+          value: function isOpen() {
+            return $('#app').hasClass('drawerOpen');
+          }
+
+          /**
+           * Hide the drawer.
+           *
+           * @public
+           */
+        }, {
+          key: 'hide',
+          value: function hide() {
+            $('#app').removeClass('drawerOpen');
+
+            if (this.$backdrop) this.$backdrop.remove();
+          }
+
+          /**
+           * Show the drawer.
+           *
+           * @public
+           */
+        }, {
+          key: 'show',
+          value: function show() {
+            var _this2 = this;
+
+            $('#app').addClass('drawerOpen');
+
+            this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').click(function () {
+              return _this2.hide();
+            });
+
+            setTimeout(function () {
+              return _this2.$backdrop.addClass('in');
+            });
+          }
+        }]);
+        return Drawer;
+      })();
+
+      _export('default', Drawer);
+    }
   };
 });;
 System.register("flarum/utils/evented", [], function (_export) {
@@ -23094,6 +22743,176 @@ System.register('flarum/utils/humanTime', [], function (_export) {
     }
   };
 });;
+System.register("flarum/utils/ItemList", [], function (_export) {
+  "use strict";
+
+  var Item, ItemList;
+  return {
+    setters: [],
+    execute: function () {
+      Item = function Item(content, priority) {
+        babelHelpers.classCallCheck(this, Item);
+
+        this.content = content;
+        this.priority = priority;
+      }
+
+      /**
+       * The `ItemList` class collects items and then arranges them into an array
+       * by priority.
+       */
+      ;
+
+      ItemList = (function () {
+        function ItemList() {
+          babelHelpers.classCallCheck(this, ItemList);
+
+          /**
+           * The items in the list.
+           *
+           * @type {Object}
+           * @public
+           */
+          this.items = {};
+        }
+
+        /**
+         * Check whether an item is present in the list.
+         *
+         * @param key
+         * @returns {boolean}
+         */
+        babelHelpers.createClass(ItemList, [{
+          key: "has",
+          value: function has(key) {
+            return !!this.items[key];
+          }
+
+          /**
+           * Get the content of an item.
+           *
+           * @param {String} key
+           * @return {*}
+           * @public
+           */
+        }, {
+          key: "get",
+          value: function get(key) {
+            return this.items[key].content;
+          }
+
+          /**
+           * Add an item to the list.
+           *
+           * @param {String} key A unique key for the item.
+           * @param {*} content The item's content.
+           * @param {Integer} [priority] The priority of the item. Items with a higher
+           *     priority will be positioned before items with a lower priority.
+           * @public
+           */
+        }, {
+          key: "add",
+          value: function add(key, content) {
+            var priority = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
+            this.items[key] = new Item(content, priority);
+          }
+
+          /**
+           * Replace an item in the list, only if it is already present.
+           *
+           * @param {String} key
+           * @param {*} [content]
+           * @param {Integer} [priority]
+           * @public
+           */
+        }, {
+          key: "replace",
+          value: function replace(key) {
+            var content = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+            var priority = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+            if (this.items[key]) {
+              if (content !== null) {
+                this.items[key].content = content;
+              }
+
+              if (priority !== null) {
+                this.items[key].priority = priority;
+              }
+            }
+          }
+
+          /**
+           * Remove an item from the list.
+           *
+           * @param {String} key
+           * @public
+           */
+        }, {
+          key: "remove",
+          value: function remove(key) {
+            delete this.items[key];
+          }
+
+          /**
+           * Merge another list's items into this one.
+           *
+           * @param {ItemList} items
+           * @public
+           */
+        }, {
+          key: "merge",
+          value: function merge(items) {
+            for (var i in items.items) {
+              if (items.items.hasOwnProperty(i) && items.items[i] instanceof Item) {
+                this.items[i] = items.items[i];
+              }
+            }
+          }
+
+          /**
+           * Convert the list into an array of item content arranged by priority. Each
+           * item's content will be assigned an `itemName` property equal to the item's
+           * unique key.
+           *
+           * @return {Array}
+           * @public
+           */
+        }, {
+          key: "toArray",
+          value: function toArray() {
+            var items = [];
+
+            for (var i in this.items) {
+              if (this.items.hasOwnProperty(i) && this.items[i] instanceof Item) {
+                this.items[i].content = Object(this.items[i].content);
+
+                this.items[i].content.itemName = i;
+                items.push(this.items[i]);
+                this.items[i].key = items.length;
+              }
+            }
+
+            return items.sort(function (a, b) {
+              if (a.priority === b.priority) {
+                return a.key - b.key;
+              } else if (a.priority > b.priority) {
+                return -1;
+              }
+              return 1;
+            }).map(function (item) {
+              return item.content;
+            });
+          }
+        }]);
+        return ItemList;
+      })();
+
+      _export("default", ItemList);
+    }
+  };
+});;
 System.register('flarum/utils/mapRoutes', [], function (_export) {
   /**
    * The `mapRoutes` utility converts a map of named application routes into a
@@ -23230,6 +23049,155 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
       Component = _Component['default'];
     }],
     execute: function () {}
+  };
+});;
+System.register("flarum/utils/RequestError", [], function (_export) {
+  "use strict";
+
+  var RequestError;
+  return {
+    setters: [],
+    execute: function () {
+      RequestError = function RequestError(status, responseText, options, xhr) {
+        babelHelpers.classCallCheck(this, RequestError);
+
+        this.status = status;
+        this.responseText = responseText;
+        this.options = options;
+        this.xhr = xhr;
+
+        try {
+          this.response = JSON.parse(responseText);
+        } catch (e) {
+          this.response = null;
+        }
+
+        this.alert = null;
+      };
+
+      _export("default", RequestError);
+    }
+  };
+});;
+System.register('flarum/utils/saveSettings', [], function (_export) {
+  'use strict';
+
+  _export('default', saveSettings);
+
+  function saveSettings(settings) {
+    var oldSettings = JSON.parse(JSON.stringify(app.settings));
+
+    babelHelpers._extends(app.settings, settings);
+
+    return app.request({
+      method: 'POST',
+      url: app.forum.attribute('apiUrl') + '/settings',
+      data: settings
+    })['catch'](function (error) {
+      app.settings = oldSettings;
+      throw error;
+    });
+  }
+
+  return {
+    setters: [],
+    execute: function () {}
+  };
+});;
+System.register("flarum/utils/ScrollListener", [], function (_export) {
+  "use strict";
+
+  var scroll, ScrollListener;
+  return {
+    setters: [],
+    execute: function () {
+      scroll = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+        return window.setTimeout(callback, 1000 / 60);
+      };
+
+      /**
+       * The `ScrollListener` class sets up a listener that handles window scroll
+       * events.
+       */
+
+      ScrollListener = (function () {
+        /**
+         * @param {Function} callback The callback to run when the scroll position
+         *     changes.
+         * @public
+         */
+
+        function ScrollListener(callback) {
+          babelHelpers.classCallCheck(this, ScrollListener);
+
+          this.callback = callback;
+          this.lastTop = -1;
+        }
+
+        /**
+         * On each animation frame, as long as the listener is active, run the
+         * `update` method.
+         *
+         * @protected
+         */
+        babelHelpers.createClass(ScrollListener, [{
+          key: "loop",
+          value: function loop() {
+            if (!this.active) return;
+
+            this.update();
+
+            scroll(this.loop.bind(this));
+          }
+
+          /**
+           * Check if the scroll position has changed; if it has, run the handler.
+           *
+           * @param {Boolean} [force=false] Whether or not to force the handler to be
+           *     run, even if the scroll position hasn't changed.
+           * @public
+           */
+        }, {
+          key: "update",
+          value: function update(force) {
+            var top = window.pageYOffset;
+
+            if (this.lastTop !== top || force) {
+              this.callback(top);
+              this.lastTop = top;
+            }
+          }
+
+          /**
+           * Start listening to and handling the window's scroll position.
+           *
+           * @public
+           */
+        }, {
+          key: "start",
+          value: function start() {
+            if (!this.active) {
+              this.active = true;
+              this.loop();
+            }
+          }
+
+          /**
+           * Stop listening to and handling the window's scroll position.
+           *
+           * @public
+           */
+        }, {
+          key: "stop",
+          value: function stop() {
+            this.active = false;
+          }
+        }]);
+        return ScrollListener;
+      })();
+
+      _export("default", ScrollListener);
+    }
   };
 });;
 System.register('flarum/utils/string', [], function (_export) {
@@ -23372,5 +23340,106 @@ System.register('flarum/utils/stringToColor', [], function (_export) {
   return {
     setters: [],
     execute: function () {}
+  };
+});;
+System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
+  /**
+   * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
+   * keeps track of a number of pieces of data, allowing the subtree to be
+   * retained if none of them have changed.
+   *
+   * @example
+   * // constructor
+   * this.subtree = new SubtreeRetainer(
+   *   () => this.props.post.freshness,
+   *   () => this.showing
+   * );
+   * this.subtree.check(() => this.props.user.freshness);
+   *
+   * // view
+   * this.subtree.retain() || 'expensive expression'
+   *
+   * @see https://lhorie.github.io/mithril/mithril.html#persisting-dom-elements-across-route-changes
+   */
+  'use strict';
+
+  var SubtreeRetainer;
+  return {
+    setters: [],
+    execute: function () {
+      SubtreeRetainer = (function () {
+        /**
+         * @param {...callbacks} callbacks Functions returning data to keep track of.
+         */
+
+        function SubtreeRetainer() {
+          babelHelpers.classCallCheck(this, SubtreeRetainer);
+
+          for (var _len = arguments.length, callbacks = Array(_len), _key = 0; _key < _len; _key++) {
+            callbacks[_key] = arguments[_key];
+          }
+
+          this.callbacks = callbacks;
+          this.data = {};
+        }
+
+        /**
+         * Return a virtual DOM directive that will retain a subtree if no data has
+         * changed since the last check.
+         *
+         * @return {Object|false}
+         * @public
+         */
+        babelHelpers.createClass(SubtreeRetainer, [{
+          key: 'retain',
+          value: function retain() {
+            var _this = this;
+
+            var needsRebuild = false;
+
+            this.callbacks.forEach(function (callback, i) {
+              var result = callback();
+
+              if (result !== _this.data[i]) {
+                _this.data[i] = result;
+                needsRebuild = true;
+              }
+            });
+
+            return needsRebuild ? false : { subtree: 'retain' };
+          }
+
+          /**
+           * Add another callback to be checked.
+           *
+           * @param {...Function} callbacks
+           * @public
+           */
+        }, {
+          key: 'check',
+          value: function check() {
+            for (var _len2 = arguments.length, callbacks = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+              callbacks[_key2] = arguments[_key2];
+            }
+
+            this.callbacks = this.callbacks.concat(callbacks);
+          }
+
+          /**
+           * Invalidate the subtree, forcing it to be rerendered.
+           *
+           * @public
+           */
+        }, {
+          key: 'invalidate',
+          value: function invalidate() {
+            this.data = {};
+          }
+        }]);
+        return SubtreeRetainer;
+      })();
+
+      _export('default', SubtreeRetainer);
+    }
   };
 });
