@@ -156,7 +156,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
         });
 
         extend(IndexPage.prototype, 'actionItems', function (items) {
-          delete items.refresh;
+          items.remove('refresh');
         });
 
         app.pusher.then(function (channels) {
