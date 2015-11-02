@@ -22,30 +22,35 @@
     <div id="alerts"></div>
 
     @if (! $noJs)
-        @foreach ($scripts as $file)
-          <script src="{{ $forum->attributes->baseUrl . str_replace(public_path(), '', $file) }}"></script>
-        @endforeach
+      <script>
+        document.getElementById('flarum-loading').style.display = 'block';
+      </script>
 
-        <script>
-          @if (! $forum->attributes->debug)
-          try {
-          @endif
-            var app = System.get('flarum/app').default;
+      @foreach ($scripts as $file)
+        <script src="{{ $forum->attributes->baseUrl . str_replace(public_path(), '', $file) }}"></script>
+      @endforeach
 
-            babelHelpers._extends(app, {!! json_encode($app) !!});
+      <script>
+        document.getElementById('flarum-loading').style.display = 'none';
+        @if (! $forum->attributes->debug)
+        try {
+        @endif
+          var app = System.get('flarum/app').default;
 
-            @foreach ($bootstrappers as $bootstrapper)
-              System.get('{{ $bootstrapper }}');
-            @endforeach
+          babelHelpers._extends(app, {!! json_encode($app) !!});
 
-            app.boot();
-          @if (! $forum->attributes->debug)
-          } catch (e) {
-            var nojs = window.location.search ? '&nojs=1' : '?nojs=1';
-            window.location = window.location + nojs;
-          }
-          @endif
-        </script>
+          @foreach ($bootstrappers as $bootstrapper)
+            System.get('{{ $bootstrapper }}');
+          @endforeach
+
+          app.boot();
+        @if (! $forum->attributes->debug)
+        } catch (e) {
+          var nojs = window.location.search ? '&nojs=1' : '?nojs=1';
+          window.location = window.location + nojs;
+        }
+        @endif
+      </script>
     @endif
 
     {!! $foot !!}
