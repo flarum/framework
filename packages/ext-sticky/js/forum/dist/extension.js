@@ -27,7 +27,8 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
     }],
     execute: function () {}
   };
-});;System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export) {
+});;
+System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export) {
   'use strict';
 
   var extend, DiscussionControls, DiscussionPage, Button;
@@ -68,7 +69,8 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
     }],
     execute: function () {}
   };
-});;System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/components/DiscussionList', 'flarum/components/DiscussionListItem', 'flarum/utils/string'], function (_export) {
+});;
+System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/components/DiscussionList', 'flarum/components/DiscussionListItem', 'flarum/utils/string'], function (_export) {
   'use strict';
 
   var extend, DiscussionList, DiscussionListItem, truncate;
@@ -111,7 +113,43 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
     }],
     execute: function () {}
   };
-});;System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export) {
+});;
+System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/components/EventPost'], function (_export) {
+  'use strict';
+
+  var EventPost, DiscussionStickiedPost;
+  return {
+    setters: [function (_flarumComponentsEventPost) {
+      EventPost = _flarumComponentsEventPost['default'];
+    }],
+    execute: function () {
+      DiscussionStickiedPost = (function (_EventPost) {
+        babelHelpers.inherits(DiscussionStickiedPost, _EventPost);
+
+        function DiscussionStickiedPost() {
+          babelHelpers.classCallCheck(this, DiscussionStickiedPost);
+          babelHelpers.get(Object.getPrototypeOf(DiscussionStickiedPost.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(DiscussionStickiedPost, [{
+          key: 'icon',
+          value: function icon() {
+            return 'thumb-tack';
+          }
+        }, {
+          key: 'descriptionKey',
+          value: function descriptionKey() {
+            return this.props.post.content().sticky ? 'flarum-sticky.forum.post_stream.discussion_stickied_text' : 'flarum-sticky.forum.post_stream.discussion_unstickied_text';
+          }
+        }]);
+        return DiscussionStickiedPost;
+      })(EventPost);
+
+      _export('default', DiscussionStickiedPost);
+    }
+  };
+});;
+System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export) {
   'use strict';
 
   var extend, notificationType, app, Model, Discussion, DiscussionStickiedPost, addStickyBadge, addStickyControl, addStickyExcerpt;
@@ -146,40 +184,6 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
         addStickyControl();
         addStickyExcerpt();
       });
-    }
-  };
-});;System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/components/EventPost'], function (_export) {
-  'use strict';
-
-  var EventPost, DiscussionStickiedPost;
-  return {
-    setters: [function (_flarumComponentsEventPost) {
-      EventPost = _flarumComponentsEventPost['default'];
-    }],
-    execute: function () {
-      DiscussionStickiedPost = (function (_EventPost) {
-        babelHelpers.inherits(DiscussionStickiedPost, _EventPost);
-
-        function DiscussionStickiedPost() {
-          babelHelpers.classCallCheck(this, DiscussionStickiedPost);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionStickiedPost.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(DiscussionStickiedPost, [{
-          key: 'icon',
-          value: function icon() {
-            return 'thumb-tack';
-          }
-        }, {
-          key: 'descriptionKey',
-          value: function descriptionKey() {
-            return this.props.post.content().sticky ? 'flarum-sticky.forum.post_stream.discussion_stickied_text' : 'flarum-sticky.forum.post_stream.discussion_unstickied_text';
-          }
-        }]);
-        return DiscussionStickiedPost;
-      })(EventPost);
-
-      _export('default', DiscussionStickiedPost);
     }
   };
 });
