@@ -159,6 +159,7 @@ export default class DiscussionPage extends Page {
   show(discussion) {
     this.discussion = discussion;
 
+    app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
     app.setTitleCount(0);
 
@@ -273,7 +274,7 @@ export default class DiscussionPage extends Page {
     m.route(url, true);
     window.history.replaceState(null, document.title, url);
 
-    app.history.push('discussion');
+    app.history.push('discussion', discussion.title());
 
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.

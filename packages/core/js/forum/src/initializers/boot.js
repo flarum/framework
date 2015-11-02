@@ -31,7 +31,6 @@ export default function boot(app) {
   }
 
   app.routes[defaultAction].path = '/';
-  app.history.push(defaultAction, '/');
 
   m.startComputation();
 

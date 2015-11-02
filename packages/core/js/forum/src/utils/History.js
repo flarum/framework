@@ -24,21 +24,32 @@ export default class History {
    * Get the item on the top of the stack.
    *
    * @return {Object}
-   * @protected
+   * @public
    */
-  getTop() {
+  getCurrent() {
     return this.stack[this.stack.length - 1];
+  }
+
+  /**
+   * Get the previous item on the stack.
+   *
+   * @return {Object}
+   * @public
+   */
+  getPrevious() {
+    return this.stack[this.stack.length - 2];
   }
 
   /**
    * Push an item to the top of the stack.
    *
    * @param {String} name The name of the route.
+   * @param {String} title The title of the route.
    * @param {String} [url] The URL of the route. The current URL will be used if
    *     not provided.
    * @public
    */
-  push(name, url = m.route()) {
+  push(name, title, url = m.route()) {
     // If we're pushing an item with the same name as second-to-top item in the
     // stack, we will assume that the user has clicked the 'back' button in
     // their browser. In this case, we don't want to push a new item, so we will
@@ -51,11 +62,11 @@ export default class History {
 
     // If we're pushing an item with the same name as the top item in the stack,
     // then we'll overwrite it with the new URL.
-    const top = this.getTop();
+    const top = this.getCurrent();
     if (top && top.name === name) {
-      top.url = url;
+      Object.assign(top, {url, title});
     } else {
-      this.stack.push({name, url});
+      this.stack.push({name, url, title});
     }
   }
 
@@ -77,7 +88,7 @@ export default class History {
   back() {
     this.stack.pop();
 
-    m.route(this.getTop().url);
+    m.route(this.getCurrent().url);
   }
 
   /**
@@ -97,7 +108,7 @@ export default class History {
    * @public
    */
   home() {
-    this.stack.splice(1);
+    this.stack.splice(0);
 
     m.route('/');
   }
