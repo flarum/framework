@@ -1,25 +1,4 @@
-System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pusher/components/PusherSettingsModal'], function (_export) {
-  'use strict';
-
-  var extend, app, PusherSettingsModal;
-  return {
-    setters: [function (_flarumExtend) {
-      extend = _flarumExtend.extend;
-    }, function (_flarumApp) {
-      app = _flarumApp['default'];
-    }, function (_flarumPusherComponentsPusherSettingsModal) {
-      PusherSettingsModal = _flarumPusherComponentsPusherSettingsModal['default'];
-    }],
-    execute: function () {
-
-      app.initializers.add('flarum-pusher', function (app) {
-        app.extensionSettings['flarum-pusher'] = function () {
-          return app.modal.show(new PusherSettingsModal());
-        };
-      });
-    }
-  };
-});;System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
+System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
   'use strict';
 
   var SettingsModal, PusherSettingsModal;
@@ -83,6 +62,28 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pu
       })(SettingsModal);
 
       _export('default', PusherSettingsModal);
+    }
+  };
+});;
+System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pusher/components/PusherSettingsModal'], function (_export) {
+  'use strict';
+
+  var extend, app, PusherSettingsModal;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumPusherComponentsPusherSettingsModal) {
+      PusherSettingsModal = _flarumPusherComponentsPusherSettingsModal['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('flarum-pusher', function (app) {
+        app.extensionSettings['flarum-pusher'] = function () {
+          return app.modal.show(new PusherSettingsModal());
+        };
+      });
     }
   };
 });
