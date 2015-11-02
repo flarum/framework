@@ -34,7 +34,6 @@ class AddClientAssets
                 __DIR__.'/../../less/forum/extension.less'
             ]);
             $event->addBootstrapper('flarum/approval/main');
-            $event->addTranslations('flarum-approval.forum');
         }
 
         if ($event->isAdmin()) {
@@ -42,7 +41,6 @@ class AddClientAssets
                 __DIR__ . '/../../js/admin/dist/extension.js'
             ]);
             $event->addBootstrapper('flarum/approval/main');
-            $event->addTranslations('flarum-approval.admin');
         }
     }
 }
