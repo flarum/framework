@@ -17,15 +17,13 @@ System.register('flarum/akismet/main', ['flarum/extend', 'flarum/app', 'flarum/u
 
       app.initializers.add('flarum-akismet', function () {
         extend(PostControls, 'destructiveControls', function (items, post) {
-          if (items.approve) {
+          if (items.has('approve')) {
             var flags = post.flags();
 
             if (flags && flags.some(function (flag) {
               return flag.type() === 'akismet';
             })) {
-              babelHelpers._extends(items.approve.content.props, {
-                children: 'Not Spam'
-              });
+              items.get('approve').props.children = 'Not Spam';
             }
           }
         });

@@ -1,23 +1,4 @@
-System.register('flarum/akismet/main', ['flarum/app', 'flarum/akismet/components/AkismetSettingsModal'], function (_export) {
-  'use strict';
-
-  var app, AkismetSettingsModal;
-  return {
-    setters: [function (_flarumApp) {
-      app = _flarumApp['default'];
-    }, function (_flarumAkismetComponentsAkismetSettingsModal) {
-      AkismetSettingsModal = _flarumAkismetComponentsAkismetSettingsModal['default'];
-    }],
-    execute: function () {
-
-      app.initializers.add('flarum-akismet', function () {
-        app.extensionSettings['flarum-akismet'] = function () {
-          return app.modal.show(new AkismetSettingsModal());
-        };
-      });
-    }
-  };
-});;System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
+System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
   'use strict';
 
   var SettingsModal, AkismetSettingsModal;
@@ -63,6 +44,26 @@ System.register('flarum/akismet/main', ['flarum/app', 'flarum/akismet/components
       })(SettingsModal);
 
       _export('default', AkismetSettingsModal);
+    }
+  };
+});;
+System.register('flarum/akismet/main', ['flarum/app', 'flarum/akismet/components/AkismetSettingsModal'], function (_export) {
+  'use strict';
+
+  var app, AkismetSettingsModal;
+  return {
+    setters: [function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumAkismetComponentsAkismetSettingsModal) {
+      AkismetSettingsModal = _flarumAkismetComponentsAkismetSettingsModal['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('flarum-akismet', function () {
+        app.extensionSettings['flarum-akismet'] = function () {
+          return app.modal.show(new AkismetSettingsModal());
+        };
+      });
     }
   };
 });
