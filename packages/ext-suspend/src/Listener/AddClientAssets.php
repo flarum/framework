@@ -34,7 +34,6 @@ class AddClientAssets
                 __DIR__.'/../../less/forum/extension.less'
             ]);
             $event->addBootstrapper('flarum/suspend/main');
-            $event->addTranslations('flarum-suspend.forum');
         }
 
         if ($event->isAdmin()) {
@@ -43,7 +42,6 @@ class AddClientAssets
                 __DIR__.'/../../less/admin/extension.less'
             ]);
             $event->addBootstrapper('flarum/suspend/main');
-            $event->addTranslations('flarum-suspend.admin');
         }
     }
 }
