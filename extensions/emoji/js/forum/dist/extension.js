@@ -586,7 +586,8 @@ var twemoji = (function (
     return r.join(sep || '-');
   }
 
-}());;System.register('flarum/emoji/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post'], function (_export) {
+}());;
+System.register('flarum/emoji/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post'], function (_export) {
   /*global twemoji, s9e*/
 
   'use strict';
