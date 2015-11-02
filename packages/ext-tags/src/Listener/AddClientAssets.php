@@ -36,7 +36,6 @@ class AddClientAssets
                 __DIR__.'/../../less/forum/extension.less'
             ]);
             $event->addBootstrapper('flarum/tags/main');
-            $event->addTranslations(['flarum-tags.forum', 'flarum-tags.lib']);
         }
 
         if ($event->isAdmin()) {
@@ -45,7 +44,6 @@ class AddClientAssets
                 __DIR__.'/../../less/admin/extension.less'
             ]);
             $event->addBootstrapper('flarum/tags/main');
-            $event->addTranslations(['flarum-tags.admin', 'flarum-tags.lib']);
         }
     }
 
