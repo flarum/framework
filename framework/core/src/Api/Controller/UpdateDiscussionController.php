@@ -13,6 +13,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Core\Command\EditDiscussion;
 use Flarum\Core\Command\ReadDiscussion;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -60,14 +61,13 @@ class UpdateDiscussionController extends AbstractResourceController
         }
 
         if ($posts = $discussion->getModifiedPosts()) {
+            $posts = (new Collection($posts))->load('discussion', 'user');
             $discussionPosts = $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id')->all();
 
             foreach ($discussionPosts as &$id) {
                 foreach ($posts as $post) {
                     if ($id == $post->id) {
                         $id = $post;
-                        $post->discussion = $post->discussion_id;
-                        $post->user = $post->user_id;
                     }
                 }
             }
