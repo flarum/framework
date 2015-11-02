@@ -34,7 +34,6 @@ class AddClientAssets
                 __DIR__.'/../../less/forum/extension.less'
             ]);
             $event->addBootstrapper('flarum/mentions/main');
-            $event->addTranslations('flarum-mentions.forum');
         }
     }
 }
