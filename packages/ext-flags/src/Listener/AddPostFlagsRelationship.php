@@ -99,7 +99,7 @@ class AddPostFlagsRelationship
         // models) so that we can selectively expose only the flags that the
         // user has permission to view.
         if ($event->isController(Controller\ShowDiscussionController::class)) {
-            $posts = $event->data->posts;
+            $posts = $event->data->getRelation('posts');
         }
 
         if ($event->isController(Controller\ListPostsController::class)) {
