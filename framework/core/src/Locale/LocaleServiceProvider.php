@@ -42,7 +42,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
                 : 'en';
 
             $translator = new Translator($defaultLocale, new MessageSelector());
-            $translator->setFallbackLocales([$defaultLocale]);
+            $translator->setFallbackLocales([$defaultLocale, 'en']);
             $translator->addLoader('yaml', new YamlFileLoader());
 
             return $translator;
