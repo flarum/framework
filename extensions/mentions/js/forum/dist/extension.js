@@ -112,7 +112,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
 }
 
 }());
-;System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
+;
+System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
   /*global getCaretCoordinates*/
 
   'use strict';
@@ -302,7 +303,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
     }],
     execute: function () {}
   };
-});;System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
+});;
+System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
   'use strict';
 
   var extend, Model, Post, CommentPost, PostPreview, punctuateSeries, username, icon;
@@ -459,7 +461,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
     }],
     execute: function () {}
   };
-});;System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
+});;
+System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
   'use strict';
 
   var extend, CommentPost, PostPreview, LoadingIndicator;
@@ -597,7 +600,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
     }],
     execute: function () {}
   };
-});;System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
+});;
+System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
   'use strict';
 
   var extend, Button, CommentPost, DiscussionControls;
@@ -652,74 +656,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       });
     }
   };
-});;System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
-  'use strict';
-
-  var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification;
-  return {
-    setters: [function (_flarumExtend) {
-      extend = _flarumExtend.extend;
-    }, function (_flarumApp) {
-      app = _flarumApp['default'];
-    }, function (_flarumComponentsNotificationGrid) {
-      NotificationGrid = _flarumComponentsNotificationGrid['default'];
-    }, function (_flarumUtilsString) {
-      getPlainContent = _flarumUtilsString.getPlainContent;
-    }, function (_flarumMentionsAddPostMentionPreviews) {
-      addPostMentionPreviews = _flarumMentionsAddPostMentionPreviews['default'];
-    }, function (_flarumMentionsAddMentionedByList) {
-      addMentionedByList = _flarumMentionsAddMentionedByList['default'];
-    }, function (_flarumMentionsAddPostReplyAction) {
-      addPostReplyAction = _flarumMentionsAddPostReplyAction['default'];
-    }, function (_flarumMentionsAddComposerAutocomplete) {
-      addComposerAutocomplete = _flarumMentionsAddComposerAutocomplete['default'];
-    }, function (_flarumMentionsComponentsPostMentionedNotification) {
-      PostMentionedNotification = _flarumMentionsComponentsPostMentionedNotification['default'];
-    }, function (_flarumMentionsComponentsUserMentionedNotification) {
-      UserMentionedNotification = _flarumMentionsComponentsUserMentionedNotification['default'];
-    }],
-    execute: function () {
-
-      app.initializers.add('flarum-mentions', function () {
-        // For every mention of a post inside a post's content, set up a hover handler
-        // that shows a preview of the mentioned post.
-        addPostMentionPreviews();
-
-        // In the footer of each post, show information about who has replied (i.e.
-        // who the post has been mentioned by).
-        addMentionedByList();
-
-        // Add a 'reply' control to the footer of each post. When clicked, it will
-        // open up the composer and add a post mention to its contents.
-        addPostReplyAction();
-
-        // After typing '@' in the composer, show a dropdown suggesting a bunch of
-        // posts or users that the user could mention.
-        addComposerAutocomplete();
-
-        app.notificationComponents.postMentioned = PostMentionedNotification;
-        app.notificationComponents.userMentioned = UserMentionedNotification;
-
-        // Add notification preferences.
-        extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
-          items.add('postMentioned', {
-            name: 'postMentioned',
-            icon: 'reply',
-            label: app.translator.trans('flarum-mentions.forum.settings.notify_post_mentioned_label')
-          });
-
-          items.add('userMentioned', {
-            name: 'userMentioned',
-            icon: 'at',
-            label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label')
-          });
-        });
-
-        getPlainContent.removeSelectors.push('a.PostMention');
-      });
-    }
-  };
-});;System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
+});;
+System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
   'use strict';
 
   var Component, AutocompleteDropdown;
@@ -854,7 +792,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       _export('default', AutocompleteDropdown);
     }
   };
-});;System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
+});;
+System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
   'use strict';
 
   var Notification, username, punctuateSeries, PostMentionedNotification;
@@ -914,7 +853,8 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       _export('default', PostMentionedNotification);
     }
   };
-});;System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
+});;
+System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
   'use strict';
 
   var Notification, UserMentionedNotification;
@@ -960,6 +900,74 @@ if (typeof module != "undefined" && typeof module.exports != "undefined") {
       })(Notification);
 
       _export('default', UserMentionedNotification);
+    }
+  };
+});;
+System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
+  'use strict';
+
+  var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumComponentsNotificationGrid) {
+      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+    }, function (_flarumUtilsString) {
+      getPlainContent = _flarumUtilsString.getPlainContent;
+    }, function (_flarumMentionsAddPostMentionPreviews) {
+      addPostMentionPreviews = _flarumMentionsAddPostMentionPreviews['default'];
+    }, function (_flarumMentionsAddMentionedByList) {
+      addMentionedByList = _flarumMentionsAddMentionedByList['default'];
+    }, function (_flarumMentionsAddPostReplyAction) {
+      addPostReplyAction = _flarumMentionsAddPostReplyAction['default'];
+    }, function (_flarumMentionsAddComposerAutocomplete) {
+      addComposerAutocomplete = _flarumMentionsAddComposerAutocomplete['default'];
+    }, function (_flarumMentionsComponentsPostMentionedNotification) {
+      PostMentionedNotification = _flarumMentionsComponentsPostMentionedNotification['default'];
+    }, function (_flarumMentionsComponentsUserMentionedNotification) {
+      UserMentionedNotification = _flarumMentionsComponentsUserMentionedNotification['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('flarum-mentions', function () {
+        // For every mention of a post inside a post's content, set up a hover handler
+        // that shows a preview of the mentioned post.
+        addPostMentionPreviews();
+
+        // In the footer of each post, show information about who has replied (i.e.
+        // who the post has been mentioned by).
+        addMentionedByList();
+
+        // Add a 'reply' control to the footer of each post. When clicked, it will
+        // open up the composer and add a post mention to its contents.
+        addPostReplyAction();
+
+        // After typing '@' in the composer, show a dropdown suggesting a bunch of
+        // posts or users that the user could mention.
+        addComposerAutocomplete();
+
+        app.notificationComponents.postMentioned = PostMentionedNotification;
+        app.notificationComponents.userMentioned = UserMentionedNotification;
+
+        // Add notification preferences.
+        extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+          items.add('postMentioned', {
+            name: 'postMentioned',
+            icon: 'reply',
+            label: app.translator.trans('flarum-mentions.forum.settings.notify_post_mentioned_label')
+          });
+
+          items.add('userMentioned', {
+            name: 'userMentioned',
+            icon: 'at',
+            label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label')
+          });
+        });
+
+        getPlainContent.removeSelectors.push('a.PostMention');
+      });
     }
   };
 });
