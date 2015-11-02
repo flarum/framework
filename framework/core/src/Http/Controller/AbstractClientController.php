@@ -15,7 +15,6 @@ use Flarum\Asset\AssetManager;
 use Flarum\Asset\JsCompiler;
 use Flarum\Asset\LessCompiler;
 use Flarum\Core;
-use Flarum\Core\User;
 use Flarum\Event\ConfigureClientView;
 use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
@@ -59,12 +58,12 @@ abstract class AbstractClientController extends AbstractHtmlController
     protected $layout;
 
     /**
-     * The keys of the translations that should be included in the compiled
-     * locale file.
+     * A regex matching the keys of the translations that should be included in
+     * the compiled locale file.
      *
-     * @var array
+     * @var string
      */
-    protected $translationKeys = [];
+    protected $translations;
 
     /**
      * @var \Flarum\Foundation\Application
@@ -144,22 +143,14 @@ abstract class AbstractClientController extends AbstractHtmlController
         $view->setVariable('locales', $this->locales->getLocales());
         $view->setVariable('locale', $locale);
 
-        // Now that we've set up the ClientView instance, we can fire an event
-        // to give extensions the opportunity to add their own assets and
-        // translations. We will pass an array to the event which specifies
-        // which translations should be included in the locale file. Afterwards,
-        // we will filter all of the translations for the actor's locale and
-        // compile only the ones we need.
-        $keys = $this->translationKeys;
-
         $this->events->fire(
-            new ConfigureClientView($this, $view, $keys)
+            new ConfigureClientView($this, $view)
         );
 
         if ($localeCompiler) {
             $translations = array_get($this->locales->getTranslator()->getMessages(), 'messages', []);
 
-            $translations = $this->filterTranslations($translations, $keys);
+            $translations = $this->filterTranslations($translations);
 
             $localeCompiler->setTranslations($translations);
         }
@@ -309,16 +300,17 @@ abstract class AbstractClientController extends AbstractHtmlController
      * Take a selection of keys from a collection of translations.
      *
      * @param array $translations
-     * @param array $keys
      * @return array
      */
-    protected function filterTranslations(array $translations, array $keys)
+    protected function filterTranslations(array $translations)
     {
-        $filtered = array_filter(array_keys($translations), function ($id) use ($keys) {
-            foreach ($keys as $key) {
-                if (substr($id, 0, strlen($key)) === $key) {
-                    return true;
-                }
+        if (! $this->translations) {
+            return [];
+        }
+
+        $filtered = array_filter(array_keys($translations), function ($id) {
+            if (preg_match($this->translations, $id)) {
+                return true;
             }
         });
 
