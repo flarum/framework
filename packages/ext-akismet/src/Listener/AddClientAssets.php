@@ -33,7 +33,6 @@ class AddClientAssets
                 __DIR__.'/../../js/forum/dist/extension.js'
             ]);
             $event->addBootstrapper('flarum/akismet/main');
-            $event->addTranslations('flarum-akismet.forum');
         }
 
         if ($event->isAdmin()) {
@@ -41,7 +40,6 @@ class AddClientAssets
                 __DIR__ . '/../../js/admin/dist/extension.js'
             ]);
             $event->addBootstrapper('flarum/akismet/main');
-            $event->addTranslations('flarum-akismet.admin');
         }
     }
 }
