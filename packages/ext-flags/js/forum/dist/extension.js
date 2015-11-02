@@ -30,7 +30,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       });
     }
   };
-});;System.register('flarum/flags/addFlagsDropdown', ['flarum/extend', 'flarum/app', 'flarum/components/HeaderSecondary', 'flarum/flags/components/FlagsDropdown'], function (_export) {
+});;
+System.register('flarum/flags/addFlagsDropdown', ['flarum/extend', 'flarum/app', 'flarum/components/HeaderSecondary', 'flarum/flags/components/FlagsDropdown'], function (_export) {
   'use strict';
 
   var extend, app, HeaderSecondary, FlagsDropdown;
@@ -54,7 +55,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       });
     }
   };
-});;System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/helpers/punctuate', 'flarum/helpers/username', 'flarum/utils/ItemList', 'flarum/utils/PostControls'], function (_export) {
+});;
+System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/helpers/punctuate', 'flarum/helpers/username', 'flarum/utils/ItemList', 'flarum/utils/PostControls'], function (_export) {
   'use strict';
 
   var extend, app, CommentPost, Button, punctuate, username, ItemList, PostControls;
@@ -127,8 +129,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
 
           var controls = PostControls.destructiveControls(this.props.post);
 
-          Object.keys(controls).forEach(function (k) {
-            var props = controls[k].content.props;
+          Object.keys(controls.items).forEach(function (k) {
+            var props = controls.get(k).props;
 
             props.className = 'Button';
 
@@ -192,43 +194,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       });
     }
   };
-});;System.register('flarum/flags/main', ['flarum/app', 'flarum/Model', 'flarum/flags/models/Flag', 'flarum/flags/components/FlagsPage', 'flarum/flags/addFlagControl', 'flarum/flags/addFlagsDropdown', 'flarum/flags/addFlagsToPosts'], function (_export) {
-  'use strict';
-
-  var app, Model, Flag, FlagsPage, addFlagControl, addFlagsDropdown, addFlagsToPosts;
-  return {
-    setters: [function (_flarumApp) {
-      app = _flarumApp['default'];
-    }, function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumFlagsModelsFlag) {
-      Flag = _flarumFlagsModelsFlag['default'];
-    }, function (_flarumFlagsComponentsFlagsPage) {
-      FlagsPage = _flarumFlagsComponentsFlagsPage['default'];
-    }, function (_flarumFlagsAddFlagControl) {
-      addFlagControl = _flarumFlagsAddFlagControl['default'];
-    }, function (_flarumFlagsAddFlagsDropdown) {
-      addFlagsDropdown = _flarumFlagsAddFlagsDropdown['default'];
-    }, function (_flarumFlagsAddFlagsToPosts) {
-      addFlagsToPosts = _flarumFlagsAddFlagsToPosts['default'];
-    }],
-    execute: function () {
-
-      app.initializers.add('flarum-flags', function () {
-        app.store.models.posts.prototype.flags = Model.hasMany('flags');
-        app.store.models.posts.prototype.canFlag = Model.attribute('canFlag');
-
-        app.store.models.flags = Flag;
-
-        app.routes.flags = { path: '/flags', component: m(FlagsPage, null) };
-
-        addFlagControl();
-        addFlagsDropdown();
-        addFlagsToPosts();
-      });
-    }
-  };
-});;System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export) {
+});;
+System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export) {
   'use strict';
 
   var Component, LoadingIndicator, avatar, username, icon, humanTime, FlagList;
@@ -367,7 +334,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       _export('default', FlagList);
     }
   };
-});;System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
+});;
+System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
   'use strict';
 
   var Modal, Button, FlagPostModal;
@@ -494,7 +462,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       _export('default', FlagPostModal);
     }
   };
-});;System.register('flarum/flags/components/FlagsDropdown', ['flarum/components/NotificationsDropdown', 'flarum/flags/components/FlagList'], function (_export) {
+});;
+System.register('flarum/flags/components/FlagsDropdown', ['flarum/components/NotificationsDropdown', 'flarum/flags/components/FlagList'], function (_export) {
   'use strict';
 
   var NotificationsDropdown, FlagList, FlagsDropdown;
@@ -550,7 +519,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       _export('default', FlagsDropdown);
     }
   };
-});;System.register('flarum/flags/components/FlagsPage', ['flarum/components/Page', 'flarum/flags/components/FlagList'], function (_export) {
+});;
+System.register('flarum/flags/components/FlagsPage', ['flarum/components/Page', 'flarum/flags/components/FlagList'], function (_export) {
 
   /**
    * The `FlagsPage` component shows the flags list. It is only
@@ -602,7 +572,45 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
       _export('default', FlagsPage);
     }
   };
-});;System.register('flarum/flags/models/Flag', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
+});;
+System.register('flarum/flags/main', ['flarum/app', 'flarum/Model', 'flarum/flags/models/Flag', 'flarum/flags/components/FlagsPage', 'flarum/flags/addFlagControl', 'flarum/flags/addFlagsDropdown', 'flarum/flags/addFlagsToPosts'], function (_export) {
+  'use strict';
+
+  var app, Model, Flag, FlagsPage, addFlagControl, addFlagsDropdown, addFlagsToPosts;
+  return {
+    setters: [function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumFlagsModelsFlag) {
+      Flag = _flarumFlagsModelsFlag['default'];
+    }, function (_flarumFlagsComponentsFlagsPage) {
+      FlagsPage = _flarumFlagsComponentsFlagsPage['default'];
+    }, function (_flarumFlagsAddFlagControl) {
+      addFlagControl = _flarumFlagsAddFlagControl['default'];
+    }, function (_flarumFlagsAddFlagsDropdown) {
+      addFlagsDropdown = _flarumFlagsAddFlagsDropdown['default'];
+    }, function (_flarumFlagsAddFlagsToPosts) {
+      addFlagsToPosts = _flarumFlagsAddFlagsToPosts['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('flarum-flags', function () {
+        app.store.models.posts.prototype.flags = Model.hasMany('flags');
+        app.store.models.posts.prototype.canFlag = Model.attribute('canFlag');
+
+        app.store.models.flags = Flag;
+
+        app.routes.flags = { path: '/flags', component: m(FlagsPage, null) };
+
+        addFlagControl();
+        addFlagsDropdown();
+        addFlagsToPosts();
+      });
+    }
+  };
+});;
+System.register('flarum/flags/models/Flag', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
   'use strict';
 
   var Model, mixin, Flag;
