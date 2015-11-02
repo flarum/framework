@@ -51,7 +51,8 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
       });
     }
   };
-});;System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/likes/components/PostLikesModal'], function (_export) {
+});;
+System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/likes/components/PostLikesModal'], function (_export) {
   'use strict';
 
   var extend, app, CommentPost, punctuateSeries, username, icon, PostLikesModal;
@@ -123,50 +124,8 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
       });
     }
   };
-});;System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post', 'flarum/Model', 'flarum/components/NotificationGrid', 'flarum/likes/addLikeAction', 'flarum/likes/addLikesList', 'flarum/likes/components/PostLikedNotification'], function (_export) {
-  'use strict';
-
-  var extend, app, Post, Model, NotificationGrid, addLikeAction, addLikesList, PostLikedNotification;
-  return {
-    setters: [function (_flarumExtend) {
-      extend = _flarumExtend.extend;
-    }, function (_flarumApp) {
-      app = _flarumApp['default'];
-    }, function (_flarumModelsPost) {
-      Post = _flarumModelsPost['default'];
-    }, function (_flarumModel) {
-      Model = _flarumModel['default'];
-    }, function (_flarumComponentsNotificationGrid) {
-      NotificationGrid = _flarumComponentsNotificationGrid['default'];
-    }, function (_flarumLikesAddLikeAction) {
-      addLikeAction = _flarumLikesAddLikeAction['default'];
-    }, function (_flarumLikesAddLikesList) {
-      addLikesList = _flarumLikesAddLikesList['default'];
-    }, function (_flarumLikesComponentsPostLikedNotification) {
-      PostLikedNotification = _flarumLikesComponentsPostLikedNotification['default'];
-    }],
-    execute: function () {
-
-      app.initializers.add('flarum-likes', function () {
-        app.notificationComponents.postLiked = PostLikedNotification;
-
-        Post.prototype.canLike = Model.attribute('canLike');
-        Post.prototype.likes = Model.hasMany('likes');
-
-        addLikeAction();
-        addLikesList();
-
-        extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
-          items.add('postLiked', {
-            name: 'postLiked',
-            icon: 'thumbs-o-up',
-            label: app.translator.trans('flarum-likes.forum.settings.notify_post_liked_label')
-          });
-        });
-      });
-    }
-  };
-});;System.register('flarum/likes/components/PostLikedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
+});;
+System.register('flarum/likes/components/PostLikedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
   'use strict';
 
   var Notification, username, punctuateSeries, PostLikedNotification;
@@ -221,7 +180,8 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
       _export('default', PostLikedNotification);
     }
   };
-});;System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Modal', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export) {
+});;
+System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Modal', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export) {
   'use strict';
 
   var Modal, avatar, username, PostLikesModal;
@@ -283,6 +243,50 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
       })(Modal);
 
       _export('default', PostLikesModal);
+    }
+  };
+});;
+System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post', 'flarum/Model', 'flarum/components/NotificationGrid', 'flarum/likes/addLikeAction', 'flarum/likes/addLikesList', 'flarum/likes/components/PostLikedNotification'], function (_export) {
+  'use strict';
+
+  var extend, app, Post, Model, NotificationGrid, addLikeAction, addLikesList, PostLikedNotification;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumApp) {
+      app = _flarumApp['default'];
+    }, function (_flarumModelsPost) {
+      Post = _flarumModelsPost['default'];
+    }, function (_flarumModel) {
+      Model = _flarumModel['default'];
+    }, function (_flarumComponentsNotificationGrid) {
+      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+    }, function (_flarumLikesAddLikeAction) {
+      addLikeAction = _flarumLikesAddLikeAction['default'];
+    }, function (_flarumLikesAddLikesList) {
+      addLikesList = _flarumLikesAddLikesList['default'];
+    }, function (_flarumLikesComponentsPostLikedNotification) {
+      PostLikedNotification = _flarumLikesComponentsPostLikedNotification['default'];
+    }],
+    execute: function () {
+
+      app.initializers.add('flarum-likes', function () {
+        app.notificationComponents.postLiked = PostLikedNotification;
+
+        Post.prototype.canLike = Model.attribute('canLike');
+        Post.prototype.likes = Model.hasMany('likes');
+
+        addLikeAction();
+        addLikesList();
+
+        extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+          items.add('postLiked', {
+            name: 'postLiked',
+            icon: 'thumbs-o-up',
+            label: app.translator.trans('flarum-likes.forum.settings.notify_post_liked_label')
+          });
+        });
+      });
     }
   };
 });
