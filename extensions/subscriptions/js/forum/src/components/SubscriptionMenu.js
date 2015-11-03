@@ -5,6 +5,29 @@ import icon from 'flarum/helpers/icon';
 import SubscriptionMenuItem from 'flarum/subscriptions/components/SubscriptionMenuItem';
 
 export default class SubscriptionMenu extends Component {
+  init() {
+    this.options = [
+      {
+        subscription: false,
+        icon: 'star-o',
+        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
+        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
+      },
+      {
+        subscription: 'follow',
+        icon: 'star',
+        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
+        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
+      },
+      {
+        subscription: 'ignore',
+        icon: 'eye-slash',
+        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
+        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
+      }
+    ];
+  }
+
   view() {
     const discussion = this.props.discussion;
     const subscription = discussion.subscription();
@@ -28,27 +51,6 @@ export default class SubscriptionMenu extends Component {
         // no default
     }
 
-    const options = [
-      {
-        subscription: false,
-        icon: 'star-o',
-        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
-        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
-      },
-      {
-        subscription: 'follow',
-        icon: 'star',
-        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
-        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
-      },
-      {
-        subscription: 'ignore',
-        icon: 'eye-slash',
-        label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
-        description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
-      }
-    ];
-
     return (
       <div className="Dropdown ButtonGroup SubscriptionMenu">
         {Button.component({
@@ -63,7 +65,7 @@ export default class SubscriptionMenu extends Component {
         </button>
 
         <ul className="Dropdown-menu dropdown-menu Dropdown-menu--right">
-          {options.map(props => {
+          {this.options.map(props => {
             props.onclick = this.saveSubscription.bind(this, discussion, props.subscription);
             props.active = subscription === props.subscription;
 
