@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -43,9 +43,9 @@ class AuthController implements ControllerInterface
 
         if (array_get($body, 'channel_name') === $userChannel) {
             $pusher = new Pusher(
-                $this->settings->get('pusher.app_key'),
-                $this->settings->get('pusher.app_secret'),
-                $this->settings->get('pusher.app_id')
+                $this->settings->get('flarum-pusher.app_key'),
+                $this->settings->get('flarum-pusher.app_secret'),
+                $this->settings->get('flarum-pusher.app_id')
             );
 
             $payload = json_decode($pusher->socket_auth($userChannel, array_get($body, 'socket_id')), true);
