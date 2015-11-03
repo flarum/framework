@@ -17,7 +17,7 @@ flarum-flags:
 
     # These strings are used by the Flag Post modal dialog.
     flag_post:
-      reason_heading: Choose a Reason
+      reason_heading: Reason
       reason_inappropriate_label: Inappropriate
       reason_off_topic_label: "Off-topic"
       reason_other_label: Other
