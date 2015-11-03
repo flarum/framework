@@ -31,6 +31,17 @@ export default class DiscussionPage extends BaseDiscussionPage {
 
     items.remove('scrubber');
 
+    const count = this.discussion.repliesCount();
+
+    items.add('replies', <h3>
+      <a href={app.route.discussion(this.discussion).replace('/embed', '/d')} config={m.route}>
+        {count} comment{count == 1 ? '' : 's'}
+      </a>
+    </h3>, 100);
+
+    const props = items.get('controls').props;
+    props.className = props.className.replace('App-primaryControl', '');
+
     return items;
   }
 }
