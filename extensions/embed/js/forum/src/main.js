@@ -32,7 +32,7 @@ app.initializers.replace('boot', () => {
 
   // Trim the /embed prefix off of post permalinks
   override(PostMeta.prototype, 'getPermalink', (original, post) => {
-    return original(post).replace('/embed', '');
+    return original(post).replace('/embed', '/d');
   });
 
   app.pane = new Pane(document.getElementById('app'));
