@@ -2,6 +2,7 @@ import { extend } from 'flarum/extend';
 import Page from 'flarum/components/Page';
 import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
+import icon from 'flarum/helpers/icon';
 import DiscussionList from 'flarum/components/DiscussionList';
 import WelcomeHero from 'flarum/components/WelcomeHero';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
@@ -54,7 +55,7 @@ export default class IndexPage extends Page {
       app.cache.discussionList = new DiscussionList({params});
     }
 
-    app.history.push('index', app.translator.trans('core.forum.header.discussions_button'));
+    app.history.push('index', icon('bars'));
 
     this.bodyClass = 'App--index';
   }
