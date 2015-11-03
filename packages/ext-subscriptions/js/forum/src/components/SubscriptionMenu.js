@@ -63,14 +63,16 @@ export default class SubscriptionMenu extends Component {
     const notifyAlert = preferences['notify_newPost_alert'];
 
     if ((notifyEmail || notifyAlert) && subscription === false) {
-      buttonProps.title = app.translator.trans(notifyEmail
-        ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip'
-        : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip');
-      buttonProps.config = element => $(element).tooltip({
-        container: '.SubscriptionMenu',
-        placement: 'bottom',
-        delay: 250
-      });
+      buttonProps.config = element => {
+        $(element).tooltip({
+          container: '.SubscriptionMenu',
+          placement: 'bottom',
+          delay: 250,
+          title: app.translator.trans(notifyEmail
+            ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip'
+            : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip')
+        });
+      }
     } else {
       buttonProps.config = element => $(element).tooltip('destroy');
     }
