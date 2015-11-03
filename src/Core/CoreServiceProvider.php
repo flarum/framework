@@ -69,7 +69,7 @@ class CoreServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->make('flarum.gate')->before(function (User $actor, $ability, $model = null) {
-            if (! $model && $actor->hasPermission($ability)) {
+            if ($actor->isAdmin() || (! $model && $actor->hasPermission($ability))) {
                 return true;
             }
 
