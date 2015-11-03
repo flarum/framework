@@ -39,6 +39,8 @@ flarum-subscriptions:
       ignoring_text: Never be notified. Hide from the discussion list.
       not_following_button: Not Following
       not_following_text: "Be notified only when @mentioned."
+      notify_email_tooltip: Get an email when there are new posts
+      notify_alert_tooltip: Get a forum notification when there are new posts
 
   ##
   # REUSED STRINGS - These keys should not be used directly in code!
