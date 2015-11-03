@@ -51,14 +51,33 @@ export default class SubscriptionMenu extends Component {
         // no default
     }
 
+    const buttonProps = {
+      className: 'Button SubscriptionMenu-button ' + buttonClass,
+      icon: buttonIcon,
+      children: buttonLabel,
+      onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
+    };
+
+    const preferences = app.session.user.preferences();
+    const notifyEmail = preferences['notify_newPost_email'];
+    const notifyAlert = preferences['notify_newPost_alert'];
+
+    if ((notifyEmail || notifyAlert) && subscription === false) {
+      buttonProps.title = app.translator.trans(notifyEmail
+        ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip'
+        : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip');
+      buttonProps.config = element => $(element).tooltip({
+        container: '.SubscriptionMenu',
+        placement: 'bottom',
+        delay: 250
+      });
+    } else {
+      buttonProps.config = element => $(element).tooltip('destroy');
+    }
+
     return (
       <div className="Dropdown ButtonGroup SubscriptionMenu">
-        {Button.component({
-          className: 'Button SubscriptionMenu-button ' + buttonClass,
-          icon: buttonIcon,
-          children: buttonLabel,
-          onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
-        })}
+        {Button.component(buttonProps)}
 
         <button className={'Dropdown-toggle Button Button--icon ' + buttonClass} data-toggle="dropdown">
           {icon('caret-down', {className: 'Button-icon'})}
@@ -78,5 +97,7 @@ export default class SubscriptionMenu extends Component {
 
   saveSubscription(discussion, subscription) {
     discussion.save({subscription});
+
+    this.$('.SubscriptionMenu-button').tooltip('hide');
   }
 }
