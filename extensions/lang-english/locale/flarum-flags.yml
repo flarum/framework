@@ -12,16 +12,25 @@ flarum-flags:
       flag_posts_label: Flag posts
       view_flags_label: View flagged posts
 
+    # These strings are used in the Flags Settings modal dialog.
+    settings:
+      guidelines_url_label: Community Guidelines URL
+      title: Flags Settings
+
   # Strings in this namespace are used by the forum user interface.
   forum:
 
     # These strings are used by the Flag Post modal dialog.
     flag_post:
-      reason_heading: Reason
+      confirmation_message: "Thank you for flagging this post. Our moderators will look into it."
+      dismiss_button: => core.ref.okay
       reason_inappropriate_label: Inappropriate
+      reason_inappropriate_text: "This post is offensive, abusive, or violates our <a>community guidelines</a>."
       reason_off_topic_label: "Off-topic"
+      reason_off_topic_text: "This post is not relevant to the current discussion and should be moved elsewhere."
       reason_other_label: Other
       reason_spam_label: Spam
+      reason_spam_text: This post is an advertisement.
       submit_button: => flarum-flags.ref.flag_post
       title: => flarum-flags.ref.flag_post
 
