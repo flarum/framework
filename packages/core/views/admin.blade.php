@@ -25,6 +25,8 @@
     </div>
 
     <div id="content" class="sideNavOffset"></div>
+
+    {!! $content !!}
   </main>
 
 </div>
