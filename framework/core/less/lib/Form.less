@@ -9,7 +9,10 @@
 .Form--centered {
   text-align: center;
 
-  .FormControl, .Button {
+  .FormControl[type=text],
+  .FormControl[type=email],
+  .FormControl[type=password],
+  .Button {
     margin: 0 auto;
     text-align: center;
     height: 50px;
@@ -19,6 +22,9 @@
 
   .Form-group {
     margin-bottom: 12px;
+  }
+  .checkbox {
+    text-align: left;
   }
 }
 
