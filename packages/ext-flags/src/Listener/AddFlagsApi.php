@@ -19,10 +19,24 @@ use Flarum\Event\ConfigureModelDates;
 use Flarum\Event\PrepareApiAttributes;
 use Flarum\Flags\Api\Controller;
 use Flarum\Flags\Flag;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddFlagsApi
 {
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
+     * @param SettingsRepositoryInterface $settings
+     */
+    public function __construct(SettingsRepositoryInterface $settings)
+    {
+        $this->settings = $settings;
+    }
+
     /**
      * @param Dispatcher $events
      */
@@ -54,6 +68,8 @@ class AddFlagsApi
             if ($event->attributes['canViewFlags']) {
                 $event->attributes['flagsCount'] = (int) $this->getFlagsCount($event->actor);
             }
+
+            $event->attributes['guidelinesUrl'] = $this->settings->get('flarum-flags.guidelines_url');
         }
 
         if ($event->isSerializer(CurrentUserSerializer::class)) {
