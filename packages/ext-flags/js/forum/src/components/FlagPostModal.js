@@ -5,6 +5,8 @@ export default class FlagPostModal extends Modal {
   init() {
     super.init();
 
+    this.success = false;
+
     this.reason = m.prop('');
     this.reasonDetail = m.prop('');
   }
@@ -18,6 +20,21 @@ export default class FlagPostModal extends Modal {
   }
 
   content() {
+    if (this.success) {
+      return (
+        <div className="Modal-body">
+          <div className="Form Form--centered">
+            <p className="helpText">{app.translator.trans('flarum-flags.forum.flag_post.confirmation_message')}</p>
+            <div className="Form-group">
+              <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
+                {app.translator.trans('flarum-flags.forum.flag_post.dismiss_button')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const guidelinesUrl = app.forum.attribute('guidelinesUrl');
 
     return (
@@ -81,9 +98,8 @@ export default class FlagPostModal extends Modal {
         user: app.session.user,
         post: this.props.post
       }
-    }).then(
-      () => this.hide(),
-      this.loaded.bind(this)
-    );
+    })
+      .then(() => this.success = true)
+      .finally(this.loaded.bind(this));
   }
 }
