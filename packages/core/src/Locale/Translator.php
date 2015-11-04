@@ -34,6 +34,11 @@ class Translator extends BaseTranslator
 
         if ($parse) {
             $this->parseCatalogue($catalogue);
+
+            $fallbackCatalogue = $catalogue;
+            while ($fallbackCatalogue = $fallbackCatalogue->getFallbackCatalogue()) {
+                $this->parseCatalogue($fallbackCatalogue);
+            }
         }
 
         return $catalogue;
@@ -54,17 +59,17 @@ class Translator extends BaseTranslator
     }
 
     /**
-     * @param MessageCatalogueInterface $messages
+     * @param MessageCatalogueInterface $catalogue
      * @param string $id
      * @param string $domain
      * @return string
      */
-    private function getTranslation(MessageCatalogueInterface $messages, $id, $domain)
+    private function getTranslation(MessageCatalogueInterface $catalogue, $id, $domain)
     {
-        $translation = $messages->get($id, $domain);
+        $translation = $catalogue->get($id, $domain);
 
         if (preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
-            return $this->getTranslation($messages, $matches[1], $domain);
+            return $this->getTranslation($catalogue, $matches[1], $domain);
         }
 
         return $translation;
