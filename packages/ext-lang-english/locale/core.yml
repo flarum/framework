@@ -373,7 +373,7 @@ core:
     log_out: Log Out
     mark_all_as_read: Mark All as Read
     notifications: Notifications
-    okay: OK
+    okay: OK                                     # Referenced by flarum-tags.yml
     password: Password
     reply: Reply                                 # Referenced by flarum-mentions.yml
     restore: Restore
