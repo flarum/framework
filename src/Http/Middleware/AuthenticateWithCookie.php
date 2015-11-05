@@ -11,6 +11,7 @@
 namespace Flarum\Http\Middleware;
 
 use Flarum\Api\AccessToken;
+use Flarum\Api\Exception\InvalidAccessTokenException;
 use Flarum\Core\Guest;
 use Flarum\Locale\LocaleManager;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -47,6 +48,7 @@ class AuthenticateWithCookie implements MiddlewareInterface
      *
      * @param Request $request
      * @return Request
+     * @throws InvalidAccessTokenException
      */
     protected function logIn(Request $request)
     {
@@ -54,9 +56,11 @@ class AuthenticateWithCookie implements MiddlewareInterface
 
         if ($token = $this->getToken($request)) {
             if (! $token->isValid()) {
-                // TODO: https://github.com/flarum/core/issues/253
+                throw new InvalidAccessTokenException;
             } elseif ($actor = $token->user) {
                 $actor->updateLastSeen()->save();
+
+                $request = $request->withAttribute('sudo', $token->isSudo());
             }
         }
 

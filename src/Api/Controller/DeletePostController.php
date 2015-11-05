@@ -10,12 +10,15 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Command\DeletePost;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeletePostController extends AbstractDeleteController
 {
+    use AssertPermissionTrait;
+
     /**
      * @var Dispatcher
      */
@@ -34,6 +37,8 @@ class DeletePostController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
+        $this->assertSudo($request);
+
         $this->bus->dispatch(
             new DeletePost(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
         );

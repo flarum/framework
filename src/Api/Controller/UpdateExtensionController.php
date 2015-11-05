@@ -38,7 +38,7 @@ class UpdateExtensionController implements ControllerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        $this->assertAdmin($request->getAttribute('actor'));
+        $this->assertAdminAndSudo($request);
 
         $enabled = array_get($request->getParsedBody(), 'enabled');
         $name = array_get($request->getQueryParams(), 'name');

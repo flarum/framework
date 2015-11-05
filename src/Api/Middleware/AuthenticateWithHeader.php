@@ -69,6 +69,8 @@ class AuthenticateWithHeader implements MiddlewareInterface
                 $actor = $accessToken->user;
 
                 $actor->updateLastSeen()->save();
+
+                $request = $request->withAttribute('sudo', $accessToken->isSudo());
             } elseif (isset($parts[1]) && ($apiKey = ApiKey::valid($token))) {
                 $userParts = explode('=', trim($parts[1]));
 
