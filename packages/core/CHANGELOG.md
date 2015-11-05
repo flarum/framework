@@ -2,6 +2,16 @@
 All notable changes to Flarum and its bundled extensions will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.0-beta.4] - 2015-11-05
+### Added
+- Add an icon/label to the back button to indicate where it leads
+- Add "Loading..." text while the JavaScript payload is loading
+
+### Fixed
+- Fix some admin actions resulting in "You do not have permission to do that"
+- Fix translation keys persisting after enabling an initial language pack
+- Fix translation `=>` references not being parsed in some cases
+
 ## [0.1.0-beta.3] - 2015-11-03
 ### Architecture improvements
 - **Composer-driven extension architecture.** All extensions are Composer packages installable via Packagist.
@@ -93,6 +103,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0-beta - 2015-08-27
 First Version
 
-[unreleased]: https://github.com/flarum/core/compare/v0.1.0-beta.2...HEAD
+[0.1.0-beta.4]: https://github.com/flarum/core/compare/v0.1.0-beta.3...v0.1.0-beta.4
 [0.1.0-beta.3]: https://github.com/flarum/core/compare/v0.1.0-beta.2...v0.1.0-beta.3
 [0.1.0-beta.2]: https://github.com/flarum/core/compare/v0.1.0-beta...v0.1.0-beta.2

@@ -21026,6 +21026,7 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
           value: function show(discussion) {
             this.discussion = discussion;
 
+            app.history.push('discussion', discussion.title());
             app.setTitle(discussion.title());
             app.setTitleCount(0);
 
@@ -21145,7 +21146,7 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
             m.route(url, true);
             window.history.replaceState(null, document.title, url);
 
-            app.history.push('discussion');
+            app.history.push('discussion', discussion.title());
 
             // If the user hasn't read past here before, then we'll update their read
             // state and redraw.
@@ -22406,7 +22407,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
     }
   };
 });;
-System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export) {
+System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/helpers/icon', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export) {
 
   /**
    * The `IndexPage` component displays the index page, including the welcome
@@ -22414,7 +22415,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
    */
   'use strict';
 
-  var extend, Page, ItemList, listItems, DiscussionList, WelcomeHero, DiscussionComposer, LogInModal, DiscussionPage, Select, Button, LinkButton, SelectDropdown, IndexPage;
+  var extend, Page, ItemList, listItems, icon, DiscussionList, WelcomeHero, DiscussionComposer, LogInModal, DiscussionPage, Select, Button, LinkButton, SelectDropdown, IndexPage;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -22424,6 +22425,8 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
       ItemList = _flarumUtilsItemList['default'];
     }, function (_flarumHelpersListItems) {
       listItems = _flarumHelpersListItems['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
     }, function (_flarumComponentsDiscussionList) {
       DiscussionList = _flarumComponentsDiscussionList['default'];
     }, function (_flarumComponentsWelcomeHero) {
@@ -22491,7 +22494,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               app.cache.discussionList = new DiscussionList({ params: params });
             }
 
-            app.history.push('index');
+            app.history.push('index', icon('bars'));
 
             this.bodyClass = 'App--index';
           }
@@ -23701,10 +23704,13 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var _app2 = app;
             var history = _app2.history;
 
+            var previous = history.getPrevious() || {};
+
             return LinkButton.component({
-              className: 'Button Button--icon Navigation-back',
+              className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
               href: history.backUrl(),
               icon: 'chevron-left',
+              children: previous.title,
               config: function config() {},
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
@@ -28854,6 +28860,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
           value: function show(user) {
             this.user = user;
 
+            app.history.push('user', user.username());
             app.setTitle(user.username());
 
             m.redraw();
@@ -29651,7 +29658,7 @@ System.register("flarum/helpers/username", [], function (_export) {
     execute: function () {}
   };
 });;
-System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
+System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/helpers/icon', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
   /*global FastClick*/
 
   /**
@@ -29662,7 +29669,7 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
    */
   'use strict';
 
-  var ScrollListener, Pane, Drawer, mapRoutes, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
+  var ScrollListener, Pane, Drawer, mapRoutes, icon, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
 
   _export('default', boot);
 
@@ -29679,7 +29686,7 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
     }
 
     app.routes[defaultAction].path = '/';
-    app.history.push(defaultAction, '/');
+    app.history.push(defaultAction, icon('bars'), '/');
 
     m.startComputation();
 
@@ -29737,6 +29744,8 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
       Drawer = _flarumUtilsDrawer['default'];
     }, function (_flarumUtilsMapRoutes) {
       mapRoutes = _flarumUtilsMapRoutes['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
     }, function (_flarumComponentsNavigation) {
       Navigation = _flarumComponentsNavigation['default'];
     }, function (_flarumComponentsHeaderPrimary) {
@@ -32171,26 +32180,39 @@ System.register('flarum/utils/History', [], function (_export) {
          * Get the item on the top of the stack.
          *
          * @return {Object}
-         * @protected
+         * @public
          */
         babelHelpers.createClass(History, [{
-          key: 'getTop',
-          value: function getTop() {
+          key: 'getCurrent',
+          value: function getCurrent() {
             return this.stack[this.stack.length - 1];
+          }
+
+          /**
+           * Get the previous item on the stack.
+           *
+           * @return {Object}
+           * @public
+           */
+        }, {
+          key: 'getPrevious',
+          value: function getPrevious() {
+            return this.stack[this.stack.length - 2];
           }
 
           /**
            * Push an item to the top of the stack.
            *
            * @param {String} name The name of the route.
+           * @param {String} title The title of the route.
            * @param {String} [url] The URL of the route. The current URL will be used if
            *     not provided.
            * @public
            */
         }, {
           key: 'push',
-          value: function push(name) {
-            var url = arguments.length <= 1 || arguments[1] === undefined ? m.route() : arguments[1];
+          value: function push(name, title) {
+            var url = arguments.length <= 2 || arguments[2] === undefined ? m.route() : arguments[2];
 
             // If we're pushing an item with the same name as second-to-top item in the
             // stack, we will assume that the user has clicked the 'back' button in
@@ -32204,11 +32226,11 @@ System.register('flarum/utils/History', [], function (_export) {
 
             // If we're pushing an item with the same name as the top item in the stack,
             // then we'll overwrite it with the new URL.
-            var top = this.getTop();
+            var top = this.getCurrent();
             if (top && top.name === name) {
-              top.url = url;
+              babelHelpers._extends(top, { url: url, title: title });
             } else {
-              this.stack.push({ name: name, url: url });
+              this.stack.push({ name: name, url: url, title: title });
             }
           }
 
@@ -32234,7 +32256,7 @@ System.register('flarum/utils/History', [], function (_export) {
           value: function back() {
             this.stack.pop();
 
-            m.route(this.getTop().url);
+            m.route(this.getCurrent().url);
           }
 
           /**
@@ -32258,7 +32280,7 @@ System.register('flarum/utils/History', [], function (_export) {
         }, {
           key: 'home',
           value: function home() {
-            this.stack.splice(1);
+            this.stack.splice(0);
 
             m.route('/');
           }
