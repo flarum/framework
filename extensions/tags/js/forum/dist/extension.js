@@ -913,10 +913,10 @@ System.register('flarum/tags/components/TagLinkButton', ['flarum/components/Link
     }
   };
 });;
-System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/components/IndexPage', 'flarum/helpers/listItems', 'flarum/helpers/humanTime', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export) {
+System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/components/IndexPage', 'flarum/helpers/listItems', 'flarum/helpers/humanTime', 'flarum/helpers/icon', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export) {
   'use strict';
 
-  var Component, IndexPage, listItems, humanTime, tagLabel, sortTags, TagsPage;
+  var Component, IndexPage, listItems, humanTime, icon, tagLabel, sortTags, TagsPage;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent['default'];
@@ -926,6 +926,8 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
       listItems = _flarumHelpersListItems['default'];
     }, function (_flarumHelpersHumanTime) {
       humanTime = _flarumHelpersHumanTime['default'];
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon['default'];
     }, function (_flarumTagsHelpersTagLabel) {
       tagLabel = _flarumTagsHelpersTagLabel['default'];
     }, function (_flarumTagsUtilsSortTags) {
@@ -948,7 +950,7 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
             }));
 
             app.current = this;
-            app.history.push('tags');
+            app.history.push('tags', icon('th-large'));
             app.drawer.hide();
             app.modal.close();
           }
