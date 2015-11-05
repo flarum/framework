@@ -11,16 +11,17 @@
 namespace Flarum\Event;
 
 use Flarum\Core\User;
+use Flarum\Http\Session;
 
 class UserLoggedIn
 {
     public $user;
 
-    public $token;
+    public $session;
 
-    public function __construct(User $user, $token)
+    public function __construct(User $user, Session $session)
     {
         $this->user = $user;
-        $this->token = $token;
+        $this->session = $session;
     }
 }

@@ -10,6 +10,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Command\EditUser;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,6 +18,8 @@ use Tobscure\JsonApi\Document;
 
 class UpdateUserController extends AbstractResourceController
 {
+    use AssertPermissionTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -48,6 +51,8 @@ class UpdateUserController extends AbstractResourceController
         $id = array_get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
         $data = array_get($request->getParsedBody(), 'data', []);
+
+        $this->assertSudo($request);
 
         return $this->bus->dispatch(
             new EditUser($id, $actor, $data)

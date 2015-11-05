@@ -10,11 +10,10 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\Command\GenerateAccessToken;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\Session;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -65,19 +64,13 @@ class TokenController implements ControllerInterface
             throw new PermissionDeniedException;
         }
 
-        if (! $user->is_activated) {
-            $this->events->fire(new UserEmailChangeWasRequested($user, $user->email));
+        $session = $request->getAttribute('session') ?: Session::generate($user);
+        $session->assign($user)->regenerateId()->renew()->save();
 
-            return new JsonResponse(['emailConfirmationRequired' => $user->email], 401);
-        }
-
-        $token = $this->bus->dispatch(
-            new GenerateAccessToken($user->id)
-        );
-
-        return new JsonResponse([
-            'token' => $token->id,
+        return (new JsonResponse([
+            'token' => $session->id,
             'userId' => $user->id
-        ]);
+        ]))
+            ->withHeader('X-CSRF-Token', $session->csrf_token);
     }
 }

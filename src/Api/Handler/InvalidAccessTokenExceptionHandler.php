@@ -11,18 +11,18 @@
 namespace Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Api\Exception\InvalidAccessTokenException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
+class InvalidAccessTokenExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof PermissionDeniedException;
+        return $e instanceof InvalidAccessTokenException;
     }
 
     /**
@@ -33,7 +33,7 @@ class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
         $status = 401;
         $error = [
             'status' => (string) $status,
-            'code' => 'permission_denied'
+            'code' => 'invalid_access_token'
         ];
 
         return new ResponseBag($status, [$error]);

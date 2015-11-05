@@ -31,7 +31,10 @@ class FloodingExceptionHandler implements ExceptionHandlerInterface
     public function handle(Exception $e)
     {
         $status = 429;
-        $error = [];
+        $error = [
+            'status' => (string) $status,
+            'code' => 'too_many_requests'
+        ];
 
         return new ResponseBag($status, [$error]);
     }

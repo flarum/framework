@@ -3,6 +3,11 @@ All notable changes to Flarum and its bundled extensions will be documented in t
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Added
+- Improve security by using HTTP-only cookie + CSRF token for API authentication
+- Require user to re-enter password after 30 mins when performing sensitive/destructive actions
+- Add `onhide` hook to Modal component
+
 ### Fixed
 - Fix error when sorting discussions by "oldest" (#627)
 

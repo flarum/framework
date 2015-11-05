@@ -13,6 +13,7 @@ namespace Flarum\Admin;
 
 use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
+use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\MiddlewarePipe;
 use Flarum\Http\Middleware\HandleErrors;
 
@@ -30,8 +31,10 @@ class Server extends AbstractServer
             $errorDir = __DIR__ . '/../../error';
 
             if ($app->isUpToDate()) {
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
                 $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthorizeWithCookie'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\StartSession'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\SetLocale'));
                 $pipe->pipe($adminPath, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
                 $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.admin.routes')]));
                 $pipe->pipe($adminPath, new HandleErrors($errorDir, $app->inDebugMode()));

@@ -11,18 +11,18 @@
 namespace Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Http\Exception\TokenMismatchException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
+class TokenMismatchExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof PermissionDeniedException;
+        return $e instanceof TokenMismatchException;
     }
 
     /**
@@ -30,10 +30,10 @@ class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 401;
+        $status = 400;
         $error = [
             'status' => (string) $status,
-            'code' => 'permission_denied'
+            'code' => 'csrf_token_mismatch'
         ];
 
         return new ResponseBag($status, [$error]);
