@@ -18996,10 +18996,13 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var _app2 = app;
             var history = _app2.history;
 
+            var previous = history.getPrevious() || {};
+
             return LinkButton.component({
-              className: 'Button Button--icon Navigation-back',
+              className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
               href: history.backUrl(),
               icon: 'chevron-left',
+              children: previous.title,
               config: function config() {},
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
@@ -20663,6 +20666,7 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
       canGoBack: function canGoBack() {
         return true;
       },
+      getPrevious: function getPrevious() {},
       backUrl: function backUrl() {
         return app.forum.attribute('baseUrl');
       },
