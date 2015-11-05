@@ -18,6 +18,7 @@ use DateTime;
  * @property int $user_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $expires_at
+ * @property \Carbon\Carbon $sudo_expires_at
  * @property \Flarum\Core\User|null $user
  */
 class AccessToken extends AbstractModel
@@ -37,7 +38,7 @@ class AccessToken extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['created_at', 'expires_at'];
+    protected $dates = ['created_at', 'expires_at', 'sudo_expires_at'];
 
     /**
      * Generate an access token for the specified user.
@@ -54,6 +55,7 @@ class AccessToken extends AbstractModel
         $token->user_id = $userId;
         $token->created_at = time();
         $token->expires_at = time() + $minutes * 60;
+        $token->sudo_expires_at = time() + $minutes * 30;
 
         return $token;
     }
@@ -66,6 +68,11 @@ class AccessToken extends AbstractModel
     public function isValid()
     {
         return $this->expires_at > new DateTime;
+    }
+
+    public function isSudo()
+    {
+        return $this->sudo_expires_at > new DateTime;
     }
 
     /**

@@ -45,8 +45,11 @@ class ApiServiceProvider extends AbstractServiceProvider
             $handler->registerHandler(new Handler\FloodingExceptionHandler);
             $handler->registerHandler(new Handler\IlluminateValidationExceptionHandler);
             $handler->registerHandler(new Handler\InvalidConfirmationTokenExceptionHandler);
+            $handler->registerHandler(new Handler\MethodNotAllowedExceptionHandler);
             $handler->registerHandler(new Handler\ModelNotFoundExceptionHandler);
             $handler->registerHandler(new Handler\PermissionDeniedExceptionHandler);
+            $handler->registerHandler(new Handler\RouteNotFoundExceptionHandler);
+            $handler->registerHandler(new Handler\SudoRequiredExceptionHandler);
             $handler->registerHandler(new Handler\ValidationExceptionHandler);
             $handler->registerHandler(new InvalidParameterExceptionHandler);
             $handler->registerHandler(new FallbackExceptionHandler($this->app->inDebugMode()));
