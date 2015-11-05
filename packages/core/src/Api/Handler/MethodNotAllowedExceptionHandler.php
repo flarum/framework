@@ -11,18 +11,18 @@
 namespace Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Http\Exception\MethodNotAllowedException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
+class MethodNotAllowedExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof PermissionDeniedException;
+        return $e instanceof MethodNotAllowedException;
     }
 
     /**
@@ -30,10 +30,10 @@ class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 401;
+        $status = 405;
         $error = [
             'status' => (string) $status,
-            'code' => 'permission_denied'
+            'code' => 'method_not_allowed'
         ];
 
         return new ResponseBag($status, [$error]);
