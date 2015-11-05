@@ -209,6 +209,26 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Com
         }
 
         babelHelpers.createClass(SubscriptionMenu, [{
+          key: 'init',
+          value: function init() {
+            this.options = [{
+              subscription: false,
+              icon: 'star-o',
+              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
+              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
+            }, {
+              subscription: 'follow',
+              icon: 'star',
+              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
+              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
+            }, {
+              subscription: 'ignore',
+              icon: 'eye-slash',
+              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
+              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
+            }];
+          }
+        }, {
           key: 'view',
           value: function view() {
             var _this = this;
@@ -235,32 +255,36 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Com
               // no default
             }
 
-            var options = [{
-              subscription: false,
-              icon: 'star-o',
-              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
-              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
-            }, {
-              subscription: 'follow',
-              icon: 'star',
-              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
-              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
-            }, {
-              subscription: 'ignore',
-              icon: 'eye-slash',
-              label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
-              description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
-            }];
+            var buttonProps = {
+              className: 'Button SubscriptionMenu-button ' + buttonClass,
+              icon: buttonIcon,
+              children: buttonLabel,
+              onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
+            };
+
+            var preferences = app.session.user.preferences();
+            var notifyEmail = preferences['notify_newPost_email'];
+            var notifyAlert = preferences['notify_newPost_alert'];
+
+            if ((notifyEmail || notifyAlert) && subscription === false) {
+              buttonProps.config = function (element) {
+                $(element).tooltip({
+                  container: '.SubscriptionMenu',
+                  placement: 'bottom',
+                  delay: 250,
+                  title: app.translator.trans(notifyEmail ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip' : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip')
+                });
+              };
+            } else {
+              buttonProps.config = function (element) {
+                return $(element).tooltip('destroy');
+              };
+            }
 
             return m(
               'div',
               { className: 'Dropdown ButtonGroup SubscriptionMenu' },
-              Button.component({
-                className: 'Button SubscriptionMenu-button ' + buttonClass,
-                icon: buttonIcon,
-                children: buttonLabel,
-                onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
-              }),
+              Button.component(buttonProps),
               m(
                 'button',
                 { className: 'Dropdown-toggle Button Button--icon ' + buttonClass, 'data-toggle': 'dropdown' },
@@ -269,7 +293,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Com
               m(
                 'ul',
                 { className: 'Dropdown-menu dropdown-menu Dropdown-menu--right' },
-                options.map(function (props) {
+                this.options.map(function (props) {
                   props.onclick = _this.saveSubscription.bind(_this, discussion, props.subscription);
                   props.active = subscription === props.subscription;
 
@@ -286,6 +310,8 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Com
           key: 'saveSubscription',
           value: function saveSubscription(discussion, subscription) {
             discussion.save({ subscription: subscription });
+
+            this.$('.SubscriptionMenu-button').tooltip('hide');
           }
         }]);
         return SubscriptionMenu;
