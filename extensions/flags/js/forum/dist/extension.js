@@ -359,6 +359,8 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
           value: function init() {
             babelHelpers.get(Object.getPrototypeOf(FlagPostModal.prototype), 'init', this).call(this);
 
+            this.success = false;
+
             this.reason = m.prop('');
             this.reasonDetail = m.prop('');
           }
@@ -375,20 +377,42 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
         }, {
           key: 'content',
           value: function content() {
+            if (this.success) {
+              return m(
+                'div',
+                { className: 'Modal-body' },
+                m(
+                  'div',
+                  { className: 'Form Form--centered' },
+                  m(
+                    'p',
+                    { className: 'helpText' },
+                    app.translator.trans('flarum-flags.forum.flag_post.confirmation_message')
+                  ),
+                  m(
+                    'div',
+                    { className: 'Form-group' },
+                    m(
+                      Button,
+                      { className: 'Button Button--primary Button--block', onclick: this.hide.bind(this) },
+                      app.translator.trans('flarum-flags.forum.flag_post.dismiss_button')
+                    )
+                  )
+                )
+              );
+            }
+
+            var guidelinesUrl = app.forum.attribute('guidelinesUrl');
+
             return m(
               'div',
               { className: 'Modal-body' },
               m(
                 'div',
-                { className: 'Form' },
+                { className: 'Form Form--centered' },
                 m(
                   'div',
                   { className: 'Form-group' },
-                  m(
-                    'label',
-                    null,
-                    app.translator.trans('flarum-flags.forum.flag_post.reason_heading')
-                  ),
                   m(
                     'div',
                     null,
@@ -396,25 +420,46 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'off_topic', value: 'off_topic', onclick: m.withAttr('value', this.reason) }),
-                      app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_label')
+                      m(
+                        'strong',
+                        null,
+                        app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_label')
+                      ),
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_off_topic_text')
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'inappropriate', value: 'inappropriate', onclick: m.withAttr('value', this.reason) }),
-                      app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_label')
+                      m(
+                        'strong',
+                        null,
+                        app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_label')
+                      ),
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text', {
+                        a: guidelinesUrl ? m('a', { href: guidelinesUrl, target: '_blank' }) : undefined
+                      })
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'spam', value: 'spam', onclick: m.withAttr('value', this.reason) }),
-                      app.translator.trans('flarum-flags.forum.flag_post.reason_spam_label')
+                      m(
+                        'strong',
+                        null,
+                        app.translator.trans('flarum-flags.forum.flag_post.reason_spam_label')
+                      ),
+                      app.translator.trans('flarum-flags.forum.flag_post.reason_spam_text')
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'reason', checked: this.reason() === 'other', value: 'other', onclick: m.withAttr('value', this.reason) }),
-                      app.translator.trans('flarum-flags.forum.flag_post.reason_other_label'),
+                      m(
+                        'strong',
+                        null,
+                        app.translator.trans('flarum-flags.forum.flag_post.reason_other_label')
+                      ),
                       this.reason() === 'other' ? m('textarea', { className: 'FormControl', value: this.reasonDetail(), oninput: m.withAttr('value', this.reasonDetail) }) : ''
                     )
                   )
@@ -425,7 +470,7 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
                   m(
                     Button,
                     {
-                      className: 'Button Button--primary',
+                      className: 'Button Button--primary Button--block',
                       type: 'submit',
                       loading: this.loading,
                       disabled: !this.reason() },
@@ -452,8 +497,8 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
                 post: this.props.post
               }
             }).then(function () {
-              return _this.hide();
-            }, this.loaded.bind(this));
+              return _this.success = true;
+            })['finally'](this.loaded.bind(this));
           }
         }]);
         return FlagPostModal;
