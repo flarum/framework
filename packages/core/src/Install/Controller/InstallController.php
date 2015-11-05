@@ -10,14 +10,15 @@
 
 namespace Flarum\Install\Controller;
 
+use Flarum\Core\User;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\Session;
+use Flarum\Http\WriteSessionCookieTrait;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response;
 use Flarum\Install\Console\InstallCommand;
 use Flarum\Install\Console\DefaultsDataProvider;
-use Flarum\Api\Command\GenerateAccessToken;
-use Flarum\Forum\Controller\WriteRememberCookieTrait;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Input\StringInput;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -26,7 +27,7 @@ use DateTime;
 
 class InstallController implements ControllerInterface
 {
-    use WriteRememberCookieTrait;
+    use WriteSessionCookieTrait;
 
     protected $command;
 
@@ -87,14 +88,9 @@ class InstallController implements ControllerInterface
             return new HtmlResponse($e->getMessage(), 500);
         }
 
-        $token = $this->bus->dispatch(
-            new GenerateAccessToken(1)
-        );
-        $token->update(['expires_at' => new DateTime('+2 weeks')]);
+        $session = Session::generate(User::find(1), 60 * 24 * 14);
+        $session->save();
 
-        return $this->withRememberCookie(
-            new Response($body, 200),
-            $token->id
-        );
+        return $this->addSessionCookieToResponse(new Response($body, 200), $session, 'flarum_session');
     }
 }

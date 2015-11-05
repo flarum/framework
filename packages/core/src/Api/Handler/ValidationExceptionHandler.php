@@ -33,10 +33,13 @@ class ValidationExceptionHandler implements ExceptionHandlerInterface
         $status = 422;
 
         $messages = $e->getMessages();
-        $errors = array_map(function ($path, $detail) {
-            $source = ['pointer' => '/data/attributes/' . $path];
-
-            return compact('source', 'detail');
+        $errors = array_map(function ($path, $detail) use ($status) {
+            return [
+                'status' => (string) $status,
+                'code' => 'validation_error',
+                'detail' => $detail,
+                'source' => ['pointer' => "/data/attributes/$path"]
+            ];
         }, array_keys($messages), $messages);
 
         return new ResponseBag($status, $errors);

@@ -150,7 +150,7 @@ export default class Model {
     // Before we update the model's data, we should make a copy of the model's
     // old data so that we can revert back to it if something goes awry during
     // persistence.
-    const oldData = JSON.parse(JSON.stringify(this.data));
+    const oldData = this.copyData();
 
     this.pushData(data);
 
@@ -207,6 +207,10 @@ export default class Model {
    */
   apiEndpoint() {
     return '/' + this.data.type + (this.exists ? '/' + this.data.id : '');
+  }
+
+  copyData() {
+    return JSON.parse(JSON.stringify(this.data));
   }
 
   /**

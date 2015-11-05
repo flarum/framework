@@ -78,7 +78,7 @@ export default {
    * @return {ItemList}
    * @protected
    */
-  destructiveControls(post) {
+  destructiveControls(post, context) {
     const items = new ItemList();
 
     if (post.contentType() === 'comment' && !post.isHidden()) {
@@ -101,7 +101,7 @@ export default {
         items.add('delete', Button.component({
           icon: 'times',
           children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
-          onclick: this.deleteAction.bind(post)
+          onclick: this.deleteAction.bind(post, context)
         }));
       }
     }
@@ -144,9 +144,14 @@ export default {
    *
    * @return {Promise}
    */
-  deleteAction() {
-    this.discussion().removePost(this.id());
+  deleteAction(context) {
+    if (context) context.loading = true;
 
-    return this.delete();
+    return this.delete().then(() => {
+      this.discussion().removePost(this.id());
+    }).finally(() => {
+      if (context) context.loading = false;
+      m.redraw();
+    });
   }
 };

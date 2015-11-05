@@ -77,6 +77,10 @@ export default class ModalManager extends Component {
    * @protected
    */
   clear() {
+    if (this.component) {
+      this.component.onhide();
+    }
+
     this.component = null;
 
     m.lazyRedraw();
