@@ -91,7 +91,10 @@ export default class UserBio extends Component {
     if (user.bio() !== value) {
       this.loading = true;
 
-      user.save({bio: value}).finally(this.loaded.bind(this));
+      user.save({bio: value}).finally(() => {
+        this.loading = false;
+        m.redraw();
+      });
     }
 
     this.editing = false;
