@@ -12,6 +12,7 @@ namespace Flarum\Api;
 
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Core\User;
+use Flarum\Http\Session;
 use Illuminate\Contracts\Container\Container;
 use Exception;
 use InvalidArgumentException;
@@ -43,14 +44,23 @@ class Client
      * Execute the given API action class, pass the input and return its response.
      *
      * @param string|ControllerInterface $controller
-     * @param User $actor
+     * @param Session|User|null $session
      * @param array $queryParams
      * @param array $body
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function send($controller, User $actor, array $queryParams = [], array $body = [])
+    public function send($controller, $session, array $queryParams = [], array $body = [])
     {
-        $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body)->withAttribute('actor', $actor);
+        $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
+
+        if ($session instanceof Session) {
+            $request = $request->withAttribute('session', $session);
+            $actor = $session->user;
+        } else {
+            $actor = $session;
+        }
+
+        $request = $request->withAttribute('actor', $actor);
 
         if (is_string($controller)) {
             $controller = $this->container->make($controller);

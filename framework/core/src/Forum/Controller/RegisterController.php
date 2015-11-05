@@ -11,19 +11,15 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Api\AccessToken;
+use Flarum\Core\User;
 use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Api\Command\GenerateAccessToken;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Illuminate\Contracts\Bus\Dispatcher;
-use DateTime;
 
 class RegisterController implements ControllerInterface
 {
-    use WriteRememberCookieTrait;
-
     /**
      * @var Dispatcher
      */
@@ -61,21 +57,13 @@ class RegisterController implements ControllerInterface
         $body = json_decode($response->getBody());
         $statusCode = $response->getStatusCode();
 
-        $response = new JsonResponse($body, $statusCode);
+        if (isset($body->data)) {
+            $user = User::find($body->data->id);
 
-        if (! empty($body->data->attributes->isActivated)) {
-            $token = $this->bus->dispatch(new GenerateAccessToken($body->data->id));
-
-            // Extend the token's expiry to 2 weeks so that we can set a
-            // remember cookie
-            AccessToken::where('id', $token->id)->update(['expires_at' => new DateTime('+2 weeks')]);
-
-            return $this->withRememberCookie(
-                $response,
-                $token->id
-            );
+            $session = $request->getAttribute('session');
+            $session->assign($user)->regenerateId()->renew()->setDuration(60 * 24 * 14)->save();
         }
 
-        return $response;
+        return new JsonResponse($body, $statusCode);
     }
 }

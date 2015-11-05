@@ -12,14 +12,11 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Core\User;
 use Zend\Diactoros\Response\HtmlResponse;
-use Flarum\Api\Command\GenerateAccessToken;
 use Flarum\Core\AuthToken;
-use DateTime;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 trait AuthenticateUserTrait
 {
-    use WriteRememberCookieTrait;
-
     /**
      * @var \Illuminate\Contracts\Bus\Dispatcher
      */
@@ -45,7 +42,7 @@ trait AuthenticateUserTrait
      * @param array $suggestions
      * @return HtmlResponse
      */
-    protected function authenticate(array $identification, array $suggestions = [])
+    protected function authenticate(Request $request, array $identification, array $suggestions = [])
     {
         $user = User::where($identification)->first();
 
@@ -70,13 +67,8 @@ trait AuthenticateUserTrait
         $response = new HtmlResponse($content);
 
         if ($user) {
-            // Extend the token's expiry to 2 weeks so that we can set a
-            // remember cookie
-            $accessToken = $this->bus->dispatch(new GenerateAccessToken($user->id));
-            $accessToken::unguard();
-            $accessToken->update(['expires_at' => new DateTime('+2 weeks')]);
-
-            $response = $this->withRememberCookie($response, $accessToken->id);
+            $session = $request->getAttribute('session');
+            $session->assign($user)->regenerateId()->renew()->setDuration(60 * 24 * 14)->save();
         }
 
         return $response;

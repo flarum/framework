@@ -18,6 +18,8 @@ import ItemList from 'flarum/utils/ItemList';
  */
 export default class Post extends Component {
   init() {
+    this.loading = false;
+
     /**
      * Set up a subtree retainer so that the post will not be redrawn
      * unless new data comes in.
@@ -37,7 +39,7 @@ export default class Post extends Component {
   view() {
     const attrs = this.attrs();
 
-    attrs.className = 'Post ' + (attrs.className || '');
+    attrs.className = 'Post ' + (this.loading ? 'Post--loading ' : '') + (attrs.className || '');
 
     return (
       <article {...attrs}>

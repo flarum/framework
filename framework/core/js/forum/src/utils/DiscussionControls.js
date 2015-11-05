@@ -217,18 +217,19 @@ export default {
    */
   deleteAction() {
     if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
-      // If there is a discussion list in the cache, remove this discussion.
-      if (app.cache.discussionList) {
-        app.cache.discussionList.removeDiscussion(this);
-      }
-
       // If we're currently viewing the discussion that was deleted, go back
       // to the previous page.
       if (app.viewingDiscussion(this)) {
         app.history.back();
       }
 
-      return this.delete();
+      return this.delete().then(() => {
+        // If there is a discussion list in the cache, remove this discussion.
+        if (app.cache.discussionList) {
+          app.cache.discussionList.removeDiscussion(this);
+          m.redraw();
+        }
+      });
     }
   },
 

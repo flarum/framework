@@ -2,6 +2,7 @@ import ItemList from 'flarum/utils/ItemList';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 import RequestErrorModal from 'flarum/components/RequestErrorModal';
+import ConfirmPasswordModal from 'flarum/components/ConfirmPasswordModal';
 import Translator from 'flarum/Translator';
 import extract from 'flarum/utils/extract';
 import patchMithril from 'flarum/utils/patchMithril';
@@ -182,13 +183,16 @@ export default class App {
    * @return {Promise}
    * @public
    */
-  request(options) {
+  request(originalOptions) {
+    const options = Object.assign({}, originalOptions);
+
     // Set some default options if they haven't been overridden. We want to
     // authenticate all requests with the session token. We also want all
     // requests to run asynchronously in the background, so that they don't
     // prevent redraws from occurring.
-    options.config = options.config || this.session.authorize.bind(this.session);
     options.background = options.background || true;
+
+    extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken));
 
     // If the method is something like PATCH or DELETE, which not all servers
     // support, then we'll send it as a POST request with a the intended method
@@ -218,13 +222,18 @@ export default class App {
       if (original) {
         responseText = original(xhr.responseText);
       } else {
-        responseText = xhr.responseText.length > 0 ? xhr.responseText : null;
+        responseText = xhr.responseText || null;
       }
 
       const status = xhr.status;
 
       if (status < 200 || status > 299) {
         throw new RequestError(status, responseText, options, xhr);
+      }
+
+      if (xhr.getResponseHeader) {
+        const csrfToken = xhr.getResponseHeader('X-CSRF-Token');
+        if (csrfToken) app.session.csrfToken = csrfToken;
       }
 
       try {
@@ -238,8 +247,19 @@ export default class App {
 
     // Now make the request. If it's a failure, inspect the error that was
     // returned and show an alert containing its contents.
-    return m.request(options).then(null, error => {
+    const deferred = m.deferred();
+
+    m.request(options).then(response => deferred.resolve(response), error => {
       this.requestError = error;
+
+      if (error.response && error.response.errors && error.response.errors[0] && error.response.errors[0].code === 'invalid_access_token') {
+        this.modal.show(new ConfirmPasswordModal({
+          deferredRequest: originalOptions,
+          deferred,
+          error
+        }));
+        return;
+      }
 
       let children;
 
@@ -283,8 +303,10 @@ export default class App {
         this.alerts.show(error.alert);
       }
 
-      throw error;
+      deferred.reject(error);
     });
+
+    return deferred.promise;
   }
 
   /**
