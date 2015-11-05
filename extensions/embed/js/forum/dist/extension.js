@@ -73,6 +73,23 @@ System.register('flarum/embed/components/DiscussionPage', ['flarum/components/Di
 
             items.remove('scrubber');
 
+            var count = this.discussion.repliesCount();
+
+            items.add('replies', m(
+              'h3',
+              null,
+              m(
+                'a',
+                { href: app.route.discussion(this.discussion).replace('/embed', '/d'), config: m.route },
+                count,
+                ' comment',
+                count == 1 ? '' : 's'
+              )
+            ), 100);
+
+            var props = items.get('controls').props;
+            props.className = props.className.replace('App-primaryControl', '');
+
             return items;
           }
         }]);
@@ -129,7 +146,7 @@ System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/com
 
         // Trim the /embed prefix off of post permalinks
         override(PostMeta.prototype, 'getPermalink', function (original, post) {
-          return original(post).replace('/embed', '');
+          return original(post).replace('/embed', '/d');
         });
 
         app.pane = new Pane(document.getElementById('app'));
