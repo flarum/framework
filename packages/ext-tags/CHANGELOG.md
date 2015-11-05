@@ -6,4 +6,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Add back button icon when it leads to the Tags page
 
-[0.1.0-beta.4]: https://github.com/flarum/subscriptions/compare/v0.1.0-beta.3...v0.1.0-beta.4
+[0.1.0-beta.4]: https://github.com/flarum/tags/compare/v0.1.0-beta.3...v0.1.0-beta.4
