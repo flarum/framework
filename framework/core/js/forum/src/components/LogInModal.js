@@ -48,7 +48,7 @@ export default class LogInModal extends Modal {
 
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
+            <input className="FormControl" name="email" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
               value={this.email()}
               onchange={m.withAttr('value', this.email)}
               disabled={this.loading} />
