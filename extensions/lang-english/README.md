@@ -2,7 +2,7 @@
 
 ## Installation
 
-This language pack is bundled with [Flarum](http://flarum.org/download/).
+This language pack is bundled with [Flarum](http://flarum.org/).
 
 ## Translating Flarum
 
