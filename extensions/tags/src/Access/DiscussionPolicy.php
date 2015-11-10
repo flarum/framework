@@ -10,10 +10,12 @@
 
 namespace Flarum\Tags\Access;
 
+use Carbon\Carbon;
 use Flarum\Core\Access\AbstractPolicy;
 use Flarum\Core\Discussion;
 use Flarum\Core\User;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,10 +23,25 @@ use Illuminate\Database\Query\Expression;
 
 class DiscussionPolicy extends AbstractPolicy
 {
+
     /**
      * {@inheritdoc}
      */
     protected $model = Discussion::class;
+
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
+     * @param SettingsRepositoryInterface $settings
+     * @param Gate $gate
+     */
+    public function __construct(SettingsRepositoryInterface $settings)
+    {
+        $this->settings = $settings;
+    }
 
     /**
      * {@inheritdoc}
@@ -102,5 +119,26 @@ class DiscussionPolicy extends AbstractPolicy
                 ->whereIn('tag_id', Tag::getIdsWhereCan($event->actor, $event->permission))
                 ->where('discussions.id', new Expression('discussion_id'));
         });
+    }
+
+    /**
+     * This method checks, if the user is still allowed to edit the tags
+     * based on the configuration item
+     * @param User $actor
+     * @param Discussion $discussion
+     * @return bool
+     */
+    public function tag(User $actor, Discussion $discussion)
+    {
+        if ($discussion->start_user_id == $actor->id) {
+            $allowEditTags = $this->settings->get('allow_tag_change');
+
+            if ($allowEditTags === '-1'
+                || ($allowEditTags === 'reply' && $discussion->participants_count <= 1)
+                || ($discussion->start_time->diffInMinutes(new Carbon) < $allowEditTags)
+            ) {
+                return true;
+            }
+        }
     }
 }
