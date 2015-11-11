@@ -12,9 +12,16 @@ namespace Flarum\Install\Prerequisite;
 
 class PhpExtensions extends AbstractPrerequisite
 {
+    protected $extensions;
+
+    public function __construct(array $extensions)
+    {
+        $this->extensions = $extensions;
+    }
+
     public function check()
     {
-        foreach (['mbstring', 'pdo_mysql', 'openssl', 'json', 'gd', 'dom', 'fileinfo'] as $extension) {
+        foreach ($this->extensions as $extension) {
             if (! extension_loaded($extension)) {
                 $this->errors[] = [
                     'message' => "The PHP extension '$extension' is required.",

@@ -12,16 +12,16 @@ namespace Flarum\Install\Prerequisite;
 
 class WritablePaths extends AbstractPrerequisite
 {
+    protected $paths;
+
+    public function __construct(array $paths)
+    {
+        $this->paths = $paths;
+    }
+
     public function check()
     {
-        $paths = [
-            public_path(),
-            public_path().'/assets',
-            public_path().'/extensions',
-            storage_path()
-        ];
-
-        foreach ($paths as $path) {
+        foreach ($this->paths as $path) {
             if (! is_writable($path)) {
                 $this->errors[] = [
                     'message' => 'The '.realpath($path).' directory is not writable.',

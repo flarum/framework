@@ -32,9 +32,22 @@ class InstallServiceProvider extends AbstractServiceProvider
             'Flarum\Install\Prerequisite\PrerequisiteInterface',
             function () {
                 return new Composite(
-                    new PhpVersion(),
-                    new PhpExtensions(),
-                    new WritablePaths()
+                    new PhpVersion('5.5.0'),
+                    new PhpExtensions([
+                        'dom',
+                        'fileinfo',
+                        'gd',
+                        'json',
+                        'mbstring',
+                        'openssl',
+                        'pdo_mysql',
+                    ]),
+                    new WritablePaths([
+                        public_path(),
+                        public_path('assets'),
+                        public_path('extensions'),
+                        storage_path(),
+                    ])
                 );
             }
         );
