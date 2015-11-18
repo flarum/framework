@@ -127,9 +127,11 @@
     }
   }
 
-  .Dropdown-menu li:first-child {
-    &, + li.Dropdown-separator {
-      display: none;
+  @media @tablet-up {
+    .Dropdown-menu li:first-child {
+      &, + li.Dropdown-separator {
+        display: none;
+      }
     }
   }
 }
