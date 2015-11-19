@@ -33,6 +33,7 @@ flarum-tags:
     permissions:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
+      allow_edit_tags_label: Allow edit tags
 
     # These strings are used in the Tag Settings modal dialog.
     tag_settings:
