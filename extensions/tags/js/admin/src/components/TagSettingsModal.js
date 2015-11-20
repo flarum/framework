@@ -15,11 +15,11 @@ export default class TagSettingsModal extends SettingsModal {
   }
 
   form() {
-    const minPrimaryTags = this.setting('tags.min_primary_tags', 0);
-    const maxPrimaryTags = this.setting('tags.max_primary_tags', 0);
+    const minPrimaryTags = this.setting('flarum-tags.min_primary_tags', 0);
+    const maxPrimaryTags = this.setting('flarum-tags.max_primary_tags', 0);
 
-    const minSecondaryTags = this.setting('tags.min_secondary_tags', 0);
-    const maxSecondaryTags = this.setting('tags.max_secondary_tags', 0);
+    const minSecondaryTags = this.setting('flarum-tags.min_secondary_tags', 0);
+    const maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0);
 
     return [
       <div className="Form-group">
