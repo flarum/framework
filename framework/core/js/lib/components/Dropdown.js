@@ -47,11 +47,16 @@ export default class Dropdown extends Component {
     // bottom of the viewport. If it does, we will apply class to make it show
     // above the toggle button instead of below it.
     this.$().on('shown.bs.dropdown', () => {
-      const $menu = this.$('.Dropdown-menu').removeClass('Dropdown-menu--top');
+      const $menu = this.$('.Dropdown-menu').removeClass('Dropdown-menu--top Dropdown-menu--right');
 
       $menu.toggleClass(
         'Dropdown-menu--top',
         $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height()
+      );
+
+      $menu.toggleClass(
+        'Dropdown-menu--right',
+        $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width()
       );
 
       if (this.props.onshow) {
