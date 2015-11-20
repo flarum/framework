@@ -1,6 +1,10 @@
 .container {
   width: auto;
   padding: 0 20px;
+
+  @media @phone {
+    padding: 0;
+  }
 }
 .App {
   padding-top: 0;
@@ -14,13 +18,15 @@
   border-top: 0;
 }
 .DiscussionPage-nav--embed {
-  height: 70px;
+  @media @tablet-up {
+    height: 70px;
+  }
 
   > ul {
     z-index: 100;
     background: @body-bg;
     list-style: none;
-    padding: 0;
+    padding: 15px 0;
     margin: 0;
     border-bottom: 1px solid @control-bg;
 
@@ -29,24 +35,26 @@
       left: 0;
       right: 0;
       top: 0;
-      padding: 0 15px;
+      padding: 15px 15px;
     }
 
     > li {
-      margin: 15px 15px 15px 0;
+      margin: 0 15px 0 0;
       display: inline-block;
-
-      .Dropdown-menu {
-        left: 0;
-        right: auto;
-      }
     }
-    .item-replies h3 {
-      font-weight: normal;
-      margin: 0;
+    .item-replies {
+      @media @phone {
+        display: block;
+        margin-bottom: 10px;
+      }
 
-      &, a {
-        color: @muted-color;
+      h3 {
+        font-weight: normal;
+        margin: 0;
+
+        &, a {
+          color: @muted-color;
+        }
       }
     }
   }
@@ -56,4 +64,20 @@
 }
 .Post-stream {
   margin-top: 0;
+}
+
+@media @phone {
+  .Dropdown .Dropdown-menu {
+    position: absolute;
+    bottom: auto;
+    top: auto;
+    right: auto !important;
+    padding-bottom: 0 !important;
+    .transition(none);
+
+    &.Dropdown-menu--right {
+      left: auto !important;
+      right: 0 !important;
+    }
+  }
 }

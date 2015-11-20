@@ -1,4 +1,4 @@
-import { override } from 'flarum/extend';
+import { override, extend } from 'flarum/extend';
 import app from 'flarum/app';
 import Composer from 'flarum/components/Composer';
 import ModalManager from 'flarum/components/ModalManager';
@@ -34,6 +34,19 @@ app.initializers.replace('boot', () => {
   override(PostMeta.prototype, 'getPermalink', (original, post) => {
     return original(post).replace('/embed', '/d');
   });
+
+  app.pageInfo = m.prop();
+
+  extend(ModalManager.prototype, 'show', function() {
+    const info = app.pageInfo();
+    this.$().css('top', Math.max(0, info.scrollTop - info.offsetTop));
+  });
+
+  window.iFrameResizer = {
+    readyCallback: function() {
+      window.parentIFrame.getPageInfo(app.pageInfo);
+    }
+  };
 
   app.pane = new Pane(document.getElementById('app'));
   app.drawer = new Drawer();
