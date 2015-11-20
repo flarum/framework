@@ -5,6 +5,7 @@ import anchorScroll from 'flarum/utils/anchorScroll';
 import mixin from 'flarum/utils/mixin';
 import evented from 'flarum/utils/evented';
 import ReplyPlaceholder from 'flarum/components/ReplyPlaceholder';
+import Button from 'flarum/components/Button';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -194,60 +195,71 @@ class PostStream extends Component {
     this.visibleEnd = this.sanitizeIndex(this.visibleEnd);
     this.viewingEnd = this.visibleEnd === this.count();
 
+    const posts = this.posts();
     const postIds = this.discussion.postIds();
+
+    const items = posts.map((post, i) => {
+      let content;
+      const attrs = {'data-index': this.visibleStart + i};
+
+      if (post) {
+        const time = post.time();
+        const PostComponent = app.postComponents[post.contentType()];
+        content = PostComponent ? PostComponent.component({post}) : '';
+
+        attrs.key = 'post' + post.id();
+        attrs.config = fadeIn;
+        attrs['data-time'] = time.toISOString();
+        attrs['data-number'] = post.number();
+        attrs['data-id'] = post.id();
+
+        // If the post before this one was more than 4 hours ago, we will
+        // display a 'time gap' indicating how long it has been in between
+        // the posts.
+        const dt = time - lastTime;
+
+        if (dt > 1000 * 60 * 60 * 24 * 4) {
+          content = [
+            <div className="PostStream-timeGap">
+              <span>{app.translator.trans('core.forum.post_stream.time_lapsed_text', {period: moment.duration(dt).humanize()})}</span>
+            </div>,
+            content
+          ];
+        }
+
+        lastTime = time;
+      } else {
+        attrs.key = 'post' + postIds[this.visibleStart + i];
+
+        content = PostLoading.component();
+      }
+
+      return <div className="PostStream-item" {...attrs}>{content}</div>;
+    });
+
+    if (!this.viewingEnd && posts[this.visibleEnd - this.visibleStart - 1]) {
+      items.push(
+        <div className="PostStream-loadMore" key="loadMore">
+          <Button className="Button" onclick={this.loadNext.bind(this)}>
+            {app.translator.trans('core.forum.post_stream.load_more_button')}
+          </Button>
+        </div>
+      );
+    }
+
+    // If we're viewing the end of the discussion, the user can reply, and
+    // is not already doing so, then show a 'write a reply' placeholder.
+    if (this.viewingEnd && (!app.session.user || this.discussion.canReply())) {
+      items.push(
+        <div className="PostStream-item" key="reply">
+          {ReplyPlaceholder.component({discussion: this.discussion})}
+        </div>
+      );
+    }
 
     return (
       <div className="PostStream">
-        {this.posts().map((post, i) => {
-          let content;
-          const attrs = {'data-index': this.visibleStart + i};
-
-          if (post) {
-            const time = post.time();
-            const PostComponent = app.postComponents[post.contentType()];
-            content = PostComponent ? PostComponent.component({post}) : '';
-
-            attrs.key = 'post' + post.id();
-            attrs.config = fadeIn;
-            attrs['data-time'] = time.toISOString();
-            attrs['data-number'] = post.number();
-            attrs['data-id'] = post.id();
-
-            // If the post before this one was more than 4 hours ago, we will
-            // display a 'time gap' indicating how long it has been in between
-            // the posts.
-            const dt = time - lastTime;
-
-            if (dt > 1000 * 60 * 60 * 24 * 4) {
-              content = [
-                <div className="PostStream-timeGap">
-                  <span>{app.translator.trans('core.forum.post_stream.time_lapsed_text', {period: moment.duration(dt).humanize()})}</span>
-                </div>,
-                content
-              ];
-            }
-
-            lastTime = time;
-          } else {
-            attrs.key = 'post' + postIds[this.visibleStart + i];
-
-            content = PostLoading.component();
-          }
-
-          return <div className="PostStream-item" {...attrs}>{content}</div>;
-        })}
-
-        {
-          // If we're viewing the end of the discussion, the user can reply, and
-          // is not already doing so, then show a 'write a reply' placeholder.
-          this.viewingEnd &&
-            (!app.session.user || this.discussion.canReply())
-            ? (
-              <div className="PostStream-item" key="reply">
-                {ReplyPlaceholder.component({discussion: this.discussion})}
-              </div>
-            ) : ''
-        }
+        {items}
       </div>
     );
   }
