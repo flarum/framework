@@ -1,10 +1,10 @@
-import Component from 'flarum/Component';
+import Dropdown from 'flarum/components/Dropdown';
 import Button from 'flarum/components/Button';
 import icon from 'flarum/helpers/icon';
 
 import SubscriptionMenuItem from 'flarum/subscriptions/components/SubscriptionMenuItem';
 
-export default class SubscriptionMenu extends Component {
+export default class SubscriptionMenu extends Dropdown {
   init() {
     this.options = [
       {
