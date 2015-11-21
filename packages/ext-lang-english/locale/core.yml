@@ -144,6 +144,7 @@ core:
       body_placeholder: Write a Post...
       discard_confirmation: "You have not posted your discussion. Do you wish to discard it?"
       submit_button: Post Discussion
+      title: => core.ref.start_a_discussion
       title_placeholder: Discussion Title
 
     # These strings are used by the composer when editing a post.
@@ -213,7 +214,7 @@ core:
       cannot_start_discussion_button: Can't Start Discussion
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       refresh_tooltip: Refresh
-      start_discussion_button: Start a Discussion
+      start_discussion_button: => core.ref.start_a_discussion
 
     # These strings are used by the sorting control above the discussion list.
     index_sort:
@@ -381,6 +382,7 @@ core:
     save_changes: Save Changes                   # Referenced by flarum-tags.yml
     settings: Settings
     sign_up: Sign Up
+    start_a_discussion: Start a Discussion
     some_others: "{count} other|{count} others"  # Referenced by flarum-likes.yml, flarum-mentions.yml
     username: Username
     write_a_reply: Write a Reply...
