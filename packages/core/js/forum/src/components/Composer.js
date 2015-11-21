@@ -66,6 +66,7 @@ class Composer extends Component {
 
   view() {
     const classes = {
+      'normal': this.position === Composer.PositionEnum.NORMAL,
       'minimized': this.position === Composer.PositionEnum.MINIMIZED,
       'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN,
       'active': this.active
@@ -225,7 +226,7 @@ class Composer extends Component {
       const paddingBottom = parseInt($flexible.css('padding-bottom'), 10);
       const footerHeight = this.$('.TextEditor-controls').outerHeight(true);
 
-      $flexible.height(height - headerHeight - paddingBottom - footerHeight);
+      $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
     }
   }
 
