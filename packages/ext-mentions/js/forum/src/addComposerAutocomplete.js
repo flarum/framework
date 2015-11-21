@@ -16,7 +16,7 @@ export default function addComposerAutocomplete() {
     const composer = this;
     const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
     const dropdown = new AutocompleteDropdown({items: []});
-    const $textarea = this.$('textarea');
+    const $textarea = this.$('textarea').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
     const searched = [];
     let mentionStart;
     let typed;
