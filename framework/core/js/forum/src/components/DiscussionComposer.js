@@ -31,12 +31,15 @@ export default class DiscussionComposer extends ComposerBody {
     props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
     props.confirmExit = props.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
     props.titlePlaceholder = props.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
+    props.className = 'ComposerBody--discussion';
   }
 
   headerItems() {
     const items = super.headerItems();
 
-    items.add('title', (
+    items.add('title', <h3>{app.translator.trans('core.forum.composer_discussion.title')}</h3>, 100);
+
+    items.add('discussionTitle', (
       <h3>
         <input className="FormControl"
           value={this.title()}
