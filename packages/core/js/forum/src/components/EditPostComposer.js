@@ -16,6 +16,14 @@ export default class EditPostComposer extends ComposerBody {
     super.init();
 
     this.editor.props.preview = () => {
+      // If the composer backdrop is visible, assume we're on mobile and need to
+      // minimize the composer in order to see the preview. We do this as a
+      // timeout so that it occurs after the click handler on the composer
+      // itself that shows the composer if minimized.
+      if (app.composer.$backdrop.length) {
+        setTimeout(() => app.composer.minimize(), 0);
+      }
+
       m.route(app.route.post(this.props.post));
     };
   }
