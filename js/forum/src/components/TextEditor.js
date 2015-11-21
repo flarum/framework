@@ -72,6 +72,7 @@ export default class TextEditor extends Component {
         children: this.props.submitLabel,
         icon: 'check',
         className: 'Button Button--primary',
+        itemClassName: 'App-primaryControl',
         onclick: this.onsubmit.bind(this)
       })
     );

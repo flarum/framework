@@ -71,8 +71,7 @@ export default class CommentPost extends Post {
 
   isEditing() {
     return app.composer.component instanceof EditPostComposer &&
-      app.composer.component.props.post === this.props.post &&
-      app.composer.position !== Composer.PositionEnum.MINIMIZED;
+      app.composer.component.props.post === this.props.post;
   }
 
   attrs() {
