@@ -9,6 +9,7 @@
 .App {
   padding-top: 0;
   min-height: 0;
+  overflow: hidden;
 
   &:before {
     display: none;
@@ -16,6 +17,7 @@
 }
 .App-content {
   border-top: 0;
+  min-height: 0;
 }
 .DiscussionPage-nav--embed {
   @media @tablet-up {
@@ -79,5 +81,8 @@
       left: auto !important;
       right: 0 !important;
     }
+  }
+  .Composer:not(.minimized) {
+    height: 400px !important;
   }
 }

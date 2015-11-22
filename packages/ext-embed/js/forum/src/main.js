@@ -1,6 +1,7 @@
 import { override, extend } from 'flarum/extend';
 import app from 'flarum/app';
 import Composer from 'flarum/components/Composer';
+import PostStream from 'flarum/components/PostStream';
 import ModalManager from 'flarum/components/ModalManager';
 import AlertManager from 'flarum/components/AlertManager';
 import PostMeta from 'flarum/components/PostMeta';
@@ -37,16 +38,26 @@ app.initializers.replace('boot', () => {
 
   app.pageInfo = m.prop();
 
-  extend(ModalManager.prototype, 'show', function() {
+  const reposition = function() {
     const info = app.pageInfo();
     this.$().css('top', Math.max(0, info.scrollTop - info.offsetTop));
-  });
+  };
+
+  extend(ModalManager.prototype, 'show', reposition);
+  extend(Composer.prototype, 'show', reposition);
 
   window.iFrameResizer = {
     readyCallback: function() {
       window.parentIFrame.getPageInfo(app.pageInfo);
     }
   };
+
+  extend(PostStream.prototype, 'goToNumber', function(promise, number) {
+    if (number === 'reply' && 'parentIFrame' in window && app.composer.$().css('position') === 'absolute') {
+      const itemTop = this.$('.PostStream-item:last').offset().top;
+      window.parentIFrame.scrollToOffset(0, itemTop);
+    }
+  });
 
   app.pane = new Pane(document.getElementById('app'));
   app.drawer = new Drawer();
