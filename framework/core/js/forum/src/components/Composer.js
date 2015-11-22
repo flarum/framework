@@ -237,7 +237,8 @@ class Composer extends Component {
    */
   updateBodyPadding() {
     const visible = this.position !== Composer.PositionEnum.HIDDEN &&
-                    this.position !== Composer.PositionEnum.MINIMIZED;
+      this.position !== Composer.PositionEnum.MINIMIZED &&
+      this.$().css('position') !== 'absolute';
 
     const paddingBottom = visible
       ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10)
