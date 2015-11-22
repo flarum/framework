@@ -22,7 +22,7 @@ export default class ReplyComposer extends ComposerBody {
       // minimize the composer in order to see the preview. We do this as a
       // timeout so that it occurs after the click handler on the composer
       // itself that shows the composer if minimized.
-      if (app.composer.$backdrop.length) {
+      if (app.composer.isMobile()) {
         setTimeout(() => app.composer.minimize(), 0);
       }
 
