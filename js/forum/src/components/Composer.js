@@ -332,6 +332,10 @@ class Composer extends Component {
     this.oldPosition = this.position;
   }
 
+  isMobile() {
+    return this.$backdrop && this.$backdrop.length;
+  }
+
   /**
    * Confirm with the user that they want to close the composer and lose their
    * content.
