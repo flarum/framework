@@ -41,7 +41,7 @@ class CreateGroupController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new CreateGroup($request->getAttribute('actor'), array_get($request->getParsedBody(), 'data'))
+            new CreateGroup($request->getAttribute('actor'), array_get($request->getParsedBody(), 'data', []))
         );
     }
 }
