@@ -140,7 +140,7 @@ class RegisterUserHandler
             try {
                 $this->saveAvatarFromUrl($user, $avatarUrl);
             } catch (Exception $e) {
-                // 
+                //
             }
         }
 
