@@ -73,7 +73,7 @@ export default class SignUpModal extends Modal {
 
       <div className="Form Form--centered">
         <div className="Form-group">
-          <input className="FormControl" name="username" placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
+          <input className="FormControl" name="username" type="text" placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
             value={this.username()}
             onchange={m.withAttr('value', this.username)}
             disabled={this.loading} />
@@ -214,6 +214,10 @@ export default class SignUpModal extends Modal {
       data.token = this.props.token;
     } else {
       data.password = this.password();
+    }
+
+    if (this.props.avatarUrl) {
+      data.avatarUrl = this.props.avatarUrl;
     }
 
     return data;
