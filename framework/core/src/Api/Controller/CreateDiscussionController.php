@@ -55,7 +55,7 @@ class CreateDiscussionController extends AbstractCreateController
         $actor = $request->getAttribute('actor');
 
         $discussion = $this->bus->dispatch(
-            new StartDiscussion($actor, array_get($request->getParsedBody(), 'data'))
+            new StartDiscussion($actor, array_get($request->getParsedBody(), 'data', []))
         );
 
         // After creating the discussion, we assume that the user has seen all
