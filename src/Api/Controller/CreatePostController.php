@@ -52,7 +52,7 @@ class CreatePostController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
-        $data = array_get($request->getParsedBody(), 'data');
+        $data = array_get($request->getParsedBody(), 'data', []);
         $discussionId = array_get($data, 'relationships.discussion.data.id');
         $ipAddress = array_get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 

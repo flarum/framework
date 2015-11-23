@@ -41,7 +41,7 @@ class CreateUserController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new RegisterUser($request->getAttribute('actor'), array_get($request->getParsedBody(), 'data'))
+            new RegisterUser($request->getAttribute('actor'), array_get($request->getParsedBody(), 'data', []))
         );
     }
 }
