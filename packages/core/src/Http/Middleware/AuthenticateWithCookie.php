@@ -55,7 +55,8 @@ class AuthenticateWithCookie implements MiddlewareInterface
         if ($token = $this->getToken($request)) {
             if (! $token->isValid()) {
                 // TODO: https://github.com/flarum/core/issues/253
-            } elseif ($actor = $token->user) {
+            } elseif ($token->user) {
+                $actor = $token->user;
                 $actor->updateLastSeen()->save();
             }
         }
