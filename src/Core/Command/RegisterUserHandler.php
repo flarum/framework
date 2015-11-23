@@ -10,6 +10,7 @@
 
 namespace Flarum\Core\Command;
 
+use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\User;
 use Flarum\Core\AuthToken;
@@ -20,7 +21,10 @@ use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Validator;
 use Intervention\Image\ImageManager;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
@@ -53,19 +57,26 @@ class RegisterUserHandler
     protected $uploadDir;
 
     /**
+     * @var Factory
+     */
+    private $validatorFactory;
+
+    /**
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param UserValidator $validator
      * @param Application $app
      * @param FilesystemInterface $uploadDir
+     * @param Factory $validatorFactory
      */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, Application $app, FilesystemInterface $uploadDir)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, Application $app, FilesystemInterface $uploadDir, Factory $validatorFactory)
     {
         $this->events = $events;
         $this->settings = $settings;
         $this->validator = $validator;
         $this->app = $app;
         $this->uploadDir = $uploadDir;
+        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -119,7 +130,19 @@ class RegisterUserHandler
 
         $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
 
-        $this->saveAvatarFromUrl($user, array_get($data, 'attributes.avatarUrl'));
+        if ($avatarUrl = array_get($data, 'attributes.avatarUrl')) {
+            $validation = $this->validatorFactory->make(compact('avatarUrl'), ['avatarUrl' => 'url']);
+
+            if ($validation->fails()) {
+                throw new ValidationException($validation);
+            }
+
+            try {
+                $this->saveAvatarFromUrl($user, $avatarUrl);
+            } catch (Exception $e) {
+                // 
+            }
+        }
 
         $user->save();
 
@@ -132,12 +155,12 @@ class RegisterUserHandler
         return $user;
     }
 
-    private function saveAvatarFromUrl(User $user, $avatarUrl)
+    private function saveAvatarFromUrl(User $user, $url)
     {
         $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
 
         $manager = new ImageManager;
-        $manager->make($avatarUrl)->fit(100, 100)->save($tmpFile);
+        $manager->make($url)->fit(100, 100)->save($tmpFile);
 
         $mount = new MountManager([
             'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
