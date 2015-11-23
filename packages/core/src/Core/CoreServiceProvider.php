@@ -55,6 +55,10 @@ class CoreServiceProvider extends AbstractServiceProvider
         $this->app->when('Flarum\Core\Command\DeleteAvatarHandler')
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarsFilesystem);
+
+        $this->app->when('Flarum\Core\Command\RegisterUserHandler')
+            ->needs('League\Flysystem\FilesystemInterface')
+            ->give($avatarsFilesystem);
     }
 
     /**

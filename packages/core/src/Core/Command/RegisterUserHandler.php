@@ -16,9 +16,16 @@ use Flarum\Core\AuthToken;
 use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemInterface;
+use League\Flysystem\MountManager;
 
 class RegisterUserHandler
 {
@@ -36,15 +43,29 @@ class RegisterUserHandler
     protected $validator;
 
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
+     * @var FilesystemInterface
+     */
+    protected $uploadDir;
+
+    /**
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param UserValidator $validator
+     * @param Application $app
+     * @param FilesystemInterface $uploadDir
      */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, Application $app, FilesystemInterface $uploadDir)
     {
         $this->events = $events;
         $this->settings = $settings;
         $this->validator = $validator;
+        $this->app = $app;
+        $this->uploadDir = $uploadDir;
     }
 
     /**
@@ -98,6 +119,8 @@ class RegisterUserHandler
 
         $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
 
+        $this->saveAvatarFromUrl($user, array_get($data, 'attributes.avatarUrl'));
+
         $user->save();
 
         if (isset($token)) {
@@ -107,5 +130,24 @@ class RegisterUserHandler
         $this->dispatchEventsFor($user, $actor);
 
         return $user;
+    }
+
+    private function saveAvatarFromUrl(User $user, $avatarUrl)
+    {
+        $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
+
+        $manager = new ImageManager;
+        $manager->make($avatarUrl)->fit(100, 100)->save($tmpFile);
+
+        $mount = new MountManager([
+            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
+            'target' => $this->uploadDir,
+        ]);
+
+        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+
+        $user->changeAvatarPath($uploadName);
+
+        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
     }
 }
