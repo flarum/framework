@@ -175,7 +175,7 @@ core:
 
     # These strings are used in the discussion list.
     discussion_list:
-      empty_text: "Looks like there are no discussions here. Why don't you create a new one?"
+      empty_text: "It looks like there are no discussions here."
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as Read
       replied_text: "{username} replied {ago}"
