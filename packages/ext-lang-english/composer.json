@@ -4,6 +4,9 @@
     "description": "English language pack.",
     "keywords": ["locale"],
     "license": "MIT",
+    "require": {
+        "flarum/core": "^0.1.0-beta.4"
+    },
     "extra": {
         "flarum-extension": {
             "title": "English",
