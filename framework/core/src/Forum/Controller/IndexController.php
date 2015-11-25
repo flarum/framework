@@ -24,7 +24,7 @@ class IndexController extends ClientController
         'latest' => '-lastTime',
         'top' => '-commentsCount',
         'newest' => '-startTime',
-        'oldest' => '+startTime'
+        'oldest' => 'startTime'
     ];
 
     /**
