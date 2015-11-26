@@ -191,11 +191,11 @@ export default class App {
     options.background = options.background || true;
 
     // If the method is something like PATCH or DELETE, which not all servers
-    // support, then we'll send it as a POST request with a the intended method
-    // specified in the X-Fake-Http-Method header.
+    // and clients support, then we'll send it as a POST request with the
+    // intended method specified in the X-HTTP-Method-Override header.
     if (options.method !== 'GET' && options.method !== 'POST') {
       const method = options.method;
-      extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-Fake-Http-Method', method));
+      extend(options, 'config', (result, xhr) => xhr.setRequestHeader('X-HTTP-Method-Override', method));
       options.method = 'POST';
     }
 
