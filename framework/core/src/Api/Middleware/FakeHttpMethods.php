@@ -16,7 +16,7 @@ use Zend\Stratigility\MiddlewareInterface;
 
 class FakeHttpMethods implements MiddlewareInterface
 {
-    const HEADER_NAME = 'x-fake-http-method';
+    const HEADER_NAME = 'x-http-method-override';
 
     /**
      * {@inheritdoc}
