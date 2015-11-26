@@ -115,7 +115,7 @@ export default class DiscussionList extends Component {
     map.latest = '-lastTime';
     map.top = '-commentsCount';
     map.newest = '-startTime';
-    map.oldest = '+startTime';
+    map.oldest = 'startTime';
 
     return map;
   }
