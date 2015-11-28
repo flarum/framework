@@ -12,13 +12,13 @@ export default class EditCustomCssModal extends Modal {
   }
 
   title() {
-    return 'Edit Custom CSS';
+    return app.translator.trans('core.admin.edit_css.title');
   }
 
   content() {
     return (
       <div className="Modal-body">
-        <p>Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles. <a href="http://flarum.org/docs/extend/themes/">Read the documentation</a> for more information.</p>
+        <p>{app.translator.trans('core.admin.edit_css.customize_text', {a: <a href="https://github.com/flarum/core/tree/master/less" target="_blank"/>})}</p>
 
         <div className="Form">
           <div className="Form-group">
@@ -29,7 +29,7 @@ export default class EditCustomCssModal extends Modal {
             {Button.component({
               className: 'Button Button--primary',
               type: 'submit',
-              children: 'Save Changes',
+              children: app.translator.trans('core.admin.edit_css.submit_button'),
               loading: this.loading
             })}
           </div>
