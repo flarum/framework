@@ -4,20 +4,20 @@ flarum-mentions:
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
-  # Strings in this namespace are used by the forum user interface.
+  # Translations in this namespace are used by the forum user interface.
   forum:
 
-    # These strings are used by the composer (reply autocompletion function).
+    # These translations are used by the composer (reply autocompletion function).
     composer:
       reply_to_post_text: "Reply to #{number}"
 
-    # These strings are used by the Notifications dropdown, a.k.a. "the bell".
+    # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
       post_mentioned_text: "{username} replied to your post"  # Can be pluralized to agree with the number of users!
       others_text: => core.ref.some_others
       user_mentioned_text: "{username} mentioned you"
 
-    # These strings are displayed beneath individual posts.
+    # These translations are displayed beneath individual posts.
     post:
       mentioned_by_text: "{users} replied to this."       # Can be pluralized to agree with the number of users!
       mentioned_by_self_text: "{users} replied to this."  # Can be pluralized to agree with the number of users!
@@ -25,7 +25,7 @@ flarum-mentions:
       reply_link: => core.ref.reply
       you_text: => core.ref.you
 
-    # These strings are used in the Settings page.
+    # These translations are used in the Settings page.
     settings:
       notify_post_mentioned_label: Someone replies to one of my posts
       notify_user_mentioned_label: Someone mentions me in a post
