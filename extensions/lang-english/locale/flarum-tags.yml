@@ -86,7 +86,7 @@ flarum-tags:
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
 
-    # This string is displayed in place of the name of a tag that's been deleted.
+    # This translation is displayed in place of the name of a tag that's been deleted.
     deleted_tag_text: Deleted
 
   ##
