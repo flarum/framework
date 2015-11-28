@@ -42,6 +42,13 @@ core:
       support_text: "Found a bug? Please report it in our forum, under the <a>Support tag</a>."
       troubleshooting_text: "Having problems? Follow the instructions in the <a>Troubleshooting docs</a>."
       version_text: "Thanks for trying out Flarum! You are running version {version}."
+      welcome_text: "Welcome to Flarum Beta!"
+
+    # These translations are used in the Edit Custom CSS modal dialog.
+    edit_css:
+      customize_text: Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's <a>default styles</a>.
+      submit_button: => core.ref.save_changes
+      title:
 
     # These translations are used in the Edit Group modal dialog.
     edit_group:
@@ -64,11 +71,11 @@ core:
       settings_button: => core.ref.settings
       uninstall_button: Uninstall
 
-    # This string is used in the session dropdown menu.
+    # These translations are used in the session dropdown menu.
     header:
       log_out_button: => core.ref.log_out
 
-    # This string is used in the modal dialog displayed when loading extensions.
+    # These translations are used in the modal dialog displayed when loading extensions.
     loading:
       title: Please Wait...
 
@@ -115,6 +122,10 @@ core:
       members_button: => core.group.members
       signup_closed_button: Closed
       signup_open_button: Open
+
+    # These translations are used in the Settings modal dialog.
+    settings:
+      submit_button: => core.ref.save_changes
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -306,6 +317,7 @@ core:
       avatar_upload_button: Upload
       bio_placeholder: Write something about yourself
       discussions_link: => core.ref.discussions
+      in_discussion_text: "In {discussion}"
       joined_date_text: "Joined {ago}"
       online_text: Online
       posts_load_more_button: => core.ref.load_more
@@ -326,7 +338,7 @@ core:
     badge:
       hidden_tooltip: Hidden
 
-    # This string is displayed in place of the username of deleted user account.
+    # This translation is displayed in place of the username of a deleted user account.
     deleted_user_text: "[deleted]"
 
     # These translations are displayed as error messages.
