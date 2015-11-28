@@ -48,7 +48,7 @@ core:
     edit_css:
       customize_text: "Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's <a>default styles</a>."
       submit_button: => core.ref.save_changes
-      title:
+      title: Edit Custom CSS
 
     # These translations are used in the Edit Group modal dialog.
     edit_group:
