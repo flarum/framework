@@ -4,14 +4,14 @@ flarum-tags:
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
-  # Strings in this namespace are used by the admin interface.
+  # Translations in this namespace are used by the admin interface.
   admin:
 
-    # These strings are used in the Basics page.
+    # These translations are used in the Basics page.
     basics:
       tags_label: => flarum-tags.ref.tags
 
-    # These strings are used in the Edit Tag modal dialog.
+    # These translations are used in the Edit Tag modal dialog.
     edit_tag:
       color_label: Color
       description_label: Description
@@ -24,17 +24,17 @@ flarum-tags:
       submit_button: => core.ref.save_changes
       title: => flarum-tags.ref.create_tag
 
-    # These strings are used in the navigation bar.
+    # These translations are used in the navigation bar.
     nav:
       tags_button: => flarum-tags.ref.tags
       tags_text: Manage the list of tags available to organise discussions with.
 
-    # These strings are used in the Permissions page of the admin interface.
+    # These translations are used in the Permissions page of the admin interface.
     permissions:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 
-    # These strings are used in the Tag Settings modal dialog.
+    # These translations are used in the Tag Settings modal dialog.
     tag_settings:
       range_separator_text: " to "
       required_primary_heading: Required Number of Primary Tags
@@ -43,7 +43,7 @@ flarum-tags:
       required_secondary_text: Enter the minimum and maximum number of secondary tags that may be applied to a discussion.
       title: Tag Settings
 
-    # These strings are used in the Tags page.
+    # These translations are used in the Tags page.
     tags:
       about_tags_text: "Tags are used to categorize discussions. Primary tags are like traditional forum categories: they can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization."
       create_tag_button: => flarum-tags.ref.create_tag
@@ -51,10 +51,10 @@ flarum-tags:
       secondary_heading: Secondary Tags
       settings_button: Settings
 
-  # Strings in this namespace are used by the forum user interface.
+  # Translations in this namespace are used by the forum user interface.
   forum:
 
-    # These strings are used by the Choose Tags modal dialog.
+    # These translations are used by the Choose Tags modal dialog.
     choose_tags:
       choose_primary_placeholder: "Choose a primary tag|Choose {count} primary tags"
       choose_secondary_placeholder: "Choose 1 more tag|Choose {count} more tags"
@@ -62,38 +62,38 @@ flarum-tags:
       submit_button: => core.ref.okay
       title: Choose Tags for Your Discussion
 
-    # These strings are used by the composer when starting a discussion.
+    # These translations are used by the composer when starting a discussion.
     composer_discussion:
       choose_tags_link: Choose Tags
 
-    # These strings are used by the discussion control buttons.
+    # These translations are used by the discussion control buttons.
     discussion_controls:
       edit_tags_button: Edit Tags
 
-    # These strings are used on the index page, peripheral to the discussion list.
+    # These translations are used on the index page, peripheral to the discussion list.
     index:
       tags_link: => flarum-tags.ref.tags
       more_link: More...
       untagged_link: Untagged
 
-    # These strings are displayed between posts in the post stream.
+    # These translations are displayed between posts in the post stream.
     post_stream:
       added_tags_text: "{username} added the {tagsAdded}."
       added_and_removed_tags_text: "{username} added the {tagsAdded} and removed the {tagsRemoved}."
       removed_tags_text: "{username} removed the {tagsRemoved}."
       tags_text: "{tags} tag|{tags} tags"
 
-  # Strings in this namespace are used by the forum and admin interfaces.
+  # Translations in this namespace are used by the forum and admin interfaces.
   lib:
 
     # This string is displayed in place of the name of a tag that's been deleted.
     deleted_tag_text: Deleted
 
   ##
-  # REUSED STRINGS - These keys should not be used directly in code!
+  # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
 
-  # Strings in this namespace are referenced by two or more unique keys.
+  # Translations in this namespace are referenced by two or more unique keys.
   ref:
     create_tag: Create Tag
     name: Name

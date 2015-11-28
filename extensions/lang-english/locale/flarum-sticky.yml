@@ -4,34 +4,34 @@ flarum-sticky:
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
-  # Strings in this namespace are used by the admin interface.
+  # Translations in this namespace are used by the admin interface.
   admin:
 
-    # These strings are used in the Permissions page of the admin interface.
+    # These translations are used in the Permissions page of the admin interface.
     permissions:
       sticky_discussions_label: Sticky discussions
 
-  # Strings in this namespace are used by the forum user interface.
+  # Translations in this namespace are used by the forum user interface.
   forum:
 
-    # These strings are displayed as tooltips for discussion badges.
+    # These translations are displayed as tooltips for discussion badges.
     badge:
       sticky_tooltip: => flarum-sticky.ref.sticky
 
-    # These strings are used by the discussion control buttons.
+    # These translations are used by the discussion control buttons.
     discussion_controls:
       sticky_button: => flarum-sticky.ref.sticky
       unsticky_button: Unsticky
 
-    # These strings are displayed between posts in the post stream.
+    # These translations are displayed between posts in the post stream.
     post_stream:
       discussion_stickied_text: "{username} stickied the discussion."
       discussion_unstickied_text: "{username} unstickied the discussion."
 
   ##
-  # REUSED STRINGS - These keys should not be used directly in code!
+  # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
 
-  # Strings in this namespace are referenced by two or more unique keys.
+  # Translations in this namespace are referenced by two or more unique keys.
   ref:
     sticky: Sticky
