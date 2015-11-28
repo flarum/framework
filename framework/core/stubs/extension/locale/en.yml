@@ -4,25 +4,25 @@
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
-  # Strings in this namespace are used by the admin interface.
+  # Translations in this namespace are used by the admin interface.
   admin:
 
-    # These keys are provided as examples; please delete them before using.
+    # These keys are provided as examples. Delete them before using this template!
     sample_location:
       sample_text: "Hello, world!"
 
 
-  # Strings in this namespace are used by the forum user interface.
+  # Translations in this namespace are used by the forum user interface.
   forum:
 
 
-  # Strings in this namespace are used by the forum and admin interfaces.
+  # Translations in this namespace are used by the forum and admin interfaces.
   lib:
 
 
   ##
-  # REUSED STRINGS - The following keys are referenced by two or more unique keys.
+  # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
 
-  # Strings in this namespace are referenced by two or more unique keys.
+  # Translations in this namespace are referenced by two or more unique keys.
   ref:
