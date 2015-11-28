@@ -5,7 +5,7 @@ export default class DashboardPage extends Component {
     return (
       <div className="DashboardPage">
         <div className="container">
-          <h2>Welcome to Flarum Beta</h2>
+          <h2>{app.translator.trans('core.admin.dashboard.welcome_text')}</h2>
           <p>{app.translator.trans('core.admin.dashboard.version_text', {version: <strong>{app.forum.attribute('version')}</strong>})}</p>
           <p>{app.translator.trans('core.admin.dashboard.beta_warning_text', {strong: <strong/>})}</p>
           <ul>

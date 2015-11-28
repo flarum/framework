@@ -33,7 +33,7 @@ export default class SettingsModal extends Modal {
         className="Button Button--primary"
         loading={this.loading}
         disabled={!this.changed()}>
-        Save Changes
+        {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );
   }

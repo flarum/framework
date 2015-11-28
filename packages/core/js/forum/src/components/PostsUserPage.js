@@ -65,7 +65,7 @@ export default class PostsUserPage extends UserPage {
           {this.posts.map(post => (
             <li>
               <div className="PostsUserPage-discussion">
-                In <a href={app.route.post(post)} config={m.route}>{post.discussion().title()}</a>
+                {app.translator.trans('core.forum.user.in_discussion_text', {discussion: <a href={app.route.post(post)} config={m.route}>{post.discussion().title()}</a>})}
               </div>
               {CommentPost.component({post, showDiscussionTitle: true})}
             </li>
