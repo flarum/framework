@@ -6,7 +6,7 @@ app.initializers.add('approval', () => {
   extend(PermissionGrid.prototype, 'replyItems', items => {
     items.add('replyWithoutApproval', {
       icon: 'check',
-      label: 'Reply without approval',
+      label: app.translator.trans('flarum-approval.admin.permissions.reply_without_approval_label'),
       permission: 'discussion.replyWithoutApproval'
     }, 95);
   });
@@ -14,7 +14,7 @@ app.initializers.add('approval', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('approvePosts', {
       icon: 'check',
-      label: 'Approve posts',
+      label: app.translator.trans('flarum-approval.admin.permissions.approve_posts_label'),
       permission: 'discussion.approvePosts'
     }, 65);
   });
