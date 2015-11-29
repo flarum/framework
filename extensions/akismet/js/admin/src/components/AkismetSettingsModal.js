@@ -6,13 +6,13 @@ export default class AkismetSettingsModal extends SettingsModal {
   }
 
   title() {
-    return 'Akismet Settings';
+    return app.translator.trans('flarum-akismet.admin.akismet_settings.title');
   }
 
   form() {
     return [
       <div className="Form-group">
-        <label>API Key</label>
+        <label>{app.translator.trans('flarum-akismet.admin.akismet_settings.api_key_label')}</label>
         <input className="FormControl" bidi={this.setting('flarum-akismet.api_key')}/>
       </div>
     ];
