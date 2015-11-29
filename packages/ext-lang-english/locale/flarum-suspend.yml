@@ -26,7 +26,7 @@ flarum-suspend:
 
     # These translations are displayed as tooltips for user badges.
     user_badge:
-      suspended_tooltip: Locked
+      suspended_tooltip: Suspended
 
     # These translations are found on the user profile page (admin function).
     user_controls:
