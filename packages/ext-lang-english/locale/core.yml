@@ -433,7 +433,7 @@ core:
     password: Password
     reply: Reply                                 # Referenced by flarum-mentions.yml
     restore: Restore
-    save_changes: Save Changes                   # Referenced by flarum-tags.yml
+    save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
     settings: Settings
     sign_up: Sign Up
     some_others: "{count} other|{count} others"  # Referenced by flarum-likes.yml, flarum-mentions.yml
