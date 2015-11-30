@@ -16,12 +16,12 @@ flarum-suspend:
 
     # These translations are used in the Suspend User modal dialog (admin function).
     suspend_user:
-      submit_button: => core.ref.save_changes
       indefinitely_label: Suspended indefinitely
       limited_time_label: Suspended for a limited time...
       limited_time_days_text: " days"
       not_suspended_label: Not suspended
       status_heading: Suspension Status
+      submit_button: => core.ref.save_changes
       title: "Suspend {user}"
 
     # These translations are displayed as tooltips for user badges.
