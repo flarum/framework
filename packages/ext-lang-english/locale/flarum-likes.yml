@@ -16,14 +16,14 @@ flarum-likes:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
-      post_liked_text: "{username} liked your post"  # Can be pluralized to agree with the number of users!
       others_text: => core.ref.some_others
+      post_liked_text: "{username} liked your post"  # Can be pluralized to agree with the number of users!
 
     # These translations are displayed beneath individual posts.
     post:
       like_link: Like
-      liked_by_text: "{users} likes this.|{users} like this."
       liked_by_self_text: "{users} like this."  # Can be pluralized to agree with the number of users!
+      liked_by_text: "{users} likes this.|{users} like this."
       others_link: => core.ref.some_others
       unlike_link: Unlike
       you_text: => core.ref.you

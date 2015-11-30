@@ -14,9 +14,9 @@ flarum-tags:
     # These translations are used in the Edit Tag modal dialog.
     edit_tag:
       color_label: Color
-      description_label: Description
       delete_tag_button: Delete Tag
       delete_tag_confirmation: "Are you sure you want to delete this tag? The tag's discussions will NOT be deleted."
+      description_label: Description
       hide_label: Hide from All Discussions
       name_label: => flarum-tags.ref.name
       name_placeholder: => flarum-tags.ref.name
@@ -31,9 +31,9 @@ flarum-tags:
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
+      allow_edit_tags_label: Allow tag editing
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
-      allow_edit_tags_label: Allow tag editing
 
     # These translations are used in the Tag Settings modal dialog.
     tag_settings:
@@ -73,8 +73,8 @@ flarum-tags:
 
     # These translations are used on the index page, peripheral to the discussion list.
     index:
-      tags_link: => flarum-tags.ref.tags
       more_link: More...
+      tags_link: => flarum-tags.ref.tags
       untagged_link: Untagged
 
     # These translations are displayed between posts in the post stream.
