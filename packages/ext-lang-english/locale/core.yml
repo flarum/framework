@@ -338,14 +338,15 @@ core:
     badge:
       hidden_tooltip: Hidden
 
-    # This translation is displayed in place of the username of a deleted user account.
-    deleted_user_text: "[deleted]"
+    # These translations are used to modify usernames.
+    username:
+      deleted_text: "[deleted]"
 
     # These translations are displayed as error messages.
     error:
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
-      permission_denied_message: You do not have permission to do that.
       not_found_message: The requested resource was not found.
+      permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
 
     # These translations are used as suffixes when abbreviating numbers.
@@ -356,14 +357,14 @@ core:
     # These translations are used to punctuate a series of items.
     series:
       glue_text: ", "
-      two_text: "{first} and {second}"
       three_text: "{first}, {second}, and {third}"
+      two_text: "{first} and {second}"
 
   # Translations in this namespace are used in basic HTML interface.
   basic:
-    loading_text: Loading...
-    load_error_message: Something went wrong while trying to load the full version of this site.
     javascript_disabled_message: This site is best viewed in a modern browser with JavaScript enabled.
+    load_error_message: Something went wrong while trying to load the full version of this site.
+    loading_text: Loading...
     next_page_button: Next Page
     previous_page_button: Previous Page
 
@@ -372,7 +373,6 @@ core:
 
     # These translations are used in emails sent when users register new accounts.
     activate_account:
-      subject: Activate Your New Account
       body: |
         Hey {username}!
 
@@ -382,10 +382,10 @@ core:
         {url}
 
         If you did not sign up, please ignore this email.
+      subject: Activate Your New Account
 
     # These translations are used in emails sent when users change their email address.
     confirm_email:
-      subject: Confirm Your New Email Address
       body: |
         Hey {username}!
 
@@ -395,10 +395,10 @@ core:
         {url}
 
         If this was not you, please ignore this email.
+      subject: Confirm Your New Email Address
 
     # These translations are used in emails sent when users ask to reset their passwords.
     reset_password:
-      subject: Reset Your Password
       body: |
         Hey {username}!
 
@@ -408,6 +408,7 @@ core:
         {url}
 
         If you do not wish to change your password, just ignore this email and nothing will happen.
+      subject: Reset Your Password
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
