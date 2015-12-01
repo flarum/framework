@@ -81,6 +81,14 @@ app.initializers.replace('boot', () => {
     mapRoutes(app.routes, basePath)
   );
 
+  if (m.route.param('hideFirstPost')) {
+    extend(PostStream.prototype, 'view', vdom => {
+      if (vdom.children[0].attrs['data-number'] === 1) {
+        vdom.children.splice(0, 1);
+      }
+    });
+  }
+
   // Initialize FastClick, which makes links and buttons much more responsive on
   // touch devices.
   $(() => {
