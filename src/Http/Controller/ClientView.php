@@ -339,9 +339,11 @@ class ClientView implements Renderable
      */
     protected function getSession()
     {
+        $session = $this->request->getAttribute('session');
+
         return [
             'userId' => $this->actor->id,
-            'token' => array_get($this->request->getCookieParams(), 'flarum_remember'),
+            'csrfToken' => $session->csrf_token
         ];
     }
 }

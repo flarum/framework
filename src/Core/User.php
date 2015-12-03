@@ -135,7 +135,7 @@ class User extends AbstractModel
 
             $user->read()->detach();
             $user->groups()->detach();
-            $user->accessTokens()->delete();
+            $user->sessions()->delete();
             $user->notifications()->delete();
         });
 
@@ -654,13 +654,13 @@ class User extends AbstractModel
     }
 
     /**
-     * Define the relationship with the user's access tokens.
+     * Define the relationship with the user's sessions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function accessTokens()
+    public function sessions()
     {
-        return $this->hasMany('Flarum\Api\AccessToken');
+        return $this->hasMany('Flarum\Http\Session');
     }
 
     /**
