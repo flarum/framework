@@ -14,15 +14,21 @@
 }
 @media @desktop, @desktop-hd {
   .App-nav {
-    position: fixed;
+    position: absolute;
     top: @header-height;
-    bottom: 0;
+    height: ~"calc(100vh - @{header-height})";
     width: @admin-pane-width;
     .box-shadow(0 6px 6px @shadow-color);
     background: @body-bg;
     border-top: 1px solid @control-bg;
     z-index: @zindex-pane;
     overflow: auto;
+
+    .affix & {
+      position: fixed;
+      bottom: 0;
+      height: auto;
+    }
   }
   .App-content .sideNavOffset {
     margin-left: @admin-pane-width;
