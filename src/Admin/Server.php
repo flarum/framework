@@ -32,7 +32,7 @@ class Server extends AbstractServer
 
             if ($app->isUpToDate()) {
                 $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthorizeWithCookie'));
+                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
                 $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\StartSession'));
                 $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\SetLocale'));
                 $pipe->pipe($adminPath, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
