@@ -18,7 +18,7 @@ export default function preload(app) {
   app.forum = app.store.getById('forums', 1);
 
   app.session = new Session(
-    app.preload.session.token,
-    app.store.getById('users', app.preload.session.userId)
+    app.store.getById('users', app.preload.session.userId),
+    app.preload.session.csrfToken
   );
 }

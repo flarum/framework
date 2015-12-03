@@ -81,10 +81,17 @@ export default class ChangeEmailModal extends Modal {
       return;
     }
 
+    const oldEmail = app.session.user.email();
+
     this.loading = true;
 
     app.session.user.save({email: this.email()}, {errorHandler: this.onerror.bind(this)})
       .then(() => this.success = true)
       .finally(this.loaded.bind(this));
+
+    // The save method will update the cached email address on the user model...
+    // But in the case of a "sudo" password prompt, we'll still want to have
+    // the old email address on file for the purposes of logging in.
+    app.session.user.pushAttributes({email: oldEmail});
   }
 }
