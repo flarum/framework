@@ -24,6 +24,11 @@
   }
 }
 
+.NotificationsDropdown .Dropdown-toggle .Button-icon {
+  & when (@config-colored-header = true) {
+    color: mix(@header-bg, @header-color);
+  }
+}
 .NotificationsDropdown .Dropdown-toggle.new .Button-icon {
   color: @header-color;
 }
@@ -43,6 +48,10 @@
   min-width: 18px;
   height: 18px;
   text-align: center;
+
+  & when (@config-colored-header = true) {
+    background: mix(@header-bg, @header-color);
+  }
 
   @media @phone {
     left: 20px;
