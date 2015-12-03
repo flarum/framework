@@ -15,7 +15,7 @@ app.initializers.add('flarum-pusher', () => {
       authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
       auth: {
         headers: {
-          'Authorization': 'Token ' + app.session.token
+          'X-CSRF-Token': app.session.csrfToken
         }
       }
     });
