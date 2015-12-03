@@ -124,8 +124,10 @@ export default class LogInModal extends Modal {
     const email = this.email();
     const password = this.password();
 
-    app.session.login(email, password, {errorHandler: this.onerror.bind(this)})
-      .catch(this.loaded.bind(this));
+    app.session.login(email, password, {errorHandler: this.onerror.bind(this)}).then(
+      () => window.location.reload(),
+      this.loaded.bind(this)
+    );
   }
 
   onerror(error) {

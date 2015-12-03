@@ -11,19 +11,16 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Api\AccessToken;
+use Flarum\Http\Session;
 use Flarum\Event\UserLoggedIn;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Http\Controller\ControllerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
-use DateTime;
 
-class LoginController implements ControllerInterface
+class LogInController implements ControllerInterface
 {
-    use WriteRememberCookieTrait;
-
     /**
      * @var \Flarum\Core\Repository\UserRepository
      */
@@ -52,26 +49,20 @@ class LoginController implements ControllerInterface
     public function handle(Request $request, array $routeParams = [])
     {
         $controller = 'Flarum\Api\Controller\TokenController';
-        $actor = $request->getAttribute('actor');
+        $session = $request->getAttribute('session');
         $params = array_only($request->getParsedBody(), ['identification', 'password']);
 
-        $response = $this->apiClient->send($controller, $actor, [], $params);
+        $response = $this->apiClient->send($controller, $session, [], $params);
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody());
 
-            // Extend the token's expiry to 2 weeks so that we can set a
-            // remember cookie
-            AccessToken::where('id', $data->token)->update(['expires_at' => new DateTime('+2 weeks')]);
+            $session = Session::find($data->token);
+            $session->setDuration(60 * 24 * 14)->save();
 
-            event(new UserLoggedIn($this->users->findOrFail($data->userId), $data->token));
-
-            return $this->withRememberCookie(
-                $response,
-                $data->token
-            );
-        } else {
-            return $response;
+            event(new UserLoggedIn($this->users->findOrFail($data->userId), $session));
         }
+
+        return $response;
     }
 }

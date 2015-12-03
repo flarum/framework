@@ -10,18 +10,16 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Api\AccessToken;
 use Flarum\Event\UserLoggedOut;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\Exception\TokenMismatchException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class LogoutController implements ControllerInterface
+class LogOutController implements ControllerInterface
 {
-    use WriteRememberCookieTrait;
-
     /**
      * @var Application
      */
@@ -46,21 +44,24 @@ class LogoutController implements ControllerInterface
      * @param Request $request
      * @param array $routeParams
      * @return \Psr\Http\Message\ResponseInterface
+     * @throws TokenMismatchException
      */
     public function handle(Request $request, array $routeParams = [])
     {
-        $user = $request->getAttribute('actor');
+        $session = $request->getAttribute('session');
 
-        if ($user->exists) {
-            $token = array_get($request->getQueryParams(), 'token');
+        if ($user = $session->user) {
+            if (array_get($request->getQueryParams(), 'token') !== $session->csrf_token) {
+                throw new TokenMismatchException;
+            }
 
-            AccessToken::where('user_id', $user->id)->findOrFail($token);
+            $session->exists = false;
 
-            $user->accessTokens()->delete();
+            $user->sessions()->delete();
 
             $this->events->fire(new UserLoggedOut($user));
         }
 
-        return $this->withForgetCookie(new RedirectResponse($this->app->url()));
+        return new RedirectResponse($this->app->url());
     }
 }

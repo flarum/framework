@@ -42,6 +42,8 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
+
         $this->flushAssetsWhenThemeChanged();
 
         $this->flushAssetsWhenExtensionsChanged();
