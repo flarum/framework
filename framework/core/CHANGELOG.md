@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Fixed
 - Fix error when sorting discussions by "oldest" (#627)
+- Fix some issues with dropdown positioning
 
 ## [0.1.0-beta.4] - 2015-11-05
 ### Added
