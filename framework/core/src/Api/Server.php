@@ -30,8 +30,8 @@ class Server extends AbstractServer
         if ($app->isInstalled() && $app->isUpToDate()) {
             $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
             $pipe->pipe($apiPath, $app->make('Flarum\Api\Middleware\FakeHttpMethods'));
-            $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\AuthorizeWithCookie'));
-            $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\AuthorizeWithHeader'));
+            $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
+            $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\AuthenticateWithHeader'));
             $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\SetLocale'));
             $pipe->pipe($apiPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.api.routes')]));
