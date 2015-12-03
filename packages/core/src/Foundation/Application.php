@@ -611,7 +611,7 @@ class Application extends Container implements ApplicationContract
      */
     public function isDownForMaintenance()
     {
-        return false;
+        return $this->config('offline');
     }
 
     /**
