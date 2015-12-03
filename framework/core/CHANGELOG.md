@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix error when sorting discussions by "oldest" (#627)
 - Fix composer preview button on mobile (#196)
 - Enable "Start a Discussion" button if global permissions are restricted but tag-specific permissions are granted (#640)
+- Fix crash when loading notifications in some instances
 - Improve composer appearance/usability on mobile
 - Show "reply" action in discussion menu on mobile
 - Fix some issues with dropdown positioning

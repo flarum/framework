@@ -10,6 +10,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Core\Discussion;
 use Flarum\Core\Repository\NotificationRepository;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -66,6 +67,36 @@ class ListNotificationsController extends AbstractCollectionController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        return $this->notifications->findByUser($actor, $limit, $offset)->load($include);
+        $notifications = $this->notifications->findByUser($actor, $limit, $offset)
+            ->load(array_diff($include, ['subject.discussion']))
+            ->all();
+
+        if (in_array('subject.discussion', $include)) {
+            $this->loadSubjectDiscussions($notifications);
+        }
+
+        return $notifications;
+    }
+
+    /**
+     * @param \Flarum\Core\Notification[] $notifications
+     */
+    private function loadSubjectDiscussions(array $notifications)
+    {
+        $ids = [];
+
+        foreach ($notifications as $notification) {
+            if ($notification->subject && $notification->subject->discussion_id) {
+                $ids[] = $notification->subject->discussion_id;
+            }
+        }
+
+        $discussions = Discussion::find(array_unique($ids));
+
+        foreach ($notifications as $notification) {
+            if ($notification->subject && $notification->subject->discussion_id) {
+                $notification->subject->setRelation('discussion', $discussions->find($notification->subject->discussion_id));
+            }
+        }
     }
 }
