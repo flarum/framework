@@ -92,13 +92,13 @@ class ForumServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/logout',
             'logout',
-            $toController('Flarum\Forum\Controller\LogoutController')
+            $toController('Flarum\Forum\Controller\LogOutController')
         );
 
         $routes->post(
             '/login',
             'login',
-            $toController('Flarum\Forum\Controller\LoginController')
+            $toController('Flarum\Forum\Controller\LogInController')
         );
 
         $routes->post(
