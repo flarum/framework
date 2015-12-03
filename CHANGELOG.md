@@ -3,8 +3,22 @@ All notable changes to Flarum and its bundled extensions will be documented in t
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Added
+- Allow social auth extensions to upload an avatar via URL for new users
+- Improve security by using HTTP-only cookie + CSRF token for API authentication
+- Require user to re-enter password after 30 mins when performing sensitive/destructive actions
+- Add `onhide` hook to Modal component
+- i18n: Extract some leftover hardcoded strings
+
+### Changed
+- i18n: Rename `core.lib.deleted_user_text` to `core.lib.username.deleted_text`
+
 ### Fixed
 - Fix error when sorting discussions by "oldest" (#627)
+- Fix composer preview button on mobile (#196)
+- Enable "Start a Discussion" button if global permissions are restricted but tag-specific permissions are granted (#640)
+- Improve composer appearance/usability on mobile
+- Show "reply" action in discussion menu on mobile
 - Fix some issues with dropdown positioning
 - Various user interface tweaks
 

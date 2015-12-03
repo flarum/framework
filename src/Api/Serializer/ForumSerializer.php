@@ -75,8 +75,8 @@ class ForumSerializer extends AbstractSerializer
             'themePrimaryColor'  => $this->settings->get('theme_primary_color'),
             'allowSignUp'        => (bool) $this->settings->get('allow_sign_up'),
             'defaultRoute'       => $this->settings->get('default_route'),
-            'canViewDiscussions' => $gate->allows('viewDiscussions'),
-            'canStartDiscussion' => $gate->allows('startDiscussion')
+            'canViewDiscussions' => $gate->allows('viewDiscussions') || $this->actor->hasPermissionLike('viewDiscussions'),
+            'canStartDiscussion' => $gate->allows('startDiscussion') || $this->actor->hasPermissionLike('startDiscussion')
         ];
 
         if ($gate->allows('administrate')) {
