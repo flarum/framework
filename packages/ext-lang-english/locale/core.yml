@@ -172,6 +172,12 @@ core:
       submit_button: Post Reply
       view_button: View
 
+    # These translations are used in the Confirm Password modal dialog.
+    confirm_password:
+      password_placeholder: => core.ref.password
+      submit_button: => core.ref.confirm_password
+      title: => core.ref.confirm_password
+
     # These translations are used by the discussion control buttons.
     discussion_controls:
       cannot_reply_button: Can't Reply
@@ -419,6 +425,7 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
+    confirm_password: Confirm Password
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     delete: Delete
     delete_forever: Delete Forever
