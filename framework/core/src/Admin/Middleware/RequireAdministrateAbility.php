@@ -65,7 +65,7 @@ class RequireAdministrateAbility implements MiddlewareInterface
 
             return new HtmlResponse(
                 $this->view->make('flarum.admin::login')
-                    ->with('token', $request->getAttribute('session')->csrf_token)
+                    ->with('token', $request->getAttribute('session')->get('csrf_token'))
                     ->render()
             );
         }
