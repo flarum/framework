@@ -1,6 +1,16 @@
 <?php
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Tests\Flarum\Api\Handler;
 
+use Exception;
 use Flarum\Api\Handler\ValidationExceptionHandler;
 use Flarum\Core\Exception\ValidationException;
 use Tests\Test\TestCase;
@@ -18,7 +28,7 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
     {
         $validException = new ValidationException(['messages']);
 
-        $this->assertFalse($this->handler->manages(new \Exception));
+        $this->assertFalse($this->handler->manages(new Exception));
         $this->assertTrue($this->handler->manages($validException));
     }
 
