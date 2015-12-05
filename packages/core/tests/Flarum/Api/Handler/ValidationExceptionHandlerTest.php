@@ -1,6 +1,16 @@
 <?php
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Tests\Flarum\Api\Handler;
 
+use Exception;
 use Flarum\Api\Handler\ValidationExceptionHandler;
 use Flarum\Core\Exception\ValidationException;
 use Tests\Test\TestCase;
@@ -16,7 +26,7 @@ class ValidationExceptionHandlerTest extends TestCase
 
     public function test_it_handles_recognisable_exceptions()
     {
-        $this->assertFalse($this->handler->manages(new \Exception));
+        $this->assertFalse($this->handler->manages(new Exception));
         $this->assertTrue($this->handler->manages(new ValidationException([])));
     }
 
@@ -25,6 +35,13 @@ class ValidationExceptionHandlerTest extends TestCase
         $response = $this->handler->handle(new ValidationException(['There was an error']));
 
         $this->assertEquals(422, $response->getStatus());
-        $this->assertEquals([['source' => ['pointer' => '/data/attributes/0'], 'detail' => 'There was an error']], $response->getErrors());
+        $this->assertEquals([
+            [
+                'status' => '422',
+                'code' => 'validation_error',
+                'detail' => 'There was an error',
+                'source' => ['pointer' => '/data/attributes/0']
+            ]
+        ], $response->getErrors());
     }
 }
