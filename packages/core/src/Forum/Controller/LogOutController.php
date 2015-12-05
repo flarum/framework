@@ -10,10 +10,13 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Core\User;
 use Flarum\Event\UserLoggedOut;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Exception\TokenMismatchException;
+use Flarum\Http\Rememberer;
+use Flarum\Http\SessionAuthenticator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -31,37 +34,54 @@ class LogOutController implements ControllerInterface
     protected $events;
 
     /**
+     * @var SessionAuthenticator
+     */
+    protected $authenticator;
+
+    /**
+     * @var Rememberer
+     */
+    protected $rememberer;
+
+    /**
      * @param Application $app
      * @param Dispatcher $events
+     * @param SessionAuthenticator $authenticator
+     * @param Rememberer $rememberer
      */
-    public function __construct(Application $app, Dispatcher $events)
+    public function __construct(Application $app, Dispatcher $events, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
         $this->app = $app;
         $this->events = $events;
+        $this->authenticator = $authenticator;
+        $this->rememberer = $rememberer;
     }
 
     /**
      * @param Request $request
-     * @param array $routeParams
      * @return \Psr\Http\Message\ResponseInterface
      * @throws TokenMismatchException
      */
-    public function handle(Request $request, array $routeParams = [])
+    public function handle(Request $request)
     {
         $session = $request->getAttribute('session');
 
-        if ($user = $session->user) {
-            if (array_get($request->getQueryParams(), 'token') !== $session->csrf_token) {
+        $response = new RedirectResponse($this->app->url());
+
+        if ($user = User::find($session->get('user_id'))) {
+            if (array_get($request->getQueryParams(), 'token') !== $session->get('csrf_token')) {
                 throw new TokenMismatchException;
             }
 
-            $session->exists = false;
+            $this->authenticator->logOut($session);
 
-            $user->sessions()->delete();
+            $user->accessTokens()->delete();
 
             $this->events->fire(new UserLoggedOut($user));
+
+            $response = $this->rememberer->forget($response);
         }
 
-        return new RedirectResponse($this->app->url());
+        return $response;
     }
 }

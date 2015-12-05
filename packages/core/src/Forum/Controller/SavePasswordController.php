@@ -14,6 +14,7 @@ use Flarum\Core\PasswordToken;
 use Flarum\Core\Command\EditUser;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -25,11 +26,18 @@ class SavePasswordController implements ControllerInterface
     protected $url;
 
     /**
-     * @param UrlGenerator $url
+     * @var SessionAuthenticator
      */
-    public function __construct(UrlGenerator $url)
+    protected $authenticator;
+
+    /**
+     * @param UrlGenerator $url
+     * @param SessionAuthenticator $authenticator
+     */
+    public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator)
     {
         $this->url = $url;
+        $this->authenticator = $authenticator;
     }
 
     /**
@@ -40,7 +48,7 @@ class SavePasswordController implements ControllerInterface
     {
         $input = $request->getParsedBody();
 
-        $token = PasswordToken::findOrFail(array_get($input, 'token'));
+        $token = PasswordToken::findOrFail(array_get($input, 'passwordToken'));
 
         $password = array_get($input, 'password');
         $confirmation = array_get($input, 'password_confirmation');
@@ -53,6 +61,9 @@ class SavePasswordController implements ControllerInterface
         $token->user->save();
 
         $token->delete();
+
+        $session = $request->getAttribute('session');
+        $this->authenticator->logIn($session, $token->user->id);
 
         return new RedirectResponse($this->url->toBase());
     }

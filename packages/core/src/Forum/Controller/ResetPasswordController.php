@@ -47,6 +47,8 @@ class ResetPasswordController extends AbstractHtmlController
             throw new InvalidConfirmationTokenException;
         }
 
-        return $this->view->make('flarum::reset')->with('token', $token->id);
+        return $this->view->make('flarum::reset')
+            ->with('passwordToken', $token->id)
+            ->with('csrfToken', $request->getAttribute('session')->get('csrf_token'));
     }
 }

@@ -10,72 +10,57 @@
 
 namespace Flarum\Http\Middleware;
 
+use Dflydev\FigCookies\Cookie;
 use Dflydev\FigCookies\FigResponseCookies;
 use Dflydev\FigCookies\SetCookie;
-use Dflydev\FigCookies\SetCookies;
-use Flarum\Http\Session;
-use Flarum\Core\Guest;
-use Flarum\Http\WriteSessionCookieTrait;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Zend\Stratigility\MiddlewareInterface;
 
 class StartSession implements MiddlewareInterface
 {
-    use WriteSessionCookieTrait;
-
     /**
      * {@inheritdoc}
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
-        $this->collectGarbage();
+        $session = $this->startSession();
 
-        $session = $this->getSession($request);
-        $actor = $this->getActor($session);
-
-        $request = $request
-            ->withAttribute('session', $session)
-            ->withAttribute('actor', $actor);
+        $request = $request->withAttribute('session', $session);
 
         $response = $out ? $out($request, $response) : $response;
 
-        return $this->addSessionCookieToResponse($response, $session, 'flarum_session');
-    }
-
-    private function getSession(Request $request)
-    {
-        $session = $request->getAttribute('session');
-
-        if (! $session) {
-            $session = Session::generate();
+        if ($session->has('csrf_token')) {
+            $response = $response->withHeader('X-CSRF-Token', $session->get('csrf_token'));
         }
 
-        $session->extend()->save();
+        return $this->withSessionCookie($response, $session);
+    }
+
+    private function startSession()
+    {
+        $session = new Session;
+
+        $session->setName('flarum_session');
+        $session->start();
+
+        if (! $session->has('csrf_token')) {
+            $session->set('csrf_token', Str::random(40));
+        }
 
         return $session;
     }
 
-    private function getActor(Session $session)
+    private function withSessionCookie(Response $response, SessionInterface $session)
     {
-        $actor = $session->user ?: new Guest;
-
-        if ($actor->exists) {
-            $actor->updateLastSeen()->save();
-        }
-
-        return $actor;
-    }
-
-    private function collectGarbage()
-    {
-        if ($this->hitsLottery()) {
-            Session::whereRaw('last_activity <= ? - duration * 60', [time()])->delete();
-        }
-    }
-
-    private function hitsLottery()
-    {
-        return mt_rand(1, 100) <= 1;
+        return FigResponseCookies::set(
+            $response,
+            SetCookie::create($session->getName(), $session->getId())
+                ->withPath('/')
+                ->withHttpOnly(true)
+        );
     }
 }

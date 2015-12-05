@@ -12,7 +12,8 @@
     <h1>Reset Your Password</h1>
 
     <form class="form-horizontal" role="form" method="POST" action="{{ app('Flarum\Forum\UrlGenerator')->toRoute('savePassword') }}">
-      <input type="hidden" name="token" value="{{ $token }}">
+      <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
+      <input type="hidden" name="passwordToken" value="{{ $passwordToken }}">
 
       <div class="form-group">
         <label class="control-label">Password</label>

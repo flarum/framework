@@ -32,12 +32,14 @@ class Server extends AbstractServer
         if (! $app->isInstalled()) {
             $app->register('Flarum\Install\InstallServiceProvider');
 
+            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.install.routes')]));
             $pipe->pipe($basePath, new HandleErrors($errorDir, true));
         } elseif ($app->isUpToDate() && ! $app->isDownForMaintenance()) {
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\AuthenticateWithCookie'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\StartSession'));
+            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
+            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\AuthenticateWithSession'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\SetLocale'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.forum.routes')]));
             $pipe->pipe($basePath, new HandleErrors($errorDir, $app->inDebugMode()));
