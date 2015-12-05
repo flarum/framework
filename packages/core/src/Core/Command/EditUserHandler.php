@@ -134,6 +134,7 @@ class EditUserHandler
             new UserWillBeSaved($user, $actor, $data)
         );
 
+        $this->validator->setUser($user);
         $this->validator->assertValid(array_merge($user->getDirty(), $validate));
 
         $user->save();

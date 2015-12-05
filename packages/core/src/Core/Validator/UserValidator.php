@@ -10,24 +10,55 @@
 
 namespace Flarum\Core\Validator;
 
+use Flarum\Core\User;
+
 class UserValidator extends AbstractValidator
 {
-    protected $rules = [
-        'username' => [
-            'required',
-            'alpha_dash',
-            'unique:users',
-            'min:3',
-            'max:30'
-        ],
-        'email' => [
-            'required',
-            'email',
-            'unique:users'
-        ],
-        'password' => [
-            'required',
-            'min:8'
-        ]
-    ];
+    /**
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRules()
+    {
+        $idSuffix = $this->user ? ','.$this->user->id : '';
+
+        return [
+            'username' => [
+                'required',
+                'alpha_dash',
+                'unique:users,username'.$idSuffix,
+                'min:3',
+                'max:30'
+            ],
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email'.$idSuffix
+            ],
+            'password' => [
+                'required',
+                'min:8'
+            ]
+        ];
+    }
 }
