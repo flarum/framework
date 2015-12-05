@@ -39,13 +39,6 @@ export default class SignUpModal extends Modal {
      * @type {Function}
      */
     this.password = m.prop(this.props.password || '');
-
-    /**
-     * The user that has been signed up and that should be welcomed.
-     *
-     * @type {null|User}
-     */
-    this.welcomeUser = null;
   }
 
   className() {
@@ -68,7 +61,7 @@ export default class SignUpModal extends Modal {
   }
 
   body() {
-    const body = [
+    return [
       this.props.token ? '' : <LogInButtons/>,
 
       <div className="Form Form--centered">
@@ -105,36 +98,6 @@ export default class SignUpModal extends Modal {
         </div>
       </div>
     ];
-
-    if (this.welcomeUser) {
-      const user = this.welcomeUser;
-
-      const fadeIn = (element, isInitialized) => {
-        if (isInitialized) return;
-        $(element).hide().fadeIn();
-      };
-
-      body.push(
-        <div className="SignUpModal-welcome" style={{background: user.color()}} config={fadeIn}>
-          <div className="darkenBackground">
-            <div className="container">
-              {avatar(user)}
-              <h3>{app.translator.trans('core.forum.sign_up.welcome_text', {user})}</h3>
-
-              <p>{app.translator.trans('core.forum.sign_up.confirmation_message', {email: <strong>{user.email()}</strong>})}</p>
-
-              <p>
-                <Button className="Button Button--primary" onclick={this.hide.bind(this)}>
-                  {app.translator.trans('core.forum.sign_up.dismiss_button')}
-                </Button>
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return body;
   }
 
   footer() {
@@ -181,19 +144,7 @@ export default class SignUpModal extends Modal {
       data,
       errorHandler: this.onerror.bind(this)
     }).then(
-      payload => {
-        const user = app.store.pushPayload(payload);
-
-        // If the user's new account has been activated, then we can assume
-        // that they have been logged in too. Thus, we will reload the page.
-        // Otherwise, we will show a message asking them to check their email.
-        if (user.isActivated()) {
-          window.location.reload();
-        } else {
-          this.welcomeUser = user;
-          this.loaded();
-        }
-      },
+      () => window.location.reload(),
       this.loaded.bind(this)
     );
   }
