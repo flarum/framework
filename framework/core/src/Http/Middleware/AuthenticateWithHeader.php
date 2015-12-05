@@ -12,7 +12,7 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Api\ApiKey;
 use Flarum\Core\User;
-use Flarum\Http\Session;
+use Flarum\Http\AccessToken;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Stratigility\MiddlewareInterface;
@@ -37,13 +37,15 @@ class AuthenticateWithHeader implements MiddlewareInterface
             $id = substr($parts[0], strlen($this->prefix));
 
             if (isset($parts[1]) && ApiKey::valid($id)) {
-                if ($actor = $this->getUser($parts[1])) {
-                    $request = $request->withAttribute('actor', $actor);
-                }
-            } else {
-                $session = Session::find($id);
+                $actor = $this->getUser($parts[1]);
+            } elseif ($token = AccessToken::find($id)) {
+                $token->touch();
 
-                $request = $request->withAttribute('session', $session);
+                $actor = $token->user;
+            }
+
+            if (isset($actor)) {
+                $request = $request->withAttribute('actor', $actor);
             }
         }
 

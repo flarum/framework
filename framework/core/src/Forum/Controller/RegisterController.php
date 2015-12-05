@@ -11,42 +11,47 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Core\User;
+use Flarum\Http\AccessToken;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\Rememberer;
+use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
-use Illuminate\Contracts\Bus\Dispatcher;
 
 class RegisterController implements ControllerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
     /**
      * @var Client
      */
     protected $api;
 
     /**
-     * @param Dispatcher $bus
-     * @param Client $api
+     * @var SessionAuthenticator
      */
-    public function __construct(Dispatcher $bus, Client $api)
+    protected $authenticator;
+
+    /**
+     * @var Rememberer
+     */
+    protected $rememberer;
+
+    /**
+     * @param Client $api
+     * @param SessionAuthenticator $authenticator
+     * @param Rememberer $rememberer
+     */
+    public function __construct(Client $api, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
-        $this->bus = $bus;
         $this->api = $api;
+        $this->authenticator = $authenticator;
+        $this->rememberer = $rememberer;
     }
 
     /**
      * @param Request $request
-     * @param array $routeParams
-     *
      * @return JsonResponse
      */
-    public function handle(Request $request, array $routeParams = [])
+    public function handle(Request $request)
     {
         $controller = 'Flarum\Api\Controller\CreateUserController';
         $actor = $request->getAttribute('actor');
@@ -55,15 +60,16 @@ class RegisterController implements ControllerInterface
         $response = $this->api->send($controller, $actor, [], $body);
 
         $body = json_decode($response->getBody());
-        $statusCode = $response->getStatusCode();
 
         if (isset($body->data)) {
-            $user = User::find($body->data->id);
+            $userId = $body->data->id;
 
             $session = $request->getAttribute('session');
-            $session->assign($user)->regenerateId()->renew()->setDuration(60 * 24 * 14)->save();
+            $this->authenticator->logIn($session, $userId);
+
+            $response = $this->rememberer->rememberUser($response, $userId);
         }
 
-        return new JsonResponse($body, $statusCode);
+        return $response;
     }
 }

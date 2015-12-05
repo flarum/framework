@@ -31,7 +31,6 @@ use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Exception\ValidationException;
 
 /**
  * @property int $id
@@ -135,7 +134,7 @@ class User extends AbstractModel
 
             $user->read()->detach();
             $user->groups()->detach();
-            $user->sessions()->delete();
+            $user->accessTokens()->delete();
             $user->notifications()->delete();
         });
 
@@ -654,13 +653,13 @@ class User extends AbstractModel
     }
 
     /**
-     * Define the relationship with the user's sessions.
+     * Define the relationship with the user's access tokens.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function sessions()
+    public function accessTokens()
     {
-        return $this->hasMany('Flarum\Http\Session');
+        return $this->hasMany('Flarum\Http\AccessToken');
     }
 
     /**

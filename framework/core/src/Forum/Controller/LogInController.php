@@ -11,10 +11,13 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Http\Session;
+use Flarum\Api\Controller\TokenController;
+use Flarum\Http\AccessToken;
 use Flarum\Event\UserLoggedIn;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\Rememberer;
+use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
@@ -32,35 +35,51 @@ class LogInController implements ControllerInterface
     protected $apiClient;
 
     /**
+     * @var SessionAuthenticator
+     */
+    protected $authenticator;
+
+    /**
+     * @var Rememberer
+     */
+    protected $rememberer;
+
+    /**
      * @param \Flarum\Core\Repository\UserRepository $users
      * @param Client $apiClient
+     * @param SessionAuthenticator $authenticator
+     * @param Rememberer $rememberer
      */
-    public function __construct(UserRepository $users, Client $apiClient)
+    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
         $this->users = $users;
         $this->apiClient = $apiClient;
+        $this->authenticator = $authenticator;
+        $this->rememberer = $rememberer;
     }
 
     /**
      * @param Request $request
-     * @param array $routeParams
      * @return JsonResponse|EmptyResponse
      */
-    public function handle(Request $request, array $routeParams = [])
+    public function handle(Request $request)
     {
-        $controller = 'Flarum\Api\Controller\TokenController';
-        $session = $request->getAttribute('session');
+        $actor = $request->getAttribute('actor');
         $params = array_only($request->getParsedBody(), ['identification', 'password']);
 
-        $response = $this->apiClient->send($controller, $session, [], $params);
+        $response = $this->apiClient->send(TokenController::class, $actor, [], $params);
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody());
 
-            $session = Session::find($data->token);
-            $session->setDuration(60 * 24 * 14)->save();
+            $session = $request->getAttribute('session');
+            $this->authenticator->logIn($session, $data->userId);
 
-            event(new UserLoggedIn($this->users->findOrFail($data->userId), $session));
+            $token = AccessToken::find($data->token);
+
+            event(new UserLoggedIn($this->users->findOrFail($data->userId), $token));
+
+            $response = $this->rememberer->remember($response, $token->id);
         }
 
         return $response;

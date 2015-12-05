@@ -21,6 +21,8 @@ abstract class AbstractServer extends BaseAbstractServer
     {
         $app = $this->getApp();
 
+        $this->collectGarbage($app);
+
         $server = Server::createServer(
             $this->getMiddleware($app),
             $_SERVER,
@@ -38,4 +40,16 @@ abstract class AbstractServer extends BaseAbstractServer
      * @return MiddlewareInterface
      */
     abstract protected function getMiddleware(Application $app);
+
+    private function collectGarbage()
+    {
+        if ($this->hitsLottery()) {
+            AccessToken::whereRaw('last_activity <= ? - lifetime', [time()])->delete();
+        }
+    }
+
+    private function hitsLottery()
+    {
+        return mt_rand(1, 100) <= 2;
+    }
 }

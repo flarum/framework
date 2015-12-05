@@ -14,6 +14,7 @@ use Flarum\Core\Command\ConfirmEmail;
 use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\SessionAuthenticator;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -32,13 +33,20 @@ class ConfirmEmailController implements ControllerInterface
     protected $app;
 
     /**
+     * @var SessionAuthenticator
+     */
+    protected $authenticator;
+
+    /**
      * @param Dispatcher $bus
      * @param Application $app
+     * @param SessionAuthenticator $authenticator
      */
-    public function __construct(Dispatcher $bus, Application $app)
+    public function __construct(Dispatcher $bus, Application $app, SessionAuthenticator $authenticator)
     {
         $this->bus = $bus;
         $this->app = $app;
+        $this->authenticator = $authenticator;
     }
 
     /**
@@ -58,7 +66,7 @@ class ConfirmEmailController implements ControllerInterface
         }
 
         $session = $request->getAttribute('session');
-        $session->assign($user)->regenerateId()->renew()->setDuration(60 * 24 * 14)->save();
+        $this->authenticator->logIn($session, $user->id);
 
         return new RedirectResponse($this->app->url());
     }

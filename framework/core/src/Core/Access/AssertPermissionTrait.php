@@ -10,6 +10,7 @@
 
 namespace Flarum\Core\Access;
 
+use DateTime;
 use Flarum\Api\Exception\InvalidAccessTokenException;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\User;
@@ -74,7 +75,7 @@ trait AssertPermissionTrait
     {
         $session = $request->getAttribute('session');
 
-        if (! $session || ! $session->isSudo()) {
+        if (! $session || $session->get('sudo_expiry') < new DateTime) {
             throw new InvalidAccessTokenException;
         }
     }
