@@ -12,8 +12,8 @@ namespace Flarum\Install\Controller;
 
 use Flarum\Core\User;
 use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Http\Session;
-use Flarum\Http\WriteSessionCookieTrait;
+use Flarum\Http\AccessToken;
+use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response;
@@ -21,33 +21,34 @@ use Flarum\Install\Console\InstallCommand;
 use Flarum\Install\Console\DefaultsDataProvider;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Input\StringInput;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Exception;
 use DateTime;
 
 class InstallController implements ControllerInterface
 {
-    use WriteSessionCookieTrait;
-
     protected $command;
 
     /**
-     * @var Dispatcher
+     * @var SessionAuthenticator
      */
-    protected $bus;
+    protected $authenticator;
 
-    public function __construct(InstallCommand $command, Dispatcher $bus)
+    /**
+     * InstallController constructor.
+     * @param InstallCommand $command
+     * @param SessionAuthenticator $authenticator
+     */
+    public function __construct(InstallCommand $command, SessionAuthenticator $authenticator)
     {
         $this->command = $command;
-        $this->bus = $bus;
+        $this->authenticator = $authenticator;
     }
 
     /**
      * @param Request $request
-     * @param array $routeParams
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handle(Request $request, array $routeParams = [])
+    public function handle(Request $request)
     {
         $input = $request->getParsedBody();
 
@@ -88,9 +89,9 @@ class InstallController implements ControllerInterface
             return new HtmlResponse($e->getMessage(), 500);
         }
 
-        $session = Session::generate(User::find(1), 60 * 24 * 14);
-        $session->save();
+        $session = $request->getAttribute('session');
+        $this->authenticator->logIn($session, 1);
 
-        return $this->addSessionCookieToResponse(new Response($body, 200), $session, 'flarum_session');
+        return new Response($body);
     }
 }

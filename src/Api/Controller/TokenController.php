@@ -13,7 +13,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Http\Session;
+use Flarum\Http\AccessToken;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -64,13 +64,12 @@ class TokenController implements ControllerInterface
             throw new PermissionDeniedException;
         }
 
-        $session = $request->getAttribute('session') ?: Session::generate($user);
-        $session->assign($user)->regenerateId()->renew()->save();
+        $token = AccessToken::generate($user->id);
+        $token->save();
 
         return (new JsonResponse([
-            'token' => $session->id,
+            'token' => $token->id,
             'userId' => $user->id
-        ]))
-            ->withHeader('X-CSRF-Token', $session->csrf_token);
+        ]));
     }
 }
