@@ -10,6 +10,9 @@
 
 namespace Flarum\Http;
 
+use Flarum\Core\AuthToken;
+use Flarum\Core\EmailToken;
+use Flarum\Core\PasswordToken;
 use Flarum\Foundation\Application;
 use Zend\Diactoros\Server;
 use Flarum\Foundation\AbstractServer as BaseAbstractServer;
@@ -45,6 +48,12 @@ abstract class AbstractServer extends BaseAbstractServer
     {
         if ($this->hitsLottery()) {
             AccessToken::whereRaw('last_activity <= ? - lifetime', [time()])->delete();
+
+            $earliestToKeep = date('Y-m-d H:i:s', time() - 24 * 60 * 60);
+
+            EmailToken::where('created_at', '<=', $earliestToKeep)->delete();
+            PasswordToken::where('created_at', '<=', $earliestToKeep)->delete();
+            AuthToken::where('created_at', '<=', $earliestToKeep)->delete();
         }
     }
 
