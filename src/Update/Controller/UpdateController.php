@@ -14,7 +14,6 @@ use Exception;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Update\Console\MigrateCommand;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -42,10 +41,9 @@ class UpdateController implements ControllerInterface
 
     /**
      * @param Request $request
-     * @param array $routeParams
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handle(Request $request, array $routeParams = [])
+    public function handle(Request $request)
     {
         $input = $request->getParsedBody();
 
