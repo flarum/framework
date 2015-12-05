@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Support;
 
+use Flarum\Core\User;
 use Flarum\Event\ScopeModelVisibility;
 use Illuminate\Database\Eloquent\Builder;
-use Flarum\Core\User;
 
 trait ScopeVisibilityTrait
 {
@@ -20,7 +20,7 @@ trait ScopeVisibilityTrait
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder $query
-     * @param User $actor
+     * @param User    $actor
      */
     public function scopeWhereVisibleTo(Builder $query, User $actor)
     {

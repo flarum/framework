@@ -10,19 +10,16 @@
 
 namespace Flarum\Install\Controller;
 
-use Flarum\Core\User;
-use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Http\AccessToken;
-use Flarum\Http\SessionAuthenticator;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\HtmlResponse;
-use Zend\Diactoros\Response;
-use Flarum\Install\Console\InstallCommand;
-use Flarum\Install\Console\DefaultsDataProvider;
-use Symfony\Component\Console\Output\StreamOutput;
-use Symfony\Component\Console\Input\StringInput;
 use Exception;
-use DateTime;
+use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\SessionAuthenticator;
+use Flarum\Install\Console\DefaultsDataProvider;
+use Flarum\Install\Console\InstallCommand;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\StreamOutput;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\Response\HtmlResponse;
 
 class InstallController implements ControllerInterface
 {
@@ -35,7 +32,8 @@ class InstallController implements ControllerInterface
 
     /**
      * InstallController constructor.
-     * @param InstallCommand $command
+     *
+     * @param InstallCommand       $command
      * @param SessionAuthenticator $authenticator
      */
     public function __construct(InstallCommand $command, SessionAuthenticator $authenticator)
@@ -46,13 +44,14 @@ class InstallController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request)
     {
         $input = $request->getParsedBody();
 
-        $data = new DefaultsDataProvider;
+        $data = new DefaultsDataProvider();
 
         $data->setDatabaseConfiguration([
             'driver'   => 'mysql',
@@ -74,8 +73,8 @@ class InstallController implements ControllerInterface
         $data->setBaseUrl($baseUrl);
 
         $data->setSetting('forum_title', array_get($input, 'forumTitle'));
-        $data->setSetting('mail_from', 'noreply@' . preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)));
-        $data->setSetting('welcome_title', 'Welcome to ' . array_get($input, 'forumTitle'));
+        $data->setSetting('mail_from', 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)));
+        $data->setSetting('welcome_title', 'Welcome to '.array_get($input, 'forumTitle'));
 
         $body = fopen('php://temp', 'wb+');
         $input = new StringInput('');

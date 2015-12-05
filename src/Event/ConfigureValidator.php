@@ -32,7 +32,7 @@ class ConfigureValidator
 
     /**
      * @param AbstractValidator $type
-     * @param Validator $validator
+     * @param Validator         $validator
      */
     public function __construct(AbstractValidator $type, Validator $validator)
     {

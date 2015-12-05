@@ -38,11 +38,12 @@ class PasswordToken extends AbstractModel
      * Generate a password token for the specified user.
      *
      * @param int $userId
+     *
      * @return static
      */
     public static function generate($userId)
     {
-        $token = new static;
+        $token = new static();
 
         $token->id = str_random(40);
         $token->user_id = $userId;

@@ -11,7 +11,6 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Notification;
 use Flarum\Core\Repository\NotificationRepository;
 
 class ReadAllNotificationsHandler
@@ -33,6 +32,7 @@ class ReadAllNotificationsHandler
 
     /**
      * @param ReadAllNotifications $command
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
      */
     public function handle(ReadAllNotifications $command)

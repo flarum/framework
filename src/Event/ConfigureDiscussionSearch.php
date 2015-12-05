@@ -27,7 +27,7 @@ class ConfigureDiscussionSearch
 
     /**
      * @param DiscussionSearch $search
-     * @param SearchCriteria $criteria
+     * @param SearchCriteria   $criteria
      */
     public function __construct(DiscussionSearch $search, SearchCriteria $criteria)
     {

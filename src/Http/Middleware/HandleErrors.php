@@ -10,11 +10,11 @@
 
 namespace Flarum\Http\Middleware;
 
+use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
-use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 
 class HandleErrors implements ErrorMiddlewareInterface
 {
@@ -30,7 +30,7 @@ class HandleErrors implements ErrorMiddlewareInterface
 
     /**
      * @param string $templateDir
-     * @param bool $debug
+     * @param bool   $debug
      */
     public function __construct($templateDir, $debug = false)
     {
@@ -53,7 +53,7 @@ class HandleErrors implements ErrorMiddlewareInterface
         }
 
         if ($this->debug && $errorCode !== 404) {
-            $whoops = new WhoopsMiddleware;
+            $whoops = new WhoopsMiddleware();
 
             return $whoops($error, $request, $response, $out);
         }
@@ -65,11 +65,12 @@ class HandleErrors implements ErrorMiddlewareInterface
 
     /**
      * @param string $status
+     *
      * @return string
      */
     protected function getErrorPage($status)
     {
-        if (! file_exists($errorPage = $this->templateDir."/$status.html")) {
+        if (!file_exists($errorPage = $this->templateDir."/$status.html")) {
             $errorPage = $this->templateDir.'/500.html';
         }
 

@@ -21,25 +21,25 @@ class FloodingExceptionHandlerTest extends TestCase
 
     public function init()
     {
-        $this->handler = new FloodingExceptionHandler;
+        $this->handler = new FloodingExceptionHandler();
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
-        $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new FloodingException));
+        $this->assertFalse($this->handler->manages(new Exception()));
+        $this->assertTrue($this->handler->manages(new FloodingException()));
     }
 
     public function test_it_provides_expected_output()
     {
-        $result = $this->handler->handle(new FloodingException);
+        $result = $this->handler->handle(new FloodingException());
 
         $this->assertEquals(429, $result->getStatus());
         $this->assertEquals([
             [
                 'status' => '429',
-                'code' => 'too_many_requests'
-            ]
+                'code'   => 'too_many_requests',
+            ],
         ], $result->getErrors());
     }
 }

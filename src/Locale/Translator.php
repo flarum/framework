@@ -60,8 +60,9 @@ class Translator extends BaseTranslator
 
     /**
      * @param MessageCatalogueInterface $catalogue
-     * @param string $id
-     * @param string $domain
+     * @param string                    $id
+     * @param string                    $domain
+     *
      * @return string
      */
     private function getTranslation(MessageCatalogueInterface $catalogue, $id, $domain)

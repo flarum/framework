@@ -27,7 +27,7 @@ class PrepareSerializedSetting
     public $value;
 
     /**
-     * @param string $key The settings key being saved.
+     * @param string $key   The settings key being saved.
      * @param string $value The settings value to save.
      */
     public function __construct($key, &$value)

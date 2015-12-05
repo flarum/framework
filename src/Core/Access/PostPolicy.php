@@ -36,7 +36,7 @@ class PostPolicy extends AbstractPolicy
 
     /**
      * @param SettingsRepositoryInterface $settings
-     * @param Gate $gate
+     * @param Gate                        $gate
      */
     public function __construct(SettingsRepositoryInterface $settings, Gate $gate)
     {
@@ -45,7 +45,7 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function subscribe(Dispatcher $events)
     {
@@ -55,9 +55,10 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
-     * @param Post $post
+     * @param Post   $post
+     *
      * @return bool|null
      */
     public function before(User $actor, $ability, Post $post)
@@ -86,6 +87,7 @@ class PostPolicy extends AbstractPolicy
     /**
      * @param User $actor
      * @param Post $post
+     *
      * @return bool|null
      */
     public function edit(User $actor, Post $post)
@@ -97,21 +99,22 @@ class PostPolicy extends AbstractPolicy
         // A post is allowed to be edited if the user has permission to moderate
         // the discussion which it's in, or if they are the author and the post
         // hasn't been deleted by someone else.
-        if ($post->user_id == $actor->id && (! $post->hide_time || $post->hide_user_id == $actor->id)) {
+        if ($post->user_id == $actor->id && (!$post->hide_time || $post->hide_user_id == $actor->id)) {
             $allowEditing = $this->settings->get('allow_post_editing');
 
             if ($allowEditing === '-1'
                 || ($allowEditing === 'reply' && $post->number >= $post->discussion->last_post_number)
-                || ($post->time->diffInMinutes(new Carbon) < $allowEditing)) {
+                || ($post->time->diffInMinutes(new Carbon()) < $allowEditing)) {
                 return true;
             }
         }
     }
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
-     * @param Post $post
+     * @param Post   $post
+     *
      * @return bool
      */
     protected function discussionAllows(User $actor, $ability, Post $post)

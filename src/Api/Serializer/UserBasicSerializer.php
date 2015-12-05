@@ -24,18 +24,19 @@ class UserBasicSerializer extends AbstractSerializer
      * {@inheritdoc}
      *
      * @param User $user
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($user)
     {
-        if (! ($user instanceof User)) {
+        if (!($user instanceof User)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . User::class);
+                .' can only serialize instances of '.User::class);
         }
 
         return [
             'username'  => $user->username,
-            'avatarUrl' => $user->avatar_url
+            'avatarUrl' => $user->avatar_url,
         ];
     }
 

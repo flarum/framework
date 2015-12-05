@@ -11,7 +11,6 @@
 namespace Flarum\Asset;
 
 use DomainException;
-use Flarum\Asset\CompilerInterface;
 
 class AssetManager
 {
@@ -40,8 +39,8 @@ class AssetManager
      */
     public function setFilename($filename)
     {
-        $this->js->setFilename($filename . '.js');
-        $this->less->setFilename($filename . '.css');
+        $this->js->setFilename($filename.'.js');
+        $this->less->setFilename($filename.'.css');
     }
 
     /**
@@ -62,7 +61,7 @@ class AssetManager
                 break;
 
             default:
-                throw new DomainException('Unsupported asset type: ' . $ext);
+                throw new DomainException('Unsupported asset type: '.$ext);
         }
     }
 

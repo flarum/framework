@@ -10,11 +10,11 @@
 
 namespace Flarum\Core\Search\User;
 
+use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Search\ApplySearchParametersTrait;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
-use Flarum\Core\Repository\UserRepository;
 use Flarum\Event\ConfigureUserSearch;
 
 /**
@@ -36,7 +36,7 @@ class UserSearcher
     protected $users;
 
     /**
-     * @param GambitManager $gambits
+     * @param GambitManager  $gambits
      * @param UserRepository $users
      */
     public function __construct(GambitManager $gambits, UserRepository $users)
@@ -47,9 +47,10 @@ class UserSearcher
 
     /**
      * @param SearchCriteria $criteria
-     * @param int|null $limit
-     * @param int $offset
-     * @param array $load An array of relationships to load on the results.
+     * @param int|null       $limit
+     * @param int            $offset
+     * @param array          $load     An array of relationships to load on the results.
+     *
      * @return SearchResults
      */
     public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])

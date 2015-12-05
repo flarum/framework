@@ -10,21 +10,18 @@
 
 namespace Flarum\Api\Serializer;
 
-use DateTime;
 use Closure;
+use DateTime;
 use Flarum\Core\User;
-use Flarum\Event\PrepareApiAttributes;
 use Flarum\Event\GetApiRelationship;
+use Flarum\Event\PrepareApiAttributes;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use InvalidArgumentException;
 use LogicException;
 use Tobscure\JsonApi\AbstractSerializer as BaseAbstractSerializer;
-use Flarum\Api\Relationship\HasOneBuilder;
-use Flarum\Api\Relationship\HasManyBuilder;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Relationship;
-use Tobscure\JsonApi\Relationship\BuilderInterface;
 use Tobscure\JsonApi\Resource;
 use Tobscure\JsonApi\SerializerInterface;
 
@@ -66,7 +63,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      */
     public function getAttributes($model, array $fields = null)
     {
-        if (! is_object($model) && ! is_array($model)) {
+        if (!is_object($model) && !is_array($model)) {
             return [];
         }
 
@@ -83,12 +80,14 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * Get the default set of serialized attributes for a model.
      *
      * @param object|array $model
+     *
      * @return array
      */
     abstract protected function getDefaultAttributes($model);
 
     /**
      * @param DateTime|null $date
+     *
      * @return string|null
      */
     protected function formatDate(DateTime $date = null)
@@ -113,8 +112,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get a custom relationship.
      *
-     * @param mixed $model
+     * @param mixed  $model
      * @param string $name
+     *
      * @return Relationship|null
      */
     protected function getCustomRelationship($model, $name)
@@ -123,9 +123,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
             new GetApiRelationship($this, $name, $model)
         );
 
-        if ($relationship && ! ($relationship instanceof Relationship)) {
+        if ($relationship && !($relationship instanceof Relationship)) {
             throw new LogicException('GetApiRelationship handler must return an instance of '
-                . Relationship::class);
+                .Relationship::class);
         }
 
         return $relationship;
@@ -134,9 +134,10 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get a relationship builder for a has-one relationship.
      *
-     * @param mixed $model
+     * @param mixed                                                $model
      * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|Closure|null $relation
+     * @param string|Closure|null                                  $relation
+     *
      * @return Relationship
      */
     public function hasOne($model, $serializer, $relation = null)
@@ -147,9 +148,10 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get a relationship builder for a has-many relationship.
      *
-     * @param mixed $model
+     * @param mixed                                                $model
      * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|null $relation
+     * @param string|null                                          $relation
+     *
      * @return Relationship
      */
     public function hasMany($model, $serializer, $relation = null)
@@ -158,10 +160,11 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param mixed $model
+     * @param mixed                                                $model
      * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|null $relation
-     * @param bool $many
+     * @param string|null                                          $relation
+     * @param bool                                                 $many
+     *
      * @return Relationship
      */
     protected function buildRelationship($model, $serializer, $relation = null, $many = false)
@@ -187,6 +190,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * @param mixed $model
+     *
      * @return mixed
      */
     protected function getRelationshipData($model, $relation)
@@ -202,8 +206,10 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param mixed $serializer
      * @param mixed $model
      * @param mixed $data
-     * @return SerializerInterface
+     *
      * @throws InvalidArgumentException
+     *
+     * @return SerializerInterface
      */
     protected function resolveSerializer($serializer, $model, $data)
     {
@@ -215,7 +221,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
             $serializer = $this->resolveSerializerClass($serializer);
         }
 
-        if (! ($serializer instanceof SerializerInterface)) {
+        if (!($serializer instanceof SerializerInterface)) {
             throw new InvalidArgumentException('Serializer must be an instance of '
                 .SerializerInterface::class);
         }
@@ -225,6 +231,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * @param string $class
+     *
      * @return object
      */
     protected function resolveSerializerClass($class)

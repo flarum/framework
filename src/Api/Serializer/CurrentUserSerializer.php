@@ -25,7 +25,7 @@ class CurrentUserSerializer extends UserSerializer
             'readTime'                 => $this->formatDate($user->read_time),
             'unreadNotificationsCount' => (int) $user->getUnreadNotificationsCount(),
             'newNotificationsCount'    => (int) $user->getNewNotificationsCount(),
-            'preferences'              => (array) $user->preferences
+            'preferences'              => (array) $user->preferences,
         ];
 
         return $attributes;

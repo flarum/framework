@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
-use Flarum\Database\AbstractModel;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use DateTime;
+use Flarum\Core\Exception\InvalidConfirmationTokenException;
+use Flarum\Database\AbstractModel;
 
 /**
  * @todo document database columns with @property
@@ -45,7 +45,7 @@ class AuthToken extends AbstractModel
      */
     public static function generate($payload)
     {
-        $token = new static;
+        $token = new static();
 
         $token->id = str_random(40);
         $token->payload = $payload;
@@ -58,6 +58,7 @@ class AuthToken extends AbstractModel
      * Unserialize the payload attribute from the database's JSON value.
      *
      * @param string $value
+     *
      * @return string
      */
     public function getPayloadAttribute($value)
@@ -79,7 +80,7 @@ class AuthToken extends AbstractModel
      * Find the token with the given ID, and assert that it has not expired.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $id
+     * @param string                                $id
      *
      * @throws InvalidConfirmationTokenException
      *
@@ -89,8 +90,8 @@ class AuthToken extends AbstractModel
     {
         $token = $query->find($id);
 
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
-            throw new InvalidConfirmationTokenException;
+        if (!$token || $token->created_at < new DateTime('-1 day')) {
+            throw new InvalidConfirmationTokenException();
         }
 
         return $token;

@@ -10,8 +10,6 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Group;
-
 class Guest extends User
 {
     /**
@@ -28,7 +26,7 @@ class Guest extends User
      */
     public function getGroupsAttribute()
     {
-        if (! isset($this->attributes['groups'])) {
+        if (!isset($this->attributes['groups'])) {
             $this->attributes['groups'] = $this->relations['groups'] = Group::where('id', Group::GUEST_ID)->get();
         }
 

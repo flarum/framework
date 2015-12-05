@@ -43,9 +43,9 @@ class PrepareApiData
 
     /**
      * @param AbstractSerializeController $controller
-     * @param mixed $data
-     * @param ServerRequestInterface $request
-     * @param Document $document
+     * @param mixed                       $data
+     * @param ServerRequestInterface      $request
+     * @param Document                    $document
      */
     public function __construct(
         AbstractSerializeController $controller,
@@ -62,6 +62,7 @@ class PrepareApiData
 
     /**
      * @param string $controller
+     *
      * @return bool
      */
     public function isController($controller)

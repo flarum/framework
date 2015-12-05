@@ -10,7 +10,6 @@
 
 namespace Flarum\Http\Controller;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response;
 
@@ -18,13 +17,14 @@ abstract class AbstractHtmlController implements ControllerInterface
 {
     /**
      * @param Request $request
+     *
      * @return \Zend\Diactoros\Response
      */
     public function handle(Request $request)
     {
         $view = $this->render($request);
 
-        $response = new Response;
+        $response = new Response();
         $response->getBody()->write($view->render());
 
         return $response;
@@ -32,6 +32,7 @@ abstract class AbstractHtmlController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return \Illuminate\Contracts\Support\Renderable
      */
     abstract protected function render(Request $request);

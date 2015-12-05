@@ -62,7 +62,7 @@ class PostSerializer extends PostBasicSerializer
 
         $attributes += [
             'canEdit'   => $canEdit,
-            'canDelete' => $gate->allows('delete', $post)
+            'canDelete' => $gate->allows('delete', $post),
         ];
 
         return $attributes;

@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
-use Flarum\Event\DiscussionWasRead;
-use Flarum\Database\AbstractModel;
 use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Database\AbstractModel;
+use Flarum\Event\DiscussionWasRead;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -48,13 +48,14 @@ class DiscussionState extends AbstractModel
      * DiscussionWasRead event.
      *
      * @param int $number
+     *
      * @return $this
      */
     public function read($number)
     {
         if ($number > $this->read_number) {
             $this->read_number = $number;
-            $this->read_time   = time();
+            $this->read_time = time();
 
             $this->raise(new DiscussionWasRead($this));
         }
@@ -86,6 +87,7 @@ class DiscussionState extends AbstractModel
      * Set the keys for a save update query.
      *
      * @param Builder $query
+     *
      * @return Builder
      */
     protected function setKeysForSaveQuery(Builder $query)

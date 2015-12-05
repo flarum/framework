@@ -37,10 +37,10 @@ class DeleteUser
     public $data;
 
     /**
-     * @param int $userId The ID of the user to delete.
-     * @param User $actor The user performing the action.
-     * @param array $data Any other user input associated with the action. This
-     *     is unused by default, but may be used by extensions.
+     * @param int   $userId The ID of the user to delete.
+     * @param User  $actor  The user performing the action.
+     * @param array $data   Any other user input associated with the action. This
+     *                      is unused by default, but may be used by extensions.
      */
     public function __construct($userId, User $actor, array $data = [])
     {

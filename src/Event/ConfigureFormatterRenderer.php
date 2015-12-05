@@ -26,7 +26,7 @@ class ConfigureFormatterRenderer
 
     /**
      * @param Renderer $renderer
-     * @param mixed $context
+     * @param mixed    $context
      */
     public function __construct(Renderer $renderer, $context)
     {

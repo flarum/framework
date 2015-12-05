@@ -49,14 +49,14 @@ class UserSerializer extends UserBasicSerializer
 
         if ($user->getPreference('discloseOnline')) {
             $attributes += [
-                'lastSeenTime' => $this->formatDate($user->last_seen_time)
+                'lastSeenTime' => $this->formatDate($user->last_seen_time),
             ];
         }
 
         if ($canEdit || $this->actor->id === $user->id) {
             $attributes += [
                 'isActivated' => $user->is_activated,
-                'email'       => $user->email
+                'email'       => $user->email,
             ];
         }
 

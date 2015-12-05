@@ -29,8 +29,8 @@ class StartDiscussion
     public $data;
 
     /**
-     * @param User $actor The user authoring the discussion.
-     * @param array $data The discussion attributes.
+     * @param User  $actor The user authoring the discussion.
+     * @param array $data  The discussion attributes.
      */
     public function __construct(User $actor, array $data)
     {

@@ -27,7 +27,7 @@ class SettingWasSet
     public $value;
 
     /**
-     * @param string $key The setting key that was set.
+     * @param string $key   The setting key that was set.
      * @param string $value The setting value that was set.
      */
     public function __construct($key, $value)

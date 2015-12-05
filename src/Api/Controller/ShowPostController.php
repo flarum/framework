@@ -29,7 +29,7 @@ class ShowPostController extends AbstractResourceController
         'user.groups',
         'editUser',
         'hideUser',
-        'discussion'
+        'discussion',
     ];
 
     /**

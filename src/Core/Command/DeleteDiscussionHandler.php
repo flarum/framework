@@ -28,7 +28,7 @@ class DeleteDiscussionHandler
     protected $discussions;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher           $events
      * @param DiscussionRepository $discussions
      */
     public function __construct(Dispatcher $events, DiscussionRepository $discussions)
@@ -39,8 +39,10 @@ class DeleteDiscussionHandler
 
     /**
      * @param DeleteDiscussion $command
-     * @return \Flarum\Core\Discussion
+     *
      * @throws PermissionDeniedException
+     *
+     * @return \Flarum\Core\Discussion
      */
     public function handle(DeleteDiscussion $command)
     {

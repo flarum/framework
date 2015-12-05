@@ -21,25 +21,25 @@ class ModelNotFoundExceptionHandlerTest extends TestCase
 
     public function init()
     {
-        $this->handler = new ModelNotFoundExceptionHandler;
+        $this->handler = new ModelNotFoundExceptionHandler();
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
-        $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new ModelNotFoundException));
+        $this->assertFalse($this->handler->manages(new Exception()));
+        $this->assertTrue($this->handler->manages(new ModelNotFoundException()));
     }
 
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new ModelNotFoundException);
+        $response = $this->handler->handle(new ModelNotFoundException());
 
         $this->assertEquals(404, $response->getStatus());
         $this->assertEquals([
             [
                 'status' => '404',
-                'code' => 'resource_not_found'
-            ]
+                'code'   => 'resource_not_found',
+            ],
         ], $response->getErrors());
     }
 }

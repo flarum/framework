@@ -11,8 +11,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\Repository\NotificationRepository;
 use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Repository\NotificationRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -29,7 +29,7 @@ class ListNotificationsController extends AbstractCollectionController
     public $include = [
         'sender',
         'subject',
-        'subject.discussion'
+        'subject.discussion',
     ];
 
     /**
@@ -58,7 +58,7 @@ class ListNotificationsController extends AbstractCollectionController
         $actor = $request->getAttribute('actor');
 
         if ($actor->isGuest()) {
-            throw new PermissionDeniedException;
+            throw new PermissionDeniedException();
         }
 
         $actor->markNotificationsAsRead()->save();

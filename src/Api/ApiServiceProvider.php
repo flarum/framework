@@ -15,9 +15,9 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\RouteCollection;
-use Flarum\Foundation\AbstractServiceProvider;
 use Tobscure\JsonApi\ErrorHandler;
 use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
 use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
@@ -40,19 +40,19 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton(ErrorHandler::class, function () {
-            $handler = new ErrorHandler;
+            $handler = new ErrorHandler();
 
-            $handler->registerHandler(new Handler\FloodingExceptionHandler);
-            $handler->registerHandler(new Handler\IlluminateValidationExceptionHandler);
-            $handler->registerHandler(new Handler\InvalidAccessTokenExceptionHandler);
-            $handler->registerHandler(new Handler\InvalidConfirmationTokenExceptionHandler);
-            $handler->registerHandler(new Handler\MethodNotAllowedExceptionHandler);
-            $handler->registerHandler(new Handler\ModelNotFoundExceptionHandler);
-            $handler->registerHandler(new Handler\PermissionDeniedExceptionHandler);
-            $handler->registerHandler(new Handler\RouteNotFoundExceptionHandler);
-            $handler->registerHandler(new Handler\TokenMismatchExceptionHandler);
-            $handler->registerHandler(new Handler\ValidationExceptionHandler);
-            $handler->registerHandler(new InvalidParameterExceptionHandler);
+            $handler->registerHandler(new Handler\FloodingExceptionHandler());
+            $handler->registerHandler(new Handler\IlluminateValidationExceptionHandler());
+            $handler->registerHandler(new Handler\InvalidAccessTokenExceptionHandler());
+            $handler->registerHandler(new Handler\InvalidConfirmationTokenExceptionHandler());
+            $handler->registerHandler(new Handler\MethodNotAllowedExceptionHandler());
+            $handler->registerHandler(new Handler\ModelNotFoundExceptionHandler());
+            $handler->registerHandler(new Handler\PermissionDeniedExceptionHandler());
+            $handler->registerHandler(new Handler\RouteNotFoundExceptionHandler());
+            $handler->registerHandler(new Handler\TokenMismatchExceptionHandler());
+            $handler->registerHandler(new Handler\ValidationExceptionHandler());
+            $handler->registerHandler(new InvalidParameterExceptionHandler());
             $handler->registerHandler(new FallbackExceptionHandler($this->app->inDebugMode()));
 
             return $handler;
@@ -80,7 +80,7 @@ class ApiServiceProvider extends AbstractServiceProvider
     {
         $blueprints = [];
         $serializers = [
-            'discussionRenamed' => 'Flarum\Api\Serializer\DiscussionBasicSerializer'
+            'discussionRenamed' => 'Flarum\Api\Serializer\DiscussionBasicSerializer',
         ];
 
         $this->app->make('events')->fire(
@@ -99,7 +99,7 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function getRoutes()
     {
-        $routes = new RouteCollection;
+        $routes = new RouteCollection();
 
         $toController = $this->getHandlerGenerator($this->app);
 

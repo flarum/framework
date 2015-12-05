@@ -10,11 +10,11 @@
 
 namespace Flarum\Core\Notification;
 
+use Carbon\Carbon;
 use Flarum\Core\Notification;
 use Flarum\Core\Repository\NotificationRepository;
-use Flarum\Event\NotificationWillBeSent;
 use Flarum\Core\User;
-use Carbon\Carbon;
+use Flarum\Event\NotificationWillBeSent;
 
 /**
  * The Notification Syncer commits notification blueprints to the database, and
@@ -50,7 +50,7 @@ class NotificationSyncer
 
     /**
      * @param NotificationRepository $notifications
-     * @param NotificationMailer $mailer
+     * @param NotificationMailer     $mailer
      */
     public function __construct(
         NotificationRepository $notifications,
@@ -66,7 +66,8 @@ class NotificationSyncer
      * attempt to send the user an email.
      *
      * @param BlueprintInterface $blueprint
-     * @param User[] $users
+     * @param User[]             $users
+     *
      * @return void
      */
     public function sync(BlueprintInterface $blueprint, array $users)
@@ -92,7 +93,7 @@ class NotificationSyncer
             if ($existing) {
                 $toUndelete[] = $existing->id;
                 $toDelete->forget($toDelete->search($existing));
-            } elseif (! static::$onePerUser || ! in_array($user->id, static::$sentTo)) {
+            } elseif (!static::$onePerUser || !in_array($user->id, static::$sentTo)) {
                 $newRecipients[] = $user;
                 static::$sentTo[] = $user->id;
             }
@@ -121,6 +122,7 @@ class NotificationSyncer
      * Delete a notification for all users.
      *
      * @param BlueprintInterface $blueprint
+     *
      * @return void
      */
     public function delete(BlueprintInterface $blueprint)
@@ -132,6 +134,7 @@ class NotificationSyncer
      * Restore a notification for all users.
      *
      * @param BlueprintInterface $blueprint
+     *
      * @return void
      */
     public function restore(BlueprintInterface $blueprint)
@@ -144,6 +147,7 @@ class NotificationSyncer
      * callback.
      *
      * @param callable $callback
+     *
      * @return void
      */
     public function onePerUser(callable $callback)
@@ -161,7 +165,7 @@ class NotificationSyncer
      * preference) from a blueprint to a list of recipients.
      *
      * @param BlueprintInterface $blueprint
-     * @param User[] $recipients
+     * @param User[]             $recipients
      */
     protected function sendNotifications(BlueprintInterface $blueprint, array $recipients)
     {
@@ -175,7 +179,7 @@ class NotificationSyncer
             array_map(function (User $user) use ($attributes, $now) {
                 return $attributes + [
                     'user_id' => $user->id,
-                    'time' => $now
+                    'time'    => $now,
                 ];
             }, $recipients)
         );
@@ -189,7 +193,7 @@ class NotificationSyncer
      * Mail a notification to a list of users.
      *
      * @param MailableInterface $blueprint
-     * @param User[] $recipients
+     * @param User[]            $recipients
      */
     protected function mailNotifications(MailableInterface $blueprint, array $recipients)
     {
@@ -204,7 +208,7 @@ class NotificationSyncer
      * Set the deleted status of a list of notification records.
      *
      * @param int[] $ids
-     * @param bool $isDeleted
+     * @param bool  $isDeleted
      */
     protected function setDeleted(array $ids, $isDeleted)
     {
@@ -216,6 +220,7 @@ class NotificationSyncer
      * the database, given a notification blueprint.
      *
      * @param BlueprintInterface $blueprint
+     *
      * @return array
      */
     protected function getAttributes(BlueprintInterface $blueprint)
@@ -224,7 +229,7 @@ class NotificationSyncer
             'type'       => $blueprint::getType(),
             'sender_id'  => ($sender = $blueprint->getSender()) ? $sender->id : null,
             'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
-            'data'       => ($data = $blueprint->getData()) ? json_encode($data) : null
+            'data'       => ($data = $blueprint->getData()) ? json_encode($data) : null,
         ];
     }
 }

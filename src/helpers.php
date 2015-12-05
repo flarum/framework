@@ -11,12 +11,13 @@
 
 use Illuminate\Container\Container;
 
-if (! function_exists('app')) {
+if (!function_exists('app')) {
     /**
      * Get the available container instance.
      *
-     * @param  string  $make
-     * @param  array   $parameters
+     * @param string $make
+     * @param array  $parameters
+     *
      * @return mixed|\Illuminate\Foundation\Application
      */
     function app($make = null, $parameters = [])
@@ -29,11 +30,12 @@ if (! function_exists('app')) {
     }
 }
 
-if (! function_exists('app_path')) {
+if (!function_exists('app_path')) {
     /**
      * Get the path to the application folder.
      *
-     * @param  string  $path
+     * @param string $path
+     *
      * @return string
      */
     function app_path($path = '')
@@ -42,11 +44,12 @@ if (! function_exists('app_path')) {
     }
 }
 
-if (! function_exists('base_path')) {
+if (!function_exists('base_path')) {
     /**
      * Get the path to the base of the install.
      *
-     * @param  string  $path
+     * @param string $path
+     *
      * @return string
      */
     function base_path($path = '')
@@ -55,11 +58,12 @@ if (! function_exists('base_path')) {
     }
 }
 
-if (! function_exists('public_path')) {
+if (!function_exists('public_path')) {
     /**
      * Get the path to the public folder.
      *
-     * @param  string  $path
+     * @param string $path
+     *
      * @return string
      */
     function public_path($path = '')
@@ -68,11 +72,12 @@ if (! function_exists('public_path')) {
     }
 }
 
-if (! function_exists('storage_path')) {
+if (!function_exists('storage_path')) {
     /**
      * Get the path to the storage folder.
      *
-     * @param  string  $path
+     * @param string $path
+     *
      * @return string
      */
     function storage_path($path = '')
@@ -81,13 +86,14 @@ if (! function_exists('storage_path')) {
     }
 }
 
-if (! function_exists('event')) {
+if (!function_exists('event')) {
     /**
      * Fire an event and call the listeners.
      *
-     * @param  string|object  $event
-     * @param  mixed  $payload
-     * @param  bool  $halt
+     * @param string|object $event
+     * @param mixed         $payload
+     * @param bool          $halt
+     *
      * @return array|null
      */
     function event($event, $payload = [], $halt = false)

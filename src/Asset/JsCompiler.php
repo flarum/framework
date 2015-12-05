@@ -23,9 +23,9 @@ class JsCompiler extends RevisionCompiler
     protected $cache;
 
     /**
-     * @param string $path
-     * @param string $filename
-     * @param bool $watch
+     * @param string     $path
+     * @param string     $filename
+     * @param bool       $watch
      * @param Repository $cache
      */
     public function __construct($path, $filename, $watch = false, Repository $cache = null)
@@ -40,7 +40,7 @@ class JsCompiler extends RevisionCompiler
      */
     protected function format($string)
     {
-        if (! $this->watch) {
+        if (!$this->watch) {
             $key = 'js.'.sha1($string);
 
             $string = $this->cache->rememberForever($key, function () use ($string) {
@@ -52,7 +52,7 @@ class JsCompiler extends RevisionCompiler
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getCacheDifferentiator()
     {
@@ -61,6 +61,7 @@ class JsCompiler extends RevisionCompiler
 
     /**
      * @param string $source
+     *
      * @return string
      */
     protected function minify($source)
@@ -78,11 +79,12 @@ class JsCompiler extends RevisionCompiler
 
     /**
      * @param string $source
+     *
      * @return string
      */
     protected function minifyWithClosureCompilerService($source)
     {
-        $minifier = new ClosureCompilerService;
+        $minifier = new ClosureCompilerService();
 
         $minifier->compilationLevel = 'SIMPLE_OPTIMIZATIONS';
         $minifier->timeout = 60;
@@ -94,6 +96,7 @@ class JsCompiler extends RevisionCompiler
 
     /**
      * @param string $source
+     *
      * @return string
      */
     protected function minifyWithFallback($source)

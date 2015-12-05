@@ -23,7 +23,7 @@ class LessCompiler extends RevisionCompiler
     /**
      * @param string $path
      * @param string $filename
-     * @param bool $watch
+     * @param bool   $watch
      * @param string $cachePath
      */
     public function __construct($path, $filename, $watch, $cachePath)
@@ -41,8 +41,8 @@ class LessCompiler extends RevisionCompiler
         ini_set('xdebug.max_nesting_level', 200);
 
         $parser = new Less_Parser([
-            'compress' => true,
-            'cache_dir' => $this->cachePath
+            'compress'  => true,
+            'cache_dir' => $this->cachePath,
         ]);
 
         try {

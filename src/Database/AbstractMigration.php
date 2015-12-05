@@ -10,8 +10,8 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Database\Schema\Builder;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Database\Schema\Builder;
 
 abstract class AbstractMigration
 {
@@ -26,7 +26,7 @@ abstract class AbstractMigration
     protected $settings;
 
     /**
-     * @param Builder $schema
+     * @param Builder                     $schema
      * @param SettingsRepositoryInterface $settings
      */
     public function __construct(Builder $schema, SettingsRepositoryInterface $settings)

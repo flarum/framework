@@ -42,7 +42,7 @@ class DiscussionPolicy extends AbstractPolicy
 
     /**
      * @param SettingsRepositoryInterface $settings
-     * @param Gate $gate
+     * @param Gate                        $gate
      */
     public function __construct(SettingsRepositoryInterface $settings, Gate $gate, Dispatcher $events)
     {
@@ -52,8 +52,9 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
+     *
      * @return bool|null
      */
     public function before(User $actor, $ability)
@@ -64,14 +65,14 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
+     * @param User    $actor
      * @param Builder $query
      */
     public function find(User $actor, Builder $query)
     {
-        if (! $actor->hasPermission('viewDiscussions')) {
+        if (!$actor->hasPermission('viewDiscussions')) {
             $query->whereRaw('FALSE');
-        } elseif (! $actor->hasPermission('discussion.hide')) {
+        } elseif (!$actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('discussions.hide_time')
                     ->where('comments_count', '>', 0)
@@ -85,8 +86,9 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
+     * @param User       $actor
      * @param Discussion $discussion
+     *
      * @return bool|null
      */
     public function rename(User $actor, Discussion $discussion)
@@ -96,15 +98,16 @@ class DiscussionPolicy extends AbstractPolicy
 
             if ($allowRenaming === '-1'
                 || ($allowRenaming === 'reply' && $discussion->participants_count <= 1)
-                || ($discussion->start_time->diffInMinutes(new Carbon) < $allowRenaming)) {
+                || ($discussion->start_time->diffInMinutes(new Carbon()) < $allowRenaming)) {
                 return true;
             }
         }
     }
 
     /**
-     * @param User $actor
+     * @param User       $actor
      * @param Discussion $discussion
+     *
      * @return bool|null
      */
     public function delete(User $actor, Discussion $discussion)

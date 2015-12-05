@@ -11,9 +11,9 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Support\Str;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class Migrator
 {
@@ -55,9 +55,10 @@ class Migrator
     /**
      * Create a new migrator instance.
      *
-     * @param  \Flarum\Database\MigrationRepositoryInterface  $repository
-     * @param  \Illuminate\Database\ConnectionResolverInterface  $resolver
-     * @param  \Illuminate\Filesystem\Filesystem  $files
+     * @param \Flarum\Database\MigrationRepositoryInterface    $repository
+     * @param \Illuminate\Database\ConnectionResolverInterface $resolver
+     * @param \Illuminate\Filesystem\Filesystem                $files
+     *
      * @return void
      */
     public function __construct(
@@ -73,8 +74,9 @@ class Migrator
     /**
      * Run the outstanding migrations at a given path.
      *
-     * @param  string  $path
-     * @param  string  $extension
+     * @param string $path
+     * @param string $extension
+     *
      * @return void
      */
     public function run($path, $extension = null)
@@ -95,8 +97,9 @@ class Migrator
     /**
      * Run an array of migrations.
      *
-     * @param  array  $migrations
-     * @param  bool   $pretend
+     * @param array $migrations
+     * @param bool  $pretend
+     *
      * @return void
      */
     public function runMigrationList($migrations, $extension)
@@ -121,8 +124,9 @@ class Migrator
     /**
      * Run "up" a migration instance.
      *
-     * @param  string  $file
-     * @param  string  $extension
+     * @param string $file
+     * @param string $extension
+     *
      * @return void
      */
     protected function runUp($file, $extension)
@@ -145,7 +149,8 @@ class Migrator
     /**
      * Rolls all of the currently applied migrations back.
      *
-     * @param  bool  $pretend
+     * @param bool $pretend
+     *
      * @return int
      */
     public function reset($path, $extension = null)
@@ -172,8 +177,9 @@ class Migrator
     /**
      * Run "down" a migration instance.
      *
-     * @param  string  $file
-     * @param  string  $extension
+     * @param string $file
+     * @param string $extension
+     *
      * @return void
      */
     protected function runDown($file, $extension = null)
@@ -196,7 +202,8 @@ class Migrator
     /**
      * Get all of the migration files in a given path.
      *
-     * @param  string  $path
+     * @param string $path
+     *
      * @return array
      */
     public function getMigrationFiles($path)
@@ -225,8 +232,9 @@ class Migrator
     /**
      * Require in all the migration files in a given path.
      *
-     * @param  string  $path
-     * @param  array   $files
+     * @param string $path
+     * @param array  $files
+     *
      * @return void
      */
     public function requireFiles($path, array $files)
@@ -239,14 +247,15 @@ class Migrator
     /**
      * Resolve a migration instance from a file.
      *
-     * @param  string  $file
+     * @param string $file
+     *
      * @return object
      */
     public function resolve($file, $extension = null)
     {
         $file = implode('_', array_slice(explode('_', $file), 4));
 
-        $class = ($extension ? str_replace('-', '\\', $extension) : 'Flarum\\Core') . '\\Migration\\';
+        $class = ($extension ? str_replace('-', '\\', $extension) : 'Flarum\\Core').'\\Migration\\';
 
         $class .= Str::studly($file);
 
@@ -256,7 +265,8 @@ class Migrator
     /**
      * Raise a note event for the migrator.
      *
-     * @param  string  $message
+     * @param string $message
+     *
      * @return void
      */
     protected function note($message)
@@ -277,7 +287,8 @@ class Migrator
     /**
      * Resolve the database connection instance.
      *
-     * @param  string  $connection
+     * @param string $connection
+     *
      * @return \Illuminate\Database\Connection
      */
     public function resolveConnection($connection)
@@ -288,7 +299,8 @@ class Migrator
     /**
      * Set the default connection name.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return void
      */
     public function setConnection($name)

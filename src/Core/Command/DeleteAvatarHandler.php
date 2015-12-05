@@ -12,9 +12,9 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Event\AvatarWillBeDeleted;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 use League\Flysystem\FilesystemInterface;
 
@@ -34,8 +34,8 @@ class DeleteAvatarHandler
     protected $uploadDir;
 
     /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
+     * @param Dispatcher          $events
+     * @param UserRepository      $users
      * @param FilesystemInterface $uploadDir
      */
     public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir)
@@ -47,8 +47,10 @@ class DeleteAvatarHandler
 
     /**
      * @param DeleteAvatar $command
-     * @return \Flarum\Core\User
+     *
      * @throws PermissionDeniedException
+     *
+     * @return \Flarum\Core\User
      */
     public function handle(DeleteAvatar $command)
     {

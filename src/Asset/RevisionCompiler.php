@@ -10,8 +10,6 @@
 
 namespace Flarum\Asset;
 
-use Illuminate\Support\Str;
-
 class RevisionCompiler implements CompilerInterface
 {
     /**
@@ -32,7 +30,7 @@ class RevisionCompiler implements CompilerInterface
     /**
      * @param string $path
      * @param string $filename
-     * @param bool $watch
+     * @param bool   $watch
      */
     public function __construct($path, $filename, $watch = false)
     {
@@ -87,7 +85,7 @@ class RevisionCompiler implements CompilerInterface
 
         $exists = file_exists($file);
 
-        if (! $exists || $old !== $current) {
+        if (!$exists || $old !== $current) {
             if ($exists) {
                 unlink($file);
             }
@@ -106,11 +104,12 @@ class RevisionCompiler implements CompilerInterface
      */
     protected function getCacheDifferentiator()
     {
-        return null;
+        return;
     }
 
     /**
      * @param string $string
+     *
      * @return string
      */
     protected function format($string)
@@ -138,6 +137,7 @@ class RevisionCompiler implements CompilerInterface
 
     /**
      * @param string $file
+     *
      * @return string
      */
     protected function formatFile($file)
@@ -167,6 +167,7 @@ class RevisionCompiler implements CompilerInterface
 
     /**
      * @param string $revision
+     *
      * @return int
      */
     protected function putRevision($revision)
@@ -191,7 +192,7 @@ class RevisionCompiler implements CompilerInterface
 
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 
-        $file = $this->path . '/' . substr_replace($this->filename, '-' . $revision, -strlen($ext) - 1, 0);
+        $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
 
         if (file_exists($file)) {
             unlink($file);

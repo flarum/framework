@@ -27,7 +27,7 @@ class GroupWasCreated
 
     /**
      * @param Group $group
-     * @param User $actor
+     * @param User  $actor
      */
     public function __construct(Group $group, User $actor = null)
     {

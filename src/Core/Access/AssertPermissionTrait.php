@@ -20,19 +20,21 @@ trait AssertPermissionTrait
 {
     /**
      * @param $condition
+     *
      * @throws PermissionDeniedException
      */
     protected function assertPermission($condition)
     {
-        if (! $condition) {
-            throw new PermissionDeniedException;
+        if (!$condition) {
+            throw new PermissionDeniedException();
         }
     }
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
-     * @param mixed $arguments
+     * @param mixed  $arguments
+     *
      * @throws PermissionDeniedException
      */
     protected function assertCan(User $actor, $ability, $arguments = [])
@@ -42,6 +44,7 @@ trait AssertPermissionTrait
 
     /**
      * @param User $actor
+     *
      * @throws PermissionDeniedException
      */
     protected function assertGuest(User $actor)
@@ -51,15 +54,17 @@ trait AssertPermissionTrait
 
     /**
      * @param User $actor
+     *
      * @throws PermissionDeniedException
      */
     protected function assertRegistered(User $actor)
     {
-        $this->assertPermission(! $actor->isGuest());
+        $this->assertPermission(!$actor->isGuest());
     }
 
     /**
      * @param User $actor
+     *
      * @throws PermissionDeniedException
      */
     protected function assertAdmin(User $actor)
@@ -69,19 +74,21 @@ trait AssertPermissionTrait
 
     /**
      * @param ServerRequestInterface $request
+     *
      * @throws InvalidAccessTokenException
      */
     protected function assertSudo(ServerRequestInterface $request)
     {
         $session = $request->getAttribute('session');
 
-        if (! $session || $session->get('sudo_expiry') < new DateTime) {
-            throw new InvalidAccessTokenException;
+        if (!$session || $session->get('sudo_expiry') < new DateTime()) {
+            throw new InvalidAccessTokenException();
         }
     }
 
     /**
      * @param ServerRequestInterface $request
+     *
      * @throws PermissionDeniedException
      */
     protected function assertAdminAndSudo(ServerRequestInterface $request)

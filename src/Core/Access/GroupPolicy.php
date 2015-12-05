@@ -21,8 +21,9 @@ class GroupPolicy extends AbstractPolicy
     protected $model = Group::class;
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
+     *
      * @return bool|null
      */
     public function before(User $actor, $ability)

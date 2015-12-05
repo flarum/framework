@@ -29,7 +29,7 @@ class NotificationWillBeSent
     public $users;
 
     /**
-     * @param BlueprintInterface $blueprint
+     * @param BlueprintInterface  $blueprint
      * @param \Flarum\Core\User[] $users
      */
     public function __construct(BlueprintInterface $blueprint, array &$users)

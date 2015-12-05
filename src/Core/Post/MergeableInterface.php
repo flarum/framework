@@ -26,9 +26,10 @@ interface MergeableInterface
      * passed model.
      *
      * @param Post $previous
+     *
      * @return Post The model resulting after the merge. If the merge is
-     *     unsuccessful, this should be the current model instance. Otherwise,
-     *     it should be the model that was merged into.
+     *              unsuccessful, this should be the current model instance. Otherwise,
+     *              it should be the model that was merged into.
      */
     public function saveAfter(Post $previous);
 }

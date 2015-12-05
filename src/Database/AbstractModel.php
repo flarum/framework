@@ -28,7 +28,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * Indicates if the model should be timestamped. Turn off by default.
      *
-     * @var boolean
+     * @var bool
      */
     public $timestamps = false;
 
@@ -77,7 +77,7 @@ abstract class AbstractModel extends Eloquent
 
         $class = get_class($this);
 
-        if (! isset($dates[$class])) {
+        if (!isset($dates[$class])) {
             static::$dispatcher->fire(
                 new ConfigureModelDates($this, $this->dates)
             );
@@ -93,21 +93,22 @@ abstract class AbstractModel extends Eloquent
      * a custom relation method with this key.
      *
      * @param string $key
+     *
      * @return mixed
      */
     public function getAttribute($key)
     {
-        if (! is_null($value = parent::getAttribute($key))) {
+        if (!is_null($value = parent::getAttribute($key))) {
             return $value;
         }
 
         // If a custom relation with this key has been set up, then we will load
         // and return results from the query and hydrate the relationship's
         // value on the "relationships" array.
-        if (! $this->relationLoaded($key) && ($relation = $this->getCustomRelation($key))) {
-            if (! $relation instanceof Relation) {
+        if (!$this->relationLoaded($key) && ($relation = $this->getCustomRelation($key))) {
+            if (!$relation instanceof Relation) {
                 throw new LogicException('Relationship method must return an object of type '
-                    . 'Illuminate\Database\Eloquent\Relations\Relation');
+                    .'Illuminate\Database\Eloquent\Relations\Relation');
             }
 
             return $this->relations[$key] = $relation->getResults();
@@ -118,6 +119,7 @@ abstract class AbstractModel extends Eloquent
      * Get a custom relation object.
      *
      * @param string $name
+     *
      * @return mixed
      */
     protected function getCustomRelation($name)
@@ -131,6 +133,7 @@ abstract class AbstractModel extends Eloquent
      * Register a callback to be run once after the model is saved.
      *
      * @param callable $callback
+     *
      * @return void
      */
     public function afterSave($callback)
@@ -142,6 +145,7 @@ abstract class AbstractModel extends Eloquent
      * Register a callback to be run once after the model is deleted.
      *
      * @param callable $callback
+     *
      * @return void
      */
     public function afterDelete($callback)

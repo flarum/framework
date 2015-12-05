@@ -10,7 +10,6 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Post;
 use Flarum\Core\Post\MergeableInterface;
 use Flarum\Core\Support\EventGeneratorTrait;
 use Flarum\Core\Support\ScopeVisibilityTrait;
@@ -110,15 +109,16 @@ class Discussion extends AbstractModel
      * Start a new discussion. Raises the DiscussionWasStarted event.
      *
      * @param string $title
-     * @param User $user
+     * @param User   $user
+     *
      * @return static
      */
     public static function start($title, User $user)
     {
-        $discussion = new static;
+        $discussion = new static();
 
-        $discussion->title         = $title;
-        $discussion->start_time    = time();
+        $discussion->title = $title;
+        $discussion->start_time = time();
         $discussion->start_user_id = $user->id;
 
         $discussion->setRelation('startUser', $user);
@@ -132,6 +132,7 @@ class Discussion extends AbstractModel
      * Rename the discussion. Raises the DiscussionWasRenamed event.
      *
      * @param string $title
+     *
      * @return $this
      */
     public function rename($title)
@@ -150,11 +151,12 @@ class Discussion extends AbstractModel
      * Hide the discussion.
      *
      * @param User $actor
+     *
      * @return $this
      */
     public function hide(User $actor = null)
     {
-        if (! $this->hide_time) {
+        if (!$this->hide_time) {
             $this->hide_time = time();
             $this->hide_user_id = $actor ? $actor->id : null;
 
@@ -185,11 +187,12 @@ class Discussion extends AbstractModel
      * Set the discussion's start post details.
      *
      * @param Post $post
+     *
      * @return $this
      */
     public function setStartPost(Post $post)
     {
-        $this->start_time    = $post->time;
+        $this->start_time = $post->time;
         $this->start_user_id = $post->user_id;
         $this->start_post_id = $post->id;
 
@@ -200,13 +203,14 @@ class Discussion extends AbstractModel
      * Set the discussion's last post details.
      *
      * @param Post $post
+     *
      * @return $this
      */
     public function setLastPost(Post $post)
     {
-        $this->last_time        = $post->time;
-        $this->last_user_id     = $post->user_id;
-        $this->last_post_id     = $post->id;
+        $this->last_time = $post->time;
+        $this->last_user_id = $post->user_id;
+        $this->last_post_id = $post->id;
         $this->last_post_number = $post->number;
 
         return $this;
@@ -259,9 +263,10 @@ class Discussion extends AbstractModel
      * completely.)
      *
      * @param MergeableInterface $post The post to save.
+     *
      * @return Post The resulting post. It may or may not be the same post as
-     *     was originally intended to be saved. It also may not exist, if the
-     *     merge logic resulted in deletion.
+     *              was originally intended to be saved. It also may not exist, if the
+     *              merge logic resulted in deletion.
      */
     public function mergePost(MergeableInterface $post)
     {
@@ -297,6 +302,7 @@ class Discussion extends AbstractModel
      * are visible to the given user.
      *
      * @param User $user
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function postsVisibleTo(User $user)
@@ -317,7 +323,7 @@ class Discussion extends AbstractModel
      */
     public function comments()
     {
-        return $this->postsVisibleTo(new Guest)->where('type', 'comment');
+        return $this->postsVisibleTo(new Guest())->where('type', 'comment');
     }
 
     /**
@@ -394,6 +400,7 @@ class Discussion extends AbstractModel
      * @see Discussion::setStateUser()
      *
      * @param User|null $user
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function state(User $user = null)
@@ -408,14 +415,15 @@ class Discussion extends AbstractModel
      * exist.
      *
      * @param User $user
+     *
      * @return \Flarum\Core\DiscussionState
      */
     public function stateFor(User $user)
     {
         $state = $this->state($user)->first();
 
-        if (! $state) {
-            $state = new DiscussionState;
+        if (!$state) {
+            $state = new DiscussionState();
             $state->discussion_id = $this->id;
             $state->user_id = $user->id;
         }

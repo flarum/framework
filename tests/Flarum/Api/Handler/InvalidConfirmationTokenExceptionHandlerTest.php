@@ -21,25 +21,25 @@ class InvalidConfirmationTokenExceptionHandlerTest extends TestCase
 
     public function init()
     {
-        $this->handler = new InvalidConfirmationTokenExceptionHandler;
+        $this->handler = new InvalidConfirmationTokenExceptionHandler();
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
-        $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new InvalidConfirmationTokenException));
+        $this->assertFalse($this->handler->manages(new Exception()));
+        $this->assertTrue($this->handler->manages(new InvalidConfirmationTokenException()));
     }
 
     public function test_output()
     {
-        $response = $this->handler->handle(new InvalidConfirmationTokenException);
+        $response = $this->handler->handle(new InvalidConfirmationTokenException());
 
         $this->assertEquals(403, $response->getStatus());
         $this->assertEquals([
             [
                 'status' => '403',
-                'code' => 'invalid_confirmation_token'
-            ]
+                'code'   => 'invalid_confirmation_token',
+            ],
         ], $response->getErrors());
     }
 }

@@ -30,7 +30,7 @@ class GetModelRelationship
 
     /**
      * @param AbstractModel $model
-     * @param string $relationship
+     * @param string        $relationship
      */
     public function __construct(AbstractModel $model, $relationship)
     {
@@ -41,6 +41,7 @@ class GetModelRelationship
     /**
      * @param string $model
      * @param string $relationship
+     *
      * @return bool
      */
     public function isRelationship($model, $relationship)

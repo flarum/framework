@@ -33,7 +33,7 @@ class InvalidConfirmationTokenExceptionHandler implements ExceptionHandlerInterf
         $status = 403;
         $error = [
             'status' => (string) $status,
-            'code' => 'invalid_confirmation_token'
+            'code'   => 'invalid_confirmation_token',
         ];
 
         return new ResponseBag($status, [$error]);

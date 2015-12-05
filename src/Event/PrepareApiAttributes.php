@@ -49,8 +49,8 @@ class PrepareApiAttributes
 
     /**
      * @param AbstractSerializer $serializer The class doing the serializing.
-     * @param object|array $model The model being serialized.
-     * @param array $attributes The serialized attributes of the resource.
+     * @param object|array       $model      The model being serialized.
+     * @param array              $attributes The serialized attributes of the resource.
      */
     public function __construct(AbstractSerializer $serializer, $model, array &$attributes)
     {
@@ -62,6 +62,7 @@ class PrepareApiAttributes
 
     /**
      * @param string $serializer
+     *
      * @return bool
      */
     public function isSerializer($serializer)
@@ -71,6 +72,7 @@ class PrepareApiAttributes
 
     /**
      * @param DateTime|null $date
+     *
      * @return string|null
      */
     public function formatDate(DateTime $date = null)

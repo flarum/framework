@@ -25,6 +25,7 @@ interface MigrationRepositoryInterface
      *
      * @param string $file
      * @param string $extension
+     *
      * @return void
      */
     public function log($file, $extension = null);
@@ -34,6 +35,7 @@ interface MigrationRepositoryInterface
      *
      * @param string $file
      * @param string $extension
+     *
      * @return void
      */
     public function delete($file, $extension = null);
@@ -55,7 +57,8 @@ interface MigrationRepositoryInterface
     /**
      * Set the information source to gather data.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return void
      */
     public function setSource($name);

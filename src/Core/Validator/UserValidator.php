@@ -48,17 +48,17 @@ class UserValidator extends AbstractValidator
                 'alpha_dash',
                 'unique:users,username'.$idSuffix,
                 'min:3',
-                'max:30'
+                'max:30',
             ],
             'email' => [
                 'required',
                 'email',
-                'unique:users,email'.$idSuffix
+                'unique:users,email'.$idSuffix,
             ],
             'password' => [
                 'required',
-                'min:8'
-            ]
+                'min:8',
+            ],
         ];
     }
 }

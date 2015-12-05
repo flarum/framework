@@ -12,8 +12,8 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\AccessToken;
+use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,8 +37,8 @@ class TokenController implements ControllerInterface
     protected $events;
 
     /**
-     * @param UserRepository $users
-     * @param BusDispatcher $bus
+     * @param UserRepository  $users
+     * @param BusDispatcher   $bus
      * @param EventDispatcher $events
      */
     public function __construct(UserRepository $users, BusDispatcher $bus, EventDispatcher $events)
@@ -60,16 +60,16 @@ class TokenController implements ControllerInterface
 
         $user = $this->users->findByIdentification($identification);
 
-        if (! $user || ! $user->checkPassword($password)) {
-            throw new PermissionDeniedException;
+        if (!$user || !$user->checkPassword($password)) {
+            throw new PermissionDeniedException();
         }
 
         $token = AccessToken::generate($user->id);
         $token->save();
 
-        return (new JsonResponse([
-            'token' => $token->id,
-            'userId' => $user->id
-        ]));
+        return new JsonResponse([
+            'token'  => $token->id,
+            'userId' => $user->id,
+        ]);
     }
 }

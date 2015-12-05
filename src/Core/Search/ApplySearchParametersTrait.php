@@ -16,7 +16,7 @@ trait ApplySearchParametersTrait
      * Apply sort criteria to a discussion search.
      *
      * @param AbstractSearch $search
-     * @param array $sort
+     * @param array          $sort
      */
     protected function applySort(AbstractSearch $search, array $sort = null)
     {
@@ -35,7 +35,7 @@ trait ApplySearchParametersTrait
 
     /**
      * @param AbstractSearch $search
-     * @param int $offset
+     * @param int            $offset
      */
     protected function applyOffset(AbstractSearch $search, $offset)
     {
@@ -46,7 +46,7 @@ trait ApplySearchParametersTrait
 
     /**
      * @param AbstractSearch $search
-     * @param int|null $limit
+     * @param int|null       $limit
      */
     protected function applyLimit(AbstractSearch $search, $limit)
     {

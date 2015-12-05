@@ -17,6 +17,7 @@ interface DriverInterface
      * match the given string.
      *
      * @param string $string
+     *
      * @return array
      */
     public function match($string);

@@ -32,8 +32,8 @@ class RouteCollection
 
     public function __construct()
     {
-        $this->dataGenerator = new DataGenerator\GroupCountBased;
-        $this->routeParser = new RouteParser\Std;
+        $this->dataGenerator = new DataGenerator\GroupCountBased();
+        $this->routeParser = new RouteParser\Std();
     }
 
     public function get($path, $name, $handler)
@@ -92,7 +92,7 @@ class RouteCollection
             $parts = $this->reverse[$name][0];
             array_walk($parts, [$this, 'fixPathPart'], $parameters);
 
-            return '/' . ltrim(implode('', $parts), '/');
+            return '/'.ltrim(implode('', $parts), '/');
         }
 
         throw new \RuntimeException("Route $name not found");

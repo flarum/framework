@@ -21,12 +21,12 @@ class ValidationExceptionHandlerTest extends TestCase
 
     public function init()
     {
-        $this->handler = new ValidationExceptionHandler;
+        $this->handler = new ValidationExceptionHandler();
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
-        $this->assertFalse($this->handler->manages(new Exception));
+        $this->assertFalse($this->handler->manages(new Exception()));
         $this->assertTrue($this->handler->manages(new ValidationException([])));
     }
 
@@ -38,10 +38,10 @@ class ValidationExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'status' => '422',
-                'code' => 'validation_error',
+                'code'   => 'validation_error',
                 'detail' => 'There was an error',
-                'source' => ['pointer' => '/data/attributes/0']
-            ]
+                'source' => ['pointer' => '/data/attributes/0'],
+            ],
         ], $response->getErrors());
     }
 }

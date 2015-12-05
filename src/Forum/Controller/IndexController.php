@@ -22,9 +22,9 @@ class IndexController extends ClientController
      */
     private $sortMap = [
         'latest' => '-lastTime',
-        'top' => '-commentsCount',
+        'top'    => '-commentsCount',
         'newest' => '-startTime',
-        'oldest' => 'startTime'
+        'oldest' => 'startTime',
     ];
 
     /**
@@ -41,9 +41,9 @@ class IndexController extends ClientController
         $page = array_pull($queryParams, 'page', 1);
 
         $params = [
-            'sort' => $sort && isset($this->sortMap[$sort]) ? $this->sortMap[$sort] : '',
+            'sort'   => $sort && isset($this->sortMap[$sort]) ? $this->sortMap[$sort] : '',
             'filter' => compact('q'),
-            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
+            'page'   => ['offset' => ($page - 1) * 20, 'limit' => 20],
         ];
 
         $document = $this->preload($request->getAttribute('actor'), $params);
@@ -57,8 +57,9 @@ class IndexController extends ClientController
     /**
      * Get the result of an API request to list discussions.
      *
-     * @param User $actor
+     * @param User  $actor
      * @param array $params
+     *
      * @return object
      */
     protected function preload(User $actor, array $params)

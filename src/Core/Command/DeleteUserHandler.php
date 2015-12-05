@@ -13,8 +13,8 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Event\UserWillBeDeleted;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Event\UserWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteUserHandler
@@ -28,7 +28,7 @@ class DeleteUserHandler
     protected $users;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher     $events
      * @param UserRepository $users
      */
     public function __construct(Dispatcher $events, UserRepository $users)
@@ -39,8 +39,10 @@ class DeleteUserHandler
 
     /**
      * @param DeleteUser $command
-     * @return \Flarum\Core\User
+     *
      * @throws PermissionDeniedException
+     *
+     * @return \Flarum\Core\User
      */
     public function handle(DeleteUser $command)
     {

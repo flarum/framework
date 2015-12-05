@@ -11,8 +11,8 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Core\User;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class DiscussionController extends ClientController
 {
@@ -27,12 +27,12 @@ class DiscussionController extends ClientController
         $page = max(1, array_get($queryParams, 'page'));
 
         $params = [
-            'id' => (int) array_get($queryParams, 'id'),
+            'id'   => (int) array_get($queryParams, 'id'),
             'page' => [
-                'near' => array_get($queryParams, 'near'),
+                'near'   => array_get($queryParams, 'near'),
                 'offset' => ($page - 1) * 20,
-                'limit' => 20
-            ]
+                'limit'  => 20,
+            ],
         ];
 
         $document = $this->preload($request->getAttribute('actor'), $params);
@@ -48,7 +48,7 @@ class DiscussionController extends ClientController
             $queryString = http_build_query($newQueryParams);
 
             return app('Flarum\Forum\UrlGenerator')
-                ->toRoute('discussion', ['id' => $document->data->id]) .
+                ->toRoute('discussion', ['id' => $document->data->id]).
                 ($queryString ? '?'.$queryString : '');
         };
 
@@ -70,10 +70,12 @@ class DiscussionController extends ClientController
     /**
      * Get the result of an API request to show a discussion.
      *
-     * @param User $actor
+     * @param User  $actor
      * @param array $params
-     * @return object
+     *
      * @throws RouteNotFoundException
+     *
+     * @return object
      */
     protected function preload(User $actor, array $params)
     {
@@ -81,7 +83,7 @@ class DiscussionController extends ClientController
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === 404) {
-            throw new RouteNotFoundException;
+            throw new RouteNotFoundException();
         }
 
         return json_decode($response->getBody());

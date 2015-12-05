@@ -46,7 +46,7 @@ class ShowUserController extends AbstractResourceController
     {
         $id = array_get($request->getQueryParams(), 'id');
 
-        if (! is_numeric($id)) {
+        if (!is_numeric($id)) {
             $id = $this->users->getIdForUsername($id);
         }
 

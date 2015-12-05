@@ -13,8 +13,8 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\GroupRepository;
-use Flarum\Event\GroupWillBeDeleted;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Event\GroupWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteGroupHandler
@@ -38,8 +38,10 @@ class DeleteGroupHandler
 
     /**
      * @param DeleteGroup $command
-     * @return \Flarum\Core\Group
+     *
      * @throws PermissionDeniedException
+     *
+     * @return \Flarum\Core\Group
      */
     public function handle(DeleteGroup $command)
     {

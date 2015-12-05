@@ -11,7 +11,6 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Core\PasswordToken;
-use Flarum\Core\Command\EditUser;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
@@ -31,7 +30,7 @@ class SavePasswordController implements ControllerInterface
     protected $authenticator;
 
     /**
-     * @param UrlGenerator $url
+     * @param UrlGenerator         $url
      * @param SessionAuthenticator $authenticator
      */
     public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator)
@@ -42,6 +41,7 @@ class SavePasswordController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return RedirectResponse
      */
     public function handle(Request $request)
@@ -53,7 +53,7 @@ class SavePasswordController implements ControllerInterface
         $password = array_get($input, 'password');
         $confirmation = array_get($input, 'password_confirmation');
 
-        if (! $password || $password !== $confirmation) {
+        if (!$password || $password !== $confirmation) {
             return new RedirectResponse($this->url->toRoute('resetPassword', ['token' => $token->id]));
         }
 

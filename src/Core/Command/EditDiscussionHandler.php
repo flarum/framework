@@ -34,9 +34,9 @@ class EditDiscussionHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher           $events
      * @param DiscussionRepository $discussions
-     * @param DiscussionValidator $validator
+     * @param DiscussionValidator  $validator
      */
     public function __construct(Dispatcher $events, DiscussionRepository $discussions, DiscussionValidator $validator)
     {
@@ -47,8 +47,10 @@ class EditDiscussionHandler
 
     /**
      * @param EditDiscussion $command
-     * @return \Flarum\Core\Discussion
+     *
      * @throws PermissionDeniedException
+     *
+     * @return \Flarum\Core\Discussion
      */
     public function handle(EditDiscussion $command)
     {

@@ -13,9 +13,9 @@ namespace Flarum\Forum;
 
 use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
+use Flarum\Http\Middleware\HandleErrors;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\MiddlewarePipe;
-use Flarum\Http\Middleware\HandleErrors;
 
 class Server extends AbstractServer
 {
@@ -24,18 +24,18 @@ class Server extends AbstractServer
      */
     protected function getMiddleware(Application $app)
     {
-        $pipe = new MiddlewarePipe;
+        $pipe = new MiddlewarePipe();
 
         $basePath = parse_url($app->url(), PHP_URL_PATH);
         $errorDir = __DIR__.'/../../error';
 
-        if (! $app->isInstalled()) {
+        if (!$app->isInstalled()) {
             $app->register('Flarum\Install\InstallServiceProvider');
 
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.install.routes')]));
             $pipe->pipe($basePath, new HandleErrors($errorDir, true));
-        } elseif ($app->isUpToDate() && ! $app->isDownForMaintenance()) {
+        } elseif ($app->isUpToDate() && !$app->isDownForMaintenance()) {
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\RememberFromCookie'));

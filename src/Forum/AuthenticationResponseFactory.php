@@ -12,7 +12,6 @@ namespace Flarum\Forum;
 
 use Flarum\Core\AuthToken;
 use Flarum\Core\User;
-use Flarum\Http\AccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -32,12 +31,12 @@ class AuthenticationResponseFactory
 
     /**
      * AuthenticationResponseFactory constructor.
+     *
      * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     * @param Rememberer           $rememberer
      */
     public function __construct(SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
-
         $this->authenticator = $authenticator;
         $this->rememberer = $rememberer;
     }
@@ -66,6 +65,7 @@ class AuthenticationResponseFactory
 
     /**
      * @param string $username
+     *
      * @return string
      */
     private function sanitizeUsername($username)
@@ -75,6 +75,7 @@ class AuthenticationResponseFactory
 
     /**
      * @param array $payload
+     *
      * @return HtmlResponse
      */
     private function getResponse(array $payload)
@@ -88,9 +89,10 @@ class AuthenticationResponseFactory
     }
 
     /**
-     * @param array $identification
-     * @param array $suggestions
+     * @param array     $identification
+     * @param array     $suggestions
      * @param User|null $user
+     *
      * @return array
      */
     private function getPayload(array $identification, array $suggestions, User $user = null)

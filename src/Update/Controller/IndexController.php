@@ -11,8 +11,8 @@
 namespace Flarum\Update\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\View\Factory;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexController extends AbstractHtmlController
 {
@@ -31,6 +31,7 @@ class IndexController extends AbstractHtmlController
 
     /**
      * @param Request $request
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function render(Request $request)

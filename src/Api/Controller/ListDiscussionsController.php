@@ -10,9 +10,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\Discussion\DiscussionSearcher;
 use Flarum\Api\UrlGenerator;
+use Flarum\Core\Search\Discussion\DiscussionSearcher;
+use Flarum\Core\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -31,7 +31,7 @@ class ListDiscussionsController extends AbstractCollectionController
         'lastUser',
         'relevantPosts',
         'relevantPosts.discussion',
-        'relevantPosts.user'
+        'relevantPosts.user',
     ];
 
     /**
@@ -39,7 +39,7 @@ class ListDiscussionsController extends AbstractCollectionController
      */
     public $optionalInclude = [
         'startPost',
-        'lastPost'
+        'lastPost',
     ];
 
     /**
@@ -59,7 +59,7 @@ class ListDiscussionsController extends AbstractCollectionController
 
     /**
      * @param DiscussionSearcher $searcher
-     * @param UrlGenerator $url
+     * @param UrlGenerator       $url
      */
     public function __construct(DiscussionSearcher $searcher, UrlGenerator $url)
     {

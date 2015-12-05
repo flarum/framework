@@ -31,7 +31,7 @@ class UpdateController implements ControllerInterface
 
     /**
      * @param MigrateCommand $command
-     * @param Application $app
+     * @param Application    $app
      */
     public function __construct(MigrateCommand $command, Application $app)
     {
@@ -41,6 +41,7 @@ class UpdateController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request)

@@ -36,7 +36,7 @@ class ApiKey extends AbstractModel
      */
     public static function generate()
     {
-        $key = new static;
+        $key = new static();
 
         $key->id = str_random(40);
 
@@ -47,6 +47,7 @@ class ApiKey extends AbstractModel
      * Get the given key only if it is valid.
      *
      * @param string $key
+     *
      * @return static|null
      */
     public static function valid($key)

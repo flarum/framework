@@ -55,7 +55,7 @@ class GambitManager
      * Apply gambits to a search, given a search query.
      *
      * @param AbstractSearch $search
-     * @param string $query
+     * @param string         $query
      */
     public function apply(AbstractSearch $search, $query)
     {
@@ -80,6 +80,7 @@ class GambitManager
      * Explode a search query into an array of bits.
      *
      * @param string $query
+     *
      * @return array
      */
     protected function explode($query)
@@ -89,14 +90,15 @@ class GambitManager
 
     /**
      * @param AbstractSearch $search
-     * @param string $query
+     * @param string         $query
+     *
      * @return string
      */
     protected function applyGambits(AbstractSearch $search, $query)
     {
         $bits = $this->explode($query);
 
-        if (! $bits) {
+        if (!$bits) {
             return '';
         }
 
@@ -104,9 +106,9 @@ class GambitManager
 
         foreach ($bits as $k => $bit) {
             foreach ($gambits as $gambit) {
-                if (! $gambit instanceof GambitInterface) {
-                    throw new LogicException('GambitInterface ' . get_class($gambit)
-                        . ' does not implement ' . GambitInterface::class);
+                if (!$gambit instanceof GambitInterface) {
+                    throw new LogicException('GambitInterface '.get_class($gambit)
+                        .' does not implement '.GambitInterface::class);
                 }
 
                 if ($gambit->apply($search, $bit)) {
@@ -122,11 +124,11 @@ class GambitManager
 
     /**
      * @param AbstractSearch $search
-     * @param string $query
+     * @param string         $query
      */
     protected function applyFulltext(AbstractSearch $search, $query)
     {
-        if (! $this->fulltextGambit) {
+        if (!$this->fulltextGambit) {
             return;
         }
 

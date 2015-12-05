@@ -11,10 +11,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApiResponse;
-use Flarum\Http\Controller\ControllerInterface;
-use Illuminate\Contracts\Container\Container;
 use Flarum\Event\ConfigureApiController;
 use Flarum\Event\PrepareApiData;
+use Flarum\Http\Controller\ControllerInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -87,7 +87,7 @@ abstract class AbstractSerializeController implements ControllerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        $document = new Document;
+        $document = new Document();
 
         static::$events->fire(
             new ConfigureApiController($this)
@@ -115,7 +115,8 @@ abstract class AbstractSerializeController implements ControllerInterface
      * Get the data to be serialized and assigned to the response document.
      *
      * @param ServerRequestInterface $request
-     * @param Document $document
+     * @param Document               $document
+     *
      * @return mixed
      */
     abstract protected function data(ServerRequestInterface $request, Document $document);
@@ -123,16 +124,19 @@ abstract class AbstractSerializeController implements ControllerInterface
     /**
      * Create a PHP JSON-API Element for output in the document.
      *
-     * @param mixed $data
+     * @param mixed               $data
      * @param SerializerInterface $serializer
+     *
      * @return \Tobscure\JsonApi\ElementInterface
      */
     abstract protected function createElement($data, SerializerInterface $serializer);
 
     /**
      * @param ServerRequestInterface $request
-     * @return array
+     *
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
+     *
+     * @return array
      */
     protected function extractInclude(ServerRequestInterface $request)
     {
@@ -143,6 +147,7 @@ abstract class AbstractSerializeController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
+     *
      * @return array
      */
     protected function extractFields(ServerRequestInterface $request)
@@ -152,8 +157,10 @@ abstract class AbstractSerializeController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @return array|null
+     *
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
+     *
+     * @return array|null
      */
     protected function extractSort(ServerRequestInterface $request)
     {
@@ -162,8 +169,10 @@ abstract class AbstractSerializeController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @return int
+     *
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
+     *
+     * @return int
      */
     protected function extractOffset(ServerRequestInterface $request)
     {
@@ -172,6 +181,7 @@ abstract class AbstractSerializeController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
+     *
      * @return int
      */
     protected function extractLimit(ServerRequestInterface $request)
@@ -181,6 +191,7 @@ abstract class AbstractSerializeController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
+     *
      * @return array
      */
     protected function extractFilter(ServerRequestInterface $request)
@@ -190,6 +201,7 @@ abstract class AbstractSerializeController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
+     *
      * @return Parameters
      */
     protected function buildParameters(ServerRequestInterface $request)

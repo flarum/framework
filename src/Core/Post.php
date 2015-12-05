@@ -12,13 +12,11 @@ namespace Flarum\Core;
 
 use DomainException;
 use Flarum\Core\Post\RegisteredTypesScope;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Database\AbstractModel;
-use Flarum\Core\User;
-use Flarum\Core\Support\Locked;
-use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\ValidateBeforeSaveTrait;
+use Flarum\Core\Support\ScopeVisibilityTrait;
+
+use Flarum\Database\AbstractModel;
+use Flarum\Event\PostWasDeleted;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -100,14 +98,15 @@ class Post extends AbstractModel
             $post->raise(new PostWasDeleted($post));
         });
 
-        static::addGlobalScope(new RegisteredTypesScope);
+        static::addGlobalScope(new RegisteredTypesScope());
     }
 
     /**
      * Determine whether or not this post is visible to the given user.
      *
      * @param User $user
-     * @return boolean
+     *
+     * @return bool
      */
     public function isVisibleTo(User $user)
     {
@@ -167,6 +166,7 @@ class Post extends AbstractModel
      * `RegisteredTypesScope` global scope constraints applied on this model.
      *
      * @param Builder $query
+     *
      * @return Builder
      */
     public function scopeAllTypes(Builder $query)
@@ -177,20 +177,21 @@ class Post extends AbstractModel
     /**
      * Create a new model instance according to the post's type.
      *
-     * @param array $attributes
+     * @param array       $attributes
      * @param string|null $connection
+     *
      * @return static|object
      */
     public function newFromBuilder($attributes = [], $connection = null)
     {
         $attributes = (array) $attributes;
 
-        if (! empty($attributes['type'])
+        if (!empty($attributes['type'])
             && isset(static::$models[$attributes['type']])
             && class_exists($class = static::$models[$attributes['type']])
         ) {
             /** @var Post $instance */
-            $instance = new $class;
+            $instance = new $class();
             $instance->exists = true;
             $instance->setRawAttributes($attributes, true);
             $instance->setConnection($connection ?: $this->connection);
@@ -214,8 +215,9 @@ class Post extends AbstractModel
     /**
      * Set the model for the given post type.
      *
-     * @param string $type The post type.
+     * @param string $type  The post type.
      * @param string $model The class name of the model for that type.
+     *
      * @return void
      */
     public static function setModel($type, $model)

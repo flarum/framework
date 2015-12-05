@@ -32,6 +32,7 @@ abstract class AbstractPolicy
 
     /**
      * @param GetPermission $event
+     *
      * @return bool|null
      */
     public function getPermission(GetPermission $event)
@@ -42,7 +43,7 @@ abstract class AbstractPolicy
 
                 $result = call_user_func_array([$this, 'before'], $arguments);
 
-                if (! is_null($result)) {
+                if (!is_null($result)) {
                     return $result;
                 }
             }

@@ -30,9 +30,9 @@ class GetPermission
     public $arguments;
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
-     * @param array $arguments
+     * @param array  $arguments
      */
     public function __construct(User $actor, $ability, array $arguments)
     {

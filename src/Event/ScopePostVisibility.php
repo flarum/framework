@@ -15,7 +15,7 @@ use Flarum\Core\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * The `ScopePostVisibility` event
+ * The `ScopePostVisibility` event.
  */
 class ScopePostVisibility
 {
@@ -36,8 +36,8 @@ class ScopePostVisibility
 
     /**
      * @param Discussion $discussion
-     * @param Builder $query
-     * @param User $actor
+     * @param Builder    $query
+     * @param User       $actor
      */
     public function __construct(Discussion $discussion, Builder $query, User $actor)
     {

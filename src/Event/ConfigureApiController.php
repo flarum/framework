@@ -29,6 +29,7 @@ class ConfigureApiController
 
     /**
      * @param string $controller
+     *
      * @return bool
      */
     public function isController($controller)

@@ -30,7 +30,7 @@ class ConfigureModelDates
 
     /**
      * @param AbstractModel $model
-     * @param array $dates
+     * @param array         $dates
      */
     public function __construct(AbstractModel $model, array &$dates)
     {
@@ -40,6 +40,7 @@ class ConfigureModelDates
 
     /**
      * @param string $model
+     *
      * @return bool
      */
     public function isModel($model)

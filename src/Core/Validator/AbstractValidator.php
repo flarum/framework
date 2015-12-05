@@ -40,8 +40,8 @@ abstract class AbstractValidator
     protected $translator;
 
     /**
-     * @param Factory $validator
-     * @param Dispatcher $events
+     * @param Factory             $validator
+     * @param Dispatcher          $events
      * @param TranslatorInterface $translator
      */
     public function __construct(Factory $validator, Dispatcher $events, TranslatorInterface $translator)
@@ -85,6 +85,7 @@ abstract class AbstractValidator
      * Make a new validator instance for this model.
      *
      * @param array $attributes
+     *
      * @return \Illuminate\Validation\Validator
      */
     protected function makeValidator(array $attributes)

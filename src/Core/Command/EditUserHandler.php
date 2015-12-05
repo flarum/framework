@@ -11,12 +11,12 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\User;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Core\Validator\UserValidator;
-use Flarum\Event\UserWillBeSaved;
-use Flarum\Event\UserGroupsWereChanged;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Core\User;
+use Flarum\Core\Validator\UserValidator;
+use Flarum\Event\UserGroupsWereChanged;
+use Flarum\Event\UserWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditUserHandler
@@ -35,9 +35,9 @@ class EditUserHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher     $events
      * @param UserRepository $users
-     * @param UserValidator $validator
+     * @param UserValidator  $validator
      */
     public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
     {
@@ -48,8 +48,10 @@ class EditUserHandler
 
     /**
      * @param EditUser $command
-     * @return User
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
+     *
+     * @return User
      */
     public function handle(EditUser $command)
     {
@@ -91,19 +93,19 @@ class EditUserHandler
         }
 
         if (isset($attributes['bio'])) {
-            if (! $isSelf) {
+            if (!$isSelf) {
                 $this->assertPermission($canEdit);
             }
 
             $user->changeBio($attributes['bio']);
         }
 
-        if (! empty($attributes['readTime'])) {
+        if (!empty($attributes['readTime'])) {
             $this->assertPermission($isSelf);
             $user->markAllAsRead();
         }
 
-        if (! empty($attributes['preferences'])) {
+        if (!empty($attributes['preferences'])) {
             $this->assertPermission($isSelf);
 
             foreach ($attributes['preferences'] as $k => $v) {
