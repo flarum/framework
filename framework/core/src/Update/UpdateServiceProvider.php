@@ -13,7 +13,6 @@ namespace Flarum\Update;
 use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\RouteCollection;
 use Flarum\Foundation\AbstractServiceProvider;
-use Psr\Http\Message\ServerRequestInterface;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {
