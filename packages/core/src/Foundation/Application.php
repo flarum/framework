@@ -117,8 +117,10 @@ class Application extends Container implements ApplicationContract
         try {
             $version = $settings->get('version');
         } finally {
-            return isset($version) && $version === $this->version();
+            $isUpToDate = isset($version) && $version === $this->version();
         }
+
+        return $isUpToDate;
     }
 
     /**
