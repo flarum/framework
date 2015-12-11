@@ -10,7 +10,12 @@ export default function() {
     const tag = app.store.getBy('tags', 'slug', this.params().tags);
 
     if (tag) {
-      promise.then(component => component.tags = [tag]);
+      const parent = tag.parent();
+      let tags = [tag];
+      if (parent) {
+        tags.unshift(parent);
+      }
+      promise.then(component => component.tags = tags);
     }
   });
 
