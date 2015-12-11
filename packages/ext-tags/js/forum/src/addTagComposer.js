@@ -11,10 +11,7 @@ export default function() {
 
     if (tag) {
       const parent = tag.parent();
-      let tags = [tag];
-      if (parent) {
-        tags.unshift(parent);
-      }
+      const tags = parent ? [parent, tag] : [tag];
       promise.then(component => component.tags = tags);
     }
   });
