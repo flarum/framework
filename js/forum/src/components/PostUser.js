@@ -2,6 +2,7 @@ import Component from 'flarum/Component';
 import UserCard from 'flarum/components/UserCard';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
+import useronline from 'flarum/helpers/useronline';
 import listItems from 'flarum/helpers/listItems';
 
 /**
