@@ -45,6 +45,7 @@ export default class PostUser extends Component {
 
     return (
       <div className="PostUser">
+        {useronline(user)}
         <h3>
           <a href={app.route.user(user)} config={m.route}>
             {avatar(user, {className: 'PostUser-avatar'})}{' '}{username(user)}
