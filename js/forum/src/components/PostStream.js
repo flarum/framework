@@ -212,6 +212,7 @@ class PostStream extends Component {
         attrs['data-time'] = time.toISOString();
         attrs['data-number'] = post.number();
         attrs['data-id'] = post.id();
+        attrs['data-type'] = post.contentType();
 
         // If the post before this one was more than 4 hours ago, we will
         // display a 'time gap' indicating how long it has been in between
