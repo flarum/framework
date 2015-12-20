@@ -24,7 +24,7 @@ export default class SuspendUserModal extends Modal {
   }
 
   title() {
-    return app.translator.trans('flarum-suspend.forum.suspend_user.title', {user: this.props.user.username()});
+    return app.translator.trans('flarum-suspend.forum.suspend_user.title', {user: this.props.user});
   }
 
   content() {
