@@ -48,7 +48,7 @@ export default class SettingsPage extends UserPage {
       FieldSet.component({
         label: app.translator.trans('core.forum.settings.notifications_heading'),
         className: 'Settings-notifications',
-        children: [NotificationGrid.component({user: this.user})]
+        children: this.notificationsItems().toArray()
       })
     );
 
@@ -86,6 +86,19 @@ export default class SettingsPage extends UserPage {
         onclick: () => app.modal.show(new ChangeEmailModal())
       })
     );
+
+    return items;
+  }
+
+  /**
+   * Build an item list for the user's notification settings.
+   *
+   * @return {ItemList}
+   */
+  notificationsItems() {
+    const items = new ItemList();
+
+    items.add('notificationGrid', NotificationGrid.component({user: this.user}));
 
     return items;
   }
