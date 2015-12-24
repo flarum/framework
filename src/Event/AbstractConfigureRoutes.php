@@ -26,7 +26,7 @@ abstract class AbstractConfigureRoutes
 
     /**
      * @param RouteCollection $routes
-     * @param callable $handlerGenerator
+     * @param callable        $handlerGenerator
      */
     public function __construct(RouteCollection $routes, callable $handlerGenerator)
     {
@@ -87,6 +87,7 @@ abstract class AbstractConfigureRoutes
 
     /**
      * @param string $controller
+     *
      * @return callable
      */
     protected function toController($controller)

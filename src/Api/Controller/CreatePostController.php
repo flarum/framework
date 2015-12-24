@@ -30,7 +30,7 @@ class CreatePostController extends AbstractCreateController
         'user',
         'discussion',
         'discussion.posts',
-        'discussion.lastUser'
+        'discussion.lastUser',
     ];
 
     /**

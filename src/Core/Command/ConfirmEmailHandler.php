@@ -35,6 +35,7 @@ class ConfirmEmailHandler
 
     /**
      * @param ConfirmEmail $command
+     *
      * @return \Flarum\Core\User
      */
     public function handle(ConfirmEmail $command)
@@ -45,7 +46,7 @@ class ConfirmEmailHandler
         $user = $token->user;
         $user->changeEmail($token->email);
 
-        if (! $user->is_activated) {
+        if (!$user->is_activated) {
             $user->activate();
         }
 

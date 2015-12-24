@@ -76,6 +76,7 @@ class Notification extends AbstractModel
      * database into a plain array.
      *
      * @param string $value
+     *
      * @return mixed
      */
     public function getDataAttribute($value)
@@ -148,9 +149,10 @@ class Notification extends AbstractModel
     /**
      * Set the subject model for the given notification type.
      *
-     * @param string $type The notification type.
+     * @param string $type         The notification type.
      * @param string $subjectModel The class name of the subject model for that
-     *     type.
+     *                             type.
+     *
      * @return void
      */
     public static function setSubjectModel($type, $subjectModel)

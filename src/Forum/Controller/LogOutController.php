@@ -44,10 +44,10 @@ class LogOutController implements ControllerInterface
     protected $rememberer;
 
     /**
-     * @param Application $app
-     * @param Dispatcher $events
+     * @param Application          $app
+     * @param Dispatcher           $events
      * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     * @param Rememberer           $rememberer
      */
     public function __construct(Application $app, Dispatcher $events, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
@@ -59,8 +59,10 @@ class LogOutController implements ControllerInterface
 
     /**
      * @param Request $request
-     * @return \Psr\Http\Message\ResponseInterface
+     *
      * @throws TokenMismatchException
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request)
     {
@@ -70,7 +72,7 @@ class LogOutController implements ControllerInterface
 
         if ($user = User::find($session->get('user_id'))) {
             if (array_get($request->getQueryParams(), 'token') !== $session->get('csrf_token')) {
-                throw new TokenMismatchException;
+                throw new TokenMismatchException();
             }
 
             $this->authenticator->logOut($session);

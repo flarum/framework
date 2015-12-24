@@ -26,7 +26,7 @@ class ConfigureFormatterParser
 
     /**
      * @param Parser $parser
-     * @param mixed $context
+     * @param mixed  $context
      */
     public function __construct(Parser $parser, $context)
     {

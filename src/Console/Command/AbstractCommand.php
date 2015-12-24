@@ -46,6 +46,7 @@ abstract class AbstractCommand extends Command
      * Did the user pass the given option?
      *
      * @param string $name
+     *
      * @return bool
      */
     protected function hasOption($name)

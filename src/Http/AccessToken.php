@@ -38,11 +38,12 @@ class AccessToken extends AbstractModel
      *
      * @param int $userId
      * @param int $lifetime
+     *
      * @return static
      */
     public static function generate($userId, $lifetime = 3600)
     {
-        $token = new static;
+        $token = new static();
 
         $token->id = str_random(40);
         $token->user_id = $userId;

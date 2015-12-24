@@ -51,11 +51,11 @@ class UploadAvatarHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
+     * @param Dispatcher          $events
+     * @param UserRepository      $users
      * @param FilesystemInterface $uploadDir
-     * @param Application $app
-     * @param AvatarValidator $validator
+     * @param Application         $app
+     * @param AvatarValidator     $validator
      */
     public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir, Application $app, AvatarValidator $validator)
     {
@@ -68,8 +68,10 @@ class UploadAvatarHandler
 
     /**
      * @param UploadAvatar $command
-     * @return \Flarum\Core\User
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
+     *
+     * @return \Flarum\Core\User
      */
     public function handle(UploadAvatar $command)
     {
@@ -95,7 +97,7 @@ class UploadAvatarHandler
 
         $this->validator->assertValid(['avatar' => $file]);
 
-        $manager = new ImageManager;
+        $manager = new ImageManager();
         $manager->make($tmpFile)->fit(100, 100)->save();
 
         $this->events->fire(
@@ -111,11 +113,11 @@ class UploadAvatarHandler
             $mount->delete($file);
         }
 
-        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+        $uploadName = Str::lower(Str::quickRandom()).'.jpg';
 
         $user->changeAvatarPath($uploadName);
 
-        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
 
         $user->save();
 

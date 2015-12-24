@@ -43,6 +43,7 @@ class DiscussionSearch extends AbstractSearch
      * Set the relevant post IDs for the results.
      *
      * @param array $relevantPostIds
+     *
      * @return void
      */
     public function setRelevantPostIds(array $relevantPostIds)

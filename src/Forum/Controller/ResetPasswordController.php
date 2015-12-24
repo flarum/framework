@@ -10,12 +10,12 @@
 
 namespace Flarum\Forum\Controller;
 
+use DateTime;
+use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use Flarum\Core\PasswordToken;
 use Flarum\Http\Controller\AbstractHtmlController;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\View\Factory;
-use DateTime;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ResetPasswordController extends AbstractHtmlController
 {
@@ -34,8 +34,10 @@ class ResetPasswordController extends AbstractHtmlController
 
     /**
      * @param Request $request
-     * @return \Illuminate\Contracts\View\View
+     *
      * @throws InvalidConfirmationTokenException
+     *
+     * @return \Illuminate\Contracts\View\View
      */
     public function render(Request $request)
     {
@@ -44,7 +46,7 @@ class ResetPasswordController extends AbstractHtmlController
         $token = PasswordToken::findOrFail($token);
 
         if ($token->created_at < new DateTime('-1 day')) {
-            throw new InvalidConfirmationTokenException;
+            throw new InvalidConfirmationTokenException();
         }
 
         return $this->view->make('flarum::reset')

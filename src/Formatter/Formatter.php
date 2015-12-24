@@ -10,13 +10,13 @@
 
 namespace Flarum\Formatter;
 
+use Flarum\Event\ConfigureFormatter;
+use Flarum\Event\ConfigureFormatterParser;
+use Flarum\Event\ConfigureFormatterRenderer;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
-use Flarum\Event\ConfigureFormatter;
-use Flarum\Event\ConfigureFormatterParser;
-use Flarum\Event\ConfigureFormatterRenderer;
 
 class Formatter
 {
@@ -38,7 +38,7 @@ class Formatter
     /**
      * @param Repository $cache
      * @param Dispatcher $events
-     * @param string $cacheDir
+     * @param string     $cacheDir
      */
     public function __construct(Repository $cache, Dispatcher $events, $cacheDir)
     {
@@ -51,7 +51,8 @@ class Formatter
      * Parse text.
      *
      * @param string $text
-     * @param mixed $context
+     * @param mixed  $context
+     *
      * @return string
      */
     public function parse($text, $context = null)
@@ -65,7 +66,8 @@ class Formatter
      * Render parsed XML.
      *
      * @param string $xml
-     * @param mixed $context
+     * @param mixed  $context
+     *
      * @return string
      */
     public function render($xml, $context = null)
@@ -79,6 +81,7 @@ class Formatter
      * Unparse XML.
      *
      * @param string $xml
+     *
      * @return string
      */
     public function unparse($xml)
@@ -100,7 +103,7 @@ class Formatter
      */
     protected function getConfigurator()
     {
-        $configurator = new Configurator;
+        $configurator = new Configurator();
 
         $configurator->rootRules->enableAutoLineBreaks();
 
@@ -138,11 +141,12 @@ class Formatter
      * Get a TextFormatter component.
      *
      * @param string $name "renderer" or "parser"
+     *
      * @return mixed
      */
     protected function getComponent($name)
     {
-        $cacheKey = 'flarum.formatter.' . $name;
+        $cacheKey = 'flarum.formatter.'.$name;
 
         return $this->cache->rememberForever($cacheKey, function () use ($name) {
             return $this->getConfigurator()->finalize()[$name];
@@ -153,6 +157,7 @@ class Formatter
      * Get the parser.
      *
      * @param mixed $context
+     *
      * @return \s9e\TextFormatter\Parser
      */
     protected function getParser($context = null)
@@ -170,6 +175,7 @@ class Formatter
      * Get the renderer.
      *
      * @param mixed $context
+     *
      * @return \s9e\TextFormatter\Renderer
      */
     protected function getRenderer($context = null)
@@ -199,8 +205,8 @@ class Formatter
         $configurator->javascript->exportMethods = ['preview'];
 
         return $configurator->finalize([
-            'returnParser' => false,
-            'returnRenderer' => false
+            'returnParser'   => false,
+            'returnRenderer' => false,
         ])['js'];
     }
 }

@@ -21,14 +21,14 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
 
     public function init()
     {
-        $this->handler = new ValidationExceptionHandler;
+        $this->handler = new ValidationExceptionHandler();
     }
 
     public function test_it_handles_familiar_exceptions()
     {
         $validException = new ValidationException(['messages']);
 
-        $this->assertFalse($this->handler->manages(new Exception));
+        $this->assertFalse($this->handler->manages(new Exception()));
         $this->assertTrue($this->handler->manages($validException));
     }
 

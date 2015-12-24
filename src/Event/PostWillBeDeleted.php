@@ -38,8 +38,8 @@ class PostWillBeDeleted
 
     /**
      * @param \Flarum\Core\Post $post
-     * @param User $actor
-     * @param array $data
+     * @param User              $actor
+     * @param array             $data
      */
     public function __construct(Post $post, User $actor, array $data)
     {

@@ -25,9 +25,9 @@ trait GenerateRouteHandlerTrait
             return function (ServerRequestInterface $request, $routeParams) use ($class, $container) {
                 $controller = $container->make($class);
 
-                if (! ($controller instanceof ControllerInterface)) {
+                if (!($controller instanceof ControllerInterface)) {
                     throw new \InvalidArgumentException('Route handler must be an instance of '
-                        . ControllerInterface::class);
+                        .ControllerInterface::class);
                 }
 
                 $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));

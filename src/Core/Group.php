@@ -74,16 +74,17 @@ class Group extends AbstractModel
      * @param string $namePlural
      * @param string $color
      * @param string $icon
+     *
      * @return static
      */
     public static function build($nameSingular, $namePlural, $color, $icon)
     {
-        $group = new static;
+        $group = new static();
 
         $group->name_singular = $nameSingular;
-        $group->name_plural   = $namePlural;
-        $group->color         = $color;
-        $group->icon          = $icon;
+        $group->name_plural = $namePlural;
+        $group->color = $color;
+        $group->icon = $icon;
 
         $group->raise(new GroupWasCreated($group));
 
@@ -95,12 +96,13 @@ class Group extends AbstractModel
      *
      * @param string $nameSingular
      * @param string $namePlural
+     *
      * @return $this
      */
     public function rename($nameSingular, $namePlural)
     {
         $this->name_singular = $nameSingular;
-        $this->name_plural   = $namePlural;
+        $this->name_plural = $namePlural;
 
         $this->raise(new GroupWasRenamed($this));
 

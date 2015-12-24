@@ -23,7 +23,7 @@ class Server extends AbstractServer
      */
     protected function getMiddleware(Application $app)
     {
-        $pipe = new MiddlewarePipe;
+        $pipe = new MiddlewarePipe();
 
         $apiPath = parse_url($app->url('api'), PHP_URL_PATH);
 
@@ -39,12 +39,12 @@ class Server extends AbstractServer
             $pipe->pipe($apiPath, $app->make('Flarum\Api\Middleware\HandleErrors'));
         } else {
             $pipe->pipe($apiPath, function () {
-                $document = new Document;
+                $document = new Document();
                 $document->setErrors([
                     [
-                        'code' => 503,
-                        'title' => 'Service Unavailable'
-                    ]
+                        'code'  => 503,
+                        'title' => 'Service Unavailable',
+                    ],
                 ]);
 
                 return new JsonApiResponse($document, 503);

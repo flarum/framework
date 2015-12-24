@@ -27,7 +27,7 @@ class UpdatePostController extends AbstractResourceController
      */
     public $include = [
         'editUser',
-        'discussion'
+        'discussion',
     ];
 
     /**

@@ -10,10 +10,9 @@
 
 namespace Flarum\Console\Command;
 
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Question\Question;
 use Flarum\Database\MigrationCreator;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class GenerateMigrationCommand extends AbstractCommand
 {
@@ -39,7 +38,7 @@ class GenerateMigrationCommand extends AbstractCommand
     {
         $this
             ->setName('generate:migration')
-            ->setDescription("Generate a migration.")
+            ->setDescription('Generate a migration.')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
@@ -78,7 +77,7 @@ class GenerateMigrationCommand extends AbstractCommand
 
         $create = $this->input->getOption('create');
 
-        if (! $table && is_string($create)) {
+        if (!$table && is_string($create)) {
             $table = $create;
         }
 
@@ -91,7 +90,8 @@ class GenerateMigrationCommand extends AbstractCommand
      * @param string $name
      * @param string $extension
      * @param string $table
-     * @param bool $create
+     * @param bool   $create
+     *
      * @return string
      */
     protected function writeMigration($name, $extension, $table, $create)

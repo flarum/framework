@@ -36,9 +36,9 @@ class AvatarWillBeSaved
     public $path;
 
     /**
-     * @param User $user The user whose avatar will be saved.
-     * @param User $actor The user performing the action.
-     * @param string $path The path to the avatar that will be saved.
+     * @param User   $user  The user whose avatar will be saved.
+     * @param User   $actor The user performing the action.
+     * @param string $path  The path to the avatar that will be saved.
      */
     public function __construct(User $user, User $actor, $path)
     {

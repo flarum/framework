@@ -12,9 +12,9 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\TokenController;
-use Flarum\Http\AccessToken;
-use Flarum\Event\UserLoggedIn;
 use Flarum\Core\Repository\UserRepository;
+use Flarum\Event\UserLoggedIn;
+use Flarum\Http\AccessToken;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
@@ -46,9 +46,9 @@ class LogInController implements ControllerInterface
 
     /**
      * @param \Flarum\Core\Repository\UserRepository $users
-     * @param Client $apiClient
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     * @param Client                                 $apiClient
+     * @param SessionAuthenticator                   $authenticator
+     * @param Rememberer                             $rememberer
      */
     public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
@@ -60,6 +60,7 @@ class LogInController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return JsonResponse|EmptyResponse
      */
     public function handle(Request $request)

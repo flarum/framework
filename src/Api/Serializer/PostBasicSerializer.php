@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Post\CommentPost;
 use Flarum\Core\Post;
+use Flarum\Core\Post\CommentPost;
 use InvalidArgumentException;
 
 class PostBasicSerializer extends AbstractSerializer
@@ -25,20 +25,21 @@ class PostBasicSerializer extends AbstractSerializer
      * {@inheritdoc}
      *
      * @param \Flarum\Core\Post $post
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($post)
     {
-        if (! ($post instanceof Post)) {
+        if (!($post instanceof Post)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . Post::class);
+                .' can only serialize instances of '.Post::class);
         }
 
         $attributes = [
             'id'          => (int) $post->id,
             'number'      => (int) $post->number,
             'time'        => $this->formatDate($post->time),
-            'contentType' => $post->type
+            'contentType' => $post->type,
         ];
 
         if ($post instanceof CommentPost) {

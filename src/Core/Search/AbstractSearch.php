@@ -42,7 +42,7 @@ abstract class AbstractSearch
 
     /**
      * @param Builder $query
-     * @param User $actor
+     * @param User    $actor
      */
     public function __construct(Builder $query, User $actor)
     {
@@ -85,8 +85,9 @@ abstract class AbstractSearch
      * a sort order has not been specified in the search criteria.
      *
      * @param array $defaultSort An array of sort-order pairs, where the column
-     *     is the key, and the order is the value. The order may be 'asc',
-     *     'desc', or an array of IDs to order by.
+     *                           is the key, and the order is the value. The order may be 'asc',
+     *                           'desc', or an array of IDs to order by.
+     *
      * @return mixed
      */
     public function setDefaultSort(array $defaultSort)
@@ -108,6 +109,7 @@ abstract class AbstractSearch
      * Add a gambit as being active in this search.
      *
      * @param GambitInterface $gambit
+     *
      * @return void
      */
     public function addActiveGambit(GambitInterface $gambit)

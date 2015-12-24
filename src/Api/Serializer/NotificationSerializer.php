@@ -32,13 +32,14 @@ class NotificationSerializer extends AbstractSerializer
      * {@inheritdoc}
      *
      * @param \Flarum\Core\Notification $notification
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($notification)
     {
-        if (! ($notification instanceof Notification)) {
+        if (!($notification instanceof Notification)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . Notification::class);
+                .' can only serialize instances of '.Notification::class);
         }
 
         return [
@@ -46,7 +47,7 @@ class NotificationSerializer extends AbstractSerializer
             'contentType' => $notification->type,
             'content'     => $notification->data,
             'time'        => $this->formatDate($notification->time),
-            'isRead'      => (bool) $notification->is_read
+            'isRead'      => (bool) $notification->is_read,
         ];
     }
 

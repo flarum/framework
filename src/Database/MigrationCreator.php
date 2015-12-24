@@ -10,8 +10,8 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Support\Str;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class MigrationCreator
 {
@@ -31,7 +31,7 @@ class MigrationCreator
      * Create a new migrator instance.
      *
      * @param Filesystem $files
-     * @param string $publicPath
+     * @param string     $publicPath
      */
     public function __construct(Filesystem $files, $publicPath)
     {
@@ -45,7 +45,8 @@ class MigrationCreator
      * @param string $name
      * @param string $path
      * @param string $table
-     * @param bool $create
+     * @param bool   $create
+     *
      * @return string
      */
     public function create($name, $extension = null, $table = null, $create = false)
@@ -65,7 +66,8 @@ class MigrationCreator
      * Get the migration stub file.
      *
      * @param string $table
-     * @param bool $create
+     * @param bool   $create
+     *
      * @return string
      */
     protected function getStub($table, $create)
@@ -88,6 +90,7 @@ class MigrationCreator
      * @param string $name
      * @param string $stub
      * @param string $table
+     *
      * @return string
      */
     protected function populateStub($extension, $name, $stub, $table)
@@ -96,8 +99,8 @@ class MigrationCreator
 
         $replacements = [
             '{{namespace}}' => Str::studly($vendor).'\\'.Str::studly($package) ?: 'Flarum\Core',
-            '{{name}}' => Str::studly($name),
-            '{{table}}' => $table
+            '{{name}}'      => Str::studly($name),
+            '{{table}}'     => $table,
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $stub);
@@ -107,6 +110,7 @@ class MigrationCreator
      * Get the full path name to the migration directory.
      *
      * @param string $extension
+     *
      * @return string
      */
     protected function getMigrationPath($extension)
@@ -121,6 +125,7 @@ class MigrationCreator
      *
      * @param string $name
      * @param string $path
+     *
      * @return string
      */
     protected function getPath($name, $path)

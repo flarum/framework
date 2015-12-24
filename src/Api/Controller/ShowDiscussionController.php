@@ -25,12 +25,12 @@ class ShowDiscussionController extends AbstractResourceController
     protected $discussions;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $include = [
         'posts',
@@ -38,22 +38,22 @@ class ShowDiscussionController extends AbstractResourceController
         'posts.user',
         'posts.user.groups',
         'posts.editUser',
-        'posts.hideUser'
+        'posts.hideUser',
     ];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $optionalInclude = [
         'startUser',
         'lastUser',
         'startPost',
-        'lastPost'
+        'lastPost',
     ];
 
     /**
      * @param \Flarum\Core\Repository\DiscussionRepository $discussions
-     * @param \Flarum\Core\Repository\PostRepository $posts
+     * @param \Flarum\Core\Repository\PostRepository       $posts
      */
     public function __construct(DiscussionRepository $discussions, PostRepository $posts)
     {
@@ -82,9 +82,9 @@ class ShowDiscussionController extends AbstractResourceController
     }
 
     /**
-     * @param Discussion $discussion
+     * @param Discussion             $discussion
      * @param ServerRequestInterface $request
-     * @param array $include
+     * @param array                  $include
      */
     private function includePosts(Discussion $discussion, ServerRequestInterface $request, array $include)
     {
@@ -102,7 +102,8 @@ class ShowDiscussionController extends AbstractResourceController
 
     /**
      * @param Discussion $discussion
-     * @param User $actor
+     * @param User       $actor
+     *
      * @return array
      */
     private function loadPostIds(Discussion $discussion, User $actor)
@@ -112,6 +113,7 @@ class ShowDiscussionController extends AbstractResourceController
 
     /**
      * @param array $include
+     *
      * @return array
      */
     private function getPostRelationships(array $include)
@@ -132,6 +134,7 @@ class ShowDiscussionController extends AbstractResourceController
      * @param ServerRequestInterface $request
      * @param Discussion$discussion
      * @param int $limit
+     *
      * @return int
      */
     private function getPostsOffset(ServerRequestInterface $request, Discussion $discussion, $limit)
@@ -151,10 +154,11 @@ class ShowDiscussionController extends AbstractResourceController
 
     /**
      * @param Discussion $discussion
-     * @param User $actor
-     * @param int $offset
-     * @param int $limit
-     * @param array $include
+     * @param User       $actor
+     * @param int        $offset
+     * @param int        $limit
+     * @param array      $include
+     *
      * @return mixed
      */
     private function loadPosts($discussion, $actor, $offset, $limit, array $include)

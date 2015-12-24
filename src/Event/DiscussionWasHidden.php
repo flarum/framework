@@ -27,7 +27,7 @@ class DiscussionWasHidden
 
     /**
      * @param Discussion $discussion
-     * @param User $actor
+     * @param User       $actor
      */
     public function __construct(Discussion $discussion, User $actor = null)
     {

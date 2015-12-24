@@ -10,11 +10,10 @@
 
 namespace Flarum\Api;
 
-use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Core\User;
-use Flarum\Http\AccessToken;
-use Illuminate\Contracts\Container\Container;
 use Exception;
+use Flarum\Core\User;
+use Flarum\Http\Controller\ControllerInterface;
+use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Zend\Diactoros\ServerRequestFactory;
 
@@ -31,7 +30,7 @@ class Client
     protected $errorHandler;
 
     /**
-     * @param Container $container
+     * @param Container    $container
      * @param ErrorHandler $errorHandler
      */
     public function __construct(Container $container, ErrorHandler $errorHandler)
@@ -44,9 +43,10 @@ class Client
      * Execute the given API action class, pass the input and return its response.
      *
      * @param string|ControllerInterface $controller
-     * @param User|null $actor
-     * @param array $queryParams
-     * @param array $body
+     * @param User|null                  $actor
+     * @param array                      $queryParams
+     * @param array                      $body
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function send($controller, $actor, array $queryParams = [], array $body = [])
@@ -59,9 +59,9 @@ class Client
             $controller = $this->container->make($controller);
         }
 
-        if (! ($controller instanceof ControllerInterface)) {
+        if (!($controller instanceof ControllerInterface)) {
             throw new InvalidArgumentException('Endpoint must be an instance of '
-                . ControllerInterface::class);
+                .ControllerInterface::class);
         }
 
         try {

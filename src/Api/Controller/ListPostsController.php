@@ -30,7 +30,7 @@ class ListPostsController extends AbstractCollectionController
         'user.groups',
         'editUser',
         'hideUser',
-        'discussion'
+        'discussion',
     ];
 
     /**
@@ -85,9 +85,11 @@ class ListPostsController extends AbstractCollectionController
 
     /**
      * @param ServerRequestInterface $request
-     * @param array $where
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param array                  $where
+     *
      * @throws InvalidParameterException
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     private function getPosts(ServerRequestInterface $request, array $where)
     {
@@ -97,9 +99,9 @@ class ListPostsController extends AbstractCollectionController
         $limit = $this->extractLimit($request);
 
         if (($near = array_get($queryParams, 'page.near')) > 1) {
-            if (count($where) > 1 || ! isset($where['discussion_id']) || $sort) {
+            if (count($where) > 1 || !isset($where['discussion_id']) || $sort) {
                 throw new InvalidParameterException('You can only use page[near] with '
-                    . 'filter[discussion] and the default sort order');
+                    .'filter[discussion] and the default sort order');
             }
 
             $offset = $this->posts->getIndexForNumber($where['discussion_id'], $near, $actor);

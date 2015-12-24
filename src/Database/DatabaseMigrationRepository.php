@@ -39,8 +39,9 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Create a new database migration repository instance.
      *
-     * @param  \Illuminate\Database\ConnectionResolverInterface  $resolver
-     * @param  string  $table
+     * @param \Illuminate\Database\ConnectionResolverInterface $resolver
+     * @param string                                           $table
+     *
      * @return void
      */
     public function __construct(Resolver $resolver, $table)
@@ -67,6 +68,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
      *
      * @param string $file
      * @param string $extension
+     *
      * @return void
      */
     public function log($file, $extension = null)
@@ -81,6 +83,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
      *
      * @param string $file
      * @param string $extension
+     *
      * @return void
      */
     public function delete($file, $extension = null)
@@ -156,7 +159,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Set the information source to gather data.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return void
      */
     public function setSource($name)

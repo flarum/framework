@@ -11,11 +11,11 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Core\Post\CommentPost;
 use Flarum\Core\Repository\PostRepository;
+use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
-use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\Post\CommentPost;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditPostHandler
@@ -34,9 +34,9 @@ class EditPostHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher     $events
      * @param PostRepository $posts
-     * @param PostValidator $validator
+     * @param PostValidator  $validator
      */
     public function __construct(Dispatcher $events, PostRepository $posts, PostValidator $validator)
     {
@@ -47,8 +47,10 @@ class EditPostHandler
 
     /**
      * @param EditPost $command
-     * @return \Flarum\Core\Post
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
+     *
+     * @return \Flarum\Core\Post
      */
     public function handle(EditPost $command)
     {

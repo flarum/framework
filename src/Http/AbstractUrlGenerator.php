@@ -31,7 +31,7 @@ class AbstractUrlGenerator
     protected $path;
 
     /**
-     * @param Application $app
+     * @param Application     $app
      * @param RouteCollection $routes
      */
     public function __construct(Application $app, RouteCollection $routes)
@@ -44,7 +44,8 @@ class AbstractUrlGenerator
      * Generate a URL to a named route.
      *
      * @param string $name
-     * @param array $parameters
+     * @param array  $parameters
+     *
      * @return string
      */
     public function toRoute($name, $parameters = [])
@@ -52,18 +53,19 @@ class AbstractUrlGenerator
         $path = $this->routes->getPath($name, $parameters);
         $path = ltrim($path, '/');
 
-        return $this->toBase() . '/' . $path;
+        return $this->toBase().'/'.$path;
     }
 
     /**
      * Generate a URL to a path.
      *
      * @param string $path
+     *
      * @return string
      */
     public function toPath($path)
     {
-        return $this->toBase() . '/' . $path;
+        return $this->toBase().'/'.$path;
     }
 
     /**

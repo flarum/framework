@@ -32,7 +32,7 @@ class ShowForumController extends AbstractResourceController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return [
-            'groups' => Group::whereVisibleTo($request->getAttribute('actor'))->get()
+            'groups' => Group::whereVisibleTo($request->getAttribute('actor'))->get(),
         ];
     }
 }

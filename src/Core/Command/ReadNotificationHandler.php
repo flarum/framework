@@ -19,8 +19,10 @@ class ReadNotificationHandler
 
     /**
      * @param ReadNotification $command
-     * @return \Flarum\Core\Notification
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
+     *
+     * @return \Flarum\Core\Notification
      */
     public function handle(ReadNotification $command)
     {
@@ -31,9 +33,9 @@ class ReadNotificationHandler
         $notification = Notification::where('user_id', $actor->id)->findOrFail($command->notificationId);
 
         Notification::where([
-            'user_id' => $actor->id,
-            'type' => $notification->type,
-            'subject_id' => $notification->subject_id
+            'user_id'    => $actor->id,
+            'type'       => $notification->type,
+            'subject_id' => $notification->subject_id,
         ])
             ->update(['is_read' => true]);
 

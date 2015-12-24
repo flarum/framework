@@ -6,7 +6,7 @@
   <?php foreach ($errors as $error): ?>
     <div class="Error">
       <h3 class="Error-message"><?php echo $error['message']; ?></h3>
-      <?php if (! empty($error['detail'])): ?>
+      <?php if (!empty($error['detail'])): ?>
         <p class="Error-detail"><?php echo $error['detail']; ?></p>
       <?php endif; ?>
     </div>

@@ -13,7 +13,7 @@ namespace Flarum\Event;
 use Flarum\Core\User;
 
 /**
- * The `PrepareUserGroups` event
+ * The `PrepareUserGroups` event.
  */
 class PrepareUserGroups
 {
@@ -28,7 +28,7 @@ class PrepareUserGroups
     public $groupIds;
 
     /**
-     * @param User $user
+     * @param User  $user
      * @param array $groupIds
      */
     public function __construct(User $user, array &$groupIds)

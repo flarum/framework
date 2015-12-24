@@ -31,13 +31,14 @@ class ErrorHandler
 
     /**
      * @param Exception $e
+     *
      * @return JsonApiResponse
      */
     public function handle(Exception $e)
     {
         $response = $this->errorHandler->handle($e);
 
-        $document = new Document;
+        $document = new Document();
         $document->setErrors($response->getErrors());
 
         return new JsonApiResponse($document, $response->getStatus());

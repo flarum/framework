@@ -12,25 +12,23 @@ namespace Flarum\Core;
 
 use DomainException;
 use Flarum\Core\Access\Gate;
-use Flarum\Foundation\Application;
-use Flarum\Core;
+use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
-use Flarum\Core\Notification;
 use Flarum\Event\ConfigureUserPreferences;
-use Illuminate\Contracts\Hashing\Hasher;
-use Flarum\Event\UserWasDeleted;
 use Flarum\Event\PostWasDeleted;
-use Flarum\Event\UserWasRegistered;
-use Flarum\Event\UserWasRenamed;
+use Flarum\Event\PrepareUserGroups;
+use Flarum\Event\UserAvatarWasChanged;
+use Flarum\Event\UserBioWasChanged;
+use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Event\UserEmailWasChanged;
 use Flarum\Event\UserPasswordWasChanged;
-use Flarum\Event\UserBioWasChanged;
-use Flarum\Event\UserAvatarWasChanged;
 use Flarum\Event\UserWasActivated;
-use Flarum\Event\UserEmailChangeWasRequested;
-use Flarum\Event\PrepareUserGroups;
-use Flarum\Core\Support\ScopeVisibilityTrait;
-use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Event\UserWasDeleted;
+use Flarum\Event\UserWasRegistered;
+use Flarum\Event\UserWasRenamed;
+use Flarum\Foundation\Application;
+use Illuminate\Contracts\Hashing\Hasher;
 
 /**
  * @property int $id
@@ -67,7 +65,7 @@ class User extends AbstractModel
         'join_time',
         'last_seen_time',
         'read_time',
-        'notifications_read_time'
+        'notifications_read_time',
     ];
 
     /**
@@ -79,7 +77,7 @@ class User extends AbstractModel
 
     /**
      * An array of registered user preferences. Each preference is defined with
-     * a key, and its value is an array containing the following keys:
+     * a key, and its value is an array containing the following keys:.
      *
      * - transformer: a callback that confines the value of the preference
      * - default: a default value if the preference isn't set
@@ -139,7 +137,7 @@ class User extends AbstractModel
         });
 
         static::$dispatcher->fire(
-            new ConfigureUserPreferences
+            new ConfigureUserPreferences()
         );
     }
 
@@ -149,15 +147,16 @@ class User extends AbstractModel
      * @param string $username
      * @param string $email
      * @param string $password
+     *
      * @return static
      */
     public static function register($username, $email, $password)
     {
-        $user = new static;
+        $user = new static();
 
-        $user->username  = $username;
-        $user->email     = $email;
-        $user->password  = $password;
+        $user->username = $username;
+        $user->email = $email;
+        $user->password = $password;
         $user->join_time = time();
 
         $user->raise(new UserWasRegistered($user));
@@ -185,6 +184,7 @@ class User extends AbstractModel
      * Rename the user.
      *
      * @param string $username
+     *
      * @return $this
      */
     public function rename($username)
@@ -202,6 +202,7 @@ class User extends AbstractModel
      * Change the user's email.
      *
      * @param string $email
+     *
      * @return $this
      */
     public function changeEmail($email)
@@ -219,6 +220,7 @@ class User extends AbstractModel
      * Request that the user's email be changed.
      *
      * @param string $email
+     *
      * @return $this
      */
     public function requestEmailChange($email)
@@ -234,6 +236,7 @@ class User extends AbstractModel
      * Change the user's password.
      *
      * @param string $password
+     *
      * @return $this
      */
     public function changePassword($password)
@@ -259,6 +262,7 @@ class User extends AbstractModel
      * Change the user's bio.
      *
      * @param string $bio
+     *
      * @return $this
      */
     public function changeBio($bio)
@@ -298,6 +302,7 @@ class User extends AbstractModel
      * Change the path of the user avatar.
      *
      * @param string $path
+     *
      * @return $this
      */
     public function changeAvatarPath($path)
@@ -313,6 +318,7 @@ class User extends AbstractModel
      * Get the URL of the user's avatar.
      *
      * @todo Allow different storage locations to be used
+     *
      * @return string
      */
     public function getAvatarUrlAttribute()
@@ -327,6 +333,7 @@ class User extends AbstractModel
      * haven't set one.
      *
      * @param string $value
+     *
      * @return string
      */
     public function getLocaleAttribute($value)
@@ -338,7 +345,8 @@ class User extends AbstractModel
      * Check if a given password matches the user's password.
      *
      * @param string $password
-     * @return boolean
+     *
+     * @return bool
      */
     public function checkPassword($password)
     {
@@ -363,7 +371,8 @@ class User extends AbstractModel
      * Check whether the user has a certain permission based on their groups.
      *
      * @param string $permission
-     * @return boolean
+     *
+     * @return bool
      */
     public function hasPermission($permission)
     {
@@ -383,7 +392,8 @@ class User extends AbstractModel
      * based on their groups.
      *
      * @param string $match
-     * @return boolean
+     *
+     * @return bool
      */
     public function hasPermissionLike($match)
     {
@@ -428,7 +438,7 @@ class User extends AbstractModel
     }
 
     /**
-     * Get all notifications that have not been read yet
+     * Get all notifications that have not been read yet.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -464,6 +474,7 @@ class User extends AbstractModel
      * transforming their stored preferences and merging them with the defaults.
      *
      * @param string $value
+     *
      * @return array
      */
     public function getPreferencesAttribute($value)
@@ -492,6 +503,7 @@ class User extends AbstractModel
      * type.
      *
      * @param string $type
+     *
      * @return bool
      */
     public function shouldAlert($type)
@@ -504,6 +516,7 @@ class User extends AbstractModel
      * type.
      *
      * @param string $type
+     *
      * @return bool
      */
     public function shouldEmail($type)
@@ -515,7 +528,8 @@ class User extends AbstractModel
      * Get the value of a preference for this user.
      *
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function getPreference($key, $default = null)
@@ -527,7 +541,8 @@ class User extends AbstractModel
      * Set the value of a preference for this user.
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return $this
      */
     public function setPreference($key, $value)
@@ -535,7 +550,7 @@ class User extends AbstractModel
         if (isset(static::$preferences[$key])) {
             $preferences = $this->preferences;
 
-            if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
+            if (!is_null($transformer = static::$preferences[$key]['transformer'])) {
                 $preferences[$key] = call_user_func($transformer, $value);
             } else {
                 $preferences[$key] = $value;
@@ -663,8 +678,9 @@ class User extends AbstractModel
     }
 
     /**
-     * @param string $ability
+     * @param string      $ability
      * @param array|mixed $arguments
+     *
      * @return bool
      */
     public function can($ability, $arguments = [])
@@ -673,13 +689,14 @@ class User extends AbstractModel
     }
 
     /**
-     * @param string $ability
+     * @param string      $ability
      * @param array|mixed $arguments
+     *
      * @return bool
      */
     public function cannot($ability, $arguments = [])
     {
-        return ! $this->can($ability, $arguments);
+        return !$this->can($ability, $arguments);
     }
 
     /**
@@ -695,9 +712,9 @@ class User extends AbstractModel
     /**
      * Register a preference with a transformer and a default value.
      *
-     * @param string $key
+     * @param string   $key
      * @param callable $transformer
-     * @param mixed $default
+     * @param mixed    $default
      */
     public static function addPreference($key, callable $transformer = null, $default = null)
     {
@@ -710,6 +727,7 @@ class User extends AbstractModel
      *
      * @param string $type
      * @param string $method
+     *
      * @return string
      */
     public static function getNotificationPreferenceKey($type, $method)

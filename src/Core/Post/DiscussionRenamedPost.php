@@ -21,12 +21,12 @@ use Flarum\Core\Post;
 class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static $type = 'discussionRenamed';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function saveAfter(Post $previous)
     {
@@ -54,20 +54,21 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param int $discussionId
-     * @param int $userId
+     * @param int    $discussionId
+     * @param int    $userId
      * @param string $oldTitle
      * @param string $newTitle
+     *
      * @return static
      */
     public static function reply($discussionId, $userId, $oldTitle, $newTitle)
     {
-        $post = new static;
+        $post = new static();
 
-        $post->content       = static::buildContent($oldTitle, $newTitle);
-        $post->time          = time();
+        $post->content = static::buildContent($oldTitle, $newTitle);
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
+        $post->user_id = $userId;
 
         return $post;
     }
@@ -77,6 +78,7 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
      *
      * @param string $oldTitle The old title of the discussion.
      * @param string $newTitle The new title of the discussion.
+     *
      * @return array
      */
     protected static function buildContent($oldTitle, $newTitle)

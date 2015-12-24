@@ -39,13 +39,13 @@ class ConfigureNotificationTypes
     /**
      * @param string $blueprint
      * @param string $serializer
-     * @param array $enabledByDefault
+     * @param array  $enabledByDefault
      */
     public function add($blueprint, $serializer, $enabledByDefault = [])
     {
-        if (! (new ReflectionClass($blueprint))->implementsInterface(BlueprintInterface::class)) {
-            throw new InvalidArgumentException('Notification blueprint ' . $blueprint
-                . ' must implement '.BlueprintInterface::class);
+        if (!(new ReflectionClass($blueprint))->implementsInterface(BlueprintInterface::class)) {
+            throw new InvalidArgumentException('Notification blueprint '.$blueprint
+                .' must implement '.BlueprintInterface::class);
         }
 
         $this->blueprints[$blueprint] = $enabledByDefault;

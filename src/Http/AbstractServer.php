@@ -13,9 +13,9 @@ namespace Flarum\Http;
 use Flarum\Core\AuthToken;
 use Flarum\Core\EmailToken;
 use Flarum\Core\PasswordToken;
+use Flarum\Foundation\AbstractServer as BaseAbstractServer;
 use Flarum\Foundation\Application;
 use Zend\Diactoros\Server;
-use Flarum\Foundation\AbstractServer as BaseAbstractServer;
 use Zend\Stratigility\MiddlewareInterface;
 
 abstract class AbstractServer extends BaseAbstractServer
@@ -40,6 +40,7 @@ abstract class AbstractServer extends BaseAbstractServer
 
     /**
      * @param Application $app
+     *
      * @return MiddlewareInterface
      */
     abstract protected function getMiddleware(Application $app);

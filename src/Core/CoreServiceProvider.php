@@ -73,7 +73,7 @@ class CoreServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->make('flarum.gate')->before(function (User $actor, $ability, $model = null) {
-            if ($actor->isAdmin() || (! $model && $actor->hasPermission($ability))) {
+            if ($actor->isAdmin() || (!$model && $actor->hasPermission($ability))) {
                 return true;
             }
 
@@ -109,7 +109,7 @@ class CoreServiceProvider extends AbstractServiceProvider
     {
         $models = [
             'Flarum\Core\Post\CommentPost',
-            'Flarum\Core\Post\DiscussionRenamedPost'
+            'Flarum\Core\Post\DiscussionRenamedPost',
         ];
 
         $this->app->make('events')->fire(

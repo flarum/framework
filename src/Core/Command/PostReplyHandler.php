@@ -11,12 +11,12 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Core\Post\CommentPost;
+use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
-use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Post\CommentPost;
-use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\Notification\NotificationSyncer;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class PostReplyHandler
@@ -40,10 +40,10 @@ class PostReplyHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher           $events
      * @param DiscussionRepository $discussions
-     * @param NotificationSyncer $notifications
-     * @param PostValidator $validator
+     * @param NotificationSyncer   $notifications
+     * @param PostValidator        $validator
      */
     public function __construct(
         Dispatcher $events,
@@ -59,8 +59,10 @@ class PostReplyHandler
 
     /**
      * @param PostReply $command
-     * @return CommentPost
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
+     *
+     * @return CommentPost
      */
     public function handle(PostReply $command)
     {

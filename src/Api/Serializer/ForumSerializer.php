@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Foundation\Application;
 use Flarum\Core\Access\Gate;
+use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class ForumSerializer extends AbstractSerializer
@@ -37,8 +37,8 @@ class ForumSerializer extends AbstractSerializer
     protected $settings;
 
     /**
-     * @param Gate $gate
-     * @param Application $app
+     * @param Gate                        $gate
+     * @param Application                 $app
      * @param SettingsRepositoryInterface $settings
      */
     public function __construct(Gate $gate, Application $app, SettingsRepositoryInterface $settings)
@@ -76,7 +76,7 @@ class ForumSerializer extends AbstractSerializer
             'allowSignUp'        => (bool) $this->settings->get('allow_sign_up'),
             'defaultRoute'       => $this->settings->get('default_route'),
             'canViewDiscussions' => $gate->allows('viewDiscussions') || $this->actor->hasPermissionLike('viewDiscussions'),
-            'canStartDiscussion' => $gate->allows('startDiscussion') || $this->actor->hasPermissionLike('startDiscussion')
+            'canStartDiscussion' => $gate->allows('startDiscussion') || $this->actor->hasPermissionLike('startDiscussion'),
         ];
 
         if ($gate->allows('administrate')) {

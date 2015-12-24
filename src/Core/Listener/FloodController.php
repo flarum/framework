@@ -55,17 +55,19 @@ class FloodController
 
     /**
      * @param User $actor
+     *
      * @throws FloodingException
      */
     protected function assertNotFlooding(User $actor)
     {
         if ($this->isFlooding($actor)) {
-            throw new FloodingException;
+            throw new FloodingException();
         }
     }
 
     /**
      * @param User $actor
+     *
      * @return bool
      */
     protected function isFlooding(User $actor)

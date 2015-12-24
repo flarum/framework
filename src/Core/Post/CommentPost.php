@@ -10,14 +10,13 @@
 
 namespace Flarum\Core\Post;
 
-use DomainException;
 use Flarum\Core\Post;
-use Flarum\Formatter\Formatter;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRevised;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasRestored;
 use Flarum\Core\User;
+use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
+use Flarum\Event\PostWasRestored;
+use Flarum\Event\PostWasRevised;
+use Flarum\Formatter\Formatter;
 
 /**
  * A standard comment in a discussion.
@@ -42,21 +41,22 @@ class CommentPost extends Post
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param int $discussionId
+     * @param int    $discussionId
      * @param string $content
-     * @param int $userId
+     * @param int    $userId
      * @param string $ipAddress
+     *
      * @return static
      */
     public static function reply($discussionId, $content, $userId, $ipAddress)
     {
-        $post = new static;
+        $post = new static();
 
-        $post->time          = time();
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
-        $post->type          = static::$type;
-        $post->ip_address    = $ipAddress;
+        $post->user_id = $userId;
+        $post->type = static::$type;
+        $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
         $post->content = $content;
@@ -70,7 +70,8 @@ class CommentPost extends Post
      * Revise the post's content.
      *
      * @param string $content
-     * @param User $actor
+     * @param User   $actor
+     *
      * @return $this
      */
     public function revise($content, User $actor)
@@ -91,11 +92,12 @@ class CommentPost extends Post
      * Hide the post.
      *
      * @param User $actor
+     *
      * @return $this
      */
     public function hide(User $actor = null)
     {
-        if (! $this->hide_time) {
+        if (!$this->hide_time) {
             $this->hide_time = time();
             $this->hide_user_id = $actor ? $actor->id : null;
 
@@ -126,6 +128,7 @@ class CommentPost extends Post
      * Unparse the parsed content.
      *
      * @param string $value
+     *
      * @return string
      */
     public function getContentAttribute($value)
@@ -157,6 +160,7 @@ class CommentPost extends Post
      * Get the content rendered as HTML.
      *
      * @param string $value
+     *
      * @return string
      */
     public function getContentHtmlAttribute($value)

@@ -55,7 +55,7 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     protected function getRoutes()
     {
-        $routes = new RouteCollection;
+        $routes = new RouteCollection();
 
         $toController = $this->getHandlerGenerator($this->app);
 

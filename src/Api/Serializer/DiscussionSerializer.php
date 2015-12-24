@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Discussion;
 use Flarum\Core\Access\Gate;
+use Flarum\Core\Discussion;
 
 class DiscussionSerializer extends DiscussionBasicSerializer
 {
@@ -44,7 +44,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
             'canReply'          => $gate->allows('reply', $discussion),
             'canRename'         => $gate->allows('rename', $discussion),
             'canDelete'         => $gate->allows('delete', $discussion),
-            'canHide'           => $gate->allows('hide', $discussion)
+            'canHide'           => $gate->allows('hide', $discussion),
         ];
 
         if ($discussion->hide_time) {
@@ -57,7 +57,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
         if ($state = $discussion->state) {
             $attributes += [
                 'readTime'   => $this->formatDate($state->read_time),
-                'readNumber' => (int) $state->read_number
+                'readNumber' => (int) $state->read_number,
             ];
         }
 

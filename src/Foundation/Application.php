@@ -10,12 +10,12 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Events\EventServiceProvider;
+use Illuminate\Support\Arr;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class Application extends Container implements ApplicationContract
 {
@@ -125,7 +125,8 @@ class Application extends Container implements ApplicationContract
 
     /**
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function config($key, $default = null)
@@ -140,13 +141,14 @@ class Application extends Container implements ApplicationContract
      */
     public function inDebugMode()
     {
-        return ! $this->isInstalled() || $this->config('debug');
+        return !$this->isInstalled() || $this->config('debug');
     }
 
     /**
      * Get the URL to the Flarum installation.
      *
      * @param string $path
+     *
      * @return string
      */
     public function url($path = null)
@@ -163,7 +165,7 @@ class Application extends Container implements ApplicationContract
         }
 
         if ($path) {
-            $url .= '/' . array_get($config, "paths.$path", $path);
+            $url .= '/'.array_get($config, "paths.$path", $path);
         }
 
         return $url;
@@ -203,6 +205,7 @@ class Application extends Container implements ApplicationContract
      * Set the base path for the application.
      *
      * @param string $basePath
+     *
      * @return $this
      */
     public function setBasePath($basePath)
@@ -260,6 +263,7 @@ class Application extends Container implements ApplicationContract
      * Set the storage directory.
      *
      * @param string $path
+     *
      * @return $this
      */
     public function useStoragePath($path)
@@ -275,6 +279,7 @@ class Application extends Container implements ApplicationContract
      * Get or check the current application environment.
      *
      * @param mixed
+     *
      * @return string
      */
     public function environment()
@@ -327,13 +332,14 @@ class Application extends Container implements ApplicationContract
      * Register a service provider with the application.
      *
      * @param ServiceProvider|string $provider
-     * @param array $options
-     * @param bool $force
+     * @param array                  $options
+     * @param bool                   $force
+     *
      * @return ServiceProvider
      */
     public function register($provider, $options = [], $force = false)
     {
-        if ($registered = $this->getProvider($provider) && ! $force) {
+        if ($registered = $this->getProvider($provider) && !$force) {
             return $registered;
         }
 
@@ -369,6 +375,7 @@ class Application extends Container implements ApplicationContract
      * Get the registered service provider instance if it exists.
      *
      * @param ServiceProvider|string $provider
+     *
      * @return ServiceProvider|null
      */
     public function getProvider($provider)
@@ -384,6 +391,7 @@ class Application extends Container implements ApplicationContract
      * Resolve a service provider instance from the class name.
      *
      * @param string $provider
+     *
      * @return ServiceProvider
      */
     public function resolveProviderClass($provider)
@@ -395,6 +403,7 @@ class Application extends Container implements ApplicationContract
      * Mark the given provider as registered.
      *
      * @param ServiceProvider $provider
+     *
      * @return void
      */
     protected function markAsRegistered($provider)
@@ -428,7 +437,7 @@ class Application extends Container implements ApplicationContract
      */
     public function loadDeferredProvider($service)
     {
-        if (! isset($this->deferredServices[$service])) {
+        if (!isset($this->deferredServices[$service])) {
             return;
         }
 
@@ -437,7 +446,7 @@ class Application extends Container implements ApplicationContract
         // If the service provider has not already been loaded and registered we can
         // register it with the application and remove the service from this list
         // of deferred services, since it will already be loaded on subsequent.
-        if (! isset($this->loadedProviders[$provider])) {
+        if (!isset($this->loadedProviders[$provider])) {
             $this->registerDeferredProvider($provider, $service);
         }
     }
@@ -459,7 +468,7 @@ class Application extends Container implements ApplicationContract
 
         $this->register($instance = new $provider($this));
 
-        if (! $this->booted) {
+        if (!$this->booted) {
             $this->booting(function () use ($instance) {
                 $this->bootProvider($instance);
             });
@@ -472,7 +481,8 @@ class Application extends Container implements ApplicationContract
      * (Overriding Container::make)
      *
      * @param string $abstract
-     * @param array $parameters
+     * @param array  $parameters
+     *
      * @return mixed
      */
     public function make($abstract, array $parameters = [])
@@ -492,6 +502,7 @@ class Application extends Container implements ApplicationContract
      * (Overriding Container::bound)
      *
      * @param string $abstract
+     *
      * @return bool
      */
     public function bound($abstract)
@@ -538,6 +549,7 @@ class Application extends Container implements ApplicationContract
      * Boot the given service provider.
      *
      * @param ServiceProvider $provider
+     *
      * @return mixed
      */
     protected function bootProvider(ServiceProvider $provider)
@@ -551,6 +563,7 @@ class Application extends Container implements ApplicationContract
      * Register a new boot listener.
      *
      * @param mixed $callback
+     *
      * @return void
      */
     public function booting($callback)
@@ -562,6 +575,7 @@ class Application extends Container implements ApplicationContract
      * Register a new "booted" listener.
      *
      * @param mixed $callback
+     *
      * @return void
      */
     public function booted($callback)
@@ -577,6 +591,7 @@ class Application extends Container implements ApplicationContract
      * Call the booting callbacks for the application.
      *
      * @param array $callbacks
+     *
      * @return void
      */
     protected function fireAppCallbacks(array $callbacks)
@@ -639,7 +654,8 @@ class Application extends Container implements ApplicationContract
     /**
      * Set the application's deferred services.
      *
-     * @param  array  $services
+     * @param array $services
+     *
      * @return void
      */
     public function setDeferredServices(array $services)
@@ -650,7 +666,8 @@ class Application extends Container implements ApplicationContract
     /**
      * Add an array of services to the application's deferred services.
      *
-     * @param  array  $services
+     * @param array $services
+     *
      * @return void
      */
     public function addDeferredServices(array $services)
@@ -661,7 +678,8 @@ class Application extends Container implements ApplicationContract
     /**
      * Determine if the given service is a deferred service.
      *
-     * @param  string  $service
+     * @param string $service
+     *
      * @return bool
      */
     public function isDeferredService($service)

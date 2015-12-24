@@ -38,8 +38,8 @@ class ConfirmEmailController implements ControllerInterface
     protected $authenticator;
 
     /**
-     * @param Dispatcher $bus
-     * @param Application $app
+     * @param Dispatcher           $bus
+     * @param Application          $app
      * @param SessionAuthenticator $authenticator
      */
     public function __construct(Dispatcher $bus, Application $app, SessionAuthenticator $authenticator)
@@ -51,6 +51,7 @@ class ConfirmEmailController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function handle(Request $request)

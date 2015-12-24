@@ -38,13 +38,14 @@ class GroupSerializer extends AbstractSerializer
      * {@inheritdoc}
      *
      * @param Group $group
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($group)
     {
-        if (! ($group instanceof Group)) {
+        if (!($group instanceof Group)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . Group::class);
+                .' can only serialize instances of '.Group::class);
         }
 
         return [
@@ -65,6 +66,7 @@ class GroupSerializer extends AbstractSerializer
 
     /**
      * @param string $name
+     *
      * @return string
      */
     private function translateGroupName($name)

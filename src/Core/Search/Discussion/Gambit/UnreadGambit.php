@@ -11,9 +11,9 @@
 namespace Flarum\Core\Search\Discussion\Gambit;
 
 use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Search\Discussion\DiscussionSearch;
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
+use Flarum\Core\Search\Discussion\DiscussionSearch;
 use LogicException;
 
 class UnreadGambit extends AbstractRegexGambit
@@ -41,7 +41,7 @@ class UnreadGambit extends AbstractRegexGambit
      */
     protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
-        if (! $search instanceof DiscussionSearch) {
+        if (!$search instanceof DiscussionSearch) {
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
@@ -51,7 +51,7 @@ class UnreadGambit extends AbstractRegexGambit
             $readIds = $this->discussions->getReadIds($actor);
 
             $search->getQuery()->where(function ($query) use ($readIds, $negate, $actor) {
-                if (! $negate) {
+                if (!$negate) {
                     $query->whereNotIn('id', $readIds)->where('last_time', '>', $actor->read_time ?: 0);
                 } else {
                     $query->whereIn('id', $readIds)->orWhere('last_time', '<=', $actor->read_time ?: 0);

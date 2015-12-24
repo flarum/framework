@@ -31,7 +31,7 @@ class NotificationMailer
 
     /**
      * @param MailableInterface $blueprint
-     * @param User $user
+     * @param User              $user
      */
     public function send(MailableInterface $blueprint, User $user)
     {

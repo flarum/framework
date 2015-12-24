@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
-use Flarum\Database\AbstractModel;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use DateTime;
+use Flarum\Core\Exception\InvalidConfirmationTokenException;
+use Flarum\Database\AbstractModel;
 
 /**
  * @todo document database columns with @property
@@ -40,13 +40,13 @@ class EmailToken extends AbstractModel
      * Generate an email token for the specified user.
      *
      * @param string $email
-     * @param int $userId
+     * @param int    $userId
      *
      * @return static
      */
     public static function generate($email, $userId)
     {
-        $token = new static;
+        $token = new static();
 
         $token->id = str_random(40);
         $token->user_id = $userId;
@@ -70,16 +70,18 @@ class EmailToken extends AbstractModel
      * Find the token with the given ID, and assert that it has not expired.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $id
-     * @return static
+     * @param string                                $id
+     *
      * @throws InvalidConfirmationTokenException
+     *
+     * @return static
      */
     public function scopeValidOrFail($query, $id)
     {
         $token = $query->find($id);
 
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
-            throw new InvalidConfirmationTokenException;
+        if (!$token || $token->created_at < new DateTime('-1 day')) {
+            throw new InvalidConfirmationTokenException();
         }
 
         return $token;

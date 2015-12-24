@@ -42,8 +42,8 @@ class GetApiRelationship
 
     /**
      * @param AbstractSerializer $serializer
-     * @param string $relationship
-     * @param mixed $model
+     * @param string             $relationship
+     * @param mixed              $model
      */
     public function __construct(AbstractSerializer $serializer, $relationship, $model)
     {
@@ -55,6 +55,7 @@ class GetApiRelationship
     /**
      * @param string $serializer
      * @param string $relationship
+     *
      * @return bool
      */
     public function isRelationship($serializer, $relationship)

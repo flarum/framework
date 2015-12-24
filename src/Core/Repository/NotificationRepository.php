@@ -18,9 +18,10 @@ class NotificationRepository
     /**
      * Find a user's notifications.
      *
-     * @param User $user
+     * @param User     $user
      * @param int|null $limit
-     * @param int $offset
+     * @param int      $offset
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function findByUser(User $user, $limit = null, $offset = 0)

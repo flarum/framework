@@ -11,7 +11,6 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Http\AccessToken;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
@@ -36,9 +35,9 @@ class RegisterController implements ControllerInterface
     protected $rememberer;
 
     /**
-     * @param Client $api
+     * @param Client               $api
      * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     * @param Rememberer           $rememberer
      */
     public function __construct(Client $api, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
@@ -49,6 +48,7 @@ class RegisterController implements ControllerInterface
 
     /**
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function handle(Request $request)

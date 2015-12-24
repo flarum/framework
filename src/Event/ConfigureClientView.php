@@ -10,10 +10,10 @@
 
 namespace Flarum\Event;
 
-use Flarum\Http\Controller\AbstractClientController;
-use Flarum\Http\Controller\ClientView;
 use Flarum\Admin\Controller\ClientController as AdminClientAction;
 use Flarum\Forum\Controller\ClientController as ForumClientAction;
+use Flarum\Http\Controller\AbstractClientController;
+use Flarum\Http\Controller\ClientView;
 
 class ConfigureClientView
 {
@@ -29,7 +29,7 @@ class ConfigureClientView
 
     /**
      * @param AbstractClientController $action
-     * @param ClientView $view
+     * @param ClientView               $view
      */
     public function __construct(AbstractClientController $action, ClientView $view)
     {

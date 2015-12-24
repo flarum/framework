@@ -35,7 +35,7 @@ class AuthenticateWithSession implements MiddlewareInterface
 
     private function getActor(SessionInterface $session)
     {
-        $actor = User::find($session->get('user_id')) ?: new Guest;
+        $actor = User::find($session->get('user_id')) ?: new Guest();
 
         if ($actor->exists) {
             $actor->updateLastSeen()->save();

@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Search\Discussion\Gambit;
 
-use Flarum\Core\Search\Discussion\DiscussionSearch;
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
+use Flarum\Core\Search\Discussion\DiscussionSearch;
 use LogicException;
 
 class HiddenGambit extends AbstractRegexGambit
@@ -27,7 +27,7 @@ class HiddenGambit extends AbstractRegexGambit
      */
     protected function conditions(AbstractSearch $search, array $matches, $negate)
     {
-        if (! $search instanceof DiscussionSearch) {
+        if (!$search instanceof DiscussionSearch) {
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 

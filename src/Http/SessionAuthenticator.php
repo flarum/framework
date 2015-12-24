@@ -17,7 +17,7 @@ class SessionAuthenticator
 {
     /**
      * @param SessionInterface $session
-     * @param int $userId
+     * @param int              $userId
      */
     public function logIn(SessionInterface $session, $userId)
     {

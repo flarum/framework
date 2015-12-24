@@ -13,9 +13,9 @@ namespace Flarum\Http\Controller;
 use Flarum\Api\Client;
 use Flarum\Asset\AssetManager;
 use Flarum\Core\User;
+use Flarum\Locale\JsCompiler;
 use Illuminate\Contracts\Support\Renderable;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Flarum\Locale\JsCompiler;
 
 /**
  * This class represents a view which boots up Flarum's client.
@@ -106,12 +106,12 @@ class ClientView implements Renderable
     protected $localeJs;
 
     /**
-     * @param Client $api
-     * @param Request $request
-     * @param User $actor
+     * @param Client       $api
+     * @param Request      $request
+     * @param User         $actor
      * @param AssetManager $assets
-     * @param string $layout
-     * @param JsCompiler $localeJs
+     * @param string       $layout
+     * @param JsCompiler   $localeJs
      */
     public function __construct(
         Client $api,
@@ -194,7 +194,7 @@ class ClientView implements Renderable
      * Set a variable to be preloaded into the app.
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      */
     public function setVariable($name, $value)
     {
@@ -240,24 +240,24 @@ class ClientView implements Renderable
 
         $view->app = [
             'preload' => [
-                'data' => $data,
-                'session' => $this->getSession(),
-                'document' => $this->document
-            ]
+                'data'     => $data,
+                'session'  => $this->getSession(),
+                'document' => $this->document,
+            ],
         ] + $this->variables;
         $view->bootstrappers = $this->bootstrappers;
 
         $noJs = array_get($this->request->getQueryParams(), 'nojs');
 
-        $view->title = ($this->title ? $this->title . ' - ' : '') . $forum->data->attributes->title;
+        $view->title = ($this->title ? $this->title.' - ' : '').$forum->data->attributes->title;
         $view->forum = $forum->data;
         $view->layout = app('view')->file($this->layout, [
-            'forum' => $forum->data,
+            'forum'   => $forum->data,
             'content' => app('view')->file(__DIR__.'/../../../views/content.blade.php', [
                 'content' => $this->content,
-                'noJs' => $noJs,
-                'forum' => $forum->data
-            ])
+                'noJs'    => $noJs,
+                'forum'   => $forum->data,
+            ]),
         ]);
         $view->noJs = $noJs;
 
@@ -319,6 +319,7 @@ class ClientView implements Renderable
      * JSON-API document.
      *
      * @param object $document
+     *
      * @return array
      */
     protected function getDataFromDocument($document)
@@ -342,8 +343,8 @@ class ClientView implements Renderable
         $session = $this->request->getAttribute('session');
 
         return [
-            'userId' => $this->actor->id,
-            'csrfToken' => $session->get('csrf_token')
+            'userId'    => $this->actor->id,
+            'csrfToken' => $session->get('csrf_token'),
         ];
     }
 }

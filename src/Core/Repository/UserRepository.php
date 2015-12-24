@@ -29,11 +29,12 @@ class UserRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
+     * @param int  $id
      * @param User $actor
-     * @return User
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     *
+     * @return User
      */
     public function findOrFail($id, User $actor = null)
     {
@@ -46,6 +47,7 @@ class UserRepository
      * Find a user by an identification (username or email).
      *
      * @param string $identification
+     *
      * @return User|null
      */
     public function findByIdentification($identification)
@@ -59,6 +61,7 @@ class UserRepository
      * Find a user by email.
      *
      * @param string $email
+     *
      * @return User|null
      */
     public function findByEmail($email)
@@ -69,9 +72,10 @@ class UserRepository
     /**
      * Get the ID of a user with the given username.
      *
-     * @param string $username
+     * @param string    $username
      * @param User|null $actor
-     * @return integer|null
+     *
+     * @return int|null
      */
     public function getIdForUsername($username, User $actor = null)
     {
@@ -84,8 +88,9 @@ class UserRepository
      * Find users by matching a string of words against their username,
      * optionally making sure they are visible to a certain user.
      *
-     * @param string $string
+     * @param string    $string
      * @param User|null $actor
+     *
      * @return array
      */
     public function getIdsForUsername($string, User $actor = null)
@@ -101,7 +106,8 @@ class UserRepository
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder $query
-     * @param User $actor
+     * @param User    $actor
+     *
      * @return Builder
      */
     protected function scopeVisibleTo(Builder $query, User $actor = null)

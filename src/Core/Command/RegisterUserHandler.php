@@ -12,14 +12,14 @@ namespace Flarum\Core\Command;
 
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\User;
 use Flarum\Core\AuthToken;
+use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Core\User;
 use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
-use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
@@ -62,12 +62,12 @@ class RegisterUserHandler
     private $validatorFactory;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher                  $events
      * @param SettingsRepositoryInterface $settings
-     * @param UserValidator $validator
-     * @param Application $app
-     * @param FilesystemInterface $uploadDir
-     * @param Factory $validatorFactory
+     * @param UserValidator               $validator
+     * @param Application                 $app
+     * @param FilesystemInterface         $uploadDir
+     * @param Factory                     $validatorFactory
      */
     public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, Application $app, FilesystemInterface $uploadDir, Factory $validatorFactory)
     {
@@ -81,10 +81,12 @@ class RegisterUserHandler
 
     /**
      * @param RegisterUser $command
-     * @throws PermissionDeniedException if signup is closed and the actor is
-     *     not an administrator.
+     *
+     * @throws PermissionDeniedException                                if signup is closed and the actor is
+     *                                                                  not an administrator.
      * @throws \Flarum\Core\Exception\InvalidConfirmationTokenException if an
-     *     email confirmation token is provided but is invalid.
+     *                                                                  email confirmation token is provided but is invalid.
+     *
      * @return User
      */
     public function handle(RegisterUser $command)
@@ -92,7 +94,7 @@ class RegisterUserHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        if (! $this->settings->get('allow_sign_up')) {
+        if (!$this->settings->get('allow_sign_up')) {
             $this->assertAdmin($actor);
         }
 
@@ -159,7 +161,7 @@ class RegisterUserHandler
     {
         $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
 
-        $manager = new ImageManager;
+        $manager = new ImageManager();
         $manager->make($url)->fit(100, 100)->save($tmpFile);
 
         $mount = new MountManager([
@@ -167,10 +169,10 @@ class RegisterUserHandler
             'target' => $this->uploadDir,
         ]);
 
-        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+        $uploadName = Str::lower(Str::quickRandom()).'.jpg';
 
         $user->changeAvatarPath($uploadName);
 
-        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
     }
 }

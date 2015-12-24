@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Post;
 
-use Illuminate\Database\Eloquent\ScopeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ScopeInterface;
 
 class RegisteredTypesScope implements ScopeInterface
 {
@@ -41,7 +41,8 @@ class RegisteredTypesScope implements ScopeInterface
      * Apply the scope to a given Eloquent query builder.
      *
      * @param Builder $builder
-     * @param Model $post
+     * @param Model   $post
+     *
      * @return void
      */
     public function apply(Builder $builder, Model $post)
@@ -60,7 +61,8 @@ class RegisteredTypesScope implements ScopeInterface
      * Remove the scope from the given Eloquent query builder.
      *
      * @param Builder $builder
-     * @param Model $post
+     * @param Model   $post
+     *
      * @return void
      */
     public function remove(Builder $builder, Model $post)

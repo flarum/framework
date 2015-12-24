@@ -20,8 +20,9 @@ class UserPolicy extends AbstractPolicy
     protected $model = User::class;
 
     /**
-     * @param User $actor
+     * @param User   $actor
      * @param string $ability
+     *
      * @return bool|null
      */
     public function before(User $actor, $ability)

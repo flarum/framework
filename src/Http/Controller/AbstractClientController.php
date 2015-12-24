@@ -14,7 +14,6 @@ use Flarum\Api\Client;
 use Flarum\Asset\AssetManager;
 use Flarum\Asset\JsCompiler;
 use Flarum\Asset\LessCompiler;
-use Flarum\Core;
 use Flarum\Event\ConfigureClientView;
 use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
@@ -96,12 +95,12 @@ abstract class AbstractClientController extends AbstractHtmlController
     protected $cache;
 
     /**
-     * @param \Flarum\Foundation\Application $app
-     * @param Client $api
-     * @param LocaleManager $locales
+     * @param \Flarum\Foundation\Application               $app
+     * @param Client                                       $api
+     * @param LocaleManager                                $locales
      * @param \Flarum\Settings\SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
-     * @param Repository $cache
+     * @param Dispatcher                                   $events
+     * @param Repository                                   $cache
      */
     public function __construct(
         Application $app,
@@ -260,7 +259,7 @@ abstract class AbstractClientController extends AbstractHtmlController
             'config-primary-color'   => $this->settings->get('theme_primary_color') ?: '#000',
             'config-secondary-color' => $this->settings->get('theme_secondary_color') ?: '#000',
             'config-dark-mode'       => $this->settings->get('theme_dark_mode') ? 'true' : 'false',
-            'config-colored-header'  => $this->settings->get('theme_colored_header') ? 'true' : 'false'
+            'config-colored-header'  => $this->settings->get('theme_colored_header') ? 'true' : 'false',
         ];
     }
 
@@ -268,6 +267,7 @@ abstract class AbstractClientController extends AbstractHtmlController
      * Set up the locale compiler for the given locale.
      *
      * @param string $locale
+     *
      * @return LocaleJsCompiler
      */
     protected function getLocaleCompiler($locale)
@@ -300,11 +300,12 @@ abstract class AbstractClientController extends AbstractHtmlController
      * Take a selection of keys from a collection of translations.
      *
      * @param array $translations
+     *
      * @return array
      */
     protected function filterTranslations(array $translations)
     {
-        if (! $this->translations) {
+        if (!$this->translations) {
             return [];
         }
 

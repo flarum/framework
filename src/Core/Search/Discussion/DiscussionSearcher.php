@@ -11,13 +11,13 @@
 namespace Flarum\Core\Search\Discussion;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\Search\ApplySearchParametersTrait;
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Repository\PostRepository;
-use Flarum\Event\ConfigureDiscussionSearch;
+use Flarum\Core\Search\ApplySearchParametersTrait;
+use Flarum\Core\Search\GambitManager;
+use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
+use Flarum\Event\ConfigureDiscussionSearch;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -44,9 +44,9 @@ class DiscussionSearcher
     protected $posts;
 
     /**
-     * @param GambitManager $gambits
+     * @param GambitManager        $gambits
      * @param DiscussionRepository $discussions
-     * @param PostRepository $posts
+     * @param PostRepository       $posts
      */
     public function __construct(
         GambitManager $gambits,
@@ -60,9 +60,10 @@ class DiscussionSearcher
 
     /**
      * @param SearchCriteria $criteria
-     * @param int|null $limit
-     * @param int $offset
-     * @param array $load An array of relationships to load on the results.
+     * @param int|null       $limit
+     * @param int            $offset
+     * @param array          $load     An array of relationships to load on the results.
+     *
      * @return SearchResults
      */
     public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
@@ -115,7 +116,7 @@ class DiscussionSearcher
      * Load relevant posts onto each discussion using information from the
      * search.
      *
-     * @param Collection $discussions
+     * @param Collection       $discussions
      * @param DiscussionSearch $search
      */
     protected function loadRelevantPosts(Collection $discussions, DiscussionSearch $search)

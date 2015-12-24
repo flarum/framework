@@ -27,7 +27,7 @@ class ReadDiscussionHandler
     protected $discussions;
 
     /**
-     * @param Dispatcher $events
+     * @param Dispatcher           $events
      * @param DiscussionRepository $discussions
      */
     public function __construct(Dispatcher $events, DiscussionRepository $discussions)
@@ -38,8 +38,10 @@ class ReadDiscussionHandler
 
     /**
      * @param ReadDiscussion $command
-     * @return \Flarum\Core\DiscussionState
+     *
      * @throws \Flarum\Core\Exception\PermissionDeniedException
+     *
+     * @return \Flarum\Core\DiscussionState
      */
     public function handle(ReadDiscussion $command)
     {

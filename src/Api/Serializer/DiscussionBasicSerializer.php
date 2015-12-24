@@ -24,17 +24,18 @@ class DiscussionBasicSerializer extends AbstractSerializer
      * {@inheritdoc}
      *
      * @param Discussion $discussion
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($discussion)
     {
-        if (! ($discussion instanceof Discussion)) {
+        if (!($discussion instanceof Discussion)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . Discussion::class);
+                .' can only serialize instances of '.Discussion::class);
         }
 
         return [
-            'title' => $discussion->title
+            'title' => $discussion->title,
         ];
     }
 

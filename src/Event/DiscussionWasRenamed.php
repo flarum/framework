@@ -32,8 +32,8 @@ class DiscussionWasRenamed
 
     /**
      * @param Discussion $discussion
-     * @param User $actor
-     * @param string $oldTitle
+     * @param User       $actor
+     * @param string     $oldTitle
      */
     public function __construct(Discussion $discussion, $oldTitle, User $actor = null)
     {

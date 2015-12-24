@@ -10,7 +10,6 @@
 
 namespace Flarum\Http\Middleware;
 
-use Dflydev\FigCookies\Cookie;
 use Dflydev\FigCookies\FigResponseCookies;
 use Dflydev\FigCookies\SetCookie;
 use Illuminate\Support\Str;
@@ -42,12 +41,12 @@ class StartSession implements MiddlewareInterface
 
     private function startSession()
     {
-        $session = new Session;
+        $session = new Session();
 
         $session->setName('flarum_session');
         $session->start();
 
-        if (! $session->has('csrf_token')) {
+        if (!$session->has('csrf_token')) {
             $session->set('csrf_token', Str::random(40));
         }
 

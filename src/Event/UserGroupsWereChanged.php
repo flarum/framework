@@ -32,9 +32,9 @@ class UserGroupsWereChanged
     public $actor;
 
     /**
-     * @param User $user The user whose groups were changed.
+     * @param User                 $user      The user whose groups were changed.
      * @param \Flarum\Core\Group[] $oldGroups
-     * @param User $actor
+     * @param User                 $actor
      */
     public function __construct(User $user, array $oldGroups, User $actor = null)
     {

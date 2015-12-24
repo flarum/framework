@@ -35,9 +35,10 @@ class StartDiscussionHandler
     protected $validator;
 
     /**
-     * @param EventDispatcher $events
-     * @param BusDispatcher $bus
+     * @param EventDispatcher     $events
+     * @param BusDispatcher       $bus
      * @param DiscussionValidator $validator
+     *
      * @internal param Forum $forum
      */
     public function __construct(EventDispatcher $events, BusDispatcher $bus, DiscussionValidator $validator)
@@ -49,8 +50,10 @@ class StartDiscussionHandler
 
     /**
      * @param StartDiscussion $command
-     * @return mixed
+     *
      * @throws Exception
+     *
+     * @return mixed
      */
     public function handle(StartDiscussion $command)
     {

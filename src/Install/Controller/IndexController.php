@@ -10,10 +10,10 @@
 
 namespace Flarum\Install\Controller;
 
-use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Flarum\Http\Controller\AbstractHtmlController;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Illuminate\Contracts\View\Factory;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexController extends AbstractHtmlController
 {
@@ -28,7 +28,7 @@ class IndexController extends AbstractHtmlController
     protected $prerequisite;
 
     /**
-     * @param Factory $view
+     * @param Factory               $view
      * @param PrerequisiteInterface $prerequisite
      */
     public function __construct(Factory $view, PrerequisiteInterface $prerequisite)
@@ -39,6 +39,7 @@ class IndexController extends AbstractHtmlController
 
     /**
      * @param Request $request
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function render(Request $request)

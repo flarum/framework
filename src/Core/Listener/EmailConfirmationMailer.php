@@ -46,9 +46,9 @@ class EmailConfirmationMailer
 
     /**
      * @param \Flarum\Settings\SettingsRepositoryInterface $settings
-     * @param Mailer $mailer
-     * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
+     * @param Mailer                                       $mailer
+     * @param UrlGenerator                                 $url
+     * @param TranslatorInterface                          $translator
      */
     public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
     {
@@ -105,8 +105,9 @@ class EmailConfirmationMailer
     }
 
     /**
-     * @param User $user
+     * @param User   $user
      * @param string $email
+     *
      * @return EmailToken
      */
     protected function generateToken(User $user, $email)
@@ -120,8 +121,9 @@ class EmailConfirmationMailer
     /**
      * Get the data that should be made available to email templates.
      *
-     * @param User $user
+     * @param User   $user
      * @param string $email
+     *
      * @return array
      */
     protected function getEmailData(User $user, $email)
@@ -130,8 +132,8 @@ class EmailConfirmationMailer
 
         return [
             '{username}' => $user->username,
-            '{url}' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
-            '{forum}' => $this->settings->get('forum_title')
+            '{url}'      => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
+            '{forum}'    => $this->settings->get('forum_title'),
         ];
     }
 }

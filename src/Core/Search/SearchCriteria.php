@@ -43,11 +43,11 @@ class SearchCriteria
     public $sort;
 
     /**
-     * @param User $actor The user performing the search.
+     * @param User   $actor The user performing the search.
      * @param string $query The search query.
-     * @param array $sort An array of sort-order pairs, where the column is the
-     *     key, and the order is the value. The order may be 'asc', 'desc', or
-     *     an array of IDs to order by.
+     * @param array  $sort  An array of sort-order pairs, where the column is the
+     *                      key, and the order is the value. The order may be 'asc', 'desc', or
+     *                      an array of IDs to order by.
      */
     public function __construct(User $actor, $query, array $sort = null)
     {

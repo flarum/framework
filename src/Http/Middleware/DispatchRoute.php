@@ -12,7 +12,6 @@
 namespace Flarum\Http\Middleware;
 
 use FastRoute\Dispatcher;
-use FastRoute\RouteParser;
 use Flarum\Http\Exception\MethodNotAllowedException;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\RouteCollection;
@@ -44,12 +43,14 @@ class DispatchRoute
     /**
      * Dispatch the given request to our route collection.
      *
-     * @param Request $request
+     * @param Request  $request
      * @param Response $response
      * @param callable $out
-     * @return Response
+     *
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
+     *
+     * @return Response
      */
     public function __invoke(Request $request, Response $response, callable $out = null)
     {
@@ -60,10 +61,10 @@ class DispatchRoute
 
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
-                throw new RouteNotFoundException;
+                throw new RouteNotFoundException();
 
             case Dispatcher::METHOD_NOT_ALLOWED:
-                throw new MethodNotAllowedException;
+                throw new MethodNotAllowedException();
 
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
@@ -75,7 +76,7 @@ class DispatchRoute
 
     protected function getDispatcher()
     {
-        if (! isset($this->dispatcher)) {
+        if (!isset($this->dispatcher)) {
             $this->dispatcher = new Dispatcher\GroupCountBased($this->routes->getRouteData());
         }
 

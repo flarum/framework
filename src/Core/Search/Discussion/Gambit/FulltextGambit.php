@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Search\Discussion\Gambit;
 
+use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\Discussion\DiscussionSearch;
 use Flarum\Core\Search\Discussion\Fulltext\DriverInterface;
-use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\GambitInterface;
 use LogicException;
 
@@ -36,7 +36,7 @@ class FulltextGambit implements GambitInterface
      */
     public function apply(AbstractSearch $search, $bit)
     {
-        if (! $search instanceof DiscussionSearch) {
+        if (!$search instanceof DiscussionSearch) {
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 

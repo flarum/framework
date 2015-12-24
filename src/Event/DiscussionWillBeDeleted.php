@@ -38,8 +38,8 @@ class DiscussionWillBeDeleted
 
     /**
      * @param Discussion $discussion
-     * @param User $actor
-     * @param array $data
+     * @param User       $actor
+     * @param array      $data
      */
     public function __construct(Discussion $discussion, User $actor, array $data = [])
     {
