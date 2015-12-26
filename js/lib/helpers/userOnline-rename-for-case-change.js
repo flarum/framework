@@ -6,7 +6,7 @@ import icon from 'flarum/helpers/icon';
  * @param {User} user
  * @return {Object}
  */
-export default function useronline(user) {
+export default function userOnline(user) {
     if (user.lastSeenTime() && user.isOnline()) {
         return <span className="UserOnline">{icon('circle')}</span>;
     }
