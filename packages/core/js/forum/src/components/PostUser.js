@@ -2,7 +2,7 @@ import Component from 'flarum/Component';
 import UserCard from 'flarum/components/UserCard';
 import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
-import useronline from 'flarum/helpers/useronline';
+import userOnline from 'flarum/helpers/userOnline';
 import listItems from 'flarum/helpers/listItems';
 
 /**
@@ -46,7 +46,7 @@ export default class PostUser extends Component {
 
     return (
       <div className="PostUser">
-        {useronline(user)}
+        {userOnline(user)}
         <h3>
           <a href={app.route.user(user)} config={m.route}>
             {avatar(user, {className: 'PostUser-avatar'})}{' '}{username(user)}
