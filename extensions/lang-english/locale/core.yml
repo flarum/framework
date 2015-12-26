@@ -297,8 +297,6 @@ core:
       account_heading: Account
       change_email_button: => core.ref.change_email
       change_password_button: => core.ref.change_password
-      forum_heading: Forum
-      forum_follow_after_reply_label: Automaticaly follow a discussion after you posted in the discussion
       notifications_heading: => core.ref.notifications
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web

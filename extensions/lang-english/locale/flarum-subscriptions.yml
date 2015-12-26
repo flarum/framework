@@ -29,6 +29,8 @@ flarum-subscriptions:
     # These translations are used in the Settings page.
     settings:
       notify_new_post_label: Someone posts in a discussion I'm following
+      forum_heading: Forum
+      forum_follow_after_reply_label: Automaticaly follow a discussion after you posted in the discussion
 
     # These translations are used in the subscription menu displayed to the right of the post stream.
     sub_controls:
