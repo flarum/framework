@@ -120,8 +120,8 @@ class InstallCommand extends AbstractCommand
                 [
                     'driver' => 'required|in:mysql',
                     'host' => 'required',
-                    'database' => 'required|alpha_dash',
-                    'username' => 'required|alpha_dash',
+                    'database' => 'required|string',
+                    'username' => 'required|string',
                     'prefix' => 'alpha_dash|max:10'
                 ]
             );
