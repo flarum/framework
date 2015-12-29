@@ -124,6 +124,10 @@ class RegisterUserHandler
             }
         }
 
+        if ($actor->isAdmin()) {
+            $user->activate();
+        }
+
         $this->events->fire(
             new UserWillBeSaved($user, $actor, $data)
         );
