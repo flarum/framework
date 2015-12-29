@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flags",
+    "name": "flarum/flarum-ext-flags",
     "description": "Allow users to flag posts for moderator review.",
     "type": "flarum-extension",
     "keywords": ["moderation"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flags"
+        "source": "https://github.com/flarum/flarum-ext-flags"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.3"
