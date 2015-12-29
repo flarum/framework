@@ -352,9 +352,11 @@ class User extends AbstractModel
      */
     public function activate()
     {
-        $this->is_activated = true;
+        if ($this->is_activated !== true) {
+            $this->is_activated = true;
 
-        $this->raise(new UserWasActivated($this));
+            $this->raise(new UserWasActivated($this));
+        }
 
         return $this;
     }
