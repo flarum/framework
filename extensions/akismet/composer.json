@@ -1,5 +1,5 @@
 {
-    "name": "flarum/akismet",
+    "name": "flarum/flarum-ext-akismet",
     "description": "Stop spam using the Akismet anti-spam service.",
     "type": "flarum-extension",
     "keywords": ["moderation"],
@@ -12,11 +12,11 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/akismet"
+        "source": "https://github.com/flarum/flarum-ext-akismet"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.3",
-        "flarum/approval": "^0.1.0-beta.3",
+        "flarum/flarum-ext-approval": "^0.1.0-beta.3",
         "tijsverkoyen/akismet": "^1.1"
     },
     "autoload": {
