@@ -1,5 +1,5 @@
 {
-    "name": "flarum/approval",
+    "name": "flarum/flarum-ext-approval",
     "description": "Make discussions and posts require moderator approval.",
     "type": "flarum-extension",
     "keywords": ["moderation"],
@@ -12,11 +12,11 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/approval"
+        "source": "https://github.com/flarum/flarum-ext-approval"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.3",
-        "flarum/flags": "^0.1.0-beta.3"
+        "flarum/flarum-ext-flags": "^0.1.0-beta.3"
     },
     "autoload": {
         "psr-4": {
