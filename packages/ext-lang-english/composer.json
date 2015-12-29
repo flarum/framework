@@ -1,5 +1,5 @@
 {
-    "name": "flarum/english",
+    "name": "flarum/flarum-ext-english",
     "type": "flarum-extension",
     "description": "English language pack.",
     "keywords": ["locale"],
