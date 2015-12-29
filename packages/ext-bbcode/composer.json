@@ -1,5 +1,5 @@
 {
-    "name": "flarum/bbcode",
+    "name": "flarum/flarum-ext-bbcode",
     "description": "Allow posts to be formatted with BBCode.",
     "type": "flarum-extension",
     "keywords": ["formatting"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/bbcode"
+        "source": "https://github.com/flarum/flarum-ext-bbcode"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.3"
