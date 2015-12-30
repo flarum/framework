@@ -14,6 +14,7 @@ use Flarum\Core\Repository\UserRepository;
 use Flarum\Event\ConfigureFormatter;
 use Flarum\Event\ConfigureFormatterParser;
 use Flarum\Event\ConfigureFormatterRenderer;
+use Flarum\Forum\UrlGenerator;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatUserMentions
@@ -24,11 +25,18 @@ class FormatUserMentions
     protected $users;
 
     /**
-     * @param UserRepository $users
+     * @var UrlGenerator
      */
-    public function __construct(UserRepository $users)
+    protected $url;
+
+    /**
+     * @param UserRepository $users
+     * @param UrlGenerator $url
+     */
+    public function __construct(UserRepository $users, UrlGenerator $url)
     {
         $this->users = $users;
+        $this->url = $url;
     }
 
     /**
@@ -76,8 +84,7 @@ class FormatUserMentions
      */
     public function render(ConfigureFormatterRenderer $event)
     {
-        // TODO: use URL generator
-        $event->renderer->setParameter('PROFILE_URL', '/u/');
+        $event->renderer->setParameter('PROFILE_URL', $this->url->toRoute('user', ['username' => '']));
     }
 
     /**

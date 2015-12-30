@@ -12,16 +12,32 @@ namespace Flarum\Mentions\Listener;
 
 use Flarum\Core\Post\CommentPost;
 use Flarum\Event\ConfigureFormatter;
+use Flarum\Event\ConfigureFormatterRenderer;
+use Flarum\Forum\UrlGenerator;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatPostMentions
 {
+    /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
+    /**
+     * @param UrlGenerator $url
+     */
+    public function __construct(UrlGenerator $url)
+    {
+        $this->url = $url;
+    }
+
     /**
      * @param Dispatcher $events
      */
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureFormatter::class, [$this, 'configure']);
+        $events->listen(ConfigureFormatterRenderer::class, [$this, 'render']);
     }
 
     /**
@@ -42,13 +58,21 @@ class FormatPostMentions
         $tag->attributes['number']->required = false;
         $tag->attributes['discussionid']->required = false;
 
-        $tag->template = '<a href="/d/{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@username"/></a>';
+        $tag->template = '<a href="{$DISCUSSION_URL}{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@username"/></a>';
 
         $tag->filterChain
             ->prepend([static::class, 'addId'])
             ->setJS('function() { return true; }');
 
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)#(?<id>\d+)/i', $tagName);
+    }
+
+    /**
+     * @param ConfigureFormatterRenderer $event
+     */
+    public function render(ConfigureFormatterRenderer $event)
+    {
+        $event->renderer->setParameter('DISCUSSION_URL', $this->url->toRoute('discussion', ['id' => '']));
     }
 
     /**
