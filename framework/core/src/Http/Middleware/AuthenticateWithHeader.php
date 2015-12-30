@@ -10,6 +10,7 @@
 
 namespace Flarum\Http\Middleware;
 
+use DateTime;
 use Flarum\Api\ApiKey;
 use Flarum\Core\User;
 use Flarum\Http\AccessToken;
@@ -36,8 +37,10 @@ class AuthenticateWithHeader implements MiddlewareInterface
         if (isset($parts[0]) && starts_with($parts[0], $this->prefix)) {
             $id = substr($parts[0], strlen($this->prefix));
 
-            if (isset($parts[1]) && ApiKey::valid($id)) {
+            if (isset($parts[1]) && ApiKey::find($id)) {
                 $actor = $this->getUser($parts[1]);
+
+                $request->getAttribute('session')->set('sudo_expiry', new DateTime);
             } elseif ($token = AccessToken::find($id)) {
                 $token->touch();
 

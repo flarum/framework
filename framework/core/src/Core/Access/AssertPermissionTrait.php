@@ -75,7 +75,7 @@ trait AssertPermissionTrait
     {
         $session = $request->getAttribute('session');
 
-        if (! $session || $session->get('sudo_expiry') < new DateTime) {
+        if ($session && $session->get('sudo_expiry') < new DateTime) {
             throw new InvalidAccessTokenException;
         }
     }
