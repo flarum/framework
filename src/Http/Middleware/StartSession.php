@@ -33,9 +33,7 @@ class StartSession implements MiddlewareInterface
 
         $response = $out ? $out($request, $response) : $response;
 
-        if ($session->has('csrf_token')) {
-            $response = $response->withHeader('X-CSRF-Token', $session->get('csrf_token'));
-        }
+        $response = $this->withCsrfTokenHeader($response, $session);
 
         return $this->withSessionCookie($response, $session);
     }
@@ -52,6 +50,15 @@ class StartSession implements MiddlewareInterface
         }
 
         return $session;
+    }
+
+    private function withCsrfTokenHeader(Response $response, SessionInterface $session)
+    {
+        if ($session->has('csrf_token')) {
+            $response = $response->withHeader('X-CSRF-Token', $session->get('csrf_token'));
+        }
+
+        return $response;
     }
 
     private function withSessionCookie(Response $response, SessionInterface $session)
