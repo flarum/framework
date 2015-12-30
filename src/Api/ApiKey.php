@@ -42,15 +42,4 @@ class ApiKey extends AbstractModel
 
         return $key;
     }
-
-    /**
-     * Get the given key only if it is valid.
-     *
-     * @param string $key
-     * @return static|null
-     */
-    public static function valid($key)
-    {
-        return static::where('id', $key)->first();
-    }
 }
