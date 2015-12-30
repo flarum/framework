@@ -58,6 +58,8 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
+        $this->events->fire(new ConfigureFormatterParser($parser, $context, $text));
+
         return $parser->parse($text);
     }
 
@@ -71,6 +73,8 @@ class Formatter
     public function render($xml, $context = null)
     {
         $renderer = $this->getRenderer($context);
+
+        $this->events->fire(new ConfigureFormatterRenderer($renderer, $context, $xml));
 
         return $renderer->render($xml);
     }
@@ -161,8 +165,6 @@ class Formatter
 
         $parser->registeredVars['context'] = $context;
 
-        $this->events->fire(new ConfigureFormatterParser($parser, $context));
-
         return $parser;
     }
 
@@ -180,11 +182,7 @@ class Formatter
             }
         });
 
-        $renderer = $this->getComponent('renderer');
-
-        $this->events->fire(new ConfigureFormatterRenderer($renderer, $context));
-
-        return $renderer;
+        return $this->getComponent('renderer');
     }
 
     /**
