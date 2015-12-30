@@ -346,4 +346,20 @@ class ClientView implements Renderable
             'csrfToken' => $session->get('csrf_token')
         ];
     }
+
+    /**
+     * @return User
+     */
+    public function getActor()
+    {
+        return $this->actor;
+    }
+
+    /**
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
 }
