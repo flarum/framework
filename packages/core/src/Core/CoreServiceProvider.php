@@ -78,7 +78,7 @@ class CoreServiceProvider extends AbstractServiceProvider
             }
 
             return $this->app->make('events')->until(
-                new GetPermission($actor, $ability, [$model])
+                new GetPermission($actor, $ability, $model ? [$model] : [])
             );
         });
 
