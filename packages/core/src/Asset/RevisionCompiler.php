@@ -75,7 +75,7 @@ class RevisionCompiler implements CompilerInterface
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
         $file = $this->path.'/'.substr_replace($this->filename, '-'.$old, -strlen($ext) - 1, 0);
 
-        if ($this->watch) {
+        if ($this->watch || ! $old) {
             $cacheDifferentiator = [$this->getCacheDifferentiator()];
 
             foreach ($this->files as $source) {
