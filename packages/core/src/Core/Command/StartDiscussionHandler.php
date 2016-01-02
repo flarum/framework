@@ -38,7 +38,6 @@ class StartDiscussionHandler
      * @param EventDispatcher $events
      * @param BusDispatcher $bus
      * @param DiscussionValidator $validator
-     * @internal param Forum $forum
      */
     public function __construct(EventDispatcher $events, BusDispatcher $bus, DiscussionValidator $validator)
     {

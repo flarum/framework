@@ -77,7 +77,7 @@ class UserRepository
     {
         $query = User::where('username', 'like', $username);
 
-        return $this->scopeVisibleTo($query, $actor)->pluck('id');
+        return $this->scopeVisibleTo($query, $actor)->value('id');
     }
 
     /**
