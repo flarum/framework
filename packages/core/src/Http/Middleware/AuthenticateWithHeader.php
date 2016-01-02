@@ -37,10 +37,10 @@ class AuthenticateWithHeader implements MiddlewareInterface
         if (isset($parts[0]) && starts_with($parts[0], $this->prefix)) {
             $id = substr($parts[0], strlen($this->prefix));
 
-            if (isset($parts[1]) && ApiKey::find($id)) {
-                $actor = $this->getUser($parts[1]);
-
-                $request->getAttribute('session')->set('sudo_expiry', new DateTime);
+            if (isset($parts[1])) {
+                if (ApiKey::find($id)) {
+                    $actor = $this->getUser($parts[1]);
+                }
             } elseif ($token = AccessToken::find($id)) {
                 $token->touch();
 
@@ -49,6 +49,7 @@ class AuthenticateWithHeader implements MiddlewareInterface
 
             if (isset($actor)) {
                 $request = $request->withAttribute('actor', $actor);
+                $request = $request->withoutAttribute('session');
             }
         }
 
