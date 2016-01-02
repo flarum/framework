@@ -57,6 +57,7 @@ class TokenController implements ControllerInterface
 
         $identification = array_get($body, 'identification');
         $password = array_get($body, 'password');
+        $lifetime = array_get($body, 'lifetime', 3600);
 
         $user = $this->users->findByIdentification($identification);
 
@@ -64,7 +65,7 @@ class TokenController implements ControllerInterface
             throw new PermissionDeniedException;
         }
 
-        $token = AccessToken::generate($user->id);
+        $token = AccessToken::generate($user->id, $lifetime);
         $token->save();
 
         return (new JsonResponse([
