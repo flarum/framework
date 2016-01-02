@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Core\Command\StartDiscussion;
 use Flarum\Core\Command\ReadDiscussion;
+use Flarum\Core\Post\Floodgate;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -40,11 +41,18 @@ class CreateDiscussionController extends AbstractCreateController
     protected $bus;
 
     /**
-     * @param Dispatcher $bus
+     * @var Floodgate
      */
-    public function __construct(Dispatcher $bus)
+    protected $floodgate;
+
+    /**
+     * @param Dispatcher $bus
+     * @param Floodgate $floodgate
+     */
+    public function __construct(Dispatcher $bus, Floodgate $floodgate)
     {
         $this->bus = $bus;
+        $this->floodgate = $floodgate;
     }
 
     /**
@@ -53,6 +61,10 @@ class CreateDiscussionController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
+
+        if (! $request->getAttribute('bypassFloodgate')) {
+            $this->floodgate->assertNotFlooding($actor);
+        }
 
         $discussion = $this->bus->dispatch(
             new StartDiscussion($actor, array_get($request->getParsedBody(), 'data', []))
