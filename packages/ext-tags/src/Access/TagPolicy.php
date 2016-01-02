@@ -13,7 +13,6 @@ namespace Flarum\Tags\Access;
 use Flarum\Core\Access\AbstractPolicy;
 use Flarum\Core\User;
 use Flarum\Tags\Tag;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
 class TagPolicy extends AbstractPolicy
@@ -39,7 +38,7 @@ class TagPolicy extends AbstractPolicy
      */
     public function startDiscussion(User $actor, Tag $tag)
     {
-        if (! $tag->is_restricted
+        if ((! $tag->is_restricted && $actor->hasPermission('startDiscussion'))
             || $actor->hasPermission('tag' . $tag->id . '.startDiscussion')) {
             return true;
         }
