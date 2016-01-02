@@ -11,9 +11,9 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Event\ConfigureMiddleware;
 use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
-use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\MiddlewarePipe;
 use Flarum\Http\Middleware\HandleErrors;
 
@@ -27,23 +27,26 @@ class Server extends AbstractServer
         $pipe = new MiddlewarePipe;
 
         if ($app->isInstalled()) {
-            $adminPath = parse_url($app->url('admin'), PHP_URL_PATH);
+            $path = parse_url($app->url('admin'), PHP_URL_PATH);
             $errorDir = __DIR__ . '/../../error';
 
             if ($app->isUpToDate()) {
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\StartSession'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\AuthenticateWithSession'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\SetLocale'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.admin.routes')]));
-                $pipe->pipe($adminPath, new HandleErrors($errorDir, $app->inDebugMode()));
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\StartSession'));
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\AuthenticateWithSession'));
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\SetLocale'));
+                $pipe->pipe($path, $app->make('Flarum\Admin\Middleware\RequireAdministrateAbility'));
+
+                event(new ConfigureMiddleware($pipe, $path, $this));
+
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.admin.routes')]));
+                $pipe->pipe($path, new HandleErrors($errorDir, $app->inDebugMode()));
             } else {
                 $app->register('Flarum\Update\UpdateServiceProvider');
 
-                $pipe->pipe($adminPath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.update.routes')]));
-                $pipe->pipe($adminPath, new HandleErrors($errorDir, true));
+                $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.update.routes')]));
+                $pipe->pipe($path, new HandleErrors($errorDir, true));
             }
         }
 
