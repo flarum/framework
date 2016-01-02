@@ -36,7 +36,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->singleton('flarum.api.routes', function () {
-            return $this->getRoutes();
+            return new RouteCollection;
         });
 
         $this->app->singleton(ErrorHandler::class, function () {
@@ -64,6 +64,8 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
+        $this->populateRoutes($this->app->make('flarum.api.routes'));
+
         $this->registerNotificationSerializers();
 
         AbstractSerializeController::setContainer($this->app);
@@ -93,14 +95,12 @@ class ApiServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * Get the API routes.
+     * Populate the API routes.
      *
-     * @return RouteCollection
+     * @param RouteCollection $routes
      */
-    protected function getRoutes()
+    protected function populateRoutes(RouteCollection $routes)
     {
-        $routes = new RouteCollection;
-
         $toController = $this->getHandlerGenerator($this->app);
 
         // Get forum information
@@ -366,7 +366,5 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->app->make('events')->fire(
             new ConfigureApiRoutes($routes, $toController)
         );
-
-        return $routes;
     }
 }
