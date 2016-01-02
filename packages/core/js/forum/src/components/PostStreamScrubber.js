@@ -26,6 +26,13 @@ export default class PostStreamScrubber extends Component {
     this.index = 0;
 
     /**
+     * The index of the comment that is currently at the top of the viewport.
+     *
+     * @type {Number}
+     */
+    this.commentsIndex = 0;
+
+    /**
      * The number of posts that are currently visible in the viewport.
      *
      * @type {Number}
@@ -38,16 +45,6 @@ export default class PostStreamScrubber extends Component {
      * @type {String}
      */
     this.description = '';
-
-    /**
-     * The integer index of the last item that is visible in the viewport. This
-     * is displayed on the scrubber (i.e. X of 100 posts).
-     *
-     * @return {Integer}
-     */
-    this.visibleIndex = computed('index', 'visible', 'count', function(index, visible, count) {
-      return Math.min(count, Math.ceil(Math.max(0, index) + visible));
-    });
 
     // When the post stream begins loading posts at a certain index, we want our
     // scrubber scrollbar to jump to that position.
@@ -71,8 +68,8 @@ export default class PostStreamScrubber extends Component {
     const unreadPercent = Math.min(count - this.index, unreadCount) / count;
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
-      index: <span className="Scrubber-index">{retain || formatNumber(this.visibleIndex())}</span>,
-      count: <span className="Scrubber-count">{formatNumber(count)}</span>
+      index: <span className="Scrubber-index">{retain || formatNumber(this.commentsIndex)}</span>,
+      count: <span className="Scrubber-count">{formatNumber(this.commentsCount())}</span>
     });
 
     function styleUnread(element, isInitialized, context) {
@@ -156,6 +153,15 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
+   * Get the number of comments in the discussion.
+   *
+   * @return {Integer}
+   */
+  commentsCount() {
+    return this.props.stream.discussion.commentsCount();
+  }
+
+  /**
    * When the stream is unpaused, update the scrubber to reflect its position.
    */
   streamWasUnpaused() {
@@ -200,6 +206,7 @@ export default class PostStreamScrubber extends Component {
     const marginTop = stream.getMarginTop();
     const viewportTop = scrollTop + marginTop;
     const viewportHeight = $(window).height() - marginTop;
+    const viewportBottom = viewportTop + viewportHeight;
 
     // Before looping through all of the posts, we reset the scrollbar
     // properties to a 'default' state. These values reflect what would be
@@ -207,6 +214,7 @@ export default class PostStreamScrubber extends Component {
     // and the viewport had a height of 0.
     const $items = stream.$('> .PostStream-item[data-index]');
     let index = $items.first().data('index') || 0;
+    let commentsIndex = 0;
     let visible = 0;
     let period = '';
 
@@ -217,6 +225,13 @@ export default class PostStreamScrubber extends Component {
       const $this = $(this);
       const top = $this.offset().top;
       const height = $this.outerHeight(true);
+
+      // If an item is comment and is above the top of the viewport,
+      // or within the viewport or more than 50% of it is visible,
+      // update the commentIndex
+      if($this.data('type') == 'comment' && top < viewportBottom && ((viewportBottom - top)/height) > 0.5) {
+        commentsIndex++;
+      }
 
       // If this item is above the top of the viewport, skip to the next
       // post. If it's below the bottom of the viewport, break out of the
@@ -253,6 +268,7 @@ export default class PostStreamScrubber extends Component {
     });
 
     this.index = index;
+    this.commentsIndex = commentsIndex;
     this.visible = visible;
     this.description = period ? moment(period).format('MMMM YYYY') : '';
   }
@@ -328,7 +344,7 @@ export default class PostStreamScrubber extends Component {
     const visible = this.visible || 1;
 
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(this.visibleIndex()));
+    $scrubber.find('.Scrubber-index').text(formatNumber(this.commentsIndex));
     $scrubber.find('.Scrubber-description').text(this.description);
     $scrubber.toggleClass('disabled', this.disabled());
 
