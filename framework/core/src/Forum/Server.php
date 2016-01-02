@@ -11,6 +11,7 @@
 
 namespace Flarum\Forum;
 
+use Flarum\Event\ConfigureMiddleware;
 use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -26,25 +27,28 @@ class Server extends AbstractServer
     {
         $pipe = new MiddlewarePipe;
 
-        $basePath = parse_url($app->url(), PHP_URL_PATH);
+        $path = parse_url($app->url(), PHP_URL_PATH);
         $errorDir = __DIR__.'/../../error';
 
         if (! $app->isInstalled()) {
             $app->register('Flarum\Install\InstallServiceProvider');
 
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\StartSession'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.install.routes')]));
-            $pipe->pipe($basePath, new HandleErrors($errorDir, true));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\StartSession'));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.install.routes')]));
+            $pipe->pipe($path, new HandleErrors($errorDir, true));
         } elseif ($app->isUpToDate() && ! $app->isDownForMaintenance()) {
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\StartSession'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\AuthenticateWithSession'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\SetLocale'));
-            $pipe->pipe($basePath, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.forum.routes')]));
-            $pipe->pipe($basePath, new HandleErrors($errorDir, $app->inDebugMode()));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\StartSession'));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\AuthenticateWithSession'));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\SetLocale'));
+
+            event(new ConfigureMiddleware($pipe, $path, $this));
+
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.forum.routes')]));
+            $pipe->pipe($path, new HandleErrors($errorDir, $app->inDebugMode()));
         } else {
-            $pipe->pipe($basePath, function () use ($errorDir) {
+            $pipe->pipe($path, function () use ($errorDir) {
                 return new HtmlResponse(file_get_contents($errorDir.'/503.html', 503));
             });
         }
