@@ -66,7 +66,9 @@ class LogOutController implements ControllerInterface
     {
         $session = $request->getAttribute('session');
 
-        $response = new RedirectResponse($this->app->url());
+        $url = array_get($request->getQueryParams(), 'return', $this->app->url());
+
+        $response = new RedirectResponse($url);
 
         if ($user = User::find($session->get('user_id'))) {
             if (array_get($request->getQueryParams(), 'token') !== $session->get('csrf_token')) {
