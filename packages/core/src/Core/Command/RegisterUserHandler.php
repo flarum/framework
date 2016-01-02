@@ -124,7 +124,7 @@ class RegisterUserHandler
             }
         }
 
-        if ($actor->isAdmin()) {
+        if ($actor->isAdmin() && array_get($data, 'attributes.isActivated')) {
             $user->activate();
         }
 
