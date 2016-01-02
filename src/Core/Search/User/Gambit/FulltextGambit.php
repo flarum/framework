@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\User\Gambits;
+namespace Flarum\Core\Search\User\Gambit;
 
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Search\AbstractSearch;
