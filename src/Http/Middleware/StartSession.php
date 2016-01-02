@@ -10,7 +10,6 @@
 
 namespace Flarum\Http\Middleware;
 
-use Dflydev\FigCookies\Cookie;
 use Dflydev\FigCookies\FigResponseCookies;
 use Dflydev\FigCookies\SetCookie;
 use Illuminate\Support\Str;
