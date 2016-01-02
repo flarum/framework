@@ -79,7 +79,7 @@ class LogInController implements ControllerInterface
 
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $token));
 
-            $response = $this->rememberer->remember($response, $token->id);
+            $response = $this->rememberer->remember($response, $token);
         }
 
         return $response;
