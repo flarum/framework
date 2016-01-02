@@ -37,7 +37,6 @@ class AuthenticationResponseFactory
      */
     public function __construct(SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
-
         $this->authenticator = $authenticator;
         $this->rememberer = $rememberer;
     }
