@@ -49,7 +49,7 @@ class AuthorGambit extends AbstractRegexGambit
         $usernames = explode(',', $usernames);
 
         $ids = [];
-        foreach($usernames as $username) {
+        foreach ($usernames as $username) {
             $ids[] = $this->users->getIdForUsername($username);
         }
 
