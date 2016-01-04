@@ -83,6 +83,10 @@ class EditUserHandler
             }
         }
 
+        if ($actor->isAdmin() && ! empty($attributes['isActivated'])) {
+            $user->activate();
+        }
+
         if (isset($attributes['password'])) {
             $this->assertPermission($canEdit);
             $user->changePassword($attributes['password']);
