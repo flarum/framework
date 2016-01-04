@@ -45,10 +45,14 @@ class AuthorGambit extends AbstractRegexGambit
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
-        $username = trim($matches[1], '"');
+        $usernames = trim($matches[1], '"');
+        $usernames = explode(',', $usernames);
 
-        $id = $this->users->getIdForUsername($username);
+        $ids = [];
+        foreach ($usernames as $username) {
+            $ids[] = $this->users->getIdForUsername($username);
+        }
 
-        $search->getQuery()->where('start_user_id', $negate ? '!=' : '=', $id);
+        $search->getQuery()->whereIn('start_user_id', $ids, 'and', $negate);
     }
 }
