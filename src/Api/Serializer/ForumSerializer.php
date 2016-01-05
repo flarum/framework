@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Foundation\Application;
 use Flarum\Core\Access\Gate;
+use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class ForumSerializer extends AbstractSerializer
@@ -64,17 +64,17 @@ class ForumSerializer extends AbstractSerializer
         $gate = $this->gate->forUser($this->actor);
 
         $attributes = [
-            'title'              => $this->settings->get('forum_title'),
-            'description'        => $this->settings->get('forum_description'),
-            'baseUrl'            => $url = $this->app->url(),
-            'basePath'           => parse_url($url, PHP_URL_PATH) ?: '',
-            'debug'              => $this->app->inDebugMode(),
-            'apiUrl'             => $this->app->url('api'),
-            'welcomeTitle'       => $this->settings->get('welcome_title'),
-            'welcomeMessage'     => $this->settings->get('welcome_message'),
-            'themePrimaryColor'  => $this->settings->get('theme_primary_color'),
-            'allowSignUp'        => (bool) $this->settings->get('allow_sign_up'),
-            'defaultRoute'       => $this->settings->get('default_route'),
+            'title' => $this->settings->get('forum_title'),
+            'description' => $this->settings->get('forum_description'),
+            'baseUrl' => $url = $this->app->url(),
+            'basePath' => parse_url($url, PHP_URL_PATH) ?: '',
+            'debug' => $this->app->inDebugMode(),
+            'apiUrl' => $this->app->url('api'),
+            'welcomeTitle' => $this->settings->get('welcome_title'),
+            'welcomeMessage' => $this->settings->get('welcome_message'),
+            'themePrimaryColor' => $this->settings->get('theme_primary_color'),
+            'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
+            'defaultRoute' => $this->settings->get('default_route'),
             'canViewDiscussions' => $gate->allows('viewDiscussions') || $this->actor->hasPermissionLike('viewDiscussions'),
             'canStartDiscussion' => $gate->allows('startDiscussion') || $this->actor->hasPermissionLike('startDiscussion')
         ];

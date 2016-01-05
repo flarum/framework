@@ -10,11 +10,10 @@
 
 namespace Flarum\Api;
 
-use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Core\User;
-use Flarum\Http\AccessToken;
-use Illuminate\Contracts\Container\Container;
 use Exception;
+use Flarum\Core\User;
+use Flarum\Http\Controller\ControllerInterface;
+use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Zend\Diactoros\ServerRequestFactory;
 
@@ -61,7 +60,7 @@ class Client
 
         if (! ($controller instanceof ControllerInterface)) {
             throw new InvalidArgumentException('Endpoint must be an instance of '
-                . ControllerInterface::class);
+                .ControllerInterface::class);
         }
 
         try {

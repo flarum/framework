@@ -10,14 +10,13 @@
 
 namespace Flarum\Core\Post;
 
-use DomainException;
 use Flarum\Core\Post;
-use Flarum\Formatter\Formatter;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRevised;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasRestored;
 use Flarum\Core\User;
+use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
+use Flarum\Event\PostWasRestored;
+use Flarum\Event\PostWasRevised;
+use Flarum\Formatter\Formatter;
 
 /**
  * A standard comment in a discussion.
@@ -52,11 +51,11 @@ class CommentPost extends Post
     {
         $post = new static;
 
-        $post->time          = time();
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
-        $post->type          = static::$type;
-        $post->ip_address    = $ipAddress;
+        $post->user_id = $userId;
+        $post->type = static::$type;
+        $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
         $post->content = $content;

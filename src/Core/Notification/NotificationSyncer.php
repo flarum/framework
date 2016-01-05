@@ -10,11 +10,11 @@
 
 namespace Flarum\Core\Notification;
 
+use Carbon\Carbon;
 use Flarum\Core\Notification;
 use Flarum\Core\Repository\NotificationRepository;
-use Flarum\Event\NotificationWillBeSent;
 use Flarum\Core\User;
-use Carbon\Carbon;
+use Flarum\Event\NotificationWillBeSent;
 
 /**
  * The Notification Syncer commits notification blueprints to the database, and
@@ -221,10 +221,10 @@ class NotificationSyncer
     protected function getAttributes(BlueprintInterface $blueprint)
     {
         return [
-            'type'       => $blueprint::getType(),
-            'sender_id'  => ($sender = $blueprint->getSender()) ? $sender->id : null,
+            'type' => $blueprint::getType(),
+            'sender_id' => ($sender = $blueprint->getSender()) ? $sender->id : null,
             'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
-            'data'       => ($data = $blueprint->getData()) ? json_encode($data) : null
+            'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];
     }
 }

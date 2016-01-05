@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Discussion;
 use Flarum\Core\Access\Gate;
+use Flarum\Core\Discussion;
 
 class DiscussionSerializer extends DiscussionBasicSerializer
 {
@@ -36,15 +36,15 @@ class DiscussionSerializer extends DiscussionBasicSerializer
         $gate = $this->gate->forUser($this->actor);
 
         $attributes = parent::getDefaultAttributes($discussion) + [
-            'commentsCount'     => (int) $discussion->comments_count,
+            'commentsCount' => (int) $discussion->comments_count,
             'participantsCount' => (int) $discussion->participants_count,
-            'startTime'         => $this->formatDate($discussion->start_time),
-            'lastTime'          => $this->formatDate($discussion->last_time),
-            'lastPostNumber'    => (int) $discussion->last_post_number,
-            'canReply'          => $gate->allows('reply', $discussion),
-            'canRename'         => $gate->allows('rename', $discussion),
-            'canDelete'         => $gate->allows('delete', $discussion),
-            'canHide'           => $gate->allows('hide', $discussion)
+            'startTime' => $this->formatDate($discussion->start_time),
+            'lastTime' => $this->formatDate($discussion->last_time),
+            'lastPostNumber' => (int) $discussion->last_post_number,
+            'canReply' => $gate->allows('reply', $discussion),
+            'canRename' => $gate->allows('rename', $discussion),
+            'canDelete' => $gate->allows('delete', $discussion),
+            'canHide' => $gate->allows('hide', $discussion)
         ];
 
         if ($discussion->hide_time) {
@@ -56,7 +56,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
 
         if ($state = $discussion->state) {
             $attributes += [
-                'readTime'   => $this->formatDate($state->read_time),
+                'readTime' => $this->formatDate($state->read_time),
                 'readNumber' => (int) $state->read_number
             ];
         }

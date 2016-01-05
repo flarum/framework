@@ -27,7 +27,7 @@ trait GenerateRouteHandlerTrait
 
                 if (! ($controller instanceof ControllerInterface)) {
                     throw new \InvalidArgumentException('Route handler must be an instance of '
-                        . ControllerInterface::class);
+                        .ControllerInterface::class);
                 }
 
                 $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));

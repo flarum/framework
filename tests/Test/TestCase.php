@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Test;
 
 use Mockery;

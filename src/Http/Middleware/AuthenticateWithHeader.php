@@ -10,7 +10,6 @@
 
 namespace Flarum\Http\Middleware;
 
-use DateTime;
 use Flarum\Api\ApiKey;
 use Flarum\Core\User;
 use Flarum\Http\AccessToken;

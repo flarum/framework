@@ -13,7 +13,7 @@ namespace Flarum\Event;
 use Flarum\Core\User;
 
 /**
- * The `PrepareUserGroups` event
+ * The `PrepareUserGroups` event.
  */
 class PrepareUserGroups
 {

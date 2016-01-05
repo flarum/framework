@@ -15,7 +15,7 @@ use Flarum\Core\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * The `ScopePostVisibility` event
+ * The `ScopePostVisibility` event.
  */
 class ScopePostVisibility
 {

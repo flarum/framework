@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
-use Flarum\Event\DiscussionWasRead;
-use Flarum\Database\AbstractModel;
 use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Database\AbstractModel;
+use Flarum\Event\DiscussionWasRead;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -54,7 +54,7 @@ class DiscussionState extends AbstractModel
     {
         if ($number > $this->read_number) {
             $this->read_number = $number;
-            $this->read_time   = time();
+            $this->read_time = time();
 
             $this->raise(new DiscussionWasRead($this));
         }

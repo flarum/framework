@@ -38,15 +38,15 @@ class NotificationSerializer extends AbstractSerializer
     {
         if (! ($notification instanceof Notification)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . Notification::class);
+                .' can only serialize instances of '.Notification::class);
         }
 
         return [
-            'id'          => (int) $notification->id,
+            'id' => (int) $notification->id,
             'contentType' => $notification->type,
-            'content'     => $notification->data,
-            'time'        => $this->formatDate($notification->time),
-            'isRead'      => (bool) $notification->is_read
+            'content' => $notification->data,
+            'time' => $this->formatDate($notification->time),
+            'isRead' => (bool) $notification->is_read
         ];
     }
 

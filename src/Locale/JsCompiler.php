@@ -32,9 +32,9 @@ class JsCompiler extends BaseJsCompiler
             $output .= file_get_contents($filename);
         }
 
-        $output .= "}
+        $output .= '}
     };
-});";
+});';
 
         return $this->format($output);
     }
