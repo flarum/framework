@@ -35,9 +35,9 @@ class PostBasicSerializer extends AbstractSerializer
         }
 
         $attributes = [
-            'id' => (int) $post->id,
-            'number' => (int) $post->number,
-            'time' => $this->formatDate($post->time),
+            'id'          => (int) $post->id,
+            'number'      => (int) $post->number,
+            'time'        => $this->formatDate($post->time),
             'contentType' => $post->type
         ];
 

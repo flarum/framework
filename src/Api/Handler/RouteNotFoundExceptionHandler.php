@@ -33,7 +33,7 @@ class RouteNotFoundExceptionHandler implements ExceptionHandlerInterface
         $status = 404;
         $error = [
             'status' => (string) $status,
-            'code' => 'route_not_found'
+            'code'   => 'route_not_found'
         ];
 
         return new ResponseBag($status, [$error]);

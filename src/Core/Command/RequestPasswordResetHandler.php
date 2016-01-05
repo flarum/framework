@@ -81,8 +81,8 @@ class RequestPasswordResetHandler
 
         $data = [
             '{username}' => $user->username,
-            '{url}' => $this->url->toRoute('resetPassword', ['token' => $token->id]),
-            '{forum}' => $this->settings->get('forum_title'),
+            '{url}'      => $this->url->toRoute('resetPassword', ['token' => $token->id]),
+            '{forum}'    => $this->settings->get('forum_title'),
         ];
 
         $body = $this->translator->trans('core.email.reset_password.body', $data);

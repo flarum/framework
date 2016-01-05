@@ -96,8 +96,8 @@ class MigrationCreator
 
         $replacements = [
             '{{namespace}}' => Str::studly($vendor).'\\'.Str::studly($package) ?: 'Flarum\Core',
-            '{{name}}' => Str::studly($name),
-            '{{table}}' => $table
+            '{{name}}'      => Str::studly($name),
+            '{{table}}'     => $table
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $stub);
