@@ -34,7 +34,7 @@ class UserBasicSerializer extends AbstractSerializer
         }
 
         return [
-            'username'  => $user->username,
+            'username' => $user->username,
             'avatarUrl' => $user->avatar_url
         ];
     }

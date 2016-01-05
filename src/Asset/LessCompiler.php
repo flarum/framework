@@ -41,7 +41,7 @@ class LessCompiler extends RevisionCompiler
         ini_set('xdebug.max_nesting_level', 200);
 
         $parser = new Less_Parser([
-            'compress'  => true,
+            'compress' => true,
             'cache_dir' => $this->cachePath
         ]);
 

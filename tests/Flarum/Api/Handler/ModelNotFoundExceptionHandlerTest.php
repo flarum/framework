@@ -38,7 +38,7 @@ class ModelNotFoundExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'status' => '404',
-                'code'   => 'resource_not_found'
+                'code' => 'resource_not_found'
             ]
         ], $response->getErrors());
     }

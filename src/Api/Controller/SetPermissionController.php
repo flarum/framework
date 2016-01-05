@@ -36,7 +36,7 @@ class SetPermissionController implements ControllerInterface
         Permission::insert(array_map(function ($groupId) use ($permission) {
             return [
                 'permission' => $permission,
-                'group_id'   => $groupId
+                'group_id' => $groupId
             ];
         }, $groupIds));
 

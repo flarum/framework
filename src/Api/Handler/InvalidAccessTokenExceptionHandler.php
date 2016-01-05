@@ -33,7 +33,7 @@ class InvalidAccessTokenExceptionHandler implements ExceptionHandlerInterface
         $status = 401;
         $error = [
             'status' => (string) $status,
-            'code'   => 'invalid_access_token'
+            'code' => 'invalid_access_token'
         ];
 
         return new ResponseBag($status, [$error]);

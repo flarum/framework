@@ -130,8 +130,8 @@ class EmailConfirmationMailer
 
         return [
             '{username}' => $user->username,
-            '{url}'      => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
-            '{forum}'    => $this->settings->get('forum_title')
+            '{url}' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
+            '{forum}' => $this->settings->get('forum_title')
         ];
     }
 }

@@ -38,7 +38,7 @@ class FloodingExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'status' => '429',
-                'code'   => 'too_many_requests'
+                'code' => 'too_many_requests'
             ]
         ], $result->getErrors());
     }

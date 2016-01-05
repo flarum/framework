@@ -38,7 +38,7 @@ class InvalidConfirmationTokenExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'status' => '403',
-                'code'   => 'invalid_confirmation_token'
+                'code' => 'invalid_confirmation_token'
             ]
         ], $response->getErrors());
     }

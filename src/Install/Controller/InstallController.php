@@ -52,19 +52,19 @@ class InstallController implements ControllerInterface
         $data = new DefaultsDataProvider;
 
         $data->setDatabaseConfiguration([
-            'driver'   => 'mysql',
-            'host'     => array_get($input, 'mysqlHost'),
+            'driver' => 'mysql',
+            'host' => array_get($input, 'mysqlHost'),
             'database' => array_get($input, 'mysqlDatabase'),
             'username' => array_get($input, 'mysqlUsername'),
             'password' => array_get($input, 'mysqlPassword'),
-            'prefix'   => array_get($input, 'tablePrefix'),
+            'prefix' => array_get($input, 'tablePrefix'),
         ]);
 
         $data->setAdminUser([
-            'username'              => array_get($input, 'adminUsername'),
-            'password'              => array_get($input, 'adminPassword'),
+            'username' => array_get($input, 'adminUsername'),
+            'password' => array_get($input, 'adminPassword'),
             'password_confirmation' => array_get($input, 'adminPasswordConfirmation'),
-            'email'                 => array_get($input, 'adminEmail'),
+            'email' => array_get($input, 'adminEmail'),
         ]);
 
         $baseUrl = rtrim((string) $request->getAttribute('originalUri'), '/');

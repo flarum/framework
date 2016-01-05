@@ -24,7 +24,7 @@ class PhpVersion extends AbstractPrerequisite
         if (version_compare(PHP_VERSION, '5.5.0', '<')) {
             $this->errors[] = [
                 'message' => "PHP $this->minVersion is required.",
-                'detail'  => 'You are running version '.PHP_VERSION.'. Talk to your hosting provider about upgrading to the latest PHP version.',
+                'detail' => 'You are running version '.PHP_VERSION.'. Talk to your hosting provider about upgrading to the latest PHP version.',
             ];
         }
     }

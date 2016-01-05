@@ -38,7 +38,7 @@ class ValidationExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'status' => '422',
-                'code'   => 'validation_error',
+                'code' => 'validation_error',
                 'detail' => 'There was an error',
                 'source' => ['pointer' => '/data/attributes/0']
             ]

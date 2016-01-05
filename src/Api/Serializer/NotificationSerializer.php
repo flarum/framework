@@ -42,11 +42,11 @@ class NotificationSerializer extends AbstractSerializer
         }
 
         return [
-            'id'          => (int) $notification->id,
+            'id' => (int) $notification->id,
             'contentType' => $notification->type,
-            'content'     => $notification->data,
-            'time'        => $this->formatDate($notification->time),
-            'isRead'      => (bool) $notification->is_read
+            'content' => $notification->data,
+            'time' => $this->formatDate($notification->time),
+            'isRead' => (bool) $notification->is_read
         ];
     }
 

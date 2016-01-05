@@ -197,7 +197,7 @@ class Formatter
         $configurator->javascript->exportMethods = ['preview'];
 
         return $configurator->finalize([
-            'returnParser'   => false,
+            'returnParser' => false,
             'returnRenderer' => false
         ])['js'];
     }
