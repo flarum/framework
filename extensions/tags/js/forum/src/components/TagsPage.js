@@ -33,7 +33,7 @@ export default class TagsPage extends Component {
             <ul className="TagTiles">
               {pinned.map(tag => {
                 const lastDiscussion = tag.lastDiscussion();
-                const children = app.store.all('tags').filter(child => child.parent() === tag);
+                const children = sortTags(app.store.all('tags').filter(child => child.parent() === tag));
 
                 return (
                   <li className={'TagTile ' + (tag.color() ? 'colored' : '')}
