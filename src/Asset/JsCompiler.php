@@ -52,7 +52,7 @@ class JsCompiler extends RevisionCompiler
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getCacheDifferentiator()
     {

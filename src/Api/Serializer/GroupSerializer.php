@@ -44,14 +44,14 @@ class GroupSerializer extends AbstractSerializer
     {
         if (! ($group instanceof Group)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . Group::class);
+                .' can only serialize instances of '.Group::class);
         }
 
         return [
             'nameSingular' => $this->translateGroupName($group->name_singular),
-            'namePlural'   => $this->translateGroupName($group->name_plural),
-            'color'        => $group->color,
-            'icon'         => $group->icon,
+            'namePlural' => $this->translateGroupName($group->name_plural),
+            'color' => $group->color,
+            'icon' => $group->icon,
         ];
     }
 

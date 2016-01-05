@@ -25,12 +25,12 @@ class ShowDiscussionController extends AbstractResourceController
     protected $discussions;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $include = [
         'posts',
@@ -42,7 +42,7 @@ class ShowDiscussionController extends AbstractResourceController
     ];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $optionalInclude = [
         'startUser',

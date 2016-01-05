@@ -52,7 +52,7 @@ class AbstractUrlGenerator
         $path = $this->routes->getPath($name, $parameters);
         $path = ltrim($path, '/');
 
-        return $this->toBase() . '/' . $path;
+        return $this->toBase().'/'.$path;
     }
 
     /**
@@ -63,7 +63,7 @@ class AbstractUrlGenerator
      */
     public function toPath($path)
     {
-        return $this->toBase() . '/' . $path;
+        return $this->toBase().'/'.$path;
     }
 
     /**

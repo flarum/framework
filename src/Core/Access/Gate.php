@@ -2,9 +2,9 @@
 
 namespace Flarum\Core\Access;
 
-use InvalidArgumentException;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
+use Illuminate\Contracts\Container\Container;
+use InvalidArgumentException;
 
 /**
  * @author Taylor Otwell

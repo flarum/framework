@@ -10,10 +10,10 @@
 
 namespace Flarum\Install\Controller;
 
-use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Flarum\Http\Controller\AbstractHtmlController;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Illuminate\Contracts\View\Factory;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexController extends AbstractHtmlController
 {

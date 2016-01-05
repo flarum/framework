@@ -11,13 +11,13 @@
 namespace Flarum\Core\Search\Discussion;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\Search\ApplySearchParametersTrait;
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Repository\PostRepository;
-use Flarum\Event\ConfigureDiscussionSearch;
+use Flarum\Core\Search\ApplySearchParametersTrait;
+use Flarum\Core\Search\GambitManager;
+use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
+use Flarum\Event\ConfigureDiscussionSearch;
 use Illuminate\Database\Eloquent\Collection;
 
 /**

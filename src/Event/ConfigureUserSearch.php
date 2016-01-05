@@ -10,8 +10,8 @@
 
 namespace Flarum\Event;
 
-use Flarum\Core\Search\User\UserSearch;
 use Flarum\Core\Search\SearchCriteria;
+use Flarum\Core\Search\User\UserSearch;
 
 class ConfigureUserSearch
 {

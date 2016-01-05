@@ -28,7 +28,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * Indicates if the model should be timestamped. Turn off by default.
      *
-     * @var boolean
+     * @var bool
      */
     public $timestamps = false;
 
@@ -107,7 +107,7 @@ abstract class AbstractModel extends Eloquent
         if (! $this->relationLoaded($key) && ($relation = $this->getCustomRelation($key))) {
             if (! $relation instanceof Relation) {
                 throw new LogicException('Relationship method must return an object of type '
-                    . 'Illuminate\Database\Eloquent\Relations\Relation');
+                    .'Illuminate\Database\Eloquent\Relations\Relation');
             }
 
             return $this->relations[$key] = $relation->getResults();

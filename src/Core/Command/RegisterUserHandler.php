@@ -12,14 +12,14 @@ namespace Flarum\Core\Command;
 
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\User;
 use Flarum\Core\AuthToken;
+use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Core\User;
 use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
-use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
@@ -171,10 +171,10 @@ class RegisterUserHandler
             'target' => $this->uploadDir,
         ]);
 
-        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+        $uploadName = Str::lower(Str::quickRandom()).'.jpg';
 
         $user->changeAvatarPath($uploadName);
 
-        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
     }
 }

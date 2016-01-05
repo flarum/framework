@@ -10,13 +10,12 @@
 
 namespace Flarum\Extension;
 
-use Flarum\Core;
+use Flarum\Database\Migrator;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\ExtensionWasUninstalled;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Database\Migrator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 
@@ -57,7 +56,7 @@ class ExtensionManager
         $installed = json_decode(file_get_contents(public_path('vendor/composer/installed.json')), true);
 
         foreach ($dirs as $dir) {
-            if (file_exists($manifest = $extensionsDir . '/' . $dir . '/composer.json')) {
+            if (file_exists($manifest = $extensionsDir.'/'.$dir.'/composer.json')) {
                 $extension = json_decode(file_get_contents($manifest), true);
 
                 if (empty($extension['name'])) {
@@ -68,7 +67,7 @@ class ExtensionManager
                     $icon = &$extension['extra']['flarum-extension']['icon'];
 
                     if ($file = array_get($icon, 'image')) {
-                        $file = $extensionsDir . '/' . $dir . '/' . $file;
+                        $file = $extensionsDir.'/'.$dir.'/'.$file;
 
                         if (file_exists($file)) {
                             $mimetype = pathinfo($file, PATHINFO_EXTENSION) === 'svg'
@@ -76,7 +75,7 @@ class ExtensionManager
                                 : finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
                             $data = file_get_contents($file);
 
-                            $icon['backgroundImage'] = 'url(\'data:' . $mimetype . ';base64,' . base64_encode($data) . '\')';
+                            $icon['backgroundImage'] = 'url(\'data:'.$mimetype.';base64,'.base64_encode($data).'\')';
                         }
                     }
                 }
@@ -174,7 +173,7 @@ class ExtensionManager
 
     public function migrate($extension, $up = true)
     {
-        $migrationDir = public_path('extensions/' . $extension . '/migrations');
+        $migrationDir = public_path('extensions/'.$extension.'/migrations');
 
         $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
             return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();

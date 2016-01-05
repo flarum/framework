@@ -11,9 +11,9 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Support\Str;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class Migrator
 {
@@ -246,7 +246,7 @@ class Migrator
     {
         $file = implode('_', array_slice(explode('_', $file), 4));
 
-        $class = ($extension ? str_replace('-', '\\', $extension) : 'Flarum\\Core') . '\\Migration\\';
+        $class = ($extension ? str_replace('-', '\\', $extension) : 'Flarum\\Core').'\\Migration\\';
 
         $class .= Str::studly($file);
 
@@ -293,7 +293,7 @@ class Migrator
      */
     public function setConnection($name)
     {
-        if (!is_null($name)) {
+        if (! is_null($name)) {
             $this->resolver->setDefaultConnection($name);
         }
 
