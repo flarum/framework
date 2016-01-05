@@ -10,12 +10,12 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Events\EventServiceProvider;
+use Illuminate\Support\Arr;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class Application extends Container implements ApplicationContract
 {
@@ -163,7 +163,7 @@ class Application extends Container implements ApplicationContract
         }
 
         if ($path) {
-            $url .= '/' . array_get($config, "paths.$path", $path);
+            $url .= '/'.array_get($config, "paths.$path", $path);
         }
 
         return $url;

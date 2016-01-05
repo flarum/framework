@@ -13,9 +13,9 @@ namespace Flarum\Http\Controller;
 use Flarum\Api\Client;
 use Flarum\Asset\AssetManager;
 use Flarum\Core\User;
+use Flarum\Locale\JsCompiler;
 use Illuminate\Contracts\Support\Renderable;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Flarum\Locale\JsCompiler;
 
 /**
  * This class represents a view which boots up Flarum's client.
@@ -240,8 +240,8 @@ class ClientView implements Renderable
 
         $view->app = [
             'preload' => [
-                'data' => $data,
-                'session' => $this->getSession(),
+                'data'     => $data,
+                'session'  => $this->getSession(),
                 'document' => $this->document
             ]
         ] + $this->variables;
@@ -249,14 +249,14 @@ class ClientView implements Renderable
 
         $noJs = array_get($this->request->getQueryParams(), 'nojs');
 
-        $view->title = ($this->title ? $this->title . ' - ' : '') . $forum->data->attributes->title;
+        $view->title = ($this->title ? $this->title.' - ' : '').$forum->data->attributes->title;
         $view->forum = $forum->data;
         $view->layout = app('view')->file($this->layout, [
-            'forum' => $forum->data,
+            'forum'   => $forum->data,
             'content' => app('view')->file(__DIR__.'/../../../views/content.blade.php', [
                 'content' => $this->content,
-                'noJs' => $noJs,
-                'forum' => $forum->data
+                'noJs'    => $noJs,
+                'forum'   => $forum->data
             ])
         ]);
         $view->noJs = $noJs;
@@ -342,7 +342,7 @@ class ClientView implements Renderable
         $session = $this->request->getAttribute('session');
 
         return [
-            'userId' => $this->actor->id,
+            'userId'    => $this->actor->id,
             'csrfToken' => $session->get('csrf_token')
         ];
     }

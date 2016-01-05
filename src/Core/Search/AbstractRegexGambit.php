@@ -27,10 +27,10 @@ abstract class AbstractRegexGambit implements GambitInterface
         if ($matches = $this->match($bit)) {
             list($negate) = array_splice($matches, 1, 1);
 
-            $this->conditions($search, $matches, !! $negate);
+            $this->conditions($search, $matches, (bool) $negate);
         }
 
-        return !! $matches;
+        return (bool) $matches;
     }
 
     /**

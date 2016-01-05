@@ -12,13 +12,11 @@ namespace Flarum\Core;
 
 use DomainException;
 use Flarum\Core\Post\RegisteredTypesScope;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Database\AbstractModel;
-use Flarum\Core\User;
-use Flarum\Core\Support\Locked;
-use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\ValidateBeforeSaveTrait;
+use Flarum\Core\Support\ScopeVisibilityTrait;
+
+use Flarum\Database\AbstractModel;
+use Flarum\Event\PostWasDeleted;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -108,7 +106,7 @@ class Post extends AbstractModel
      * Determine whether or not this post is visible to the given user.
      *
      * @param User $user
-     * @return boolean
+     * @return bool
      */
     public function isVisibleTo(User $user)
     {

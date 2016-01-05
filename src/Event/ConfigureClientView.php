@@ -10,10 +10,10 @@
 
 namespace Flarum\Event;
 
-use Flarum\Http\Controller\AbstractClientController;
-use Flarum\Http\Controller\ClientView;
 use Flarum\Admin\Controller\ClientController as AdminClientAction;
 use Flarum\Forum\Controller\ClientController as ForumClientAction;
+use Flarum\Http\Controller\AbstractClientController;
+use Flarum\Http\Controller\ClientView;
 
 class ConfigureClientView
 {

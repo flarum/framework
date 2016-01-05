@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Support;
 
+use Flarum\Core\User;
 use Flarum\Event\ScopeModelVisibility;
 use Illuminate\Database\Eloquent\Builder;
-use Flarum\Core\User;
 
 trait ScopeVisibilityTrait
 {

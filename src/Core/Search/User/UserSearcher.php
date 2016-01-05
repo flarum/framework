@@ -10,11 +10,11 @@
 
 namespace Flarum\Core\Search\User;
 
+use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Search\ApplySearchParametersTrait;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\SearchResults;
-use Flarum\Core\Repository\UserRepository;
 use Flarum\Event\ConfigureUserSearch;
 
 /**

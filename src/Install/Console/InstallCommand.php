@@ -10,22 +10,17 @@
 
 namespace Flarum\Install\Console;
 
+use Exception;
 use Flarum\Console\Command\AbstractCommand;
-use Flarum\Core\Exception\ValidationException;
-use Flarum\Database\AbstractModel;
-use Flarum\Core\User;
 use Flarum\Core\Group;
 use Flarum\Core\Permission;
+use Flarum\Core\User;
+use Flarum\Database\AbstractModel;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use PDO;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Output\OutputInterface;
-use Exception;
 
 class InstallCommand extends AbstractCommand
 {
@@ -70,7 +65,7 @@ class InstallCommand extends AbstractCommand
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function fire()
     {
@@ -118,11 +113,11 @@ class InstallCommand extends AbstractCommand
             $validation = $this->getValidator()->make(
                 $this->dbConfig,
                 [
-                    'driver' => 'required|in:mysql',
-                    'host' => 'required',
+                    'driver'   => 'required|in:mysql',
+                    'host'     => 'required',
                     'database' => 'required|string',
                     'username' => 'required|string',
-                    'prefix' => 'alpha_dash|max:10'
+                    'prefix'   => 'alpha_dash|max:10'
                 ]
             );
 
@@ -229,7 +224,7 @@ class InstallCommand extends AbstractCommand
         $migrator = $this->application->make('Flarum\Database\Migrator');
         $migrator->getRepository()->createRepository();
 
-        $migrator->run(__DIR__ . '/../../../migrations');
+        $migrator->run(__DIR__.'/../../../migrations');
 
         foreach ($migrator->getNotes() as $note) {
             $this->info($note);
@@ -263,9 +258,9 @@ class InstallCommand extends AbstractCommand
         foreach ($groups as $group) {
             Group::create([
                 'name_singular' => $group[0],
-                'name_plural' => $group[1],
-                'color' => $group[2],
-                'icon' => $group[3]
+                'name_plural'   => $group[1],
+                'color'         => $group[2],
+                'icon'          => $group[3]
             ]);
         }
     }
@@ -383,7 +378,7 @@ class InstallCommand extends AbstractCommand
             $this->info($error['message']);
 
             if (isset($error['detail'])) {
-                $this->output->writeln('<comment>' . $error['detail'] . '</comment>');
+                $this->output->writeln('<comment>'.$error['detail'].'</comment>');
             }
         }
     }

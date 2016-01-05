@@ -11,8 +11,8 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Core\User;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class DiscussionController extends ClientController
 {
@@ -27,11 +27,11 @@ class DiscussionController extends ClientController
         $page = max(1, array_get($queryParams, 'page'));
 
         $params = [
-            'id' => (int) array_get($queryParams, 'id'),
+            'id'   => (int) array_get($queryParams, 'id'),
             'page' => [
-                'near' => array_get($queryParams, 'near'),
+                'near'   => array_get($queryParams, 'near'),
                 'offset' => ($page - 1) * 20,
-                'limit' => 20
+                'limit'  => 20
             ]
         ];
 
@@ -48,7 +48,7 @@ class DiscussionController extends ClientController
             $queryString = http_build_query($newQueryParams);
 
             return app('Flarum\Forum\UrlGenerator')
-                ->toRoute('discussion', ['id' => $document->data->id]) .
+                ->toRoute('discussion', ['id' => $document->data->id]).
                 ($queryString ? '?'.$queryString : '');
         };
 

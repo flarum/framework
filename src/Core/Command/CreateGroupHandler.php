@@ -13,9 +13,9 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Group;
+use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\GroupValidator;
 use Flarum\Event\GroupWillBeSaved;
-use Flarum\Core\Support\DispatchEventsTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class CreateGroupHandler

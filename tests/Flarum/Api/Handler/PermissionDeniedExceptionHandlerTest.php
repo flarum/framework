@@ -38,7 +38,7 @@ class PermissionDeniedExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'status' => '401',
-                'code' => 'permission_denied'
+                'code'   => 'permission_denied'
             ]
         ], $response->getErrors());
     }

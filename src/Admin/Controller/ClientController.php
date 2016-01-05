@@ -10,17 +10,17 @@
 
 namespace Flarum\Admin\Controller;
 
+use Flarum\Api\Client;
+use Flarum\Core\Permission;
+use Flarum\Event\PrepareUnserializedSettings;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\AbstractClientController as BaseClientController;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Flarum\Core\Permission;
-use Flarum\Api\Client;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Event\PrepareUnserializedSettings;
 
 class ClientController extends BaseClientController
 {

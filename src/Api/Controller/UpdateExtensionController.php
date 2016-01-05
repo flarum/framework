@@ -13,7 +13,6 @@ namespace Flarum\Api\Controller;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Http\Controller\ControllerInterface;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
 class UpdateExtensionController implements ControllerInterface
