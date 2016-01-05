@@ -33,7 +33,7 @@ class MethodNotAllowedExceptionHandler implements ExceptionHandlerInterface
         $status = 405;
         $error = [
             'status' => (string) $status,
-            'code' => 'method_not_allowed'
+            'code'   => 'method_not_allowed'
         ];
 
         return new ResponseBag($status, [$error]);

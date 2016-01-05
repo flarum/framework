@@ -113,11 +113,11 @@ class InstallCommand extends AbstractCommand
             $validation = $this->getValidator()->make(
                 $this->dbConfig,
                 [
-                    'driver' => 'required|in:mysql',
-                    'host' => 'required',
+                    'driver'   => 'required|in:mysql',
+                    'host'     => 'required',
                     'database' => 'required|string',
                     'username' => 'required|string',
-                    'prefix' => 'alpha_dash|max:10'
+                    'prefix'   => 'alpha_dash|max:10'
                 ]
             );
 
@@ -177,21 +177,21 @@ class InstallCommand extends AbstractCommand
         $dbConfig = $this->dbConfig;
 
         $config = [
-            'debug' => true,
+            'debug'    => true,
             'database' => [
-                'driver' => $dbConfig['driver'],
-                'host' => $dbConfig['host'],
-                'database' => $dbConfig['database'],
-                'username' => $dbConfig['username'],
-                'password' => $dbConfig['password'],
-                'charset' => 'utf8mb4',
+                'driver'    => $dbConfig['driver'],
+                'host'      => $dbConfig['host'],
+                'database'  => $dbConfig['database'],
+                'username'  => $dbConfig['username'],
+                'password'  => $dbConfig['password'],
+                'charset'   => 'utf8mb4',
                 'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => $dbConfig['prefix'],
-                'strict' => false
+                'prefix'    => $dbConfig['prefix'],
+                'strict'    => false
             ],
-            'url' => $this->baseUrl,
+            'url'   => $this->baseUrl,
             'paths' => [
-                'api' => 'api',
+                'api'   => 'api',
                 'admin' => 'admin',
             ],
         ];
@@ -258,9 +258,9 @@ class InstallCommand extends AbstractCommand
         foreach ($groups as $group) {
             Group::create([
                 'name_singular' => $group[0],
-                'name_plural' => $group[1],
-                'color' => $group[2],
-                'icon' => $group[3]
+                'name_plural'   => $group[1],
+                'color'         => $group[2],
+                'icon'          => $group[3]
             ]);
         }
     }
@@ -284,7 +284,7 @@ class InstallCommand extends AbstractCommand
 
         foreach ($permissions as &$permission) {
             $permission = [
-                'group_id' => $permission[0],
+                'group_id'   => $permission[0],
                 'permission' => $permission[1]
             ];
         }

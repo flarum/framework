@@ -36,7 +36,7 @@ class ValidationExceptionHandler implements ExceptionHandlerInterface
         $errors = array_map(function ($path, $detail) use ($status) {
             return [
                 'status' => (string) $status,
-                'code' => 'validation_error',
+                'code'   => 'validation_error',
                 'detail' => $detail,
                 'source' => ['pointer' => "/data/attributes/$path"]
             ];

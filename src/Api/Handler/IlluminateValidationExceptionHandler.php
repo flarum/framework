@@ -45,7 +45,7 @@ class IlluminateValidationExceptionHandler implements ExceptionHandlerInterface
         $errors = array_map(function ($field, $messages) {
             return [
                 'status' => '422',
-                'code' => 'validation_error',
+                'code'   => 'validation_error',
                 'detail' => implode("\n", $messages),
                 'source' => ['pointer' => "/data/attributes/$field"]
             ];
