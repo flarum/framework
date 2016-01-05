@@ -675,21 +675,21 @@ class Application extends Container implements ApplicationContract
     public function registerCoreContainerAliases()
     {
         $aliases = [
-            'app' => ['Flarum\Foundation\Application', 'Illuminate\Contracts\Container\Container', 'Illuminate\Contracts\Foundation\Application'],
-            'blade.compiler' => 'Illuminate\View\Compilers\BladeCompiler',
-            'cache' => ['Illuminate\Cache\CacheManager', 'Illuminate\Contracts\Cache\Factory'],
-            'cache.store' => ['Illuminate\Cache\Repository', 'Illuminate\Contracts\Cache\Repository'],
-            'config' => ['Illuminate\Config\Repository', 'Illuminate\Contracts\Config\Repository'],
-            'db' => 'Illuminate\Database\DatabaseManager',
-            'events' => ['Illuminate\Events\Dispatcher', 'Illuminate\Contracts\Events\Dispatcher'],
-            'files' => 'Illuminate\Filesystem\Filesystem',
-            'filesystem' => ['Illuminate\Filesystem\FilesystemManager', 'Illuminate\Contracts\Filesystem\Factory'],
-            'filesystem.disk' => 'Illuminate\Contracts\Filesystem\Filesystem',
+            'app'              => ['Flarum\Foundation\Application', 'Illuminate\Contracts\Container\Container', 'Illuminate\Contracts\Foundation\Application'],
+            'blade.compiler'   => 'Illuminate\View\Compilers\BladeCompiler',
+            'cache'            => ['Illuminate\Cache\CacheManager', 'Illuminate\Contracts\Cache\Factory'],
+            'cache.store'      => ['Illuminate\Cache\Repository', 'Illuminate\Contracts\Cache\Repository'],
+            'config'           => ['Illuminate\Config\Repository', 'Illuminate\Contracts\Config\Repository'],
+            'db'               => 'Illuminate\Database\DatabaseManager',
+            'events'           => ['Illuminate\Events\Dispatcher', 'Illuminate\Contracts\Events\Dispatcher'],
+            'files'            => 'Illuminate\Filesystem\Filesystem',
+            'filesystem'       => ['Illuminate\Filesystem\FilesystemManager', 'Illuminate\Contracts\Filesystem\Factory'],
+            'filesystem.disk'  => 'Illuminate\Contracts\Filesystem\Filesystem',
             'filesystem.cloud' => 'Illuminate\Contracts\Filesystem\Cloud',
-            'hash' => 'Illuminate\Contracts\Hashing\Hasher',
-            'mailer' => ['Illuminate\Mail\Mailer', 'Illuminate\Contracts\Mail\Mailer', 'Illuminate\Contracts\Mail\MailQueue'],
-            'validator' => ['Illuminate\Validation\Factory', 'Illuminate\Contracts\Validation\Factory'],
-            'view' => ['Illuminate\View\Factory', 'Illuminate\Contracts\View\Factory'],
+            'hash'             => 'Illuminate\Contracts\Hashing\Hasher',
+            'mailer'           => ['Illuminate\Mail\Mailer', 'Illuminate\Contracts\Mail\Mailer', 'Illuminate\Contracts\Mail\MailQueue'],
+            'validator'        => ['Illuminate\Validation\Factory', 'Illuminate\Contracts\Validation\Factory'],
+            'view'             => ['Illuminate\View\Factory', 'Illuminate\Contracts\View\Factory'],
         ];
 
         foreach ($aliases as $key => $aliases) {

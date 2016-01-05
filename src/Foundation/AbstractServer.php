@@ -138,7 +138,7 @@ abstract class AbstractServer
     {
         return new ConfigRepository([
             'view' => [
-                'paths' => [],
+                'paths'    => [],
                 'compiled' => $app->storagePath().'/views',
             ],
             'mail' => [
@@ -146,21 +146,21 @@ abstract class AbstractServer
             ],
             'cache' => [
                 'default' => 'file',
-                'stores' => [
+                'stores'  => [
                     'file' => [
                         'driver' => 'file',
-                        'path' => $app->storagePath().'/cache',
+                        'path'   => $app->storagePath().'/cache',
                     ],
                 ],
                 'prefix' => 'flarum',
             ],
             'filesystems' => [
                 'default' => 'local',
-                'cloud' => 's3',
-                'disks' => [
+                'cloud'   => 's3',
+                'disks'   => [
                     'flarum-avatars' => [
                         'driver' => 'local',
-                        'root' => $app->publicPath().'/assets/avatars'
+                        'root'   => $app->publicPath().'/assets/avatars'
                     ]
                 ]
             ]

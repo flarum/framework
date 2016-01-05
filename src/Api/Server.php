@@ -46,7 +46,7 @@ class Server extends AbstractServer
                 $document = new Document;
                 $document->setErrors([
                     [
-                        'code' => 503,
+                        'code'  => 503,
                         'title' => 'Service Unavailable'
                     ]
                 ]);

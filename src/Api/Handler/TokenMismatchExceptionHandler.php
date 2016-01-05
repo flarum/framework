@@ -33,7 +33,7 @@ class TokenMismatchExceptionHandler implements ExceptionHandlerInterface
         $status = 400;
         $error = [
             'status' => (string) $status,
-            'code' => 'csrf_token_mismatch'
+            'code'   => 'csrf_token_mismatch'
         ];
 
         return new ResponseBag($status, [$error]);

@@ -39,12 +39,12 @@ class UserSerializer extends UserBasicSerializer
         $canEdit = $gate->allows('edit', $user);
 
         $attributes += [
-            'bio' => $user->bio,
-            'joinTime' => $this->formatDate($user->join_time),
+            'bio'              => $user->bio,
+            'joinTime'         => $this->formatDate($user->join_time),
             'discussionsCount' => (int) $user->discussions_count,
-            'commentsCount' => (int) $user->comments_count,
-            'canEdit' => $canEdit,
-            'canDelete' => $gate->allows('delete', $user),
+            'commentsCount'    => (int) $user->comments_count,
+            'canEdit'          => $canEdit,
+            'canDelete'        => $gate->allows('delete', $user),
         ];
 
         if ($user->getPreference('discloseOnline')) {
@@ -56,7 +56,7 @@ class UserSerializer extends UserBasicSerializer
         if ($canEdit || $this->actor->id === $user->id) {
             $attributes += [
                 'isActivated' => $user->is_activated,
-                'email' => $user->email
+                'email'       => $user->email
             ];
         }
 
