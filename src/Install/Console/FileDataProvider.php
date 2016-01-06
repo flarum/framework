@@ -13,7 +13,7 @@ namespace Flarum\Install\Console;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Yaml\Yaml;
 
-class FileDataProvider  implements DataProviderInterface
+class FileDataProvider implements DataProviderInterface
 {
     protected $configurationFile;
     protected $default;
@@ -27,17 +27,18 @@ class FileDataProvider  implements DataProviderInterface
         // Get configuration file path
         $this->configurationFile = $input->getOption('file');
 
-        // Parse YAML 
+        // Parse YAML
         $configuration = Yaml::parse(file_get_contents($this->configurationFile));
 
         // Define configuration variables
-        $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : NULL;
+        $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
         $this->databaseConfiguration = isset($configuration['databaseConfiguration']) ? $configuration['databaseConfiguration'] : array();
         $this->adminUser = isset($configuration['adminUser']) ? $configuration['adminUser'] : array();
         $this->settings = isset($configuration['settings']) ? $configuration['settings']: array();
     }
 
-    public function getDatabaseConfiguration() {
+    public function getDatabaseConfiguration()
+    {
         // Merge with defaults
         return $this->databaseConfiguration + $this->default->getDatabaseConfiguration();
     }
