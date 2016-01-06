@@ -66,6 +66,12 @@ class InstallCommand extends AbstractCommand
                 'd',
                 InputOption::VALUE_NONE,
                 'Create default settings and user'
+            )
+            ->addOption(
+                'file',
+                'f',
+                InputOption::VALUE_REQUIRED,
+                'Use external configuration file'
             );
     }
 
@@ -99,6 +105,8 @@ class InstallCommand extends AbstractCommand
         if ($this->dataSource === null) {
             if ($this->input->getOption('defaults')) {
                 $this->dataSource = new DefaultsDataProvider();
+            } elseif ($this->input->getOption('file')) {
+                $this->dataSource = new FileDataProvider($this->input);
             } else {
                 $this->dataSource = new UserDataProvider($this->input, $this->output, $this->getHelperSet()->get('question'));
             }
