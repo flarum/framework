@@ -67,7 +67,7 @@ class InstallCommand extends AbstractCommand
                 InputOption::VALUE_NONE,
                 'Create default settings and user'
             )
-             ->addOption(
+            ->addOption(
                 'file',
                 'f',
                 InputOption::VALUE_REQUIRED,
