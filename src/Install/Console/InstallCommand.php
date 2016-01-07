@@ -71,7 +71,7 @@ class InstallCommand extends AbstractCommand
                 'file',
                 'f',
                 InputOption::VALUE_REQUIRED,
-                'Use external configuration file'
+                'Use external configuration file in YAML format'
             );
     }
 
