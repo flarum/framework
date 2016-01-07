@@ -16,7 +16,6 @@ use Exception;
 
 class FileDataProvider implements DataProviderInterface
 {
-    protected $configurationFile;
     protected $default;
     protected $baseUrl = null;
     protected $databaseConfiguration = [];
@@ -29,45 +28,40 @@ class FileDataProvider implements DataProviderInterface
         $this->default = new DefaultsDataProvider();
 
         // Get configuration file path
-        $this->configurationFile = $input->getOption('file');
+        $configurationFile = $input->getOption('file');
 
         // Check if file exists before parsing content
-        if (file_exists($this->configurationFile)) {
+        if (file_exists($configurationFile)) {
             // Parse YAML
-            $configuration = Yaml::parse(file_get_contents($this->configurationFile));
+            $configuration = Yaml::parse(file_get_contents($configurationFile));
 
             // Define configuration variables
             $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
-            $this->databaseConfiguration = isset($configuration['databaseConfiguration']) ? $configuration['databaseConfiguration'] : array();
-            $this->adminUser = isset($configuration['adminUser']) ? $configuration['adminUser'] : array();
-            $this->settings = isset($configuration['settings']) ? $configuration['settings']: array();
-        }
-        else {
+            $this->databaseConfiguration = isset($configuration['databaseConfiguration']) ? $configuration['databaseConfiguration'] : [];
+            $this->adminUser = isset($configuration['adminUser']) ? $configuration['adminUser'] : [];
+            $this->settings = isset($configuration['settings']) ? $configuration['settings']: [];
+        } else {
             throw new Exception('Configuration file does not exist.');
         }
     }
 
     public function getDatabaseConfiguration()
     {
-        // Merge with defaults
         return $this->databaseConfiguration + $this->default->getDatabaseConfiguration();
     }
 
     public function getBaseUrl()
     {
-        // Merge with defaults
         return (!is_null($this->baseUrl)) ? $this->baseUrl : $this->default->getBaseUrl();
     }
 
     public function getAdminUser()
     {
-        // Merge with defaults
         return $this->adminUser + $this->default->getAdminUser();
     }
 
     public function getSettings()
     {
-        // Merge with defaults
         return $this->settings + $this->default->getSettings();
     }
 }
