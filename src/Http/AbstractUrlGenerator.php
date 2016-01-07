@@ -31,6 +31,11 @@ class AbstractUrlGenerator
     protected $path;
 
     /**
+     * @var string
+     */
+    protected $prefix = '';
+
+    /**
      * @param Application $app
      * @param RouteCollection $routes
      */
@@ -67,12 +72,18 @@ class AbstractUrlGenerator
     }
 
     /**
-     * Get the base URL.
+     * Generate a URL to base with UrlGenerator's prefix.
      *
      * @return string
      */
     public function toBase()
     {
-        return $this->app->url($this->path);
+        $base = $this->app->url($this->path);
+
+        if (empty($this->prefix)) {
+            return $base;
+        } else {
+            return $base . '/' . $this->prefix;
+        }
     }
 }
