@@ -130,15 +130,19 @@ export default class NotificationList extends Component {
    * Mark all of the notifications as read.
    */
   markAllAsRead() {
-    if (!app.cache.notifications) return;
+    if (!app.cache.notifications || app.session.user.attribute('unreadNotificationsCount') === 0) return false;
 
-    app.session.user.pushAttributes({unreadNotificationsCount: 0});
+    const confirmation = confirm(app.translator.trans('core.forum.notifications.mark_all_as_read_confirm_text'));
 
-    app.cache.notifications.forEach(notification => notification.pushAttributes({isRead: true}));
+    if(confirmation) {
+      app.session.user.pushAttributes({unreadNotificationsCount: 0});
 
-    app.request({
-      url: app.forum.attribute('apiUrl') + '/notifications/read',
-      method: 'POST'
-    });
+      app.cache.notifications.forEach(notification => notification.pushAttributes({isRead: true}));
+
+      app.request({
+        url: app.forum.attribute('apiUrl') + '/notifications/read',
+        method: 'POST'
+      });
+    }
   }
 }
