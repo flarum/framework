@@ -259,6 +259,7 @@ core:
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       title: => core.ref.notifications
       tooltip: => core.ref.notifications
+      mark_all_as_read_confirm_text: "Are you sure you want to mark all notifications as read?"
 
     # These translations are used by tooltips displayed for individual posts.
     post:
