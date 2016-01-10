@@ -68,36 +68,36 @@ export default class NotificationList extends Component {
         <div className="NotificationList-content">
           {groups.length
             ? groups.map(group => {
-              const badges = group.discussion && group.discussion.badges().toArray();
+            const badges = group.discussion && group.discussion.badges().toArray();
 
-              return (
-                <div className="NotificationGroup">
-                  {group.discussion
-                    ? (
-                      <a className="NotificationGroup-header"
-                        href={app.route.discussion(group.discussion)}
-                        config={m.route}>
-                        {badges && badges.length ? <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul> : ''}
-                        {group.discussion.title()}
-                      </a>
-                    ) : (
-                      <div className="NotificationGroup-header">
-                        {app.forum.attribute('title')}
-                      </div>
-                    )}
+            return (
+              <div className="NotificationGroup">
+                {group.discussion
+                  ? (
+                  <a className="NotificationGroup-header"
+                     href={app.route.discussion(group.discussion)}
+                     config={m.route}>
+                    {badges && badges.length ? <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul> : ''}
+                    {group.discussion.title()}
+                  </a>
+                ) : (
+                  <div className="NotificationGroup-header">
+                    {app.forum.attribute('title')}
+                  </div>
+                )}
 
-                  <ul className="NotificationGroup-content">
-                    {group.notifications.map(notification => {
-                      const NotificationComponent = app.notificationComponents[notification.contentType()];
-                      return NotificationComponent ? <li>{NotificationComponent.component({notification})}</li> : '';
-                    })}
-                  </ul>
-                </div>
-              );
-            })
+                <ul className="NotificationGroup-content">
+                  {group.notifications.map(notification => {
+                    const NotificationComponent = app.notificationComponents[notification.contentType()];
+                    return NotificationComponent ? <li>{NotificationComponent.component({notification})}</li> : '';
+                  })}
+                </ul>
+              </div>
+            );
+          })
             : !this.loading
-              ? <div className="NotificationList-empty">{app.translator.trans('core.forum.notifications.empty_text')}</div>
-              : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
+            ? <div className="NotificationList-empty">{app.translator.trans('core.forum.notifications.empty_text')}</div>
+            : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
         </div>
       </div>
     );
@@ -130,19 +130,15 @@ export default class NotificationList extends Component {
    * Mark all of the notifications as read.
    */
   markAllAsRead() {
-    if (!app.cache.notifications || app.session.user.attribute('unreadNotificationsCount') === 0) return false;
+    if (!app.cache.notifications) return;
 
-    const confirmation = confirm(app.translator.trans('core.forum.notifications.mark_all_as_read_confirm_text'));
+    app.session.user.pushAttributes({unreadNotificationsCount: 0});
 
-    if(confirmation) {
-      app.session.user.pushAttributes({unreadNotificationsCount: 0});
+    app.cache.notifications.forEach(notification => notification.pushAttributes({isRead: true}));
 
-      app.cache.notifications.forEach(notification => notification.pushAttributes({isRead: true}));
-
-      app.request({
-        url: app.forum.attribute('apiUrl') + '/notifications/read',
-        method: 'POST'
-      });
-    }
+    app.request({
+      url: app.forum.attribute('apiUrl') + '/notifications/read',
+      method: 'POST'
+    });
   }
 }
