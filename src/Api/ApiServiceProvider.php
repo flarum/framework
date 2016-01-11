@@ -110,12 +110,6 @@ class ApiServiceProvider extends AbstractServiceProvider
             $toController('Flarum\Api\Controller\ShowForumController')
         );
 
-        // Save forum information
-        $routes->patch(
-            '/forum',
-            'forum.update',
-            $toController('Flarum\Api\Controller\UpdateForumController')
-        );
 
         // Retrieve authentication token
         $routes->post(
