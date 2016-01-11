@@ -110,7 +110,6 @@ class ApiServiceProvider extends AbstractServiceProvider
             $toController('Flarum\Api\Controller\ShowForumController')
         );
 
-
         // Retrieve authentication token
         $routes->post(
             '/token',
