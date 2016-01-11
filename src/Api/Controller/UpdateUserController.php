@@ -44,6 +44,26 @@ class UpdateUserController extends AbstractResourceController
     }
 
     /**
+     * @param UserPostData $data
+     */
+    public function requireSudo($data)
+    {
+        // Search trough $data[attributes] array and if
+        // elements from $skip array don't exist
+        // return true
+        $skip = ['readTime'];
+        foreach ($skip as $key)
+        {
+            if (array_key_exists($key, $data[attributes]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function data(ServerRequestInterface $request, Document $document)
@@ -52,7 +72,10 @@ class UpdateUserController extends AbstractResourceController
         $actor = $request->getAttribute('actor');
         $data = array_get($request->getParsedBody(), 'data', []);
 
-        $this->assertSudo($request);
+        if ($this->requireSudo($data))
+        {
+            $this->assertSudo($request);
+        }
 
         return $this->bus->dispatch(
             new EditUser($id, $actor, $data)
