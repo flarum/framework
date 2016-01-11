@@ -17,7 +17,7 @@ Object.assign(User.prototype, {
 
   avatarUrl: Model.attribute('avatarUrl'),
   bio: Model.attribute('bio'),
-  bioHtml: computed('bio', bio => bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : ''),
+  bioHtml: computed('bio', bio => bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({rel: 'nofollow'}) + '</p>' : ''),
   preferences: Model.attribute('preferences'),
   groups: Model.hasMany('groups'),
 
