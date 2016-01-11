@@ -50,15 +50,15 @@ class UpdateUserController extends AbstractResourceController
     {
         // Search trough $data[attributes] array and if
         // elements from $skip array don't exist
-        // return TRUE
+        // return true
         $skip = ['readTime'];
-        foreach($skip as $key)
+        foreach ($skip as $key)
         {
             if (array_key_exists($key, $data[attributes]))
-                return FALSE;
+                return false;
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
