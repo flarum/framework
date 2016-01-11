@@ -55,7 +55,9 @@ class UpdateUserController extends AbstractResourceController
         foreach ($skip as $key)
         {
             if (array_key_exists($key, $data[attributes]))
+            {
                 return false;
+            }
         }
 
         return true;
