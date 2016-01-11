@@ -78,14 +78,6 @@ abstract class AbstractServer
      */
     protected function getApp()
     {
-        // franzliedke/studio currently doesn't autoload files (see issue
-        // below), so we will need to load them manually if we're using studio.
-        // https://github.com/franzliedke/studio/issues/29
-        if (file_exists($corePath = $this->path.'/core')) {
-            require $corePath.'/src/helpers.php';
-            require $corePath.'/vendor/swiftmailer/swiftmailer/lib/swift_required.php';
-        }
-
         date_default_timezone_set('UTC');
 
         $app = new Application($this->path);
