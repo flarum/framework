@@ -23,7 +23,7 @@ export default class Search extends Component {
      *
      * @type {Function}
      */
-    this.value = m.prop();
+    this.value = m.prop('');
 
     /**
      * Whether or not the search input has focus.
@@ -131,7 +131,11 @@ export default class Search extends Component {
             break;
 
           case 13: // Return
-            m.route(this.getItem(this.index).find('a').attr('href'));
+            if (this.value()) {
+              m.route(this.getItem(this.index).find('a').attr('href'));
+            } else {
+              this.clear();
+            }
             this.$('input').blur();
             break;
 
