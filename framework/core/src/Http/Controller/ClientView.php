@@ -127,6 +127,8 @@ class ClientView implements Renderable
         $this->assets = $assets;
         $this->layout = $layout;
         $this->localeJs = $localeJs;
+
+        $this->addHeadString('<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,600">', 'font');
     }
 
     /**
@@ -164,9 +166,13 @@ class ClientView implements Renderable
      *
      * @param string $string
      */
-    public function addHeadString($string)
+    public function addHeadString($string, $name = null)
     {
-        $this->headStrings[] = $string;
+        if ($name) {
+            $this->headStrings[$name] = $string;
+        } else {
+            $this->headStrings[] = $string;
+        }
     }
 
     /**

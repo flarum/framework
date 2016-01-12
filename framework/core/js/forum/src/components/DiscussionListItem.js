@@ -174,8 +174,12 @@ export default class DiscussionListItem extends Component {
     const discussion = this.props.discussion;
 
     if (discussion.isUnread()) {
-      discussion.save({readNumber: discussion.lastPostNumber()});
-      m.redraw();
+      const confirmation = confirm(app.translator.trans('core.forum.discussion_list.mark_all_as_read_confirmation'));
+
+      if (confirmation) {
+        discussion.save({readNumber: discussion.lastPostNumber()});
+        m.redraw();
+      }
     }
   }
 
