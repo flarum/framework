@@ -24,11 +24,6 @@ export default class Badge extends Component {
     attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
     attrs.title = extract(attrs, 'label') || '';
 
-    // Give the badge a unique key so that when badges are displayed together,
-    // and then one is added/removed, Mithril will correctly redraw the series
-    // of badges.
-    attrs.key = attrs.type;
-
     return (
       <span {...attrs}>
         {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
