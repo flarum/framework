@@ -12,6 +12,7 @@ import Select from 'flarum/components/Select';
 import Button from 'flarum/components/Button';
 import LinkButton from 'flarum/components/LinkButton';
 import SelectDropdown from 'flarum/components/SelectDropdown';
+import MarkAllReadModal from 'flarum/components/MarkAllReadModal';
 
 /**
  * The `IndexPage` component displays the index page, including the welcome
@@ -240,7 +241,7 @@ export default class IndexPage extends Page {
           title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
           icon: 'check',
           className: 'Button Button--icon',
-          onclick: this.markAllAsRead.bind(this)
+          onclick: () => app.modal.show(new MarkAllReadModal())
         })
       );
     }
@@ -350,18 +351,5 @@ export default class IndexPage extends Page {
     deferred.resolve(component);
 
     return deferred.promise;
-  }
-
-  /**
-   * Mark all discussions as read.
-   *
-   * @return void
-   */
-  markAllAsRead() {
-    const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
-
-    if (confirmation) {
-      app.session.user.save({readTime: new Date()});
-    }
   }
 }
