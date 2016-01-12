@@ -55,7 +55,9 @@ class PostStream extends Component {
       return this.goToLast().then(() => {
         $('html,body').stop(true).animate({
           scrollTop: $(document).height() - $(window).height()
-        }, 'fast');
+        }, 'fast', () => {
+          this.flashItem(this.$('.PostStream-item:last-child'));
+        });
       });
     }
 
