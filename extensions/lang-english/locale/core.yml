@@ -229,8 +229,8 @@ core:
     index:
       all_discussions_link: => core.ref.all_discussions
       cannot_start_discussion_button: Can't Start Discussion
-      mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
+      mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       refresh_tooltip: Refresh
       start_discussion_button: => core.ref.start_a_discussion
 
