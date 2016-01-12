@@ -358,6 +358,10 @@ export default class IndexPage extends Page {
    * @return void
    */
   markAllAsRead() {
-    app.session.user.save({readTime: new Date()});
+    const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
+
+    if (confirmation) {
+      app.session.user.save({readTime: new Date()});
+    }
   }
 }
