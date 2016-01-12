@@ -36,6 +36,13 @@ class UpdateUserController extends AbstractResourceController
     protected $bus;
 
     /**
+     * The Attributes that can be changed without sudo mode.
+     *
+     * @var array
+     */
+    protected $noSudoAttributes = ['readtime', 'preferences'];
+
+    /**
      * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
@@ -52,7 +59,12 @@ class UpdateUserController extends AbstractResourceController
         $actor = $request->getAttribute('actor');
         $data = array_get($request->getParsedBody(), 'data', []);
 
-        $this->assertSudo($request);
+        foreach ($data['attributes'] as $k => $v) {
+            if (!in_array($k, $this->noSudoAttributes)) {
+                $this->assertSudo($request);
+                break;
+            }
+        }
 
         return $this->bus->dispatch(
             new EditUser($id, $actor, $data)
