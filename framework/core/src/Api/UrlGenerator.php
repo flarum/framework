@@ -17,5 +17,5 @@ class UrlGenerator extends AbstractUrlGenerator
     /**
      * {@inheritdoc}
      */
-    protected $prefix = 'api';
+    protected $path = 'api';
 }
