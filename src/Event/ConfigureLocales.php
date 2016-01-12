@@ -38,7 +38,7 @@ class ConfigureLocales
     {
         $name = $title = basename($directory);
 
-        if (file_exists($manifest = __DIR__.'/composer.json')) {
+        if (file_exists($manifest = $directory.'/composer.json')) {
             $json = json_decode(file_get_contents($manifest), true);
 
             if (empty($json)) {
@@ -55,7 +55,7 @@ class ConfigureLocales
 
         $this->locales->addLocale($locale, $title);
 
-        if (! is_dir($localeDir = __DIR__.'/locale')) {
+        if (! is_dir($localeDir = $directory.'/locale')) {
             throw new RuntimeException("Language pack $name must have a \"locale\" subdirectory.");
         }
 
