@@ -41,7 +41,8 @@ export default function listItems(items) {
             (item.itemName ? 'item-' + item.itemName : ''),
             className,
             (active ? 'active' : '')
-          ])}>
+          ])}
+            key={item.itemName}>
             {item}
           </li>,
       ' '
