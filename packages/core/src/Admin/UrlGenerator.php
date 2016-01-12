@@ -14,5 +14,8 @@ use Flarum\Http\AbstractUrlGenerator;
 
 class UrlGenerator extends AbstractUrlGenerator
 {
+    /**
+     * {@inheritdoc}
+     */
     protected $path = 'admin';
 }
