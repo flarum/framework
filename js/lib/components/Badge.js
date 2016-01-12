@@ -29,6 +29,8 @@ export default class Badge extends Component {
     // of badges.
     attrs.key = attrs.type;
 
+    m.redraw.strategy("all");
+
     return (
       <span {...attrs}>
         {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
