@@ -40,7 +40,7 @@ class UpdateUserController extends AbstractResourceController
      *
      * @var array
      */
-     protected $noSudoAttributes = ['readtime', 'preferences'];
+    protected $noSudoAttributes = ['readtime', 'preferences'];
 
     /**
      * @param Dispatcher $bus
@@ -60,7 +60,7 @@ class UpdateUserController extends AbstractResourceController
         $data = array_get($request->getParsedBody(), 'data', []);
 
         foreach ($data['attributes'] as $k => $v) {
-            if(!in_array($k, $this->noSudoAttributes)) {
+            if (!in_array($k, $this->noSudoAttributes)) {
                 $this->assertSudo($request);
                 break;
             }
