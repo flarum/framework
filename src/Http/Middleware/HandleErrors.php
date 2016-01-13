@@ -52,7 +52,7 @@ class HandleErrors implements ErrorMiddlewareInterface
             $status = $errorCode;
         }
 
-        if ($this->debug && $errorCode !== 404) {
+        if ($this->debug && ! in_array($errorCode, [403, 404])) {
             $whoops = new WhoopsMiddleware;
 
             return $whoops($error, $request, $response, $out);
