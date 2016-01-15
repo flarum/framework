@@ -39,7 +39,7 @@
         "tobscure/json-api": "^0.2.0",
         "oyejorge/less.php": "~1.5",
         "intervention/image": "^2.3.0",
-        "s9e/text-formatter": "^0.4.4",
+        "s9e/text-formatter": "^0.4.8",
         "psr/http-message": "^1.0",
         "zendframework/zend-diactoros": "^1.1",
         "zendframework/zend-stratigility": "^1.1",

@@ -13,7 +13,8 @@ namespace Flarum\Asset;
 use Exception;
 use Illuminate\Cache\Repository;
 use MatthiasMullie\Minify;
-use s9e\TextFormatter\Configurator\JavaScript\Minifiers\ClosureCompilerService;
+use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Configurator\JavaScript\Minifiers\FirstAvailable;
 
 class JsCompiler extends RevisionCompiler
 {
@@ -82,14 +83,25 @@ class JsCompiler extends RevisionCompiler
      */
     protected function minifyWithClosureCompilerService($source)
     {
-        $minifier = new ClosureCompilerService;
+        // The minifier may need some classes bundled with the Configurator so we autoload it
+        class_exists(Configurator::class);
 
-        $minifier->compilationLevel = 'SIMPLE_OPTIMIZATIONS';
-        $minifier->timeout = 60;
+        $minifier = new FirstAvailable;
 
-        $output = $minifier->minify($source);
+        $remoteCache = $minifier->add('RemoteCache');
+        $remoteCache->url = 'http://s9e-textformatter.rhcloud.com/flarum-minifier/';
 
-        return $output;
+        $hostedMinifer = $minifier->add('HostedMinifier');
+        $hostedMinifer->url = 'http://s9e-textformatter.rhcloud.com/flarum-minifier/';
+        $hostedMinifer->timeout = 30;
+
+        $ccs = $minifier->add('ClosureCompilerService');
+        $ccs->compilationLevel = 'SIMPLE_OPTIMIZATIONS';
+        $ccs->timeout = 30;
+
+        $minifier->add('MatthiasMullieMinify');
+
+        return $minifier->minify($source);
     }
 
     /**
