@@ -36,7 +36,6 @@ class DiscussionPolicy extends AbstractPolicy
 
     /**
      * @param SettingsRepositoryInterface $settings
-     * @param Gate $gate
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -101,6 +100,12 @@ class DiscussionPolicy extends AbstractPolicy
                 ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'))
                 ->where('discussions.id', new Expression('discussion_id'));
         });
+
+        // Hide discussions with no tags if the user doesn't have that global
+        // permission.
+        if (! $actor->hasPermission('viewDiscussions')) {
+            $query->has('tags');
+        }
     }
 
     /**
@@ -123,7 +128,8 @@ class DiscussionPolicy extends AbstractPolicy
 
     /**
      * This method checks, if the user is still allowed to edit the tags
-     * based on the configuration item
+     * based on the configuration item.
+     *
      * @param User $actor
      * @param Discussion $discussion
      * @return bool
