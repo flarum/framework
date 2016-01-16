@@ -11,7 +11,6 @@
 
 use Flarum\Tags\Access;
 use Flarum\Tags\Listener;
-use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return function (Dispatcher $events) {
@@ -24,6 +23,7 @@ return function (Dispatcher $events) {
     $events->subscribe(Listener\SaveTagsToDatabase::class);
     $events->subscribe(Listener\UpdateTagMetadata::class);
 
+    $events->subscribe(Access\GlobalPolicy::class);
     $events->subscribe(Access\DiscussionPolicy::class);
     $events->subscribe(Access\TagPolicy::class);
     $events->subscribe(Access\FlagPolicy::class);
