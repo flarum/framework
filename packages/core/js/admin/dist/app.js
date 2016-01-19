@@ -1051,6 +1051,7 @@ var m = (function app(window, undefined) {
 
 	function checkView(data, view, cached, cachedControllers, controllers, views) {
 		var controller = getController(cached.views, view, cachedControllers, data.controller);
+		var key = (data && data.attrs && data.attrs.key);
 		data = pendingRequests === 0 || forcing || cachedControllers && cachedControllers.indexOf(controller) > -1 ? data.view(controller) : {tag: "placeholder"};
 		if (data.subtree === "retain") return data;
 		(data.attrs = data.attrs || {}).key = key;
