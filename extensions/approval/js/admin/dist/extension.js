@@ -16,7 +16,7 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
         extend(PermissionGrid.prototype, 'replyItems', function (items) {
           items.add('replyWithoutApproval', {
             icon: 'check',
-            label: 'Reply without approval',
+            label: app.translator.trans('flarum-approval.admin.permissions.reply_without_approval_label'),
             permission: 'discussion.replyWithoutApproval'
           }, 95);
         });
@@ -24,7 +24,7 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
         extend(PermissionGrid.prototype, 'moderateItems', function (items) {
           items.add('approvePosts', {
             icon: 'check',
-            label: 'Approve posts',
+            label: app.translator.trans('flarum-approval.admin.permissions.approve_posts_label'),
             permission: 'discussion.approvePosts'
           }, 65);
         });

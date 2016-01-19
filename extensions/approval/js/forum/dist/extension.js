@@ -43,13 +43,13 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
 
         extend(CommentPost.prototype, 'headerItems', function (items) {
           if (!this.props.post.isApproved() && !this.props.post.isHidden()) {
-            items.add('unapproved', 'Awaiting Approval');
+            items.add('unapproved', app.translator.trans('flarum-approval.forum.post.awaiting_approval_text'));
           }
         });
 
         override(CommentPost.prototype, 'flagReason', function (original, flag) {
           if (flag.type() === 'approval') {
-            return 'Awaiting approval';
+            return app.translator.trans('flarum-approval.forum.post.awaiting_approval_text');
           }
 
           return original(flag);
@@ -60,7 +60,7 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
             items.add('approve', m(
               Button,
               { icon: 'check', onclick: PostControls.approveAction.bind(post) },
-              'Approve'
+              app.translator.trans('flarum-approval.forum.post_controls.approve_button')
             ), 10);
           }
         });
