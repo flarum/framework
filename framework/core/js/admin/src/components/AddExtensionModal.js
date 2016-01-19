@@ -21,9 +21,9 @@ export default class AddExtensionModal extends Modal {
   content() {
     return (
       <div className="Modal-body">
-        <p>One day in the not-too-distant future, this dialog will allow you to add an extension to your forum with ease. We're building an ecosystem as we speak!</p>
-        <p>In the meantime, if you manage to get your hands on a new extension, simply drop it in your forum's <code>extensions</code> directory.</p>
-        <p>If you're a developer, you can <a href="http://flarum.org/docs/extend">read the docs</a> and have a go at building your own.</p>
+        <p>{app.translator.trans('core.admin.add_extension.temporary_text')}</p>
+        <p>{app.translator.trans('core.admin.add_extension.install_text', {a: <a href="https://discuss.flarum.org/t/extensions" target="_blank"/>})}</p>
+        <p>{app.translator.trans('core.admin.add_extension.developer_text', {a: <a href="http://flarum.org/docs/extend" target="_blank"/>})}</p>
       </div>
     );
   }
