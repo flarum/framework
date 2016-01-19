@@ -12,9 +12,9 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Event\AvatarWillBeDeleted;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 use League\Flysystem\FilesystemInterface;
 

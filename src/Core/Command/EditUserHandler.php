@@ -11,12 +11,12 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\User;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Core\Validator\UserValidator;
-use Flarum\Event\UserWillBeSaved;
-use Flarum\Event\UserGroupsWereChanged;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Core\User;
+use Flarum\Core\Validator\UserValidator;
+use Flarum\Event\UserGroupsWereChanged;
+use Flarum\Event\UserWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditUserHandler

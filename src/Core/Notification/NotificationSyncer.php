@@ -10,11 +10,11 @@
 
 namespace Flarum\Core\Notification;
 
+use Carbon\Carbon;
 use Flarum\Core\Notification;
 use Flarum\Core\Repository\NotificationRepository;
-use Flarum\Event\NotificationWillBeSent;
 use Flarum\Core\User;
-use Carbon\Carbon;
+use Flarum\Event\NotificationWillBeSent;
 
 /**
  * The Notification Syncer commits notification blueprints to the database, and
@@ -175,7 +175,7 @@ class NotificationSyncer
             array_map(function (User $user) use ($attributes, $now) {
                 return $attributes + [
                     'user_id' => $user->id,
-                    'time' => $now
+                    'time'    => $now
                 ];
             }, $recipients)
         );

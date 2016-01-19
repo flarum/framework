@@ -11,11 +11,11 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Core\Post\CommentPost;
 use Flarum\Core\Repository\PostRepository;
+use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
-use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\Post\CommentPost;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditPostHandler

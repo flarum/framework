@@ -10,7 +10,6 @@
 
 namespace Flarum\Foundation;
 
-use Exception;
 use Flarum\Core;
 use Illuminate\Config\Repository as ConfigRepository;
 use Monolog\Formatter\LineFormatter;
@@ -131,7 +130,7 @@ abstract class AbstractServer
     {
         return new ConfigRepository([
             'view' => [
-                'paths' => [],
+                'paths'    => [],
                 'compiled' => $app->storagePath().'/views',
             ],
             'mail' => [
@@ -139,7 +138,7 @@ abstract class AbstractServer
             ],
             'cache' => [
                 'default' => 'file',
-                'stores' => [
+                'stores'  => [
                     'file' => [
                         'driver' => 'file',
                         'path'   => $app->storagePath().'/cache',
@@ -149,8 +148,8 @@ abstract class AbstractServer
             ],
             'filesystems' => [
                 'default' => 'local',
-                'cloud' => 's3',
-                'disks' => [
+                'cloud'   => 's3',
+                'disks'   => [
                     'flarum-avatars' => [
                         'driver' => 'local',
                         'root'   => $app->publicPath().'/assets/avatars'
@@ -166,7 +165,7 @@ abstract class AbstractServer
     protected function registerLogger(Application $app)
     {
         $logger = new Logger($app->environment());
-        $logPath = $app->storagePath() . '/logs/flarum.log';
+        $logPath = $app->storagePath().'/logs/flarum.log';
 
         $handler = new StreamHandler($logPath, Logger::DEBUG);
         $handler->setFormatter(new LineFormatter(null, null, true, true));

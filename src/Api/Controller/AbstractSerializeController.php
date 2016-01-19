@@ -11,10 +11,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApiResponse;
-use Flarum\Http\Controller\ControllerInterface;
-use Illuminate\Contracts\Container\Container;
 use Flarum\Event\ConfigureApiController;
 use Flarum\Event\PrepareApiData;
+use Flarum\Http\Controller\ControllerInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;

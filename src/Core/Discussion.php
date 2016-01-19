@@ -10,7 +10,6 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Post;
 use Flarum\Core\Post\MergeableInterface;
 use Flarum\Core\Support\EventGeneratorTrait;
 use Flarum\Core\Support\ScopeVisibilityTrait;
@@ -117,8 +116,8 @@ class Discussion extends AbstractModel
     {
         $discussion = new static;
 
-        $discussion->title         = $title;
-        $discussion->start_time    = time();
+        $discussion->title = $title;
+        $discussion->start_time = time();
         $discussion->start_user_id = $user->id;
 
         $discussion->setRelation('startUser', $user);
@@ -189,7 +188,7 @@ class Discussion extends AbstractModel
      */
     public function setStartPost(Post $post)
     {
-        $this->start_time    = $post->time;
+        $this->start_time = $post->time;
         $this->start_user_id = $post->user_id;
         $this->start_post_id = $post->id;
 
@@ -204,9 +203,9 @@ class Discussion extends AbstractModel
      */
     public function setLastPost(Post $post)
     {
-        $this->last_time        = $post->time;
-        $this->last_user_id     = $post->user_id;
-        $this->last_post_id     = $post->id;
+        $this->last_time = $post->time;
+        $this->last_user_id = $post->user_id;
+        $this->last_post_id = $post->id;
         $this->last_post_number = $post->number;
 
         return $this;

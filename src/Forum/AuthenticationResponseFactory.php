@@ -12,7 +12,6 @@ namespace Flarum\Forum;
 
 use Flarum\Core\AuthToken;
 use Flarum\Core\User;
-use Flarum\Http\AccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;

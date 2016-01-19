@@ -14,7 +14,6 @@ use Flarum\Core\Notification;
 use Flarum\Core\User;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Extend;
 use ReflectionClass;
 
 class NotificationServiceProvider extends AbstractServiceProvider
