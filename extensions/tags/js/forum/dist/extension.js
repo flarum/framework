@@ -21,9 +21,13 @@ System.register('flarum/tags/addTagComposer', ['flarum/extend', 'flarum/componen
           var tag = app.store.getBy('tags', 'slug', this.params().tags);
 
           if (tag) {
-            promise.then(function (component) {
-              return component.tags = [tag];
-            });
+            (function () {
+              var parent = tag.parent();
+              var tags = parent ? [parent, tag] : [tag];
+              promise.then(function (component) {
+                return component.tags = tags;
+              });
+            })();
           }
         });
 
@@ -831,7 +835,7 @@ System.register('flarum/tags/components/TagHero', ['flarum/Component'], function
 
             return m(
               'header',
-              { className: 'Hero TagHero',
+              { className: 'Hero TagHero' + (color ? ' TagHero--colored' : ''),
                 style: color ? { color: '#fff', backgroundColor: color } : '' },
               m(
                 'div',
@@ -988,9 +992,9 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
                     { className: 'TagTiles' },
                     pinned.map(function (tag) {
                       var lastDiscussion = tag.lastDiscussion();
-                      var children = app.store.all('tags').filter(function (child) {
+                      var children = sortTags(app.store.all('tags').filter(function (child) {
                         return child.parent() === tag;
-                      });
+                      }));
 
                       return m(
                         'li',

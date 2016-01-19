@@ -412,6 +412,39 @@ $.fn.sortable = function(options) {
 return sortable;
 }));
 ;
+System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/SettingDropdown'], function (_export) {
+  'use strict';
+
+  var extend, PermissionGrid, SettingDropdown;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsPermissionGrid) {
+      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+    }, function (_flarumComponentsSettingDropdown) {
+      SettingDropdown = _flarumComponentsSettingDropdown['default'];
+    }],
+    execute: function () {
+      _export('default', function () {
+        extend(PermissionGrid.prototype, 'startItems', function (items) {
+          items.add('allowTagChange', {
+            icon: 'tags',
+            label: app.translator.trans('flarum-tags.admin.permissions.allow_edit_tags_label'),
+            setting: function setting() {
+              var minutes = parseInt(app.settings.allow_tag_change, 10);
+
+              return SettingDropdown.component({
+                defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
+                key: 'allow_tag_change',
+                options: [{ value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') }, { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') }, { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') }]
+              });
+            }
+          }, 90);
+        });
+      });
+    }
+  };
+});;
 System.register('flarum/tags/addTagPermission', ['flarum/extend', 'flarum/components/PermissionGrid'], function (_export) {
   'use strict';
 
@@ -782,11 +815,11 @@ System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/S
         }, {
           key: 'form',
           value: function form() {
-            var minPrimaryTags = this.setting('tags.min_primary_tags', 0);
-            var maxPrimaryTags = this.setting('tags.max_primary_tags', 0);
+            var minPrimaryTags = this.setting('flarum-tags.min_primary_tags', 0);
+            var maxPrimaryTags = this.setting('flarum-tags.max_primary_tags', 0);
 
-            var minSecondaryTags = this.setting('tags.min_secondary_tags', 0);
-            var maxSecondaryTags = this.setting('tags.max_secondary_tags', 0);
+            var minSecondaryTags = this.setting('flarum-tags.min_secondary_tags', 0);
+            var maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0);
 
             return [m(
               'div',
@@ -1177,10 +1210,10 @@ System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flaru
     execute: function () {}
   };
 });;
-System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addTagsPermissionScope', 'flarum/tags/addTagPermission', 'flarum/tags/addTagsPane', 'flarum/tags/addTagsHomePageOption'], function (_export) {
+System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addTagsPermissionScope', 'flarum/tags/addTagPermission', 'flarum/tags/addTagsPane', 'flarum/tags/addTagsHomePageOption', 'flarum/tags/addTagChangePermission'], function (_export) {
   'use strict';
 
-  var Tag, addTagsPermissionScope, addTagPermission, addTagsPane, addTagsHomePageOption;
+  var Tag, addTagsPermissionScope, addTagPermission, addTagsPane, addTagsHomePageOption, addTagChangePermission;
   return {
     setters: [function (_flarumTagsModelsTag) {
       Tag = _flarumTagsModelsTag['default'];
@@ -1192,6 +1225,8 @@ System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addT
       addTagsPane = _flarumTagsAddTagsPane['default'];
     }, function (_flarumTagsAddTagsHomePageOption) {
       addTagsHomePageOption = _flarumTagsAddTagsHomePageOption['default'];
+    }, function (_flarumTagsAddTagChangePermission) {
+      addTagChangePermission = _flarumTagsAddTagChangePermission['default'];
     }],
     execute: function () {
 
@@ -1202,6 +1237,7 @@ System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addT
         addTagPermission();
         addTagsPane();
         addTagsHomePageOption();
+        addTagChangePermission();
       });
     }
   };
