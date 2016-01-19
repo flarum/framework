@@ -42,7 +42,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
         }, {
           key: 'title',
           value: function title() {
-            return 'Suspend ' + this.props.user.username();
+            return app.translator.trans('flarum-suspend.forum.suspend_user.title', { user: this.props.user });
           }
         }, {
           key: 'content',
@@ -61,7 +61,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                   m(
                     'label',
                     null,
-                    'Suspension Status'
+                    app.translator.trans('flarum-suspend.forum.suspend_user.status_heading')
                   ),
                   m(
                     'div',
@@ -70,13 +70,13 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'status', checked: !this.status(), onclick: m.withAttr('value', this.status) }),
-                      'Not suspended'
+                      app.translator.trans('flarum-suspend.forum.suspend_user.not_suspended_label')
                     ),
                     m(
                       'label',
                       { className: 'checkbox' },
                       m('input', { type: 'radio', name: 'status', checked: this.status() === 'indefinitely', value: 'indefinitely', onclick: m.withAttr('value', this.status) }),
-                      'Suspended indefinitely'
+                      app.translator.trans('flarum-suspend.forum.suspend_user.indefinitely_label')
                     ),
                     m(
                       'label',
@@ -87,7 +87,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                           _this.$('.SuspendUserModal-days-input input').select();
                           m.redraw.strategy('none');
                         } }),
-                      'Suspended for a limited time...',
+                      app.translator.trans('flarum-suspend.forum.suspend_user.limited_time_label'),
                       this.status() === 'limited' ? m(
                         'div',
                         { className: 'SuspendUserModal-days-input' },
@@ -96,7 +96,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                           value: this.daysRemaining(),
                           oninput: m.withAttr('value', this.daysRemaining),
                           className: 'FormControl' }),
-                        ' days'
+                        app.translator.trans('flarum-suspend.forum.suspend_user.limited_time_days_text')
                       ) : ''
                     )
                   )
@@ -107,7 +107,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                   m(
                     Button,
                     { className: 'Button Button--primary', loading: this.loading, type: 'submit' },
-                    'Save Changes'
+                    app.translator.trans('flarum-suspend.forum.suspend_user.submit_button')
                   )
                 )
               )
@@ -179,7 +179,7 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
         extend(UserControls, 'moderationControls', function (items, user) {
           if (user.canSuspend()) {
             items.add('suspend', Button.component({
-              children: 'Suspend',
+              children: app.translator.trans('flarum-suspend.forum.user_controls.suspend_button'),
               icon: 'ban',
               onclick: function onclick() {
                 return app.modal.show(new SuspendUserModal({ user: user }));
@@ -195,7 +195,7 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
             items.add('suspended', Badge.component({
               icon: 'ban',
               type: 'suspended',
-              label: 'Suspended'
+              label: app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip')
             }));
           }
         });
