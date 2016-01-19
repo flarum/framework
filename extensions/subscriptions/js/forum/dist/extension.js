@@ -185,13 +185,13 @@ System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/
     }
   };
 });;
-System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export) {
+System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export) {
   'use strict';
 
-  var Component, Button, icon, SubscriptionMenuItem, SubscriptionMenu;
+  var Dropdown, Button, icon, SubscriptionMenuItem, SubscriptionMenu;
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+    setters: [function (_flarumComponentsDropdown) {
+      Dropdown = _flarumComponentsDropdown['default'];
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton['default'];
     }, function (_flarumHelpersIcon) {
@@ -200,8 +200,8 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Com
       SubscriptionMenuItem = _flarumSubscriptionsComponentsSubscriptionMenuItem['default'];
     }],
     execute: function () {
-      SubscriptionMenu = (function (_Component) {
-        babelHelpers.inherits(SubscriptionMenu, _Component);
+      SubscriptionMenu = (function (_Dropdown) {
+        babelHelpers.inherits(SubscriptionMenu, _Dropdown);
 
         function SubscriptionMenu() {
           babelHelpers.classCallCheck(this, SubscriptionMenu);
@@ -315,7 +315,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/Com
           }
         }]);
         return SubscriptionMenu;
-      })(Component);
+      })(Dropdown);
 
       _export('default', SubscriptionMenu);
     }
