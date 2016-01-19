@@ -28,7 +28,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
             authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
             auth: {
               headers: {
-                'Authorization': 'Token ' + app.session.token
+                'X-CSRF-Token': app.session.csrfToken
               }
             }
           });
