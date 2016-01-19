@@ -16,7 +16,7 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/c
         extend(PermissionGrid.prototype, 'moderateItems', function (items) {
           items.add('suspendUsers', {
             icon: 'ban',
-            label: 'Suspend users',
+            label: app.translator.trans('flarum-suspend.admin.permissions.suspend_users_label'),
             permission: 'user.suspend'
           });
         });
