@@ -100,6 +100,7 @@ export default class FlagPostModal extends Modal {
       }
     })
       .then(() => this.success = true)
-      .finally(this.loaded.bind(this));
+      .catch(() => {})
+      .then(this.loaded.bind(this));
   }
 }
