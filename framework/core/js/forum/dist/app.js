@@ -1051,11 +1051,9 @@ var m = (function app(window, undefined) {
 
 	function checkView(data, view, cached, cachedControllers, controllers, views) {
 		var controller = getController(cached.views, view, cachedControllers, data.controller);
-		//Faster to coerce to number and check for NaN
-		var key = +(data && data.attrs && data.attrs.key);
 		data = pendingRequests === 0 || forcing || cachedControllers && cachedControllers.indexOf(controller) > -1 ? data.view(controller) : {tag: "placeholder"};
 		if (data.subtree === "retain") return data;
-		if (key === key) (data.attrs = data.attrs || {}).key = key;
+		(data.attrs = data.attrs || {}).key = key;
 		updateLists(views, controllers, view, controller);
 		return data;
 	}
@@ -29793,15 +29791,19 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
       var className = item.props ? item.props.itemClassName : item.itemClassName;
 
       if (isListItem) {
-        item.props.key = item.itemName;
+        item.attrs = item.attrs || {};
+        item.attrs.key = item.attrs.key || item.itemName;
       }
+
+      var space = new String(' ');
+      space.attrs = { key: '_space_' + item.itemName };
 
       return [isListItem ? item : m(
         'li',
         { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']),
           key: item.itemName },
         item
-      ), ' '];
+      ), space];
     });
   }
 
