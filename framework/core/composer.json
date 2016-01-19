@@ -75,5 +75,10 @@
     "scripts": {
         "test": "vendor/bin/phpunit -c tests/phpunit.xml",
         "style": "vendor/bin/phpcs --standard=PSR2 -np src"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
     }
 }
