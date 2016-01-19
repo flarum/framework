@@ -15935,7 +15935,7 @@ System.register('flarum/app', ['flarum/App', 'flarum/initializers/store', 'flaru
     }
   };
 });;
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
 
   /**
    * The `App` class provides a container for an application, as well as various
@@ -15943,7 +15943,7 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
    */
   'use strict';
 
-  var ItemList, Alert, Button, RequestErrorModal, Translator, extract, patchMithril, RequestError, extend, App;
+  var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, App;
   return {
     setters: [function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList['default'];
@@ -15953,6 +15953,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
       Button = _flarumComponentsButton['default'];
     }, function (_flarumComponentsRequestErrorModal) {
       RequestErrorModal = _flarumComponentsRequestErrorModal['default'];
+    }, function (_flarumComponentsConfirmPasswordModal) {
+      ConfirmPasswordModal = _flarumComponentsConfirmPasswordModal['default'];
     }, function (_flarumTranslator) {
       Translator = _flarumTranslator['default'];
     }, function (_flarumUtilsExtract) {
@@ -16150,24 +16152,29 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
            */
         }, {
           key: 'request',
-          value: function request(options) {
+          value: function request(originalOptions) {
             var _this2 = this;
+
+            var options = babelHelpers._extends({}, originalOptions);
 
             // Set some default options if they haven't been overridden. We want to
             // authenticate all requests with the session token. We also want all
             // requests to run asynchronously in the background, so that they don't
             // prevent redraws from occurring.
-            options.config = options.config || this.session.authorize.bind(this.session);
             options.background = options.background || true;
 
+            extend(options, 'config', function (result, xhr) {
+              return xhr.setRequestHeader('X-CSRF-Token', _this2.session.csrfToken);
+            });
+
             // If the method is something like PATCH or DELETE, which not all servers
-            // support, then we'll send it as a POST request with a the intended method
-            // specified in the X-Fake-Http-Method header.
+            // and clients support, then we'll send it as a POST request with the
+            // intended method specified in the X-HTTP-Method-Override header.
             if (options.method !== 'GET' && options.method !== 'POST') {
               (function () {
                 var method = options.method;
                 extend(options, 'config', function (result, xhr) {
-                  return xhr.setRequestHeader('X-Fake-Http-Method', method);
+                  return xhr.setRequestHeader('X-HTTP-Method-Override', method);
                 });
                 options.method = 'POST';
               })();
@@ -16194,13 +16201,18 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
               if (original) {
                 responseText = original(xhr.responseText);
               } else {
-                responseText = xhr.responseText.length > 0 ? xhr.responseText : null;
+                responseText = xhr.responseText || null;
               }
 
               var status = xhr.status;
 
               if (status < 200 || status > 299) {
                 throw new RequestError(status, responseText, options, xhr);
+              }
+
+              if (xhr.getResponseHeader) {
+                var csrfToken = xhr.getResponseHeader('X-CSRF-Token');
+                if (csrfToken) app.session.csrfToken = csrfToken;
               }
 
               try {
@@ -16214,8 +16226,21 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
             // Now make the request. If it's a failure, inspect the error that was
             // returned and show an alert containing its contents.
-            return m.request(options).then(null, function (error) {
+            var deferred = m.deferred();
+
+            m.request(options).then(function (response) {
+              return deferred.resolve(response);
+            }, function (error) {
               _this2.requestError = error;
+
+              if (error.response && error.response.errors && error.response.errors[0] && error.response.errors[0].code === 'invalid_access_token') {
+                _this2.modal.show(new ConfirmPasswordModal({
+                  deferredRequest: originalOptions,
+                  deferred: deferred,
+                  error: error
+                }));
+                return;
+              }
 
               var children = undefined;
 
@@ -16262,8 +16287,10 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
                 _this2.alerts.show(error.alert);
               }
 
-              throw error;
+              deferred.reject(error);
             });
+
+            return deferred.promise;
           }
 
           /**
@@ -16619,29 +16646,17 @@ System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal
               m(
                 'p',
                 null,
-                'One day in the not-too-distant future, this dialog will allow you to add an extension to your forum with ease. We\'re building an ecosystem as we speak!'
+                app.translator.trans('core.admin.add_extension.temporary_text')
               ),
               m(
                 'p',
                 null,
-                'In the meantime, if you manage to get your hands on a new extension, simply drop it in your forum\'s ',
-                m(
-                  'code',
-                  null,
-                  'extensions'
-                ),
-                ' directory.'
+                app.translator.trans('core.admin.add_extension.install_text', { a: m('a', { href: 'https://discuss.flarum.org/t/extensions', target: '_blank' }) })
               ),
               m(
                 'p',
                 null,
-                'If you\'re a developer, you can ',
-                m(
-                  'a',
-                  { href: 'http://flarum.org/docs/extend' },
-                  'read the docs'
-                ),
-                ' and have a go at building your own.'
+                app.translator.trans('core.admin.add_extension.developer_text', { a: m('a', { href: 'http://flarum.org/docs/extend', target: '_blank' }) })
               )
             );
           }
@@ -17171,11 +17186,6 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
             attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
             attrs.title = extract(attrs, 'label') || '';
 
-            // Give the badge a unique key so that when badges are displayed together,
-            // and then one is added/removed, Mithril will correctly redraw the series
-            // of badges.
-            attrs.key = attrs.type;
-
             return m(
               'span',
               attrs,
@@ -17574,6 +17584,121 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
     }
   };
 });;
+System.register('flarum/components/ConfirmPasswordModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export) {
+  'use strict';
+
+  var Modal, Button, extractText, ConfirmPasswordModal;
+  return {
+    setters: [function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumUtilsExtractText) {
+      extractText = _flarumUtilsExtractText['default'];
+    }],
+    execute: function () {
+      ConfirmPasswordModal = (function (_Modal) {
+        babelHelpers.inherits(ConfirmPasswordModal, _Modal);
+
+        function ConfirmPasswordModal() {
+          babelHelpers.classCallCheck(this, ConfirmPasswordModal);
+          babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(ConfirmPasswordModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'init', this).call(this);
+
+            this.password = m.prop('');
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return 'ConfirmPasswordModal Modal--small';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return app.translator.trans('core.forum.confirm_password.title');
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return m(
+              'div',
+              { className: 'Modal-body' },
+              m(
+                'div',
+                { className: 'Form Form--centered' },
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m('input', {
+                    type: 'password',
+                    className: 'FormControl',
+                    bidi: this.password,
+                    placeholder: extractText(app.translator.trans('core.forum.confirm_password.password_placeholder')),
+                    disabled: this.loading })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    Button,
+                    {
+                      type: 'submit',
+                      className: 'Button Button--primary Button--block',
+                      loading: this.loading },
+                    app.translator.trans('core.forum.confirm_password.submit_button')
+                  )
+                )
+              )
+            );
+          }
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit(e) {
+            var _this = this;
+
+            e.preventDefault();
+
+            this.loading = true;
+
+            app.session.login(app.session.user.email(), this.password(), { errorHandler: this.onerror.bind(this) }).then(function () {
+              _this.success = true;
+              _this.hide();
+              app.request(_this.props.deferredRequest).then(function (response) {
+                return _this.props.deferred.resolve(response);
+              }, function (response) {
+                return _this.props.deferred.reject(response);
+              });
+            })['catch'](this.loaded.bind(this));
+          }
+        }, {
+          key: 'onerror',
+          value: function onerror(error) {
+            if (error.status === 401) {
+              error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
+            }
+
+            babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'onerror', this).call(this, error);
+          }
+        }, {
+          key: 'onhide',
+          value: function onhide() {
+            if (this.success) return;
+
+            this.props.deferred.reject(this.props.error);
+          }
+        }]);
+        return ConfirmPasswordModal;
+      })(Modal);
+
+      _export('default', ConfirmPasswordModal);
+    }
+  };
+});;
 System.register("flarum/components/DashboardPage", ["flarum/Component"], function (_export) {
   "use strict";
 
@@ -17603,7 +17728,7 @@ System.register("flarum/components/DashboardPage", ["flarum/Component"], functio
                 m(
                   "h2",
                   null,
-                  "Welcome to Flarum Beta"
+                  app.translator.trans('core.admin.dashboard.welcome_text')
                 ),
                 m(
                   "p",
@@ -17720,9 +17845,13 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
             // bottom of the viewport. If it does, we will apply class to make it show
             // above the toggle button instead of below it.
             this.$().on('shown.bs.dropdown', function () {
-              var $menu = _this.$('.Dropdown-menu').removeClass('Dropdown-menu--top');
+              var $menu = _this.$('.Dropdown-menu');
+              var isRight = $menu.hasClass('Dropdown-menu--right');
+              $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+
+              $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
 
               if (_this.props.onshow) {
                 _this.props.onshow();
@@ -17834,7 +17963,7 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
         }, {
           key: 'title',
           value: function title() {
-            return 'Edit Custom CSS';
+            return app.translator.trans('core.admin.edit_css.title');
           }
         }, {
           key: 'content',
@@ -17845,13 +17974,7 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
               m(
                 'p',
                 null,
-                'Customize your forum\'s appearance by adding your own LESS/CSS code to be applied on top of Flarum\'s default styles. ',
-                m(
-                  'a',
-                  { href: 'http://flarum.org/docs/extend/themes/' },
-                  'Read the documentation'
-                ),
-                ' for more information.'
+                app.translator.trans('core.admin.edit_css.customize_text', { a: m('a', { href: 'https://github.com/flarum/core/tree/master/less', target: '_blank' }) })
               ),
               m(
                 'div',
@@ -17867,7 +17990,7 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
                   Button.component({
                     className: 'Button Button--primary',
                     type: 'submit',
-                    children: 'Save Changes',
+                    children: app.translator.trans('core.admin.edit_css.submit_button'),
                     loading: this.loading
                   })
                 )
@@ -18744,8 +18867,11 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
         }, {
           key: 'onready',
           value: function onready() {
-            this.$('form :input:first').focus().select();
+            this.$('form').find('input, select, textarea').first().focus().select();
           }
+        }, {
+          key: 'onhide',
+          value: function onhide() {}
 
           /**
            * Hide the modal.
@@ -18898,6 +19024,10 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
         }, {
           key: 'clear',
           value: function clear() {
+            if (this.component) {
+              this.component.onhide();
+            }
+
             this.component = null;
 
             m.lazyRedraw();
@@ -20052,7 +20182,7 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
                 className: 'Button Button--primary',
                 loading: this.loading,
                 disabled: !this.changed() },
-              'Save Changes'
+              app.translator.trans('core.admin.settings.submit_button')
             );
           }
         }, {
@@ -20548,7 +20678,8 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
 
       return [isListItem ? item : m(
         'li',
-        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']) },
+        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']),
+          key: item.itemName },
         item
       ), ' '];
     });
@@ -20621,7 +20752,7 @@ System.register("flarum/helpers/username", [], function (_export) {
   _export("default", username);
 
   function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
+    var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
 
     return m(
       "span",
@@ -20634,6 +20765,37 @@ System.register("flarum/helpers/username", [], function (_export) {
     setters: [],
     execute: function () {}
   };
+});;
+System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (_export) {
+
+    /**
+     * The `useronline` helper displays a green circle if the user is online
+     *
+     * @param {User} user
+     * @return {Object}
+     */
+    'use strict';
+
+    var icon;
+
+    _export('default', userOnline);
+
+    function userOnline(user) {
+        if (user.lastSeenTime() && user.isOnline()) {
+            return m(
+                'span',
+                { className: 'UserOnline' },
+                icon('circle')
+            );
+        }
+    }
+
+    return {
+        setters: [function (_flarumHelpersIcon) {
+            icon = _flarumHelpersIcon['default'];
+        }],
+        execute: function () {}
+    };
 });;
 System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/AdminNav', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
   /*global FastClick*/
@@ -20779,7 +20941,7 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
 
     app.forum = app.store.getById('forums', 1);
 
-    app.session = new Session(app.preload.session.token, app.store.getById('users', app.preload.session.userId));
+    app.session = new Session(app.store.getById('users', app.preload.session.userId), app.preload.session.csrfToken);
   }
 
   return {
@@ -21047,7 +21209,7 @@ System.register('flarum/Model', [], function (_export) {
             // Before we update the model's data, we should make a copy of the model's
             // old data so that we can revert back to it if something goes awry during
             // persistence.
-            var oldData = JSON.parse(JSON.stringify(this.data));
+            var oldData = this.copyData();
 
             this.pushData(data);
 
@@ -21111,6 +21273,11 @@ System.register('flarum/Model', [], function (_export) {
           key: 'apiEndpoint',
           value: function apiEndpoint() {
             return '/' + this.data.type + (this.exists ? '/' + this.data.id : '');
+          }
+        }, {
+          key: 'copyData',
+          value: function copyData() {
+            return JSON.parse(JSON.stringify(this.data));
           }
 
           /**
@@ -21581,7 +21748,7 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
         avatarUrl: Model.attribute('avatarUrl'),
         bio: Model.attribute('bio'),
         bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : '';
+          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({ rel: 'nofollow' }) + '</p>' : '';
         }),
         preferences: Model.attribute('preferences'),
         groups: Model.hasMany('groups'),
@@ -21692,7 +21859,7 @@ System.register('flarum/Session', [], function (_export) {
     setters: [],
     execute: function () {
       Session = (function () {
-        function Session(token, user) {
+        function Session(user, csrfToken) {
           babelHelpers.classCallCheck(this, Session);
 
           /**
@@ -21704,12 +21871,12 @@ System.register('flarum/Session', [], function (_export) {
           this.user = user;
 
           /**
-           * The token that was used for authentication.
+           * The CSRF token.
            *
            * @type {String|null}
            * @public
            */
-          this.token = token;
+          this.csrfToken = csrfToken;
         }
 
         /**
@@ -21730,9 +21897,7 @@ System.register('flarum/Session', [], function (_export) {
               method: 'POST',
               url: app.forum.attribute('baseUrl') + '/login',
               data: { identification: identification, password: password }
-            }, options)).then(function () {
-              return window.location.reload();
-            });
+            }, options));
           }
 
           /**
@@ -21743,22 +21908,7 @@ System.register('flarum/Session', [], function (_export) {
         }, {
           key: 'logout',
           value: function logout() {
-            window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.token;
-          }
-
-          /**
-           * Apply an authorization header with the current token to the given
-           * XMLHttpRequest object.
-           *
-           * @param {XMLHttpRequest} xhr
-           * @public
-           */
-        }, {
-          key: 'authorize',
-          value: function authorize(xhr) {
-            if (this.token) {
-              xhr.setRequestHeader('Authorization', 'Token ' + this.token);
-            }
+            window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.csrfToken;
           }
         }]);
         return Session;
