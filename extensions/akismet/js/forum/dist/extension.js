@@ -23,14 +23,14 @@ System.register('flarum/akismet/main', ['flarum/extend', 'flarum/app', 'flarum/u
             if (flags && flags.some(function (flag) {
               return flag.type() === 'akismet';
             })) {
-              items.get('approve').props.children = 'Not Spam';
+              items.get('approve').props.children = app.translator.trans('flarum-akismet.forum.post.not_spam_button');
             }
           }
         });
 
         override(CommentPost.prototype, 'flagReason', function (original, flag) {
           if (flag.type() === 'akismet') {
-            return 'Akismet flagged as Spam';
+            return app.translator.trans('flarum-akismet.forum.post.akismet_flagged_text');
           }
 
           return original(flag);

@@ -23,7 +23,7 @@ System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/compo
         }, {
           key: 'title',
           value: function title() {
-            return 'Akismet Settings';
+            return app.translator.trans('flarum-akismet.admin.akismet_settings.title');
           }
         }, {
           key: 'form',
@@ -34,7 +34,7 @@ System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/compo
               m(
                 'label',
                 null,
-                'API Key'
+                app.translator.trans('flarum-akismet.admin.akismet_settings.api_key_label')
               ),
               m('input', { className: 'FormControl', bidi: this.setting('flarum-akismet.api_key') })
             )];
