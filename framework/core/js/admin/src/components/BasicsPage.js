@@ -145,7 +145,8 @@ export default class BasicsPage extends Component {
       .then(() => {
         app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.translator.trans('core.admin.basics.saved_message')}));
       })
-      .finally(() => {
+      .catch(() => {})
+      .then(() => {
         this.loading = false;
         m.redraw();
       });

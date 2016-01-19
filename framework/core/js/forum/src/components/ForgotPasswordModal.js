@@ -91,6 +91,7 @@ export default class ForgotPasswordModal extends Modal {
         this.success = true;
         this.alert = null;
       })
-      .finally(this.loaded.bind(this));
+      .catch(() => {})
+      .then(this.loaded.bind(this));
   }
 }

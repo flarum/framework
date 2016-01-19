@@ -147,11 +147,14 @@ export default {
   deleteAction(context) {
     if (context) context.loading = true;
 
-    return this.delete().then(() => {
-      this.discussion().removePost(this.id());
-    }).finally(() => {
-      if (context) context.loading = false;
-      m.redraw();
-    });
+    return this.delete()
+      .then(() => {
+        this.discussion().removePost(this.id());
+      })
+      .catch(() => {})
+      .then(() => {
+        if (context) context.loading = false;
+        m.redraw();
+      });
   }
 };
