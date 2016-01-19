@@ -34,6 +34,10 @@ export default function listItems(items) {
     const active = item.component && item.component.isActive && item.component.isActive(item.props);
     const className = item.props ? item.props.itemClassName : item.itemClassName;
 
+    if (isListItem) {
+      item.props.key = item.itemName;
+    }
+
     return [
       isListItem
         ? item
