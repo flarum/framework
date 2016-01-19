@@ -129,7 +129,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
       var composer = this;
       var $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
       var dropdown = new AutocompleteDropdown({ items: [] });
-      var $textarea = this.$('textarea');
+      var $textarea = this.$('textarea').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
       var searched = [];
       var mentionStart = undefined;
       var typed = undefined;
