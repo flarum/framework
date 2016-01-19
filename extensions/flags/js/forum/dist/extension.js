@@ -322,7 +322,7 @@ System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum
               app.cache.flags = flags.sort(function (a, b) {
                 return b.time() - a.time();
               });
-            })['finally'](function () {
+            })['catch'](function () {}).then(function () {
               _this.loading = false;
               m.redraw();
             });
@@ -498,7 +498,7 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
               }
             }).then(function () {
               return _this.success = true;
-            })['finally'](this.loaded.bind(this));
+            })['catch'](function () {}).then(this.loaded.bind(this));
           }
         }]);
         return FlagPostModal;
