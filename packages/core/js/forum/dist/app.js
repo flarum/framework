@@ -17592,7 +17592,7 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
     }
   };
 });;
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
 
   /**
    * The `App` class provides a container for an application, as well as various
@@ -17600,7 +17600,7 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
    */
   'use strict';
 
-  var ItemList, Alert, Button, RequestErrorModal, Translator, extract, patchMithril, RequestError, extend, App;
+  var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, App;
   return {
     setters: [function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList['default'];
@@ -17610,6 +17610,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
       Button = _flarumComponentsButton['default'];
     }, function (_flarumComponentsRequestErrorModal) {
       RequestErrorModal = _flarumComponentsRequestErrorModal['default'];
+    }, function (_flarumComponentsConfirmPasswordModal) {
+      ConfirmPasswordModal = _flarumComponentsConfirmPasswordModal['default'];
     }, function (_flarumTranslator) {
       Translator = _flarumTranslator['default'];
     }, function (_flarumUtilsExtract) {
@@ -17807,24 +17809,29 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
            */
         }, {
           key: 'request',
-          value: function request(options) {
+          value: function request(originalOptions) {
             var _this2 = this;
+
+            var options = babelHelpers._extends({}, originalOptions);
 
             // Set some default options if they haven't been overridden. We want to
             // authenticate all requests with the session token. We also want all
             // requests to run asynchronously in the background, so that they don't
             // prevent redraws from occurring.
-            options.config = options.config || this.session.authorize.bind(this.session);
             options.background = options.background || true;
 
+            extend(options, 'config', function (result, xhr) {
+              return xhr.setRequestHeader('X-CSRF-Token', _this2.session.csrfToken);
+            });
+
             // If the method is something like PATCH or DELETE, which not all servers
-            // support, then we'll send it as a POST request with a the intended method
-            // specified in the X-Fake-Http-Method header.
+            // and clients support, then we'll send it as a POST request with the
+            // intended method specified in the X-HTTP-Method-Override header.
             if (options.method !== 'GET' && options.method !== 'POST') {
               (function () {
                 var method = options.method;
                 extend(options, 'config', function (result, xhr) {
-                  return xhr.setRequestHeader('X-Fake-Http-Method', method);
+                  return xhr.setRequestHeader('X-HTTP-Method-Override', method);
                 });
                 options.method = 'POST';
               })();
@@ -17851,13 +17858,18 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
               if (original) {
                 responseText = original(xhr.responseText);
               } else {
-                responseText = xhr.responseText.length > 0 ? xhr.responseText : null;
+                responseText = xhr.responseText || null;
               }
 
               var status = xhr.status;
 
               if (status < 200 || status > 299) {
                 throw new RequestError(status, responseText, options, xhr);
+              }
+
+              if (xhr.getResponseHeader) {
+                var csrfToken = xhr.getResponseHeader('X-CSRF-Token');
+                if (csrfToken) app.session.csrfToken = csrfToken;
               }
 
               try {
@@ -17871,8 +17883,21 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
             // Now make the request. If it's a failure, inspect the error that was
             // returned and show an alert containing its contents.
-            return m.request(options).then(null, function (error) {
+            var deferred = m.deferred();
+
+            m.request(options).then(function (response) {
+              return deferred.resolve(response);
+            }, function (error) {
               _this2.requestError = error;
+
+              if (error.response && error.response.errors && error.response.errors[0] && error.response.errors[0].code === 'invalid_access_token') {
+                _this2.modal.show(new ConfirmPasswordModal({
+                  deferredRequest: originalOptions,
+                  deferred: deferred,
+                  error: error
+                }));
+                return;
+              }
 
               var children = undefined;
 
@@ -17919,8 +17944,10 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
                 _this2.alerts.show(error.alert);
               }
 
-              throw error;
+              deferred.reject(error);
             });
+
+            return deferred.promise;
           }
 
           /**
@@ -18678,11 +18705,6 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
             attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
             attrs.title = extract(attrs, 'label') || '';
 
-            // Give the badge a unique key so that when badges are displayed together,
-            // and then one is added/removed, Mithril will correctly redraw the series
-            // of badges.
-            attrs.key = attrs.type;
-
             return m(
               'span',
               attrs,
@@ -18922,11 +18944,18 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
               return;
             }
 
+            var oldEmail = app.session.user.email();
+
             this.loading = true;
 
             app.session.user.save({ email: this.email() }, { errorHandler: this.onerror.bind(this) }).then(function () {
               return _this.success = true;
             })['finally'](this.loaded.bind(this));
+
+            // The save method will update the cached email address on the user model...
+            // But in the case of a "sudo" password prompt, we'll still want to have
+            // the old email address on file for the purposes of logging in.
+            app.session.user.pushAttributes({ email: oldEmail });
           }
         }]);
         return ChangeEmailModal;
@@ -19224,7 +19253,7 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
         }, {
           key: 'isEditing',
           value: function isEditing() {
-            return app.composer.component instanceof EditPostComposer && app.composer.component.props.post === this.props.post && app.composer.position !== Composer.PositionEnum.MINIMIZED;
+            return app.composer.component instanceof EditPostComposer && app.composer.component.props.post === this.props.post;
           }
         }, {
           key: 'attrs',
@@ -19407,6 +19436,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             var _this = this;
 
             var classes = {
+              'normal': this.position === Composer.PositionEnum.NORMAL,
               'minimized': this.position === Composer.PositionEnum.MINIMIZED,
               'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN,
               'active': this.active
@@ -19581,7 +19611,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               var paddingBottom = parseInt($flexible.css('padding-bottom'), 10);
               var footerHeight = this.$('.TextEditor-controls').outerHeight(true);
 
-              $flexible.height(height - headerHeight - paddingBottom - footerHeight);
+              $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
             }
           }
 
@@ -19593,7 +19623,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'updateBodyPadding',
           value: function updateBodyPadding() {
-            var visible = this.position !== Composer.PositionEnum.HIDDEN && this.position !== Composer.PositionEnum.MINIMIZED;
+            var visible = this.position !== Composer.PositionEnum.HIDDEN && this.position !== Composer.PositionEnum.MINIMIZED && this.$().css('position') !== 'absolute';
 
             var paddingBottom = visible ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
             $('#content').css({ paddingBottom: paddingBottom });
@@ -19682,6 +19712,11 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             }
 
             this.oldPosition = this.position;
+          }
+        }, {
+          key: 'isMobile',
+          value: function isMobile() {
+            return this.$backdrop && this.$backdrop.length;
           }
 
           /**
@@ -19962,7 +19997,7 @@ System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/c
 
             return m(
               'div',
-              { className: 'ComposerBody' },
+              { className: 'ComposerBody ' + (this.props.className || '') },
               avatar(this.props.user, { className: 'ComposerBody-avatar' }),
               m(
                 'div',
@@ -20079,6 +20114,121 @@ System.register('flarum/components/ComposerButton', ['flarum/components/Button']
     }
   };
 });;
+System.register('flarum/components/ConfirmPasswordModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export) {
+  'use strict';
+
+  var Modal, Button, extractText, ConfirmPasswordModal;
+  return {
+    setters: [function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
+    }, function (_flarumUtilsExtractText) {
+      extractText = _flarumUtilsExtractText['default'];
+    }],
+    execute: function () {
+      ConfirmPasswordModal = (function (_Modal) {
+        babelHelpers.inherits(ConfirmPasswordModal, _Modal);
+
+        function ConfirmPasswordModal() {
+          babelHelpers.classCallCheck(this, ConfirmPasswordModal);
+          babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(ConfirmPasswordModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'init', this).call(this);
+
+            this.password = m.prop('');
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return 'ConfirmPasswordModal Modal--small';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return app.translator.trans('core.forum.confirm_password.title');
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return m(
+              'div',
+              { className: 'Modal-body' },
+              m(
+                'div',
+                { className: 'Form Form--centered' },
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m('input', {
+                    type: 'password',
+                    className: 'FormControl',
+                    bidi: this.password,
+                    placeholder: extractText(app.translator.trans('core.forum.confirm_password.password_placeholder')),
+                    disabled: this.loading })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m(
+                    Button,
+                    {
+                      type: 'submit',
+                      className: 'Button Button--primary Button--block',
+                      loading: this.loading },
+                    app.translator.trans('core.forum.confirm_password.submit_button')
+                  )
+                )
+              )
+            );
+          }
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit(e) {
+            var _this = this;
+
+            e.preventDefault();
+
+            this.loading = true;
+
+            app.session.login(app.session.user.email(), this.password(), { errorHandler: this.onerror.bind(this) }).then(function () {
+              _this.success = true;
+              _this.hide();
+              app.request(_this.props.deferredRequest).then(function (response) {
+                return _this.props.deferred.resolve(response);
+              }, function (response) {
+                return _this.props.deferred.reject(response);
+              });
+            })['catch'](this.loaded.bind(this));
+          }
+        }, {
+          key: 'onerror',
+          value: function onerror(error) {
+            if (error.status === 401) {
+              error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
+            }
+
+            babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'onerror', this).call(this, error);
+          }
+        }, {
+          key: 'onhide',
+          value: function onhide() {
+            if (this.success) return;
+
+            this.props.deferred.reject(this.props.error);
+          }
+        }]);
+        return ConfirmPasswordModal;
+      })(Modal);
+
+      _export('default', ConfirmPasswordModal);
+    }
+  };
+});;
 System.register('flarum/components/DiscussionComposer', ['flarum/components/ComposerBody', 'flarum/utils/extractText'], function (_export) {
 
   /**
@@ -20128,6 +20278,12 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
             var items = babelHelpers.get(Object.getPrototypeOf(DiscussionComposer.prototype), 'headerItems', this).call(this);
 
             items.add('title', m(
+              'h3',
+              null,
+              app.translator.trans('core.forum.composer_discussion.title')
+            ), 100);
+
+            items.add('discussionTitle', m(
               'h3',
               null,
               m('input', { className: 'FormControl',
@@ -20199,6 +20355,7 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
             props.submitLabel = props.submitLabel || app.translator.trans('core.forum.composer_discussion.submit_button');
             props.confirmExit = props.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
             props.titlePlaceholder = props.titlePlaceholder || extractText(app.translator.trans('core.forum.composer_discussion.title_placeholder'));
+            props.className = 'ComposerBody--discussion';
           }
         }]);
         return DiscussionComposer;
@@ -20438,7 +20595,7 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
             map.latest = '-lastTime';
             map.top = '-commentsCount';
             map.newest = '-startTime';
-            map.oldest = '+startTime';
+            map.oldest = 'startTime';
 
             return map;
           }
@@ -20796,8 +20953,12 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
             var discussion = this.props.discussion;
 
             if (discussion.isUnread()) {
-              discussion.save({ readNumber: discussion.lastPostNumber() });
-              m.redraw();
+              var confirmation = confirm(app.translator.trans('core.forum.discussion_list.mark_all_as_read_confirmation'));
+
+              if (confirmation) {
+                discussion.save({ readNumber: discussion.lastPostNumber() });
+                m.redraw();
+              }
             }
           }
 
@@ -21482,9 +21643,13 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
             // bottom of the viewport. If it does, we will apply class to make it show
             // above the toggle button instead of below it.
             this.$().on('shown.bs.dropdown', function () {
-              var $menu = _this.$('.Dropdown-menu').removeClass('Dropdown-menu--top');
+              var $menu = _this.$('.Dropdown-menu');
+              var isRight = $menu.hasClass('Dropdown-menu--right');
+              $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+
+              $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
 
               if (_this.props.onshow) {
                 _this.props.onshow();
@@ -21600,6 +21765,16 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
             babelHelpers.get(Object.getPrototypeOf(EditPostComposer.prototype), 'init', this).call(this);
 
             this.editor.props.preview = function () {
+              // If the composer backdrop is visible, assume we're on mobile and need to
+              // minimize the composer in order to see the preview. We do this as a
+              // timeout so that it occurs after the click handler on the composer
+              // itself that shows the composer if minimized.
+              if (app.composer.isMobile()) {
+                setTimeout(function () {
+                  return app.composer.minimize();
+                }, 0);
+              }
+
               m.route(app.route.post(_this.props.post));
             };
           }
@@ -22835,7 +23010,11 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
         }, {
           key: 'markAllAsRead',
           value: function markAllAsRead() {
-            app.session.user.save({ readTime: new Date() });
+            var confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
+
+            if (confirmation) {
+              app.session.user.save({ readTime: new Date() });
+            }
           }
         }]);
         return IndexPage;
@@ -23051,8 +23230,8 @@ System.register('flarum/components/LogInButton', ['flarum/components/Button'], f
             props.className = (props.className || '') + ' LogInButton';
 
             props.onclick = function () {
-              var width = 1000;
-              var height = 500;
+              var width = 600;
+              var height = 400;
               var $window = $(window);
 
               window.open(app.forum.attribute('baseUrl') + props.path, 'logInPopup', 'width=' + width + ',' + ('height=' + height + ',') + ('top=' + ($window.height() / 2 - height / 2) + ',') + ('left=' + ($window.width() / 2 - width / 2) + ',') + 'status=no,scrollbars=no,resizable=no');
@@ -23200,7 +23379,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                 m(
                   'div',
                   { className: 'Form-group' },
-                  m('input', { className: 'FormControl', name: 'email', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
+                  m('input', { className: 'FormControl', name: 'email', type: 'text', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
                     value: this.email(),
                     onchange: m.withAttr('value', this.email),
                     disabled: this.loading })
@@ -23289,7 +23468,9 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
             var email = this.email();
             var password = this.password();
 
-            app.session.login(email, password, { errorHandler: this.onerror.bind(this) })['catch'](this.loaded.bind(this));
+            app.session.login(email, password, { errorHandler: this.onerror.bind(this) }).then(function () {
+              return window.location.reload();
+            }, this.loaded.bind(this));
           }
         }, {
           key: 'onerror',
@@ -23452,8 +23633,11 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
         }, {
           key: 'onready',
           value: function onready() {
-            this.$('form :input:first').focus().select();
+            this.$('form').find('input, select, textarea').first().focus().select();
           }
+        }, {
+          key: 'onhide',
+          value: function onhide() {}
 
           /**
            * Hide the modal.
@@ -23606,6 +23790,10 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
         }, {
           key: 'clear',
           value: function clear() {
+            if (this.component) {
+              this.component.onhide();
+            }
+
             this.component = null;
 
             m.lazyRedraw();
@@ -24685,6 +24873,8 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
           value: function init() {
             var _this = this;
 
+            this.loading = false;
+
             /**
              * Set up a subtree retainer so that the post will not be redrawn
              * unless new data comes in.
@@ -24707,7 +24897,7 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
 
             var attrs = this.attrs();
 
-            attrs.className = 'Post ' + (attrs.className || '');
+            attrs.className = 'Post ' + (this.loading ? 'Post--loading ' : '') + (attrs.className || '');
 
             return m(
               'article',
@@ -25043,7 +25233,7 @@ System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/he
     }
   };
 });;
-System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder'], function (_export) {
+System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder', 'flarum/components/Button'], function (_export) {
 
   /**
    * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -25056,7 +25246,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
    */
   'use strict';
 
-  var Component, ScrollListener, PostLoading, anchorScroll, mixin, evented, ReplyPlaceholder, PostStream;
+  var Component, ScrollListener, PostLoading, anchorScroll, mixin, evented, ReplyPlaceholder, Button, PostStream;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent['default'];
@@ -25072,6 +25262,8 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
       evented = _flarumUtilsEvented['default'];
     }, function (_flarumComponentsReplyPlaceholder) {
       ReplyPlaceholder = _flarumComponentsReplyPlaceholder['default'];
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton['default'];
     }],
     execute: function () {
       PostStream = (function (_Component) {
@@ -25131,7 +25323,9 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
               return this.goToLast().then(function () {
                 $('html,body').stop(true).animate({
                   scrollTop: $(document).height() - $(window).height()
-                }, 'fast');
+                }, 'fast', function () {
+                  _this.flashItem(_this.$('.PostStream-item:last-child'));
+                });
               });
             }
 
@@ -25296,64 +25490,82 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             this.visibleEnd = this.sanitizeIndex(this.visibleEnd);
             this.viewingEnd = this.visibleEnd === this.count();
 
+            var posts = this.posts();
             var postIds = this.discussion.postIds();
+
+            var items = posts.map(function (post, i) {
+              var content = undefined;
+              var attrs = { 'data-index': _this3.visibleStart + i };
+
+              if (post) {
+                var time = post.time();
+                var PostComponent = app.postComponents[post.contentType()];
+                content = PostComponent ? PostComponent.component({ post: post }) : '';
+
+                attrs.key = 'post' + post.id();
+                attrs.config = fadeIn;
+                attrs['data-time'] = time.toISOString();
+                attrs['data-number'] = post.number();
+                attrs['data-id'] = post.id();
+                attrs['data-type'] = post.contentType();
+
+                // If the post before this one was more than 4 hours ago, we will
+                // display a 'time gap' indicating how long it has been in between
+                // the posts.
+                var dt = time - lastTime;
+
+                if (dt > 1000 * 60 * 60 * 24 * 4) {
+                  content = [m(
+                    'div',
+                    { className: 'PostStream-timeGap' },
+                    m(
+                      'span',
+                      null,
+                      app.translator.trans('core.forum.post_stream.time_lapsed_text', { period: moment.duration(dt).humanize() })
+                    )
+                  ), content];
+                }
+
+                lastTime = time;
+              } else {
+                attrs.key = 'post' + postIds[_this3.visibleStart + i];
+
+                content = PostLoading.component();
+              }
+
+              return m(
+                'div',
+                babelHelpers._extends({ className: 'PostStream-item' }, attrs),
+                content
+              );
+            });
+
+            if (!this.viewingEnd && posts[this.visibleEnd - this.visibleStart - 1]) {
+              items.push(m(
+                'div',
+                { className: 'PostStream-loadMore', key: 'loadMore' },
+                m(
+                  Button,
+                  { className: 'Button', onclick: this.loadNext.bind(this) },
+                  app.translator.trans('core.forum.post_stream.load_more_button')
+                )
+              ));
+            }
+
+            // If we're viewing the end of the discussion, the user can reply, and
+            // is not already doing so, then show a 'write a reply' placeholder.
+            if (this.viewingEnd && (!app.session.user || this.discussion.canReply())) {
+              items.push(m(
+                'div',
+                { className: 'PostStream-item', key: 'reply' },
+                ReplyPlaceholder.component({ discussion: this.discussion })
+              ));
+            }
 
             return m(
               'div',
               { className: 'PostStream' },
-              this.posts().map(function (post, i) {
-                var content = undefined;
-                var attrs = { 'data-index': _this3.visibleStart + i };
-
-                if (post) {
-                  var time = post.time();
-                  var PostComponent = app.postComponents[post.contentType()];
-                  content = PostComponent ? PostComponent.component({ post: post }) : '';
-
-                  attrs.key = 'post' + post.id();
-                  attrs.config = fadeIn;
-                  attrs['data-time'] = time.toISOString();
-                  attrs['data-number'] = post.number();
-                  attrs['data-id'] = post.id();
-
-                  // If the post before this one was more than 4 hours ago, we will
-                  // display a 'time gap' indicating how long it has been in between
-                  // the posts.
-                  var dt = time - lastTime;
-
-                  if (dt > 1000 * 60 * 60 * 24 * 4) {
-                    content = [m(
-                      'div',
-                      { className: 'PostStream-timeGap' },
-                      m(
-                        'span',
-                        null,
-                        app.translator.trans('core.forum.post_stream.time_lapsed_text', { period: moment.duration(dt).humanize() })
-                      )
-                    ), content];
-                  }
-
-                  lastTime = time;
-                } else {
-                  attrs.key = 'post' + postIds[_this3.visibleStart + i];
-
-                  content = PostLoading.component();
-                }
-
-                return m(
-                  'div',
-                  babelHelpers._extends({ className: 'PostStream-item' }, attrs),
-                  content
-                );
-              }),
-
-              // If we're viewing the end of the discussion, the user can reply, and
-              // is not already doing so, then show a 'write a reply' placeholder.
-              this.viewingEnd && (!app.session.user || this.discussion.canReply()) ? m(
-                'div',
-                { className: 'PostStream-item', key: 'reply' },
-                ReplyPlaceholder.component({ discussion: this.discussion })
-              ) : ''
+              items
             );
           }
         }, {
@@ -25778,6 +25990,13 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             this.index = 0;
 
             /**
+             * The index of the comment that is currently at the top of the viewport.
+             *
+             * @type {Number}
+             */
+            this.commentsIndex = 0;
+
+            /**
              * The number of posts that are currently visible in the viewport.
              *
              * @type {Number}
@@ -25790,16 +26009,6 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
              * @type {String}
              */
             this.description = '';
-
-            /**
-             * The integer index of the last item that is visible in the viewport. This
-             * is displayed on the scrubber (i.e. X of 100 posts).
-             *
-             * @return {Integer}
-             */
-            this.visibleIndex = computed('index', 'visible', 'count', function (index, visible, count) {
-              return Math.min(count, Math.ceil(Math.max(0, index) + visible));
-            });
 
             // When the post stream begins loading posts at a certain index, we want our
             // scrubber scrollbar to jump to that position.
@@ -25829,12 +26038,12 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               index: m(
                 'span',
                 { className: 'Scrubber-index' },
-                retain || formatNumber(this.visibleIndex())
+                retain || formatNumber(this.commentsIndex)
               ),
               count: m(
                 'span',
                 { className: 'Scrubber-count' },
-                formatNumber(count)
+                formatNumber(this.commentsCount())
               )
             });
 
@@ -25953,6 +26162,17 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
           }
 
           /**
+           * Get the number of comments in the discussion.
+           *
+           * @return {Integer}
+           */
+        }, {
+          key: 'commentsCount',
+          value: function commentsCount() {
+            return this.props.stream.discussion.commentsCount();
+          }
+
+          /**
            * When the stream is unpaused, update the scrubber to reflect its position.
            */
         }, {
@@ -26005,6 +26225,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             var marginTop = stream.getMarginTop();
             var viewportTop = scrollTop + marginTop;
             var viewportHeight = $(window).height() - marginTop;
+            var viewportBottom = viewportTop + viewportHeight;
 
             // Before looping through all of the posts, we reset the scrollbar
             // properties to a 'default' state. These values reflect what would be
@@ -26012,6 +26233,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             // and the viewport had a height of 0.
             var $items = stream.$('> .PostStream-item[data-index]');
             var index = $items.first().data('index') || 0;
+            var commentsIndex = 0;
             var visible = 0;
             var period = '';
 
@@ -26023,33 +26245,60 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               var top = $this.offset().top;
               var height = $this.outerHeight(true);
 
+              // If an item is comment and is above the top of the viewport,
+              // or within the viewport or more than 50% of it is visible,
+              // update the commentIndex
+              if ($this.data('type') == 'comment' && top < viewportBottom) {
+                commentsIndex++;
+              }
+
               // If this item is above the top of the viewport, skip to the next
               // post. If it's below the bottom of the viewport, break out of the
               // loop.
               if (top + height < viewportTop) {
-                visible = (top + height - viewportTop) / height;
-                index = parseFloat($this.data('index')) + 1 - visible;
                 return true;
               }
               if (top > viewportTop + viewportHeight) {
                 return false;
               }
 
+              var visibleTop = Math.max(0, viewportTop - top);
+              var visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
+              var visiblePost = visibleBottom - visibleTop;
+
+              if (visiblePost > 0) {
+                visible += visiblePost / height;
+              }
+
+              if (top <= viewportTop) {
+                index = parseFloat($this.data('index')) + visibleTop / height;
+              }
+
+              //if (top <= viewportTop) {
+              //
+              //}
+
               // If the bottom half of this item is visible at the top of the
               // viewport, then set the start of the visible proportion as our index.
-              if (top <= viewportTop && top + height > viewportTop) {
-                visible = (top + height - viewportTop) / height;
-                index = parseFloat($this.data('index')) + 1 - visible;
-                //
-                // If the top half of this item is visible at the bottom of the
-                // viewport, then add the visible proportion to the visible
-                // counter.
-              } else if (top + height >= viewportTop + viewportHeight) {
-                  visible += (viewportTop + viewportHeight - top) / height;
-                  //
-                  // If the whole item is visible in the viewport, then increment the
-                  // visible counter.
-                } else visible++;
+              //if (top <= viewportTop) {
+              //
+              //
+              //  if (top + height > viewportTop) {
+              //    visible = (top + height - viewportTop) / height;
+              //  }
+              //
+              //  index = parseFloat($this.data('index')) + 1 - visible;
+              //  //
+              //// If the top half of this item is visible at the bottom of the
+              //// viewport, then add the visible proportion to the visible
+              //// counter.
+              //}
+              //if (top + height >= viewportTop + viewportHeight) {
+              //  visible += (viewportTop + viewportHeight - top) / height;
+              ////
+              //// If the whole item is visible in the viewport, then increment the
+              //// visible counter.
+              //}// else visible++;
 
               // If this item has a time associated with it, then set the
               // scrollbar's current period to a formatted version of this time.
@@ -26057,7 +26306,10 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               if (time) period = time;
             });
 
+            console.log(index, visible);
+
             this.index = index;
+            this.commentsIndex = commentsIndex;
             this.visible = visible;
             this.description = period ? moment(period).format('MMMM YYYY') : '';
           }
@@ -26132,7 +26384,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             var visible = this.visible || 1;
 
             var $scrubber = this.$();
-            $scrubber.find('.Scrubber-index').text(formatNumber(this.visibleIndex()));
+            $scrubber.find('.Scrubber-index').text(formatNumber(this.commentsIndex));
             $scrubber.find('.Scrubber-description').text(this.description);
             $scrubber.toggleClass('disabled', this.disabled());
 
@@ -26368,14 +26620,13 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
                     m(
                       'div',
                       { className: 'PostsUserPage-discussion' },
-                      'In ',
-                      m(
-                        'a',
-                        { href: app.route.post(post), config: m.route },
-                        post.discussion().title()
-                      )
+                      app.translator.trans('core.forum.user.in_discussion_text', { discussion: m(
+                          'a',
+                          { href: app.route.post(post), config: m.route },
+                          post.discussion().title()
+                        ) })
                     ),
-                    CommentPost.component({ post: post, showDiscussionTitle: true })
+                    CommentPost.component({ post: post })
                   );
                 })
               ),
@@ -26469,7 +26720,7 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
     }
   };
 });;
-System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/listItems'], function (_export) {
+System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/userOnline', 'flarum/helpers/listItems'], function (_export) {
 
   /**
    * The `PostUser` component shows the avatar and username of a post's author.
@@ -26480,7 +26731,7 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
    */
   'use strict';
 
-  var Component, UserCard, avatar, username, listItems, PostUser;
+  var Component, UserCard, avatar, username, userOnline, listItems, PostUser;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent['default'];
@@ -26490,6 +26741,8 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
       avatar = _flarumHelpersAvatar['default'];
     }, function (_flarumHelpersUsername) {
       username = _flarumHelpersUsername['default'];
+    }, function (_flarumHelpersUserOnline) {
+      userOnline = _flarumHelpersUserOnline['default'];
     }, function (_flarumHelpersListItems) {
       listItems = _flarumHelpersListItems['default'];
     }],
@@ -26545,6 +26798,7 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
             return m(
               'div',
               { className: 'PostUser' },
+              userOnline(user),
               m(
                 'h3',
                 null,
@@ -26663,6 +26917,16 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
             babelHelpers.get(Object.getPrototypeOf(ReplyComposer.prototype), 'init', this).call(this);
 
             this.editor.props.preview = function () {
+              // If the composer backdrop is visible, assume we're on mobile and need to
+              // minimize the composer in order to see the preview. We do this as a
+              // timeout so that it occurs after the click handler on the composer
+              // itself that shows the composer if minimized.
+              if (app.composer.isMobile()) {
+                setTimeout(function () {
+                  return app.composer.minimize();
+                }, 0);
+              }
+
               m.route(app.route.discussion(_this.props.discussion, 'reply'));
             };
           }
@@ -26985,7 +27249,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
              *
              * @type {Function}
              */
-            this.value = m.prop();
+            this.value = m.prop('');
 
             /**
              * Whether or not the search input has focus.
@@ -27108,7 +27372,11 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
 
                 case 13:
                   // Return
-                  m.route(_this2.getItem(_this2.index).find('a').attr('href'));
+                  if (_this2.value()) {
+                    m.route(_this2.getItem(_this2.index).find('a').attr('href'));
+                  } else {
+                    _this2.clear();
+                  }
                   _this2.$('input').blur();
                   break;
 
@@ -27700,7 +27968,7 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
             items.add('notifications', FieldSet.component({
               label: app.translator.trans('core.forum.settings.notifications_heading'),
               className: 'Settings-notifications',
-              children: [NotificationGrid.component({ user: this.user })]
+              children: this.notificationsItems().toArray()
             }));
 
             items.add('privacy', FieldSet.component({
@@ -27737,6 +28005,21 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
                 return app.modal.show(new ChangeEmailModal());
               }
             }));
+
+            return items;
+          }
+
+          /**
+           * Build an item list for the user's notification settings.
+           *
+           * @return {ItemList}
+           */
+        }, {
+          key: 'notificationsItems',
+          value: function notificationsItems() {
+            var items = new ItemList();
+
+            items.add('notificationGrid', NotificationGrid.component({ user: this.user }));
 
             return items;
           }
@@ -27857,13 +28140,6 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
              * @type {Function}
              */
             this.password = m.prop(this.props.password || '');
-
-            /**
-             * The user that has been signed up and that should be welcomed.
-             *
-             * @type {null|User}
-             */
-            this.welcomeUser = null;
           }
         }, {
           key: 'className',
@@ -27891,13 +28167,13 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
         }, {
           key: 'body',
           value: function body() {
-            var body = [this.props.token ? '' : m(LogInButtons, null), m(
+            return [this.props.token ? '' : m(LogInButtons, null), m(
               'div',
               { className: 'Form Form--centered' },
               m(
                 'div',
                 { className: 'Form-group' },
-                m('input', { className: 'FormControl', name: 'username', placeholder: extractText(app.translator.trans('core.forum.sign_up.username_placeholder')),
+                m('input', { className: 'FormControl', name: 'username', type: 'text', placeholder: extractText(app.translator.trans('core.forum.sign_up.username_placeholder')),
                   value: this.username(),
                   onchange: m.withAttr('value', this.username),
                   disabled: this.loading })
@@ -27931,54 +28207,6 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
                 )
               )
             )];
-
-            if (this.welcomeUser) {
-              var user = this.welcomeUser;
-
-              var fadeIn = function fadeIn(element, isInitialized) {
-                if (isInitialized) return;
-                $(element).hide().fadeIn();
-              };
-
-              body.push(m(
-                'div',
-                { className: 'SignUpModal-welcome', style: { background: user.color() }, config: fadeIn },
-                m(
-                  'div',
-                  { className: 'darkenBackground' },
-                  m(
-                    'div',
-                    { className: 'container' },
-                    avatar(user),
-                    m(
-                      'h3',
-                      null,
-                      app.translator.trans('core.forum.sign_up.welcome_text', { user: user })
-                    ),
-                    m(
-                      'p',
-                      null,
-                      app.translator.trans('core.forum.sign_up.confirmation_message', { email: m(
-                          'strong',
-                          null,
-                          user.email()
-                        ) })
-                    ),
-                    m(
-                      'p',
-                      null,
-                      m(
-                        Button,
-                        { className: 'Button Button--primary', onclick: this.hide.bind(this) },
-                        app.translator.trans('core.forum.sign_up.dismiss_button')
-                      )
-                    )
-                  )
-                )
-              ));
-            }
-
-            return body;
           }
         }, {
           key: 'footer',
@@ -28018,8 +28246,6 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this = this;
-
             e.preventDefault();
 
             this.loading = true;
@@ -28031,18 +28257,8 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
               method: 'POST',
               data: data,
               errorHandler: this.onerror.bind(this)
-            }).then(function (payload) {
-              var user = app.store.pushPayload(payload);
-
-              // If the user's new account has been activated, then we can assume
-              // that they have been logged in too. Thus, we will reload the page.
-              // Otherwise, we will show a message asking them to check their email.
-              if (user.isActivated()) {
-                window.location.reload();
-              } else {
-                _this.welcomeUser = user;
-                _this.loaded();
-              }
+            }).then(function () {
+              return window.location.reload();
             }, this.loaded.bind(this));
           }
 
@@ -28064,6 +28280,10 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
               data.token = this.props.token;
             } else {
               data.password = this.password();
+            }
+
+            if (this.props.avatarUrl) {
+              data.avatarUrl = this.props.avatarUrl;
             }
 
             return data;
@@ -28355,6 +28575,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
               children: this.props.submitLabel,
               icon: 'check',
               className: 'Button Button--primary',
+              itemClassName: 'App-primaryControl',
               onclick: this.onsubmit.bind(this)
             }));
 
@@ -28583,12 +28804,17 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
         }, {
           key: 'save',
           value: function save(value) {
+            var _this = this;
+
             var user = this.props.user;
 
             if (user.bio() !== value) {
               this.loading = true;
 
-              user.save({ bio: value })['finally'](this.loaded.bind(this));
+              user.save({ bio: value })['finally'](function () {
+                _this.loading = false;
+                m.redraw();
+              });
             }
 
             this.editing = false;
@@ -28960,7 +29186,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
     }
   };
 });;
-System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar'], function (_export) {
+System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export) {
 
   /**
    * The `UsersSearchSource` finds and displays user search results in the search
@@ -28970,12 +29196,14 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
    */
   'use strict';
 
-  var highlight, avatar, UsersSearchResults;
+  var highlight, avatar, username, UsersSearchResults;
   return {
     setters: [function (_flarumHelpersHighlight) {
       highlight = _flarumHelpersHighlight['default'];
     }, function (_flarumHelpersAvatar) {
       avatar = _flarumHelpersAvatar['default'];
+    }, function (_flarumHelpersUsername) {
+      username = _flarumHelpersUsername['default'];
     }],
     execute: function () {
       UsersSearchResults = (function () {
@@ -29005,6 +29233,9 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
               { className: 'Dropdown-header' },
               app.translator.trans('core.forum.search.users_heading')
             ), results.map(function (user) {
+              var name = username(user);
+              name.children[0] = highlight(name.children[0], query);
+
               return m(
                 'li',
                 { className: 'UserSearchResult', 'data-index': 'users' + user.id() },
@@ -29012,7 +29243,7 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
                   'a',
                   { href: app.route.user(user), config: m.route },
                   avatar(user),
-                  highlight(user.username(), query)
+                  name
                 )
               );
             })];
@@ -29571,7 +29802,8 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
 
       return [isListItem ? item : m(
         'li',
-        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']) },
+        { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']),
+          key: item.itemName },
         item
       ), ' '];
     });
@@ -29644,7 +29876,7 @@ System.register("flarum/helpers/username", [], function (_export) {
   _export("default", username);
 
   function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.deleted_user_text');
+    var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
 
     return m(
       "span",
@@ -29657,6 +29889,37 @@ System.register("flarum/helpers/username", [], function (_export) {
     setters: [],
     execute: function () {}
   };
+});;
+System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (_export) {
+
+    /**
+     * The `useronline` helper displays a green circle if the user is online
+     *
+     * @param {User} user
+     * @return {Object}
+     */
+    'use strict';
+
+    var icon;
+
+    _export('default', userOnline);
+
+    function userOnline(user) {
+        if (user.lastSeenTime() && user.isOnline()) {
+            return m(
+                'span',
+                { className: 'UserOnline' },
+                icon('circle')
+            );
+        }
+    }
+
+    return {
+        setters: [function (_flarumHelpersIcon) {
+            icon = _flarumHelpersIcon['default'];
+        }],
+        execute: function () {}
+    };
 });;
 System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/helpers/icon', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
   /*global FastClick*/
@@ -29854,7 +30117,7 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
 
     app.forum = app.store.getById('forums', 1);
 
-    app.session = new Session(app.preload.session.token, app.store.getById('users', app.preload.session.userId));
+    app.session = new Session(app.store.getById('users', app.preload.session.userId), app.preload.session.csrfToken);
   }
 
   return {
@@ -30167,7 +30430,7 @@ System.register('flarum/Model', [], function (_export) {
             // Before we update the model's data, we should make a copy of the model's
             // old data so that we can revert back to it if something goes awry during
             // persistence.
-            var oldData = JSON.parse(JSON.stringify(this.data));
+            var oldData = this.copyData();
 
             this.pushData(data);
 
@@ -30231,6 +30494,11 @@ System.register('flarum/Model', [], function (_export) {
           key: 'apiEndpoint',
           value: function apiEndpoint() {
             return '/' + this.data.type + (this.exists ? '/' + this.data.id : '');
+          }
+        }, {
+          key: 'copyData',
+          value: function copyData() {
+            return JSON.parse(JSON.stringify(this.data));
           }
 
           /**
@@ -30701,7 +30969,7 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
         avatarUrl: Model.attribute('avatarUrl'),
         bio: Model.attribute('bio'),
         bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink() + '</p>' : '';
+          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({ rel: 'nofollow' }) + '</p>' : '';
         }),
         preferences: Model.attribute('preferences'),
         groups: Model.hasMany('groups'),
@@ -30812,7 +31080,7 @@ System.register('flarum/Session', [], function (_export) {
     setters: [],
     execute: function () {
       Session = (function () {
-        function Session(token, user) {
+        function Session(user, csrfToken) {
           babelHelpers.classCallCheck(this, Session);
 
           /**
@@ -30824,12 +31092,12 @@ System.register('flarum/Session', [], function (_export) {
           this.user = user;
 
           /**
-           * The token that was used for authentication.
+           * The CSRF token.
            *
            * @type {String|null}
            * @public
            */
-          this.token = token;
+          this.csrfToken = csrfToken;
         }
 
         /**
@@ -30850,9 +31118,7 @@ System.register('flarum/Session', [], function (_export) {
               method: 'POST',
               url: app.forum.attribute('baseUrl') + '/login',
               data: { identification: identification, password: password }
-            }, options)).then(function () {
-              return window.location.reload();
-            });
+            }, options));
           }
 
           /**
@@ -30863,22 +31129,7 @@ System.register('flarum/Session', [], function (_export) {
         }, {
           key: 'logout',
           value: function logout() {
-            window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.token;
-          }
-
-          /**
-           * Apply an authorization header with the current token to the given
-           * XMLHttpRequest object.
-           *
-           * @param {XMLHttpRequest} xhr
-           * @public
-           */
-        }, {
-          key: 'authorize',
-          value: function authorize(xhr) {
-            if (this.token) {
-              xhr.setRequestHeader('Authorization', 'Token ' + this.token);
-            }
+            window.location = app.forum.attribute('baseUrl') + '/logout?token=' + this.csrfToken;
           }
         }]);
         return Session;
@@ -31840,19 +32091,22 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
          * @return {Promise}
          */
         deleteAction: function deleteAction() {
-          if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
-            // If there is a discussion list in the cache, remove this discussion.
-            if (app.cache.discussionList) {
-              app.cache.discussionList.removeDiscussion(this);
-            }
+          var _this3 = this;
 
+          if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
             // If we're currently viewing the discussion that was deleted, go back
             // to the previous page.
             if (app.viewingDiscussion(this)) {
               app.history.back();
             }
 
-            return this['delete']();
+            return this['delete']().then(function () {
+              // If there is a discussion list in the cache, remove this discussion.
+              if (app.cache.discussionList) {
+                app.cache.discussionList.removeDiscussion(_this3);
+                m.redraw();
+              }
+            });
           }
         },
 
@@ -31862,7 +32116,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
          * @return {Promise}
          */
         renameAction: function renameAction() {
-          var _this3 = this;
+          var _this4 = this;
 
           var currentTitle = this.title();
           var title = prompt(extractText(app.translator.trans('core.forum.discussion_controls.rename_text')), currentTitle);
@@ -31872,7 +32126,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           // indicating that the discussion was renamed.
           if (title && title !== currentTitle) {
             return this.save({ title: title }).then(function () {
-              if (app.viewingDiscussion(_this3)) {
+              if (app.viewingDiscussion(_this4)) {
                 app.current.stream.update();
               }
               m.redraw();
@@ -32892,7 +33146,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
          * @return {ItemList}
          * @protected
          */
-        destructiveControls: function destructiveControls(post) {
+        destructiveControls: function destructiveControls(post, context) {
           var items = new ItemList();
 
           if (post.contentType() === 'comment' && !post.isHidden()) {
@@ -32915,7 +33169,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
               items.add('delete', Button.component({
                 icon: 'times',
                 children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
-                onclick: this.deleteAction.bind(post)
+                onclick: this.deleteAction.bind(post, context)
               }));
             }
           }
@@ -32962,10 +33216,17 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
          *
          * @return {Promise}
          */
-        deleteAction: function deleteAction() {
-          this.discussion().removePost(this.id());
+        deleteAction: function deleteAction(context) {
+          var _this2 = this;
 
-          return this['delete']();
+          if (context) context.loading = true;
+
+          return this['delete']().then(function () {
+            _this2.discussion().removePost(_this2.id());
+          })['finally'](function () {
+            if (context) context.loading = false;
+            m.redraw();
+          });
         }
       });
     }
