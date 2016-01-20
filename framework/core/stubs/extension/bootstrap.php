@@ -1,10 +1,14 @@
 <?php
 
-// Require the extension's composer autoload file. This will enable all of our
-// classes in the src directory to be autoloaded.
-require __DIR__.'/vendor/autoload.php';
+use Illuminate\Contracts\Events\Dispatcher;
+use {{namespace}}\Listener;
 
-// Return the name of our Extension class. Flarum will register it as a service
-// provider, allowing it to register bindings and execute code when the
-// application boots.
-return '{{namespace}}\Extension';
+// Return a function that registers the extension with Flarum. This is
+// the place to listen to events, register bindings with the container
+// and execute code when the application boots.
+//
+// Any typehinted argument of this function is automatically resolved
+// by the IoC container.
+return function (Dispatcher $events) {
+    $events->subscribe(Listener\AddClientAssets::class);
+};
