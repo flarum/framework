@@ -29,6 +29,8 @@ use Exception;
 
 class InstallCommand extends AbstractCommand
 {
+    const MOD_GROUP_ID = 4;
+
     /**
      * @var DataProviderInterface
      */
@@ -262,18 +264,19 @@ class InstallCommand extends AbstractCommand
         Group::unguard();
 
         $groups = [
-            ['Admin', 'Admins', '#B72A2A', 'wrench'],
-            ['Guest', 'Guests', null, null],
-            ['Member', 'Members', null, null],
-            ['Mod', 'Mods', '#80349E', 'bolt']
+            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'wrench'],
+            [Group::GUEST_ID, 'Guest', 'Guests', null, null],
+            [Group::MEMBER_ID, 'Member', 'Members', null, null],
+            [static::MOD_GROUP_ID, 'Mod', 'Mods', '#80349E', 'bolt']
         ];
 
         foreach ($groups as $group) {
             Group::create([
-                'name_singular' => $group[0],
-                'name_plural' => $group[1],
-                'color' => $group[2],
-                'icon' => $group[3]
+                'id' => $group[0],
+                'name_singular' => $group[1],
+                'name_plural' => $group[2],
+                'color' => $group[3],
+                'icon' => $group[4],
             ]);
         }
     }
@@ -282,17 +285,17 @@ class InstallCommand extends AbstractCommand
     {
         $permissions = [
             // Guests can view the forum
-            [2, 'viewDiscussions'],
+            [Group::GUEST_ID, 'viewDiscussions'],
 
             // Members can create and reply to discussions
-            [3, 'startDiscussion'],
-            [3, 'discussion.reply'],
+            [Group::MEMBER_ID, 'startDiscussion'],
+            [Group::MEMBER_ID, 'discussion.reply'],
 
             // Moderators can edit + delete stuff
-            [4, 'discussion.delete'],
-            [4, 'discussion.deletePosts'],
-            [4, 'discussion.editPosts'],
-            [4, 'discussion.rename'],
+            [static::MOD_GROUP_ID, 'discussion.delete'],
+            [static::MOD_GROUP_ID, 'discussion.deletePosts'],
+            [static::MOD_GROUP_ID, 'discussion.editPosts'],
+            [static::MOD_GROUP_ID, 'discussion.rename'],
         ];
 
         foreach ($permissions as &$permission) {
@@ -324,7 +327,7 @@ class InstallCommand extends AbstractCommand
         $user->is_activated = 1;
         $user->save();
 
-        $user->groups()->sync([1]);
+        $user->groups()->sync([Group::ADMINISTRATOR_ID]);
     }
 
     protected function enableBundledExtensions()
