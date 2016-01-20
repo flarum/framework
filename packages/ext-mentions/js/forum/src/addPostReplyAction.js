@@ -20,8 +20,12 @@ export default function() {
         component.props.originalContent = mention;
       }
 
+      const cursorPosition = component.editor.getSelectionRange()[0];
+      const precedingContent = component.editor.value().slice(0, cursorPosition);
+      const trailingNewlines = precedingContent.match(/(\n{0,2})$/)[0].length;
+
       component.editor.insertAtCursor(
-        (component.editor.getSelectionRange()[0] > 0 ? '\n\n' : '') +
+        Array(3 - trailingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
         (quote
           ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n'
           : mention)
