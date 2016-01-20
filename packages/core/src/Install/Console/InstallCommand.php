@@ -11,7 +11,6 @@
 namespace Flarum\Install\Console;
 
 use Flarum\Console\Command\AbstractCommand;
-use Flarum\Core\Exception\ValidationException;
 use Flarum\Database\AbstractModel;
 use Flarum\Core\User;
 use Flarum\Core\Group;
