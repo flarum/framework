@@ -12,12 +12,12 @@ matrix:
   fast_finish: true
 
 before_script:
-  - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install
+  - rm -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
+  - composer install
 
 script:
-  - php composer.phar style
-  - php composer.phar test
+  - composer style
+  - composer test
 
 notifications:
   email:
