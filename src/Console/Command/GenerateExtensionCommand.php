@@ -101,7 +101,7 @@ class GenerateExtensionCommand extends AbstractCommand
 
     protected function copyStub($destination, $replacements = [])
     {
-        $this->recursiveCopy(__DIR__.'/../../stubs/extension', $destination, $replacements);
+        $this->recursiveCopy(__DIR__.'/../../../stubs/extension', $destination, $replacements);
     }
 
     protected function recursiveCopy($src, $dst, $replacements = [])
