@@ -48,9 +48,20 @@ var properties = [
 
 ];
 
-var isFirefox = window.mozInnerScreenX != null;
+var isBrowser = (typeof window !== 'undefined');
+var isFirefox = (isBrowser && window.mozInnerScreenX != null);
 
-function getCaretCoordinates(element, position) {
+function getCaretCoordinates(element, position, options) {
+  if(!isBrowser) {
+    throw new Error('textarea-caret-position#getCaretCoordinates should only be called in a browser');
+  }
+
+  var debug = options && options.debug || false;
+  if (debug) {
+    var el = document.querySelector('#input-textarea-caret-position-mirror-div');
+    if ( el ) { el.parentNode.removeChild(el); }
+  }
+
   // mirrored div
   var div = document.createElement('div');
   div.id = 'input-textarea-caret-position-mirror-div';
@@ -66,7 +77,8 @@ function getCaretCoordinates(element, position) {
 
   // position off-screen
   style.position = 'absolute';  // required to return coordinates properly
-  style.visibility = 'hidden';  // not 'display: none' because we want rendering
+  if (!debug)
+    style.visibility = 'hidden';  // not 'display: none' because we want rendering
 
   // transfer the element's properties to the div
   properties.forEach(function (prop) {
@@ -84,7 +96,7 @@ function getCaretCoordinates(element, position) {
   div.textContent = element.value.substring(0, position);
   // the second special handling for input type="text" vs textarea: spaces need to be replaced with non-breaking spaces - http://stackoverflow.com/a/13402035/1269037
   if (element.nodeName === 'INPUT')
-    div.textContent = div.textContent.replace(/\s/g, "\u00a0");
+    div.textContent = div.textContent.replace(/\s/g, '\u00a0');
 
   var span = document.createElement('span');
   // Wrapping must be replicated *exactly*, including when a long word gets
@@ -100,14 +112,18 @@ function getCaretCoordinates(element, position) {
     left: span.offsetLeft + parseInt(computed['borderLeftWidth'])
   };
 
-  document.body.removeChild(div);
+  if (debug) {
+    span.style.backgroundColor = '#aaa';
+  } else {
+    document.body.removeChild(div);
+  }
 
   return coordinates;
 }
 
-if (typeof module != "undefined" && typeof module.exports != "undefined") {
+if (typeof module != 'undefined' && typeof module.exports != 'undefined') {
   module.exports = getCaretCoordinates;
-} else {
+} else if(isBrowser){
   window.getCaretCoordinates = getCaretCoordinates;
 }
 
@@ -633,7 +649,12 @@ System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/
               component.props.originalContent = mention;
             }
 
-            component.editor.insertAtCursor((component.editor.getSelectionRange()[0] > 0 ? '\n\n' : '') + (quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention));
+            var cursorPosition = component.editor.getSelectionRange()[0];
+            var precedingContent = component.editor.value().slice(0, cursorPosition);
+            var trailingNewlines = precedingContent.match(/(\n{0,2})$/)[0].length;
+
+            component.editor.insertAtCursor(Array(3 - trailingNewlines).join('\n') + ( // Insert up to two newlines, depending on preceding whitespace
+            quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention));
           }
 
           items.add('reply', Button.component({
