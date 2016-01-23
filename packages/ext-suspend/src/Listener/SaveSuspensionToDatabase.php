@@ -21,13 +21,13 @@ class SaveSuspensionToDatabase
     use AssertPermissionTrait;
 
     /**
+     * Validator for limited suspension.
+     *
      * @var SuspendValidator
      */
     protected $validator;
 
     /**
-     * SaveSuspensionToDatabase constructor.
-     *
      * @param SuspendValidator $validator
      */
     public function __construct(SuspendValidator $validator)
