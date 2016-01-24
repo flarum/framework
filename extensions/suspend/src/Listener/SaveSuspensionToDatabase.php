@@ -13,11 +13,27 @@ namespace Flarum\Suspend\Listener;
 use Carbon\Carbon;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\UserWillBeSaved;
+use Flarum\Suspend\SuspendValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveSuspensionToDatabase
 {
     use AssertPermissionTrait;
+
+    /**
+     * Validator for limited suspension.
+     *
+     * @var SuspendValidator
+     */
+    protected $validator;
+
+    /**
+     * @param SuspendValidator $validator
+     */
+    public function __construct(SuspendValidator $validator)
+    {
+        $this->validator = $validator;
+    }
 
     /**
      * @param Dispatcher $events
@@ -35,6 +51,8 @@ class SaveSuspensionToDatabase
         $attributes = array_get($event->data, 'attributes', []);
 
         if (array_key_exists('suspendUntil', $attributes)) {
+            $this->validator->assertValid($attributes);
+
             $suspendUntil = $attributes['suspendUntil'];
             $user = $event->user;
             $actor = $event->actor;
