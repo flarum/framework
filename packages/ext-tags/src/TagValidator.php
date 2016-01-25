@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -19,6 +19,9 @@ class TagValidator extends AbstractValidator
      */
     protected $rules = [
         'name' => ['required'],
-        'slug' => ['required', 'unique:tags']
+        'slug' => ['required', 'unique:tags'],
+        'isHidden' => ['bool'],
+        'description' => ['text|max:700'],
+        'color' => ['regex:^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'],
     ];
 }
