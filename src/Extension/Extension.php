@@ -10,7 +10,9 @@
 
 namespace Flarum\Extension;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * @property string $name
@@ -32,9 +34,8 @@ use Illuminate\Support\Arr;
  * @property array  $suggest
  * @property array  $extra
  */
-class Extension
+class Extension implements Arrayable
 {
-
     /**
      * Unique Id of the extension.
      *
@@ -63,7 +64,7 @@ class Extension
      *
      * @var bool
      */
-    protected $installed = false;
+    protected $installed = true;
 
     /**
      * The installed version of the extension.
@@ -77,7 +78,7 @@ class Extension
      *
      * @var bool
      */
-    protected $enabled;
+    protected $enabled = false;
 
     /**
      * @param       $path
@@ -91,15 +92,21 @@ class Extension
     }
 
     /**
-     * Fallthrough for getting an attribute out of the composer.json.
-     *
-     * @param $name
-     * @return mixed|null
+     * {@inheritdoc}
      */
-    function __get($name)
+    public function __get($name)
     {
-        return $this->composerJsonAttribute(camel_case($name));
+        return $this->composerJsonAttribute(Str::snake($name, '-'));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __isset($name)
+    {
+        return isset($this->{$name}) || $this->composerJsonAttribute(Str::snake($name, '-'));
+    }
+
 
     /**
      * Dot notation getter for composer.json attributes.
@@ -224,5 +231,22 @@ class Extension
     public function hasMigrations()
     {
         return realpath($this->path . '/migrations/') !== false;
+    }
+
+    /**
+     * Generates an array result for the object.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return (array) array_merge([
+            'id' => $this->getId(),
+            'version' => $this->getVersion(),
+            'path' => $this->path,
+            'icon' => $this->getIcon(),
+            'hasAssets' => $this->hasAssets(),
+            'hasMigrations' => $this->hasMigrations(),
+        ], $this->composerJson);
     }
 }
