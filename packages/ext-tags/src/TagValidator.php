@@ -18,10 +18,10 @@ class TagValidator extends AbstractValidator
      * {@inheritdoc}
      */
     protected $rules = [
-        'name'        => [ 'required' ],
-        'slug'        => [ 'required', 'unique:tags' ],
-        'isHidden'    => [ 'bool' ],
-        'description' => [ 'text|max:700' ],
-        'color'       => [ 'regex:^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$' ],
+        'name' => ['required'],
+        'slug' => ['required', 'unique:tags'],
+        'isHidden' => ['bool'],
+        'description' => ['text|max:700'],
+        'color' => ['regex:^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'],
     ];
 }
