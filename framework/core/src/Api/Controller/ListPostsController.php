@@ -11,6 +11,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Core\Repository\PostRepository;
+use Flarum\Event\ConfigurePostsQuery;
+use Illuminate\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
@@ -41,7 +43,7 @@ class ListPostsController extends AbstractCollectionController
     /**
      * @var \Flarum\Core\Repository\PostRepository
      */
-    private $posts;
+    protected $posts;
 
     /**
      * @param \Flarum\Core\Repository\PostRepository $posts
@@ -59,55 +61,90 @@ class ListPostsController extends AbstractCollectionController
         $actor = $request->getAttribute('actor');
         $filter = $this->extractFilter($request);
         $include = $this->extractInclude($request);
-        $where = [];
 
         if ($postIds = array_get($filter, 'id')) {
-            $posts = $this->posts->findByIds(explode(',', $postIds), $actor);
+            $postIds = explode(',', $postIds);
         } else {
-            if ($discussionId = array_get($filter, 'discussion')) {
-                $where['discussion_id'] = $discussionId;
-            }
-            if ($number = array_get($filter, 'number')) {
-                $where['number'] = $number;
-            }
-            if ($userId = array_get($filter, 'user')) {
-                $where['user_id'] = $userId;
-            }
-            if ($type = array_get($filter, 'type')) {
-                $where['type'] = $type;
-            }
-
-            $posts = $this->getPosts($request, $where);
+            $postIds = $this->getPostIds($request);
         }
+
+        $posts = $this->posts->findByIds($postIds, $actor);
 
         return $posts->load($include);
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param array $where
-     * @return \Illuminate\Database\Eloquent\Collection
-     * @throws InvalidParameterException
+     * {@inheritdoc}
      */
-    private function getPosts(ServerRequestInterface $request, array $where)
+    protected function extractOffset(ServerRequestInterface $request)
     {
-        $queryParams = $request->getQueryParams();
         $actor = $request->getAttribute('actor');
+        $queryParams = $request->getQueryParams();
         $sort = $this->extractSort($request);
         $limit = $this->extractLimit($request);
+        $filter = $this->extractFilter($request);
 
         if (($near = array_get($queryParams, 'page.near')) > 1) {
-            if (count($where) > 1 || ! isset($where['discussion_id']) || $sort) {
+            if (count($filter) > 1 || ! isset($filter['discussion']) || $sort) {
                 throw new InvalidParameterException('You can only use page[near] with '
                     . 'filter[discussion] and the default sort order');
             }
 
-            $offset = $this->posts->getIndexForNumber($where['discussion_id'], $near, $actor);
-            $offset = max(0, $offset - $limit / 2);
-        } else {
-            $offset = $this->extractOffset($request);
+            $offset = $this->posts->getIndexForNumber($filter['discussion'], $near, $actor);
+
+            return max(0, $offset - $limit / 2);
         }
 
-        return $this->posts->findWhere($where, $actor, $sort, $limit, $offset);
+        return parent::extractOffset($request);
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return array
+     * @throws InvalidParameterException
+     */
+    private function getPostIds(ServerRequestInterface $request)
+    {
+        $filter = $this->extractFilter($request);
+        $sort = $this->extractSort($request);
+        $limit = $this->extractLimit($request);
+        $offset = $this->extractOffset($request);
+
+        $query = $this->posts->query();
+
+        $this->applyFilters($query, $filter);
+
+        $query->skip($offset)->take($limit);
+
+        foreach ((array) $sort as $field => $order) {
+            $query->orderBy($field, $order);
+        }
+
+        return $query->lists('id')->all();
+    }
+
+    /**
+     * @param Builder $query
+     * @param array $filter
+     */
+    private function applyFilters(Builder $query, array $filter)
+    {
+        if ($discussionId = array_get($filter, 'discussion')) {
+            $query->where('discussion_id', $discussionId);
+        }
+
+        if ($number = array_get($filter, 'number')) {
+            $query->where('number', $number);
+        }
+
+        if ($userId = array_get($filter, 'user')) {
+            $query->where('user_id', $userId);
+        }
+
+        if ($type = array_get($filter, 'type')) {
+            $query->where('type', $type);
+        }
+
+        event(new ConfigurePostsQuery($query, $filter));
     }
 }
