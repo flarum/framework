@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * This file is part of Flarum.
  *
@@ -28,17 +28,21 @@ class FormatEmoticons
      */
     public function addEmoticons(ConfigureFormatter $event)
     {
-        $event->configurator->Emoticons->add(':)', '&#x1f604;');
-        $event->configurator->Emoticons->add(':D', '&#x1f603;');
-        $event->configurator->Emoticons->add(':P', '&#x1f61c;');
-        $event->configurator->Emoticons->add(':(', '&#x1f61f;');
-        $event->configurator->Emoticons->add(':|', '&#x1f610;');
-        $event->configurator->Emoticons->add(';)', '&#x1f609;');
-        $event->configurator->Emoticons->add(':*', '&#x1f618;');
-        $event->configurator->Emoticons->add(':\'(', '&#x1f622;');
-        $event->configurator->Emoticons->add(':\')', '&#x1f602;');
-        $event->configurator->Emoticons->add(':O', '&#x1f62e;');
-        $event->configurator->Emoticons->add('B)', '&#x1f60e;');
-        $event->configurator->Emoticons->add('>:(', '&#x1f621;');
+        $event->configurator->Emoji->useTwemoji();
+        $event->configurator->Emoji->setImageSize(32);
+        $event->configurator->Emoji->omitImageSize();
+
+        $event->configurator->Emoji->addAlias(':)', '😄');
+        $event->configurator->Emoji->addAlias(':D', '😃');
+        $event->configurator->Emoji->addAlias(':P', '😜');
+        $event->configurator->Emoji->addAlias(':(', '😟');
+        $event->configurator->Emoji->addAlias(':|', '😐');
+        $event->configurator->Emoji->addAlias(';)', '😉');
+        $event->configurator->Emoji->addAlias(':*', '😘');
+        $event->configurator->Emoji->addAlias(':\'(', '😢');
+        $event->configurator->Emoji->addAlias(':\')', '😂');
+        $event->configurator->Emoji->addAlias(':O', '😮');
+        $event->configurator->Emoji->addAlias('B)', '😎');
+        $event->configurator->Emoji->addAlias('>:(', '😡');
     }
 }
