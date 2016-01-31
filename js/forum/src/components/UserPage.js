@@ -134,7 +134,8 @@ export default class UserPage extends Page {
         href: app.route('user.posts', {username: user.username()}),
         children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentsCount()}</span>],
         icon: 'comment-o'
-      })
+      }),
+      100
     );
 
     items.add('discussions',
@@ -142,17 +143,19 @@ export default class UserPage extends Page {
         href: app.route('user.discussions', {username: user.username()}),
         children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionsCount()}</span>],
         icon: 'reorder'
-      })
+      }),
+      90
     );
 
     if (app.session.user === user) {
-      items.add('separator', Separator.component());
+      items.add('separator', Separator.component(), -90);
       items.add('settings',
         LinkButton.component({
           href: app.route('settings'),
           children: app.translator.trans('core.forum.user.settings_link'),
           icon: 'cog'
-        })
+        }),
+        -100
       );
     }
 
