@@ -10,12 +10,12 @@
 
 namespace Flarum\Locale;
 
-use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\Translator as SymfonyTranslator;
 
 class LocaleManager
 {
     /**
-     * @var Translator
+     * @var SymfonyTranslator
      */
     protected $translator;
 
@@ -24,9 +24,9 @@ class LocaleManager
     protected $js = [];
 
     /**
-     * @param Translator $translator
+     * @param SymfonyTranslator $translator
      */
-    public function __construct(Translator $translator)
+    public function __construct(SymfonyTranslator $translator)
     {
         $this->translator = $translator;
     }
@@ -80,7 +80,7 @@ class LocaleManager
     }
 
     /**
-     * @return Translator
+     * @return SymfonyTranslator
      */
     public function getTranslator()
     {
@@ -88,9 +88,9 @@ class LocaleManager
     }
 
     /**
-     * @param Translator $translator
+     * @param SymfonyTranslator $translator
      */
-    public function setTranslator($translator)
+    public function setTranslator(SymfonyTranslator $translator)
     {
         $this->translator = $translator;
     }
