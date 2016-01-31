@@ -19,6 +19,16 @@ use Flarum\Core\Discussion;
 class PostRepository
 {
     /**
+     * Get a new query builder for the posts table.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function query()
+    {
+        return Post::query();
+    }
+
+    /**
      * Find a post by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
