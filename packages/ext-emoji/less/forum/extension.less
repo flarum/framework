@@ -3,3 +3,38 @@ img.emoji {
   margin: 0 .05em 0 .1em;
   vertical-align: -0.3em;
 }
+
+.EmojiDropdown {
+  max-width: 500px;
+  max-height: 200px;
+  overflow: auto;
+  position: absolute;
+  margin: 5px 0 !important;
+
+  > li > a {
+    white-space: normal;
+    border-bottom: 0;
+  }
+
+  > li > a:hover {
+    background: none;
+  }
+
+  .PostPreview {
+    color: @text-color;
+    font-weight: bold;
+
+    .emoji {
+      margin-right: 5px;
+    }
+  }
+  .PostPreview-content {
+    overflow: hidden;
+    line-height: 1.7em;
+    display: block;
+  }
+}
+
+.ComposerBody-emojiWrapper {
+  position: relative;
+}
