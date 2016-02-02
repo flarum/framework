@@ -28,8 +28,7 @@ class FormatEmoticons
      */
     public function addEmoticons(ConfigureFormatter $event)
     {
-        $event->configurator->Emoji->useTwemoji();
-        $event->configurator->Emoji->setImageSize(32);
+        $event->configurator->Emoji->useEmojiOne();
         $event->configurator->Emoji->omitImageSize();
 
         $event->configurator->Emoji->addAlias(':)', '😄');
