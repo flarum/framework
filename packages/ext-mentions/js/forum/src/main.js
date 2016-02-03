@@ -9,6 +9,9 @@ import addPostReplyAction from 'flarum/mentions/addPostReplyAction';
 import addComposerAutocomplete from 'flarum/mentions/addComposerAutocomplete';
 import PostMentionedNotification from 'flarum/mentions/components/PostMentionedNotification';
 import UserMentionedNotification from 'flarum/mentions/components/UserMentionedNotification';
+import UserPage from 'flarum/components/UserPage'
+import LinkButton from 'flarum/components/LinkButton';
+import MentionsUserPage from 'flarum/mentions/components/MentionsUserPage';
 
 app.initializers.add('flarum-mentions', function() {
   // For every mention of a post inside a post's content, set up a hover handler
@@ -43,6 +46,21 @@ app.initializers.add('flarum-mentions', function() {
       icon: 'at',
       label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label')
     });
+  });
+
+  // Add add mentions tab in user profile
+  app.routes['user.mentions'] = {path: '/u/:username/mentions', component: MentionsUserPage.component()};
+  extend(UserPage.prototype, 'navItems', function(items) {
+    const user = this.user;
+    items.add('mentions',
+      LinkButton.component({
+        href: app.route('user.mentions', {username: user.username()}),
+        name: 'mentions',
+        children: [app.translator.trans('flarum-mentions.forum.user.mentions_link')],
+        icon: 'at'
+      }),
+      80
+    );
   });
 
   getPlainContent.removeSelectors.push('a.PostMention');
