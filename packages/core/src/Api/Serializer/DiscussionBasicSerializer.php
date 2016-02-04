@@ -34,7 +34,8 @@ class DiscussionBasicSerializer extends AbstractSerializer
         }
 
         return [
-            'title' => $discussion->title
+            'title' => $discussion->title,
+            'slug'  => $discussion->slug,
         ];
     }
 

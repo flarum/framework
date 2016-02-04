@@ -22,10 +22,12 @@ use Flarum\Event\DiscussionWasRestored;
 use Flarum\Event\DiscussionWasStarted;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\Util\Str;
 
 /**
  * @property int $id
  * @property string $title
+ * @property string $slug
  * @property int $comments_count
  * @property int $participants_count
  * @property int $number_index
@@ -431,5 +433,18 @@ class Discussion extends AbstractModel
     public static function setStateUser(User $user)
     {
         static::$stateUser = $user;
+    }
+
+    /**
+     * Set the discussion title.
+     *
+     * This automatically creates a matching slug for the discussion.
+     *
+     * @param string $title
+     */
+    protected function setTitleAttribute($title)
+    {
+        $this->attributes['title'] = $title;
+        $this->slug = Str::slug($title);
     }
 }
