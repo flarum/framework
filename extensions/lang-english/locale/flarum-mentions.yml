@@ -11,6 +11,10 @@ flarum-mentions:
     composer:
       reply_to_post_text: "Reply to #{number}"
 
+    # These translations are used in the user profile page and profile popup.
+    user:
+      mentions_link: Mentions
+
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
       others_text: => core.ref.some_others
