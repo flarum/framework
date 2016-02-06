@@ -26238,15 +26238,15 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               var top = $this.offset().top;
               var height = $this.outerHeight(true);
 
-              // If an item is comment and is above the top of the viewport,
-              // or within the viewport or more than 50% of it is visible,
-              // update the commentIndex
+              // If an item is a comment and is not below the viewport, update the
+              // comment index, which will be displayed as "viewing ? of X" on the
+              // scrubber.
               if ($this.data('type') == 'comment' && top < viewportBottom) {
                 commentsIndex++;
               }
 
               // If this item is above the top of the viewport, skip to the next
-              // post. If it's below the bottom of the viewport, break out of the
+              // one. If it's below the bottom of the viewport, break out of the
               // loop.
               if (top + height < viewportTop) {
                 return true;
@@ -26255,43 +26255,19 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
                 return false;
               }
 
+              // Work out how many pixels of this item are visible inside the viewport.
+              // Then add the proportion of this item's total height to the index.
               var visibleTop = Math.max(0, viewportTop - top);
               var visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
               var visiblePost = visibleBottom - visibleTop;
-
-              if (visiblePost > 0) {
-                visible += visiblePost / height;
-              }
 
               if (top <= viewportTop) {
                 index = parseFloat($this.data('index')) + visibleTop / height;
               }
 
-              //if (top <= viewportTop) {
-              //
-              //}
-
-              // If the bottom half of this item is visible at the top of the
-              // viewport, then set the start of the visible proportion as our index.
-              //if (top <= viewportTop) {
-              //
-              //
-              //  if (top + height > viewportTop) {
-              //    visible = (top + height - viewportTop) / height;
-              //  }
-              //
-              //  index = parseFloat($this.data('index')) + 1 - visible;
-              //  //
-              //// If the top half of this item is visible at the bottom of the
-              //// viewport, then add the visible proportion to the visible
-              //// counter.
-              //}
-              //if (top + height >= viewportTop + viewportHeight) {
-              //  visible += (viewportTop + viewportHeight - top) / height;
-              ////
-              //// If the whole item is visible in the viewport, then increment the
-              //// visible counter.
-              //}// else visible++;
+              if (visiblePost > 0) {
+                visible += visiblePost / height;
+              }
 
               // If this item has a time associated with it, then set the
               // scrollbar's current period to a formatted version of this time.
@@ -29146,7 +29122,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
                 user.commentsCount()
               )],
               icon: 'comment-o'
-            }));
+            }), 100);
 
             items.add('discussions', LinkButton.component({
               href: app.route('user.discussions', { username: user.username() }),
@@ -29156,15 +29132,15 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
                 user.discussionsCount()
               )],
               icon: 'reorder'
-            }));
+            }), 90);
 
             if (app.session.user === user) {
-              items.add('separator', Separator.component());
+              items.add('separator', Separator.component(), -90);
               items.add('settings', LinkButton.component({
                 href: app.route('settings'),
                 children: app.translator.trans('core.forum.user.settings_link'),
                 icon: 'cog'
-              }));
+              }), -100);
             }
 
             return items;
@@ -30608,10 +30584,10 @@ System.register('flarum/Model', [], function (_export) {
     }
   };
 });;
-System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/utils/string', 'flarum/components/Badge'], function (_export) {
+System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/components/Badge'], function (_export) {
   'use strict';
 
-  var Model, mixin, computed, ItemList, slug, Badge, Discussion;
+  var Model, mixin, computed, ItemList, Badge, Discussion;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel['default'];
@@ -30621,8 +30597,6 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
       computed = _flarumUtilsComputed['default'];
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList['default'];
-    }, function (_flarumUtilsString) {
-      slug = _flarumUtilsString.slug;
     }, function (_flarumComponentsBadge) {
       Badge = _flarumComponentsBadge['default'];
     }],
@@ -30642,7 +30616,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
 
       babelHelpers._extends(Discussion.prototype, {
         title: Model.attribute('title'),
-        slug: computed('title', slug),
+        slug: Model.attribute('slug'),
 
         startTime: Model.attribute('startTime', Model.transformDate),
         startUser: Model.hasOne('startUser'),

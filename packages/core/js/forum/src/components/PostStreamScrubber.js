@@ -226,40 +226,36 @@ export default class PostStreamScrubber extends Component {
       const top = $this.offset().top;
       const height = $this.outerHeight(true);
 
-      // If an item is comment and is above the top of the viewport,
-      // or within the viewport or more than 50% of it is visible,
-      // update the commentIndex
-      if($this.data('type') == 'comment' && top < viewportBottom && ((viewportBottom - top)/height) > 0.5) {
+      // If an item is a comment and is not below the viewport, update the
+      // comment index, which will be displayed as "viewing ? of X" on the
+      // scrubber.
+      if ($this.data('type') == 'comment' && top < viewportBottom) {
         commentsIndex++;
       }
 
       // If this item is above the top of the viewport, skip to the next
-      // post. If it's below the bottom of the viewport, break out of the
+      // one. If it's below the bottom of the viewport, break out of the
       // loop.
       if (top + height < viewportTop) {
-        visible = (top + height - viewportTop) / height;
-        index = parseFloat($this.data('index')) + 1 - visible;
         return true;
       }
       if (top > viewportTop + viewportHeight) {
         return false;
       }
 
-      // If the bottom half of this item is visible at the top of the
-      // viewport, then set the start of the visible proportion as our index.
-      if (top <= viewportTop && top + height > viewportTop) {
-        visible = (top + height - viewportTop) / height;
-        index = parseFloat($this.data('index')) + 1 - visible;
-      //
-      // If the top half of this item is visible at the bottom of the
-      // viewport, then add the visible proportion to the visible
-      // counter.
-      } else if (top + height >= viewportTop + viewportHeight) {
-        visible += (viewportTop + viewportHeight - top) / height;
-      //
-      // If the whole item is visible in the viewport, then increment the
-      // visible counter.
-      } else visible++;
+      // Work out how many pixels of this item are visible inside the viewport.
+      // Then add the proportion of this item's total height to the index.
+      const visibleTop = Math.max(0, viewportTop - top);
+      const visibleBottom = Math.min(height, viewportTop + viewportHeight - top);
+      const visiblePost = visibleBottom - visibleTop;
+
+      if (top <= viewportTop) {
+        index = parseFloat($this.data('index')) + visibleTop / height;
+      }
+
+      if (visiblePost > 0) {
+        visible += visiblePost / height;
+      }
 
       // If this item has a time associated with it, then set the
       // scrollbar's current period to a formatted version of this time.
