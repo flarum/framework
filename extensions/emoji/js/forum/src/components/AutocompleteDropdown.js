@@ -10,7 +10,7 @@ export default class AutocompleteDropdown extends Component {
   view() {
     return (
       <ul className="Dropdown-menu EmojiDropdown">
-        {this.props.items.map(item => <li>{item}</li>)}
+        {this.props.items.map(item => <li key={item.attrs.key}>{item}</li>)}
       </ul>
     );
   }
