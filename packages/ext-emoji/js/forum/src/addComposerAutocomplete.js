@@ -68,15 +68,14 @@ export default function addComposerAutocomplete() {
             const code = ':' + key + ':';
             const imageName = (emojiMap[key].indexOf('-20e3') != -1 || emojiMap[key] == 'a9' || emojiMap[key] == 'ae' ? '00' : '') + emojiMap[key];
             return (
-              <button className={'PostPreview'}
+              <button
+                key={key}
                 onclick={() => applySuggestion(code)}
                 onmouseenter={function() {
                   dropdown.setIndex($(this).parent().index());
                 }}>
-                <span className="PostPreview-content">
-                  <img alt={code} class="emoji" draggable="false" src={'//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png'}></img>
+                  <img alt={code} class="emoji" draggable="false" src={'//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png'}/>
                   {key}
-                </span>
               </button>
             );
           };
@@ -88,7 +87,7 @@ export default function addComposerAutocomplete() {
             const fuzzyRegexp = function(str) {
               const reEscape = new RegExp('\\(([' + ('+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1')) + '])\\)', 'g');
               return new RegExp('(.*)' + (str.toLowerCase().replace(/(.)/g, '($1)(.*?)')).replace(reEscape, '(\\$1)') + '$', 'i');
-            }
+            };
 
             const regTyped = fuzzyRegexp(typed);
             for (var i=0, maxSuggestions = 7; i < emojiKeys.length && maxSuggestions > 0; i++) {
@@ -102,7 +101,7 @@ export default function addComposerAutocomplete() {
               return a.length - b.length
             });
 
-            for(let key of similarEmoji) {
+            for (let key of similarEmoji) {
               suggestions.push(makeSuggestion(key));
             }
 

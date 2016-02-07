@@ -202,19 +202,16 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
               var imageName = (emojiMap[key].indexOf('-20e3') != -1 || emojiMap[key] == 'a9' || emojiMap[key] == 'ae' ? '00' : '') + emojiMap[key];
               return m(
                 'button',
-                { className: 'PostPreview',
+                {
+                  key: key,
                   onclick: function () {
                     return applySuggestion(code);
                   },
                   onmouseenter: function () {
                     dropdown.setIndex($(this).parent().index());
                   } },
-                m(
-                  'span',
-                  { className: 'PostPreview-content' },
-                  m('img', { alt: code, 'class': 'emoji', draggable: 'false', src: '//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png' }),
-                  key
-                )
+                m('img', { alt: code, 'class': 'emoji', draggable: 'false', src: '//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png' }),
+                key
               );
             };
 
@@ -340,7 +337,7 @@ System.register('flarum/emoji/components/AutocompleteDropdown', ['flarum/Compone
               this.props.items.map(function (item) {
                 return m(
                   'li',
-                  null,
+                  { key: item.attrs.key },
                   item
                 );
               })

@@ -11,27 +11,17 @@ img.emoji {
   position: absolute;
   margin: 5px 0 !important;
 
-  > li > a {
-    white-space: normal;
-    border-bottom: 0;
-  }
-
-  > li > a:hover {
-    background: none;
-  }
-
-  .PostPreview {
+  > li > button {
     color: @text-color;
     font-weight: bold;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 45px;
 
     .emoji {
-      margin-right: 5px;
+      float: left;
+      margin-left: -30px;
     }
-  }
-  .PostPreview-content {
-    overflow: hidden;
-    line-height: 1.7em;
-    display: block;
   }
 }
 
