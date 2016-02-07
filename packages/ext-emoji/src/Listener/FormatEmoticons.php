@@ -31,15 +31,13 @@ class FormatEmoticons
         $event->configurator->Emoji->useEmojiOne();
         $event->configurator->Emoji->omitImageSize();
 
-        $event->configurator->Emoji->addAlias(':)', '😄');
+        $event->configurator->Emoji->addAlias(':)', '🙂');
         $event->configurator->Emoji->addAlias(':D', '😃');
-        $event->configurator->Emoji->addAlias(':P', '😜');
-        $event->configurator->Emoji->addAlias(':(', '😟');
+        $event->configurator->Emoji->addAlias(':P', '😛');
+        $event->configurator->Emoji->addAlias(':(', '🙁');
         $event->configurator->Emoji->addAlias(':|', '😐');
         $event->configurator->Emoji->addAlias(';)', '😉');
-        $event->configurator->Emoji->addAlias(':*', '😘');
         $event->configurator->Emoji->addAlias(':\'(', '😢');
-        $event->configurator->Emoji->addAlias(':\')', '😂');
         $event->configurator->Emoji->addAlias(':O', '😮');
         $event->configurator->Emoji->addAlias('B)', '😎');
         $event->configurator->Emoji->addAlias('>:(', '😡');
