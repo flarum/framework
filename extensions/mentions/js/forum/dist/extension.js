@@ -924,10 +924,10 @@ System.register('flarum/mentions/components/UserMentionedNotification', ['flarum
     }
   };
 });;
-System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification'], function (_export) {
+System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification', 'flarum/components/UserPage', 'flarum/components/LinkButton', 'flarum/mentions/components/MentionsUserPage'], function (_export) {
   'use strict';
 
-  var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification;
+  var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification, UserPage, LinkButton, MentionsUserPage;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -949,6 +949,12 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
       PostMentionedNotification = _flarumMentionsComponentsPostMentionedNotification['default'];
     }, function (_flarumMentionsComponentsUserMentionedNotification) {
       UserMentionedNotification = _flarumMentionsComponentsUserMentionedNotification['default'];
+    }, function (_flarumComponentsUserPage) {
+      UserPage = _flarumComponentsUserPage['default'];
+    }, function (_flarumComponentsLinkButton) {
+      LinkButton = _flarumComponentsLinkButton['default'];
+    }, function (_flarumMentionsComponentsMentionsUserPage) {
+      MentionsUserPage = _flarumMentionsComponentsMentionsUserPage['default'];
     }],
     execute: function () {
 
@@ -987,8 +993,69 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
           });
         });
 
+        // Add add mentions tab in user profile
+        app.routes['user.mentions'] = { path: '/u/:username/mentions', component: MentionsUserPage.component() };
+        extend(UserPage.prototype, 'navItems', function (items) {
+          var user = this.user;
+          items.add('mentions', LinkButton.component({
+            href: app.route('user.mentions', { username: user.username() }),
+            name: 'mentions',
+            children: [app.translator.trans('flarum-mentions.forum.user.mentions_link')],
+            icon: 'at'
+          }), 80);
+        });
+
         getPlainContent.removeSelectors.push('a.PostMention');
       });
+    }
+  };
+});;
+System.register('flarum/mentions/components/MentionsUserPage', ['flarum/components/PostsUserPage'], function (_export) {
+
+  /**
+   * The `MentionsUserPage` component shows post which user Mentioned at
+   */
+  'use strict';
+
+  var PostsUserPage, MentionsUserPage;
+  return {
+    setters: [function (_flarumComponentsPostsUserPage) {
+      PostsUserPage = _flarumComponentsPostsUserPage['default'];
+    }],
+    execute: function () {
+      MentionsUserPage = (function (_PostsUserPage) {
+        babelHelpers.inherits(MentionsUserPage, _PostsUserPage);
+
+        function MentionsUserPage() {
+          babelHelpers.classCallCheck(this, MentionsUserPage);
+          babelHelpers.get(Object.getPrototypeOf(MentionsUserPage.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(MentionsUserPage, [{
+          key: 'loadResults',
+
+          /**
+           * Load a new page of the user's activity feed.
+           *
+           * @param {Integer} [offset] The position to start getting results from.
+           * @return {Promise}
+           * @protected
+           */
+          value: function loadResults(offset) {
+            return app.store.find('posts', {
+              filter: {
+                type: 'comment',
+                mentioned: this.user.id()
+              },
+              page: { offset: offset, limit: this.loadLimit },
+              sort: '-time'
+            });
+          }
+        }]);
+        return MentionsUserPage;
+      })(PostsUserPage);
+
+      _export('default', MentionsUserPage);
     }
   };
 });

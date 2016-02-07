@@ -20,6 +20,7 @@ return function (Dispatcher $events, Factory $views) {
     $events->subscribe(Listener\FormatUserMentions::class);
     $events->subscribe(Listener\UpdatePostMentionsMetadata::class);
     $events->subscribe(Listener\UpdateUserMentionsMetadata::class);
+    $events->subscribe(Listener\AddFilterByMentions::class);
 
     $views->addNamespace('flarum-mentions', __DIR__.'/views');
 };
