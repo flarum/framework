@@ -38,7 +38,7 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
      */
     public function handle(Request $request)
     {
-        $redirectUri = (string) $request->getUri()->withQuery('');
+        $redirectUri = (string) $request->getAttribute('originalUri', $request->getUri())->withQuery('');
 
         $provider = $this->getProvider($redirectUri);
 
