@@ -161,15 +161,15 @@ class InstallCommand extends AbstractCommand
 
             $this->storeConfiguration();
 
+            $resolver = $this->application->make('Illuminate\Database\ConnectionResolverInterface');
+            AbstractModel::setConnectionResolver($resolver);
+            AbstractModel::setEventDispatcher($this->application->make('events'));
+
             $this->runMigrations();
 
             $this->writeSettings();
 
             $this->application->register('Flarum\Core\CoreServiceProvider');
-
-            $resolver = $this->application->make('Illuminate\Database\ConnectionResolverInterface');
-            AbstractModel::setConnectionResolver($resolver);
-            AbstractModel::setEventDispatcher($this->application->make('events'));
 
             $this->seedGroups();
             $this->seedPermissions();
