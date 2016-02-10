@@ -10,9 +10,9 @@
 
 namespace Flarum\Update;
 
+use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\RouteCollection;
-use Flarum\Foundation\AbstractServiceProvider;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {

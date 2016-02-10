@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Post;
 
-use Illuminate\Database\Eloquent\ScopeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ScopeInterface;
 
 class RegisteredTypesScope implements ScopeInterface
 {
