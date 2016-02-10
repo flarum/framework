@@ -12,8 +12,8 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\AccessToken;
+use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Psr\Http\Message\ServerRequestInterface;

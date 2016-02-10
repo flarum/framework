@@ -11,12 +11,12 @@
 namespace Flarum\Extension;
 
 use Flarum\Core;
+use Flarum\Database\Migrator;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\ExtensionWasUninstalled;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Database\Migrator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 

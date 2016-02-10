@@ -11,7 +11,6 @@
 namespace Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Http\Exception\RouteNotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;

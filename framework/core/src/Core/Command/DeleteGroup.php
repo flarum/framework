@@ -10,7 +10,6 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\Group;
 use Flarum\Core\User;
 
 class DeleteGroup
