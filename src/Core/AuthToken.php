@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
-use DateTime;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use Flarum\Database\AbstractModel;
+use Flarum\Core\Exception\InvalidConfirmationTokenException;
+use DateTime;
 
 /**
  * @todo document database columns with @property

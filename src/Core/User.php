@@ -11,26 +11,26 @@
 namespace Flarum\Core;
 
 use DomainException;
-use Flarum\Core;
 use Flarum\Core\Access\Gate;
-use Flarum\Core\Notification;
-use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Foundation\Application;
+use Flarum\Core;
 use Flarum\Database\AbstractModel;
+use Flarum\Core\Notification;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PrepareUserGroups;
-use Flarum\Event\UserAvatarWasChanged;
-use Flarum\Event\UserBioWasChanged;
-use Flarum\Event\UserEmailChangeWasRequested;
-use Flarum\Event\UserEmailWasChanged;
-use Flarum\Event\UserPasswordWasChanged;
-use Flarum\Event\UserWasActivated;
+use Illuminate\Contracts\Hashing\Hasher;
 use Flarum\Event\UserWasDeleted;
+use Flarum\Event\PostWasDeleted;
 use Flarum\Event\UserWasRegistered;
 use Flarum\Event\UserWasRenamed;
-use Flarum\Foundation\Application;
-use Illuminate\Contracts\Hashing\Hasher;
+use Flarum\Event\UserEmailWasChanged;
+use Flarum\Event\UserPasswordWasChanged;
+use Flarum\Event\UserBioWasChanged;
+use Flarum\Event\UserAvatarWasChanged;
+use Flarum\Event\UserWasActivated;
+use Flarum\Event\UserEmailChangeWasRequested;
+use Flarum\Event\PrepareUserGroups;
+use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Core\Support\EventGeneratorTrait;
 
 /**
  * @property int $id

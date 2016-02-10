@@ -10,8 +10,6 @@
 
 namespace Flarum\Event;
 
-use Flarum\Extension\Extension;
-
 class ExtensionWasEnabled
 {
     /**
@@ -20,9 +18,9 @@ class ExtensionWasEnabled
     protected $extension;
 
     /**
-     * @param Extension $extension
+     * @param string $extension
      */
-    public function __construct(Extension $extension)
+    public function __construct($extension)
     {
         $this->extension = $extension;
     }

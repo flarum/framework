@@ -10,8 +10,8 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use Illuminate\Filesystem\Filesystem;
 
 class MigrationCreator
 {
@@ -111,7 +111,7 @@ class MigrationCreator
      */
     protected function getMigrationPath($extension)
     {
-        $parent = $extension ? public_path().'/extensions/'.$extension : __DIR__.'/../..';
+        $parent = $extension ? base_path().'/extensions/'.$extension : __DIR__.'/../..';
 
         return $parent.'/migrations';
     }

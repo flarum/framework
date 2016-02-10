@@ -10,6 +10,8 @@
 
 namespace Flarum\Asset;
 
+use Illuminate\Support\Str;
+
 class RevisionCompiler implements CompilerInterface
 {
     /**

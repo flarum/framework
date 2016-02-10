@@ -10,12 +10,14 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Event\SettingWasSet;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Event\SettingWasSet;
+use Flarum\Http\RouteCollection;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
-use Flarum\Http\RouteCollection;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\RedirectResponse;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {

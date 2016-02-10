@@ -10,13 +10,14 @@
 
 namespace Flarum\Install;
 
-use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\RouteCollection;
-use Flarum\Install\Prerequisite\Composite;
 use Flarum\Install\Prerequisite\PhpExtensions;
 use Flarum\Install\Prerequisite\PhpVersion;
 use Flarum\Install\Prerequisite\WritablePaths;
+use Flarum\Install\Prerequisite\Composite;
+use Flarum\Foundation\AbstractServiceProvider;
+use Psr\Http\Message\ServerRequestInterface;
 
 class InstallServiceProvider extends AbstractServiceProvider
 {
@@ -44,7 +45,7 @@ class InstallServiceProvider extends AbstractServiceProvider
                     new WritablePaths([
                         public_path(),
                         public_path('assets'),
-                        public_path('extensions'),
+                        base_path('extensions'),
                         storage_path(),
                     ])
                 );

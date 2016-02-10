@@ -10,18 +10,18 @@
 
 namespace Flarum\Api\Serializer;
 
-use Closure;
 use DateTime;
-use Flarum\Api\Relationship\HasManyBuilder;
-use Flarum\Api\Relationship\HasOneBuilder;
+use Closure;
 use Flarum\Core\User;
-use Flarum\Event\GetApiRelationship;
 use Flarum\Event\PrepareApiAttributes;
+use Flarum\Event\GetApiRelationship;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use InvalidArgumentException;
 use LogicException;
 use Tobscure\JsonApi\AbstractSerializer as BaseAbstractSerializer;
+use Flarum\Api\Relationship\HasOneBuilder;
+use Flarum\Api\Relationship\HasManyBuilder;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Relationship;
 use Tobscure\JsonApi\Relationship\BuilderInterface;

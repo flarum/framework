@@ -10,6 +10,7 @@
 
 namespace Flarum\Foundation;
 
+use Exception;
 use Flarum\Core;
 use Illuminate\Config\Repository as ConfigRepository;
 use Monolog\Formatter\LineFormatter;
@@ -21,7 +22,12 @@ abstract class AbstractServer
     /**
      * @var string
      */
-    protected $path;
+    protected $base_path;
+    
+    /**
+     * @var string
+     */
+    protected $public_path;
 
     /**
      * @var array
@@ -31,11 +37,12 @@ abstract class AbstractServer
     /**
      * @param string $path
      */
-    public function __construct($path)
+    public function __construct($public_path, $base_path)
     {
-        $this->path = $path;
+        $this->public_path = $public_path;
+        $this->base_path = $base_path;
 
-        if (file_exists($file = $this->path.'/config.php')) {
+        if (file_exists($file = $this->base_path.'/config.php')) {
             $this->config = include $file;
         }
     }
@@ -43,17 +50,33 @@ abstract class AbstractServer
     /**
      * @return string
      */
-    public function getPath()
+    public function getBasePath()
     {
-        return $this->path;
+        return $this->base_path;
     }
 
     /**
      * @param string $path
      */
-    public function setPath($path)
+    public function setBasePath($base_path)
     {
-        $this->path = $path;
+        $this->base_path = $base_path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublicPath()
+    {
+        return $this->public_path;
+    }
+    
+    /**
+     * @param string $path
+     */
+    public function setPublicPath($public_path)
+    {
+        $this->public_path = $public_path;
     }
 
     /**
@@ -79,7 +102,7 @@ abstract class AbstractServer
     {
         date_default_timezone_set('UTC');
 
-        $app = new Application($this->path);
+        $app = new Application($this->public_path, $this->base_path);
 
         $app->instance('env', 'production');
         $app->instance('flarum.config', $this->config);

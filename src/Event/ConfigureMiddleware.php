@@ -10,9 +10,9 @@
 
 namespace Flarum\Event;
 
-use Flarum\Admin\Server as AdminServer;
-use Flarum\Api\Server as ApiServer;
 use Flarum\Forum\Server as ForumServer;
+use Flarum\Api\Server as ApiServer;
+use Flarum\Admin\Server as AdminServer;
 use Flarum\Foundation\AbstractServer;
 use Zend\Stratigility\MiddlewarePipe;
 

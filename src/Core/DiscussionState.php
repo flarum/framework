@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Database\AbstractModel;
 use Flarum\Event\DiscussionWasRead;
+use Flarum\Database\AbstractModel;
+use Flarum\Core\Support\EventGeneratorTrait;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
