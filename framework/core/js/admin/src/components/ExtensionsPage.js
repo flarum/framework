@@ -11,7 +11,6 @@ import listItems from 'flarum/helpers/listItems';
 
 export default class ExtensionsPage extends Component {
   view() {
-    const extensions = Object.keys(app.extensions).map(id => app.extensions[id]);
 
     return (
       <div className="ExtensionsPage">
@@ -29,15 +28,15 @@ export default class ExtensionsPage extends Component {
         <div className="ExtensionsPage-list">
           <div className="container">
             <ul className="ExtensionList">
-              {extensions
-                .sort((a, b) => a.extra['flarum-extension'].title.localeCompare(b.extra['flarum-extension'].title))
-                .map(extension => {
+              {Object.keys(app.extensions)
+                .map(id => {
+                  const extension = app.extensions[id];
                   const controls = this.controlItems(extension.id).toArray();
 
                   return <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
                     <div className="ExtensionListItem-content">
-                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.extra['flarum-extension'].icon}>
-                        {extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''}
+                      <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
+                        {extension.icon ? icon(extension.icon.name) : ''}
                       </span>
                       {controls.length ? (
                         <Dropdown

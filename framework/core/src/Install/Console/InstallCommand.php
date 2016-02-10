@@ -343,7 +343,7 @@ class InstallCommand extends AbstractCommand
             'flarum-pusher',
         ];
 
-        foreach ($extensions->getInfo() as $name => $extension) {
+        foreach ($extensions->getExtensions() as $name => $extension) {
             if (in_array($name, $disabled)) {
                 continue;
             }
