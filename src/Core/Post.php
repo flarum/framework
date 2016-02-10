@@ -12,12 +12,13 @@ namespace Flarum\Core;
 
 use DomainException;
 use Flarum\Core\Post\RegisteredTypesScope;
-use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Event\PostWasDeleted;
+use Flarum\Database\AbstractModel;
+use Flarum\Core\User;
 use Flarum\Core\Support\Locked;
 use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Core\Support\EventGeneratorTrait;
 use Flarum\Core\Support\ValidateBeforeSaveTrait;
-use Flarum\Database\AbstractModel;
-use Flarum\Event\PostWasDeleted;
 use Illuminate\Database\Eloquent\Builder;
 
 /**

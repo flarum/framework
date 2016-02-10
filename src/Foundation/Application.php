@@ -10,12 +10,12 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Container\Container;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Events\EventServiceProvider;
 
 class Application extends Container implements ApplicationContract
 {
@@ -32,6 +32,13 @@ class Application extends Container implements ApplicationContract
      * @var string
      */
     protected $basePath;
+    
+    /**
+     * The public path for the Flarum installation.
+     *
+     * @var string
+     */
+    protected $publicPath;
 
     /**
      * Indicates if the application has "booted".
@@ -85,9 +92,10 @@ class Application extends Container implements ApplicationContract
     /**
      * Create a new Flarum application instance.
      *
+     * @param string|null $publicPath
      * @param string|null $basePath
      */
-    public function __construct($basePath = null)
+    public function __construct($publicPath = null, $basePath = null)
     {
         $this->registerBaseBindings();
 
@@ -97,6 +105,10 @@ class Application extends Container implements ApplicationContract
 
         if ($basePath) {
             $this->setBasePath($basePath);
+        }
+
+        if ($publicPath) {
+            $this->setPublicPath($publicPath);
         }
     }
 
@@ -213,6 +225,21 @@ class Application extends Container implements ApplicationContract
 
         return $this;
     }
+    
+    /**
+     * Set the public path for the application.
+     *
+     * @param string $publicPath
+     * @return $this
+     */
+    public function setPublicPath($publicPath)
+    {
+        $this->publicPath = rtrim($publicPath, '\/');
+
+        $this->bindPathsInContainer();
+
+        return $this;
+    }
 
     /**
      * Bind all of the application paths in the container.
@@ -243,7 +270,7 @@ class Application extends Container implements ApplicationContract
      */
     public function publicPath()
     {
-        return $this->basePath;
+        return $this->publicPath;
     }
 
     /**

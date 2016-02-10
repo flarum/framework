@@ -25,7 +25,7 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         $extensions = json_decode($config, true);
 
         foreach ($extensions as $extension) {
-            if (file_exists($file = public_path().'/extensions/'.$extension.'/bootstrap.php')) {
+            if (file_exists($file = base_path().'/extensions/'.$extension.'/bootstrap.php')) {
                 $bootstrapper = require $file;
 
                 $this->app->call($bootstrapper);

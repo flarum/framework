@@ -39,8 +39,9 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Create a new database migration repository instance.
      *
-     * @param  \Illuminate\Database\ConnectionResolverInterface $resolver
-     * @param  string                                           $table
+     * @param  \Illuminate\Database\ConnectionResolverInterface  $resolver
+     * @param  string  $table
+     * @return void
      */
     public function __construct(Resolver $resolver, $table)
     {

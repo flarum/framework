@@ -343,7 +343,7 @@ class InstallCommand extends AbstractCommand
             'flarum-pusher',
         ];
 
-        foreach ($extensions->getExtensions() as $name => $extension) {
+        foreach ($extensions->getInfo() as $name => $extension) {
             if (in_array($name, $disabled)) {
                 continue;
             }
@@ -362,7 +362,7 @@ class InstallCommand extends AbstractCommand
     {
         $this->filesystem->copyDirectory(
             __DIR__.'/../../../assets',
-            $this->application->basePath().'/assets'
+            $this->application-publicPath().'/assets'
         );
     }
 

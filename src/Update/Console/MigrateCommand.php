@@ -74,8 +74,8 @@ class MigrateCommand extends AbstractCommand
 
         $migrator = $extensions->getMigrator();
 
-        foreach ($extensions->getExtensions() as $name => $extension) {
-            if (! $extension->isEnabled()) {
+        foreach ($extensions->getInfo() as $name => $extension) {
+            if (! $extensions->isEnabled($name)) {
                 continue;
             }
 

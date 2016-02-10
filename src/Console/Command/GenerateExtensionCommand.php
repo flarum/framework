@@ -53,7 +53,7 @@ class GenerateExtensionCommand extends AbstractCommand
 
         $this->info('Generating extension skeleton for "'.$name.'"...');
 
-        $dir = public_path().'/extensions/'.$name;
+        $dir = base_path().'/extensions/'.$name;
 
         $replacements = [
             '{{namespace}}' => $namespace,

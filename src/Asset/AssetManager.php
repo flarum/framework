@@ -11,6 +11,7 @@
 namespace Flarum\Asset;
 
 use DomainException;
+use Flarum\Asset\CompilerInterface;
 
 class AssetManager
 {

@@ -10,13 +10,14 @@
 
 namespace Flarum\Core\Post;
 
+use DomainException;
 use Flarum\Core\Post;
-use Flarum\Core\User;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRestored;
-use Flarum\Event\PostWasRevised;
 use Flarum\Formatter\Formatter;
+use Flarum\Event\PostWasPosted;
+use Flarum\Event\PostWasRevised;
+use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasRestored;
+use Flarum\Core\User;
 
 /**
  * A standard comment in a discussion.
