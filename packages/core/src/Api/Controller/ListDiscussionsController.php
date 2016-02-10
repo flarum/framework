@@ -10,9 +10,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\Discussion\DiscussionSearcher;
 use Flarum\Api\UrlGenerator;
+use Flarum\Core\Search\Discussion\DiscussionSearcher;
+use Flarum\Core\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
