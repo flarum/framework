@@ -72,7 +72,7 @@ class ClientController extends BaseClientController
 
         $view->setVariable('settings', $settings);
         $view->setVariable('permissions', Permission::map());
-        $view->setVariable('extensions', $this->extensions->getInfo());
+        $view->setVariable('extensions', $this->extensions->getExtensions()->toArray());
 
         return $view;
     }
