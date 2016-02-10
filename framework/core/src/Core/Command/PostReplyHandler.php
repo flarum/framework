@@ -12,12 +12,12 @@ namespace Flarum\Core\Command;
 
 use DateTime;
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Core\Post\CommentPost;
+use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
-use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Post\CommentPost;
-use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\Notification\NotificationSyncer;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class PostReplyHandler

@@ -13,8 +13,8 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\UserRepository;
-use Flarum\Event\UserWillBeDeleted;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Event\UserWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteUserHandler

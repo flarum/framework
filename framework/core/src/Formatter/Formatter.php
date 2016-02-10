@@ -10,13 +10,13 @@
 
 namespace Flarum\Formatter;
 
+use Flarum\Event\ConfigureFormatter;
+use Flarum\Event\ConfigureFormatterParser;
+use Flarum\Event\ConfigureFormatterRenderer;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Unparser;
-use Flarum\Event\ConfigureFormatter;
-use Flarum\Event\ConfigureFormatterParser;
-use Flarum\Event\ConfigureFormatterRenderer;
 
 class Formatter
 {

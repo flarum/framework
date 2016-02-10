@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Command\RequestPasswordReset;
+use Flarum\Core\Repository\UserRepository;
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
