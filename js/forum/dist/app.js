@@ -21671,12 +21671,8 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
             var discussion = this.props.discussion;
 
             if (discussion.isUnread()) {
-              var confirmation = confirm(app.translator.trans('core.forum.discussion_list.mark_all_as_read_confirmation'));
-
-              if (confirmation) {
-                discussion.save({ readNumber: discussion.lastPostNumber() });
-                m.redraw();
-              }
+              discussion.save({ readNumber: discussion.lastPostNumber() });
+              m.redraw();
             }
           }
 
