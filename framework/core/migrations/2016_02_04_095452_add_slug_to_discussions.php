@@ -10,7 +10,6 @@
 
 namespace Flarum\Core\Migration;
 
-use Flarum\Core\Discussion;
 use Flarum\Database\AbstractMigration;
 use Flarum\Util\Str;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,10 +23,11 @@ class AddSlugToDiscussions extends AbstractMigration
         });
 
         // Store slugs for existing discussions
-        Discussion::chunk(100, function ($discussions) {
+        $this->schema->getConnection()->table('discussions')->chunk(100, function ($discussions) {
             foreach ($discussions as $discussion) {
-                $discussion->slug = Str::slug($discussion->title);
-                $discussion->save();
+                $this->schema->getConnection()->table('discussions')->where('id', $discussion->id)->update([
+                    'slug' => Str::slug($discussion->title)
+                ]);
             }
         });
     }
