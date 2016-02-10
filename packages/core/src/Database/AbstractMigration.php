@@ -10,8 +10,8 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Database\Schema\Builder;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Database\Schema\Builder;
 
 abstract class AbstractMigration
 {

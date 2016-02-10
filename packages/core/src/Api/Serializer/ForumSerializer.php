@@ -10,8 +10,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Foundation\Application;
 use Flarum\Core\Access\Gate;
+use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class ForumSerializer extends AbstractSerializer
