@@ -11,8 +11,8 @@
 namespace Flarum\Event;
 
 use Flarum\Core\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * The `ScopeModelVisibility` event allows constraints to be applied in a query

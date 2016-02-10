@@ -10,8 +10,6 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Group;
-
 class Guest extends User
 {
     /**

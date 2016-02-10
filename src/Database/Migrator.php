@@ -11,9 +11,9 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Support\Str;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class Migrator
 {

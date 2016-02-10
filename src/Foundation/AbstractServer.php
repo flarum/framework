@@ -10,7 +10,6 @@
 
 namespace Flarum\Foundation;
 
-use Exception;
 use Flarum\Core;
 use Illuminate\Config\Repository as ConfigRepository;
 use Monolog\Formatter\LineFormatter;

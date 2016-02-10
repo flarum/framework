@@ -13,8 +13,8 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\PostRepository;
-use Flarum\Event\PostWillBeDeleted;
 use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Event\PostWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeletePostHandler
