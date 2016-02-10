@@ -48,7 +48,7 @@ app.initializers.add('flarum-mentions', function() {
     });
   });
 
-  // Add add mentions tab in user profile
+  // Add mentions tab in user profile
   app.routes['user.mentions'] = {path: '/u/:username/mentions', component: MentionsUserPage.component()};
   extend(UserPage.prototype, 'navItems', function(items) {
     const user = this.user;
