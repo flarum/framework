@@ -51,8 +51,8 @@ export default function addComposerAutocomplete() {
         emojiStart = 0;
         for (let i = cursor - 1; i >= 0; i--) {
           const character = value.substr(i, 1);
-          if (/\s/.test(character)) break;
-          if (character === ':') {
+          if (!/[a-z0-9]|\+|\-|_|\:/.test(character)) break;
+          if (character === ':' && (i == 0 || value.substr(i-1, 1) === ' ')) {
             emojiStart = i + 1;
             break;
           }

@@ -183,8 +183,8 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
         emojiStart = 0;
         for (var i = cursor - 1; i >= 0; i--) {
           var character = value.substr(i, 1);
-          if (/\s/.test(character)) break;
-          if (character === ':') {
+          if (!/[a-z0-9]|\+|\-|_|\:/.test(character)) break;
+          if (character === ':' && (i == 0 || value.substr(i - 1, 1) === ' ')) {
             emojiStart = i + 1;
             break;
           }
