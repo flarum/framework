@@ -42,10 +42,12 @@ class UpdateExtensionController implements ControllerInterface
         $enabled = array_get($request->getParsedBody(), 'enabled');
         $name = array_get($request->getQueryParams(), 'name');
 
+        $extension = $this->extensions->getExtension($name);
+
         if ($enabled === true) {
-            $this->extensions->enable($name);
+            $this->extensions->enable($extension);
         } elseif ($enabled === false) {
-            $this->extensions->disable($name);
+            $this->extensions->disable($extension);
         }
     }
 }
