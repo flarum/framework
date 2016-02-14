@@ -86,9 +86,18 @@ class Extension implements Arrayable
      */
     public function __construct($path, $composerJson)
     {
-        $this->id           = end(explode('/', $path));
         $this->path         = $path;
         $this->composerJson = $composerJson;
+        $this->assignId();
+    }
+
+    /**
+     * Assigns the id for the extension used globally.
+     */
+    protected function assignId()
+    {
+        $segments = explode('/', $this->path);
+        $this->id = end($segments);
     }
 
     /**
