@@ -237,9 +237,10 @@ class Extension implements Arrayable
      *
      * @return bool
      */
-    public function hasMigrations()
+    public function getNamespace()
     {
-        return realpath($this->path . '/migrations/') !== false;
+        $namespaces = array_keys($this->autoload);
+        return count($namespaces) ? head($namespaces) : null;
     }
 
     /**

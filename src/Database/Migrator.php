@@ -247,9 +247,8 @@ class Migrator
     {
         $file = implode('_', array_slice(explode('_', $file), 4));
 
-        // flagrow/image-upload
         if ($extension) {
-            $class = str_replace('/', '\\', $extension->name);
+            $class = $extension->getNamespace();
         } else {
             $class = 'Flarum\\Core';
         }
