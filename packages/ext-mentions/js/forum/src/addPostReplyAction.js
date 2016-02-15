@@ -3,11 +3,15 @@ import Button from 'flarum/components/Button';
 import CommentPost from 'flarum/components/CommentPost';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 
-export default function() {
-  extend(CommentPost.prototype, 'actionItems', function(items) {
+export default function () {
+  extend(CommentPost.prototype, 'actionItems', function (items) {
     const post = this.props.post;
 
     if (post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
+
+    function calculatePrecedingNewlines(precedingContent) {
+      return precedingContent.length == 0 ? 0 : 3 - precedingContent.match(/(\n{0,2})$/)[0].length;
+    }
 
     function insertMention(component, quote) {
       const user = post.user();
@@ -22,10 +26,9 @@ export default function() {
 
       const cursorPosition = component.editor.getSelectionRange()[0];
       const precedingContent = component.editor.value().slice(0, cursorPosition);
-      const trailingNewlines = precedingContent.match(/(\n{0,2})$/)[0].length;
 
       component.editor.insertAtCursor(
-        Array(3 - trailingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
+        Array(calculatePrecedingNewlines(precedingContent)).join('\n') + // Insert up to two newlines, depending on preceding whitespace
         (quote
           ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n'
           : mention)
