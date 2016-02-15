@@ -243,6 +243,16 @@ class Extension implements Arrayable
     }
 
     /**
+     * Identify the namespace of the extension from the composer file.
+     *
+     * @return string
+     */
+    public function getNamespace()
+    {
+        return key(array_pop($this->autoload));
+    }
+
+    /**
      * Generates an array result for the object.
      *
      * @return array
