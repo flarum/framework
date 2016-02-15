@@ -80,13 +80,13 @@ class ForumServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/settings',
             'settings',
-            $toController('Flarum\Forum\Controller\ClientController')
+            $toController('Flarum\Forum\Controller\AuthorizedClientController')
         );
 
         $routes->get(
             '/notifications',
             'notifications',
-            $toController('Flarum\Forum\Controller\ClientController')
+            $toController('Flarum\Forum\Controller\AuthorizedClientController')
         );
 
         $routes->get(
