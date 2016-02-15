@@ -44,14 +44,17 @@ export default function addComposerAutocomplete() {
 
         if (this.selectionEnd - cursor > 0) return;
 
-        // Search backwards from the cursor for an ':' symbol, without any
-        // intervening whitespace. If we find one, we will want to show the
+        // Search backwards from the cursor for an ':' symbol. If we find
+        // one and followed by a whitespace, we will want to show the
         // autocomplete dropdown!
         const value = this.value;
         emojiStart = 0;
         for (let i = cursor - 1; i >= 0; i--) {
           const character = value.substr(i, 1);
+          // check what user typed, emoji names only contains alphanumeric,
+          // underline, '+' and '-'
           if (!/[a-z0-9]|\+|\-|_|\:/.test(character)) break;
+          // make sure ':' followed by a whitespace
           if (character === ':' && (i == 0 || value.substr(i-1, 1) === ' ')) {
             emojiStart = i + 1;
             break;
