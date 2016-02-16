@@ -223,6 +223,14 @@ class Extension implements Arrayable
     }
 
     /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
      * Tests whether the extension has assets.
      *
      * @return bool
@@ -240,6 +248,35 @@ class Extension implements Arrayable
     public function hasMigrations()
     {
         return realpath($this->path . '/migrations/') !== false;
+    }
+
+    /**
+     * Identifies Extension namespace based on autoload from composer.
+     *
+     * @return string|null
+     */
+    public function getNamespace()
+    {
+        // Try identifying based on psr-4/2 whatever comes first in autoload.
+        if (is_array($this->autoload) && count($this->autoload)) {
+            return head(array_keys(head($this->autoload)));
+        }
+
+        // Identify based on package name; which is less safe.
+        return Str::studly(str_replace('/', '\\', $this->getCleanedPackageName()));
+    }
+
+    /**
+     * Support for cleaned up extension package names.
+     *
+     * @return string
+     */
+    public function getCleanedPackageName()
+    {
+        list($vendor, $name) = explode('/', $this->name);
+        $name = str_replace(['flarum-ext-', 'flarum-'], null, $name);
+
+        return implode('/', [$vendor, $name]);
     }
 
     /**

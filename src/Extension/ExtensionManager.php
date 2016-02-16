@@ -88,7 +88,6 @@ class ExtensionManager
                 $extensions->put($dir, $extension);
             }
         }
-
         return $extensions->sortBy(function ($extension, $name) {
             return $extension->composerJsonAttribute('extra.flarum-extension.title');
         });
@@ -182,7 +181,7 @@ class ExtensionManager
     {
         if ($extension->hasAssets()) {
             $this->filesystem->copyDirectory(
-                $this->app->basePath() . '/extensions/' . $extension->getId() . '/assets',
+                $extension->getPath() . '/assets',
                 $this->app->basePath() . '/assets/extensions/' . $extension->getId()
             );
         }
@@ -219,7 +218,7 @@ class ExtensionManager
     public function migrate(Extension $extension, $up = true)
     {
         if ($extension->hasMigrations()) {
-            $migrationDir = public_path('extensions/' . $extension->getId() . '/migrations');
+            $migrationDir = $extension->getPath() . '/migrations';
 
             $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
                 return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
@@ -240,7 +239,7 @@ class ExtensionManager
      */
     public function migrateDown(Extension $extension)
     {
-        $this->migrate($extension->getId(), false);
+        $this->migrate($extension, false);
     }
 
     public function getMigrator()
