@@ -11,7 +11,6 @@
 namespace Flarum\Foundation;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Foundation\Application;
 
 abstract class AbstractServiceProvider extends ServiceProvider
 {
