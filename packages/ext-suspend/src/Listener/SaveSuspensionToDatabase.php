@@ -10,6 +10,7 @@
 
 namespace Flarum\Suspend\Listener;
 
+use Illuminate\Support\Arr;
 use Carbon\Carbon;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\UserWillBeSaved;
@@ -50,16 +51,18 @@ class SaveSuspensionToDatabase
     {
         $attributes = array_get($event->data, 'attributes', []);
 
-        if (array_key_exists('suspendUntil', $attributes)) {
-            $this->validator->assertValid($attributes);
-
-            $suspendUntil = $attributes['suspendUntil'];
-            $user = $event->user;
-            $actor = $event->actor;
-
-            $this->assertCan($actor, 'suspend', $user);
-
-            $user->suspend_until = new Carbon($suspendUntil);
+        $suspendUntil = Arr::get($attributes, 'suspendUntil');
+        if ($suspendUntil) {
+            $suspendUntil = new Carbon($suspendUntil);
         }
+
+        $this->validator->assertValid($attributes);
+
+        $user = $event->user;
+        $actor = $event->actor;
+
+        $this->assertCan($actor, 'suspend', $user);
+
+        $user->suspend_until = $suspendUntil;
     }
 }
