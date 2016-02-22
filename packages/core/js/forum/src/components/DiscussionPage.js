@@ -184,7 +184,7 @@ export default class DiscussionPage extends Page {
     // the specific post that was routed to.
     this.stream = new PostStream({discussion, includedPosts});
     this.stream.on('positionChanged', this.positionChanged.bind(this));
-    this.stream.goToNumber(m.route.param('near') || includedPosts[0].number(), true);
+    this.stream.goToNumber(m.route.param('near') || (includedPosts[0] && includedPosts[0].number()), true);
   }
 
   /**

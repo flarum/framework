@@ -98,7 +98,9 @@ Object.assign(Discussion.prototype, {
    * @public
    */
   postIds() {
-    return this.data.relationships.posts.data.map(link => link.id);
+    const posts = this.data.relationships.posts;
+
+    return posts ? posts.data.map(link => link.id) : [];
   }
 });
 

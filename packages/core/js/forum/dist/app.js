@@ -21928,7 +21928,7 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
             // the specific post that was routed to.
             this.stream = new PostStream({ discussion: discussion, includedPosts: includedPosts });
             this.stream.on('positionChanged', this.positionChanged.bind(this));
-            this.stream.goToNumber(m.route.param('near') || includedPosts[0].number(), true);
+            this.stream.goToNumber(m.route.param('near') || includedPosts[0] && includedPosts[0].number(), true);
           }
 
           /**
@@ -31433,9 +31433,11 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
          * @public
          */
         postIds: function postIds() {
-          return this.data.relationships.posts.data.map(function (link) {
+          var posts = this.data.relationships.posts;
+
+          return posts ? posts.data.map(function (link) {
             return link.id;
-          });
+          }) : [];
         }
       });
 
