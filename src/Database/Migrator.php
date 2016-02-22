@@ -248,16 +248,14 @@ class Migrator
         $file = implode('_', array_slice(explode('_', $file), 4));
 
         if ($extension) {
-            $class = $extension->getNamespace();
+            $class = $extension->getMigrationNamespace();
         } else {
-            $class = 'Flarum\\Core\\';
+            $class = 'Flarum\\Core\\Migration\\';
         }
 
         if (substr($class, -1) != '\\') {
             $class .= '\\';
         }
-
-        $class .= 'Migration\\';
 
         $class .= Str::studly($file);
 

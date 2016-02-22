@@ -251,20 +251,40 @@ class Extension implements Arrayable
     }
 
     /**
+     * Identifies Extension migration namespace.
+     *
+     * @return string
+     */
+    public function getMigrationNamespace()
+    {
+        return Arr::get($this->composerJson, 'extra.flarum-extension.migrations', $this->getNamespace() . '\\Migration\\');
+    }
+
+    /**
      * Identifies Extension namespace based on autoload from composer.
      *
      * @return string|null
      */
     public function getNamespace()
     {
-
         // Try identifying based on psr-4/2 whatever comes first in autoload.
-        if(is_array($this->autoload) && count($this->autoload)) {
+        if (is_array($this->autoload) && count($this->autoload)) {
             return head(array_keys(head($this->autoload)));
         }
+        return Str::studly(str_replace('/', '\\', $this->getCleanedPackageName()));
+    }
 
-        // Identify based on package name; which is less safe.
-        return Str::studly(str_replace('/', '\\', $this->name));
+    /**
+     * Support for cleaned up extension package names.
+     *
+     * @return string
+     */
+    public function getCleanedPackageName()
+    {
+        list($vendor, $name) = explode('/', $this->name);
+        $name = str_replace(['flarum-ext-', 'flarum-'], null, $name);
+
+        return implode('/', [$vendor, $name]);
     }
 
     /**
