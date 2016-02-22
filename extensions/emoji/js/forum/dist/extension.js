@@ -186,8 +186,8 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
           // check what user typed, emoji names only contains alphanumeric,
           // underline, '+' and '-'
           if (!/[a-z0-9]|\+|\-|_|\:/.test(character)) break;
-          // make sure ':' followed by a whitespace
-          if (character === ':' && (i == 0 || value.substr(i - 1, 1) === ' ')) {
+          // make sure ':' followed by a whitespace or newline
+          if (character === ':' && (i == 0 || /\s/.test(value.substr(i - 1, 1)))) {
             emojiStart = i + 1;
             break;
           }
