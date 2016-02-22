@@ -24095,7 +24095,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                   { className: 'Form-group' },
                   m('input', { className: 'FormControl', name: 'email', type: 'text', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
                     value: this.email(),
-                    onchange: m.withAttr('value', this.email),
+                    oninput: m.withAttr('value', this.email),
                     disabled: this.loading })
                 ),
                 m(
@@ -24103,7 +24103,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                   { className: 'Form-group' },
                   m('input', { className: 'FormControl', name: 'password', type: 'password', placeholder: extractText(app.translator.trans('core.forum.log_in.password_placeholder')),
                     value: this.password(),
-                    onchange: m.withAttr('value', this.password),
+                    oninput: m.withAttr('value', this.password),
                     disabled: this.loading })
                 ),
                 m(
