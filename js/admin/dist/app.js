@@ -22244,9 +22244,11 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
          * @public
          */
         postIds: function postIds() {
-          return this.data.relationships.posts.data.map(function (link) {
+          var posts = this.data.relationships.posts;
+
+          return posts ? posts.data.map(function (link) {
             return link.id;
-          });
+          }) : [];
         }
       });
 
