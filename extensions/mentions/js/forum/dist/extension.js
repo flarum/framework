@@ -650,10 +650,10 @@ System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/
             }
 
             var cursorPosition = component.editor.getSelectionRange()[0];
-            var precedingContent = component.editor.value().slice(0, cursorPosition);
-            var trailingNewlines = precedingContent.match(/(\n{0,2})$/)[0].length;
+            var preceding = component.editor.value().slice(0, cursorPosition);
+            var precedingNewlines = preceding.length == 0 ? 0 : 3 - preceding.match(/(\n{0,2})$/)[0].length;
 
-            component.editor.insertAtCursor(Array(3 - trailingNewlines).join('\n') + ( // Insert up to two newlines, depending on preceding whitespace
+            component.editor.insertAtCursor(Array(precedingNewlines).join('\n') + ( // Insert up to two newlines, depending on preceding whitespace
             quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention));
           }
 
@@ -811,6 +811,55 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
       })(Component);
 
       _export('default', AutocompleteDropdown);
+    }
+  };
+});;
+System.register('flarum/mentions/components/MentionsUserPage', ['flarum/components/PostsUserPage'], function (_export) {
+
+  /**
+   * The `MentionsUserPage` component shows post which user Mentioned at
+   */
+  'use strict';
+
+  var PostsUserPage, MentionsUserPage;
+  return {
+    setters: [function (_flarumComponentsPostsUserPage) {
+      PostsUserPage = _flarumComponentsPostsUserPage['default'];
+    }],
+    execute: function () {
+      MentionsUserPage = (function (_PostsUserPage) {
+        babelHelpers.inherits(MentionsUserPage, _PostsUserPage);
+
+        function MentionsUserPage() {
+          babelHelpers.classCallCheck(this, MentionsUserPage);
+          babelHelpers.get(Object.getPrototypeOf(MentionsUserPage.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(MentionsUserPage, [{
+          key: 'loadResults',
+
+          /**
+           * Load a new page of the user's activity feed.
+           *
+           * @param {Integer} [offset] The position to start getting results from.
+           * @return {Promise}
+           * @protected
+           */
+          value: function loadResults(offset) {
+            return app.store.find('posts', {
+              filter: {
+                type: 'comment',
+                mentioned: this.user.id()
+              },
+              page: { offset: offset, limit: this.loadLimit },
+              sort: '-time'
+            });
+          }
+        }]);
+        return MentionsUserPage;
+      })(PostsUserPage);
+
+      _export('default', MentionsUserPage);
     }
   };
 });;
@@ -993,7 +1042,7 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
           });
         });
 
-        // Add add mentions tab in user profile
+        // Add mentions tab in user profile
         app.routes['user.mentions'] = { path: '/u/:username/mentions', component: MentionsUserPage.component() };
         extend(UserPage.prototype, 'navItems', function (items) {
           var user = this.user;
@@ -1007,55 +1056,6 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
 
         getPlainContent.removeSelectors.push('a.PostMention');
       });
-    }
-  };
-});;
-System.register('flarum/mentions/components/MentionsUserPage', ['flarum/components/PostsUserPage'], function (_export) {
-
-  /**
-   * The `MentionsUserPage` component shows post which user Mentioned at
-   */
-  'use strict';
-
-  var PostsUserPage, MentionsUserPage;
-  return {
-    setters: [function (_flarumComponentsPostsUserPage) {
-      PostsUserPage = _flarumComponentsPostsUserPage['default'];
-    }],
-    execute: function () {
-      MentionsUserPage = (function (_PostsUserPage) {
-        babelHelpers.inherits(MentionsUserPage, _PostsUserPage);
-
-        function MentionsUserPage() {
-          babelHelpers.classCallCheck(this, MentionsUserPage);
-          babelHelpers.get(Object.getPrototypeOf(MentionsUserPage.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(MentionsUserPage, [{
-          key: 'loadResults',
-
-          /**
-           * Load a new page of the user's activity feed.
-           *
-           * @param {Integer} [offset] The position to start getting results from.
-           * @return {Promise}
-           * @protected
-           */
-          value: function loadResults(offset) {
-            return app.store.find('posts', {
-              filter: {
-                type: 'comment',
-                mentioned: this.user.id()
-              },
-              page: { offset: offset, limit: this.loadLimit },
-              sort: '-time'
-            });
-          }
-        }]);
-        return MentionsUserPage;
-      })(PostsUserPage);
-
-      _export('default', MentionsUserPage);
     }
   };
 });
