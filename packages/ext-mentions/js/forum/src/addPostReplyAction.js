@@ -9,10 +9,6 @@ export default function () {
 
     if (post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
 
-    function calculatePrecedingNewlines(precedingContent) {
-      return precedingContent.length == 0 ? 0 : 3 - precedingContent.match(/(\n{0,2})$/)[0].length;
-    }
-
     function insertMention(component, quote) {
       const user = post.user();
       const mention = '@' + (user ? user.username() : post.number()) + '#' + post.id() + ' ';
@@ -25,10 +21,11 @@ export default function () {
       }
 
       const cursorPosition = component.editor.getSelectionRange()[0];
-      const precedingContent = component.editor.value().slice(0, cursorPosition);
+      const preceding = component.editor.value().slice(0, cursorPosition);
+      const precedingNewlines = preceding.length == 0 ? 0 : 3 - preceding.match(/(\n{0,2})$/)[0].length;
 
       component.editor.insertAtCursor(
-        Array(calculatePrecedingNewlines(precedingContent)).join('\n') + // Insert up to two newlines, depending on preceding whitespace
+        Array(precedingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
         (quote
           ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n'
           : mention)
