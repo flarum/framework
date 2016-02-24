@@ -8,26 +8,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateUsersDiscussionsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('users_discussions', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('users_discussions', function (Blueprint $table) {
             $table->integer('user_id')->unsigned();
             $table->integer('discussion_id')->unsigned();
             $table->dateTime('read_time')->nullable();
             $table->integer('read_number')->unsigned()->nullable();
             $table->primary(['user_id', 'discussion_id']);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('users_discussions');
+    'down' => function (Builder $schema) {
+        $schema->drop('users_discussions');
     }
-}
+];

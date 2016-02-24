@@ -8,16 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateNotificationsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('notifications', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('notifications', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->integer('sender_id')->unsigned()->nullable();
@@ -29,10 +25,9 @@ class CreateNotificationsTable extends AbstractMigration
             $table->boolean('is_read')->default(0);
             $table->boolean('is_deleted')->default(0);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('notifications');
+    'down' => function (Builder $schema) {
+        $schema->drop('notifications');
     }
-}
+];
