@@ -8,19 +8,6 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->renameColumn('notification_read_time', 'notifications_read_time');
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->renameColumn('notifications_read_time', 'notification_read_time');
-        });
-    }
-];
+return Migration::renameColumn('users', 'notification_read_time', 'notifications_read_time');

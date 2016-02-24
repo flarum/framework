@@ -8,19 +8,14 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->create('auth_tokens', function (Blueprint $table) {
-            $table->string('id', 100)->primary();
-            $table->string('payload', 150);
-            $table->timestamp('created_at');
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->drop('auth_tokens');
+return Migration::createTable(
+    'auth_tokens',
+    function (Blueprint $table) {
+        $table->string('id', 100)->primary();
+        $table->string('payload', 150);
+        $table->timestamp('created_at');
     }
-];
+);

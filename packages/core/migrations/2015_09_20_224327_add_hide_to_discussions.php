@@ -8,20 +8,9 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
-            $table->dateTime('hide_time')->nullable();
-            $table->integer('hide_user_id')->unsigned()->nullable();
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
-            $table->dropColumn(['hide_time', 'hide_user_id']);
-        });
-    }
-];
+return Migration::addColumns('discussions', [
+    'hide_time' => ['dateTime', 'nullable' => true],
+    'hide_user_id' => ['integer', 'unsigned' => true, 'nullable' => true]
+]);

@@ -8,19 +8,14 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->create('permissions', function (Blueprint $table) {
-            $table->integer('group_id')->unsigned();
-            $table->string('permission', 100);
-            $table->primary(['group_id', 'permission']);
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->drop('permissions');
+return Migration::createTable(
+    'permissions',
+    function (Blueprint $table) {
+        $table->integer('group_id')->unsigned();
+        $table->string('permission', 100);
+        $table->primary(['group_id', 'permission']);
     }
-];
+);
