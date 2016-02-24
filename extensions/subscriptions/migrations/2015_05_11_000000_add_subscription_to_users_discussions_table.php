@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Subscriptions\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddSubscriptionToUsersDiscussionsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('users_discussions', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('users_discussions', function (Blueprint $table) {
             $table->enum('subscription', ['follow', 'ignore'])->nullable();
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->table('users_discussions', function (Blueprint $table) {
+    'down' => function (Builder $schema) {
+        $schema->table('users_discussions', function (Blueprint $table) {
             $table->dropColumn('subscription');
         });
     }
-}
+];
