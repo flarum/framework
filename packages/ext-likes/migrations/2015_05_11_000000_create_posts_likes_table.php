@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Likes\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreatePostsLikesTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('posts_likes', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('posts_likes', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->primary(['post_id', 'user_id']);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('posts_likes');
+    'down' => function (Builder $schema) {
+        $schema->drop('posts_likes');
     }
-}
+];
