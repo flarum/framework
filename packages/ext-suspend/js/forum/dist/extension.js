@@ -125,7 +125,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
             var suspendUntil = null;
             switch (this.status()) {
               case 'indefinitely':
-                suspendUntil = new Date('9999-12-31');
+                suspendUntil = new Date('2038-01-01');
                 break;
 
               case 'limited':
