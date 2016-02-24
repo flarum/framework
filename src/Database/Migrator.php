@@ -247,14 +247,15 @@ class Migrator
     {
         $file = implode('_', array_slice(explode('_', $file), 4));
 
-        // flagrow/image-upload
         if ($extension) {
-            $class = str_replace('/', '\\', $extension->name);
+            $class = $extension->getMigrationNamespace();
         } else {
-            $class = 'Flarum\\Core';
+            $class = 'Flarum\\Core\\Migration\\';
         }
 
-        $class .= '\\Migration\\';
+        if (substr($class, -1) != '\\') {
+            $class .= '\\';
+        }
 
         $class .= Str::studly($file);
 
