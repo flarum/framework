@@ -8,25 +8,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Migration;
+use Flarum\Settings\SettingsRepositoryInterface;
 
-use Flarum\Database\AbstractMigration;
+return [
+    'up' => function (SettingsRepositoryInterface $settings) {
+        $settings->set('flarum-tags.max_primary_tags', '1');
+        $settings->set('flarum-tags.min_primary_tags', '1');
+        $settings->set('flarum-tags.max_secondary_tags', '3');
+        $settings->set('flarum-tags.min_secondary_tags', '0');
+    },
 
-class SetDefaultSettings extends AbstractMigration
-{
-    public function up()
-    {
-        $this->settings->set('flarum-tags.max_primary_tags', '1');
-        $this->settings->set('flarum-tags.min_primary_tags', '1');
-        $this->settings->set('flarum-tags.max_secondary_tags', '3');
-        $this->settings->set('flarum-tags.min_secondary_tags', '0');
+    'down' => function (SettingsRepositoryInterface $settings) {
+        $settings->delete('flarum-tags.max_primary_tags');
+        $settings->delete('flarum-tags.max_secondary_tags');
+        $settings->delete('flarum-tags.min_primary_tags');
+        $settings->delete('flarum-tags.min_secondary_tags');
     }
-
-    public function down()
-    {
-        $this->settings->delete('flarum-tags.max_primary_tags');
-        $this->settings->delete('flarum-tags.max_secondary_tags');
-        $this->settings->delete('flarum-tags.min_primary_tags');
-        $this->settings->delete('flarum-tags.min_secondary_tags');
-    }
-}
+];
