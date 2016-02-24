@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Approval\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddIsApprovedToPosts extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('posts', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('posts', function (Blueprint $table) {
             $table->boolean('is_approved')->default(1);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->table('posts', function (Blueprint $table) {
+    'down' => function (Builder $schema) {
+        $schema->table('posts', function (Blueprint $table) {
             $table->dropColumn('is_approved');
         });
     }
-}
+];
