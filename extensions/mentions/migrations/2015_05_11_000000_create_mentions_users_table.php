@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Mentions\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateMentionsUsersTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('mentions_users', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('mentions_users', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('mentions_id')->unsigned();
             $table->primary(['post_id', 'mentions_id']);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('mentions_users');
+    'down' => function (Builder $schema) {
+        $schema->drop('mentions_users');
     }
-}
+];
