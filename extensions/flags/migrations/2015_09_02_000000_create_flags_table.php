@@ -8,16 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateFlagsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('flags', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('flags', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('post_id')->unsigned();
             $table->string('type');
@@ -26,10 +22,9 @@ class CreateFlagsTable extends AbstractMigration
             $table->string('reason_detail')->nullable();
             $table->dateTime('time');
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('flags');
+    'down' => function (Builder $schema) {
+        $schema->drop('flags');
     }
-}
+];

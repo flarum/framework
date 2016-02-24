@@ -8,22 +8,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddFlagsReadTimeToUsersTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('users', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('users', function (Blueprint $table) {
             $table->dateTime('flags_read_time')->nullable();
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('flags_read_time');
+    'down' => function (Builder $schema) {
+        $schema->drop('flags_read_time');
     }
-}
+];
