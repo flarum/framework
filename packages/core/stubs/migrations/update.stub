@@ -1,23 +1,18 @@
 <?php
 
-namespace {{namespace}}\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class {{name}} extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('{{table}}', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('{{table}}', function (Blueprint $table) {
+            //
+        });
+    },
+
+    'down' => function (Builder $schema) {
+        $schema->table('{{table}}', function (Blueprint $table) {
             //
         });
     }
-
-    public function down()
-    {
-        $this->schema->table('{{table}}', function (Blueprint $table) {
-            //
-        });
-    }
-}
+];
