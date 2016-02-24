@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Lock\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddLockedToDiscussions extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('discussions', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('discussions', function (Blueprint $table) {
             $table->boolean('is_locked')->default(0);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->table('discussions', function (Blueprint $table) {
+    'down' => function (Builder $schema) {
+        $schema->table('discussions', function (Blueprint $table) {
             $table->dropColumn('is_locked');
         });
     }
-}
+];
