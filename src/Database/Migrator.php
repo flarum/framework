@@ -12,6 +12,7 @@
 namespace Flarum\Database;
 
 use Flarum\Extension\Extension;
+use Illuminate\Container\Container;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
@@ -87,18 +88,18 @@ class Migrator
 
         $migrations = array_diff($files, $ran);
 
-        $this->requireFiles($path, $migrations);
-
-        $this->runMigrationList($migrations, $extension);
+        $this->runMigrationList($migrations, $path, $extension);
     }
 
     /**
      * Run an array of migrations.
      *
-     * @param  array    $migrations
-     * @param Extension $extension
+     * @param  array     $migrations
+     * @param  string    $path
+     * @param  Extension $extension
+     * @return void
      */
-    public function runMigrationList($migrations, Extension $extension = null)
+    public function runMigrationList($migrations, $path, Extension $extension = null)
     {
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
@@ -113,7 +114,7 @@ class Migrator
         // migrations "up" so the changes are made to the databases. We'll then log
         // that the migration was run so we don't repeat it next time we execute.
         foreach ($migrations as $file) {
-            $this->runUp($file, $extension);
+            $this->runUp($file, $path, $extension);
         }
     }
 
@@ -121,17 +122,20 @@ class Migrator
      * Run "up" a migration instance.
      *
      * @param  string    $file
+     * @param  string    $path
      * @param  Extension $extension
      * @return void
      */
-    protected function runUp($file, Extension $extension = null)
+    protected function runUp($file, $path, Extension $extension = null)
     {
         // First we will resolve a "real" instance of the migration class from this
         // migration file name. Once we have the instances we can run the actual
         // command such as "up" or "down", or we can just simulate the action.
-        $migration = $this->resolve($file, $extension);
+        $migration = $this->resolve($file, $path);
 
-        $migration->up();
+        if (isset($migration['up'])) {
+            app()->call($migration['up']);
+        }
 
         // Once we have run a migrations class, we will log that it was run in this
         // repository so that we don't try to run it next time we do a migration
@@ -154,15 +158,13 @@ class Migrator
 
         $migrations = array_reverse($this->repository->getRan($extension->getId()));
 
-        $this->requireFiles($path, $migrations);
-
         $count = count($migrations);
 
         if ($count === 0) {
             $this->note('<info>Nothing to rollback.</info>');
         } else {
             foreach ($migrations as $migration) {
-                $this->runDown($migration, $extension);
+                $this->runDown($migration, $path, $extension);
             }
         }
 
@@ -173,17 +175,20 @@ class Migrator
      * Run "down" a migration instance.
      *
      * @param  string    $file
+     * @param  string    $path
      * @param  Extension $extension
      * @return void
      */
-    protected function runDown($file, Extension $extension = null)
+    protected function runDown($file, $path, Extension $extension = null)
     {
         // First we will get the file name of the migration so we can resolve out an
         // instance of the migration. Once we get an instance we can either run a
         // pretend execution of the migration or we can run the real migration.
-        $instance = $this->resolve($file, $extension);
+        $migration = $this->resolve($file, $path);
 
-        $instance->down();
+        if (isset($migration['down'])) {
+            app()->call($migration['down']);
+        }
 
         // Once we have successfully run the migration "down" we will remove it from
         // the migration repository so it will be considered to have not been run
@@ -223,42 +228,15 @@ class Migrator
     }
 
     /**
-     * Require in all the migration files in a given path.
+     * Load a migration instance from a file.
      *
+     * @param  string $file
      * @param  string $path
-     * @param  array  $files
-     * @return void
-     */
-    public function requireFiles($path, array $files)
-    {
-        foreach ($files as $file) {
-            $this->files->requireOnce($path . '/' . $file . '.php');
-        }
-    }
-
-    /**
-     * Resolve a migration instance from a file.
-     *
-     * @param  string   $file
-     * @param Extension $extension
      * @return object
      */
-    public function resolve($file, Extension $extension = null)
+    public function resolve($file, $path)
     {
-        $file = implode('_', array_slice(explode('_', $file), 4));
-
-        // flagrow/image-upload
-        if ($extension) {
-            $class = str_replace('/', '\\', $extension->name);
-        } else {
-            $class = 'Flarum\\Core';
-        }
-
-        $class .= '\\Migration\\';
-
-        $class .= Str::studly($file);
-
-        return app()->make($class);
+        return $this->files->getRequire("$path/$file.php");
     }
 
     /**
