@@ -8,19 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
-            $table->string('ip_address', 45)->nullable();
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
-            $table->dropColumn(['ip_address']);
-        });
-    }
-];
+return Migration::addColumns('posts', [
+    'ip_address' => ['string', 'length' => 45, 'nullable' => true]
+]);

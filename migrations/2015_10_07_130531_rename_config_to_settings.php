@@ -8,14 +8,6 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->rename('config', 'settings');
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->rename('settings', 'config');
-    }
-];
+return Migration::renameTable('config', 'settings');

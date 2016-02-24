@@ -11,6 +11,8 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
+// We need a full custom migration here, because we need to add the fulltext
+// index for the content with a raw SQL statement after creating the table.
 return [
     'up' => function (Builder $schema) {
         $schema->create('posts', function (Blueprint $table) {

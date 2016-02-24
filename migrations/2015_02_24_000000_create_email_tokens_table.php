@@ -8,20 +8,15 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->create('email_tokens', function (Blueprint $table) {
-            $table->string('id', 100)->primary();
-            $table->string('email', 150);
-            $table->integer('user_id')->unsigned();
-            $table->timestamp('created_at');
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->drop('email_tokens');
+return Migration::createTable(
+    'email_tokens',
+    function (Blueprint $table) {
+        $table->string('id', 100)->primary();
+        $table->string('email', 150);
+        $table->integer('user_id')->unsigned();
+        $table->timestamp('created_at');
     }
-];
+);

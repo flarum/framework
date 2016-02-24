@@ -8,26 +8,21 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->create('notifications', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->integer('sender_id')->unsigned()->nullable();
-            $table->string('type', 100);
-            $table->string('subject_type', 200)->nullable();
-            $table->integer('subject_id')->unsigned()->nullable();
-            $table->binary('data')->nullable();
-            $table->dateTime('time');
-            $table->boolean('is_read')->default(0);
-            $table->boolean('is_deleted')->default(0);
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->drop('notifications');
+return Migration::createTable(
+    'notifications',
+    function (Blueprint $table) {
+        $table->increments('id');
+        $table->integer('user_id')->unsigned();
+        $table->integer('sender_id')->unsigned()->nullable();
+        $table->string('type', 100);
+        $table->string('subject_type', 200)->nullable();
+        $table->integer('subject_id')->unsigned()->nullable();
+        $table->binary('data')->nullable();
+        $table->dateTime('time');
+        $table->boolean('is_read')->default(0);
+        $table->boolean('is_deleted')->default(0);
     }
-];
+);
