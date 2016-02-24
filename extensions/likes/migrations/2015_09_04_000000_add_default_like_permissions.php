@@ -8,36 +8,27 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Likes\Migration;
-
 use Flarum\Core\Group;
 use Flarum\Core\Permission;
-use Flarum\Database\AbstractMigration;
 
-class AddDefaultLikePermissions extends AbstractMigration
-{
-    public function up()
-    {
+$getPermissionAttributes = function () {
+    return [
+        'group_id' => Group::MEMBER_ID,
+        'permission' => 'discussion.likePosts',
+    ];
+};
+
+return [
+    'up' => function () use ($getPermissionAttributes) {
         Permission::unguard();
 
-        $permission = Permission::firstOrNew($this->getPermissionAttributes());
+        $permission = Permission::firstOrNew($getPermissionAttributes());
 
         $permission->save();
-    }
+    },
 
-    public function down()
-    {
-        Permission::where($this->getPermissionAttributes())->delete();
-    }
+    'down' => function () use ($getPermissionAttributes) {
 
-    /**
-     * @return array
-     */
-    protected function getPermissionAttributes()
-    {
-        return [
-            'group_id' => Group::MEMBER_ID,
-            'permission' => 'discussion.likePosts'
-        ];
+        Permission::where($getPermissionAttributes())->delete();
     }
-}
+];
