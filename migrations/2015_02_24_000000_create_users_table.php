@@ -8,16 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateUsersTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('users', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('username', 100)->unique();
             $table->string('email', 150)->unique();
@@ -33,10 +29,9 @@ class CreateUsersTable extends AbstractMigration
             $table->integer('discussions_count')->unsigned()->default(0);
             $table->integer('comments_count')->unsigned()->default(0);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('users');
+    'down' => function (Builder $schema) {
+        $schema->drop('users');
     }
-}
+];
