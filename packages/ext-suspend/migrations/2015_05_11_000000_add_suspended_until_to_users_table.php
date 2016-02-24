@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Suspend\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddSuspendedUntilToUsersTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('users', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('users', function (Blueprint $table) {
             $table->dateTime('suspended_until')->nullable();
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->table('users', function (Blueprint $table) {
+    'down' => function (Builder $schema) {
+        $schema->table('users', function (Blueprint $table) {
             $table->dropColumn('suspended_until');
         });
     }
-}
+];
