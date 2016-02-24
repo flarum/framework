@@ -8,17 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Flarum\Tags\Tag;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateTagsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('tags', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('tags', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 100);
             $table->string('slug', 100);
@@ -46,10 +42,9 @@ class CreateTagsTable extends AbstractMigration
             'color' => '#888',
             'position' => '0'
         ]);
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('tags');
+    'down' => function (Builder $schema) {
+        $schema->drop('tags');
     }
-}
+];
