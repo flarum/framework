@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Akismet\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddIsSpamToPosts extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('posts', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('posts', function (Blueprint $table) {
             $table->boolean('is_spam')->default(0);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->table('posts', function (Blueprint $table) {
+    'down' => function (Builder $schema) {
+        $schema->table('posts', function (Blueprint $table) {
             $table->dropColumn('is_spam');
         });
     }
-}
+];
