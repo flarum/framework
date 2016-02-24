@@ -26,7 +26,7 @@
         "illuminate/config": "5.1.*",
         "illuminate/container": "5.1.*",
         "illuminate/contracts": "5.1.*",
-        "illuminate/database": "5.1.*",
+        "illuminate/database": "^5.1.31",
         "illuminate/events": "5.1.*",
         "illuminate/filesystem": "5.1.*",
         "illuminate/hashing": "5.1.*",
