@@ -8,24 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreatePermissionsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('permissions', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('permissions', function (Blueprint $table) {
             $table->integer('group_id')->unsigned();
             $table->string('permission', 100);
             $table->primary(['group_id', 'permission']);
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('permissions');
+    'down' => function (Builder $schema) {
+        $schema->drop('permissions');
     }
-}
+];

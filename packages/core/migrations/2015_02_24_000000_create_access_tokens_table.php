@@ -8,25 +8,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class CreateAccessTokensTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('access_tokens', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->create('access_tokens', function (Blueprint $table) {
             $table->string('id', 100)->primary();
             $table->integer('user_id')->unsigned();
             $table->timestamp('created_at');
             $table->timestamp('expires_at');
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->drop('access_tokens');
+    'down' => function (Builder $schema) {
+        $schema->drop('access_tokens');
     }
-}
+];

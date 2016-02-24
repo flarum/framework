@@ -8,19 +8,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
+use Illuminate\Database\Schema\Builder;
 
-use Flarum\Database\AbstractMigration;
+return [
+    'up' => function (Builder $schema) {
+        $schema->rename('config', 'settings');
+    },
 
-class RenameConfigToSettings extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->rename('config', 'settings');
+    'down' => function (Builder $schema) {
+        $schema->rename('settings', 'config');
     }
-
-    public function down()
-    {
-        $this->schema->rename('settings', 'config');
-    }
-}
+];
