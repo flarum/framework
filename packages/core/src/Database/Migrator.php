@@ -11,6 +11,7 @@
 
 namespace Flarum\Database;
 
+use Exception;
 use Flarum\Extension\Extension;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Filesystem\Filesystem;
@@ -55,9 +56,9 @@ class Migrator
     /**
      * Create a new migrator instance.
      *
-     * @param  \Flarum\Database\MigrationRepositoryInterface    $repository
-     * @param  \Illuminate\Database\ConnectionResolverInterface $resolver
-     * @param  \Illuminate\Filesystem\Filesystem                $files
+     * @param  MigrationRepositoryInterface  $repository
+     * @param  Resolver                      $resolver
+     * @param  Filesystem                    $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
@@ -92,9 +93,10 @@ class Migrator
     /**
      * Run an array of migrations.
      *
-     * @param  string   $path
-     * @param  array    $migrations
-     * @param Extension $extension
+     * @param  string    $path
+     * @param  array     $migrations
+     * @param  Extension $extension
+     * @return void
      */
     public function runMigrationList($path, $migrations, Extension $extension = null)
     {
@@ -141,8 +143,8 @@ class Migrator
     /**
      * Rolls all of the currently applied migrations back.
      *
-     * @param string    $path
-     * @param Extension $extension
+     * @param  string    $path
+     * @param  Extension $extension
      * @return int
      */
     public function reset($path, Extension $extension = null)
@@ -171,6 +173,7 @@ class Migrator
      * @param  string    $file
      * @param  string    $path
      * @param  Extension $extension
+     * @return void
      */
     protected function runDown($path, $file, Extension $extension = null)
     {
@@ -191,14 +194,14 @@ class Migrator
      *
      * @param        $migration
      * @param string $direction
-     * @throws \Exception
+     * @throws Exception
      */
     protected function runClosureMigration($migration, $direction = 'up')
     {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
             app()->call($migration[$direction]);
         } else {
-            throw new \Exception("Migration file should contain an array with up/down.");
+            throw new Exception('Migration file should contain an array with up/down.');
         }
     }
 
