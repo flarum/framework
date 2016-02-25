@@ -12,10 +12,8 @@
 namespace Flarum\Database;
 
 use Flarum\Extension\Extension;
-use Illuminate\Container\Container;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
 class Migrator
 {
@@ -128,9 +126,6 @@ class Migrator
      */
     protected function runUp($path, $file, Extension $extension = null)
     {
-        // First we will resolve a "real" instance of the migration class from this
-        // migration file name. Once we have the instances we can run the actual
-        // command such as "up" or "down", or we can just simulate the action.
         $migration = $this->resolve($path, $file);
 
         $this->runClosureMigration($migration);
@@ -179,9 +174,6 @@ class Migrator
      */
     protected function runDown($path, $file, Extension $extension = null)
     {
-        // First we will get the file name of the migration so we can resolve out an
-        // closures of the migration. Once we get an instance we can either run a
-        // pretend execution of the migration or we can run the real migration.
         $migration = $this->resolve($path, $file);
 
         $this->runClosureMigration($migration, 'down');
@@ -220,9 +212,6 @@ class Migrator
     {
         $files = $this->files->glob($path . '/*_*.php');
 
-        // Once we have the array of files in the directory we will just remove the
-        // extension and take the basename of the file which is all we need when
-        // finding the migrations that haven't been run against the databases.
         if ($files === false) {
             return [];
         }
