@@ -39,7 +39,7 @@ class Extension implements Arrayable
     /**
      * Unique Id of the extension.
      *
-     * @info Identical to the directory in the extensions directory.
+     * @info    Identical to the directory in the extensions directory.
      * @example flarum_suspend
      *
      * @var string
@@ -223,6 +223,14 @@ class Extension implements Arrayable
     }
 
     /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
      * Tests whether the extension has assets.
      *
      * @return bool
@@ -250,11 +258,11 @@ class Extension implements Arrayable
     public function toArray()
     {
         return (array) array_merge([
-            'id' => $this->getId(),
-            'version' => $this->getVersion(),
-            'path' => $this->path,
-            'icon' => $this->getIcon(),
-            'hasAssets' => $this->hasAssets(),
+            'id'            => $this->getId(),
+            'version'       => $this->getVersion(),
+            'path'          => $this->path,
+            'icon'          => $this->getIcon(),
+            'hasAssets'     => $this->hasAssets(),
             'hasMigrations' => $this->hasMigrations(),
         ], $this->composerJson);
     }
