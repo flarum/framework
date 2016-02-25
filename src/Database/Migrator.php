@@ -201,7 +201,8 @@ class Migrator
      * @param string $direction
      * @throws \Exception
      */
-    protected function runClosureMigration($migration, $direction = 'up') {
+    protected function runClosureMigration($migration, $direction = 'up')
+    {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
             app()->call($migration[$direction]);
         } else {
@@ -247,7 +248,7 @@ class Migrator
      */
     public function resolve($path, $file)
     {
-        $migration = $path . '/' . $file . '.php';
+        $migration = "$path/$file.php";
 
         if ($this->files->exists($migration)) {
             return $this->files->getRequire($migration);
