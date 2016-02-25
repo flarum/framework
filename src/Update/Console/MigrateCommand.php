@@ -81,7 +81,7 @@ class MigrateCommand extends AbstractCommand
 
             $this->info('Migrating extension: '.$name);
 
-            $extensions->migrate($name);
+            $extensions->migrate($extension);
 
             foreach ($migrator->getNotes() as $note) {
                 $this->info($note);
