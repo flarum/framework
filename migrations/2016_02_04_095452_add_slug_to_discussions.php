@@ -8,34 +8,29 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
 use Flarum\Util\Str;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-class AddSlugToDiscussions extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('discussions', function (Blueprint $table) {
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('discussions', function (Blueprint $table) {
             $table->string('slug');
         });
 
         // Store slugs for existing discussions
-        $this->schema->getConnection()->table('discussions')->chunk(100, function ($discussions) {
+        $schema->getConnection()->table('discussions')->chunk(100, function ($discussions) use ($schema) {
             foreach ($discussions as $discussion) {
-                $this->schema->getConnection()->table('discussions')->where('id', $discussion->id)->update([
+                $schema->getConnection()->table('discussions')->where('id', $discussion->id)->update([
                     'slug' => Str::slug($discussion->title)
                 ]);
             }
         });
-    }
+    },
 
-    public function down()
-    {
-        $this->schema->table('discussions', function (Blueprint $table) {
+    'down' => function (Builder $schema) {
+        $schema->table('discussions', function (Blueprint $table) {
             $table->dropColumn('slug');
         });
     }
-}
+];

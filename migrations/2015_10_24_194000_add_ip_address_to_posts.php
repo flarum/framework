@@ -8,24 +8,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
+use Flarum\Database\Migration;
 
-use Flarum\Database\AbstractMigration;
-use Illuminate\Database\Schema\Blueprint;
-
-class AddIpAddressToPosts extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('posts', function (Blueprint $table) {
-            $table->string('ip_address', 45)->nullable();
-        });
-    }
-
-    public function down()
-    {
-        $this->schema->table('posts', function (Blueprint $table) {
-            $table->dropColumn(['ip_address']);
-        });
-    }
-}
+return Migration::addColumns('posts', [
+    'ip_address' => ['string', 'length' => 45, 'nullable' => true]
+]);

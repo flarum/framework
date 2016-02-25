@@ -8,25 +8,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateEmailTokensTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('email_tokens', function (Blueprint $table) {
-            $table->string('id', 100)->primary();
-            $table->string('email', 150);
-            $table->integer('user_id')->unsigned();
-            $table->timestamp('created_at');
-        });
+return Migration::createTable(
+    'email_tokens',
+    function (Blueprint $table) {
+        $table->string('id', 100)->primary();
+        $table->string('email', 150);
+        $table->integer('user_id')->unsigned();
+        $table->timestamp('created_at');
     }
-
-    public function down()
-    {
-        $this->schema->drop('email_tokens');
-    }
-}
+);

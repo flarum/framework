@@ -8,25 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
+use Flarum\Database\Migration;
 
-use Flarum\Database\AbstractMigration;
-use Illuminate\Database\Schema\Blueprint;
-
-class AddHideToDiscussions extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->table('discussions', function (Blueprint $table) {
-            $table->dateTime('hide_time')->nullable();
-            $table->integer('hide_user_id')->unsigned()->nullable();
-        });
-    }
-
-    public function down()
-    {
-        $this->schema->table('discussions', function (Blueprint $table) {
-            $table->dropColumn(['hide_time', 'hide_user_id']);
-        });
-    }
-}
+return Migration::addColumns('discussions', [
+    'hide_time' => ['dateTime', 'nullable' => true],
+    'hide_user_id' => ['integer', 'unsigned' => true, 'nullable' => true]
+]);

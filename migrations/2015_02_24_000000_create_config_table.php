@@ -8,23 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateConfigTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('config', function (Blueprint $table) {
-            $table->string('key', 100)->primary();
-            $table->binary('value')->nullable();
-        });
+return Migration::createTable(
+    'config',
+    function (Blueprint $table) {
+        $table->string('key', 100)->primary();
+        $table->binary('value')->nullable();
     }
-
-    public function down()
-    {
-        $this->schema->drop('config');
-    }
-}
+);

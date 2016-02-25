@@ -8,22 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateApiKeysTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('api_keys', function (Blueprint $table) {
-            $table->string('id', 100)->primary();
-        });
+return Migration::createTable(
+    'api_keys',
+    function (Blueprint $table) {
+        $table->string('id', 100)->primary();
     }
-
-    public function down()
-    {
-        $this->schema->drop('api_keys');
-    }
-}
+);

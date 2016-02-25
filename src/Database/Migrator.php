@@ -12,6 +12,7 @@
 namespace Flarum\Database;
 
 use Flarum\Extension\Extension;
+use Illuminate\Container\Container;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
@@ -121,6 +122,7 @@ class Migrator
      *
      * @param  string    $path
      * @param  string    $file
+     * @param  string    $path
      * @param  Extension $extension
      * @return void
      */
@@ -172,6 +174,7 @@ class Migrator
      *
      * @param            $path
      * @param  string    $file
+     * @param  string    $path
      * @param  Extension $extension
      */
     protected function runDown($path, $file, Extension $extension = null)

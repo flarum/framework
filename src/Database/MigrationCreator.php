@@ -10,8 +10,8 @@
 
 namespace Flarum\Database;
 
+use Flarum\Extension\Extension;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
 class MigrationCreator
 {
@@ -43,7 +43,7 @@ class MigrationCreator
      * Create a new migration for the given extension.
      *
      * @param string $name
-     * @param string $path
+     * @param Extension $extension
      * @param string $table
      * @param bool $create
      * @return string
@@ -56,7 +56,7 @@ class MigrationCreator
 
         $stub = $this->getStub($table, $create);
 
-        $this->files->put($path, $this->populateStub($extension, $name, $stub, $table));
+        $this->files->put($path, $this->populateStub($stub, $table));
 
         return $path;
     }
@@ -85,18 +85,13 @@ class MigrationCreator
     /**
      * Populate the place-holders in the migration stub.
      *
-     * @param string $name
      * @param string $stub
      * @param string $table
      * @return string
      */
-    protected function populateStub($extension, $name, $stub, $table)
+    protected function populateStub($stub, $table)
     {
-        list($vendor, $package) = explode('-', $extension, 2);
-
         $replacements = [
-            '{{namespace}}' => Str::studly($vendor).'\\'.Str::studly($package) ?: 'Flarum\Core',
-            '{{name}}' => Str::studly($name),
             '{{table}}' => $table
         ];
 

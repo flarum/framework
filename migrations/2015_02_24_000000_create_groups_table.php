@@ -8,26 +8,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Migration;
-
-use Flarum\Database\AbstractMigration;
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateGroupsTable extends AbstractMigration
-{
-    public function up()
-    {
-        $this->schema->create('groups', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name_singular', 100);
-            $table->string('name_plural', 100);
-            $table->string('color', 20)->nullable();
-            $table->string('icon', 100)->nullable();
-        });
+return Migration::createTable(
+    'groups',
+    function (Blueprint $table) {
+        $table->increments('id');
+        $table->string('name_singular', 100);
+        $table->string('name_plural', 100);
+        $table->string('color', 20)->nullable();
+        $table->string('icon', 100)->nullable();
     }
-
-    public function down()
-    {
-        $this->schema->drop('groups');
-    }
-}
+);
