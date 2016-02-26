@@ -33836,7 +33836,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
                 onclick: this.restoreAction.bind(post)
               }));
             }
-            if (post.canDelete() && post.number() !== 1) {
+            if (post.canDelete()) {
               items.add('delete', Button.component({
                 icon: 'times',
                 children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
@@ -33893,7 +33893,22 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
           if (context) context.loading = true;
 
           return this['delete']().then(function () {
-            _this2.discussion().removePost(_this2.id());
+            var discussion = _this2.discussion();
+
+            discussion.removePost(_this2.id());
+
+            // If this was the last post in the discussion, then we will assume that
+            // the whole discussion was deleted too.
+            if (!discussion.posts.length) {
+              // If there is a discussion list in the cache, remove this discussion.
+              if (app.cache.discussionList) {
+                app.cache.discussionList.removeDiscussion(discussion);
+              }
+
+              if (app.viewingDiscussion(discussion)) {
+                app.history.back();
+              }
+            }
           })['catch'](function () {}).then(function () {
             if (context) context.loading = false;
             m.redraw();
