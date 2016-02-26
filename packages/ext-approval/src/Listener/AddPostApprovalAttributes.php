@@ -10,9 +10,9 @@
 
 namespace Flarum\Approval\Listener;
 
-use Flarum\Event\PrepareApiAttributes;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Event\PrepareApiAttributes;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostApprovalAttributes
