@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -38,7 +39,7 @@ class AddClientAssets
 
         if ($event->isAdmin()) {
             $event->addAssets([
-                __DIR__ . '/../../js/admin/dist/extension.js'
+                __DIR__.'/../../js/admin/dist/extension.js'
             ]);
             $event->addBootstrapper('flarum/pusher/main');
         }
