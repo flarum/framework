@@ -12,7 +12,6 @@
 namespace Flarum\Http\Middleware;
 
 use FastRoute\Dispatcher;
-use FastRoute\RouteParser;
 use Flarum\Http\Exception\MethodNotAllowedException;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\RouteCollection;

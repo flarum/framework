@@ -26,7 +26,7 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 
     public function all()
     {
-        if (!$this->isCached) {
+        if (! $this->isCached) {
             $this->cache = $this->inner->all();
             $this->isCached = true;
         }
@@ -38,7 +38,7 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
     {
         if (array_key_exists($key, $this->cache)) {
             return $this->cache[$key];
-        } elseif (!$this->isCached) {
+        } elseif (! $this->isCached) {
             return array_get($this->all(), $key, $default);
         }
 

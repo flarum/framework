@@ -10,14 +10,14 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Core;
 use Flarum\Core\PasswordToken;
 use Flarum\Core\Repository\UserRepository;
-use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Mail\Message;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Core;
 use Flarum\Forum\UrlGenerator;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Mail\Message;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class RequestPasswordResetHandler

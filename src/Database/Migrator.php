@@ -65,8 +65,8 @@ class Migrator
         Resolver $resolver,
         Filesystem $files
     ) {
-        $this->files      = $files;
-        $this->resolver   = $resolver;
+        $this->files = $files;
+        $this->resolver = $resolver;
         $this->repository = $repository;
     }
 
@@ -213,7 +213,7 @@ class Migrator
      */
     public function getMigrationFiles($path)
     {
-        $files = $this->files->glob($path . '/*_*.php');
+        $files = $this->files->glob($path.'/*_*.php');
 
         if ($files === false) {
             return [];
@@ -287,7 +287,7 @@ class Migrator
      */
     public function setConnection($name)
     {
-        if (!is_null($name)) {
+        if (! is_null($name)) {
             $this->resolver->setDefaultConnection($name);
         }
 

@@ -104,7 +104,7 @@ class RevisionCompiler implements CompilerInterface
      */
     protected function getCacheDifferentiator()
     {
-        return null;
+        return;
     }
 
     /**
@@ -189,7 +189,7 @@ class RevisionCompiler implements CompilerInterface
 
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 
-        $file = $this->path . '/' . substr_replace($this->filename, '-' . $revision, -strlen($ext) - 1, 0);
+        $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
 
         if (file_exists($file)) {
             unlink($file);

@@ -12,8 +12,6 @@ namespace Flarum\Api\Serializer;
 
 use Closure;
 use DateTime;
-use Flarum\Api\Relationship\HasManyBuilder;
-use Flarum\Api\Relationship\HasOneBuilder;
 use Flarum\Core\User;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\PrepareApiAttributes;
@@ -24,7 +22,6 @@ use LogicException;
 use Tobscure\JsonApi\AbstractSerializer as BaseAbstractSerializer;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Relationship;
-use Tobscure\JsonApi\Relationship\BuilderInterface;
 use Tobscure\JsonApi\Resource;
 use Tobscure\JsonApi\SerializerInterface;
 
@@ -125,7 +122,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
         if ($relationship && ! ($relationship instanceof Relationship)) {
             throw new LogicException('GetApiRelationship handler must return an instance of '
-                . Relationship::class);
+                .Relationship::class);
         }
 
         return $relationship;
