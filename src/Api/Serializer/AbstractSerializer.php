@@ -121,8 +121,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         );
 
         if ($relationship && ! ($relationship instanceof Relationship)) {
-            throw new LogicException('GetApiRelationship handler must return an instance of '
-                .Relationship::class);
+            throw new LogicException(
+                'GetApiRelationship handler must return an instance of '.Relationship::class
+            );
         }
 
         return $relationship;

@@ -12,6 +12,7 @@ namespace Flarum\Http;
 
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Container\Container;
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 
 trait GenerateRouteHandlerTrait
@@ -26,8 +27,9 @@ trait GenerateRouteHandlerTrait
                 $controller = $container->make($class);
 
                 if (! ($controller instanceof ControllerInterface)) {
-                    throw new \InvalidArgumentException('Route handler must be an instance of '
-                        .ControllerInterface::class);
+                    throw new InvalidArgumentException(
+                        'Route handler must be an instance of '.ControllerInterface::class
+                    );
                 }
 
                 $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
