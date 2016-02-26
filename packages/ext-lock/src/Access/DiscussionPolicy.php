@@ -13,7 +13,6 @@ namespace Flarum\Lock\Access;
 use Flarum\Core\Access\AbstractPolicy;
 use Flarum\Core\Discussion;
 use Flarum\Core\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionPolicy extends AbstractPolicy
 {
