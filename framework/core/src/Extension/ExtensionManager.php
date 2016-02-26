@@ -10,7 +10,6 @@
 
 namespace Flarum\Extension;
 
-use Flarum\Core;
 use Flarum\Database\Migrator;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
@@ -19,7 +18,6 @@ use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class ExtensionManager
@@ -47,9 +45,9 @@ class ExtensionManager
         Dispatcher $dispatcher,
         Filesystem $filesystem
     ) {
-        $this->config     = $config;
-        $this->app        = $app;
-        $this->migrator   = $migrator;
+        $this->config = $config;
+        $this->app = $app;
+        $this->migrator = $migrator;
         $this->dispatcher = $dispatcher;
         $this->filesystem = $filesystem;
     }
@@ -61,15 +59,15 @@ class ExtensionManager
     {
         $extensionsDir = $this->getExtensionsDir();
 
-        $dirs       = array_diff(scandir($extensionsDir), ['.', '..']);
+        $dirs = array_diff(scandir($extensionsDir), ['.', '..']);
         $extensions = new Collection();
 
         $installed = json_decode(file_get_contents(public_path('vendor/composer/installed.json')), true);
 
         foreach ($dirs as $dir) {
-            if (file_exists($manifest = $extensionsDir . '/' . $dir . '/composer.json')) {
+            if (file_exists($manifest = $extensionsDir.'/'.$dir.'/composer.json')) {
                 $extension = new Extension(
-                    $extensionsDir . '/' . $dir,
+                    $extensionsDir.'/'.$dir,
                     json_decode(file_get_contents($manifest), true)
                 );
 
@@ -112,7 +110,7 @@ class ExtensionManager
      */
     public function enable($name)
     {
-        if (!$this->isEnabled($name)) {
+        if (! $this->isEnabled($name)) {
             $extension = $this->getExtension($name);
 
             $enabled = $this->getEnabled();
@@ -182,8 +180,8 @@ class ExtensionManager
     {
         if ($extension->hasAssets()) {
             $this->filesystem->copyDirectory(
-                $extension->getPath() . '/assets',
-                $this->app->basePath() . '/assets/extensions/' . $extension->getId()
+                $extension->getPath().'/assets',
+                $this->app->basePath().'/assets/extensions/'.$extension->getId()
             );
         }
     }
@@ -195,7 +193,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->filesystem->deleteDirectory($this->app->basePath() . '/assets/extensions/' . $extension);
+        $this->filesystem->deleteDirectory($this->app->basePath().'/assets/extensions/'.$extension);
     }
 
     /**
@@ -207,7 +205,7 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->app->basePath() . '/assets/extensions/' . $extension->getId() . $path;
+        return $this->app->basePath().'/assets/extensions/'.$extension->getId().$path;
     }
 
     /**
@@ -219,7 +217,7 @@ class ExtensionManager
     public function migrate(Extension $extension, $up = true)
     {
         if ($extension->hasMigrations()) {
-            $migrationDir = $extension->getPath() . '/migrations';
+            $migrationDir = $extension->getPath().'/migrations';
 
             $this->app->bind('Illuminate\Database\Schema\Builder', function ($container) {
                 return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();

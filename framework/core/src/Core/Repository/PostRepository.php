@@ -10,11 +10,11 @@
 
 namespace Flarum\Core\Repository;
 
+use Flarum\Core\Discussion;
 use Flarum\Core\Post;
+use Flarum\Core\User;
 use Flarum\Event\ScopePostVisibility;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Core\User;
-use Flarum\Core\Discussion;
 
 class PostRepository
 {
@@ -32,7 +32,7 @@ class PostRepository
      * Find a post by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param integer $id
+     * @param int $id
      * @param \Flarum\Core\User $actor
      * @return \Flarum\Core\Post
      *
@@ -56,8 +56,8 @@ class PostRepository
      * @param array $where
      * @param \Flarum\Core\User|null $actor
      * @param array $sort
-     * @param integer $count
-     * @param integer $start
+     * @param int $count
+     * @param int $start
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function findWhere(array $where = [], User $actor = null, $sort = [], $count = null, $start = 0)
@@ -118,10 +118,10 @@ class PostRepository
      * is. If the post with that number does not exist, the index of the
      * closest post to it will be returned.
      *
-     * @param integer $discussionId
-     * @param integer $number
+     * @param int $discussionId
+     * @param int $number
      * @param \Flarum\Core\User|null $actor
-     * @return integer
+     * @return int
      */
     public function getIndexForNumber($discussionId, $number, User $actor = null)
     {

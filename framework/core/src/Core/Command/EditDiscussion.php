@@ -17,7 +17,7 @@ class EditDiscussion
     /**
      * The ID of the discussion to edit.
      *
-     * @var integer
+     * @var int
      */
     public $discussionId;
 
@@ -36,7 +36,7 @@ class EditDiscussion
     public $data;
 
     /**
-     * @param integer $discussionId The ID of the discussion to edit.
+     * @param int $discussionId The ID of the discussion to edit.
      * @param \Flarum\Core\User $actor The user performing the action.
      * @param array $data The attributes to update on the discussion.
      */
