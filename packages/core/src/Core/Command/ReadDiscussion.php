@@ -17,7 +17,7 @@ class ReadDiscussion
     /**
      * The ID of the discussion to mark as read.
      *
-     * @var integer
+     * @var int
      */
     public $discussionId;
 
@@ -31,14 +31,14 @@ class ReadDiscussion
     /**
      * The number of the post to mark as read.
      *
-     * @var integer
+     * @var int
      */
     public $readNumber;
 
     /**
-     * @param integer $discussionId The ID of the discussion to mark as read.
+     * @param int $discussionId The ID of the discussion to mark as read.
      * @param User $actor The user to mark the discussion as read for.
-     * @param integer $readNumber The number of the post to mark as read.
+     * @param int $readNumber The number of the post to mark as read.
      */
     public function __construct($discussionId, User $actor, $readNumber)
     {

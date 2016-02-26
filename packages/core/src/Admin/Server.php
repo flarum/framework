@@ -28,7 +28,7 @@ class Server extends AbstractServer
 
         if ($app->isInstalled()) {
             $path = parse_url($app->url('admin'), PHP_URL_PATH);
-            $errorDir = __DIR__ . '/../../error';
+            $errorDir = __DIR__.'/../../error';
 
             if ($app->isUpToDate()) {
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\ParseJsonBody'));

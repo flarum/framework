@@ -14,7 +14,6 @@ use Flarum\Forum\AuthenticationResponseFactory;
 use Flarum\Http\Controller\ControllerInterface;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
 abstract class AbstractOAuth2Controller implements ControllerInterface

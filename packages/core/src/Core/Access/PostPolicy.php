@@ -45,7 +45,7 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function subscribe(Dispatcher $events)
     {

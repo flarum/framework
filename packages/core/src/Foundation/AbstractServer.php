@@ -10,7 +10,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Core;
 use Illuminate\Config\Repository as ConfigRepository;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
@@ -165,7 +164,7 @@ abstract class AbstractServer
     protected function registerLogger(Application $app)
     {
         $logger = new Logger($app->environment());
-        $logPath = $app->storagePath() . '/logs/flarum.log';
+        $logPath = $app->storagePath().'/logs/flarum.log';
 
         $handler = new StreamHandler($logPath, Logger::DEBUG);
         $handler->setFormatter(new LineFormatter(null, null, true, true));

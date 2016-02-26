@@ -163,7 +163,7 @@ class Application extends Container implements ApplicationContract
         }
 
         if ($path) {
-            $url .= '/' . array_get($config, "paths.$path", $path);
+            $url .= '/'.array_get($config, "paths.$path", $path);
         }
 
         return $url;

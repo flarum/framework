@@ -14,7 +14,7 @@ use Flarum\Core\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * The `ScopeHiddenDiscussionVisibility` event
+ * The `ScopeHiddenDiscussionVisibility` event.
  */
 class ScopeHiddenDiscussionVisibility
 {
