@@ -10,10 +10,10 @@
 
 namespace Flarum\Approval\Listener;
 
+use Flarum\Core\Discussion;
+use Flarum\Event\ScopeHiddenDiscussionVisibility;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Event\ScopePostVisibility;
-use Flarum\Event\ScopeHiddenDiscussionVisibility;
-use Flarum\Core\Discussion;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class HideUnapprovedContent
