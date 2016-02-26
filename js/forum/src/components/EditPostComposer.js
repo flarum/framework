@@ -1,6 +1,13 @@
 import ComposerBody from 'flarum/components/ComposerBody';
 import icon from 'flarum/helpers/icon';
 
+function minimizeComposerIfFullScreen(e) {
+  if (app.composer.isFullScreen()) {
+    app.composer.minimize();
+    e.stopPropagation();
+  }
+}
+
 /**
  * The `EditPostComposer` component displays the composer content for editing a
  * post. It sets the initial content to the content of the post that is being
@@ -15,14 +22,8 @@ export default class EditPostComposer extends ComposerBody {
   init() {
     super.init();
 
-    this.editor.props.preview = () => {
-      // If the composer backdrop is visible, assume we're on mobile and need to
-      // minimize the composer in order to see the preview. We do this as a
-      // timeout so that it occurs after the click handler on the composer
-      // itself that shows the composer if minimized.
-      if (app.composer.isMobile()) {
-        setTimeout(() => app.composer.minimize(), 0);
-      }
+    this.editor.props.preview = e => {
+      minimizeComposerIfFullScreen(e);
 
       m.route(app.route.post(this.props.post));
     };
@@ -43,10 +44,16 @@ export default class EditPostComposer extends ComposerBody {
     const items = super.headerItems();
     const post = this.props.post;
 
+    const routeAndMinimize = function(element, isInitialized) {
+      if (isInitialized) return;
+      $(element).on('click', minimizeComposerIfFullScreen);
+      m.route.apply(this, arguments);
+    };
+
     items.add('title', (
       <h3>
         {icon('pencil')} {' '}
-        <a href={app.route.discussion(post.discussion(), post.number())} config={m.route}>
+        <a href={app.route.discussion(post.discussion(), post.number())} config={routeAndMinimize}>
           {app.translator.trans('core.forum.composer_edit.post_link', {number: post.number(), discussion: post.discussion().title()})}
         </a>
       </h3>
