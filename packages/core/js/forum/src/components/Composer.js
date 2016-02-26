@@ -20,13 +20,6 @@ class Composer extends Component {
     this.position = Composer.PositionEnum.HIDDEN;
 
     /**
-     * The composer's previous position.
-     *
-     * @type {Composer.PositionEnum}
-     */
-    this.oldPosition = null;
-
-    /**
      * The composer's intended height, which can be modified by the user
      * (by dragging the composer handle).
      *
@@ -71,17 +64,14 @@ class Composer extends Component {
       'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN,
       'active': this.active
     };
-    classes.visible = this.position === Composer.PositionEnum.NORMAL || classes.minimized || classes.fullScreen;
+    classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
     // If the composer is minimized, tell the composer's content component that
     // it shouldn't let the user interact with it. Set up a handler so that if
     // the content IS clicked, the composer will be shown.
     if (this.component) this.component.props.disabled = classes.minimized;
 
-    const showIfMinimized = () => {
-      if (this.position === Composer.PositionEnum.MINIMIZED) this.show();
-      m.redraw.strategy('none');
-    };
+    const showIfMinimized = this.position === Composer.PositionEnum.MINIMIZED ? this.show.bind(this) : undefined;
 
     return (
       <div className={'Composer ' + classList(classes)}>
@@ -100,8 +90,6 @@ class Composer extends Component {
     if (!isInitialized) {
       defaultHeight = this.$().height();
     }
-
-    this.updateHeight();
 
     if (isInitialized) return;
 
@@ -214,17 +202,15 @@ class Composer extends Component {
    * of any flexible elements inside the composer's body.
    */
   updateHeight() {
-    // TODO: update this in a way that is independent of the TextEditor being
-    // present.
     const height = this.computedHeight();
-    const $flexible = this.$('.TextEditor-flexible');
+    const $flexible = this.$('.Composer-flexible');
 
     this.$().height(height);
 
     if ($flexible.length) {
       const headerHeight = $flexible.offset().top - this.$().offset().top;
       const paddingBottom = parseInt($flexible.css('padding-bottom'), 10);
-      const footerHeight = this.$('.TextEditor-controls').outerHeight(true);
+      const footerHeight = this.$('.Composer-footer').outerHeight(true);
 
       $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
     }
@@ -243,98 +229,21 @@ class Composer extends Component {
     const paddingBottom = visible
       ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10)
       : 0;
+
     $('#content').css({paddingBottom});
   }
 
   /**
-   * Update (and animate) the DOM to reflect the composer's current state.
+   * Determine whether or not the Composer is covering the screen.
+   *
+   * This will be true if the Composer is in full-screen mode on desktop, or
+   * if the Composer is positioned absolutely as on mobile devices.
+   *
+   * @return {Boolean}
+   * @public
    */
-  update() {
-    // Before we redraw the composer to its new state, we need to save the
-    // current height of the composer, as well as the page's scroll position, so
-    // that we can smoothly transition from the old to the new state.
-    const $composer = this.$().stop(true);
-    const oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
-    const scrollTop = $(window).scrollTop();
-
-    m.redraw(true);
-
-    // Now that we've redrawn and the composer's DOM has been updated, we want
-    // to update the composer's height. Once we've done that, we'll capture the
-    // real value to use as the end point for our animation later on.
-    $composer.show();
-    this.updateHeight();
-
-    const newHeight = $composer.outerHeight();
-
-    switch (this.position) {
-      case Composer.PositionEnum.NORMAL:
-        // If the composer is being opened, we will make it visible and animate
-        // it growing/sliding up from the bottom of the viewport. Or if the user
-        // has just exited fullscreen mode, we will simply tell the content to
-        // take focus.
-        if (this.oldPosition !== Composer.PositionEnum.FULLSCREEN) {
-          $composer.show()
-            .css({height: oldHeight})
-            .animate({bottom: 0, height: newHeight}, 'fast', this.component.focus.bind(this.component));
-
-          if ($composer.css('position') === 'absolute') {
-            $composer.css('top', $(window).scrollTop());
-
-            this.$backdrop = $('<div/>')
-              .addClass('composer-backdrop')
-              .appendTo('body');
-          }
-        } else {
-          this.component.focus();
-        }
-        break;
-
-      case Composer.PositionEnum.MINIMIZED:
-        // If the composer has been minimized, we will animate it shrinking down
-        // to its new smaller size.
-        $composer.css({top: 'auto', height: oldHeight})
-          .animate({height: newHeight}, 'fast');
-
-        if (this.$backdrop) this.$backdrop.remove();
-        break;
-
-      case Composer.PositionEnum.HIDDEN:
-        // If the composer has been hidden, then we will animate it sliding down
-        // beyond the edge of the viewport. Once the animation is complete, we
-        // un-draw the composer's component.
-        $composer.css({top: 'auto', height: oldHeight})
-          .animate({bottom: -newHeight}, 'fast', () => {
-            $composer.hide();
-            this.clear();
-            m.redraw();
-          });
-
-        if (this.$backdrop) this.$backdrop.remove();
-        break;
-
-      case Composer.PositionEnum.FULLSCREEN:
-        this.component.focus();
-        break;
-
-      default:
-        // no default
-    }
-
-    // Provided the composer isn't in fullscreen mode, we'll want to update the
-    // body's padding to make sure all of the page's content can still be seen.
-    // Plus, we'll scroll back to where we were before the composer was opened,
-    // as its opening may have changed the content of the page.
-    if (this.position !== Composer.PositionEnum.FULLSCREEN) {
-      this.updateBodyPadding();
-      $('html, body').scrollTop(scrollTop);
-    }
-
-    this.oldPosition = this.position;
-  }
-
-  isMobile() {
-    return this.$backdrop && this.$backdrop.length;
+  isFullScreen() {
+    return this.position === Composer.PositionEnum.FULLSCREEN || this.$().css('position') === 'absolute';
   }
 
   /**
@@ -385,19 +294,75 @@ class Composer extends Component {
   }
 
   /**
+   * Animate the Composer into the given position.
+   *
+   * @param {Composer.PositionEnum} position
+   */
+  animateToPosition(position) {
+    // Before we redraw the composer to its new state, we need to save the
+    // current height of the composer, as well as the page's scroll position, so
+    // that we can smoothly transition from the old to the new state.
+    const oldPosition = this.position;
+    const $composer = this.$().stop(true);
+    const oldHeight = $composer.outerHeight();
+    const scrollTop = $(window).scrollTop();
+
+    this.position = position;
+
+    m.redraw(true);
+
+    // Now that we've redrawn and the composer's DOM has been updated, we want
+    // to update the composer's height. Once we've done that, we'll capture the
+    // real value to use as the end point for our animation later on.
+    $composer.show();
+    this.updateHeight();
+
+    const newHeight = $composer.outerHeight();
+
+    if (oldPosition === Composer.PositionEnum.HIDDEN) {
+      $composer.css({bottom: -newHeight, height: newHeight});
+    } else {
+      $composer.css({height: oldHeight});
+    }
+
+    $composer.animate({bottom: 0, height: newHeight}, 'fast', () => this.component.focus());
+
+    this.updateBodyPadding();
+    $(window).scrollTop(scrollTop);
+  }
+
+  /**
+   * Show the Composer backdrop.
+   */
+  showBackdrop() {
+    this.$backdrop = $('<div/>')
+      .addClass('composer-backdrop')
+      .appendTo('body');
+  }
+
+  /**
+   * Hide the Composer backdrop.
+   */
+  hideBackdrop() {
+    if (this.$backdrop) this.$backdrop.remove();
+  }
+
+  /**
    * Show the composer.
    *
    * @public
    */
   show() {
-    // If the composer is hidden or minimized, we'll need to update its
-    // position. Otherwise, if the composer is already showing (whether it's
-    // fullscreen or not), we can leave it as is.
-    if ([Composer.PositionEnum.MINIMIZED, Composer.PositionEnum.HIDDEN].indexOf(this.position) !== -1) {
-      this.position = Composer.PositionEnum.NORMAL;
+    if (this.position === Composer.PositionEnum.NORMAL || this.position === Composer.PositionEnum.FULLSCREEN) {
+      return;
     }
 
-    this.update();
+    this.animateToPosition(Composer.PositionEnum.NORMAL);
+
+    if (this.isFullScreen()) {
+      this.$().css('top', $(window).scrollTop());
+      this.showBackdrop();
+    }
   }
 
   /**
@@ -406,8 +371,20 @@ class Composer extends Component {
    * @public
    */
   hide() {
-    this.position = Composer.PositionEnum.HIDDEN;
-    this.update();
+    const $composer = this.$();
+
+    // Animate the composer sliding down off the bottom edge of the viewport.
+    // Only when the animation is completed, update the Composer state flag and
+    // other elements on the page.
+    $composer.stop(true).animate({bottom: -$composer.height()}, 'fast', () => {
+      this.position = Composer.PositionEnum.HIDDEN;
+      this.clear();
+      m.redraw();
+
+      $composer.hide();
+      this.hideBackdrop();
+      this.updateBodyPadding();
+    });
   }
 
   /**
@@ -428,10 +405,12 @@ class Composer extends Component {
    * @public
    */
   minimize() {
-    if (this.position !== Composer.PositionEnum.HIDDEN) {
-      this.position = Composer.PositionEnum.MINIMIZED;
-      this.update();
-    }
+    if (this.position === Composer.PositionEnum.HIDDEN) return;
+
+    this.animateToPosition(Composer.PositionEnum.MINIMIZED);
+
+    this.$().css('top', 'auto');
+    this.hideBackdrop();
   }
 
   /**
@@ -443,7 +422,9 @@ class Composer extends Component {
   fullScreen() {
     if (this.position !== Composer.PositionEnum.HIDDEN) {
       this.position = Composer.PositionEnum.FULLSCREEN;
-      this.update();
+      m.redraw();
+      this.updateHeight();
+      this.component.focus();
     }
   }
 
@@ -455,7 +436,9 @@ class Composer extends Component {
   exitFullScreen() {
     if (this.position === Composer.PositionEnum.FULLSCREEN) {
       this.position = Composer.PositionEnum.NORMAL;
-      this.update();
+      m.redraw();
+      this.updateHeight();
+      this.component.focus();
     }
   }
 

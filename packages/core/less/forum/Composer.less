@@ -39,11 +39,14 @@
   h3 {
     margin: 0;
     line-height: 1.5em;
+    color: @secondary-color;
 
     &, input, a {
-      color: @secondary-color;
       font-size: 14px;
       font-weight: normal;
+    }
+    input, a {
+      color: inherit;
     }
     input {
       font-size: 16px;
@@ -185,6 +188,10 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        h3 {
+          color: @header-control-color;
+        }
       }
     }
     h3 {

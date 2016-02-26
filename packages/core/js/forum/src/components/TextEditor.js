@@ -19,7 +19,7 @@ export default class TextEditor extends Component {
     /**
      * The value of the textarea.
      *
-     * @type {[type]}
+     * @type {String}
      */
     this.value = m.prop(this.props.value || '');
   }
@@ -27,14 +27,14 @@ export default class TextEditor extends Component {
   view() {
     return (
       <div className="TextEditor">
-        <textarea className="FormControl TextEditor-flexible"
+        <textarea className="FormControl Composer-flexible"
           config={this.configTextarea.bind(this)}
           oninput={m.withAttr('value', this.oninput.bind(this))}
           placeholder={this.props.placeholder || ''}
           disabled={!!this.props.disabled}
           value={this.value()}/>
 
-        <ul className="TextEditor-controls">
+        <ul className="TextEditor-controls Composer-footer">
           {listItems(this.controlItems().toArray())}
         </ul>
       </div>
