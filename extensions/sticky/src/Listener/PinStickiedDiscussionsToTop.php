@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -51,6 +52,7 @@ class PinStickiedDiscussionsToTop
             foreach ($search->getActiveGambits() as $gambit) {
                 if ($gambit instanceof TagGambit) {
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
+
                     return;
                 }
             }
