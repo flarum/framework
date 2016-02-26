@@ -11,9 +11,9 @@
 namespace Flarum\Core\Listener;
 
 use Flarum\Core\Post;
-use Flarum\Event\PostWasPosted;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
 use Flarum\Event\PostWasRestored;
 use Illuminate\Contracts\Events\Dispatcher;
 

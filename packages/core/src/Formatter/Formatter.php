@@ -146,7 +146,7 @@ class Formatter
      */
     protected function getComponent($name)
     {
-        $cacheKey = 'flarum.formatter.' . $name;
+        $cacheKey = 'flarum.formatter.'.$name;
 
         return $this->cache->rememberForever($cacheKey, function () use ($name) {
             return $this->getConfigurator()->finalize()[$name];

@@ -10,9 +10,9 @@
 
 namespace Flarum\Install\Console;
 
+use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Yaml\Yaml;
-use Exception;
 
 class FileDataProvider implements DataProviderInterface
 {
@@ -39,7 +39,7 @@ class FileDataProvider implements DataProviderInterface
             $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
             $this->databaseConfiguration = isset($configuration['databaseConfiguration']) ? $configuration['databaseConfiguration'] : [];
             $this->adminUser = isset($configuration['adminUser']) ? $configuration['adminUser'] : [];
-            $this->settings = isset($configuration['settings']) ? $configuration['settings']: [];
+            $this->settings = isset($configuration['settings']) ? $configuration['settings'] : [];
         } else {
             throw new Exception('Configuration file does not exist.');
         }
@@ -52,7 +52,7 @@ class FileDataProvider implements DataProviderInterface
 
     public function getBaseUrl()
     {
-        return (!is_null($this->baseUrl)) ? $this->baseUrl : $this->default->getBaseUrl();
+        return (! is_null($this->baseUrl)) ? $this->baseUrl : $this->default->getBaseUrl();
     }
 
     public function getAdminUser()

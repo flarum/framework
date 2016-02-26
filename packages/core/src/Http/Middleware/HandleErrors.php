@@ -10,11 +10,11 @@
 
 namespace Flarum\Http\Middleware;
 
+use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
-use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 
 class HandleErrors implements ErrorMiddlewareInterface
 {

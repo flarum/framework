@@ -11,7 +11,6 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Core\PasswordToken;
-use Flarum\Core\Command\EditUser;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;

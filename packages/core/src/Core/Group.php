@@ -81,9 +81,9 @@ class Group extends AbstractModel
         $group = new static;
 
         $group->name_singular = $nameSingular;
-        $group->name_plural   = $namePlural;
-        $group->color         = $color;
-        $group->icon          = $icon;
+        $group->name_plural = $namePlural;
+        $group->color = $color;
+        $group->icon = $icon;
 
         $group->raise(new GroupWasCreated($group));
 
@@ -100,7 +100,7 @@ class Group extends AbstractModel
     public function rename($nameSingular, $namePlural)
     {
         $this->name_singular = $nameSingular;
-        $this->name_plural   = $namePlural;
+        $this->name_plural = $namePlural;
 
         $this->raise(new GroupWasRenamed($this));
 

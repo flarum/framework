@@ -87,7 +87,7 @@ class ListPostsController extends AbstractCollectionController
         if (($near = array_get($queryParams, 'page.near')) > 1) {
             if (count($filter) > 1 || ! isset($filter['discussion']) || $sort) {
                 throw new InvalidParameterException('You can only use page[near] with '
-                    . 'filter[discussion] and the default sort order');
+                    .'filter[discussion] and the default sort order');
             }
 
             $offset = $this->posts->getIndexForNumber($filter['discussion'], $near, $actor);
