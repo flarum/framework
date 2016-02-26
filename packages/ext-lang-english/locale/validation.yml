@@ -67,3 +67,7 @@ validation:
     content: content
     name_singular: singular name
     name_plural: plural name
+
+  custom:
+    username:
+      regex: "The username may only contain letters, numbers, and dashes."
