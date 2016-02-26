@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -67,7 +68,7 @@ class PushNewPosts
 
         foreach ($event->users as $user) {
             if ($user->shouldAlert($blueprint::getType())) {
-                $pusher->trigger('private-user' . $user->id, 'notification', null);
+                $pusher->trigger('private-user'.$user->id, 'notification', null);
             }
         }
     }
