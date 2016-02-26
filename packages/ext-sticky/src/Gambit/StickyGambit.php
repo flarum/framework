@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -10,8 +11,8 @@
 
 namespace Flarum\Sticky\Gambit;
 
-use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\AbstractRegexGambit;
+use Flarum\Core\Search\AbstractSearch;
 
 class StickyGambit extends AbstractRegexGambit
 {
