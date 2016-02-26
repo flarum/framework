@@ -26,13 +26,6 @@ export default class PostStreamScrubber extends Component {
     this.index = 0;
 
     /**
-     * The index of the comment that is currently at the top of the viewport.
-     *
-     * @type {Number}
-     */
-    this.commentsIndex = 0;
-
-    /**
      * The number of posts that are currently visible in the viewport.
      *
      * @type {Number}
@@ -65,11 +58,11 @@ export default class PostStreamScrubber extends Component {
     const retain = this.subtree.retain();
     const count = this.count();
     const unreadCount = this.props.stream.discussion.unreadCount();
-    const unreadPercent = Math.min(count - this.index, unreadCount) / count;
+    const unreadPercent = count ? Math.min(count - this.index, unreadCount) / count : 0;
 
     const viewing = app.translator.transChoice('core.forum.post_scrubber.viewing_text', count, {
-      index: <span className="Scrubber-index">{retain || formatNumber(this.commentsIndex)}</span>,
-      count: <span className="Scrubber-count">{formatNumber(this.commentsCount())}</span>
+      index: <span className="Scrubber-index">{retain || formatNumber(Math.ceil(this.index + this.visible))}</span>,
+      count: <span className="Scrubber-count">{formatNumber(count)}</span>
     });
 
     function styleUnread(element, isInitialized, context) {
@@ -153,15 +146,6 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
-   * Get the number of comments in the discussion.
-   *
-   * @return {Integer}
-   */
-  commentsCount() {
-    return this.props.stream.discussion.commentsCount();
-  }
-
-  /**
    * When the stream is unpaused, update the scrubber to reflect its position.
    */
   streamWasUnpaused() {
@@ -214,7 +198,6 @@ export default class PostStreamScrubber extends Component {
     // and the viewport had a height of 0.
     const $items = stream.$('> .PostStream-item[data-index]');
     let index = $items.first().data('index') || 0;
-    let commentsIndex = 0;
     let visible = 0;
     let period = '';
 
@@ -225,13 +208,6 @@ export default class PostStreamScrubber extends Component {
       const $this = $(this);
       const top = $this.offset().top;
       const height = $this.outerHeight(true);
-
-      // If an item is a comment and is not below the viewport, update the
-      // comment index, which will be displayed as "viewing ? of X" on the
-      // scrubber.
-      if ($this.data('type') == 'comment' && top < viewportBottom) {
-        commentsIndex++;
-      }
 
       // If this item is above the top of the viewport, skip to the next
       // one. If it's below the bottom of the viewport, break out of the
@@ -264,7 +240,6 @@ export default class PostStreamScrubber extends Component {
     });
 
     this.index = index;
-    this.commentsIndex = commentsIndex;
     this.visible = visible;
     this.description = period ? moment(period).format('MMMM YYYY') : '';
   }
@@ -340,7 +315,7 @@ export default class PostStreamScrubber extends Component {
     const visible = this.visible || 1;
 
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(this.commentsIndex));
+    $scrubber.find('.Scrubber-index').text(formatNumber(Math.ceil(index + visible)));
     $scrubber.find('.Scrubber-description').text(this.description);
     $scrubber.toggleClass('disabled', this.disabled());
 
