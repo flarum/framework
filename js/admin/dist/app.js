@@ -18931,10 +18931,6 @@ System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum
           value: function view() {
             var _this = this;
 
-            var extensions = Object.keys(app.extensions).map(function (id) {
-              return app.extensions[id];
-            });
-
             return m(
               'div',
               { className: 'ExtensionsPage' },
@@ -18963,9 +18959,8 @@ System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum
                   m(
                     'ul',
                     { className: 'ExtensionList' },
-                    extensions.sort(function (a, b) {
-                      return a.extra['flarum-extension'].title.localeCompare(b.extra['flarum-extension'].title);
-                    }).map(function (extension) {
+                    Object.keys(app.extensions).map(function (id) {
+                      var extension = app.extensions[id];
                       var controls = _this.controlItems(extension.id).toArray();
 
                       return m(
@@ -18976,8 +18971,8 @@ System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum
                           { className: 'ExtensionListItem-content' },
                           m(
                             'span',
-                            { className: 'ExtensionListItem-icon ExtensionIcon', style: extension.extra['flarum-extension'].icon },
-                            extension.extra['flarum-extension'].icon ? icon(extension.extra['flarum-extension'].icon.name) : ''
+                            { className: 'ExtensionListItem-icon ExtensionIcon', style: extension.icon },
+                            extension.icon ? icon(extension.icon.name) : ''
                           ),
                           controls.length ? m(
                             Dropdown,
