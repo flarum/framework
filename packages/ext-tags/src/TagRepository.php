@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -50,7 +51,7 @@ class TagRepository
      *
      * @param string $slug
      * @param User|null $user
-     * @return integer
+     * @return int
      */
     public function getIdForSlug($slug, User $user = null)
     {

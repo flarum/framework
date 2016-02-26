@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -20,7 +21,7 @@ use Tobscure\JsonApi\Document;
 class CreateTagController extends AbstractCreateController
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $serializer = TagSerializer::class;
 

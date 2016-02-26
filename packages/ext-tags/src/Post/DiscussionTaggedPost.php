@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -51,8 +52,8 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param integer $discussionId
-     * @param integer $userId
+     * @param int $discussionId
+     * @param int $userId
      * @param array $oldTagIds
      * @param array $newTagIds
      * @return static
@@ -61,10 +62,10 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
     {
         $post = new static;
 
-        $post->content       = static::buildContent($oldTagIds, $newTagIds);
-        $post->time          = time();
+        $post->content = static::buildContent($oldTagIds, $newTagIds);
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
+        $post->user_id = $userId;
 
         return $post;
     }
