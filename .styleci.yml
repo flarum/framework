@@ -1,0 +1,22 @@
+preset: recommended
+
+risky: true
+
+linting: true
+
+enabled:
+  - logical_not_operators_with_successor_space
+
+disabled:
+  - phpdoc_align
+  - phpdoc_separation
+  - multiline_array_trailing_comma
+  - new_with_braces
+  - phpdoc_types
+  - phpdoc_order
+  - align_double_arrow
+  - unalign_double_arrow
+
+finder:
+  exclude:
+    - "stubs"
