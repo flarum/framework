@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -11,9 +12,9 @@
 namespace Flarum\Subscriptions\Notification;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\Post;
 use Flarum\Core\Notification\BlueprintInterface;
 use Flarum\Core\Notification\MailableInterface;
+use Flarum\Core\Post;
 
 class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {
