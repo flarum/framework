@@ -20105,13 +20105,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             this.position = Composer.PositionEnum.HIDDEN;
 
             /**
-             * The composer's previous position.
-             *
-             * @type {Composer.PositionEnum}
-             */
-            this.oldPosition = null;
-
-            /**
              * The composer's intended height, which can be modified by the user
              * (by dragging the composer handle).
              *
@@ -20151,25 +20144,20 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'view',
           value: function view() {
-            var _this = this;
-
             var classes = {
               'normal': this.position === Composer.PositionEnum.NORMAL,
               'minimized': this.position === Composer.PositionEnum.MINIMIZED,
               'fullScreen': this.position === Composer.PositionEnum.FULLSCREEN,
               'active': this.active
             };
-            classes.visible = this.position === Composer.PositionEnum.NORMAL || classes.minimized || classes.fullScreen;
+            classes.visible = classes.normal || classes.minimized || classes.fullScreen;
 
             // If the composer is minimized, tell the composer's content component that
             // it shouldn't let the user interact with it. Set up a handler so that if
             // the content IS clicked, the composer will be shown.
             if (this.component) this.component.props.disabled = classes.minimized;
 
-            var showIfMinimized = function showIfMinimized() {
-              if (_this.position === Composer.PositionEnum.MINIMIZED) _this.show();
-              m.redraw.strategy('none');
-            };
+            var showIfMinimized = this.position === Composer.PositionEnum.MINIMIZED ? this.show.bind(this) : undefined;
 
             return m(
               'div',
@@ -20190,15 +20178,13 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'config',
           value: function config(isInitialized, context) {
-            var _this2 = this;
+            var _this = this;
 
             var defaultHeight = undefined;
 
             if (!isInitialized) {
               defaultHeight = this.$().height();
             }
-
-            this.updateHeight();
 
             if (isInitialized) return;
 
@@ -20215,20 +20201,20 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             // Whenever any of the inputs inside the composer are have focus, we want to
             // add a class to the composer to draw attention to it.
             this.$().on('focus blur', ':input', function (e) {
-              _this2.active = e.type === 'focusin';
+              _this.active = e.type === 'focusin';
               m.redraw();
             });
 
             // When the escape key is pressed on any inputs, close the composer.
             this.$().on('keydown', ':input', 'esc', function () {
-              return _this2.close();
+              return _this.close();
             });
 
             // Don't let the user leave the page without first giving the composer's
             // component a chance to scream at the user to make sure they don't
             // unintentionally lose any contnet.
             window.onbeforeunload = function () {
-              return _this2.component && _this2.component.preventExit() || undefined;
+              return _this.component && _this.component.preventExit() || undefined;
             };
 
             var handlers = {};
@@ -20317,17 +20303,15 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'updateHeight',
           value: function updateHeight() {
-            // TODO: update this in a way that is independent of the TextEditor being
-            // present.
             var height = this.computedHeight();
-            var $flexible = this.$('.TextEditor-flexible');
+            var $flexible = this.$('.Composer-flexible');
 
             this.$().height(height);
 
             if ($flexible.length) {
               var headerHeight = $flexible.offset().top - this.$().offset().top;
               var paddingBottom = parseInt($flexible.css('padding-bottom'), 10);
-              var footerHeight = this.$('.TextEditor-controls').outerHeight(true);
+              var footerHeight = this.$('.Composer-footer').outerHeight(true);
 
               $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
             }
@@ -20344,97 +20328,23 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             var visible = this.position !== Composer.PositionEnum.HIDDEN && this.position !== Composer.PositionEnum.MINIMIZED && this.$().css('position') !== 'absolute';
 
             var paddingBottom = visible ? this.computedHeight() - parseInt($('#app').css('padding-bottom'), 10) : 0;
+
             $('#content').css({ paddingBottom: paddingBottom });
           }
 
           /**
-           * Update (and animate) the DOM to reflect the composer's current state.
+           * Determine whether or not the Composer is covering the screen.
+           *
+           * This will be true if the Composer is in full-screen mode on desktop, or
+           * if the Composer is positioned absolutely as on mobile devices.
+           *
+           * @return {Boolean}
+           * @public
            */
         }, {
-          key: 'update',
-          value: function update() {
-            var _this3 = this;
-
-            // Before we redraw the composer to its new state, we need to save the
-            // current height of the composer, as well as the page's scroll position, so
-            // that we can smoothly transition from the old to the new state.
-            var $composer = this.$().stop(true);
-            var oldHeight = $composer.is(':visible') ? $composer.outerHeight() : 0;
-            var scrollTop = $(window).scrollTop();
-
-            m.redraw(true);
-
-            // Now that we've redrawn and the composer's DOM has been updated, we want
-            // to update the composer's height. Once we've done that, we'll capture the
-            // real value to use as the end point for our animation later on.
-            $composer.show();
-            this.updateHeight();
-
-            var newHeight = $composer.outerHeight();
-
-            switch (this.position) {
-              case Composer.PositionEnum.NORMAL:
-                // If the composer is being opened, we will make it visible and animate
-                // it growing/sliding up from the bottom of the viewport. Or if the user
-                // has just exited fullscreen mode, we will simply tell the content to
-                // take focus.
-                if (this.oldPosition !== Composer.PositionEnum.FULLSCREEN) {
-                  $composer.show().css({ height: oldHeight }).animate({ bottom: 0, height: newHeight }, 'fast', this.component.focus.bind(this.component));
-
-                  if ($composer.css('position') === 'absolute') {
-                    $composer.css('top', $(window).scrollTop());
-
-                    this.$backdrop = $('<div/>').addClass('composer-backdrop').appendTo('body');
-                  }
-                } else {
-                  this.component.focus();
-                }
-                break;
-
-              case Composer.PositionEnum.MINIMIZED:
-                // If the composer has been minimized, we will animate it shrinking down
-                // to its new smaller size.
-                $composer.css({ top: 'auto', height: oldHeight }).animate({ height: newHeight }, 'fast');
-
-                if (this.$backdrop) this.$backdrop.remove();
-                break;
-
-              case Composer.PositionEnum.HIDDEN:
-                // If the composer has been hidden, then we will animate it sliding down
-                // beyond the edge of the viewport. Once the animation is complete, we
-                // un-draw the composer's component.
-                $composer.css({ top: 'auto', height: oldHeight }).animate({ bottom: -newHeight }, 'fast', function () {
-                  $composer.hide();
-                  _this3.clear();
-                  m.redraw();
-                });
-
-                if (this.$backdrop) this.$backdrop.remove();
-                break;
-
-              case Composer.PositionEnum.FULLSCREEN:
-                this.component.focus();
-                break;
-
-              default:
-              // no default
-            }
-
-            // Provided the composer isn't in fullscreen mode, we'll want to update the
-            // body's padding to make sure all of the page's content can still be seen.
-            // Plus, we'll scroll back to where we were before the composer was opened,
-            // as its opening may have changed the content of the page.
-            if (this.position !== Composer.PositionEnum.FULLSCREEN) {
-              this.updateBodyPadding();
-              $('html, body').scrollTop(scrollTop);
-            }
-
-            this.oldPosition = this.position;
-          }
-        }, {
-          key: 'isMobile',
-          value: function isMobile() {
-            return this.$backdrop && this.$backdrop.length;
+          key: 'isFullScreen',
+          value: function isFullScreen() {
+            return this.position === Composer.PositionEnum.FULLSCREEN || this.$().css('position') === 'absolute';
           }
 
           /**
@@ -20491,6 +20401,68 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
           }
 
           /**
+           * Animate the Composer into the given position.
+           *
+           * @param {Composer.PositionEnum} position
+           */
+        }, {
+          key: 'animateToPosition',
+          value: function animateToPosition(position) {
+            var _this2 = this;
+
+            // Before we redraw the composer to its new state, we need to save the
+            // current height of the composer, as well as the page's scroll position, so
+            // that we can smoothly transition from the old to the new state.
+            var oldPosition = this.position;
+            var $composer = this.$().stop(true);
+            var oldHeight = $composer.outerHeight();
+            var scrollTop = $(window).scrollTop();
+
+            this.position = position;
+
+            m.redraw(true);
+
+            // Now that we've redrawn and the composer's DOM has been updated, we want
+            // to update the composer's height. Once we've done that, we'll capture the
+            // real value to use as the end point for our animation later on.
+            $composer.show();
+            this.updateHeight();
+
+            var newHeight = $composer.outerHeight();
+
+            if (oldPosition === Composer.PositionEnum.HIDDEN) {
+              $composer.css({ bottom: -newHeight, height: newHeight });
+            } else {
+              $composer.css({ height: oldHeight });
+            }
+
+            $composer.animate({ bottom: 0, height: newHeight }, 'fast', function () {
+              return _this2.component.focus();
+            });
+
+            this.updateBodyPadding();
+            $(window).scrollTop(scrollTop);
+          }
+
+          /**
+           * Show the Composer backdrop.
+           */
+        }, {
+          key: 'showBackdrop',
+          value: function showBackdrop() {
+            this.$backdrop = $('<div/>').addClass('composer-backdrop').appendTo('body');
+          }
+
+          /**
+           * Hide the Composer backdrop.
+           */
+        }, {
+          key: 'hideBackdrop',
+          value: function hideBackdrop() {
+            if (this.$backdrop) this.$backdrop.remove();
+          }
+
+          /**
            * Show the composer.
            *
            * @public
@@ -20498,14 +20470,16 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'show',
           value: function show() {
-            // If the composer is hidden or minimized, we'll need to update its
-            // position. Otherwise, if the composer is already showing (whether it's
-            // fullscreen or not), we can leave it as is.
-            if ([Composer.PositionEnum.MINIMIZED, Composer.PositionEnum.HIDDEN].indexOf(this.position) !== -1) {
-              this.position = Composer.PositionEnum.NORMAL;
+            if (this.position === Composer.PositionEnum.NORMAL || this.position === Composer.PositionEnum.FULLSCREEN) {
+              return;
             }
 
-            this.update();
+            this.animateToPosition(Composer.PositionEnum.NORMAL);
+
+            if (this.isFullScreen()) {
+              this.$().css('top', $(window).scrollTop());
+              this.showBackdrop();
+            }
           }
 
           /**
@@ -20516,8 +20490,22 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'hide',
           value: function hide() {
-            this.position = Composer.PositionEnum.HIDDEN;
-            this.update();
+            var _this3 = this;
+
+            var $composer = this.$();
+
+            // Animate the composer sliding down off the bottom edge of the viewport.
+            // Only when the animation is completed, update the Composer state flag and
+            // other elements on the page.
+            $composer.stop(true).animate({ bottom: -$composer.height() }, 'fast', function () {
+              _this3.position = Composer.PositionEnum.HIDDEN;
+              _this3.clear();
+              m.redraw();
+
+              $composer.hide();
+              _this3.hideBackdrop();
+              _this3.updateBodyPadding();
+            });
           }
 
           /**
@@ -20542,10 +20530,12 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'minimize',
           value: function minimize() {
-            if (this.position !== Composer.PositionEnum.HIDDEN) {
-              this.position = Composer.PositionEnum.MINIMIZED;
-              this.update();
-            }
+            if (this.position === Composer.PositionEnum.HIDDEN) return;
+
+            this.animateToPosition(Composer.PositionEnum.MINIMIZED);
+
+            this.$().css('top', 'auto');
+            this.hideBackdrop();
           }
 
           /**
@@ -20559,7 +20549,9 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
           value: function fullScreen() {
             if (this.position !== Composer.PositionEnum.HIDDEN) {
               this.position = Composer.PositionEnum.FULLSCREEN;
-              this.update();
+              m.redraw();
+              this.updateHeight();
+              this.component.focus();
             }
           }
 
@@ -20573,7 +20565,9 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
           value: function exitFullScreen() {
             if (this.position === Composer.PositionEnum.FULLSCREEN) {
               this.position = Composer.PositionEnum.NORMAL;
-              this.update();
+              m.redraw();
+              this.updateHeight();
+              this.component.focus();
             }
           }
 
@@ -22442,6 +22436,16 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
   };
 });;
 System.register('flarum/components/EditPostComposer', ['flarum/components/ComposerBody', 'flarum/helpers/icon'], function (_export) {
+  'use strict';
+
+  var ComposerBody, icon, EditPostComposer;
+
+  function minimizeComposerIfFullScreen(e) {
+    if (app.composer.isFullScreen()) {
+      app.composer.minimize();
+      e.stopPropagation();
+    }
+  }
 
   /**
    * The `EditPostComposer` component displays the composer content for editing a
@@ -22453,9 +22457,6 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
    * - All of the props for ComposerBody
    * - `post`
    */
-  'use strict';
-
-  var ComposerBody, icon, EditPostComposer;
   return {
     setters: [function (_flarumComponentsComposerBody) {
       ComposerBody = _flarumComponentsComposerBody['default'];
@@ -22478,16 +22479,8 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
 
             babelHelpers.get(Object.getPrototypeOf(EditPostComposer.prototype), 'init', this).call(this);
 
-            this.editor.props.preview = function () {
-              // If the composer backdrop is visible, assume we're on mobile and need to
-              // minimize the composer in order to see the preview. We do this as a
-              // timeout so that it occurs after the click handler on the composer
-              // itself that shows the composer if minimized.
-              if (app.composer.isMobile()) {
-                setTimeout(function () {
-                  return app.composer.minimize();
-                }, 0);
-              }
+            this.editor.props.preview = function (e) {
+              minimizeComposerIfFullScreen(e);
 
               m.route(app.route.post(_this.props.post));
             };
@@ -22498,6 +22491,12 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
             var items = babelHelpers.get(Object.getPrototypeOf(EditPostComposer.prototype), 'headerItems', this).call(this);
             var post = this.props.post;
 
+            var routeAndMinimize = function routeAndMinimize(element, isInitialized) {
+              if (isInitialized) return;
+              $(element).on('click', minimizeComposerIfFullScreen);
+              m.route.apply(this, arguments);
+            };
+
             items.add('title', m(
               'h3',
               null,
@@ -22506,7 +22505,7 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
               ' ',
               m(
                 'a',
-                { href: app.route.discussion(post.discussion(), post.number()), config: m.route },
+                { href: app.route.discussion(post.discussion(), post.number()), config: routeAndMinimize },
                 app.translator.trans('core.forum.composer_edit.post_link', { number: post.number(), discussion: post.discussion().title() })
               )
             ));
@@ -27561,6 +27560,16 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
   };
 });;
 System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export) {
+  'use strict';
+
+  var ComposerBody, Alert, Button, icon, extractText, ReplyComposer;
+
+  function minimizeComposerIfFullScreen(e) {
+    if (app.composer.isFullScreen()) {
+      app.composer.minimize();
+      e.stopPropagation();
+    }
+  }
 
   /**
    * The `ReplyComposer` component displays the composer content for replying to a
@@ -27571,9 +27580,6 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
    * - All of the props of ComposerBody
    * - `discussion`
    */
-  'use strict';
-
-  var ComposerBody, Alert, Button, icon, extractText, ReplyComposer;
   return {
     setters: [function (_flarumComponentsComposerBody) {
       ComposerBody = _flarumComponentsComposerBody['default'];
@@ -27602,16 +27608,8 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
 
             babelHelpers.get(Object.getPrototypeOf(ReplyComposer.prototype), 'init', this).call(this);
 
-            this.editor.props.preview = function () {
-              // If the composer backdrop is visible, assume we're on mobile and need to
-              // minimize the composer in order to see the preview. We do this as a
-              // timeout so that it occurs after the click handler on the composer
-              // itself that shows the composer if minimized.
-              if (app.composer.isMobile()) {
-                setTimeout(function () {
-                  return app.composer.minimize();
-                }, 0);
-              }
+            this.editor.props.preview = function (e) {
+              minimizeComposerIfFullScreen(e);
 
               m.route(app.route.discussion(_this.props.discussion, 'reply'));
             };
@@ -27622,6 +27620,12 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
             var items = babelHelpers.get(Object.getPrototypeOf(ReplyComposer.prototype), 'headerItems', this).call(this);
             var discussion = this.props.discussion;
 
+            var routeAndMinimize = function routeAndMinimize(element, isInitialized) {
+              if (isInitialized) return;
+              $(element).on('click', minimizeComposerIfFullScreen);
+              m.route.apply(this, arguments);
+            };
+
             items.add('title', m(
               'h3',
               null,
@@ -27630,7 +27634,7 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
               ' ',
               m(
                 'a',
-                { href: app.route.discussion(discussion), config: m.route },
+                { href: app.route.discussion(discussion), config: routeAndMinimize },
                 discussion.title()
               )
             ));
@@ -29201,7 +29205,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
             /**
              * The value of the textarea.
              *
-             * @type {[type]}
+             * @type {String}
              */
             this.value = m.prop(this.props.value || '');
           }
@@ -29211,7 +29215,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
             return m(
               'div',
               { className: 'TextEditor' },
-              m('textarea', { className: 'FormControl TextEditor-flexible',
+              m('textarea', { className: 'FormControl Composer-flexible',
                 config: this.configTextarea.bind(this),
                 oninput: m.withAttr('value', this.oninput.bind(this)),
                 placeholder: this.props.placeholder || '',
@@ -29219,7 +29223,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
                 value: this.value() }),
               m(
                 'ul',
-                { className: 'TextEditor-controls' },
+                { className: 'TextEditor-controls Composer-footer' },
                 listItems(this.controlItems().toArray())
               )
             );
