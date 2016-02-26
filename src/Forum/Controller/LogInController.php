@@ -12,9 +12,9 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\TokenController;
-use Flarum\Http\AccessToken;
-use Flarum\Event\UserLoggedIn;
 use Flarum\Core\Repository\UserRepository;
+use Flarum\Event\UserLoggedIn;
+use Flarum\Http\AccessToken;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;

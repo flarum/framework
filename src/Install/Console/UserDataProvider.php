@@ -10,7 +10,6 @@
 
 namespace Flarum\Install\Console;
 
-use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,7 +24,6 @@ class UserDataProvider implements DataProviderInterface
     protected $questionHelper;
 
     protected $baseUrl;
-
 
     public function __construct(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
     {
@@ -77,13 +75,13 @@ class UserDataProvider implements DataProviderInterface
             'forum_title' => $title,
             'forum_description' => '',
             'mail_driver' => 'mail',
-            'mail_from' => 'noreply@' . preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
+            'mail_from' => 'noreply@'.preg_replace('/^www\./i', '', parse_url($baseUrl, PHP_URL_HOST)),
             'theme_colored_header' => '0',
             'theme_dark_mode' => '0',
             'theme_primary_color' => '#4D698E',
             'theme_secondary_color' => '#4D698E',
             'welcome_message' => 'This is beta software and you should not use it in production.',
-            'welcome_title' => 'Welcome to ' . $title,
+            'welcome_title' => 'Welcome to '.$title,
         ];
     }
 

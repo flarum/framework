@@ -170,10 +170,10 @@ class RegisterUserHandler
             'target' => $this->uploadDir,
         ]);
 
-        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+        $uploadName = Str::lower(Str::quickRandom()).'.jpg';
 
         $user->changeAvatarPath($uploadName);
 
-        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
     }
 }

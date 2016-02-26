@@ -10,9 +10,9 @@
 
 namespace Flarum\Core\Search\Discussion\Gambit;
 
+use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\Discussion\DiscussionSearch;
 use Flarum\Core\Search\Discussion\Fulltext\DriverInterface;
-use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\GambitInterface;
 use LogicException;
 

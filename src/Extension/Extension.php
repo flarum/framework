@@ -86,7 +86,7 @@ class Extension implements Arrayable
      */
     public function __construct($path, $composerJson)
     {
-        $this->path         = $path;
+        $this->path = $path;
         $this->composerJson = $composerJson;
         $this->assignId();
     }
@@ -116,7 +116,6 @@ class Extension implements Arrayable
         return isset($this->{$name}) || $this->composerJsonAttribute(Str::snake($name, '-'));
     }
 
-
     /**
      * Dot notation getter for composer.json attributes.
      *
@@ -131,7 +130,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @param boolean $installed
+     * @param bool $installed
      * @return Extension
      */
     public function setInstalled($installed)
@@ -142,7 +141,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isInstalled()
     {
@@ -177,15 +176,15 @@ class Extension implements Arrayable
     {
         if (($icon = $this->composerJsonAttribute('extra.flarum-extension.icon'))) {
             if ($file = Arr::get($icon, 'image')) {
-                $file = $this->path . '/' . $file;
+                $file = $this->path.'/'.$file;
 
                 if (file_exists($file)) {
                     $mimetype = pathinfo($file, PATHINFO_EXTENSION) === 'svg'
                         ? 'image/svg+xml'
                         : finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
-                    $data     = file_get_contents($file);
+                    $data = file_get_contents($file);
 
-                    $icon['backgroundImage'] = 'url(\'data:' . $mimetype . ';base64,' . base64_encode($data) . '\')';
+                    $icon['backgroundImage'] = 'url(\'data:'.$mimetype.';base64,'.base64_encode($data).'\')';
                 }
             }
 
@@ -194,7 +193,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @param boolean $enabled
+     * @param bool $enabled
      * @return Extension
      */
     public function setEnabled($enabled)
@@ -205,7 +204,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isEnabled()
     {
@@ -237,7 +236,7 @@ class Extension implements Arrayable
      */
     public function hasAssets()
     {
-        return realpath($this->path . '/assets/') !== false;
+        return realpath($this->path.'/assets/') !== false;
     }
 
     /**
@@ -247,7 +246,7 @@ class Extension implements Arrayable
      */
     public function hasMigrations()
     {
-        return realpath($this->path . '/migrations/') !== false;
+        return realpath($this->path.'/migrations/') !== false;
     }
 
     /**

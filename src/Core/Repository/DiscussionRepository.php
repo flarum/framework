@@ -11,8 +11,8 @@
 namespace Flarum\Core\Repository;
 
 use Flarum\Core\Discussion;
-use Illuminate\Database\Eloquent\Builder;
 use Flarum\Core\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
 
 class DiscussionRepository
@@ -31,7 +31,7 @@ class DiscussionRepository
      * Find a discussion by ID, optionally making sure it is visible to a
      * certain user, or throw an exception.
      *
-     * @param integer $id
+     * @param int $id
      * @param User $user
      * @return \Flarum\Core\Discussion
      */

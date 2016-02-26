@@ -10,10 +10,8 @@
 
 namespace Flarum\Console\Command;
 
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Question\Question;
 use Flarum\Foundation\Application;
+use Symfony\Component\Console\Question\Question;
 
 class GenerateExtensionCommand extends AbstractCommand
 {
@@ -21,7 +19,7 @@ class GenerateExtensionCommand extends AbstractCommand
     {
         $this
             ->setName('generate:extension')
-            ->setDescription("Generate a Flarum extension skeleton.");
+            ->setDescription('Generate a Flarum extension skeleton.');
     }
 
     /**

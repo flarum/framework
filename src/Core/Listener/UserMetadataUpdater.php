@@ -10,14 +10,14 @@
 
 namespace Flarum\Core\Listener;
 
-use Flarum\Core\Post;
 use Flarum\Core\Discussion;
-use Flarum\Event\PostWasPosted;
+use Flarum\Core\Post;
+use Flarum\Event\DiscussionWasDeleted;
+use Flarum\Event\DiscussionWasStarted;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PostWasHidden;
+use Flarum\Event\PostWasPosted;
 use Flarum\Event\PostWasRestored;
-use Flarum\Event\DiscussionWasStarted;
-use Flarum\Event\DiscussionWasDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserMetadataUpdater

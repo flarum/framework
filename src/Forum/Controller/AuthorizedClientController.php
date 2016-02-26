@@ -10,9 +10,8 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Core\User;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Flarum\Core\Exception\PermissionDeniedException;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthorizedClientController extends ClientController
 {
@@ -21,7 +20,7 @@ class AuthorizedClientController extends ClientController
      */
     public function render(Request $request)
     {
-        if (!$request->getAttribute('session')->get('user_id')) {
+        if (! $request->getAttribute('session')->get('user_id')) {
             throw new PermissionDeniedException;
         }
 

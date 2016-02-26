@@ -10,7 +10,6 @@
 
 namespace Flarum\Database;
 
-use Flarum\Core;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
 use Illuminate\Database\ConnectionResolver;

@@ -54,7 +54,7 @@ class DiscussionState extends AbstractModel
     {
         if ($number > $this->read_number) {
             $this->read_number = $number;
-            $this->read_time   = time();
+            $this->read_time = time();
 
             $this->raise(new DiscussionWasRead($this));
         }
