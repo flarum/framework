@@ -23,7 +23,6 @@ use Illuminate\Database\Query\Expression;
 
 class DiscussionPolicy extends AbstractPolicy
 {
-
     /**
      * {@inheritdoc}
      */
@@ -73,7 +72,7 @@ class DiscussionPolicy extends AbstractPolicy
 
             foreach ($tags as $tag) {
                 if ($tag->is_restricted) {
-                    if ($actor->hasPermission('tag' . $tag->id . '.discussion.' . $ability)) {
+                    if ($actor->hasPermission('tag'.$tag->id.'.discussion.'.$ability)) {
                         return true;
                     }
                 } else {

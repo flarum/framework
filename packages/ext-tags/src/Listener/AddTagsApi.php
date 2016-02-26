@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -10,8 +11,8 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Tags\Api\Controller;
 use Flarum\Event\ConfigureApiRoutes;
+use Flarum\Tags\Api\Controller;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddTagsApi
