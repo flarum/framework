@@ -15,7 +15,6 @@ disabled:
   - phpdoc_types
   - phpdoc_order
   - align_double_arrow
-  - unalign_double_arrow
 
 finder:
   exclude:
