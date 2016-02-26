@@ -30,8 +30,9 @@ class PostBasicSerializer extends AbstractSerializer
     protected function getDefaultAttributes($post)
     {
         if (! ($post instanceof Post)) {
-            throw new InvalidArgumentException(get_class($this)
-                .' can only serialize instances of '.Post::class);
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.Post::class
+            );
         }
 
         $attributes = [

@@ -37,8 +37,9 @@ class NotificationSerializer extends AbstractSerializer
     protected function getDefaultAttributes($notification)
     {
         if (! ($notification instanceof Notification)) {
-            throw new InvalidArgumentException(get_class($this)
-                .' can only serialize instances of '.Notification::class);
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.Notification::class
+            );
         }
 
         return [
