@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -50,19 +51,19 @@ class DiscussionLockedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param integer $discussionId
-     * @param integer $userId
-     * @param boolean $isLocked
+     * @param int $discussionId
+     * @param int $userId
+     * @param bool $isLocked
      * @return static
      */
     public static function reply($discussionId, $userId, $isLocked)
     {
         $post = new static;
 
-        $post->content       = static::buildContent($isLocked);
-        $post->time          = time();
+        $post->content = static::buildContent($isLocked);
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
+        $post->user_id = $userId;
 
         return $post;
     }
@@ -70,7 +71,7 @@ class DiscussionLockedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * Build the content attribute.
      *
-     * @param boolean $isLocked Whether or not the discussion is stickied.
+     * @param bool $isLocked Whether or not the discussion is stickied.
      * @return array
      */
     public static function buildContent($isLocked)
