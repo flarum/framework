@@ -43,8 +43,9 @@ class GroupSerializer extends AbstractSerializer
     protected function getDefaultAttributes($group)
     {
         if (! ($group instanceof Group)) {
-            throw new InvalidArgumentException(get_class($this)
-                .' can only serialize instances of '.Group::class);
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.Group::class
+            );
         }
 
         return [

@@ -106,8 +106,9 @@ abstract class AbstractModel extends Eloquent
         // value on the "relationships" array.
         if (! $this->relationLoaded($key) && ($relation = $this->getCustomRelation($key))) {
             if (! $relation instanceof Relation) {
-                throw new LogicException('Relationship method must return an object of type '
-                    .'Illuminate\Database\Eloquent\Relations\Relation');
+                throw new LogicException(
+                    'Relationship method must return an object of type '.Relation::class
+                );
             }
 
             return $this->relations[$key] = $relation->getResults();

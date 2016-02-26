@@ -105,8 +105,9 @@ class GambitManager
         foreach ($bits as $k => $bit) {
             foreach ($gambits as $gambit) {
                 if (! $gambit instanceof GambitInterface) {
-                    throw new LogicException('GambitInterface '.get_class($gambit)
-                        .' does not implement '.GambitInterface::class);
+                    throw new LogicException(
+                        'Gambit '.get_class($gambit).' does not implement '.GambitInterface::class
+                    );
                 }
 
                 if ($gambit->apply($search, $bit)) {
