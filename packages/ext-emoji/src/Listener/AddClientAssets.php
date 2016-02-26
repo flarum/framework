@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -30,8 +31,8 @@ class AddClientAssets
     {
         if ($event->isForum()) {
             $event->addAssets([
-                __DIR__ . '/../../js/forum/dist/extension.js',
-                __DIR__ . '/../../less/forum/extension.less'
+                __DIR__.'/../../js/forum/dist/extension.js',
+                __DIR__.'/../../less/forum/extension.less'
             ]);
             $event->addBootstrapper('flarum/emoji/main');
         }
