@@ -88,14 +88,6 @@ class Post extends AbstractModel
             $post->discussion->save();
         });
 
-        // Don't allow the first post in a discussion to be deleted, because
-        // it doesn't make sense. The discussion must be deleted instead.
-        static::deleting(function (Post $post) {
-            if ($post->number == 1) {
-                throw new DomainException('Cannot delete the first post of a discussion');
-            }
-        });
-
         static::deleted(function (Post $post) {
             $post->raise(new PostWasDeleted($post));
         });

@@ -51,6 +51,12 @@ class DiscussionMetadataUpdater
     public function whenPostWasDeleted(PostWasDeleted $event)
     {
         $this->removePost($event->post);
+
+        $discussion = $event->post->discussion;
+
+        if ($discussion->comments_count === 0) {
+            $discussion->delete();
+        }
     }
 
     /**

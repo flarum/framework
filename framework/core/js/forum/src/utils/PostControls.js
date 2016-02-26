@@ -97,7 +97,7 @@ export default {
           onclick: this.restoreAction.bind(post)
         }));
       }
-      if (post.canDelete() && post.number() !== 1) {
+      if (post.canDelete()) {
         items.add('delete', Button.component({
           icon: 'times',
           children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
@@ -149,7 +149,22 @@ export default {
 
     return this.delete()
       .then(() => {
-        this.discussion().removePost(this.id());
+        const discussion = this.discussion();
+
+        discussion.removePost(this.id());
+
+        // If this was the last post in the discussion, then we will assume that
+        // the whole discussion was deleted too.
+        if (!discussion.posts.length) {
+          // If there is a discussion list in the cache, remove this discussion.
+          if (app.cache.discussionList) {
+            app.cache.discussionList.removeDiscussion(discussion);
+          }
+
+          if (app.viewingDiscussion(discussion)) {
+            app.history.back();
+          }
+        }
       })
       .catch(() => {})
       .then(() => {
