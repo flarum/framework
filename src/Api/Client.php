@@ -59,8 +59,9 @@ class Client
         }
 
         if (! ($controller instanceof ControllerInterface)) {
-            throw new InvalidArgumentException('Endpoint must be an instance of '
-                .ControllerInterface::class);
+            throw new InvalidArgumentException(
+                'Endpoint must be an instance of '.ControllerInterface::class
+            );
         }
 
         try {
