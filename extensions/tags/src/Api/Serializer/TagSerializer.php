@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -54,7 +55,7 @@ class TagSerializer extends AbstractSerializer
      */
     protected function parent($tag)
     {
-        return $this->hasOne($tag, TagSerializer::class);
+        return $this->hasOne($tag, self::class);
     }
 
     /**

@@ -57,11 +57,11 @@ class Tag extends AbstractModel
     {
         $tag = new static;
 
-        $tag->name        = $name;
-        $tag->slug        = $slug;
+        $tag->name = $name;
+        $tag->slug = $slug;
         $tag->description = $description;
-        $tag->color       = $color;
-        $tag->is_hidden   = (bool) $isHidden;
+        $tag->color = $color;
+        $tag->is_hidden = (bool) $isHidden;
 
         return $tag;
     }
@@ -112,7 +112,7 @@ class Tag extends AbstractModel
      */
     public function setLastDiscussion(Discussion $discussion)
     {
-        $this->last_time          = $discussion->last_time;
+        $this->last_time = $discussion->last_time;
         $this->last_discussion_id = $discussion->id;
 
         return $this;
@@ -135,7 +135,7 @@ class Tag extends AbstractModel
         $hasGlobalPermission = $user->hasPermission($permission);
 
         foreach ($tags as $tag) {
-            if (($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
+            if (($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag'.$tag->id.'.'.$permission)) {
                 $ids[] = $tag->id;
             }
         }
@@ -160,7 +160,7 @@ class Tag extends AbstractModel
         $hasGlobalPermission = $user->hasPermission($permission);
 
         foreach ($tags as $tag) {
-            if (($tag->is_restricted || ! $hasGlobalPermission) && ! $user->hasPermission('tag' . $tag->id . '.' . $permission)) {
+            if (($tag->is_restricted || ! $hasGlobalPermission) && ! $user->hasPermission('tag'.$tag->id.'.'.$permission)) {
                 $ids[] = $tag->id;
             }
         }
