@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -11,9 +12,9 @@
 namespace Flarum\Sticky\Listener;
 
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Event\DiscussionWillBeSaved;
 use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
-use Flarum\Event\DiscussionWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveStickyToDatabase

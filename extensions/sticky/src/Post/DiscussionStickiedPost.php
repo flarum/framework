@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -50,19 +51,19 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param integer $discussionId
-     * @param integer $userId
-     * @param boolean $isSticky
+     * @param int $discussionId
+     * @param int $userId
+     * @param bool $isSticky
      * @return static
      */
     public static function reply($discussionId, $userId, $isSticky)
     {
         $post = new static;
 
-        $post->content       = static::buildContent($isSticky);
-        $post->time          = time();
+        $post->content = static::buildContent($isSticky);
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
+        $post->user_id = $userId;
 
         return $post;
     }
@@ -70,7 +71,7 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
     /**
      * Build the content attribute.
      *
-     * @param boolean $isSticky Whether or not the discussion is stickied.
+     * @param bool $isSticky Whether or not the discussion is stickied.
      * @return array
      */
     public static function buildContent($isSticky)
