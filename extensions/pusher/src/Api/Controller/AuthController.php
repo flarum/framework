@@ -38,7 +38,7 @@ class AuthController implements ControllerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        $userChannel = 'private-user' . $request->getAttribute('actor')->id;
+        $userChannel = 'private-user'.$request->getAttribute('actor')->id;
         $body = $request->getParsedBody();
 
         if (array_get($body, 'channel_name') === $userChannel) {
