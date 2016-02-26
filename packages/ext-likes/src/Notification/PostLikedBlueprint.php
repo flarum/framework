@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
  * This file is part of Flarum.
  *
@@ -10,9 +11,9 @@
 
 namespace Flarum\Likes\Notification;
 
+use Flarum\Core\Notification\BlueprintInterface;
 use Flarum\Core\Post;
 use Flarum\Core\User;
-use Flarum\Core\Notification\BlueprintInterface;
 
 class PostLikedBlueprint implements BlueprintInterface
 {
@@ -57,7 +58,7 @@ class PostLikedBlueprint implements BlueprintInterface
      */
     public function getData()
     {
-        return null;
+        return;
     }
 
     /**
