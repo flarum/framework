@@ -10,10 +10,10 @@
 
 namespace Flarum\Core\Search\User\Gambit;
 
-use Flarum\Core\Search\User\UserSearch;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
+use Flarum\Core\Search\User\UserSearch;
 use LogicException;
 
 class EmailGambit extends AbstractRegexGambit

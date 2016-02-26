@@ -111,11 +111,11 @@ class UploadAvatarHandler
             $mount->delete($file);
         }
 
-        $uploadName = Str::lower(Str::quickRandom()) . '.jpg';
+        $uploadName = Str::lower(Str::quickRandom()).'.jpg';
 
         $user->changeAvatarPath($uploadName);
 
-        $mount->move("source://".pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
+        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
 
         $user->save();
 

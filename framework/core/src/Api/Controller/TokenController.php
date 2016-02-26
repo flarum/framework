@@ -68,9 +68,9 @@ class TokenController implements ControllerInterface
         $token = AccessToken::generate($user->id, $lifetime);
         $token->save();
 
-        return (new JsonResponse([
+        return new JsonResponse([
             'token' => $token->id,
             'userId' => $user->id
-        ]));
+        ]);
     }
 }

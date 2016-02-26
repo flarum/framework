@@ -51,11 +51,11 @@ class CommentPost extends Post
     {
         $post = new static;
 
-        $post->time          = time();
+        $post->time = time();
         $post->discussion_id = $discussionId;
-        $post->user_id       = $userId;
-        $post->type          = static::$type;
-        $post->ip_address    = $ipAddress;
+        $post->user_id = $userId;
+        $post->type = static::$type;
+        $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
         $post->content = $content;

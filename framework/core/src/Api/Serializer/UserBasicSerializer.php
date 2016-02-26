@@ -30,7 +30,7 @@ class UserBasicSerializer extends AbstractSerializer
     {
         if (! ($user instanceof User)) {
             throw new InvalidArgumentException(get_class($this)
-                . ' can only serialize instances of ' . User::class);
+                .' can only serialize instances of '.User::class);
         }
 
         return [

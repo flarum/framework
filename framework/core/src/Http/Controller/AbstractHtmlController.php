@@ -10,7 +10,6 @@
 
 namespace Flarum\Http\Controller;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response;
 

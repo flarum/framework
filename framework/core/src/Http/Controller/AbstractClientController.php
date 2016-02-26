@@ -14,7 +14,6 @@ use Flarum\Api\Client;
 use Flarum\Asset\AssetManager;
 use Flarum\Asset\JsCompiler;
 use Flarum\Asset\LessCompiler;
-use Flarum\Core;
 use Flarum\Event\ConfigureClientView;
 use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
