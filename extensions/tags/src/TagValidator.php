@@ -22,6 +22,6 @@ class TagValidator extends AbstractValidator
         'slug' => ['required', 'unique:tags'],
         'isHidden' => ['bool'],
         'description' => ['string', 'max:700'],
-        'color' => ['regex:^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'],
+        'color' => ['regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'],
     ];
 }
