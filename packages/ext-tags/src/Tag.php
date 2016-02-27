@@ -13,6 +13,7 @@ namespace Flarum\Tags;
 use Flarum\Core\Discussion;
 use Flarum\Core\Permission;
 use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Core\User;
 use Flarum\Database\AbstractModel;
 
 class Tag extends AbstractModel
@@ -119,23 +120,34 @@ class Tag extends AbstractModel
     }
 
     /**
-     * @param $user
-     * @param $permission
+     * @param User $user
+     * @param string $permission
+     * @param bool $condition
      * @return array
      */
-    public static function getIdsWhereCan($user, $permission)
+    protected static function getIdsWherePermission(User $user, $permission, $condition = true)
     {
         static $tags;
 
         if (! $tags) {
-            $tags = static::all();
+            $tags = static::with('parent')->get();
         }
 
         $ids = [];
         $hasGlobalPermission = $user->hasPermission($permission);
 
+        $canForTag = function (Tag $tag) use ($user, $permission, $hasGlobalPermission) {
+            return ($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag'.$tag->id.'.'.$permission);
+        };
+
         foreach ($tags as $tag) {
-            if (($hasGlobalPermission && ! $tag->is_restricted) || $user->hasPermission('tag'.$tag->id.'.'.$permission)) {
+            $can = $canForTag($tag);
+
+            if ($can && $tag->parent_id) {
+                $can = $canForTag($tag->parent);
+            }
+
+            if ($can === $condition) {
                 $ids[] = $tag->id;
             }
         }
@@ -144,27 +156,22 @@ class Tag extends AbstractModel
     }
 
     /**
-     * @param $user
-     * @param $permission
+     * @param User $user
+     * @param string $permission
      * @return array
      */
-    public static function getIdsWhereCannot($user, $permission)
+    public static function getIdsWhereCan(User $user, $permission)
     {
-        static $tags;
+        return static::getIdsWherePermission($user, $permission, true);
+    }
 
-        if (! $tags) {
-            $tags = static::all();
-        }
-
-        $ids = [];
-        $hasGlobalPermission = $user->hasPermission($permission);
-
-        foreach ($tags as $tag) {
-            if (($tag->is_restricted || ! $hasGlobalPermission) && ! $user->hasPermission('tag'.$tag->id.'.'.$permission)) {
-                $ids[] = $tag->id;
-            }
-        }
-
-        return $ids;
+    /**
+     * @param User $user
+     * @param string $permission
+     * @return array
+     */
+    public static function getIdsWhereCannot(User $user, $permission)
+    {
+        return static::getIdsWherePermission($user, $permission, false);
     }
 }
