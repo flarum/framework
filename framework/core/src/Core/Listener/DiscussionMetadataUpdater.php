@@ -54,7 +54,7 @@ class DiscussionMetadataUpdater
 
         $discussion = $event->post->discussion;
 
-        if ($discussion->comments_count === 0) {
+        if ($discussion->posts()->count() === 0) {
             $discussion->delete();
         }
     }

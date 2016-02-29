@@ -33899,7 +33899,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
 
             // If this was the last post in the discussion, then we will assume that
             // the whole discussion was deleted too.
-            if (!discussion.posts.length) {
+            if (!discussion.postIds().length) {
               // If there is a discussion list in the cache, remove this discussion.
               if (app.cache.discussionList) {
                 app.cache.discussionList.removeDiscussion(discussion);
