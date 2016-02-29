@@ -25,7 +25,7 @@ class DiscussionLockedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * {@inheritdoc}
      */
-    public function saveAfter(Post $previous)
+    public function saveAfter(Post $previous = null)
     {
         // If the previous post is another 'discussion locked' post, and it's
         // by the same user, then we can merge this post into it. If we find
