@@ -28,7 +28,7 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
     /**
      * {@inheritdoc}
      */
-    public function saveAfter(Post $previous)
+    public function saveAfter(Post $previous = null)
     {
         // If the previous post is another 'discussion renamed' post, and it's
         // by the same user, then we can merge this post into it. If we find
