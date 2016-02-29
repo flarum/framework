@@ -13,17 +13,28 @@ export function truncate(string, length, start = 0) {
 }
 
 /**
- * Create a slug out of the given string. Non-alphanumeric characters are
- * converted to hyphens.
+ * Create a slug out of the given string.
+ *
+ * nonsafe URL characters are converted to hyphens.
  *
  * @param {String} string
  * @return {String}
  */
 export function slug(string) {
-  return string.toLowerCase()
-    .replace(/[^a-z0-9]/gi, '-')
-    .replace(/-+/g, '-')
-    .replace(/-$|^-/g, '') || '-';
+  // Regex for finding the nonsafe URL characters (many need escaping): & +$,:;=?@"#{}|^~[`%!']./()*\
+  var nonsafeChars = /[& +$,:;=?@"#{}|^~[`%!'\]\.\/\(\)\*\\]/g;
+
+  // Note: we trim hyphens after truncating because truncating can cause dangling hyphens.
+  // Example string:                      // " ⚡⚡ Don't forget: URL fragments should be i18n-friendly, hyphenated, short, and clean."
+  string = string.trim()                  // "⚡⚡ Don't forget: URL fragments should be i18n-friendly, hyphenated, short, and clean."
+    .replace(/\'/gi, '')                  // "⚡⚡ Dont forget: URL fragments should be i18n-friendly, hyphenated, short, and clean."
+    .replace(nonsafeChars, '-')           // "⚡⚡-Dont-forget--URL-fragments-should-be-i18n-friendly--hyphenated--short--and-clean-"
+    .replace(/-{2,}/g, '-')               // "⚡⚡-Dont-forget-URL-fragments-should-be-i18n-friendly-hyphenated-short-and-clean-"
+    .substring(0, 64)                     // "⚡⚡-Dont-forget-URL-fragments-should-be-i18n-friendly-hyphenated-"
+    .replace(/^-+|-+$/gm, '')             // "⚡⚡-Dont-forget-URL-fragments-should-be-i18n-friendly-hyphenated"
+    .toLowerCase();                       // "⚡⚡-dont-forget-url-fragments-should-be-i18n-friendly-hyphenated"
+
+  return $string || '-';
 }
 
 /**
