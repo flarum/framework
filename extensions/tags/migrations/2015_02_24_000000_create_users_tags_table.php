@@ -8,21 +8,16 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->create('users_tags', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
-            $table->integer('tag_id')->unsigned();
-            $table->dateTime('read_time')->nullable();
-            $table->boolean('is_hidden')->default(0);
-            $table->primary(['user_id', 'tag_id']);
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->drop('users_tags');
+return Migration::createTable(
+    'users_tags',
+    function (Blueprint $table) {
+        $table->integer('user_id')->unsigned();
+        $table->integer('tag_id')->unsigned();
+        $table->dateTime('read_time')->nullable();
+        $table->boolean('is_hidden')->default(0);
+        $table->primary(['user_id', 'tag_id']);
     }
-];
+);
