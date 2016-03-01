@@ -44,15 +44,16 @@ export default class TagsPage extends Component {
                       {children
                         ? (
                           <div className="TagTile-children">
-                            {children.map(child =>
+                            {children.map(child => [
                               <a href={app.route.tag(child)} config={function(element, isInitialized) {
                                 if (isInitialized) return;
                                 $(element).on('click', e => e.stopPropagation());
                                 m.route.apply(this, arguments);
                               }}>
                                 {child.name()}
-                              </a>
-                            )}
+                              </a>,
+                              ' '
+                            ])}
                           </div>
                         ) : ''}
                     </a>
