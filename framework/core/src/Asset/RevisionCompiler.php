@@ -104,7 +104,6 @@ class RevisionCompiler implements CompilerInterface
      */
     protected function getCacheDifferentiator()
     {
-        return;
     }
 
     /**
