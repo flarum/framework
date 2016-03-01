@@ -1017,7 +1017,7 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
                             'div',
                             { className: 'TagTile-children' },
                             children.map(function (child) {
-                              return m(
+                              return [m(
                                 'a',
                                 { href: app.route.tag(child), config: function (element, isInitialized) {
                                     if (isInitialized) return;
@@ -1027,7 +1027,7 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
                                     m.route.apply(this, arguments);
                                   } },
                                 child.name()
-                              );
+                              ), ' '];
                             })
                           ) : ''
                         ),
