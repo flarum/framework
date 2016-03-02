@@ -18,6 +18,7 @@ use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class ExtensionManager
@@ -38,6 +39,11 @@ class ExtensionManager
      */
     protected $filesystem;
 
+    /**
+     * @var Collection|null
+     */
+    protected $extensions;
+
     public function __construct(
         SettingsRepositoryInterface $config,
         Application $app,
@@ -57,39 +63,32 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        $extensionsDir = $this->getExtensionsDir();
+        if (is_null($this->extensions) && $this->filesystem->exists(public_path('vendor/composer/installed.json'))) {
+            $extensions = new Collection();
 
-        $dirs = array_diff(scandir($extensionsDir), ['.', '..']);
-        $extensions = new Collection();
+            // Load all packages installed by composer.
+            $installed = json_decode($this->filesystem->get(public_path('vendor/composer/installed.json')), true);
 
-        $installed = json_decode(file_get_contents(public_path('vendor/composer/installed.json')), true);
-
-        foreach ($dirs as $dir) {
-            if (file_exists($manifest = $extensionsDir.'/'.$dir.'/composer.json')) {
-                $extension = new Extension(
-                    $extensionsDir.'/'.$dir,
-                    json_decode(file_get_contents($manifest), true)
-                );
-
-                if (empty($extension->name)) {
+            foreach ($installed as $package) {
+                if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
                     continue;
                 }
+                // Instantiates an Extension object using the package path and composer.json file.
+                $extension = new Extension($this->getExtensionsDir().'/'.Arr::get($package, 'name'), $package);
 
-                foreach ($installed as $package) {
-                    if ($package['name'] === $extension->name) {
-                        $extension->setInstalled(true);
-                        $extension->setVersion($package['version']);
-                        $extension->setEnabled($this->isEnabled($dir));
-                    }
-                }
+                // Per default all extensions are installed if they are registered in composer.
+                $extension->setInstalled(true);
+                $extension->setVersion(Arr::get($package, 'version'));
+                $extension->setEnabled($this->isEnabled($extension->getId()));
 
-                $extensions->put($dir, $extension);
+                $extensions->put($extension->getId(), $extension);
             }
+            $this->extensions = $extensions->sortBy(function ($extension, $name) {
+                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+            });
         }
 
-        return $extensions->sortBy(function ($extension, $name) {
-            return $extension->composerJsonAttribute('extra.flarum-extension.title');
-        });
+        return $this->extensions;
     }
 
     /**
@@ -241,18 +240,59 @@ class ExtensionManager
         $this->migrate($extension, false);
     }
 
+    /**
+     * The database migrator.
+     *
+     * @return Migrator
+     */
     public function getMigrator()
     {
         return $this->migrator;
     }
 
-    protected function getEnabled()
+    /**
+     * Get only enabled extensions.
+     *
+     * @return Collection
+     */
+    public function getEnabledExtensions()
     {
-        $config = $this->config->get('extensions_enabled');
-
-        return json_decode($config, true);
+        return $this->getExtensions()->only($this->getEnabled());
     }
 
+    /**
+     * Loads all bootstrap.php files of the enabled extensions.
+     *
+     * @return Collection
+     */
+    public function getEnabledBootstrappers()
+    {
+        $bootstrappers = new Collection;
+
+        foreach ($this->getEnabledExtensions() as $extension) {
+            if ($this->filesystem->exists($file = $extension->getPath().'/bootstrap.php')) {
+                $bootstrappers->push($file);
+            }
+        }
+
+        return $bootstrappers;
+    }
+
+    /**
+     * The id's of the enabled extensions.
+     *
+     * @return array
+     */
+    public function getEnabled()
+    {
+        return json_decode($this->config->get('extensions_enabled'), true);
+    }
+
+    /**
+     * Persist the currently enabled extensions.
+     *
+     * @param array $enabled
+     */
     protected function setEnabled(array $enabled)
     {
         $enabled = array_values(array_unique($enabled));
@@ -260,13 +300,24 @@ class ExtensionManager
         $this->config->set('extensions_enabled', json_encode($enabled));
     }
 
+    /**
+     * Whether the extension is enabled.
+     *
+     * @param $extension
+     * @return bool
+     */
     public function isEnabled($extension)
     {
         return in_array($extension, $this->getEnabled());
     }
 
+    /**
+     * The extensions path.
+     *
+     * @return string
+     */
     protected function getExtensionsDir()
     {
-        return public_path('extensions');
+        return public_path('vendor');
     }
 }
