@@ -21,15 +21,12 @@ class ExtensionServiceProvider extends AbstractServiceProvider
     {
         $this->app->bind('flarum.extensions', 'Flarum\Extension\ExtensionManager');
 
-        $config = $this->app->make('flarum.settings')->get('extensions_enabled');
-        $extensions = json_decode($config, true);
+        $bootstrappers = $this->app->make('flarum.extensions')->getEnabledBootstrappers();
 
-        foreach ($extensions as $extension) {
-            if (file_exists($file = public_path().'/extensions/'.$extension.'/bootstrap.php')) {
-                $bootstrapper = require $file;
+        foreach ($bootstrappers as $file) {
+            $bootstrapper = require $file;
 
-                $this->app->call($bootstrapper);
-            }
+            $this->app->call($bootstrapper);
         }
     }
 }
