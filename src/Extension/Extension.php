@@ -96,8 +96,9 @@ class Extension implements Arrayable
      */
     protected function assignId()
     {
-        $segments = explode('/', $this->path);
-        $this->id = end($segments);
+        list($vendor, $package) = explode('/', $this->name);
+        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
+        $this->id = "$vendor-$package";
     }
 
     /**
