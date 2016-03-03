@@ -8,19 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
-            $table->boolean('is_locked')->default(0);
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('discussions', function (Blueprint $table) {
-            $table->dropColumn('is_locked');
-        });
-    }
-];
+return Migration::addColumns('discussions', [
+    'is_locked' => ['boolean', 'default' => 0]
+]);
