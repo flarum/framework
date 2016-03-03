@@ -107,6 +107,10 @@ class UpdateTagMetadata
      */
     protected function updateTags($discussion, $delta = 0, $tags = null)
     {
+        if (! $discussion) {
+            return;
+        }
+
         if (! $tags) {
             $tags = $discussion->tags;
         }
