@@ -8,19 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
-            $table->boolean('is_approved')->default(1);
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
-            $table->dropColumn('is_approved');
-        });
-    }
-];
+return Migration::addColumns('posts', [
+    'is_approved' => ['boolean', 'default' => 1]
+]);
