@@ -39,6 +39,10 @@ class FormatBBCode
         $event->configurator->BBCodes->addFromRepository('CODE');
         $event->configurator->BBCodes->addFromRepository('QUOTE');
         $event->configurator->BBCodes->addFromRepository('LIST');
+        $event->configurator->BBCodes->addFromRepository('DEL');
+        $event->configurator->BBCodes->addFromRepository('COLOR');
+        $event->configurator->BBCodes->addFromRepository('CENTER');
+        $event->configurator->BBCodes->addFromRepository('SIZE');
         $event->configurator->BBCodes->addFromRepository('*');
     }
 }
