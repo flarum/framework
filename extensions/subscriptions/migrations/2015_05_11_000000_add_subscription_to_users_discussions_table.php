@@ -8,19 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('users_discussions', function (Blueprint $table) {
-            $table->enum('subscription', ['follow', 'ignore'])->nullable();
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('users_discussions', function (Blueprint $table) {
-            $table->dropColumn('subscription');
-        });
-    }
-];
+return Migration::addColumns('users_discussions', [
+    'subscription' => ['enum', 'allowed' => ['follow', 'ignore'], 'nullable' => true]
+]);
