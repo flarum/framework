@@ -8,17 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->dateTime('flags_read_time')->nullable();
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->drop('flags_read_time');
-    }
-];
+return Migration::addColumns('users', [
+    'flags_read_time' => ['dateTime', 'nullable' => true]
+]);
