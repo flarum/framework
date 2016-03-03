@@ -8,19 +8,6 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->renameColumn('suspended_until', 'suspend_until');
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->renameColumn('suspend_until', 'suspended_until');
-        });
-    }
-];
+return Migration::renameColumn('users', 'suspended_until', 'suspend_until');

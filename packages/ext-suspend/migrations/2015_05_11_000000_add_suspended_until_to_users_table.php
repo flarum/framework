@@ -8,19 +8,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->dateTime('suspended_until')->nullable();
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('users', function (Blueprint $table) {
-            $table->dropColumn('suspended_until');
-        });
-    }
-];
+return Migration::addColumns('users', [
+    'suspended_until' => ['dateTime', 'nullable' => true]
+]);
