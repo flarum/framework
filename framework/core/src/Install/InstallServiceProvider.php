@@ -44,7 +44,6 @@ class InstallServiceProvider extends AbstractServiceProvider
                     new WritablePaths([
                         public_path(),
                         public_path('assets'),
-                        public_path('extensions'),
                         storage_path(),
                     ])
                 );
