@@ -372,10 +372,10 @@ System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum
     }
   };
 });;
-System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/subscriptions/addSubscriptionBadge', 'flarum/subscriptions/addSubscriptionControls', 'flarum/subscriptions/addSubscriptionFilter', 'flarum/subscriptions/components/NewPostNotification'], function (_export) {
+System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/subscriptions/addSubscriptionBadge', 'flarum/subscriptions/addSubscriptionControls', 'flarum/subscriptions/addSubscriptionFilter', 'flarum/subscriptions/addSubscriptionSettings', 'flarum/subscriptions/components/NewPostNotification'], function (_export) {
   'use strict';
 
-  var extend, app, Model, Discussion, NotificationGrid, addSubscriptionBadge, addSubscriptionControls, addSubscriptionFilter, NewPostNotification;
+  var extend, app, Model, Discussion, NotificationGrid, addSubscriptionBadge, addSubscriptionControls, addSubscriptionFilter, addSubscriptionSettings, NewPostNotification;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -393,6 +393,8 @@ System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'fl
       addSubscriptionControls = _flarumSubscriptionsAddSubscriptionControls['default'];
     }, function (_flarumSubscriptionsAddSubscriptionFilter) {
       addSubscriptionFilter = _flarumSubscriptionsAddSubscriptionFilter['default'];
+    }, function (_flarumSubscriptionsAddSubscriptionSettings) {
+      addSubscriptionSettings = _flarumSubscriptionsAddSubscriptionSettings['default'];
     }, function (_flarumSubscriptionsComponentsNewPostNotification) {
       NewPostNotification = _flarumSubscriptionsComponentsNewPostNotification['default'];
     }],
@@ -406,6 +408,7 @@ System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'fl
         addSubscriptionBadge();
         addSubscriptionControls();
         addSubscriptionFilter();
+        addSubscriptionSettings();
 
         extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
           items.add('newPost', {
@@ -413,6 +416,35 @@ System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'fl
             icon: 'star',
             label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label')
           });
+        });
+      });
+    }
+  };
+});;
+System.register('flarum/subscriptions/addSubscriptionSettings', ['flarum/extend', 'flarum/components/SettingsPage', 'flarum/components/FieldSet', 'flarum/components/Switch', 'flarum/utils/ItemList'], function (_export) {
+  'use strict';
+
+  var extend, SettingsPage, FieldSet, Switch, ItemList;
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsSettingsPage) {
+      SettingsPage = _flarumComponentsSettingsPage['default'];
+    }, function (_flarumComponentsFieldSet) {
+      FieldSet = _flarumComponentsFieldSet['default'];
+    }, function (_flarumComponentsSwitch) {
+      Switch = _flarumComponentsSwitch['default'];
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList['default'];
+    }],
+    execute: function () {
+      _export('default', function () {
+        extend(SettingsPage.prototype, 'notificationsItems', function (items) {
+          items.add('followAfterReply', Switch.component({
+            children: app.translator.trans('flarum-subscriptions.forum.settings.forum_follow_after_reply_label'),
+            state: this.user.preferences().followAfterReply,
+            onchange: this.preferenceSaver('followAfterReply')
+          }));
         });
       });
     }
