@@ -19,6 +19,7 @@ return function (Dispatcher $events, Factory $views) {
     $events->subscribe(Listener\FilterDiscussionListBySubscription::class);
     $events->subscribe(Listener\SaveSubscriptionToDatabase::class);
     $events->subscribe(Listener\SendNotificationWhenReplyIsPosted::class);
+    $events->subscribe(Listener\FollowAfterReply::class);
 
     $views->addNamespace('flarum-subscriptions', __DIR__.'/views');
 };

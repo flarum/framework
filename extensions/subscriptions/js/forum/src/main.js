@@ -7,6 +7,8 @@ import NotificationGrid from 'flarum/components/NotificationGrid';
 import addSubscriptionBadge from 'flarum/subscriptions/addSubscriptionBadge';
 import addSubscriptionControls from 'flarum/subscriptions/addSubscriptionControls';
 import addSubscriptionFilter from 'flarum/subscriptions/addSubscriptionFilter';
+import addSubscriptionSettings from 'flarum/subscriptions/addSubscriptionSettings';
+
 import NewPostNotification from 'flarum/subscriptions/components/NewPostNotification';
 
 app.initializers.add('subscriptions', function() {
@@ -17,6 +19,7 @@ app.initializers.add('subscriptions', function() {
   addSubscriptionBadge();
   addSubscriptionControls();
   addSubscriptionFilter();
+  addSubscriptionSettings();
 
   extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
     items.add('newPost', {
