@@ -10,6 +10,7 @@
 
 namespace Flarum\Database;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -44,7 +45,6 @@ abstract class Migration
             'up' => function (Builder $schema) use ($from, $to) {
                 $schema->rename($from, $to);
             },
-
             'down' => function (Builder $schema) use ($from, $to) {
                 $schema->rename($to, $from);
             }
@@ -84,11 +84,29 @@ abstract class Migration
                     $table->renameColumn($from, $to);
                 });
             },
-
             'down' => function (Builder $schema) use ($tableName, $from, $to) {
                 $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                     $table->renameColumn($to, $from);
                 });
+            }
+        ];
+    },
+
+    /**
+     * Add default values for config values.
+     */
+    public static function addSettings($defaults)
+    {
+        return [
+            'up' => function (SettingsRepositoryInterface $settings) use ($defaults) {
+                foreach ($defaults as $key => $value) {
+                    $settings->set($key, $value);
+                }
+            },
+            'down' => function (SettingsRepositoryInterface $settings) use ($defaults) {
+                foreach (array_keys($defaults) as $key) {
+                    $settings->delete($key);
+                }
             }
         ];
     }
