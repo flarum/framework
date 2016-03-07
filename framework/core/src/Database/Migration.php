@@ -90,7 +90,7 @@ abstract class Migration
                 });
             }
         ];
-    },
+    }
 
     /**
      * Add default values for config values.
