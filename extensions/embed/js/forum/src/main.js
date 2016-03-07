@@ -53,7 +53,7 @@ app.initializers.replace('boot', () => {
   };
 
   extend(PostStream.prototype, 'goToNumber', function(promise, number) {
-    if (number === 'reply' && 'parentIFrame' in window && app.composer.$().css('position') === 'absolute') {
+    if (number === 'reply' && 'parentIFrame' in window && app.composer.isFullScreen()) {
       const itemTop = this.$('.PostStream-item:last').offset().top;
       window.parentIFrame.scrollToOffset(0, itemTop);
     }
