@@ -8,20 +8,11 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (SettingsRepositoryInterface $settings) {
-        $settings->set('flarum-tags.max_primary_tags', '1');
-        $settings->set('flarum-tags.min_primary_tags', '1');
-        $settings->set('flarum-tags.max_secondary_tags', '3');
-        $settings->set('flarum-tags.min_secondary_tags', '0');
-    },
-
-    'down' => function (SettingsRepositoryInterface $settings) {
-        $settings->delete('flarum-tags.max_primary_tags');
-        $settings->delete('flarum-tags.max_secondary_tags');
-        $settings->delete('flarum-tags.min_primary_tags');
-        $settings->delete('flarum-tags.min_secondary_tags');
-    }
-];
+return Migration::addSettings([
+    'flarum-tags.max_primary_tags' => '1',
+    'flarum-tags.min_primary_tags' => '1',
+    'flarum-tags.max_secondary_tags' => '3',
+    'flarum-tags.min_secondary_tags' => '0',
+]);
