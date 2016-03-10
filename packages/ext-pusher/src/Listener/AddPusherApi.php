@@ -49,6 +49,7 @@ class AddPusherApi
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['pusherKey'] = $this->settings->get('flarum-pusher.app_key');
+            $event->attributes['pusherCluster'] = $this->settings->get('flarum-pusher.app_cluster', 'us');
         }
     }
 

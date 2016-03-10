@@ -26,6 +26,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
         $.getScript('//js.pusher.com/3.0/pusher.min.js', function () {
           var socket = new Pusher(app.forum.attribute('pusherKey'), {
             authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
+            cluster: app.forum.attribute('pusherCluster'),
             auth: {
               headers: {
                 'X-CSRF-Token': app.session.csrfToken

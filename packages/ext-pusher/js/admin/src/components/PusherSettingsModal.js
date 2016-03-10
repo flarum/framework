@@ -24,6 +24,11 @@ export default class PusherSettingsModal extends SettingsModal {
       <div className="Form-group">
         <label>{app.translator.trans('flarum-pusher.admin.pusher_settings.app_secret_label')}</label>
         <input className="FormControl" bidi={this.setting('flarum-pusher.app_secret')}/>
+      </div>,
+
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-pusher.admin.pusher_settings.app_cluster_label')}</label>
+        <input className="FormControl" bidi={this.setting('flarum-pusher.app_cluster')}/>
       </div>
     ];
   }
