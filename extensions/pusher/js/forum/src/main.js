@@ -13,6 +13,7 @@ app.initializers.add('flarum-pusher', () => {
   $.getScript('//js.pusher.com/3.0/pusher.min.js', () => {
     const socket = new Pusher(app.forum.attribute('pusherKey'), {
       authEndpoint: app.forum.attribute('apiUrl') + '/pusher/auth',
+      cluster: app.forum.attribute('pusherCluster'),
       auth: {
         headers: {
           'X-CSRF-Token': app.session.csrfToken

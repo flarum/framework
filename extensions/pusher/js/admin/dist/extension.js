@@ -55,6 +55,15 @@ System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/compone
                 app.translator.trans('flarum-pusher.admin.pusher_settings.app_secret_label')
               ),
               m('input', { className: 'FormControl', bidi: this.setting('flarum-pusher.app_secret') })
+            ), m(
+              'div',
+              { className: 'Form-group' },
+              m(
+                'label',
+                null,
+                app.translator.trans('flarum-pusher.admin.pusher_settings.app_cluster_label')
+              ),
+              m('input', { className: 'FormControl', bidi: this.setting('flarum-pusher.app_cluster') })
             )];
           }
         }]);
