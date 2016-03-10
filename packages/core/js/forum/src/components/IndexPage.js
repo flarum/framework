@@ -103,7 +103,11 @@ export default class IndexPage extends Page {
     const scrollTop = app.cache.scrollTop;
 
     $('#app').css('min-height', $(window).height() + heroHeight);
-    $(window).scrollTop(scrollTop - (app.cache.heroHeight - heroHeight));
+
+    // Scroll to the remembered position. We do this after a short delay so that
+    // it happens after the browser has done its own "back button" scrolling,
+    // which isn't right. https://github.com/flarum/core/issues/835
+    setTimeout(() => $(window).scrollTop(scrollTop - app.cache.heroHeight + heroHeight), 1);
 
     app.cache.heroHeight = heroHeight;
 
