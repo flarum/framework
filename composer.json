@@ -56,7 +56,6 @@
     },
     "require-dev": {
         "mockery/mockery": "^0.9.4",
-        "squizlabs/php_codesniffer": "2.*",
         "phpunit/phpunit": "^4.8"
     },
     "autoload": {
@@ -73,8 +72,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit -c tests/phpunit.xml",
-        "style": "vendor/bin/phpcs --standard=PSR2 -np src"
+        "test": "vendor/bin/phpunit -c tests/phpunit.xml"
     },
     "extra": {
         "branch-alias": {
