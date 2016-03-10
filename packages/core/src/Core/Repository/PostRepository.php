@@ -96,6 +96,8 @@ class PostRepository
                         event(new ScopePostVisibility($discussion, $query, $actor));
                     });
                 }
+
+                $query->orWhereRaw('FALSE');
             })
             ->get();
 

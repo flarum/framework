@@ -11,6 +11,7 @@
 namespace Flarum\Core\Access;
 
 use Flarum\Core\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserPolicy extends AbstractPolicy
 {
@@ -28,6 +29,17 @@ class UserPolicy extends AbstractPolicy
     {
         if ($actor->hasPermission('user.'.$ability)) {
             return true;
+        }
+    }
+
+    /**
+     * @param User $actor
+     * @param Builder $query
+     */
+    public function find(User $actor, Builder $query)
+    {
+        if ($actor->cannot('viewDiscussions')) {
+            $query->whereRaw('FALSE');
         }
     }
 }
