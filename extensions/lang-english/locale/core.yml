@@ -139,7 +139,9 @@ core:
     # These translations are used in the Change Email modal dialog.
     change_email:
       confirmation_message: => core.ref.confirmation_email_sent
+      confirm_password_label: Confirm Password
       dismiss_button: => core.ref.okay
+      incorrect_password_message: The password you entered is incorrect.
       submit_button: => core.ref.save_changes
       title: => core.ref.change_email
 
@@ -177,12 +179,6 @@ core:
       posted_message: Your reply was posted.
       submit_button: Post Reply
       view_button: View
-
-    # These translations are used in the Confirm Password modal dialog.
-    confirm_password:
-      password_placeholder: => core.ref.password
-      submit_button: => core.ref.confirm_password
-      title: => core.ref.confirm_password
 
     # These translations are used by the discussion control buttons.
     discussion_controls:
@@ -432,7 +428,6 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
-    confirm_password: Confirm Password
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     delete: Delete
     delete_forever: Delete Forever
