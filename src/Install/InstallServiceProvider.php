@@ -39,7 +39,7 @@ class InstallServiceProvider extends AbstractServiceProvider
                         'json',
                         'mbstring',
                         'openssl',
-                        'pdo_mysql',
+                        'pdo_mysql|pdo_pgsql',
                     ]),
                     new WritablePaths([
                         public_path(),
