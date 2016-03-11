@@ -885,10 +885,10 @@ System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/S
     }
   };
 });;
-System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/components/Button', 'flarum/tags/components/EditTagModal', 'flarum/tags/components/TagSettingsModal', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export) {
+System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/tags/components/EditTagModal', 'flarum/tags/components/TagSettingsModal', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export) {
   'use strict';
 
-  var Component, Button, EditTagModal, TagSettingsModal, tagIcon, sortTags, TagsPage;
+  var Page, Button, EditTagModal, TagSettingsModal, tagIcon, sortTags, TagsPage;
 
   function tagItem(tag) {
     return m(
@@ -922,8 +922,8 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
   }
 
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage['default'];
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton['default'];
     }, function (_flarumTagsComponentsEditTagModal) {
@@ -936,8 +936,8 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
       sortTags = _flarumTagsUtilsSortTags['default'];
     }],
     execute: function () {
-      TagsPage = (function (_Component) {
-        babelHelpers.inherits(TagsPage, _Component);
+      TagsPage = (function (_Page) {
+        babelHelpers.inherits(TagsPage, _Page);
 
         function TagsPage() {
           babelHelpers.classCallCheck(this, TagsPage);
@@ -1091,7 +1091,7 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
           }
         }]);
         return TagsPage;
-      })(Component);
+      })(Page);
 
       _export('default', TagsPage);
     }
