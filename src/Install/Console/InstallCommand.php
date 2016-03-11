@@ -123,7 +123,7 @@ class InstallCommand extends AbstractCommand
             $validation = $this->getValidator()->make(
                 $this->dbConfig,
                 [
-                    'driver' => 'required|in:mysql',
+                    'driver' => 'required|in:mysql,pgsql',
                     'host' => 'required',
                     'database' => 'required|string',
                     'username' => 'required|string',

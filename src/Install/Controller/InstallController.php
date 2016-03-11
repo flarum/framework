@@ -52,12 +52,12 @@ class InstallController implements ControllerInterface
         $data = new DefaultsDataProvider;
 
         $data->setDatabaseConfiguration([
-            'driver'   => 'mysql',
-            'host'     => array_get($input, 'mysqlHost'),
-            'database' => array_get($input, 'mysqlDatabase'),
-            'username' => array_get($input, 'mysqlUsername'),
-            'password' => array_get($input, 'mysqlPassword'),
-            'prefix'   => array_get($input, 'tablePrefix'),
+            'driver'   => array_get($input, 'databaseType'),
+            'host'     => array_get($input, 'databaseHost'),
+            'database' => array_get($input, 'databaseDatabase'),
+            'username' => array_get($input, 'databaseUsername'),
+            'password' => array_get($input, 'databasePassword'),
+            'prefix'   => array_get($input, 'databaseTablePrefix'),
         ]);
 
         $data->setAdminUser([
