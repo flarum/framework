@@ -130,7 +130,7 @@ class UpdateUserMentionsMetadata
         $users = User::whereIn('id', $mentioned)
             ->get()
             ->filter(function ($user) use ($post) {
-                return $user->id !== $post->user->id;
+                return $post->isVisibleTo($user) && $user->id !== $post->user->id;
             })
             ->all();
 
