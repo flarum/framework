@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import Button from 'flarum/components/Button';
 
 import EditTagModal from 'flarum/tags/components/EditTagModal';
@@ -29,7 +29,7 @@ function tagItem(tag) {
   );
 }
 
-export default class TagsPage extends Component {
+export default class TagsPage extends Page {
   view() {
     return (
       <div className="TagsPage">
