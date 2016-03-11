@@ -10,16 +10,14 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Command\EditUser;
+use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class UpdateUserController extends AbstractResourceController
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -52,7 +50,15 @@ class UpdateUserController extends AbstractResourceController
         $actor = $request->getAttribute('actor');
         $data = array_get($request->getParsedBody(), 'data', []);
 
-        $this->assertSudo($request);
+        // Require the user's current password if they are attempting to change
+        // their own email address.
+        if (isset($data['attributes']['email']) && $actor->id == $id) {
+            $password = array_get($request->getParsedBody(), 'meta.password');
+
+            if (! $actor->checkPassword($password)) {
+                throw new PermissionDeniedException;
+            }
+        }
 
         return $this->bus->dispatch(
             new EditUser($id, $actor, $data)

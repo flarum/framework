@@ -22,6 +22,13 @@ export default class ChangeEmailModal extends Modal {
      * @type {function}
      */
     this.email = m.prop(app.session.user.email());
+
+    /**
+     * The value of the password input.
+     *
+     * @type {function}
+     */
+    this.password = m.prop('');
   }
 
   className() {
@@ -54,8 +61,13 @@ export default class ChangeEmailModal extends Modal {
           <div className="Form-group">
             <input type="email" name="email" className="FormControl"
               placeholder={app.session.user.email()}
-              value={this.email()}
-              onchange={m.withAttr('value', this.email)}
+              bidi={this.email}
+              disabled={this.loading}/>
+          </div>
+          <div className="Form-group">
+            <input type="password" name="password" className="FormControl"
+              placeholder={app.translator.trans('core.forum.change_email.confirm_password_label')}
+              bidi={this.password}
               disabled={this.loading}/>
           </div>
           <div className="Form-group">
@@ -85,14 +97,20 @@ export default class ChangeEmailModal extends Modal {
 
     this.loading = true;
 
-    app.session.user.save({email: this.email()}, {errorHandler: this.onerror.bind(this)})
+    app.session.user.save({email: this.email()}, {
+      errorHandler: this.onerror.bind(this),
+      meta: {password: this.password()}
+    })
       .then(() => this.success = true)
       .catch(() => {})
       .then(this.loaded.bind(this));
+  }
 
-    // The save method will update the cached email address on the user model...
-    // But in the case of a "sudo" password prompt, we'll still want to have
-    // the old email address on file for the purposes of logging in.
-    app.session.user.pushAttributes({email: oldEmail});
+  onerror(error) {
+    if (error.status === 401) {
+      error.alert.props.children = app.translator.trans('core.forum.change_email.incorrect_password_message');
+    }
+
+    super.onerror(error);
   }
 }

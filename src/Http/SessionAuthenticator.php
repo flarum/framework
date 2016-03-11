@@ -23,7 +23,6 @@ class SessionAuthenticator
     {
         $session->migrate();
         $session->set('user_id', $userId);
-        $session->set('sudo_expiry', new DateTime('+30 minutes'));
     }
 
     /**

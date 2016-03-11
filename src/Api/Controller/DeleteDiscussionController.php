@@ -10,15 +10,12 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Command\DeleteDiscussion;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteDiscussionController extends AbstractDeleteController
 {
-    use AssertPermissionTrait;
-
     /**
      * @var Dispatcher
      */
@@ -40,8 +37,6 @@ class DeleteDiscussionController extends AbstractDeleteController
         $id = array_get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
         $input = $request->getParsedBody();
-
-        $this->assertSudo($request);
 
         $this->bus->dispatch(
             new DeleteDiscussion($id, $actor, $input)

@@ -25,7 +25,7 @@ class SetPermissionController implements ControllerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        $this->assertAdminAndSudo($request);
+        $this->assertAdmin($request->getAttribute('actor'));
 
         $body = $request->getParsedBody();
         $permission = array_get($body, 'permission');
