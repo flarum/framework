@@ -46,6 +46,8 @@ export default class ModalManager extends Component {
     this.showing = true;
     this.component = component;
 
+    app.current.retain = true;
+
     m.redraw(true);
 
     this.$().modal({backdrop: this.component.isDismissible() ? true : 'static'}).modal('show');
@@ -82,6 +84,8 @@ export default class ModalManager extends Component {
     }
 
     this.component = null;
+
+    app.current.retain = false;
 
     m.lazyRedraw();
   }

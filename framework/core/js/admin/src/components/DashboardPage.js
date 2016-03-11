@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 
-export default class DashboardPage extends Component {
+export default class DashboardPage extends Page {
   view() {
     return (
       <div className="DashboardPage">

@@ -1,10 +1,10 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import Button from 'flarum/components/Button';
 import Switch from 'flarum/components/Switch';
 import EditCustomCssModal from 'flarum/components/EditCustomCssModal';
 import saveSettings from 'flarum/utils/saveSettings';
 
-export default class AppearancePage extends Component {
+export default class AppearancePage extends Page {
   init() {
     this.primaryColor = m.prop(app.settings.theme_primary_color);
     this.secondaryColor = m.prop(app.settings.theme_secondary_color);
