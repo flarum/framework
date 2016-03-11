@@ -45,7 +45,8 @@ class AuthController implements ControllerInterface
             $pusher = new Pusher(
                 $this->settings->get('flarum-pusher.app_key'),
                 $this->settings->get('flarum-pusher.app_secret'),
-                $this->settings->get('flarum-pusher.app_id')
+                $this->settings->get('flarum-pusher.app_id'),
+                ['cluster' => $this->settings->get('flarum-pusher.app_cluster')]
             );
 
             $payload = json_decode($pusher->socket_auth($userChannel, array_get($body, 'socket_id')), true);
