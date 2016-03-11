@@ -22,22 +22,23 @@ class PhpExtensions extends AbstractPrerequisite
     public function check()
     {
         foreach ($this->extensions as $extension) {
-            $values = explode('|', $extension);
-            $this->checkOr($values);
+            $this->checkExtensions(explode('|', $extension));
         }
     }
 
-    private function checkOr(array $extensions)
+    private function checkExtensions(array $extensions)
     {
-        $loaded = false;
-
-        foreach ($extensions as $extension) {
-            $loaded = $loaded || extension_loaded($extension);
-        }
+        $loaded = array_reduce(
+            $extensions,
+            function ($previous, $extension) {
+                return extension_loaded($extension) || $previous;
+            },
+            false
+        );
 
         if (! $loaded) {
             $this->errors[] = [
-                'message' => (count($extensions) > 1 ? "One of the" : "The")." PHP extension '".implode(' or ',$extensions)."' is required.",
+                'message' => (count($extensions) > 1 ? "One of the" : "The")." PHP extension '".implode("' or '",$extensions)."' is required.",
             ];
         }
     }

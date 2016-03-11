@@ -1,5 +1,4 @@
 <h2>Install Flarum</h2>
-
 <p>Set up your forum by filling out your details below. If you have any trouble, get help on the <a href="http://flarum.org/docs/installation" target="_blank">Flarum website</a>.</p>
 
 <form method="post">
@@ -16,8 +15,9 @@
     <div class="FormField">
       <label>Database type</label>
       <select name="databaseType">
-          <option value="mysql">MySQL</option>
-          <option value="pgsql">PostgreSQL</option>
+          <?php foreach($drivers as $driver => $driverName): ?>
+          <option value="<?php echo $driver; ?>"><?php echo $driverName; ?></option>
+          <?php endforeach; ?>
       </select>
     </div>
     <div class="FormField">

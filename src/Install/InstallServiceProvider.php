@@ -13,6 +13,7 @@ namespace Flarum\Install;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\RouteCollection;
+use Flarum\Install\Database\Drivers;
 use Flarum\Install\Prerequisite\Composite;
 use Flarum\Install\Prerequisite\PhpExtensions;
 use Flarum\Install\Prerequisite\PhpVersion;
@@ -27,9 +28,12 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
+
+        $drivers = new Drivers();
+
         $this->app->bind(
             'Flarum\Install\Prerequisite\PrerequisiteInterface',
-            function () {
+            function () use ($drivers) {
                 return new Composite(
                     new PhpVersion('5.5.0'),
                     new PhpExtensions([
@@ -39,7 +43,7 @@ class InstallServiceProvider extends AbstractServiceProvider
                         'json',
                         'mbstring',
                         'openssl',
-                        'pdo_mysql|pdo_pgsql',
+                        implode('|', $drivers->getSupportedPhpDrivers()),
                     ]),
                     new WritablePaths([
                         public_path(),
@@ -52,6 +56,13 @@ class InstallServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.install.routes', function () {
             return $this->getRoutes();
+        });
+
+
+        $this->app->singleton(
+            'Flarum\Install\Database\Drivers',
+            function () use ($drivers) {
+                return $drivers;
         });
 
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
@@ -80,4 +91,5 @@ class InstallServiceProvider extends AbstractServiceProvider
 
         return $routes;
     }
+
 }

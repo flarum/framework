@@ -11,6 +11,7 @@
 namespace Flarum\Install\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Install\Database\Drivers;
 use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -30,11 +31,13 @@ class IndexController extends AbstractHtmlController
     /**
      * @param Factory $view
      * @param PrerequisiteInterface $prerequisite
+     * @param Drivers $drivers
      */
-    public function __construct(Factory $view, PrerequisiteInterface $prerequisite)
+    public function __construct(Factory $view, PrerequisiteInterface $prerequisite, Drivers $drivers)
     {
         $this->view = $view;
         $this->prerequisite = $prerequisite;
+        $this->drivers = $drivers;
     }
 
     /**
@@ -43,6 +46,7 @@ class IndexController extends AbstractHtmlController
      */
     public function render(Request $request)
     {
+
         $view = $this->view->make('flarum.install::app')->with('title', 'Install Flarum');
 
         $this->prerequisite->check();
@@ -51,7 +55,7 @@ class IndexController extends AbstractHtmlController
         if (count($errors)) {
             $view->with('content', $this->view->make('flarum.install::errors')->with('errors', $errors));
         } else {
-            $view->with('content', $this->view->make('flarum.install::install'));
+            $view->with('content', $this->view->make('flarum.install::install')->with('drivers', $this->drivers->getLoadedDatabaseDrivers()));
         }
 
         return $view;
