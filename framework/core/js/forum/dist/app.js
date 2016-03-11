@@ -18608,15 +18608,6 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
             }, function (error) {
               _this2.requestError = error;
 
-              if (error.response && error.response.errors && error.response.errors[0] && error.response.errors[0].code === 'invalid_access_token') {
-                _this2.modal.show(new ConfirmPasswordModal({
-                  deferredRequest: originalOptions,
-                  deferred: deferred,
-                  error: error
-                }));
-                return;
-              }
-
               var children = undefined;
 
               switch (error.status) {
@@ -19577,6 +19568,13 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
              * @type {function}
              */
             this.email = m.prop(app.session.user.email());
+
+            /**
+             * The value of the password input.
+             *
+             * @type {function}
+             */
+            this.password = m.prop('');
           }
         }, {
           key: 'className',
@@ -19631,8 +19629,15 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
                   { className: 'Form-group' },
                   m('input', { type: 'email', name: 'email', className: 'FormControl',
                     placeholder: app.session.user.email(),
-                    value: this.email(),
-                    onchange: m.withAttr('value', this.email),
+                    bidi: this.email,
+                    disabled: this.loading })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m('input', { type: 'password', name: 'password', className: 'FormControl',
+                    placeholder: app.translator.trans('core.forum.change_email.confirm_password_label'),
+                    bidi: this.password,
                     disabled: this.loading })
                 ),
                 m(
@@ -19666,14 +19671,21 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
 
             this.loading = true;
 
-            app.session.user.save({ email: this.email() }, { errorHandler: this.onerror.bind(this) }).then(function () {
+            app.session.user.save({ email: this.email() }, {
+              errorHandler: this.onerror.bind(this),
+              meta: { password: this.password() }
+            }).then(function () {
               return _this.success = true;
             })['catch'](function () {}).then(this.loaded.bind(this));
+          }
+        }, {
+          key: 'onerror',
+          value: function onerror(error) {
+            if (error.status === 401) {
+              error.alert.props.children = app.translator.trans('core.forum.change_email.incorrect_password_message');
+            }
 
-            // The save method will update the cached email address on the user model...
-            // But in the case of a "sudo" password prompt, we'll still want to have
-            // the old email address on file for the purposes of logging in.
-            app.session.user.pushAttributes({ email: oldEmail });
+            babelHelpers.get(Object.getPrototypeOf(ChangeEmailModal.prototype), 'onerror', this).call(this, error);
           }
         }]);
         return ChangeEmailModal;
@@ -20823,121 +20835,6 @@ System.register('flarum/components/ComposerButton', ['flarum/components/Button']
       })(Button);
 
       _export('default', ComposerButton);
-    }
-  };
-});;
-System.register('flarum/components/ConfirmPasswordModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export) {
-  'use strict';
-
-  var Modal, Button, extractText, ConfirmPasswordModal;
-  return {
-    setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
-    }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
-    }],
-    execute: function () {
-      ConfirmPasswordModal = (function (_Modal) {
-        babelHelpers.inherits(ConfirmPasswordModal, _Modal);
-
-        function ConfirmPasswordModal() {
-          babelHelpers.classCallCheck(this, ConfirmPasswordModal);
-          babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'constructor', this).apply(this, arguments);
-        }
-
-        babelHelpers.createClass(ConfirmPasswordModal, [{
-          key: 'init',
-          value: function init() {
-            babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'init', this).call(this);
-
-            this.password = m.prop('');
-          }
-        }, {
-          key: 'className',
-          value: function className() {
-            return 'ConfirmPasswordModal Modal--small';
-          }
-        }, {
-          key: 'title',
-          value: function title() {
-            return app.translator.trans('core.forum.confirm_password.title');
-          }
-        }, {
-          key: 'content',
-          value: function content() {
-            return m(
-              'div',
-              { className: 'Modal-body' },
-              m(
-                'div',
-                { className: 'Form Form--centered' },
-                m(
-                  'div',
-                  { className: 'Form-group' },
-                  m('input', {
-                    type: 'password',
-                    className: 'FormControl',
-                    bidi: this.password,
-                    placeholder: extractText(app.translator.trans('core.forum.confirm_password.password_placeholder')),
-                    disabled: this.loading })
-                ),
-                m(
-                  'div',
-                  { className: 'Form-group' },
-                  m(
-                    Button,
-                    {
-                      type: 'submit',
-                      className: 'Button Button--primary Button--block',
-                      loading: this.loading },
-                    app.translator.trans('core.forum.confirm_password.submit_button')
-                  )
-                )
-              )
-            );
-          }
-        }, {
-          key: 'onsubmit',
-          value: function onsubmit(e) {
-            var _this = this;
-
-            e.preventDefault();
-
-            this.loading = true;
-
-            app.session.login(app.session.user.email(), this.password(), { errorHandler: this.onerror.bind(this) }).then(function () {
-              _this.success = true;
-              _this.hide();
-              app.request(_this.props.deferredRequest).then(function (response) {
-                return _this.props.deferred.resolve(response);
-              }, function (response) {
-                return _this.props.deferred.reject(response);
-              });
-            })['catch'](this.loaded.bind(this));
-          }
-        }, {
-          key: 'onerror',
-          value: function onerror(error) {
-            if (error.status === 401) {
-              error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
-            }
-
-            babelHelpers.get(Object.getPrototypeOf(ConfirmPasswordModal.prototype), 'onerror', this).call(this, error);
-          }
-        }, {
-          key: 'onhide',
-          value: function onhide() {
-            if (this.success) return;
-
-            this.props.deferred.reject(this.props.error);
-          }
-        }]);
-        return ConfirmPasswordModal;
-      })(Modal);
-
-      _export('default', ConfirmPasswordModal);
     }
   };
 });;
@@ -31111,10 +31008,13 @@ System.register('flarum/Model', [], function (_export) {
 
             this.pushData(data);
 
+            var request = { data: data };
+            if (options.meta) request.meta = options.meta;
+
             return app.request(babelHelpers._extends({
               method: this.exists ? 'PATCH' : 'POST',
               url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
-              data: { data: data }
+              data: request
             }, options)).then(
             // If everything went well, we'll make sure the store knows that this
             // model exists now (if it didn't already), and we'll push the data that
