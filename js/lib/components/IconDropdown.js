@@ -35,8 +35,14 @@ export default class IconDropdown extends Dropdown {
   
   items() {
     //Set Defaults
-    if (typeof this.props.selection == 'undefined') {this.props.selection = m.prop('question');}
-    if (typeof this.props.icons == 'undefined') {this.props.icons = 'all';}
+    if (typeof this.props.selection == 'undefined') {
+      this.props.selection = m.prop('question');
+    } else if (this.props.selection() == '') {
+      this.props.selection('question');
+    }
+    if (typeof this.props.icons == 'undefined') {
+      this.props.icons = 'all';
+    }
 
     const items = new ItemList();
     //Preset icon list

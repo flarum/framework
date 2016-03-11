@@ -2,6 +2,7 @@ import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 import Badge from 'flarum/components/Badge';
 import Group from 'flarum/models/Group';
+import IconDropdown from 'flarum/components/IconDropdown';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -54,7 +55,7 @@ export default class EditGroupModal extends Modal {
             <div className="helpText">
               {app.translator.trans('core.admin.edit_group.icon_text', {a: <a href="http://fortawesome.github.io/Font-Awesome/icons/" tabindex="-1"/>}, {em: <em/>}, {code: <code/>})}
             </div>
-            <input className="FormControl" placeholder="bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
+            {IconDropdown.component({selection: this.icon})}
           </div>
 
           <div className="Form-group">
