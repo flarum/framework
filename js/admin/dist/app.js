@@ -17749,6 +17749,8 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
         babelHelpers.createClass(AppearancePage, [{
           key: 'init',
           value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(AppearancePage.prototype), 'init', this).call(this);
+
             this.primaryColor = m.prop(app.settings.theme_primary_color);
             this.secondaryColor = m.prop(app.settings.theme_secondary_color);
             this.darkMode = m.prop(app.settings.theme_dark_mode === '1');
@@ -17957,6 +17959,8 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
           key: 'init',
           value: function init() {
             var _this = this;
+
+            babelHelpers.get(Object.getPrototypeOf(BasicsPage.prototype), 'init', this).call(this);
 
             this.loading = false;
 
