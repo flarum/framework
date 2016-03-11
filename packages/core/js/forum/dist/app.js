@@ -18768,6 +18768,14 @@ System.register('flarum/Component', [], function (_export) {
            */
           this.element = null;
 
+          /**
+           * Whether or not to retain the component's subtree on redraw.
+           *
+           * @type {boolean}
+           * @public
+           */
+          this.retain = false;
+
           this.init();
         }
 
@@ -18811,7 +18819,7 @@ System.register('flarum/Component', [], function (_export) {
           value: function render() {
             var _this = this;
 
-            var vdom = this.view();
+            var vdom = this.retain ? { subtree: 'retain' } : this.view();
 
             // Override the root element's config attribute with our own function, which
             // will set the component instance's element property to the root DOM
@@ -24367,6 +24375,8 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
             this.showing = true;
             this.component = component;
 
+            app.current.retain = true;
+
             m.redraw(true);
 
             this.$().modal({ backdrop: this.component.isDismissible() ? true : 'static' }).modal('show');
@@ -24409,6 +24419,8 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
             }
 
             this.component = null;
+
+            app.current.retain = false;
 
             m.lazyRedraw();
           }

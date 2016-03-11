@@ -17111,6 +17111,14 @@ System.register('flarum/Component', [], function (_export) {
            */
           this.element = null;
 
+          /**
+           * Whether or not to retain the component's subtree on redraw.
+           *
+           * @type {boolean}
+           * @public
+           */
+          this.retain = false;
+
           this.init();
         }
 
@@ -17154,7 +17162,7 @@ System.register('flarum/Component', [], function (_export) {
           value: function render() {
             var _this = this;
 
-            var vdom = this.view();
+            var vdom = this.retain ? { subtree: 'retain' } : this.view();
 
             // Override the root element's config attribute with our own function, which
             // will set the component instance's element property to the root DOM
@@ -17713,13 +17721,13 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
     }
   };
 });;
-System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/utils/saveSettings'], function (_export) {
+System.register('flarum/components/AppearancePage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/utils/saveSettings'], function (_export) {
   'use strict';
 
-  var Component, Button, Switch, EditCustomCssModal, saveSettings, AppearancePage;
+  var Page, Button, Switch, EditCustomCssModal, saveSettings, AppearancePage;
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage['default'];
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton['default'];
     }, function (_flarumComponentsSwitch) {
@@ -17730,8 +17738,8 @@ System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum
       saveSettings = _flarumUtilsSaveSettings['default'];
     }],
     execute: function () {
-      AppearancePage = (function (_Component) {
-        babelHelpers.inherits(AppearancePage, _Component);
+      AppearancePage = (function (_Page) {
+        babelHelpers.inherits(AppearancePage, _Page);
 
         function AppearancePage() {
           babelHelpers.classCallCheck(this, AppearancePage);
@@ -17844,7 +17852,7 @@ System.register('flarum/components/AppearancePage', ['flarum/Component', 'flarum
           }
         }]);
         return AppearancePage;
-      })(Component);
+      })(Page);
 
       _export('default', AppearancePage);
     }
@@ -17916,13 +17924,13 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
     }
   };
 });;
-System.register('flarum/components/BasicsPage', ['flarum/Component', 'flarum/components/FieldSet', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export) {
+System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export) {
   'use strict';
 
-  var Component, FieldSet, Select, Button, Alert, saveSettings, ItemList, BasicsPage;
+  var Page, FieldSet, Select, Button, Alert, saveSettings, ItemList, BasicsPage;
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage['default'];
     }, function (_flarumComponentsFieldSet) {
       FieldSet = _flarumComponentsFieldSet['default'];
     }, function (_flarumComponentsSelect) {
@@ -17937,8 +17945,8 @@ System.register('flarum/components/BasicsPage', ['flarum/Component', 'flarum/com
       ItemList = _flarumUtilsItemList['default'];
     }],
     execute: function () {
-      BasicsPage = (function (_Component) {
-        babelHelpers.inherits(BasicsPage, _Component);
+      BasicsPage = (function (_Page) {
+        babelHelpers.inherits(BasicsPage, _Page);
 
         function BasicsPage() {
           babelHelpers.classCallCheck(this, BasicsPage);
@@ -18098,7 +18106,7 @@ System.register('flarum/components/BasicsPage', ['flarum/Component', 'flarum/com
           }
         }]);
         return BasicsPage;
-      })(Component);
+      })(Page);
 
       _export('default', BasicsPage);
     }
@@ -18293,17 +18301,17 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
     }
   };
 });;
-System.register("flarum/components/DashboardPage", ["flarum/Component"], function (_export) {
+System.register("flarum/components/DashboardPage", ["flarum/components/Page"], function (_export) {
   "use strict";
 
-  var Component, DashboardPage;
+  var Page, DashboardPage;
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent["default"];
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage["default"];
     }],
     execute: function () {
-      DashboardPage = (function (_Component) {
-        babelHelpers.inherits(DashboardPage, _Component);
+      DashboardPage = (function (_Page) {
+        babelHelpers.inherits(DashboardPage, _Page);
 
         function DashboardPage() {
           babelHelpers.classCallCheck(this, DashboardPage);
@@ -18372,7 +18380,7 @@ System.register("flarum/components/DashboardPage", ["flarum/Component"], functio
           }
         }]);
         return DashboardPage;
-      })(Component);
+      })(Page);
 
       _export("default", DashboardPage);
     }
@@ -18767,13 +18775,13 @@ System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 
     }
   };
 });;
-System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/components/Dropdown', 'flarum/components/Separator', 'flarum/components/AddExtensionModal', 'flarum/components/LoadingModal', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
+System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/components/Dropdown', 'flarum/components/Separator', 'flarum/components/AddExtensionModal', 'flarum/components/LoadingModal', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
   'use strict';
 
-  var Component, LinkButton, Button, Dropdown, Separator, AddExtensionModal, LoadingModal, ItemList, icon, listItems, ExtensionsPage;
+  var Page, LinkButton, Button, Dropdown, Separator, AddExtensionModal, LoadingModal, ItemList, icon, listItems, ExtensionsPage;
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage['default'];
     }, function (_flarumComponentsLinkButton) {
       LinkButton = _flarumComponentsLinkButton['default'];
     }, function (_flarumComponentsButton) {
@@ -18794,8 +18802,8 @@ System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum
       listItems = _flarumHelpersListItems['default'];
     }],
     execute: function () {
-      ExtensionsPage = (function (_Component) {
-        babelHelpers.inherits(ExtensionsPage, _Component);
+      ExtensionsPage = (function (_Page) {
+        babelHelpers.inherits(ExtensionsPage, _Page);
 
         function ExtensionsPage() {
           babelHelpers.classCallCheck(this, ExtensionsPage);
@@ -18938,7 +18946,7 @@ System.register('flarum/components/ExtensionsPage', ['flarum/Component', 'flarum
           }
         }]);
         return ExtensionsPage;
-      })(Component);
+      })(Page);
 
       _export('default', ExtensionsPage);
     }
@@ -19576,6 +19584,8 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
             this.showing = true;
             this.component = component;
 
+            app.current.retain = true;
+
             m.redraw(true);
 
             this.$().modal({ backdrop: this.component.isDismissible() ? true : 'static' }).modal('show');
@@ -19618,6 +19628,8 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
             }
 
             this.component = null;
+
+            app.current.retain = false;
 
             m.lazyRedraw();
           }
@@ -19782,6 +19794,67 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
       })(Component);
 
       _export('default', Navigation);
+    }
+  };
+});;
+System.register('flarum/components/Page', ['flarum/Component'], function (_export) {
+
+  /**
+   * The `Page` component
+   *
+   * @abstract
+   */
+  'use strict';
+
+  var Component, Page;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent['default'];
+    }],
+    execute: function () {
+      Page = (function (_Component) {
+        babelHelpers.inherits(Page, _Component);
+
+        function Page() {
+          babelHelpers.classCallCheck(this, Page);
+          babelHelpers.get(Object.getPrototypeOf(Page.prototype), 'constructor', this).apply(this, arguments);
+        }
+
+        babelHelpers.createClass(Page, [{
+          key: 'init',
+          value: function init() {
+            app.previous = app.current;
+            app.current = this;
+
+            app.modal.close();
+
+            /**
+             * A class name to apply to the body while the route is active.
+             *
+             * @type {String}
+             */
+            this.bodyClass = '';
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            var _this = this;
+
+            if (isInitialized) return;
+
+            if (this.bodyClass) {
+              $('#app').addClass(this.bodyClass);
+
+              context.onunload = function () {
+                return $('#app').removeClass(_this.bodyClass);
+              };
+            }
+          }
+        }]);
+        return Page;
+      })(Component);
+
+      _export('default', Page);
     }
   };
 });;
@@ -20212,13 +20285,13 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
     }
   };
 });;
-System.register('flarum/components/PermissionsPage', ['flarum/Component', 'flarum/components/GroupBadge', 'flarum/components/EditGroupModal', 'flarum/models/Group', 'flarum/helpers/icon', 'flarum/components/PermissionGrid'], function (_export) {
+System.register('flarum/components/PermissionsPage', ['flarum/components/Page', 'flarum/components/GroupBadge', 'flarum/components/EditGroupModal', 'flarum/models/Group', 'flarum/helpers/icon', 'flarum/components/PermissionGrid'], function (_export) {
   'use strict';
 
-  var Component, GroupBadge, EditGroupModal, Group, icon, PermissionGrid, PermissionsPage;
+  var Page, GroupBadge, EditGroupModal, Group, icon, PermissionGrid, PermissionsPage;
   return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage['default'];
     }, function (_flarumComponentsGroupBadge) {
       GroupBadge = _flarumComponentsGroupBadge['default'];
     }, function (_flarumComponentsEditGroupModal) {
@@ -20231,8 +20304,8 @@ System.register('flarum/components/PermissionsPage', ['flarum/Component', 'flaru
       PermissionGrid = _flarumComponentsPermissionGrid['default'];
     }],
     execute: function () {
-      PermissionsPage = (function (_Component) {
-        babelHelpers.inherits(PermissionsPage, _Component);
+      PermissionsPage = (function (_Page) {
+        babelHelpers.inherits(PermissionsPage, _Page);
 
         function PermissionsPage() {
           babelHelpers.classCallCheck(this, PermissionsPage);
@@ -20298,7 +20371,7 @@ System.register('flarum/components/PermissionsPage', ['flarum/Component', 'flaru
           }
         }]);
         return PermissionsPage;
-      })(Component);
+      })(Page);
 
       _export('default', PermissionsPage);
     }

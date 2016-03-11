@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import LinkButton from 'flarum/components/LinkButton';
 import Button from 'flarum/components/Button';
 import Dropdown from 'flarum/components/Dropdown';
@@ -9,7 +9,7 @@ import ItemList from 'flarum/utils/ItemList';
 import icon from 'flarum/helpers/icon';
 import listItems from 'flarum/helpers/listItems';
 
-export default class ExtensionsPage extends Component {
+export default class ExtensionsPage extends Page {
   view() {
 
     return (
