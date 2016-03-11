@@ -10,11 +10,9 @@
 
 namespace Flarum\Core\Access;
 
-use DateTime;
 use Flarum\Api\Exception\InvalidAccessTokenException;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\User;
-use Psr\Http\Message\ServerRequestInterface;
 
 trait AssertPermissionTrait
 {
@@ -65,29 +63,5 @@ trait AssertPermissionTrait
     protected function assertAdmin(User $actor)
     {
         $this->assertCan($actor, 'administrate');
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @throws InvalidAccessTokenException
-     */
-    protected function assertSudo(ServerRequestInterface $request)
-    {
-        $session = $request->getAttribute('session');
-
-        if ($session && $session->get('sudo_expiry') < new DateTime) {
-            throw new InvalidAccessTokenException;
-        }
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @throws PermissionDeniedException
-     */
-    protected function assertAdminAndSudo(ServerRequestInterface $request)
-    {
-        $this->assertAdmin($request->getAttribute('actor'));
-
-        $this->assertSudo($request);
     }
 }

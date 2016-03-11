@@ -33,7 +33,7 @@ class UninstallExtensionController extends AbstractDeleteController
 
     protected function delete(ServerRequestInterface $request)
     {
-        $this->assertAdminAndSudo($request);
+        $this->assertAdmin($request->getAttribute('actor'));
 
         $name = array_get($request->getQueryParams(), 'name');
 

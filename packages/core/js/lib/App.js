@@ -252,15 +252,6 @@ export default class App {
     m.request(options).then(response => deferred.resolve(response), error => {
       this.requestError = error;
 
-      if (error.response && error.response.errors && error.response.errors[0] && error.response.errors[0].code === 'invalid_access_token') {
-        this.modal.show(new ConfirmPasswordModal({
-          deferredRequest: originalOptions,
-          deferred,
-          error
-        }));
-        return;
-      }
-
       let children;
 
       switch (error.status) {

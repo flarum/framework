@@ -47,7 +47,7 @@ class SetSettingsController implements ControllerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        $this->assertAdminAndSudo($request);
+        $this->assertAdmin($request->getAttribute('actor'));
 
         $settings = $request->getParsedBody();
 
