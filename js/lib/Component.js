@@ -54,6 +54,14 @@ export default class Component {
      */
     this.element = null;
 
+    /**
+     * Whether or not to retain the component's subtree on redraw.
+     *
+     * @type {boolean}
+     * @public
+     */
+    this.retain = false;
+
     this.init();
   }
 
@@ -91,7 +99,7 @@ export default class Component {
    * @public
    */
   render() {
-    const vdom = this.view();
+    const vdom = this.retain ? {subtree: 'retain'} : this.view();
 
     // Override the root element's config attribute with our own function, which
     // will set the component instance's element property to the root DOM

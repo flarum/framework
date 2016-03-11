@@ -1,11 +1,11 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import GroupBadge from 'flarum/components/GroupBadge';
 import EditGroupModal from 'flarum/components/EditGroupModal';
 import Group from 'flarum/models/Group';
 import icon from 'flarum/helpers/icon';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
-export default class PermissionsPage extends Component {
+export default class PermissionsPage extends Page {
   view() {
     return (
       <div className="PermissionsPage">

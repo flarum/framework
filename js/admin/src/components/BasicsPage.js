@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import FieldSet from 'flarum/components/FieldSet';
 import Select from 'flarum/components/Select';
 import Button from 'flarum/components/Button';
@@ -6,7 +6,7 @@ import Alert from 'flarum/components/Alert';
 import saveSettings from 'flarum/utils/saveSettings';
 import ItemList from 'flarum/utils/ItemList';
 
-export default class BasicsPage extends Component {
+export default class BasicsPage extends Page {
   init() {
     this.loading = false;
 
