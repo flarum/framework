@@ -8,6 +8,8 @@ import ItemList from 'flarum/utils/ItemList';
 
 export default class BasicsPage extends Page {
   init() {
+    super.init();
+
     this.loading = false;
 
     this.fields = [

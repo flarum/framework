@@ -11,7 +11,6 @@ import listItems from 'flarum/helpers/listItems';
 
 export default class ExtensionsPage extends Page {
   view() {
-
     return (
       <div className="ExtensionsPage">
         <div className="ExtensionsPage-header">
