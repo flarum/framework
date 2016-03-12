@@ -18,16 +18,15 @@ class Drivers
     public function __construct()
     {
         $this->drivers = [
-            "mysql" => [
-                "name" => "MySQL",
-                "php_driver" => "pdo_mysql"
+            'mysql' => [
+                'name' => 'MySQL',
+                'php_driver' => 'pdo_mysql'
             ],
-            "pgsql" => [
-                "name" => "PostgreSQL",
-                "php_driver" => "pdo_pgsql"
+            'pgsql' => [
+                'name' => 'PostgreSQL',
+                'php_driver' => 'pdo_pgsql'
             ],
         ];
-
     }
 
     /**
@@ -43,7 +42,6 @@ class Drivers
      */
     public function getLoadedDatabaseDrivers()
     {
-
         $loadedDrivers = [];
 
         foreach ($this->drivers as $driver => $values) {

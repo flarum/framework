@@ -38,7 +38,7 @@ class PhpExtensions extends AbstractPrerequisite
 
         if (! $loaded) {
             $this->errors[] = [
-                'message' => (count($extensions) > 1 ? "One of the" : "The")." PHP extension '".implode("' or '", $extensions)."' is required.",
+                'message' => (count($extensions) > 1 ? 'One of the' : 'The')." PHP extension '".implode("' or '", $extensions)."' is required.",
             ];
         }
     }
