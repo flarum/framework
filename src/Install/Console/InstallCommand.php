@@ -194,8 +194,8 @@ class InstallCommand extends AbstractCommand
                 'database'  => $dbConfig['database'],
                 'username'  => $dbConfig['username'],
                 'password'  => $dbConfig['password'],
-                'charset'   => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
+                'charset'   => 'utf8'.($dbConfig['driver'] === 'mysql' ? 'mb4' : ''),
+                'collation' => 'utf8'.($dbConfig['driver'] === 'mysql' ? 'mb4' : '').'_unicode_ci',
                 'prefix'    => $dbConfig['prefix'],
                 'strict'    => false
             ],
@@ -211,6 +211,7 @@ class InstallCommand extends AbstractCommand
         $this->application->instance('flarum.config', $config);
         /* @var $db \Illuminate\Database\ConnectionInterface */
         $db = $this->application->make('flarum.db');
+
         $version = $db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
 
         if (version_compare($version, '5.5.0', '<')) {
