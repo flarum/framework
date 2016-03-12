@@ -15,7 +15,7 @@
     <div class="FormField">
       <label>Database type</label>
       <select name="databaseType">
-          <?php foreach($drivers as $driver => $driverName): ?>
+          <?php foreach ($drivers as $driver => $driverName): ?>
           <option value="<?php echo $driver; ?>"><?php echo $driverName; ?></option>
           <?php endforeach; ?>
       </select>

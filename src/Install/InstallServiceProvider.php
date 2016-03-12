@@ -28,7 +28,6 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-
         $drivers = new Drivers();
 
         $this->app->bind(
@@ -57,7 +56,6 @@ class InstallServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.install.routes', function () {
             return $this->getRoutes();
         });
-
 
         $this->app->singleton(
             'Flarum\Install\Database\Drivers',
@@ -91,5 +89,4 @@ class InstallServiceProvider extends AbstractServiceProvider
 
         return $routes;
     }
-
 }

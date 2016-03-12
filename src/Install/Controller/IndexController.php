@@ -46,7 +46,6 @@ class IndexController extends AbstractHtmlController
      */
     public function render(Request $request)
     {
-
         $view = $this->view->make('flarum.install::app')->with('title', 'Install Flarum');
 
         $this->prerequisite->check();

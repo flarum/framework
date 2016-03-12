@@ -35,7 +35,6 @@ return [
             $table->engine = 'MyISAM';
         });
 
-
         //@TODO: find equivalent for pqsql
         if ($schema->getConnection()->getConfig('driver') === 'mysql') {
             $prefix = $schema->getConnection()->getTablePrefix();

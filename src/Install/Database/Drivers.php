@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -16,16 +17,16 @@ class Drivers
 
     public function __construct()
     {
-        $this->drivers = array(
-            "mysql" => array(
+        $this->drivers = [
+            "mysql" => [
                 "name" => "MySQL",
                 "php_driver" => "pdo_mysql"
-            ),
-            "pgsql" => array(
+            ],
+            "pgsql" => [
                 "name" => "PostgreSQL",
                 "php_driver" => "pdo_pgsql"
-            ),
-        );
+            ],
+        ];
 
     }
 
@@ -37,17 +38,16 @@ class Drivers
         return array_column($this->drivers, 'php_driver');
     }
 
-
     /**
      * @return array
      */
     public function getLoadedDatabaseDrivers()
     {
 
-        $loadedDrivers = array();
+        $loadedDrivers = [];
 
-        foreach($this->drivers as $driver => $values) {
-            if(extension_loaded($values['php_driver'])) {
+        foreach ($this->drivers as $driver => $values) {
+            if (extension_loaded($values['php_driver'])) {
                 $loadedDrivers[$driver] = $values['name'];
             }
         }
