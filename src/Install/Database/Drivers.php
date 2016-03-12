@@ -17,11 +17,16 @@ class Drivers
     public function __construct()
     {
         $this->drivers = array(
-            "pdo_mysql" => "MySQL",
-            "pdo_pgsql" => "PostgreSQL",
+            "mysql" => array(
+                "name" => "MySQL",
+                "php_driver" => "pdo_mysql"
+            ),
+            "pgsql" => array(
+                "name" => "PostgreSQL",
+                "php_driver" => "pdo_pgsql"
+            ),
         );
 
-        $this->phpDrivers = array_keys($this->drivers);
     }
 
     /**
@@ -29,7 +34,7 @@ class Drivers
      */
     public function getSupportedPhpDrivers()
     {
-        return $this->phpDrivers;
+        return array_column($this->drivers, 'php_driver');
     }
 
 
@@ -38,13 +43,16 @@ class Drivers
      */
     public function getLoadedDatabaseDrivers()
     {
-        return array_filter(
-            $this->drivers,
-            function($driver) {
-                return extension_loaded($driver);
-            },
-            ARRAY_FILTER_USE_KEY
-        );
+
+        $loadedDrivers = array();
+
+        foreach($this->drivers as $driver => $values) {
+            if(extension_loaded($values['php_driver'])) {
+                $loadedDrivers[$driver] = $values['name'];
+            }
+        }
+
+        return $loadedDrivers;
     }
 
     /**
