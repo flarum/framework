@@ -54,7 +54,7 @@ class InstallController implements ControllerInterface
         $data->setDatabaseConfiguration([
             'driver'   => array_get($input, 'databaseType'),
             'host'     => array_get($input, 'databaseHost'),
-            'database' => array_get($input, 'databaseDatabase'),
+            'database' => array_get($input, 'databaseName'),
             'username' => array_get($input, 'databaseUsername'),
             'password' => array_get($input, 'databasePassword'),
             'prefix'   => array_get($input, 'databaseTablePrefix'),
