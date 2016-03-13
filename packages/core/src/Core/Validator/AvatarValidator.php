@@ -16,7 +16,7 @@ class AvatarValidator extends AbstractValidator
         'avatar' => [
             'required',
             'image',
-            'max:1024'
+            'max:2048'
         ]
     ];
 }
