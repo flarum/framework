@@ -179,6 +179,13 @@ class ApiServiceProvider extends AbstractServiceProvider
             $toController('Flarum\Api\Controller\DeleteAvatarController')
         );
 
+        // send confirmation email
+        $routes->post(
+            '/users/{id}/send-confirmation',
+            'users.confirmation.send',
+            $toController('Flarum\Api\Controller\SendConfirmationEmailController')
+        );
+
         /*
         |--------------------------------------------------------------------------
         | Notifications
