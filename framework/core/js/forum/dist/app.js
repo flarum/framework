@@ -18236,8 +18236,8 @@ $('#el').spin('flower', 'red');
 ;
 'use strict';
 
-System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot'], function (_export, _context) {
-  var ForumApp, store, preload, routes, components, humanTime, boot, app;
+System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot', 'flarum/initializers/alertEmailConfirmation'], function (_export, _context) {
+  var ForumApp, store, preload, routes, components, humanTime, boot, alertEmailConfirmation, app;
   return {
     setters: [function (_flarumForumApp) {
       ForumApp = _flarumForumApp.default;
@@ -18253,6 +18253,8 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
       humanTime = _flarumInitializersHumanTime.default;
     }, function (_flarumInitializersBoot) {
       boot = _flarumInitializersBoot.default;
+    }, function (_flarumInitializersAlertEmailConfirmation) {
+      alertEmailConfirmation = _flarumInitializersAlertEmailConfirmation.default;
     }],
     execute: function () {
       app = new ForumApp();
@@ -18265,6 +18267,7 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
 
       app.initializers.add('preload', preload, -100);
       app.initializers.add('boot', boot, -100);
+      app.initializers.add('alertEmailConfirmation', alertEmailConfirmation, -100);
 
       _export('default', app);
     }
@@ -28380,6 +28383,49 @@ System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (
         }],
         execute: function () {}
     };
+});;
+'use strict';
+
+System.register('flarum/initializers/alertEmailConfirmation', ['flarum/components/Alert', 'flarum/components/Button'], function (_export, _context) {
+  var Alert, Button;
+  function alertEmailConfirmation(app) {
+    var user = app.session.user;
+
+    if (!user || user.isActivated()) return;
+
+    var alert = void 0;
+
+    var resendButton = Button.component({
+      className: 'Button Button--link',
+      children: app.translator.trans('core.forum.user_confirmation.resend_button'),
+      onclick: function onclick() {
+        app.request({
+          method: 'POST',
+          url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation'
+        }).then(function () {
+          return app.alerts.dismiss(alert);
+        });
+      }
+    });
+
+    app.alerts.show(alert = new Alert({
+      type: 'error',
+      dismissible: false,
+      children: app.translator.trans('core.forum.user_confirmation.alert_message'),
+      controls: [resendButton]
+    }));
+  }
+
+  _export('default', alertEmailConfirmation);
+
+  return {
+    setters: [function (_flarumComponentsAlert) {
+      Alert = _flarumComponentsAlert.default;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }],
+    execute: function () {}
+  };
 });;
 'use strict';
 
