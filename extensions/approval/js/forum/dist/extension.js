@@ -1,25 +1,25 @@
-System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/DiscussionListItem', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/DiscussionListItem', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export, _context) {
   var extend, override, app, Discussion, Post, DiscussionListItem, CommentPost, Button, PostControls;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
       override = _flarumExtend.override;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumModelsPost) {
-      Post = _flarumModelsPost['default'];
+      Post = _flarumModelsPost.default;
     }, function (_flarumComponentsDiscussionListItem) {
-      DiscussionListItem = _flarumComponentsDiscussionListItem['default'];
+      DiscussionListItem = _flarumComponentsDiscussionListItem.default;
     }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumUtilsPostControls) {
-      PostControls = _flarumUtilsPostControls['default'];
+      PostControls = _flarumUtilsPostControls.default;
     }],
     execute: function () {
 
