@@ -1,10 +1,7 @@
-System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export, _context) {
   var extend, Discussion, Badge;
-
-  _export('default', addStickyBadge);
-
   function addStickyBadge() {
     extend(Discussion.prototype, 'badges', function (badges) {
       if (this.isSticky()) {
@@ -17,24 +14,23 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
     });
   }
 
+  _export('default', addStickyBadge);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
+      Badge = _flarumComponentsBadge.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export, _context) {
   var extend, DiscussionControls, DiscussionPage, Button;
-
-  _export('default', addStickyControl);
-
   function addStickyControl() {
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
       if (discussion.canSticky()) {
@@ -57,26 +53,25 @@ System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/util
     };
   }
 
+  _export('default', addStickyControl);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/components/DiscussionList', 'flarum/components/DiscussionListItem', 'flarum/utils/string'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/components/DiscussionList', 'flarum/components/DiscussionListItem', 'flarum/utils/string'], function (_export, _context) {
   var extend, DiscussionList, DiscussionListItem, truncate;
-
-  _export('default', addStickyControl);
-
   function addStickyControl() {
     extend(DiscussionList.prototype, 'requestParams', function (params) {
       params.include.push('startPost');
@@ -101,34 +96,36 @@ System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/comp
     });
   }
 
+  _export('default', addStickyControl);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsDiscussionList) {
-      DiscussionList = _flarumComponentsDiscussionList['default'];
+      DiscussionList = _flarumComponentsDiscussionList.default;
     }, function (_flarumComponentsDiscussionListItem) {
-      DiscussionListItem = _flarumComponentsDiscussionListItem['default'];
+      DiscussionListItem = _flarumComponentsDiscussionListItem.default;
     }, function (_flarumUtilsString) {
       truncate = _flarumUtilsString.truncate;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/components/EventPost'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/components/EventPost'], function (_export, _context) {
   var EventPost, DiscussionStickiedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
-      EventPost = _flarumComponentsEventPost['default'];
+      EventPost = _flarumComponentsEventPost.default;
     }],
     execute: function () {
-      DiscussionStickiedPost = (function (_EventPost) {
+      DiscussionStickiedPost = function (_EventPost) {
         babelHelpers.inherits(DiscussionStickiedPost, _EventPost);
 
         function DiscussionStickiedPost() {
           babelHelpers.classCallCheck(this, DiscussionStickiedPost);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionStickiedPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionStickiedPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionStickiedPost, [{
@@ -143,34 +140,34 @@ System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/comp
           }
         }]);
         return DiscussionStickiedPost;
-      })(EventPost);
+      }(EventPost);
 
       _export('default', DiscussionStickiedPost);
     }
   };
 });;
-System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export, _context) {
   var extend, notificationType, app, Model, Discussion, DiscussionStickiedPost, addStickyBadge, addStickyControl, addStickyExcerpt;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
       notificationType = _flarumExtend.notificationType;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumStickyComponentsDiscussionStickiedPost) {
-      DiscussionStickiedPost = _flarumStickyComponentsDiscussionStickiedPost['default'];
+      DiscussionStickiedPost = _flarumStickyComponentsDiscussionStickiedPost.default;
     }, function (_flarumStickyAddStickyBadge) {
-      addStickyBadge = _flarumStickyAddStickyBadge['default'];
+      addStickyBadge = _flarumStickyAddStickyBadge.default;
     }, function (_flarumStickyAddStickyControl) {
-      addStickyControl = _flarumStickyAddStickyControl['default'];
+      addStickyControl = _flarumStickyAddStickyControl.default;
     }, function (_flarumStickyAddStickyExcerpt) {
-      addStickyExcerpt = _flarumStickyAddStickyExcerpt['default'];
+      addStickyExcerpt = _flarumStickyAddStickyExcerpt.default;
     }],
     execute: function () {
 
