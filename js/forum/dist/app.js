@@ -1,20 +1,116 @@
 (function (global) {
   var babelHelpers = global.babelHelpers = {};
+  babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
 
-  babelHelpers.inherits = function (subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  babelHelpers.jsx = function () {
+    var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7;
+    return function createRawReactElement(type, props, key, children) {
+      var defaultProps = type && type.defaultProps;
+      var childrenLength = arguments.length - 3;
+
+      if (!props && childrenLength !== 0) {
+        props = {};
+      }
+
+      if (props && defaultProps) {
+        for (var propName in defaultProps) {
+          if (props[propName] === void 0) {
+            props[propName] = defaultProps[propName];
+          }
+        }
+      } else if (!props) {
+        props = defaultProps || {};
+      }
+
+      if (childrenLength === 1) {
+        props.children = children;
+      } else if (childrenLength > 1) {
+        var childArray = Array(childrenLength);
+
+        for (var i = 0; i < childrenLength; i++) {
+          childArray[i] = arguments[i + 3];
+        }
+
+        props.children = childArray;
+      }
+
+      return {
+        $$typeof: REACT_ELEMENT_TYPE,
+        type: type,
+        key: key === undefined ? null : '' + key,
+        ref: null,
+        props: props,
+        _owner: null
+      };
+    };
+  }();
+
+  babelHelpers.asyncToGenerator = function (fn) {
+    return function () {
+      var gen = fn.apply(this, arguments);
+      return new Promise(function (resolve, reject) {
+        function step(key, arg) {
+          try {
+            var info = gen[key](arg);
+            var value = info.value;
+          } catch (error) {
+            reject(error);
+            return;
+          }
+
+          if (info.done) {
+            resolve(value);
+          } else {
+            return Promise.resolve(value).then(function (value) {
+              return step("next", value);
+            }, function (err) {
+              return step("throw", err);
+            });
+          }
+        }
+
+        return step("next");
+      });
+    };
+  };
+
+  babelHelpers.classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  babelHelpers.createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
     }
 
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  babelHelpers.defineEnumerableProperties = function (obj, descs) {
+    for (var key in descs) {
+      var desc = descs[key];
+      desc.configurable = desc.enumerable = true;
+      if ("value" in desc) desc.writable = true;
+      Object.defineProperty(obj, key, desc);
+    }
+
+    return obj;
   };
 
   babelHelpers.defaults = function (obj, defaults) {
@@ -32,209 +128,6 @@
     return obj;
   };
 
-  babelHelpers.createClass = (function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  })();
-
-  babelHelpers.createDecoratedClass = (function () {
-    function defineProperties(target, descriptors, initializers) {
-      for (var i = 0; i < descriptors.length; i++) {
-        var descriptor = descriptors[i];
-        var decorators = descriptor.decorators;
-        var key = descriptor.key;
-        delete descriptor.key;
-        delete descriptor.decorators;
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor || descriptor.initializer) descriptor.writable = true;
-
-        if (decorators) {
-          for (var f = 0; f < decorators.length; f++) {
-            var decorator = decorators[f];
-
-            if (typeof decorator === "function") {
-              descriptor = decorator(target, key, descriptor) || descriptor;
-            } else {
-              throw new TypeError("The decorator for method " + descriptor.key + " is of the invalid type " + typeof decorator);
-            }
-          }
-
-          if (descriptor.initializer !== undefined) {
-            initializers[key] = descriptor;
-            continue;
-          }
-        }
-
-        Object.defineProperty(target, key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps, protoInitializers, staticInitializers) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps, protoInitializers);
-      if (staticProps) defineProperties(Constructor, staticProps, staticInitializers);
-      return Constructor;
-    };
-  })();
-
-  babelHelpers.createDecoratedObject = function (descriptors) {
-    var target = {};
-
-    for (var i = 0; i < descriptors.length; i++) {
-      var descriptor = descriptors[i];
-      var decorators = descriptor.decorators;
-      var key = descriptor.key;
-      delete descriptor.key;
-      delete descriptor.decorators;
-      descriptor.enumerable = true;
-      descriptor.configurable = true;
-      if ("value" in descriptor || descriptor.initializer) descriptor.writable = true;
-
-      if (decorators) {
-        for (var f = 0; f < decorators.length; f++) {
-          var decorator = decorators[f];
-
-          if (typeof decorator === "function") {
-            descriptor = decorator(target, key, descriptor) || descriptor;
-          } else {
-            throw new TypeError("The decorator for method " + descriptor.key + " is of the invalid type " + typeof decorator);
-          }
-        }
-      }
-
-      if (descriptor.initializer) {
-        descriptor.value = descriptor.initializer.call(target);
-      }
-
-      Object.defineProperty(target, key, descriptor);
-    }
-
-    return target;
-  };
-
-  babelHelpers.defineDecoratedPropertyDescriptor = function (target, key, descriptors) {
-    var _descriptor = descriptors[key];
-    if (!_descriptor) return;
-    var descriptor = {};
-
-    for (var _key in _descriptor) descriptor[_key] = _descriptor[_key];
-
-    descriptor.value = descriptor.initializer ? descriptor.initializer.call(target) : undefined;
-    Object.defineProperty(target, key, descriptor);
-  };
-
-  babelHelpers.taggedTemplateLiteral = function (strings, raw) {
-    return Object.freeze(Object.defineProperties(strings, {
-      raw: {
-        value: Object.freeze(raw)
-      }
-    }));
-  };
-
-  babelHelpers.taggedTemplateLiteralLoose = function (strings, raw) {
-    strings.raw = raw;
-    return strings;
-  };
-
-  babelHelpers.toArray = function (arr) {
-    return Array.isArray(arr) ? arr : Array.from(arr);
-  };
-
-  babelHelpers.toConsumableArray = function (arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    } else {
-      return Array.from(arr);
-    }
-  };
-
-  babelHelpers.slicedToArray = (function () {
-    function sliceIterator(arr, i) {
-      var _arr = [];
-      var _n = true;
-      var _d = false;
-      var _e = undefined;
-
-      try {
-        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-          _arr.push(_s.value);
-
-          if (i && _arr.length === i) break;
-        }
-      } catch (err) {
-        _d = true;
-        _e = err;
-      } finally {
-        try {
-          if (!_n && _i["return"]) _i["return"]();
-        } finally {
-          if (_d) throw _e;
-        }
-      }
-
-      return _arr;
-    }
-
-    return function (arr, i) {
-      if (Array.isArray(arr)) {
-        return arr;
-      } else if (Symbol.iterator in Object(arr)) {
-        return sliceIterator(arr, i);
-      } else {
-        throw new TypeError("Invalid attempt to destructure non-iterable instance");
-      }
-    };
-  })();
-
-  babelHelpers.slicedToArrayLoose = function (arr, i) {
-    if (Array.isArray(arr)) {
-      return arr;
-    } else if (Symbol.iterator in Object(arr)) {
-      var _arr = [];
-
-      for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-        _arr.push(_step.value);
-
-        if (i && _arr.length === i) break;
-      }
-
-      return _arr;
-    } else {
-      throw new TypeError("Invalid attempt to destructure non-iterable instance");
-    }
-  };
-
-  babelHelpers.objectWithoutProperties = function (obj, keys) {
-    var target = {};
-
-    for (var i in obj) {
-      if (keys.indexOf(i) >= 0) continue;
-      if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
-      target[i] = obj[i];
-    }
-
-    return target;
-  };
-
-  babelHelpers.hasOwn = Object.prototype.hasOwnProperty;
-  babelHelpers.slice = Array.prototype.slice;
-  babelHelpers.bind = Function.prototype.bind;
-
   babelHelpers.defineProperty = function (obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
@@ -250,68 +143,7 @@
     return obj;
   };
 
-  babelHelpers.asyncToGenerator = function (fn) {
-    return function () {
-      var gen = fn.apply(this, arguments);
-      return new Promise(function (resolve, reject) {
-        var callNext = step.bind(null, "next");
-        var callThrow = step.bind(null, "throw");
-
-        function step(key, arg) {
-          try {
-            var info = gen[key](arg);
-            var value = info.value;
-          } catch (error) {
-            reject(error);
-            return;
-          }
-
-          if (info.done) {
-            resolve(value);
-          } else {
-            Promise.resolve(value).then(callNext, callThrow);
-          }
-        }
-
-        callNext();
-      });
-    };
-  };
-
-  babelHelpers.interopExportWildcard = function (obj, defaults) {
-    var newObj = defaults({}, obj);
-    delete newObj["default"];
-    return newObj;
-  };
-
-  babelHelpers.interopRequireWildcard = function (obj) {
-    if (obj && obj.__esModule) {
-      return obj;
-    } else {
-      var newObj = {};
-
-      if (obj != null) {
-        for (var key in obj) {
-          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
-        }
-      }
-
-      newObj["default"] = obj;
-      return newObj;
-    }
-  };
-
-  babelHelpers.interopRequireDefault = function (obj) {
-    return obj && obj.__esModule ? obj : {
-      "default": obj
-    };
-  };
-
-  babelHelpers._typeof = function (obj) {
-    return obj && obj.constructor === Symbol ? "symbol" : typeof obj;
-  };
-
-  babelHelpers._extends = Object.assign || function (target) {
+  babelHelpers.extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -350,6 +182,85 @@
     }
   };
 
+  babelHelpers.inherits = function (subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  };
+
+  babelHelpers.instanceof = function (left, right) {
+    if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+      return right[Symbol.hasInstance](left);
+    } else {
+      return left instanceof right;
+    }
+  };
+
+  babelHelpers.interopRequireDefault = function (obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  };
+
+  babelHelpers.interopRequireWildcard = function (obj) {
+    if (obj && obj.__esModule) {
+      return obj;
+    } else {
+      var newObj = {};
+
+      if (obj != null) {
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+        }
+      }
+
+      newObj.default = obj;
+      return newObj;
+    }
+  };
+
+  babelHelpers.newArrowCheck = function (innerThis, boundThis) {
+    if (innerThis !== boundThis) {
+      throw new TypeError("Cannot instantiate an arrow function");
+    }
+  };
+
+  babelHelpers.objectDestructuringEmpty = function (obj) {
+    if (obj == null) throw new TypeError("Cannot destructure undefined");
+  };
+
+  babelHelpers.objectWithoutProperties = function (obj, keys) {
+    var target = {};
+
+    for (var i in obj) {
+      if (keys.indexOf(i) >= 0) continue;
+      if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+      target[i] = obj[i];
+    }
+
+    return target;
+  };
+
+  babelHelpers.possibleConstructorReturn = function (self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  };
+
+  babelHelpers.selfGlobal = typeof global === "undefined" ? self : global;
+
   babelHelpers.set = function set(object, property, value, receiver) {
     var desc = Object.getOwnPropertyDescriptor(object, property);
 
@@ -372,60 +283,99 @@
     return value;
   };
 
-  babelHelpers.newArrowCheck = function (innerThis, boundThis) {
-    if (innerThis !== boundThis) {
-      throw new TypeError("Cannot instantiate an arrow function");
+  babelHelpers.slicedToArray = function () {
+    function sliceIterator(arr, i) {
+      var _arr = [];
+      var _n = true;
+      var _d = false;
+      var _e = undefined;
+
+      try {
+        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+          _arr.push(_s.value);
+
+          if (i && _arr.length === i) break;
+        }
+      } catch (err) {
+        _d = true;
+        _e = err;
+      } finally {
+        try {
+          if (!_n && _i["return"]) _i["return"]();
+        } finally {
+          if (_d) throw _e;
+        }
+      }
+
+      return _arr;
+    }
+
+    return function (arr, i) {
+      if (Array.isArray(arr)) {
+        return arr;
+      } else if (Symbol.iterator in Object(arr)) {
+        return sliceIterator(arr, i);
+      } else {
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      }
+    };
+  }();
+
+  babelHelpers.slicedToArrayLoose = function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      var _arr = [];
+
+      for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+        _arr.push(_step.value);
+
+        if (i && _arr.length === i) break;
+      }
+
+      return _arr;
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
     }
   };
 
-  babelHelpers.classCallCheck = function (instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
+  babelHelpers.taggedTemplateLiteral = function (strings, raw) {
+    return Object.freeze(Object.defineProperties(strings, {
+      raw: {
+        value: Object.freeze(raw)
+      }
+    }));
   };
 
-  babelHelpers.objectDestructuringEmpty = function (obj) {
-    if (obj == null) throw new TypeError("Cannot destructure undefined");
+  babelHelpers.taggedTemplateLiteralLoose = function (strings, raw) {
+    strings.raw = raw;
+    return strings;
+  };
+
+  babelHelpers.temporalRef = function (val, name, undef) {
+    if (val === undef) {
+      throw new ReferenceError(name + " is not defined - temporal dead zone");
+    } else {
+      return val;
+    }
   };
 
   babelHelpers.temporalUndefined = {};
 
-  babelHelpers.temporalAssertDefined = function (val, name, undef) {
-    if (val === undef) {
-      throw new ReferenceError(name + " is not defined - temporal dead zone");
-    }
-
-    return true;
+  babelHelpers.toArray = function (arr) {
+    return Array.isArray(arr) ? arr : Array.from(arr);
   };
 
-  babelHelpers.selfGlobal = typeof global === "undefined" ? self : global;
-  babelHelpers.typeofReactElement = typeof Symbol === "function" && Symbol["for"] && Symbol["for"]("react.element") || 60103;
+  babelHelpers.toConsumableArray = function (arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
 
-  babelHelpers.defaultProps = function (defaultProps, props) {
-    if (defaultProps) {
-      for (var propName in defaultProps) {
-        if (typeof props[propName] === "undefined") {
-          props[propName] = defaultProps[propName];
-        }
-      }
-    }
-
-    return props;
-  };
-
-  babelHelpers._instanceof = function (left, right) {
-    if (right != null && right[Symbol.hasInstance]) {
-      return right[Symbol.hasInstance](left);
+      return arr2;
     } else {
-      return left instanceof right;
+      return Array.from(arr);
     }
   };
-
-  babelHelpers.interopRequire = function (obj) {
-    return obj && obj.__esModule ? obj["default"] : obj;
-  };
-})(typeof global === "undefined" ? self : global);
-;
+})(typeof global === "undefined" ? self : global);;
 (function(exports) {
 
 'use strict';
@@ -623,7 +573,7 @@ exports.System = System;
 	"use strict"
 
 	m.version = function () {
-		return "v0.2.3"
+		return "v0.2.2-rc.1"
 	}
 
 	var hasOwn = {}.hasOwnProperty
@@ -647,24 +597,9 @@ exports.System = System;
 
 	function noop() {}
 
-	var voidElements = {
-		AREA: 1,
-		BASE: 1,
-		BR: 1,
-		COL: 1,
-		COMMAND: 1,
-		EMBED: 1,
-		HR: 1,
-		IMG: 1,
-		INPUT: 1,
-		KEYGEN: 1,
-		LINK: 1,
-		META: 1,
-		PARAM: 1,
-		SOURCE: 1,
-		TRACK: 1,
-		WBR: 1
-	}
+	/* eslint-disable max-len */
+	var voidElements = /^(AREA|BASE|BR|COL|COMMAND|EMBED|HR|IMG|INPUT|KEYGEN|LINK|META|PARAM|SOURCE|TRACK|WBR)$/
+	/* eslint-enable max-len */
 
 	// caching commonly used variables
 	var $document, $location, $requestAnimationFrame, $cancelAnimationFrame
@@ -750,9 +685,7 @@ exports.System = System;
 	 *                      or splat (optional)
 	 */
 	function m(tag, pairs) {
-		var args = []
-
-		for (var i = 1, length = arguments.length; i < length; i++) {
+		for (var args = [], i = 1; i < arguments.length; i++) {
 			args[i - 1] = arguments[i]
 		}
 
@@ -1082,7 +1015,7 @@ exports.System = System;
 			nodes = injectHTML(parentElement, index, data)
 		} else {
 			nodes = [$document.createTextNode(data)]
-			if (!(parentElement.nodeName in voidElements)) {
+			if (!parentElement.nodeName.match(voidElements)) {
 				insertNode(parentElement, nodes[0], index)
 			}
 		}
@@ -1362,7 +1295,7 @@ exports.System = System;
 	var unloaders = []
 
 	function updateLists(views, controllers, view, controller) {
-		if (controller.onunload != null && unloaders.map(function(u) {return u.handler}).indexOf(controller.onunload) < 0) {
+		if (controller.onunload != null) {
 			unloaders.push({
 				controller: controller,
 				handler: controller.onunload
@@ -1596,13 +1529,13 @@ exports.System = System;
 		}
 	}
 
-	var shouldUseSetAttribute = {
-		list: 1,
-		style: 1,
-		form: 1,
-		type: 1,
-		width: 1,
-		height: 1
+	function shouldUseSetAttribute(attrName) {
+		return attrName !== "list" &&
+			attrName !== "style" &&
+			attrName !== "form" &&
+			attrName !== "type" &&
+			attrName !== "width" &&
+			attrName !== "height"
 	}
 
 	function setSingleAttr(
@@ -1633,7 +1566,7 @@ exports.System = System;
 					attrName === "className" ? "class" : attrName,
 					dataAttr)
 			}
-		} else if (attrName in node && !shouldUseSetAttribute[attrName]) {
+		} else if (attrName in node && shouldUseSetAttribute(attrName)) {
 			// handle cases that are properties (but ignore cases where we
 			// should use setAttribute instead)
 			//
@@ -1924,7 +1857,9 @@ exports.System = System;
 	}
 
 	m.component = function (component) {
-		var args = [].slice.call(arguments, 1)
+		for (var args = [], i = 1; i < arguments.length; i++) {
+			args.push(arguments[i])
+		}
 
 		return parameterize(component, args)
 	}
@@ -2526,7 +2461,7 @@ exports.System = System;
 
 	m.deferred.onerror = function (e) {
 		if (type.call(e) === "[object Error]" &&
-				!/ Error/.test(e.constructor.toString())) {
+				!e.constructor.toString().match(/ Error/)) {
 			pendingRequests = 0
 			throw e
 		}
@@ -2672,14 +2607,16 @@ exports.System = System;
 	}
 
 	function parameterizeUrl(url, data) {
-		if (data) {
-			url = url.replace(/:[a-z]\w+/gi, function(token){
+		var tokens = url.match(/:[a-z]\w+/gi)
+
+		if (tokens && data) {
+			forEach(tokens, function (token) {
 				var key = token.slice(1)
-				var value = data[key]
+				url = url.replace(token, data[key])
 				delete data[key]
-				return value
 			})
 		}
+
 		return url
 	}
 
@@ -18288,28 +18225,29 @@ $('#el').spin('flower', 'red');
 	}
 }());
 ;
-System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot'], function (_export, _context) {
   var ForumApp, store, preload, routes, components, humanTime, boot, app;
   return {
     setters: [function (_flarumForumApp) {
-      ForumApp = _flarumForumApp['default'];
+      ForumApp = _flarumForumApp.default;
     }, function (_flarumInitializersStore) {
-      store = _flarumInitializersStore['default'];
+      store = _flarumInitializersStore.default;
     }, function (_flarumInitializersPreload) {
-      preload = _flarumInitializersPreload['default'];
+      preload = _flarumInitializersPreload.default;
     }, function (_flarumInitializersRoutes) {
-      routes = _flarumInitializersRoutes['default'];
+      routes = _flarumInitializersRoutes.default;
     }, function (_flarumInitializersComponents) {
-      components = _flarumInitializersComponents['default'];
+      components = _flarumInitializersComponents.default;
     }, function (_flarumInitializersHumanTime) {
-      humanTime = _flarumInitializersHumanTime['default'];
+      humanTime = _flarumInitializersHumanTime.default;
     }, function (_flarumInitializersBoot) {
-      boot = _flarumInitializersBoot['default'];
+      boot = _flarumInitializersBoot.default;
     }],
     execute: function () {
       app = new ForumApp();
+
 
       app.initializers.add('store', store);
       app.initializers.add('routes', routes);
@@ -18323,39 +18261,34 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
     }
   };
 });;
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export) {
+'use strict';
 
-  /**
-   * The `App` class provides a container for an application, as well as various
-   * utilities for the rest of the app to use.
-   */
-  'use strict';
-
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export, _context) {
   var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, App;
   return {
     setters: [function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
+      Alert = _flarumComponentsAlert.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsRequestErrorModal) {
-      RequestErrorModal = _flarumComponentsRequestErrorModal['default'];
+      RequestErrorModal = _flarumComponentsRequestErrorModal.default;
     }, function (_flarumComponentsConfirmPasswordModal) {
-      ConfirmPasswordModal = _flarumComponentsConfirmPasswordModal['default'];
+      ConfirmPasswordModal = _flarumComponentsConfirmPasswordModal.default;
     }, function (_flarumTranslator) {
-      Translator = _flarumTranslator['default'];
+      Translator = _flarumTranslator.default;
     }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }, function (_flarumUtilsPatchMithril) {
-      patchMithril = _flarumUtilsPatchMithril['default'];
+      patchMithril = _flarumUtilsPatchMithril.default;
     }, function (_flarumUtilsRequestError) {
-      RequestError = _flarumUtilsRequestError['default'];
+      RequestError = _flarumUtilsRequestError.default;
     }, function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }],
     execute: function () {
-      App = (function () {
+      App = function () {
         function App() {
           babelHelpers.classCallCheck(this, App);
 
@@ -18469,6 +18402,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
          *
          * @public
          */
+
+
         babelHelpers.createClass(App, [{
           key: 'boot',
           value: function boot() {
@@ -18480,13 +18415,6 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
               return initializer(_this);
             });
           }
-
-          /**
-           * Get the API response document that has been preloaded into the application.
-           *
-           * @return {Object|null}
-           * @public
-           */
         }, {
           key: 'preloadedDocument',
           value: function preloadedDocument() {
@@ -18499,25 +18427,12 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
             return null;
           }
-
-          /**
-           * Set the <title> of the page.
-           *
-           * @param {String} title
-           * @public
-           */
         }, {
           key: 'setTitle',
           value: function setTitle(title) {
             this.title = title;
             this.updateTitle();
           }
-
-          /**
-           * Set a number to display in the <title> of the page.
-           *
-           * @param {Integer} count
-           */
         }, {
           key: 'setTitleCount',
           value: function setTitleCount(count) {
@@ -18529,21 +18444,12 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           value: function updateTitle() {
             document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
           }
-
-          /**
-           * Make an AJAX request, handling any low-level errors that may occur.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.request.html
-           * @param {Object} options
-           * @return {Promise}
-           * @public
-           */
         }, {
           key: 'request',
           value: function request(originalOptions) {
             var _this2 = this;
 
-            var options = babelHelpers._extends({}, originalOptions);
+            var options = babelHelpers.extends({}, originalOptions);
 
             // Set some default options if they haven't been overridden. We want to
             // authenticate all requests with the session token. We also want all
@@ -18584,7 +18490,7 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
             // awry.
             var original = options.extract;
             options.extract = function (xhr) {
-              var responseText = undefined;
+              var responseText = void 0;
 
               if (original) {
                 responseText = original(xhr.responseText);
@@ -18621,7 +18527,7 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
             }, function (error) {
               _this2.requestError = error;
 
-              var children = undefined;
+              var children = void 0;
 
               switch (error.status) {
                 case 422:
@@ -18671,11 +18577,6 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
             return deferred.promise;
           }
-
-          /**
-           * @param {RequestError} error
-           * @private
-           */
         }, {
           key: 'showDebug',
           value: function showDebug(error) {
@@ -18683,15 +18584,6 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
             this.modal.show(new RequestErrorModal({ error: error }));
           }
-
-          /**
-           * Construct a URL to the route with the given name.
-           *
-           * @param {String} name
-           * @param {Object} params
-           * @return {String}
-           * @public
-           */
         }, {
           key: 'route',
           value: function route(name) {
@@ -18707,50 +18599,20 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           }
         }]);
         return App;
-      })();
+      }();
 
       _export('default', App);
     }
   };
 });;
-System.register('flarum/Component', [], function (_export) {
-  /*
-   * This file is part of Flarum.
-   *
-   * (c) Toby Zerner <toby.zerner@gmail.com>
-   *
-   * For the full copyright and license information, please view the LICENSE
-   * file that was distributed with this source code.
-   */
+'use strict';
 
-  /**
-   * The `Component` class defines a user interface 'building block'. A component
-   * can generate a virtual DOM to be rendered on each redraw.
-   *
-   * An instance's virtual DOM can be retrieved directly using the {@link
-   * Component#render} method.
-   *
-   * @example
-   * this.myComponentInstance = new MyComponent({foo: 'bar'});
-   * return m('div', this.myComponentInstance.render());
-   *
-   * Alternatively, components can be nested, letting Mithril take care of
-   * instance persistence. For this, the static {@link Component.component} method
-   * can be used.
-   *
-   * @example
-   * return m('div', MyComponent.component({foo: 'bar'));
-   *
-   * @see https://lhorie.github.io/mithril/mithril.component.html
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/Component', [], function (_export, _context) {
   var Component;
   return {
     setters: [],
     execute: function () {
-      Component = (function () {
+      Component = function () {
         /**
          * @param {Object} props
          * @param {Array|Object} children
@@ -18797,36 +18659,14 @@ System.register('flarum/Component', [], function (_export) {
          *
          * @protected
          */
+
+
         babelHelpers.createClass(Component, [{
           key: 'init',
           value: function init() {}
-
-          /**
-           * Called when the component is destroyed, i.e. after a redraw where it is no
-           * longer a part of the view.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.component.html#unloading-components
-           * @param {Object} e
-           * @public
-           */
         }, {
           key: 'onunload',
           value: function onunload() {}
-
-          /**
-           * Get the renderable virtual DOM that represents the component's view.
-           *
-           * This should NOT be overridden by subclasses. Subclasses wishing to define
-           * their virtual DOM should override Component#view instead.
-           *
-           * @example
-           * this.myComponentInstance = new MyComponent({foo: 'bar'});
-           * return m('div', this.myComponentInstance.render());
-           *
-           * @returns {Object}
-           * @final
-           * @public
-           */
         }, {
           key: 'render',
           value: function render() {
@@ -18853,24 +18693,9 @@ System.register('flarum/Component', [], function (_export) {
 
             return vdom;
           }
-
-          /**
-           * Returns a jQuery object for this component's element. If you pass in a
-           * selector string, this method will return a jQuery object, using the current
-           * element as its buffer.
-           *
-           * For example, calling `component.$('li')` will return a jQuery object
-           * containing all of the `li` elements inside the DOM element of this
-           * component.
-           *
-           * @param {String} [selector] a jQuery-compatible selector string
-           * @returns {jQuery} the jQuery object for the DOM node
-           * @final
-           * @public
-           */
         }, {
           key: '$',
-          value: (function (_$) {
+          value: function (_$) {
             function $(_x) {
               return _$.apply(this, arguments);
             }
@@ -18880,59 +18705,26 @@ System.register('flarum/Component', [], function (_export) {
             };
 
             return $;
-          })(function (selector) {
+          }(function (selector) {
             var $element = $(this.element);
 
             return selector ? $element.find(selector) : $element;
           })
-
-          /**
-           * Called after the component's root element is redrawn. This hook can be used
-           * to perform any actions on the DOM, both on the initial draw and any
-           * subsequent redraws. See Mithril's documentation for more information.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.html#the-config-attribute
-           * @param {Boolean} isInitialized
-           * @param {Object} context
-           * @param {Object} vdom
-           * @public
-           */
         }, {
           key: 'config',
           value: function config() {}
-
-          /**
-           * Get the virtual DOM that represents the component's view.
-           *
-           * @return {Object} The virtual DOM
-           * @protected
-           */
         }, {
           key: 'view',
           value: function view() {
             throw new Error('Component#view must be implemented by subclass');
           }
-
-          /**
-           * Get a Mithril component object for this component, preloaded with props.
-           *
-           * @see https://lhorie.github.io/mithril/mithril.component.html
-           * @param {Object} [props] Properties to set on the component
-           * @param children
-           * @return {Object} The Mithril component object
-           * @property {function} controller
-           * @property {function} view
-           * @property {Object} component The class of this component
-           * @property {Object} props The props that were passed to the component
-           * @public
-           */
         }], [{
           key: 'component',
           value: function component() {
             var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
             var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 
-            var componentProps = babelHelpers._extends({}, props);
+            var componentProps = babelHelpers.extends({}, props);
 
             if (children) componentProps.children = children;
 
@@ -18970,66 +18762,44 @@ System.register('flarum/Component', [], function (_export) {
 
             return output;
           }
-
-          /**
-           * Initialize the component's props.
-           *
-           * @param {Object} props
-           * @public
-           */
         }, {
           key: 'initProps',
           value: function initProps(props) {}
         }]);
         return Component;
-      })();
+      }();
 
       _export('default', Component);
     }
   };
 });;
-System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export) {
+'use strict';
 
-  /**
-   * The `Alert` component represents an alert box, which contains a message,
-   * some controls, and may be dismissible.
-   *
-   * The alert may have the following special props:
-   *
-   * - `type` The type of alert this is. Will be used to give the alert a class
-   *   name of `Alert--{type}`.
-   * - `controls` An array of controls to show in the alert.
-   * - `dismissible` Whether or not the alert can be dismissed.
-   * - `ondismiss` A callback to run when the alert is dismissed.
-   *
-   * All other props will be assigned as attributes on the alert element.
-   */
-  'use strict';
-
+System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export, _context) {
   var Component, Button, listItems, extract, Alert;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }],
     execute: function () {
-      Alert = (function (_Component) {
+      Alert = function (_Component) {
         babelHelpers.inherits(Alert, _Component);
 
         function Alert() {
           babelHelpers.classCallCheck(this, Alert);
-          babelHelpers.get(Object.getPrototypeOf(Alert.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Alert).apply(this, arguments));
         }
 
         babelHelpers.createClass(Alert, [{
           key: 'view',
           value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
+            var attrs = babelHelpers.extends({}, this.props);
 
             var type = extract(attrs, 'type');
             attrs.className = 'Alert Alert--' + type + ' ' + (attrs.className || '');
@@ -19068,34 +18838,29 @@ System.register('flarum/components/Alert', ['flarum/Component', 'flarum/componen
           }
         }]);
         return Alert;
-      })(Component);
+      }(Component);
 
       _export('default', Alert);
     }
   };
 });;
-System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export) {
+'use strict';
 
-  /**
-   * The `AlertManager` component provides an area in which `Alert` components can
-   * be shown and dismissed.
-   */
-  'use strict';
-
+System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export, _context) {
   var Component, Alert, AlertManager;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
+      Alert = _flarumComponentsAlert.default;
     }],
     execute: function () {
-      AlertManager = (function (_Component) {
+      AlertManager = function (_Component) {
         babelHelpers.inherits(AlertManager, _Component);
 
         function AlertManager() {
           babelHelpers.classCallCheck(this, AlertManager);
-          babelHelpers.get(Object.getPrototypeOf(AlertManager.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AlertManager).apply(this, arguments));
         }
 
         babelHelpers.createClass(AlertManager, [{
@@ -19124,13 +18889,6 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
               })
             );
           }
-
-          /**
-           * Show an Alert in the alerts area.
-           *
-           * @param {Alert} component
-           * @public
-           */
         }, {
           key: 'show',
           value: function show(component) {
@@ -19143,13 +18901,6 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
             this.components.push(component);
             m.redraw();
           }
-
-          /**
-           * Dismiss an alert.
-           *
-           * @param {Alert} component
-           * @public
-           */
         }, {
           key: 'dismiss',
           value: function dismiss(component) {
@@ -19160,12 +18911,6 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
               m.redraw();
             }
           }
-
-          /**
-           * Clear all alerts.
-           *
-           * @public
-           */
         }, {
           key: 'clear',
           value: function clear() {
@@ -19174,49 +18919,39 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
           }
         }]);
         return AlertManager;
-      })(Component);
+      }(Component);
 
       _export('default', AlertManager);
     }
   };
 });;
-System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList', 'flarum/components/Button', 'flarum/components/LoadingIndicator'], function (_export) {
+'use strict';
 
-  /**
-   * The `AvatarEditor` component displays a user's avatar along with a dropdown
-   * menu which allows the user to upload/remove the avatar.
-   *
-   * ### Props
-   *
-   * - `className`
-   * - `user`
-   */
-  'use strict';
-
+System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList', 'flarum/components/Button', 'flarum/components/LoadingIndicator'], function (_export, _context) {
   var Component, avatar, icon, listItems, ItemList, Button, LoadingIndicator, AvatarEditor;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }],
     execute: function () {
-      AvatarEditor = (function (_Component) {
+      AvatarEditor = function (_Component) {
         babelHelpers.inherits(AvatarEditor, _Component);
 
         function AvatarEditor() {
           babelHelpers.classCallCheck(this, AvatarEditor);
-          babelHelpers.get(Object.getPrototypeOf(AvatarEditor.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AvatarEditor).apply(this, arguments));
         }
 
         babelHelpers.createClass(AvatarEditor, [{
@@ -19252,12 +18987,6 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
               )
             );
           }
-
-          /**
-           * Get the items in the edit avatar dropdown menu.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'controlItems',
           value: function controlItems() {
@@ -19277,15 +19006,6 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
 
             return items;
           }
-
-          /**
-           * If the user doesn't have an avatar, there's no point in showing the
-           * controls dropdown, because only one option would be viable: uploading.
-           * Thus, when the avatar editor's dropdown toggle button is clicked, we prompt
-           * the user to upload an avatar immediately.
-           *
-           * @param {Event} e
-           */
         }, {
           key: 'quickUpload',
           value: function quickUpload(e) {
@@ -19295,14 +19015,10 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
               this.upload();
             }
           }
-
-          /**
-           * Prompt the user to upload a new avatar.
-           */
         }, {
           key: 'upload',
           value: function upload() {
-            var _this = this;
+            var _this2 = this;
 
             if (this.loading) return;
 
@@ -19315,7 +19031,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
               var data = new FormData();
               data.append('avatar', $(e.target)[0].files[0]);
 
-              _this.loading = true;
+              _this2.loading = true;
               m.redraw();
 
               app.request({
@@ -19325,13 +19041,9 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
                   return raw;
                 },
                 data: data
-              }).then(_this.success.bind(_this), _this.failure.bind(_this));
+              }).then(_this2.success.bind(_this2), _this2.failure.bind(_this2));
             });
           }
-
-          /**
-           * Remove the user's avatar.
-           */
         }, {
           key: 'remove',
           value: function remove() {
@@ -19345,14 +19057,6 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
               url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar'
             }).then(this.success.bind(this), this.failure.bind(this));
           }
-
-          /**
-           * After a successful upload/removal, push the updated user data into the
-           * store, and force a recomputation of the user's avatar color.
-           *
-           * @param {Object} response
-           * @protected
-           */
         }, {
           key: 'success',
           value: function success(response) {
@@ -19362,13 +19066,6 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             this.loading = false;
             m.redraw();
           }
-
-          /**
-           * If avatar upload/removal fails, stop loading.
-           *
-           * @param {Object} response
-           * @protected
-           */
         }, {
           key: 'failure',
           value: function failure() {
@@ -19384,51 +19081,37 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
           }
         }]);
         return AvatarEditor;
-      })(Component);
+      }(Component);
 
       _export('default', AvatarEditor);
     }
   };
 });;
-System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export) {
+'use strict';
 
-  /**
-   * The `Badge` component represents a user/discussion badge, indicating some
-   * status (e.g. a discussion is stickied, a user is an admin).
-   *
-   * A badge may have the following special props:
-   *
-   * - `type` The type of badge this is. This will be used to give the badge a
-   *   class name of `Badge--{type}`.
-   * - `icon` The name of an icon to show inside the badge.
-   * - `label`
-   *
-   * All other props will be assigned as attributes on the badge element.
-   */
-  'use strict';
-
+System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export, _context) {
   var Component, icon, extract, Badge;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }],
     execute: function () {
-      Badge = (function (_Component) {
+      Badge = function (_Component) {
         babelHelpers.inherits(Badge, _Component);
 
         function Badge() {
           babelHelpers.classCallCheck(this, Badge);
-          babelHelpers.get(Object.getPrototypeOf(Badge.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Badge).apply(this, arguments));
         }
 
         babelHelpers.createClass(Badge, [{
           key: 'view',
           value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
+            var attrs = babelHelpers.extends({}, this.props);
             var type = extract(attrs, 'type');
             var iconName = extract(attrs, 'icon');
 
@@ -19450,56 +19133,39 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
           }
         }]);
         return Badge;
-      })(Component);
+      }(Component);
 
       _export('default', Badge);
     }
   };
 });;
-System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export) {
+'use strict';
 
-  /**
-   * The `Button` component defines an element which, when clicked, performs an
-   * action. The button may have the following special props:
-   *
-   * - `icon` The name of the icon class. If specified, the button will be given a
-   *   'has-icon' class name.
-   * - `disabled` Whether or not the button is disabled. If truthy, the button
-   *   will be given a 'disabled' class name, and any `onclick` handler will be
-   *   removed.
-   * - `loading` Whether or not the button should be in a disabled loading state.
-   *
-   * All other props will be assigned as attributes on the button element.
-   *
-   * Note that a Button has no default class names. This is because a Button can
-   * be used to represent any generic clickable control, like a menu item.
-   */
-  'use strict';
-
+System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export, _context) {
   var Component, icon, extract, LoadingIndicator, Button;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }],
     execute: function () {
-      Button = (function (_Component) {
+      Button = function (_Component) {
         babelHelpers.inherits(Button, _Component);
 
         function Button() {
           babelHelpers.classCallCheck(this, Button);
-          babelHelpers.get(Object.getPrototypeOf(Button.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Button).apply(this, arguments));
         }
 
         babelHelpers.createClass(Button, [{
           key: 'view',
           value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
+            var attrs = babelHelpers.extends({}, this.props);
 
             delete attrs.children;
 
@@ -19521,13 +19187,6 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
               this.getButtonContent()
             );
           }
-
-          /**
-           * Get the template for the button's content.
-           *
-           * @return {*}
-           * @protected
-           */
         }, {
           key: 'getButtonContent',
           value: function getButtonContent() {
@@ -19541,34 +19200,29 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
           }
         }]);
         return Button;
-      })(Component);
+      }(Component);
 
       _export('default', Button);
     }
   };
 });;
-System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `ChangeEmailModal` component shows a modal dialog which allows the user
-   * to change their email address.
-   */
-  'use strict';
-
+System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
   var Modal, Button, ChangeEmailModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      ChangeEmailModal = (function (_Modal) {
+      ChangeEmailModal = function (_Modal) {
         babelHelpers.inherits(ChangeEmailModal, _Modal);
 
         function ChangeEmailModal() {
           babelHelpers.classCallCheck(this, ChangeEmailModal);
-          babelHelpers.get(Object.getPrototypeOf(ChangeEmailModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ChangeEmailModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(ChangeEmailModal, [{
@@ -19677,7 +19331,7 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this = this;
+            var _this2 = this;
 
             e.preventDefault();
 
@@ -19696,8 +19350,8 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
               errorHandler: this.onerror.bind(this),
               meta: { password: this.password() }
             }).then(function () {
-              return _this.success = true;
-            })['catch'](function () {}).then(this.loaded.bind(this));
+              return _this2.success = true;
+            }).catch(function () {}).then(this.loaded.bind(this));
           }
         }, {
           key: 'onerror',
@@ -19710,34 +19364,29 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
           }
         }]);
         return ChangeEmailModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', ChangeEmailModal);
     }
   };
 });;
-System.register('flarum/components/ChangePasswordModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `ChangePasswordModal` component shows a modal dialog which allows the
-   * user to send themself a password reset email.
-   */
-  'use strict';
-
+System.register('flarum/components/ChangePasswordModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
   var Modal, Button, ChangePasswordModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      ChangePasswordModal = (function (_Modal) {
+      ChangePasswordModal = function (_Modal) {
         babelHelpers.inherits(ChangePasswordModal, _Modal);
 
         function ChangePasswordModal() {
           babelHelpers.classCallCheck(this, ChangePasswordModal);
-          babelHelpers.get(Object.getPrototypeOf(ChangePasswordModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ChangePasswordModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(ChangePasswordModal, [{
@@ -19792,43 +19441,31 @@ System.register('flarum/components/ChangePasswordModal', ['flarum/components/Mod
           }
         }]);
         return ChangePasswordModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', ChangePasswordModal);
     }
   };
 });;
-System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export) {
+'use strict';
 
-  /**
-   * The `Checkbox` component defines a checkbox input.
-   *
-   * ### Props
-   *
-   * - `state` Whether or not the checkbox is checked.
-   * - `className` The class name for the root element.
-   * - `disabled` Whether or not the checkbox is disabled.
-   * - `onchange` A callback to run when the checkbox is checked/unchecked.
-   * - `children` A text label to display next to the checkbox.
-   */
-  'use strict';
-
+System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export, _context) {
   var Component, LoadingIndicator, icon, Checkbox;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      Checkbox = (function (_Component) {
+      Checkbox = function (_Component) {
         babelHelpers.inherits(Checkbox, _Component);
 
         function Checkbox() {
           babelHelpers.classCallCheck(this, Checkbox);
-          babelHelpers.get(Object.getPrototypeOf(Checkbox.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Checkbox).apply(this, arguments));
         }
 
         babelHelpers.createClass(Checkbox, [{
@@ -19864,25 +19501,11 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
               this.props.children
             );
           }
-
-          /**
-           * Get the template for the checkbox's display (tick/cross icon).
-           *
-           * @return {*}
-           * @protected
-           */
         }, {
           key: 'getDisplay',
           value: function getDisplay() {
             return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'check' : 'times');
           }
-
-          /**
-           * Run a callback when the state of the checkbox is changed.
-           *
-           * @param {Boolean} checked
-           * @protected
-           */
         }, {
           key: 'onchange',
           value: function onchange(checked) {
@@ -19890,62 +19513,51 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
           }
         }]);
         return Checkbox;
-      })(Component);
+      }(Component);
 
       _export('default', Checkbox);
     }
   };
 });;
-System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/components/Composer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export) {
-  /*global s9e, hljs*/
+'use strict';
 
-  /**
-   * The `CommentPost` component displays a standard `comment`-typed post. This
-   * includes a number of item lists (controls, header, and footer) surrounding
-   * the post's HTML content.
-   *
-   * ### Props
-   *
-   * - `post`
-   */
-  'use strict';
-
+System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/components/Composer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export, _context) {
   var Post, classList, PostUser, PostMeta, PostEdited, EditPostComposer, Composer, ItemList, listItems, Button, CommentPost;
   return {
     setters: [function (_flarumComponentsPost) {
-      Post = _flarumComponentsPost['default'];
+      Post = _flarumComponentsPost.default;
     }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
+      classList = _flarumUtilsClassList.default;
     }, function (_flarumComponentsPostUser) {
-      PostUser = _flarumComponentsPostUser['default'];
+      PostUser = _flarumComponentsPostUser.default;
     }, function (_flarumComponentsPostMeta) {
-      PostMeta = _flarumComponentsPostMeta['default'];
+      PostMeta = _flarumComponentsPostMeta.default;
     }, function (_flarumComponentsPostEdited) {
-      PostEdited = _flarumComponentsPostEdited['default'];
+      PostEdited = _flarumComponentsPostEdited.default;
     }, function (_flarumComponentsEditPostComposer) {
-      EditPostComposer = _flarumComponentsEditPostComposer['default'];
+      EditPostComposer = _flarumComponentsEditPostComposer.default;
     }, function (_flarumComponentsComposer) {
-      Composer = _flarumComponentsComposer['default'];
+      Composer = _flarumComponentsComposer.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      CommentPost = (function (_Post) {
+      CommentPost = function (_Post) {
         babelHelpers.inherits(CommentPost, _Post);
 
         function CommentPost() {
           babelHelpers.classCallCheck(this, CommentPost);
-          babelHelpers.get(Object.getPrototypeOf(CommentPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(CommentPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(CommentPost, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             babelHelpers.get(Object.getPrototypeOf(CommentPost.prototype), 'init', this).call(this);
 
@@ -19961,9 +19573,9 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
             // that we can force the post to rerender when the user card is shown.
             this.postUser = new PostUser({ post: this.props.post });
             this.subtree.check(function () {
-              return _this.postUser.cardVisible;
+              return _this2.postUser.cardVisible;
             }, function () {
-              return _this.isEditing();
+              return _this2.isEditing();
             });
           }
         }, {
@@ -20028,7 +19640,7 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
 
             // Every 50ms, if the composer content has changed, then update the post's
             // body with a preview.
-            var preview = undefined;
+            var preview = void 0;
             var updatePreview = function updatePreview() {
               var content = app.composer.component.content();
 
@@ -20045,21 +19657,11 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
               return clearInterval(updateInterval);
             };
           }
-
-          /**
-           * Toggle the visibility of a hidden post's content.
-           */
         }, {
           key: 'toggleContent',
           value: function toggleContent() {
             this.revealContent = !this.revealContent;
           }
-
-          /**
-           * Build an item list for the post's header.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'headerItems',
           value: function headerItems() {
@@ -20088,43 +19690,37 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
           }
         }]);
         return CommentPost;
-      })(Post);
+      }(Post);
 
       _export('default', CommentPost);
     }
   };
 });;
-System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList', 'flarum/utils/computed'], function (_export) {
+'use strict';
 
-  /**
-   * The `Composer` component displays the composer. It can be loaded with a
-   * content component with `load` and then its position/state can be altered with
-   * `show`, `hide`, `close`, `minimize`, `fullScreen`, and `exitFullScreen`.
-   */
-  'use strict';
-
+System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList', 'flarum/utils/computed'], function (_export, _context) {
   var Component, ItemList, ComposerButton, listItems, classList, computed, Composer;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsComposerButton) {
-      ComposerButton = _flarumComponentsComposerButton['default'];
+      ComposerButton = _flarumComponentsComposerButton.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
+      classList = _flarumUtilsClassList.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }],
     execute: function () {
-      Composer = (function (_Component) {
+      Composer = function (_Component) {
         babelHelpers.inherits(Composer, _Component);
 
         function Composer() {
           babelHelpers.classCallCheck(this, Composer);
-          babelHelpers.get(Object.getPrototypeOf(Composer.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Composer).apply(this, arguments));
         }
 
         babelHelpers.createClass(Composer, [{
@@ -20211,9 +19807,9 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
         }, {
           key: 'config',
           value: function config(isInitialized, context) {
-            var _this = this;
+            var _this2 = this;
 
-            var defaultHeight = undefined;
+            var defaultHeight = void 0;
 
             if (!isInitialized) {
               defaultHeight = this.$().height();
@@ -20234,20 +19830,20 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             // Whenever any of the inputs inside the composer are have focus, we want to
             // add a class to the composer to draw attention to it.
             this.$().on('focus blur', ':input', function (e) {
-              _this.active = e.type === 'focusin';
+              _this2.active = e.type === 'focusin';
               m.redraw();
             });
 
             // When the escape key is pressed on any inputs, close the composer.
             this.$().on('keydown', ':input', 'esc', function () {
-              return _this.close();
+              return _this2.close();
             });
 
             // Don't let the user leave the page without first giving the composer's
             // component a chance to scream at the user to make sure they don't
             // unintentionally lose any contnet.
             window.onbeforeunload = function () {
-              return _this.component && _this.component.preventExit() || undefined;
+              return _this2.component && _this2.component.preventExit() || undefined;
             };
 
             var handlers = {};
@@ -20262,14 +19858,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               $(document).off('mousemove', handlers.onmousemove).off('mouseup', handlers.onmouseup);
             };
           }
-
-          /**
-           * Add the necessary event handlers to the composer's handle so that it can
-           * be used to resize the composer.
-           *
-           * @param {DOMElement} element
-           * @param {Boolean} isInitialized
-           */
         }, {
           key: 'configHandle',
           value: function configHandle(element, isInitialized) {
@@ -20286,12 +19874,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               $('body').css('cursor', 'row-resize');
             });
           }
-
-          /**
-           * Resize the composer according to mouse movement.
-           *
-           * @param {Event} e
-           */
         }, {
           key: 'onmousemove',
           value: function onmousemove(e) {
@@ -20315,10 +19897,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
 
             localStorage.setItem('composerHeight', this.height);
           }
-
-          /**
-           * Finish resizing the composer when the mouse is released.
-           */
         }, {
           key: 'onmouseup',
           value: function onmouseup() {
@@ -20327,12 +19905,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             this.handle = null;
             $('body').css('cursor', '');
           }
-
-          /**
-           * Update the DOM to reflect the composer's current height. This involves
-           * setting the height of the composer's root element, and adjusting the height
-           * of any flexible elements inside the composer's body.
-           */
         }, {
           key: 'updateHeight',
           value: function updateHeight() {
@@ -20349,12 +19921,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               $flexible.height(this.$().outerHeight() - headerHeight - paddingBottom - footerHeight);
             }
           }
-
-          /**
-           * Update the amount of padding-bottom on the body so that the page's
-           * content will still be visible above the composer when the page is
-           * scrolled right to the bottom.
-           */
         }, {
           key: 'updateBodyPadding',
           value: function updateBodyPadding() {
@@ -20364,28 +19930,11 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
 
             $('#content').css({ paddingBottom: paddingBottom });
           }
-
-          /**
-           * Determine whether or not the Composer is covering the screen.
-           *
-           * This will be true if the Composer is in full-screen mode on desktop, or
-           * if the Composer is positioned absolutely as on mobile devices.
-           *
-           * @return {Boolean}
-           * @public
-           */
         }, {
           key: 'isFullScreen',
           value: function isFullScreen() {
             return this.position === Composer.PositionEnum.FULLSCREEN || this.$().css('position') === 'absolute';
           }
-
-          /**
-           * Confirm with the user that they want to close the composer and lose their
-           * content.
-           *
-           * @return {Boolean} Whether or not the exit was cancelled.
-           */
         }, {
           key: 'preventExit',
           value: function preventExit() {
@@ -20397,13 +19946,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               }
             }
           }
-
-          /**
-           * Load a content component into the composer.
-           *
-           * @param {Component} component
-           * @public
-           */
         }, {
           key: 'load',
           value: function load(component) {
@@ -20421,27 +19963,15 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
 
             this.component = component;
           }
-
-          /**
-           * Clear the composer's content component.
-           *
-           * @public
-           */
         }, {
           key: 'clear',
           value: function clear() {
             this.component = null;
           }
-
-          /**
-           * Animate the Composer into the given position.
-           *
-           * @param {Composer.PositionEnum} position
-           */
         }, {
           key: 'animateToPosition',
           value: function animateToPosition(position) {
-            var _this2 = this;
+            var _this3 = this;
 
             // Before we redraw the composer to its new state, we need to save the
             // current height of the composer, as well as the page's scroll position, so
@@ -20470,36 +20000,22 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             }
 
             $composer.animate({ bottom: 0, height: newHeight }, 'fast', function () {
-              return _this2.component.focus();
+              return _this3.component.focus();
             });
 
             this.updateBodyPadding();
             $(window).scrollTop(scrollTop);
           }
-
-          /**
-           * Show the Composer backdrop.
-           */
         }, {
           key: 'showBackdrop',
           value: function showBackdrop() {
             this.$backdrop = $('<div/>').addClass('composer-backdrop').appendTo('body');
           }
-
-          /**
-           * Hide the Composer backdrop.
-           */
         }, {
           key: 'hideBackdrop',
           value: function hideBackdrop() {
             if (this.$backdrop) this.$backdrop.remove();
           }
-
-          /**
-           * Show the composer.
-           *
-           * @public
-           */
         }, {
           key: 'show',
           value: function show() {
@@ -20514,16 +20030,10 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               this.showBackdrop();
             }
           }
-
-          /**
-           * Close the composer.
-           *
-           * @public
-           */
         }, {
           key: 'hide',
           value: function hide() {
-            var _this3 = this;
+            var _this4 = this;
 
             var $composer = this.$();
 
@@ -20531,22 +20041,15 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             // Only when the animation is completed, update the Composer state flag and
             // other elements on the page.
             $composer.stop(true).animate({ bottom: -$composer.height() }, 'fast', function () {
-              _this3.position = Composer.PositionEnum.HIDDEN;
-              _this3.clear();
+              _this4.position = Composer.PositionEnum.HIDDEN;
+              _this4.clear();
               m.redraw();
 
               $composer.hide();
-              _this3.hideBackdrop();
-              _this3.updateBodyPadding();
+              _this4.hideBackdrop();
+              _this4.updateBodyPadding();
             });
           }
-
-          /**
-           * Confirm with the user so they don't lose their content, then close the
-           * composer.
-           *
-           * @public
-           */
         }, {
           key: 'close',
           value: function close() {
@@ -20554,12 +20057,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               this.hide();
             }
           }
-
-          /**
-           * Minimize the composer. Has no effect if the composer is hidden.
-           *
-           * @public
-           */
         }, {
           key: 'minimize',
           value: function minimize() {
@@ -20570,13 +20067,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             this.$().css('top', 'auto');
             this.hideBackdrop();
           }
-
-          /**
-           * Take the composer into fullscreen mode. Has no effect if the composer is
-           * hidden.
-           *
-           * @public
-           */
         }, {
           key: 'fullScreen',
           value: function fullScreen() {
@@ -20587,12 +20077,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               this.component.focus();
             }
           }
-
-          /**
-           * Exit fullscreen mode.
-           *
-           * @public
-           */
         }, {
           key: 'exitFullScreen',
           value: function exitFullScreen() {
@@ -20603,12 +20087,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
               this.component.focus();
             }
           }
-
-          /**
-           * Build an item list for the composer's controls.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'controlItems',
           value: function controlItems() {
@@ -20647,7 +20125,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
           }
         }]);
         return Composer;
-      })(Component);
+      }(Component);
 
       Composer.PositionEnum = {
         HIDDEN: 'hidden',
@@ -20660,48 +20138,31 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
     }
   };
 });;
-System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/components/TextEditor', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export) {
+'use strict';
 
-  /**
-   * The `ComposerBody` component handles the body, or the content, of the
-   * composer. Subclasses should implement the `onsubmit` method and override
-   * `headerTimes`.
-   *
-   * ### Props
-   *
-   * - `originalContent`
-   * - `submitLabel`
-   * - `placeholder`
-   * - `user`
-   * - `confirmExit`
-   * - `disabled`
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/components/TextEditor', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
   var Component, LoadingIndicator, TextEditor, avatar, listItems, ItemList, ComposerBody;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumComponentsTextEditor) {
-      TextEditor = _flarumComponentsTextEditor['default'];
+      TextEditor = _flarumComponentsTextEditor.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
-      ComposerBody = (function (_Component) {
+      ComposerBody = function (_Component) {
         babelHelpers.inherits(ComposerBody, _Component);
 
         function ComposerBody() {
           babelHelpers.classCallCheck(this, ComposerBody);
-          babelHelpers.get(Object.getPrototypeOf(ComposerBody.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComposerBody).apply(this, arguments));
         }
 
         babelHelpers.createClass(ComposerBody, [{
@@ -20761,22 +20222,11 @@ System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/c
               LoadingIndicator.component({ className: 'ComposerBody-loading' + (this.loading ? ' active' : '') })
             );
           }
-
-          /**
-           * Draw focus to the text editor.
-           */
         }, {
           key: 'focus',
           value: function focus() {
             this.$(':input:enabled:visible:first').focus();
           }
-
-          /**
-           * Check if there is any unsaved data – if there is, return a confirmation
-           * message to prompt the user with.
-           *
-           * @return {String}
-           */
         }, {
           key: 'preventExit',
           value: function preventExit() {
@@ -20784,30 +20234,14 @@ System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/c
 
             return content && content !== this.props.originalContent && this.props.confirmExit;
           }
-
-          /**
-           * Build an item list for the composer's header.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'headerItems',
           value: function headerItems() {
             return new ItemList();
           }
-
-          /**
-           * Handle the submit event of the text editor.
-           *
-           * @abstract
-           */
         }, {
           key: 'onsubmit',
           value: function onsubmit() {}
-
-          /**
-           * Stop loading.
-           */
         }, {
           key: 'loaded',
           value: function loaded() {
@@ -20816,32 +20250,27 @@ System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/c
           }
         }]);
         return ComposerBody;
-      })(Component);
+      }(Component);
 
       _export('default', ComposerBody);
     }
   };
 });;
-System.register('flarum/components/ComposerButton', ['flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `ComposerButton` component displays a button suitable for the composer
-   * controls.
-   */
-  'use strict';
-
+System.register('flarum/components/ComposerButton', ['flarum/components/Button'], function (_export, _context) {
   var Button, ComposerButton;
   return {
     setters: [function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      ComposerButton = (function (_Button) {
+      ComposerButton = function (_Button) {
         babelHelpers.inherits(ComposerButton, _Button);
 
         function ComposerButton() {
           babelHelpers.classCallCheck(this, ComposerButton);
-          babelHelpers.get(Object.getPrototypeOf(ComposerButton.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComposerButton).apply(this, arguments));
         }
 
         babelHelpers.createClass(ComposerButton, null, [{
@@ -20853,41 +20282,29 @@ System.register('flarum/components/ComposerButton', ['flarum/components/Button']
           }
         }]);
         return ComposerButton;
-      })(Button);
+      }(Button);
 
       _export('default', ComposerButton);
     }
   };
 });;
-System.register('flarum/components/DiscussionComposer', ['flarum/components/ComposerBody', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionComposer` component displays the composer content for starting
-   * a new discussion. It adds a text field as a header control so the user can
-   * enter the title of their discussion. It also overrides the `submit` and
-   * `willExit` actions to account for the title.
-   *
-   * ### Props
-   *
-   * - All of the props for ComposerBody
-   * - `titlePlaceholder`
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionComposer', ['flarum/components/ComposerBody', 'flarum/utils/extractText'], function (_export, _context) {
   var ComposerBody, extractText, DiscussionComposer;
   return {
     setters: [function (_flarumComponentsComposerBody) {
-      ComposerBody = _flarumComponentsComposerBody['default'];
+      ComposerBody = _flarumComponentsComposerBody.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      DiscussionComposer = (function (_ComposerBody) {
+      DiscussionComposer = function (_ComposerBody) {
         babelHelpers.inherits(DiscussionComposer, _ComposerBody);
 
         function DiscussionComposer() {
           babelHelpers.classCallCheck(this, DiscussionComposer);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionComposer.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionComposer).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionComposer, [{
@@ -20926,13 +20343,6 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
 
             return items;
           }
-
-          /**
-           * Handle the title input's keydown event. When the return key is pressed,
-           * move the focus to the start of the text editor.
-           *
-           * @param {Event} e
-           */
         }, {
           key: 'onkeydown',
           value: function onkeydown(e) {
@@ -20949,12 +20359,6 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
           value: function preventExit() {
             return (this.title() || this.content()) && this.props.confirmExit;
           }
-
-          /**
-           * Get the data to submit to the server when the discussion is saved.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'data',
           value: function data() {
@@ -20989,39 +20393,31 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
           }
         }]);
         return DiscussionComposer;
-      })(ComposerBody);
+      }(ComposerBody);
 
       _export('default', DiscussionComposer);
     }
   };
 });;
-System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionHero` component displays the hero on a discussion page.
-   *
-   * ### Props
-   *
-   * - `discussion`
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
   var Component, ItemList, listItems, DiscussionHero;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      DiscussionHero = (function (_Component) {
+      DiscussionHero = function (_Component) {
         babelHelpers.inherits(DiscussionHero, _Component);
 
         function DiscussionHero() {
           babelHelpers.classCallCheck(this, DiscussionHero);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionHero.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionHero).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionHero, [{
@@ -21041,12 +20437,6 @@ System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum
               )
             );
           }
-
-          /**
-           * Build an item list for the contents of the discussion hero.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'items',
           value: function items() {
@@ -21072,44 +20462,35 @@ System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum
           }
         }]);
         return DiscussionHero;
-      })(Component);
+      }(Component);
 
       _export('default', DiscussionHero);
     }
   };
 });;
-System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum/components/DiscussionListItem', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/components/Placeholder'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionList` component displays a list of discussions.
-   *
-   * ### Props
-   *
-   * - `params` A map of parameters used to construct a refined parameter object
-   *   to send along in the API request to get discussion results.
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum/components/DiscussionListItem', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/components/Placeholder'], function (_export, _context) {
   var Component, DiscussionListItem, Button, LoadingIndicator, Placeholder, DiscussionList;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsDiscussionListItem) {
-      DiscussionListItem = _flarumComponentsDiscussionListItem['default'];
+      DiscussionListItem = _flarumComponentsDiscussionListItem.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumComponentsPlaceholder) {
-      Placeholder = _flarumComponentsPlaceholder['default'];
+      Placeholder = _flarumComponentsPlaceholder.default;
     }],
     execute: function () {
-      DiscussionList = (function (_Component) {
+      DiscussionList = function (_Component) {
         babelHelpers.inherits(DiscussionList, _Component);
 
         function DiscussionList() {
           babelHelpers.classCallCheck(this, DiscussionList);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionList.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionList).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionList, [{
@@ -21142,7 +20523,7 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
           key: 'view',
           value: function view() {
             var params = this.props.params;
-            var loading = undefined;
+            var loading = void 0;
 
             if (this.loading) {
               loading = LoadingIndicator.component();
@@ -21184,14 +20565,6 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
               )
             );
           }
-
-          /**
-           * Get the parameters that should be passed in the API request to get
-           * discussion results.
-           *
-           * @return {Object}
-           * @api
-           */
         }, {
           key: 'requestParams',
           value: function requestParams() {
@@ -21207,13 +20580,6 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 
             return params;
           }
-
-          /**
-           * Get a map of sort keys (which appear in the URL, and are used for
-           * translation) to the API sort value that they represent.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'sortMap',
           value: function sortMap() {
@@ -21229,16 +20595,10 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 
             return map;
           }
-
-          /**
-           * Clear and reload the discussion list.
-           *
-           * @public
-           */
         }, {
           key: 'refresh',
           value: function refresh() {
-            var _this = this;
+            var _this2 = this;
 
             var clear = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
@@ -21248,20 +20608,13 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
             }
 
             return this.loadResults().then(function (results) {
-              _this.discussions = [];
-              _this.parseResults(results);
+              _this2.discussions = [];
+              _this2.parseResults(results);
             }, function () {
-              _this.loading = false;
+              _this2.loading = false;
               m.redraw();
             });
           }
-
-          /**
-           * Load a new page of discussion results.
-           *
-           * @param {Integer} offset The index to start the page at.
-           * @return {Promise}
-           */
         }, {
           key: 'loadResults',
           value: function loadResults(offset) {
@@ -21277,12 +20630,6 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 
             return app.store.find('discussions', params);
           }
-
-          /**
-           * Load the next page of discussion results.
-           *
-           * @public
-           */
         }, {
           key: 'loadMore',
           value: function loadMore() {
@@ -21290,13 +20637,6 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 
             this.loadResults(this.discussions.length).then(this.parseResults.bind(this));
           }
-
-          /**
-           * Parse results and append them to the discussion list.
-           *
-           * @param {Discussion[]} results
-           * @return {Discussion[]}
-           */
         }, {
           key: 'parseResults',
           value: function parseResults(results) {
@@ -21309,13 +20649,6 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 
             return results;
           }
-
-          /**
-           * Remove a discussion from the list if it is present.
-           *
-           * @param {Discussion} discussion
-           * @public
-           */
         }, {
           key: 'removeDiscussion',
           value: function removeDiscussion(discussion) {
@@ -21325,13 +20658,6 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
               this.discussions.splice(index, 1);
             }
           }
-
-          /**
-           * Add a discussion to the top of the list.
-           *
-           * @param {Discussion} discussion
-           * @public
-           */
         }, {
           key: 'addDiscussion',
           value: function addDiscussion(discussion) {
@@ -21339,73 +20665,63 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
           }
         }]);
         return DiscussionList;
-      })(Component);
+      }(Component);
 
       _export('default', DiscussionList);
     }
   };
 });;
-System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/helpers/highlight', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/abbreviateNumber', 'flarum/components/Dropdown', 'flarum/components/TerminalPost', 'flarum/components/PostPreview', 'flarum/utils/SubtreeRetainer', 'flarum/utils/DiscussionControls', 'flarum/utils/slidable', 'flarum/utils/extractText', 'flarum/utils/classList'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionListItem` component shows a single discussion in the
-   * discussion list.
-   *
-   * ### Props
-   *
-   * - `discussion`
-   * - `params`
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/helpers/highlight', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/abbreviateNumber', 'flarum/components/Dropdown', 'flarum/components/TerminalPost', 'flarum/components/PostPreview', 'flarum/utils/SubtreeRetainer', 'flarum/utils/DiscussionControls', 'flarum/utils/slidable', 'flarum/utils/extractText', 'flarum/utils/classList'], function (_export, _context) {
   var Component, avatar, listItems, highlight, icon, humanTime, ItemList, abbreviateNumber, Dropdown, TerminalPost, PostPreview, SubtreeRetainer, DiscussionControls, slidable, extractText, classList, DiscussionListItem;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumHelpersHighlight) {
-      highlight = _flarumHelpersHighlight['default'];
+      highlight = _flarumHelpersHighlight.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsHumanTime) {
-      humanTime = _flarumUtilsHumanTime['default'];
+      humanTime = _flarumUtilsHumanTime.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsAbbreviateNumber) {
-      abbreviateNumber = _flarumUtilsAbbreviateNumber['default'];
+      abbreviateNumber = _flarumUtilsAbbreviateNumber.default;
     }, function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsTerminalPost) {
-      TerminalPost = _flarumComponentsTerminalPost['default'];
+      TerminalPost = _flarumComponentsTerminalPost.default;
     }, function (_flarumComponentsPostPreview) {
-      PostPreview = _flarumComponentsPostPreview['default'];
+      PostPreview = _flarumComponentsPostPreview.default;
     }, function (_flarumUtilsSubtreeRetainer) {
-      SubtreeRetainer = _flarumUtilsSubtreeRetainer['default'];
+      SubtreeRetainer = _flarumUtilsSubtreeRetainer.default;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }, function (_flarumUtilsSlidable) {
-      slidable = _flarumUtilsSlidable['default'];
+      slidable = _flarumUtilsSlidable.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
+      classList = _flarumUtilsClassList.default;
     }],
     execute: function () {
-      DiscussionListItem = (function (_Component) {
+      DiscussionListItem = function (_Component) {
         babelHelpers.inherits(DiscussionListItem, _Component);
 
         function DiscussionListItem() {
           babelHelpers.classCallCheck(this, DiscussionListItem);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionListItem.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionListItem).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionListItem, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             /**
              * Set up a subtree retainer so that the discussion will not be redrawn
@@ -21414,12 +20730,12 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
              * @type {SubtreeRetainer}
              */
             this.subtree = new SubtreeRetainer(function () {
-              return _this.props.discussion.freshness;
+              return _this2.props.discussion.freshness;
             }, function () {
               var time = app.session.user && app.session.user.readTime();
               return time && time.getTime();
             }, function () {
-              return _this.active();
+              return _this2.active();
             });
           }
         }, {
@@ -21432,7 +20748,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
         }, {
           key: 'view',
           value: function view() {
-            var _this2 = this;
+            var _this3 = this;
 
             var retain = this.subtree.retain();
 
@@ -21471,7 +20787,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
                   { href: startUser ? app.route.user(startUser) : '#',
                     className: 'DiscussionListItem-author',
                     title: extractText(app.translator.trans('core.forum.discussion_list.started_text', { user: startUser, ago: humanTime(discussion.startTime()) })),
-                    config: function (element) {
+                    config: function config(element) {
                       $(element).tooltip({ placement: 'right' });
                       m.route.apply(this, arguments);
                     } },
@@ -21509,7 +20825,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
                   'div',
                   { className: 'DiscussionListItem-relevantPosts' },
                   relevantPosts.map(function (post) {
-                    return PostPreview.component({ post: post, highlight: _this2.props.params.q });
+                    return PostPreview.component({ post: post, highlight: _this3.props.params.q });
                   })
                 ) : ''
               )
@@ -21518,7 +20834,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
         }, {
           key: 'config',
           value: function config(isInitialized) {
-            var _this3 = this;
+            var _this4 = this;
 
             if (isInitialized) return;
 
@@ -21527,20 +20843,14 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
             // reveal controls.
             if ('ontouchstart' in window) {
               (function () {
-                var slidableInstance = slidable(_this3.$().addClass('Slidable'));
+                var slidableInstance = slidable(_this4.$().addClass('Slidable'));
 
-                _this3.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', function () {
+                _this4.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', function () {
                   return slidableInstance.reset();
                 });
               })();
             }
           }
-
-          /**
-           * Determine whether or not the discussion is currently being viewed.
-           *
-           * @return {Boolean}
-           */
         }, {
           key: 'active',
           value: function active() {
@@ -21548,35 +20858,16 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
 
             return idParam && idParam.split('-')[0] === this.props.discussion.id();
           }
-
-          /**
-           * Determine whether or not information about who started the discussion
-           * should be displayed instead of information about the most recent reply to
-           * the discussion.
-           *
-           * @return {Boolean}
-           */
         }, {
           key: 'showStartPost',
           value: function showStartPost() {
             return ['newest', 'oldest'].indexOf(this.props.params.sort) !== -1;
           }
-
-          /**
-           * Determine whether or not the number of replies should be shown instead of
-           * the number of unread posts.
-           *
-           * @return {Boolean}
-           */
         }, {
           key: 'showRepliesCount',
           value: function showRepliesCount() {
             return this.props.params.sort === 'replies';
           }
-
-          /**
-           * Mark the discussion as read.
-           */
         }, {
           key: 'markAsRead',
           value: function markAsRead() {
@@ -21587,13 +20878,6 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
               m.redraw();
             }
           }
-
-          /**
-           * Build an item list of info for a discussion listing. By default this is
-           * just the first/last post indicator.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'infoItems',
           value: function infoItems() {
@@ -21608,48 +20892,43 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
           }
         }]);
         return DiscussionListItem;
-      })(Component);
+      }(Component);
 
       _export('default', DiscussionListItem);
     }
   };
 });;
-System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHero', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionPage` component displays a whole discussion page, including
-   * the discussion list pane, the hero, the posts, and the sidebar.
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHero', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export, _context) {
   var Page, ItemList, DiscussionHero, PostStream, PostStreamScrubber, LoadingIndicator, SplitDropdown, listItems, DiscussionControls, DiscussionPage;
   return {
     setters: [function (_flarumComponentsPage) {
-      Page = _flarumComponentsPage['default'];
+      Page = _flarumComponentsPage.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsDiscussionHero) {
-      DiscussionHero = _flarumComponentsDiscussionHero['default'];
+      DiscussionHero = _flarumComponentsDiscussionHero.default;
     }, function (_flarumComponentsPostStream) {
-      PostStream = _flarumComponentsPostStream['default'];
+      PostStream = _flarumComponentsPostStream.default;
     }, function (_flarumComponentsPostStreamScrubber) {
-      PostStreamScrubber = _flarumComponentsPostStreamScrubber['default'];
+      PostStreamScrubber = _flarumComponentsPostStreamScrubber.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumComponentsSplitDropdown) {
-      SplitDropdown = _flarumComponentsSplitDropdown['default'];
+      SplitDropdown = _flarumComponentsSplitDropdown.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }],
     execute: function () {
-      DiscussionPage = (function (_Page) {
+      DiscussionPage = function (_Page) {
         babelHelpers.inherits(DiscussionPage, _Page);
 
         function DiscussionPage() {
           babelHelpers.classCallCheck(this, DiscussionPage);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionPage, [{
@@ -21763,10 +21042,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
               )
             );
           }
-
-          /**
-           * Clear and reload the discussion.
-           */
         }, {
           key: 'refresh',
           value: function refresh() {
@@ -21788,13 +21063,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
 
             m.lazyRedraw();
           }
-
-          /**
-           * Get the parameters that should be passed in the API request to get the
-           * discussion.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'requestParams',
           value: function requestParams() {
@@ -21802,12 +21070,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
               page: { near: this.near }
             };
           }
-
-          /**
-           * Initialize the component to display the given discussion.
-           *
-           * @param {Discussion} discussion
-           */
         }, {
           key: 'show',
           value: function show(discussion) {
@@ -21842,14 +21104,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
             this.stream.on('positionChanged', this.positionChanged.bind(this));
             this.stream.goToNumber(m.route.param('near') || includedPosts[0] && includedPosts[0].number(), true);
           }
-
-          /**
-           * Configure the discussion list pane.
-           *
-           * @param {DOMElement} element
-           * @param {Boolean} isInitialized
-           * @param {Object} context
-           */
         }, {
           key: 'configPane',
           value: function configPane(element, isInitialized, context) {
@@ -21888,12 +21142,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
               }
             }
           }
-
-          /**
-           * Build an item list for the contents of the sidebar.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'sidebarItems',
           value: function sidebarItems() {
@@ -21913,14 +21161,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
 
             return items;
           }
-
-          /**
-           * When the posts that are visible in the post stream change (i.e. the user
-           * scrolls up or down), then we update the URL and mark the posts as read.
-           *
-           * @param {Integer} startNumber
-           * @param {Integer} endNumber
-           */
         }, {
           key: 'positionChanged',
           value: function positionChanged(startNumber, endNumber) {
@@ -21944,36 +21184,27 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
           }
         }]);
         return DiscussionPage;
-      })(Page);
+      }(Page);
 
       _export('default', DiscussionPage);
     }
   };
 });;
-System.register('flarum/components/DiscussionRenamedNotification', ['flarum/components/Notification'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionRenamedNotification` component displays a notification which
-   * indicates that a discussion has had its title changed.
-   *
-   * ### Props
-   *
-   * - All of the props for Notification
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionRenamedNotification', ['flarum/components/Notification'], function (_export, _context) {
   var Notification, DiscussionRenamedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
-      Notification = _flarumComponentsNotification['default'];
+      Notification = _flarumComponentsNotification.default;
     }],
     execute: function () {
-      DiscussionRenamedNotification = (function (_Notification) {
+      DiscussionRenamedNotification = function (_Notification) {
         babelHelpers.inherits(DiscussionRenamedNotification, _Notification);
 
         function DiscussionRenamedNotification() {
           babelHelpers.classCallCheck(this, DiscussionRenamedNotification);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionRenamedNotification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionRenamedNotification).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionRenamedNotification, [{
@@ -21995,36 +21226,27 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
           }
         }]);
         return DiscussionRenamedNotification;
-      })(Notification);
+      }(Notification);
 
       _export('default', DiscussionRenamedNotification);
     }
   };
 });;
-System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionRenamedPost` component displays a discussion event post
-   * indicating that the discussion has been renamed.
-   *
-   * ### Props
-   *
-   * - All of the props for EventPost
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export, _context) {
   var EventPost, DiscussionRenamedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
-      EventPost = _flarumComponentsEventPost['default'];
+      EventPost = _flarumComponentsEventPost.default;
     }],
     execute: function () {
-      DiscussionRenamedPost = (function (_EventPost) {
+      DiscussionRenamedPost = function (_EventPost) {
         babelHelpers.inherits(DiscussionRenamedPost, _EventPost);
 
         function DiscussionRenamedPost() {
           babelHelpers.classCallCheck(this, DiscussionRenamedPost);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionRenamedPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionRenamedPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionRenamedPost, [{
@@ -22059,31 +21281,24 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
           }
         }]);
         return DiscussionRenamedPost;
-      })(EventPost);
+      }(EventPost);
 
       _export('default', DiscussionRenamedPost);
     }
   };
 });;
-System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/highlight', 'flarum/components/LinkButton'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionsSearchSource` finds and displays discussion search results in
-   * the search dropdown.
-   *
-   * @implements SearchSource
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/highlight', 'flarum/components/LinkButton'], function (_export, _context) {
   var highlight, LinkButton, DiscussionsSearchSource;
   return {
     setters: [function (_flarumHelpersHighlight) {
-      highlight = _flarumHelpersHighlight['default'];
+      highlight = _flarumHelpersHighlight.default;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }],
     execute: function () {
-      DiscussionsSearchSource = (function () {
+      DiscussionsSearchSource = function () {
         function DiscussionsSearchSource() {
           babelHelpers.classCallCheck(this, DiscussionsSearchSource);
 
@@ -22150,34 +21365,29 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
           }
         }]);
         return DiscussionsSearchSource;
-      })();
+      }();
 
       _export('default', DiscussionsSearchSource);
     }
   };
 });;
-System.register('flarum/components/DiscussionsUserPage', ['flarum/components/UserPage', 'flarum/components/DiscussionList'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionsUserPage` component shows a discussion list inside of a user
-   * page.
-   */
-  'use strict';
-
+System.register('flarum/components/DiscussionsUserPage', ['flarum/components/UserPage', 'flarum/components/DiscussionList'], function (_export, _context) {
   var UserPage, DiscussionList, DiscussionsUserPage;
   return {
     setters: [function (_flarumComponentsUserPage) {
-      UserPage = _flarumComponentsUserPage['default'];
+      UserPage = _flarumComponentsUserPage.default;
     }, function (_flarumComponentsDiscussionList) {
-      DiscussionList = _flarumComponentsDiscussionList['default'];
+      DiscussionList = _flarumComponentsDiscussionList.default;
     }],
     execute: function () {
-      DiscussionsUserPage = (function (_UserPage) {
+      DiscussionsUserPage = function (_UserPage) {
         babelHelpers.inherits(DiscussionsUserPage, _UserPage);
 
         function DiscussionsUserPage() {
           babelHelpers.classCallCheck(this, DiscussionsUserPage);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionsUserPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionsUserPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionsUserPage, [{
@@ -22202,48 +21412,31 @@ System.register('flarum/components/DiscussionsUserPage', ['flarum/components/Use
           }
         }]);
         return DiscussionsUserPage;
-      })(UserPage);
+      }(UserPage);
 
       _export('default', DiscussionsUserPage);
     }
   };
 });;
-System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `Dropdown` component displays a button which, when clicked, shows a
-   * dropdown menu beneath it.
-   *
-   * ### Props
-   *
-   * - `buttonClassName` A class name to apply to the dropdown toggle button.
-   * - `menuClassName` A class name to apply to the dropdown menu.
-   * - `icon` The name of an icon to show in the dropdown toggle button.
-   * - `caretIcon` The name of an icon to show on the right of the button.
-   * - `label` The label of the dropdown toggle button. Defaults to 'Controls'.
-   * - `onhide`
-   * - `onshow`
-   *
-   * The children will be displayed as a list inside of the dropdown menu.
-   */
-  'use strict';
-
+System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export, _context) {
   var Component, icon, listItems, Dropdown;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      Dropdown = (function (_Component) {
+      Dropdown = function (_Component) {
         babelHelpers.inherits(Dropdown, _Component);
 
         function Dropdown() {
           babelHelpers.classCallCheck(this, Dropdown);
-          babelHelpers.get(Object.getPrototypeOf(Dropdown.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Dropdown).apply(this, arguments));
         }
 
         babelHelpers.createClass(Dropdown, [{
@@ -22261,7 +21454,7 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
         }, {
           key: 'config',
           value: function config(isInitialized) {
-            var _this = this;
+            var _this2 = this;
 
             if (isInitialized) return;
 
@@ -22269,7 +21462,7 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
             // bottom of the viewport. If it does, we will apply class to make it show
             // above the toggle button instead of below it.
             this.$().on('shown.bs.dropdown', function () {
-              var $menu = _this.$('.Dropdown-menu');
+              var $menu = _this2.$('.Dropdown-menu');
               var isRight = $menu.hasClass('Dropdown-menu--right');
               $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
@@ -22277,26 +21470,19 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
 
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
 
-              if (_this.props.onshow) {
-                _this.props.onshow();
+              if (_this2.props.onshow) {
+                _this2.props.onshow();
                 m.redraw();
               }
             });
 
             this.$().on('hidden.bs.dropdown', function () {
-              if (_this.props.onhide) {
-                _this.props.onhide();
+              if (_this2.props.onhide) {
+                _this2.props.onhide();
                 m.redraw();
               }
             });
           }
-
-          /**
-           * Get the template for the button.
-           *
-           * @return {*}
-           * @protected
-           */
         }, {
           key: 'getButton',
           value: function getButton() {
@@ -22309,13 +21495,6 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
               this.getButtonContent()
             );
           }
-
-          /**
-           * Get the template for the button's content.
-           *
-           * @return {*}
-           * @protected
-           */
         }, {
           key: 'getButtonContent',
           value: function getButtonContent() {
@@ -22347,16 +21526,17 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
           }
         }]);
         return Dropdown;
-      })(Component);
+      }(Component);
 
       _export('default', Dropdown);
     }
   };
 });;
-System.register('flarum/components/EditPostComposer', ['flarum/components/ComposerBody', 'flarum/helpers/icon'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/components/EditPostComposer', ['flarum/components/ComposerBody', 'flarum/helpers/icon'], function (_export, _context) {
   var ComposerBody, icon, EditPostComposer;
+
 
   function minimizeComposerIfFullScreen(e) {
     if (app.composer.isFullScreen()) {
@@ -22377,30 +21557,30 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
    */
   return {
     setters: [function (_flarumComponentsComposerBody) {
-      ComposerBody = _flarumComponentsComposerBody['default'];
+      ComposerBody = _flarumComponentsComposerBody.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      EditPostComposer = (function (_ComposerBody) {
+      EditPostComposer = function (_ComposerBody) {
         babelHelpers.inherits(EditPostComposer, _ComposerBody);
 
         function EditPostComposer() {
           babelHelpers.classCallCheck(this, EditPostComposer);
-          babelHelpers.get(Object.getPrototypeOf(EditPostComposer.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditPostComposer).apply(this, arguments));
         }
 
         babelHelpers.createClass(EditPostComposer, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             babelHelpers.get(Object.getPrototypeOf(EditPostComposer.prototype), 'init', this).call(this);
 
             this.editor.props.preview = function (e) {
               minimizeComposerIfFullScreen(e);
 
-              m.route(app.route.post(_this.props.post));
+              m.route(app.route.post(_this2.props.post));
             };
           }
         }, {
@@ -22430,12 +21610,6 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
 
             return items;
           }
-
-          /**
-           * Get the data to submit to the server when the post is saved.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'data',
           value: function data() {
@@ -22468,45 +21642,41 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
           }
         }]);
         return EditPostComposer;
-      })(ComposerBody);
+      }(ComposerBody);
 
       _export('default', EditPostComposer);
     }
   };
 });;
-System.register('flarum/components/EditUserModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/GroupBadge', 'flarum/models/Group', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `EditUserModal` component displays a modal dialog with a login form.
-   */
-  'use strict';
-
+System.register('flarum/components/EditUserModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/GroupBadge', 'flarum/models/Group', 'flarum/utils/extractText'], function (_export, _context) {
   var Modal, Button, GroupBadge, Group, extractText, EditUserModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsGroupBadge) {
-      GroupBadge = _flarumComponentsGroupBadge['default'];
+      GroupBadge = _flarumComponentsGroupBadge.default;
     }, function (_flarumModelsGroup) {
-      Group = _flarumModelsGroup['default'];
+      Group = _flarumModelsGroup.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      EditUserModal = (function (_Modal) {
+      EditUserModal = function (_Modal) {
         babelHelpers.inherits(EditUserModal, _Modal);
 
         function EditUserModal() {
           babelHelpers.classCallCheck(this, EditUserModal);
-          babelHelpers.get(Object.getPrototypeOf(EditUserModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditUserModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(EditUserModal, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             babelHelpers.get(Object.getPrototypeOf(EditUserModal.prototype), 'init', this).call(this);
 
@@ -22521,7 +21691,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
             app.store.all('groups').filter(function (group) {
               return [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1;
             }).forEach(function (group) {
-              return _this.groups[group.id()] = m.prop(user.groups().indexOf(group) !== -1);
+              return _this2.groups[group.id()] = m.prop(user.groups().indexOf(group) !== -1);
             });
           }
         }, {
@@ -22537,7 +21707,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
         }, {
           key: 'content',
           value: function content() {
-            var _this2 = this;
+            var _this3 = this;
 
             return m(
               'div',
@@ -22587,10 +21757,10 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                     m(
                       'label',
                       { className: 'checkbox' },
-                      m('input', { type: 'checkbox', checked: this.setPassword(), onchange: function (e) {
-                          _this2.setPassword(e.target.checked);
+                      m('input', { type: 'checkbox', checked: this.setPassword(), onchange: function onchange(e) {
+                          _this3.setPassword(e.target.checked);
                           m.redraw(true);
-                          if (e.target.checked) _this2.$('[name=password]').select();
+                          if (e.target.checked) _this3.$('[name=password]').select();
                           m.redraw.strategy('none');
                         } }),
                       'Set new password'
@@ -22618,9 +21788,9 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                         'label',
                         { className: 'checkbox' },
                         m('input', { type: 'checkbox',
-                          checked: _this2.groups[group.id()](),
-                          disabled: _this2.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID,
-                          onchange: m.withAttr('checked', _this2.groups[group.id()]) }),
+                          checked: _this3.groups[group.id()](),
+                          disabled: _this3.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID,
+                          onchange: m.withAttr('checked', _this3.groups[group.id()]) }),
                         GroupBadge.component({ group: group, label: '' }),
                         ' ',
                         group.nameSingular()
@@ -22644,10 +21814,10 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
         }, {
           key: 'data',
           value: function data() {
-            var _this3 = this;
+            var _this4 = this;
 
             var groups = Object.keys(this.groups).filter(function (id) {
-              return _this3.groups[id]();
+              return _this4.groups[id]();
             }).map(function (id) {
               return app.store.getById('groups', id);
             });
@@ -22667,58 +21837,46 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this4 = this;
+            var _this5 = this;
 
             e.preventDefault();
 
             this.loading = true;
 
-            this.props.user.save(this.data(), { errorHandler: this.onerror.bind(this) }).then(this.hide.bind(this))['catch'](function () {
-              _this4.loading = false;
+            this.props.user.save(this.data(), { errorHandler: this.onerror.bind(this) }).then(this.hide.bind(this)).catch(function () {
+              _this5.loading = false;
               m.redraw();
             });
           }
         }]);
         return EditUserModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', EditUserModal);
     }
   };
 });;
-System.register('flarum/components/EventPost', ['flarum/components/Post', 'flarum/utils/string', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
+'use strict';
 
-  /**
-   * The `EventPost` component displays a post which indicating a discussion
-   * event, like a discussion being renamed or stickied. Subclasses must implement
-   * the `icon` and `description` methods.
-   *
-   * ### Props
-   *
-   * - All of the props for `Post`
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/EventPost', ['flarum/components/Post', 'flarum/utils/string', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export, _context) {
   var Post, ucfirst, usernameHelper, icon, EventPost;
   return {
     setters: [function (_flarumComponentsPost) {
-      Post = _flarumComponentsPost['default'];
+      Post = _flarumComponentsPost.default;
     }, function (_flarumUtilsString) {
       ucfirst = _flarumUtilsString.ucfirst;
     }, function (_flarumHelpersUsername) {
-      usernameHelper = _flarumHelpersUsername['default'];
+      usernameHelper = _flarumHelpersUsername.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      EventPost = (function (_Post) {
+      EventPost = function (_Post) {
         babelHelpers.inherits(EventPost, _Post);
 
         function EventPost() {
           babelHelpers.classCallCheck(this, EventPost);
-          babelHelpers.get(Object.getPrototypeOf(EventPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EventPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(EventPost, [{
@@ -22733,7 +21891,7 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
           value: function content() {
             var user = this.props.post.user();
             var username = usernameHelper(user);
-            var data = babelHelpers._extends(this.descriptionData(), {
+            var data = babelHelpers.extends(this.descriptionData(), {
               user: user,
               username: user ? m(
                 'a',
@@ -22748,34 +21906,16 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
               app.translator.transChoice(this.descriptionKey(), data.count, data)
             )];
           }
-
-          /**
-           * Get the name of the event icon.
-           *
-           * @return {String}
-           */
         }, {
           key: 'icon',
           value: function icon() {
             return '';
           }
-
-          /**
-           * Get the translation key for the description of the event.
-           *
-           * @return {String}
-           */
         }, {
           key: 'descriptionKey',
           value: function descriptionKey() {
             return '';
           }
-
-          /**
-           * Get the translation data for the description of the event.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'descriptionData',
           value: function descriptionData() {
@@ -22783,39 +21923,29 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
           }
         }]);
         return EventPost;
-      })(Post);
+      }(Post);
 
       _export('default', EventPost);
     }
   };
 });;
-System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `FieldSet` component defines a collection of fields, displayed in a list
-   * underneath a title. Accepted properties are:
-   *
-   * - `className` The class name for the fieldset.
-   * - `label` The title of this group of fields.
-   *
-   * The children should be an array of items to show in the fieldset.
-   */
-  'use strict';
-
+System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export, _context) {
   var Component, listItems, FieldSet;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      FieldSet = (function (_Component) {
+      FieldSet = function (_Component) {
         babelHelpers.inherits(FieldSet, _Component);
 
         function FieldSet() {
           babelHelpers.classCallCheck(this, FieldSet);
-          babelHelpers.get(Object.getPrototypeOf(FieldSet.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FieldSet).apply(this, arguments));
         }
 
         babelHelpers.createClass(FieldSet, [{
@@ -22838,42 +21968,33 @@ System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpe
           }
         }]);
         return FieldSet;
-      })(Component);
+      }(Component);
 
       _export('default', FieldSet);
     }
   };
 });;
-System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Modal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `ForgotPasswordModal` component displays a modal which allows the user to
-   * enter their email address and request a link to reset their password.
-   *
-   * ### Props
-   *
-   * - `email`
-   */
-  'use strict';
-
+System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Modal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export, _context) {
   var Modal, Alert, Button, extractText, ForgotPasswordModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
+      Alert = _flarumComponentsAlert.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      ForgotPasswordModal = (function (_Modal) {
+      ForgotPasswordModal = function (_Modal) {
         babelHelpers.inherits(ForgotPasswordModal, _Modal);
 
         function ForgotPasswordModal() {
           babelHelpers.classCallCheck(this, ForgotPasswordModal);
-          babelHelpers.get(Object.getPrototypeOf(ForgotPasswordModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ForgotPasswordModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(ForgotPasswordModal, [{
@@ -22968,7 +22089,7 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this = this;
+            var _this2 = this;
 
             e.preventDefault();
 
@@ -22979,33 +22100,33 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
               url: app.forum.attribute('apiUrl') + '/forgot',
               data: { email: this.email() }
             }).then(function () {
-              _this.success = true;
-              _this.alert = null;
-            })['catch'](function () {}).then(this.loaded.bind(this));
+              _this2.success = true;
+              _this2.alert = null;
+            }).catch(function () {}).then(this.loaded.bind(this));
           }
         }]);
         return ForgotPasswordModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', ForgotPasswordModal);
     }
   };
 });;
-System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export, _context) {
   var Badge, GroupBadge;
   return {
     setters: [function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
+      Badge = _flarumComponentsBadge.default;
     }],
     execute: function () {
-      GroupBadge = (function (_Badge) {
+      GroupBadge = function (_Badge) {
         babelHelpers.inherits(GroupBadge, _Badge);
 
         function GroupBadge() {
           babelHelpers.classCallCheck(this, GroupBadge);
-          babelHelpers.get(Object.getPrototypeOf(GroupBadge.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(GroupBadge).apply(this, arguments));
         }
 
         babelHelpers.createClass(GroupBadge, null, [{
@@ -23024,40 +22145,35 @@ System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], fun
           }
         }]);
         return GroupBadge;
-      })(Badge);
+      }(Badge);
 
       _export('default', GroupBadge);
     }
   };
 });;
-System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/SelectDropdown', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `HeaderPrimary` component displays primary header controls. On the
-   * default skin, these are shown just to the right of the forum title.
-   */
-  'use strict';
-
+System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/SelectDropdown', 'flarum/components/Button'], function (_export, _context) {
   var Component, ItemList, listItems, SelectDropdown, Button, HeaderPrimary;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumComponentsSelectDropdown) {
-      SelectDropdown = _flarumComponentsSelectDropdown['default'];
+      SelectDropdown = _flarumComponentsSelectDropdown.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      HeaderPrimary = (function (_Component) {
+      HeaderPrimary = function (_Component) {
         babelHelpers.inherits(HeaderPrimary, _Component);
 
         function HeaderPrimary() {
           babelHelpers.classCallCheck(this, HeaderPrimary);
-          babelHelpers.get(Object.getPrototypeOf(HeaderPrimary.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(HeaderPrimary).apply(this, arguments));
         }
 
         babelHelpers.createClass(HeaderPrimary, [{
@@ -23069,12 +22185,6 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
               listItems(this.items().toArray())
             );
           }
-
-          /**
-           * Build an item list for the controls.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'items',
           value: function items() {
@@ -23082,49 +22192,43 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
           }
         }]);
         return HeaderPrimary;
-      })(Component);
+      }(Component);
 
       _export('default', HeaderPrimary);
     }
   };
 });;
-System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LogInModal', 'flarum/components/SignUpModal', 'flarum/components/SessionDropdown', 'flarum/components/SelectDropdown', 'flarum/components/NotificationsDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `HeaderSecondary` component displays secondary header controls, such as
-   * the search box and the user menu. On the default skin, these are shown on the
-   * right side of the header.
-   */
-  'use strict';
-
+System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LogInModal', 'flarum/components/SignUpModal', 'flarum/components/SessionDropdown', 'flarum/components/SelectDropdown', 'flarum/components/NotificationsDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
   var Component, Button, LogInModal, SignUpModal, SessionDropdown, SelectDropdown, NotificationsDropdown, ItemList, listItems, HeaderSecondary;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLogInModal) {
-      LogInModal = _flarumComponentsLogInModal['default'];
+      LogInModal = _flarumComponentsLogInModal.default;
     }, function (_flarumComponentsSignUpModal) {
-      SignUpModal = _flarumComponentsSignUpModal['default'];
+      SignUpModal = _flarumComponentsSignUpModal.default;
     }, function (_flarumComponentsSessionDropdown) {
-      SessionDropdown = _flarumComponentsSessionDropdown['default'];
+      SessionDropdown = _flarumComponentsSessionDropdown.default;
     }, function (_flarumComponentsSelectDropdown) {
-      SelectDropdown = _flarumComponentsSelectDropdown['default'];
+      SelectDropdown = _flarumComponentsSelectDropdown.default;
     }, function (_flarumComponentsNotificationsDropdown) {
-      NotificationsDropdown = _flarumComponentsNotificationsDropdown['default'];
+      NotificationsDropdown = _flarumComponentsNotificationsDropdown.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      HeaderSecondary = (function (_Component) {
+      HeaderSecondary = function (_Component) {
         babelHelpers.inherits(HeaderSecondary, _Component);
 
         function HeaderSecondary() {
           babelHelpers.classCallCheck(this, HeaderSecondary);
-          babelHelpers.get(Object.getPrototypeOf(HeaderSecondary.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(HeaderSecondary).apply(this, arguments));
         }
 
         babelHelpers.createClass(HeaderSecondary, [{
@@ -23136,12 +22240,6 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
               listItems(this.items().toArray())
             );
           }
-
-          /**
-           * Build an item list for the controls.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'items',
           value: function items() {
@@ -23152,7 +22250,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
             if (Object.keys(app.locales).length > 1) {
               var locales = [];
 
-              var _loop = function (locale) {
+              var _loop = function _loop(locale) {
                 locales.push(Button.component({
                   active: app.locale === locale,
                   children: app.locales[locale],
@@ -23207,58 +22305,53 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
           }
         }]);
         return HeaderSecondary;
-      })(Component);
+      }(Component);
 
       _export('default', HeaderSecondary);
     }
   };
 });;
-System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/helpers/icon', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export) {
+'use strict';
 
-  /**
-   * The `IndexPage` component displays the index page, including the welcome
-   * hero, the sidebar, and the discussion list.
-   */
-  'use strict';
-
+System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/helpers/icon', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export, _context) {
   var extend, Page, ItemList, listItems, icon, DiscussionList, WelcomeHero, DiscussionComposer, LogInModal, DiscussionPage, Select, Button, LinkButton, SelectDropdown, IndexPage;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsPage) {
-      Page = _flarumComponentsPage['default'];
+      Page = _flarumComponentsPage.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsDiscussionList) {
-      DiscussionList = _flarumComponentsDiscussionList['default'];
+      DiscussionList = _flarumComponentsDiscussionList.default;
     }, function (_flarumComponentsWelcomeHero) {
-      WelcomeHero = _flarumComponentsWelcomeHero['default'];
+      WelcomeHero = _flarumComponentsWelcomeHero.default;
     }, function (_flarumComponentsDiscussionComposer) {
-      DiscussionComposer = _flarumComponentsDiscussionComposer['default'];
+      DiscussionComposer = _flarumComponentsDiscussionComposer.default;
     }, function (_flarumComponentsLogInModal) {
-      LogInModal = _flarumComponentsLogInModal['default'];
+      LogInModal = _flarumComponentsLogInModal.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsSelect) {
-      Select = _flarumComponentsSelect['default'];
+      Select = _flarumComponentsSelect.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }, function (_flarumComponentsSelectDropdown) {
-      SelectDropdown = _flarumComponentsSelectDropdown['default'];
+      SelectDropdown = _flarumComponentsSelectDropdown.default;
     }],
     execute: function () {
-      IndexPage = (function (_Page) {
+      IndexPage = function (_Page) {
         babelHelpers.inherits(IndexPage, _Page);
 
         function IndexPage() {
           babelHelpers.classCallCheck(this, IndexPage);
-          babelHelpers.get(Object.getPrototypeOf(IndexPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(IndexPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(IndexPage, [{
@@ -23368,8 +22461,9 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             // Work out the difference between the height of this hero and that of the
             // previous hero. Maintain the same scroll position relative to the bottom
-            // of the hero so that the 'fixed' sidebar doesn't jump around.
-            var heroHeight = this.$('.Hero').outerHeight();
+            // of the hero so that the sidebar doesn't jump around.
+            var oldHeroHeight = app.cache.heroHeight;
+            var heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight();
             var scrollTop = app.cache.scrollTop;
 
             $('#app').css('min-height', $(window).height() + heroHeight);
@@ -23377,11 +22471,11 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
             // Scroll to the remembered position. We do this after a short delay so that
             // it happens after the browser has done its own "back button" scrolling,
             // which isn't right. https://github.com/flarum/core/issues/835
-            setTimeout(function () {
-              return $(window).scrollTop(scrollTop - app.cache.heroHeight + heroHeight);
-            }, 1);
-
-            app.cache.heroHeight = heroHeight;
+            var scroll = function scroll() {
+              return $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+            };
+            scroll();
+            setTimeout(scroll, 1);
 
             // If we've just returned from a discussion page, then the constructor will
             // have set the `lastDiscussion` property. If this is the case, we want to
@@ -23401,25 +22495,11 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               }
             }
           }
-
-          /**
-           * Get the component to display as the hero.
-           *
-           * @return {MithrilComponent}
-           */
         }, {
           key: 'hero',
           value: function hero() {
             return WelcomeHero.component();
           }
-
-          /**
-           * Build an item list for the sidebar of the index page. By default this is a
-           * "New Discussion" button, and then a DropdownSelect component containing a
-           * list of navigation items.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'sidebarItems',
           value: function sidebarItems() {
@@ -23443,13 +22523,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             return items;
           }
-
-          /**
-           * Build an item list for the navigation in the sidebar of the index page. By
-           * default this is just the 'All Discussions' link.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'navItems',
           value: function navItems() {
@@ -23464,14 +22537,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             return items;
           }
-
-          /**
-           * Build an item list for the part of the toolbar which is concerned with how
-           * the results are displayed. By default this is just a select box to change
-           * the way discussions are sorted.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'viewItems',
           value: function viewItems() {
@@ -23484,19 +22549,12 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             items.add('sort', Select.component({
               options: sortOptions,
-              value: this.params().sort,
+              value: this.params().sort || Object.keys(app.cache.discussionList.sortMap())[0],
               onchange: this.changeSort.bind(this)
             }));
 
             return items;
           }
-
-          /**
-           * Build an item list for the part of the toolbar which is about taking action
-           * on the results. By default this is just a "mark all as read" button.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'actionItems',
           value: function actionItems() {
@@ -23522,26 +22580,11 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             return items;
           }
-
-          /**
-           * Return the current search query, if any. This is implemented to activate
-           * the search box in the header.
-           *
-           * @see Search
-           * @return {String}
-           */
         }, {
           key: 'searching',
           value: function searching() {
             return this.params().q;
           }
-
-          /**
-           * Redirect to the index page without a search filter. This is called when the
-           * 'x' is clicked in the search box in the header.
-           *
-           * @see Search
-           */
         }, {
           key: 'clearSearch',
           value: function clearSearch() {
@@ -23550,12 +22593,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             m.route(app.route(this.props.routeName, params));
           }
-
-          /**
-           * Redirect to the index page using the given sort parameter.
-           *
-           * @param {String} sort
-           */
         }, {
           key: 'changeSort',
           value: function changeSort(sort) {
@@ -23569,12 +22606,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             m.route(app.route(this.props.routeName, params));
           }
-
-          /**
-           * Get URL parameters that stick between filter changes.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'stickyParams',
           value: function stickyParams() {
@@ -23583,12 +22614,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               q: m.route.param('q')
             };
           }
-
-          /**
-           * Get parameters to pass to the DiscussionList component.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'params',
           value: function params() {
@@ -23598,12 +22623,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             return params;
           }
-
-          /**
-           * Log the user in and then open the composer for a new discussion.
-           *
-           * @return {Promise}
-           */
         }, {
           key: 'newDiscussion',
           value: function newDiscussion() {
@@ -23619,13 +22638,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             return deferred.promise;
           }
-
-          /**
-           * Initialize the composer for a new discussion.
-           *
-           * @param {Deferred} deferred
-           * @return {Promise}
-           */
         }, {
           key: 'composeNewDiscussion',
           value: function composeNewDiscussion(deferred) {
@@ -23638,12 +22650,6 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             return deferred.promise;
           }
-
-          /**
-           * Mark all discussions as read.
-           *
-           * @return void
-           */
         }, {
           key: 'markAllAsRead',
           value: function markAllAsRead() {
@@ -23655,40 +22661,27 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
           }
         }]);
         return IndexPage;
-      })(Page);
+      }(Page);
 
       _export('default', IndexPage);
     }
   };
 });;
-System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `LinkButton` component defines a `Button` which links to a route.
-   *
-   * ### Props
-   *
-   * All of the props accepted by `Button`, plus:
-   *
-   * - `active` Whether or not the page that this button links to is currently
-   *   active.
-   * - `href` The URL to link to. If the current URL `m.route()` matches this,
-   *   the `active` prop will automatically be set to true.
-   */
-  'use strict';
-
+System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export, _context) {
   var Button, LinkButton;
   return {
     setters: [function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      LinkButton = (function (_Button) {
+      LinkButton = function (_Button) {
         babelHelpers.inherits(LinkButton, _Button);
 
         function LinkButton() {
           babelHelpers.classCallCheck(this, LinkButton);
-          babelHelpers.get(Object.getPrototypeOf(LinkButton.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LinkButton).apply(this, arguments));
         }
 
         babelHelpers.createClass(LinkButton, [{
@@ -23700,13 +22693,6 @@ System.register('flarum/components/LinkButton', ['flarum/components/Button'], fu
 
             return vdom;
           }
-
-          /**
-           * Determine whether a component with the given props is 'active'.
-           *
-           * @param {Object} props
-           * @return {Boolean}
-           */
         }], [{
           key: 'initProps',
           value: function initProps(props) {
@@ -23720,42 +22706,33 @@ System.register('flarum/components/LinkButton', ['flarum/components/Button'], fu
           }
         }]);
         return LinkButton;
-      })(Button);
+      }(Button);
 
       _export('default', LinkButton);
     }
   };
 });;
-System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export) {
+'use strict';
 
-  /**
-   * The `LoadingIndicator` component displays a loading spinner with spin.js. It
-   * may have the following special props:
-   *
-   * - `size` The spin.js size preset to use. Defaults to 'small'.
-   *
-   * All other props will be assigned as attributes on the element.
-   */
-  'use strict';
-
+System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export, _context) {
   var Component, LoadingIndicator;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }],
     execute: function () {
-      LoadingIndicator = (function (_Component) {
+      LoadingIndicator = function (_Component) {
         babelHelpers.inherits(LoadingIndicator, _Component);
 
         function LoadingIndicator() {
           babelHelpers.classCallCheck(this, LoadingIndicator);
-          babelHelpers.get(Object.getPrototypeOf(LoadingIndicator.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LoadingIndicator).apply(this, arguments));
         }
 
         babelHelpers.createClass(LoadingIndicator, [{
           key: 'view',
           value: function view() {
-            var attrs = babelHelpers._extends({}, this.props);
+            var attrs = babelHelpers.extends({}, this.props);
 
             attrs.className = 'LoadingIndicator ' + (attrs.className || '');
             delete attrs.size;
@@ -23776,34 +22753,29 @@ System.register('flarum/components/LoadingIndicator', ['flarum/Component'], func
           }
         }]);
         return LoadingIndicator;
-      })(Component);
+      }(Component);
 
       _export('default', LoadingIndicator);
     }
   };
 });;
-System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/helpers/avatar'], function (_export) {
+'use strict';
 
-  /**
-   * The `LoadingPost` component shows a placeholder that looks like a post,
-   * indicating that the post is loading.
-   */
-  'use strict';
-
+System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/helpers/avatar'], function (_export, _context) {
   var Component, avatar, LoadingPost;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }],
     execute: function () {
-      LoadingPost = (function (_Component) {
+      LoadingPost = function (_Component) {
         babelHelpers.inherits(LoadingPost, _Component);
 
         function LoadingPost() {
           babelHelpers.classCallCheck(this, LoadingPost);
-          babelHelpers.get(Object.getPrototypeOf(LoadingPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LoadingPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(LoadingPost, [{
@@ -23829,36 +22801,27 @@ System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/he
           }
         }]);
         return LoadingPost;
-      })(Component);
+      }(Component);
 
       _export('default', LoadingPost);
     }
   };
 });;
-System.register('flarum/components/LogInButton', ['flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `LogInButton` component displays a social login button which will open
-   * a popup window containing the specified path.
-   *
-   * ### Props
-   *
-  * - `path`
-   */
-  'use strict';
-
+System.register('flarum/components/LogInButton', ['flarum/components/Button'], function (_export, _context) {
   var Button, LogInButton;
   return {
     setters: [function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      LogInButton = (function (_Button) {
+      LogInButton = function (_Button) {
         babelHelpers.inherits(LogInButton, _Button);
 
         function LogInButton() {
           babelHelpers.classCallCheck(this, LogInButton);
-          babelHelpers.get(Object.getPrototypeOf(LogInButton.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LogInButton).apply(this, arguments));
         }
 
         babelHelpers.createClass(LogInButton, null, [{
@@ -23878,33 +22841,29 @@ System.register('flarum/components/LogInButton', ['flarum/components/Button'], f
           }
         }]);
         return LogInButton;
-      })(Button);
+      }(Button);
 
       _export('default', LogInButton);
     }
   };
 });;
-System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/utils/ItemList'], function (_export) {
+'use strict';
 
-  /**
-   * The `LogInButtons` component displays a collection of social login buttons.
-   */
-  'use strict';
-
+System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/utils/ItemList'], function (_export, _context) {
   var Component, ItemList, LogInButtons;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
-      LogInButtons = (function (_Component) {
+      LogInButtons = function (_Component) {
         babelHelpers.inherits(LogInButtons, _Component);
 
         function LogInButtons() {
           babelHelpers.classCallCheck(this, LogInButtons);
-          babelHelpers.get(Object.getPrototypeOf(LogInButtons.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LogInButtons).apply(this, arguments));
         }
 
         babelHelpers.createClass(LogInButtons, [{
@@ -23916,13 +22875,6 @@ System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/u
               this.items().toArray()
             );
           }
-
-          /**
-           * Build a list of LogInButton components.
-           *
-           * @return {ItemList}
-           * @public
-           */
         }, {
           key: 'items',
           value: function items() {
@@ -23930,48 +22882,39 @@ System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/u
           }
         }]);
         return LogInButtons;
-      })(Component);
+      }(Component);
 
       _export('default', LogInButtons);
     }
   };
 });;
-System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `LogInModal` component displays a modal dialog with a login form.
-   *
-   * ### Props
-   *
-   * - `email`
-   * - `password`
-   */
-  'use strict';
-
+System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export, _context) {
   var Modal, ForgotPasswordModal, SignUpModal, Alert, Button, LogInButtons, extractText, LogInModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsForgotPasswordModal) {
-      ForgotPasswordModal = _flarumComponentsForgotPasswordModal['default'];
+      ForgotPasswordModal = _flarumComponentsForgotPasswordModal.default;
     }, function (_flarumComponentsSignUpModal) {
-      SignUpModal = _flarumComponentsSignUpModal['default'];
+      SignUpModal = _flarumComponentsSignUpModal.default;
     }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
+      Alert = _flarumComponentsAlert.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLogInButtons) {
-      LogInButtons = _flarumComponentsLogInButtons['default'];
+      LogInButtons = _flarumComponentsLogInButtons.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      LogInModal = (function (_Modal) {
+      LogInModal = function (_Modal) {
         babelHelpers.inherits(LogInModal, _Modal);
 
         function LogInModal() {
           babelHelpers.classCallCheck(this, LogInModal);
-          babelHelpers.get(Object.getPrototypeOf(LogInModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LogInModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(LogInModal, [{
@@ -24057,13 +23000,6 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
               ) : ''
             )];
           }
-
-          /**
-           * Open the forgot password modal, prefilling it with an email if the user has
-           * entered one.
-           *
-           * @public
-           */
         }, {
           key: 'forgotPassword',
           value: function forgotPassword() {
@@ -24072,13 +23008,6 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
 
             app.modal.show(new ForgotPasswordModal(props));
           }
-
-          /**
-           * Open the sign up modal, prefilling it with an email/username/password if
-           * the user has entered one.
-           *
-           * @public
-           */
         }, {
           key: 'signUp',
           value: function signUp() {
@@ -24123,38 +23052,31 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
           }
         }]);
         return LogInModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', LogInModal);
     }
   };
 });;
-System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
-   * should implement the `className`, `title`, and `content` methods.
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export, _context) {
   var Component, Alert, Button, Modal;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
+      Alert = _flarumComponentsAlert.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      Modal = (function (_Component) {
+      Modal = function (_Component) {
         babelHelpers.inherits(Modal, _Component);
 
         function Modal() {
           babelHelpers.classCallCheck(this, Modal);
-          babelHelpers.get(Object.getPrototypeOf(Modal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Modal).apply(this, arguments));
         }
 
         babelHelpers.createClass(Modal, [{
@@ -24211,60 +23133,23 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
               )
             );
           }
-
-          /**
-           * Determine whether or not the modal should be dismissible via an 'x' button.
-           *
-           * @return {Boolean}
-           */
         }, {
           key: 'isDismissible',
           value: function isDismissible() {
             return true;
           }
-
-          /**
-           * Get the class name to apply to the modal.
-           *
-           * @return {String}
-           * @abstract
-           */
         }, {
           key: 'className',
           value: function className() {}
-
-          /**
-           * Get the title of the modal dialog.
-           *
-           * @return {String}
-           * @abstract
-           */
         }, {
           key: 'title',
           value: function title() {}
-
-          /**
-           * Get the content of the modal.
-           *
-           * @return {VirtualElement}
-           * @abstract
-           */
         }, {
           key: 'content',
           value: function content() {}
-
-          /**
-           * Handle the modal form's submit event.
-           *
-           * @param {Event} e
-           */
         }, {
           key: 'onsubmit',
           value: function onsubmit() {}
-
-          /**
-           * Focus on the first input when the modal is ready to be used.
-           */
         }, {
           key: 'onready',
           value: function onready() {
@@ -24273,32 +23158,17 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
         }, {
           key: 'onhide',
           value: function onhide() {}
-
-          /**
-           * Hide the modal.
-           */
         }, {
           key: 'hide',
           value: function hide() {
             app.modal.close();
           }
-
-          /**
-           * Stop loading.
-           */
         }, {
           key: 'loaded',
           value: function loaded() {
             this.loading = false;
             m.redraw();
           }
-
-          /**
-           * Show an alert describing an error returned from the API, and give focus to
-           * the first relevant field.
-           *
-           * @param {RequestError} error
-           */
         }, {
           key: 'onerror',
           value: function onerror(error) {
@@ -24314,35 +23184,29 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
           }
         }]);
         return Modal;
-      })(Component);
+      }(Component);
 
       _export('default', Modal);
     }
   };
 });;
-System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export) {
+'use strict';
 
-  /**
-   * The `ModalManager` component manages a modal dialog. Only one modal dialog
-   * can be shown at once; loading a new component into the ModalManager will
-   * overwrite the previous one.
-   */
-  'use strict';
-
+System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export, _context) {
   var Component, Modal, ModalManager;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }],
     execute: function () {
-      ModalManager = (function (_Component) {
+      ModalManager = function (_Component) {
         babelHelpers.inherits(ModalManager, _Component);
 
         function ModalManager() {
           babelHelpers.classCallCheck(this, ModalManager);
-          babelHelpers.get(Object.getPrototypeOf(ModalManager.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ModalManager).apply(this, arguments));
         }
 
         babelHelpers.createClass(ModalManager, [{
@@ -24369,13 +23233,6 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
 
             this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));
           }
-
-          /**
-           * Show a modal dialog.
-           *
-           * @param {Modal} component
-           * @public
-           */
         }, {
           key: 'show',
           value: function show(component) {
@@ -24395,16 +23252,10 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
             this.$().modal({ backdrop: this.component.isDismissible() ? true : 'static' }).modal('show');
             this.onready();
           }
-
-          /**
-           * Close the modal dialog.
-           *
-           * @public
-           */
         }, {
           key: 'close',
           value: function close() {
-            var _this = this;
+            var _this2 = this;
 
             if (!this.showing) return;
 
@@ -24414,16 +23265,10 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
             // bit to give the `show` method the opportunity to prevent this from going
             // ahead.
             this.hideTimeout = setTimeout(function () {
-              _this.$().modal('hide');
-              _this.showing = false;
+              _this2.$().modal('hide');
+              _this2.showing = false;
             });
           }
-
-          /**
-           * Clear content from the modal area.
-           *
-           * @protected
-           */
         }, {
           key: 'clear',
           value: function clear() {
@@ -24437,12 +23282,6 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
 
             m.lazyRedraw();
           }
-
-          /**
-           * When the modal dialog is ready to be used, tell it!
-           *
-           * @protected
-           */
         }, {
           key: 'onready',
           value: function onready() {
@@ -24452,47 +23291,31 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
           }
         }]);
         return ModalManager;
-      })(Component);
+      }(Component);
 
       _export('default', ModalManager);
     }
   };
 });;
-System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export) {
+'use strict';
 
-  /**
-   * The `Navigation` component displays a set of navigation buttons. Typically
-   * this is just a back button which pops the app's History. If the user is on
-   * the root page and there is no history to pop, then in some instances it may
-   * show a button that toggles the app's drawer.
-   *
-   * If the app has a pane, it will also include a 'pin' button which toggles the
-   * pinned state of the pane.
-   *
-   * Accepts the following props:
-   *
-   * - `className` The name of a class to set on the root element.
-   * - `drawer` Whether or not to show a button to toggle the app's drawer if
-   *   there is no more history to pop.
-   */
-  'use strict';
-
+System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export, _context) {
   var Component, Button, LinkButton, Navigation;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }],
     execute: function () {
-      Navigation = (function (_Component) {
+      Navigation = function (_Component) {
         babelHelpers.inherits(Navigation, _Component);
 
         function Navigation() {
           babelHelpers.classCallCheck(this, Navigation);
-          babelHelpers.get(Object.getPrototypeOf(Navigation.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Navigation).apply(this, arguments));
         }
 
         babelHelpers.createClass(Navigation, [{
@@ -24501,6 +23324,7 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var _app = app;
             var history = _app.history;
             var pane = _app.pane;
+
 
             return m(
               'div',
@@ -24518,13 +23342,6 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             // to be retained across route changes.
             context.retain = true;
           }
-
-          /**
-           * Get the back button.
-           *
-           * @return {Object}
-           * @protected
-           */
         }, {
           key: 'getBackButton',
           value: function getBackButton() {
@@ -24534,10 +23351,10 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var previous = history.getPrevious() || {};
 
             return LinkButton.component({
-              className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
+              className: 'Button Navigation-back Button--icon',
               href: history.backUrl(),
-              icon: 'chevron-left',
-              children: previous.title,
+              icon: 'list-ul',
+              //children: previous.title,
               config: function config() {},
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
@@ -24546,18 +23363,12 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
               }
             });
           }
-
-          /**
-           * Get the pane pinned toggle button.
-           *
-           * @return {Object|String}
-           * @protected
-           */
         }, {
           key: 'getPaneButton',
           value: function getPaneButton() {
             var _app3 = app;
             var pane = _app3.pane;
+
 
             if (!pane || !pane.active) return '';
 
@@ -24567,13 +23378,6 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
               icon: 'thumb-tack'
             });
           }
-
-          /**
-           * Get the drawer toggle button.
-           *
-           * @return {Object|String}
-           * @protected
-           */
         }, {
           key: 'getDrawerButton',
           value: function getDrawerButton() {
@@ -24595,44 +23399,33 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
           }
         }]);
         return Navigation;
-      })(Component);
+      }(Component);
 
       _export('default', Navigation);
     }
   };
 });;
-System.register('flarum/components/Notification', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export) {
+'use strict';
 
-  /**
-   * The `Notification` component abstract displays a single notification.
-   * Subclasses should implement the `icon`, `href`, and `content` methods.
-   *
-   * ### Props
-   *
-   * - `notification`
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/Notification', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export, _context) {
   var Component, avatar, icon, humanTime, Notification;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumHelpersHumanTime) {
-      humanTime = _flarumHelpersHumanTime['default'];
+      humanTime = _flarumHelpersHumanTime.default;
     }],
     execute: function () {
-      Notification = (function (_Component) {
+      Notification = function (_Component) {
         babelHelpers.inherits(Notification, _Component);
 
         function Notification() {
           babelHelpers.classCallCheck(this, Notification);
-          babelHelpers.get(Object.getPrototypeOf(Notification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Notification).apply(this, arguments));
         }
 
         babelHelpers.createClass(Notification, [{
@@ -24645,7 +23438,7 @@ System.register('flarum/components/Notification', ['flarum/Component', 'flarum/h
               'a',
               { className: 'Notification Notification--' + notification.contentType() + ' ' + (!notification.isRead() ? 'unread' : ''),
                 href: href,
-                config: function (element, isInitialized) {
+                config: function config(element, isInitialized) {
                   if (href.indexOf('://') === -1) m.route.apply(this, arguments);
 
                   if (!isInitialized) $(element).click(this.markAsRead.bind(this));
@@ -24665,50 +23458,18 @@ System.register('flarum/components/Notification', ['flarum/Component', 'flarum/h
               )
             );
           }
-
-          /**
-           * Get the name of the icon that should be displayed in the notification.
-           *
-           * @return {String}
-           * @abstract
-           */
         }, {
           key: 'icon',
           value: function icon() {}
-
-          /**
-           * Get the URL that the notification should link to.
-           *
-           * @return {String}
-           * @abstract
-           */
         }, {
           key: 'href',
           value: function href() {}
-
-          /**
-           * Get the content of the notification.
-           *
-           * @return {VirtualElement}
-           * @abstract
-           */
         }, {
           key: 'content',
           value: function content() {}
-
-          /**
-           * Get the excerpt of the notification.
-           *
-           * @return {VirtualElement}
-           * @abstract
-           */
         }, {
           key: 'excerpt',
           value: function excerpt() {}
-
-          /**
-           * Mark the notification as read.
-           */
         }, {
           key: 'markAsRead',
           value: function markAsRead() {
@@ -24720,48 +23481,39 @@ System.register('flarum/components/Notification', ['flarum/Component', 'flarum/h
           }
         }]);
         return Notification;
-      })(Component);
+      }(Component);
 
       _export('default', Notification);
     }
   };
 });;
-System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flarum/components/Checkbox', 'flarum/helpers/icon', 'flarum/utils/ItemList'], function (_export) {
+'use strict';
 
-  /**
-   * The `NotificationGrid` component displays a table of notification types and
-   * methods, allowing the user to toggle each combination.
-   *
-   * ### Props
-   *
-   * - `user`
-   */
-  'use strict';
-
+System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flarum/components/Checkbox', 'flarum/helpers/icon', 'flarum/utils/ItemList'], function (_export, _context) {
   var Component, Checkbox, icon, ItemList, NotificationGrid;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsCheckbox) {
-      Checkbox = _flarumComponentsCheckbox['default'];
+      Checkbox = _flarumComponentsCheckbox.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
-      NotificationGrid = (function (_Component) {
+      NotificationGrid = function (_Component) {
         babelHelpers.inherits(NotificationGrid, _Component);
 
         function NotificationGrid() {
           babelHelpers.classCallCheck(this, NotificationGrid);
-          babelHelpers.get(Object.getPrototypeOf(NotificationGrid.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NotificationGrid).apply(this, arguments));
         }
 
         babelHelpers.createClass(NotificationGrid, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             /**
              * Information about the available notification methods.
@@ -24788,15 +23540,15 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
             // For each of the notification type-method combinations, create and store a
             // new checkbox component instance, which we will render in the view.
             this.types.forEach(function (type) {
-              _this.methods.forEach(function (method) {
-                var key = _this.preferenceKey(type.name, method.name);
-                var preference = _this.props.user.preferences()[key];
+              _this2.methods.forEach(function (method) {
+                var key = _this2.preferenceKey(type.name, method.name);
+                var preference = _this2.props.user.preferences()[key];
 
-                _this.inputs[key] = new Checkbox({
+                _this2.inputs[key] = new Checkbox({
                   state: !!preference,
                   disabled: typeof preference === 'undefined',
                   onchange: function onchange() {
-                    return _this.toggle([key]);
+                    return _this2.toggle([key]);
                   }
                 });
               });
@@ -24805,7 +23557,7 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
         }, {
           key: 'view',
           value: function view() {
-            var _this2 = this;
+            var _this3 = this;
 
             return m(
               'table',
@@ -24820,7 +23572,7 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
                   this.methods.map(function (method) {
                     return m(
                       'th',
-                      { className: 'NotificationGrid-groupToggle', onclick: _this2.toggleMethod.bind(_this2, method.name) },
+                      { className: 'NotificationGrid-groupToggle', onclick: _this3.toggleMethod.bind(_this3, method.name) },
                       icon(method.icon),
                       ' ',
                       method.label
@@ -24837,16 +23589,16 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
                     null,
                     m(
                       'td',
-                      { className: 'NotificationGrid-groupToggle', onclick: _this2.toggleType.bind(_this2, type.name) },
+                      { className: 'NotificationGrid-groupToggle', onclick: _this3.toggleType.bind(_this3, type.name) },
                       icon(type.icon),
                       ' ',
                       type.label
                     ),
-                    _this2.methods.map(function (method) {
+                    _this3.methods.map(function (method) {
                       return m(
                         'td',
                         { className: 'NotificationGrid-checkbox' },
-                        _this2.inputs[_this2.preferenceKey(type.name, method.name)].render()
+                        _this3.inputs[_this3.preferenceKey(type.name, method.name)].render()
                       );
                     })
                   );
@@ -24868,24 +23620,17 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
               $(this).parent().find('td').toggleClass('highlighted', e.type === 'mouseenter');
             });
           }
-
-          /**
-           * Toggle the state of the given preferences, based on the value of the first
-           * one.
-           *
-           * @param {Array} keys
-           */
         }, {
           key: 'toggle',
           value: function toggle(keys) {
-            var _this3 = this;
+            var _this4 = this;
 
             var user = this.props.user;
             var preferences = user.preferences();
             var enabled = !preferences[keys[0]];
 
             keys.forEach(function (key) {
-              var control = _this3.inputs[key];
+              var control = _this4.inputs[key];
 
               control.loading = true;
               preferences[key] = control.props.state = enabled;
@@ -24895,75 +23640,43 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
 
             user.save({ preferences: preferences }).then(function () {
               keys.forEach(function (key) {
-                return _this3.inputs[key].loading = false;
+                return _this4.inputs[key].loading = false;
               });
 
               m.redraw();
             });
           }
-
-          /**
-           * Toggle all notification types for the given method.
-           *
-           * @param {String} method
-           */
         }, {
           key: 'toggleMethod',
           value: function toggleMethod(method) {
-            var _this4 = this;
-
-            var keys = this.types.map(function (type) {
-              return _this4.preferenceKey(type.name, method);
-            }).filter(function (key) {
-              return !_this4.inputs[key].props.disabled;
-            });
-
-            this.toggle(keys);
-          }
-
-          /**
-           * Toggle all notification methods for the given type.
-           *
-           * @param {String} type
-           */
-        }, {
-          key: 'toggleType',
-          value: function toggleType(type) {
             var _this5 = this;
 
-            var keys = this.methods.map(function (method) {
-              return _this5.preferenceKey(type, method.name);
+            var keys = this.types.map(function (type) {
+              return _this5.preferenceKey(type.name, method);
             }).filter(function (key) {
               return !_this5.inputs[key].props.disabled;
             });
 
             this.toggle(keys);
           }
+        }, {
+          key: 'toggleType',
+          value: function toggleType(type) {
+            var _this6 = this;
 
-          /**
-           * Get the name of the preference key for the given notification type-method
-           * combination.
-           *
-           * @param {String} type
-           * @param {String} method
-           * @return {String}
-           */
+            var keys = this.methods.map(function (method) {
+              return _this6.preferenceKey(type, method.name);
+            }).filter(function (key) {
+              return !_this6.inputs[key].props.disabled;
+            });
+
+            this.toggle(keys);
+          }
         }, {
           key: 'preferenceKey',
           value: function preferenceKey(type, method) {
             return 'notify_' + type + '_' + method;
           }
-
-          /**
-           * Build an item list for the notification types to display in the grid.
-           *
-           * Each notification type is an object which has the following properties:
-           *
-           * - `name` The name of the notification type.
-           * - `label` The label to display in the notification grid row.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'notificationTypes',
           value: function notificationTypes() {
@@ -24979,40 +23692,35 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
           }
         }]);
         return NotificationGrid;
-      })(Component);
+      }(Component);
 
       _export('default', NotificationGrid);
     }
   };
 });;
-System.register('flarum/components/NotificationList', ['flarum/Component', 'flarum/helpers/listItems', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/models/Discussion'], function (_export) {
+'use strict';
 
-  /**
-   * The `NotificationList` component displays a list of the logged-in user's
-   * notifications, grouped by discussion.
-   */
-  'use strict';
-
+System.register('flarum/components/NotificationList', ['flarum/Component', 'flarum/helpers/listItems', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/models/Discussion'], function (_export, _context) {
   var Component, listItems, Button, LoadingIndicator, Discussion, NotificationList;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }],
     execute: function () {
-      NotificationList = (function (_Component) {
+      NotificationList = function (_Component) {
         babelHelpers.inherits(NotificationList, _Component);
 
         function NotificationList() {
           babelHelpers.classCallCheck(this, NotificationList);
-          babelHelpers.get(Object.getPrototypeOf(NotificationList.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NotificationList).apply(this, arguments));
         }
 
         babelHelpers.createClass(NotificationList, [{
@@ -25128,15 +23836,10 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
               )
             );
           }
-
-          /**
-           * Load notifications into the application's cache if they haven't already
-           * been loaded.
-           */
         }, {
           key: 'load',
           value: function load() {
-            var _this = this;
+            var _this2 = this;
 
             if (app.cache.notifications && !app.session.user.newNotificationsCount()) {
               return;
@@ -25150,15 +23853,11 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
               app.cache.notifications = notifications.sort(function (a, b) {
                 return b.time() - a.time();
               });
-            })['catch'](function () {}).then(function () {
-              _this.loading = false;
+            }).catch(function () {}).then(function () {
+              _this2.loading = false;
               m.redraw();
             });
           }
-
-          /**
-           * Mark all of the notifications as read.
-           */
         }, {
           key: 'markAllAsRead',
           value: function markAllAsRead() {
@@ -25177,31 +23876,31 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
           }
         }]);
         return NotificationList;
-      })(Component);
+      }(Component);
 
       _export('default', NotificationList);
     }
   };
 });;
-System.register('flarum/components/NotificationsDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon', 'flarum/components/NotificationList'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/components/NotificationsDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon', 'flarum/components/NotificationList'], function (_export, _context) {
   var Dropdown, icon, NotificationList, NotificationsDropdown;
   return {
     setters: [function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsNotificationList) {
-      NotificationList = _flarumComponentsNotificationList['default'];
+      NotificationList = _flarumComponentsNotificationList.default;
     }],
     execute: function () {
-      NotificationsDropdown = (function (_Dropdown) {
+      NotificationsDropdown = function (_Dropdown) {
         babelHelpers.inherits(NotificationsDropdown, _Dropdown);
 
         function NotificationsDropdown() {
           babelHelpers.classCallCheck(this, NotificationsDropdown);
-          babelHelpers.get(Object.getPrototypeOf(NotificationsDropdown.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NotificationsDropdown).apply(this, arguments));
         }
 
         babelHelpers.createClass(NotificationsDropdown, [{
@@ -25300,34 +23999,29 @@ System.register('flarum/components/NotificationsDropdown', ['flarum/components/D
           }
         }]);
         return NotificationsDropdown;
-      })(Dropdown);
+      }(Dropdown);
 
       _export('default', NotificationsDropdown);
     }
   };
 });;
-System.register('flarum/components/NotificationsPage', ['flarum/components/Page', 'flarum/components/NotificationList'], function (_export) {
+'use strict';
 
-  /**
-   * The `NotificationsPage` component shows the notifications list. It is only
-   * used on mobile devices where the notifications dropdown is within the drawer.
-   */
-  'use strict';
-
+System.register('flarum/components/NotificationsPage', ['flarum/components/Page', 'flarum/components/NotificationList'], function (_export, _context) {
   var Page, NotificationList, NotificationsPage;
   return {
     setters: [function (_flarumComponentsPage) {
-      Page = _flarumComponentsPage['default'];
+      Page = _flarumComponentsPage.default;
     }, function (_flarumComponentsNotificationList) {
-      NotificationList = _flarumComponentsNotificationList['default'];
+      NotificationList = _flarumComponentsNotificationList.default;
     }],
     execute: function () {
-      NotificationsPage = (function (_Page) {
+      NotificationsPage = function (_Page) {
         babelHelpers.inherits(NotificationsPage, _Page);
 
         function NotificationsPage() {
           babelHelpers.classCallCheck(this, NotificationsPage);
-          babelHelpers.get(Object.getPrototypeOf(NotificationsPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NotificationsPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(NotificationsPage, [{
@@ -25353,33 +24047,27 @@ System.register('flarum/components/NotificationsPage', ['flarum/components/Page'
           }
         }]);
         return NotificationsPage;
-      })(Page);
+      }(Page);
 
       _export('default', NotificationsPage);
     }
   };
 });;
-System.register('flarum/components/Page', ['flarum/Component'], function (_export) {
+'use strict';
 
-  /**
-   * The `Page` component
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/Page', ['flarum/Component'], function (_export, _context) {
   var Component, Page;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }],
     execute: function () {
-      Page = (function (_Component) {
+      Page = function (_Component) {
         babelHelpers.inherits(Page, _Component);
 
         function Page() {
           babelHelpers.classCallCheck(this, Page);
-          babelHelpers.get(Object.getPrototypeOf(Page.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Page).apply(this, arguments));
         }
 
         babelHelpers.createClass(Page, [{
@@ -25401,7 +24089,7 @@ System.register('flarum/components/Page', ['flarum/Component'], function (_expor
         }, {
           key: 'config',
           value: function config(isInitialized, context) {
-            var _this = this;
+            var _this2 = this;
 
             if (isInitialized) return;
 
@@ -25409,42 +24097,33 @@ System.register('flarum/components/Page', ['flarum/Component'], function (_expor
               $('#app').addClass(this.bodyClass);
 
               context.onunload = function () {
-                return $('#app').removeClass(_this.bodyClass);
+                return $('#app').removeClass(_this2.bodyClass);
               };
             }
           }
         }]);
         return Page;
-      })(Component);
+      }(Component);
 
       _export('default', Page);
     }
   };
 });;
-System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export) {
+"use strict";
 
-  /**
-   * The `Placeholder` component displays a muted text with some call to action,
-   * usually used as an empty state.
-   *
-   * ### Props
-   *
-   * - `text`
-   */
-  "use strict";
-
+System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export, _context) {
   var Component, Placeholder;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent["default"];
+      Component = _flarumComponent.default;
     }],
     execute: function () {
-      Placeholder = (function (_Component) {
+      Placeholder = function (_Component) {
         babelHelpers.inherits(Placeholder, _Component);
 
         function Placeholder() {
           babelHelpers.classCallCheck(this, Placeholder);
-          babelHelpers.get(Object.getPrototypeOf(Placeholder.prototype), "constructor", this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Placeholder).apply(this, arguments));
         }
 
         babelHelpers.createClass(Placeholder, [{
@@ -25462,55 +24141,43 @@ System.register("flarum/components/Placeholder", ["flarum/Component"], function 
           }
         }]);
         return Placeholder;
-      })(Component);
+      }(Component);
 
       _export("default", Placeholder);
     }
   };
 });;
-System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/SubtreeRetainer', 'flarum/components/Dropdown', 'flarum/utils/PostControls', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export) {
+'use strict';
 
-  /**
-   * The `Post` component displays a single post. The basic post template just
-   * includes a controls dropdown; subclasses must implement `content` and `attrs`
-   * methods.
-   *
-   * ### Props
-   *
-   * - `post`
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/SubtreeRetainer', 'flarum/components/Dropdown', 'flarum/utils/PostControls', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
   var Component, SubtreeRetainer, Dropdown, PostControls, listItems, ItemList, Post;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsSubtreeRetainer) {
-      SubtreeRetainer = _flarumUtilsSubtreeRetainer['default'];
+      SubtreeRetainer = _flarumUtilsSubtreeRetainer.default;
     }, function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumUtilsPostControls) {
-      PostControls = _flarumUtilsPostControls['default'];
+      PostControls = _flarumUtilsPostControls.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
-      Post = (function (_Component) {
+      Post = function (_Component) {
         babelHelpers.inherits(Post, _Component);
 
         function Post() {
           babelHelpers.classCallCheck(this, Post);
-          babelHelpers.get(Object.getPrototypeOf(Post.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Post).apply(this, arguments));
         }
 
         babelHelpers.createClass(Post, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             this.loading = false;
 
@@ -25521,18 +24188,18 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
              * @type {SubtreeRetainer}
              */
             this.subtree = new SubtreeRetainer(function () {
-              return _this.props.post.freshness;
+              return _this2.props.post.freshness;
             }, function () {
-              var user = _this.props.post.user();
+              var user = _this2.props.post.user();
               return user && user.freshness;
             }, function () {
-              return _this.controlsOpen;
+              return _this2.controlsOpen;
             });
           }
         }, {
           key: 'view',
           value: function view() {
-            var _this2 = this;
+            var _this3 = this;
 
             var attrs = this.attrs();
 
@@ -25541,20 +24208,20 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
             return m(
               'article',
               attrs,
-              this.subtree.retain() || (function () {
-                var controls = PostControls.controls(_this2.props.post, _this2).toArray();
+              this.subtree.retain() || function () {
+                var controls = PostControls.controls(_this3.props.post, _this3).toArray();
 
                 return m(
                   'div',
                   null,
-                  _this2.content(),
+                  _this3.content(),
                   m(
                     'aside',
                     { className: 'Post-actions' },
                     m(
                       'ul',
                       null,
-                      listItems(_this2.actionItems().toArray()),
+                      listItems(_this3.actionItems().toArray()),
                       controls.length ? m(
                         'li',
                         null,
@@ -25565,11 +24232,11 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
                             buttonClassName: 'Button Button--icon Button--flat',
                             menuClassName: 'Dropdown-menu--right',
                             icon: 'ellipsis-h',
-                            onshow: function () {
-                              return _this2.$('.Post-actions').addClass('open');
+                            onshow: function onshow() {
+                              return _this3.$('.Post-actions').addClass('open');
                             },
-                            onhide: function () {
-                              return _this2.$('.Post-actions').removeClass('open');
+                            onhide: function onhide() {
+                              return _this3.$('.Post-actions').removeClass('open');
                             } },
                           controls
                         )
@@ -25582,11 +24249,11 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
                     m(
                       'ul',
                       null,
-                      listItems(_this2.footerItems().toArray())
+                      listItems(_this3.footerItems().toArray())
                     )
                   )
                 );
-              })()
+              }()
             );
           }
         }, {
@@ -25597,45 +24264,21 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
 
             $actions.toggleClass('open', $controls.hasClass('open'));
           }
-
-          /**
-           * Get attributes for the post element.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'attrs',
           value: function attrs() {
             return {};
           }
-
-          /**
-           * Get the post's content.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'content',
           value: function content() {
             return '';
           }
-
-          /**
-           * Build an item list for the post's actions.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'actionItems',
           value: function actionItems() {
             return new ItemList();
           }
-
-          /**
-           * Build an item list for the post's footer.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'footerItems',
           value: function footerItems() {
@@ -25643,42 +24286,33 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
           }
         }]);
         return Post;
-      })(Component);
+      }(Component);
 
       _export('default', Post);
     }
   };
 });;
-System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostEdited` component displays information about when and by whom a post
-   * was edited.
-   *
-   * ### Props
-   *
-   * - `post`
-   */
-  'use strict';
-
+System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export, _context) {
   var Component, icon, humanTime, extractText, PostEdited;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsHumanTime) {
-      humanTime = _flarumUtilsHumanTime['default'];
+      humanTime = _flarumUtilsHumanTime.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      PostEdited = (function (_Component) {
+      PostEdited = function (_Component) {
         babelHelpers.inherits(PostEdited, _Component);
 
         function PostEdited() {
           babelHelpers.classCallCheck(this, PostEdited);
-          babelHelpers.get(Object.getPrototypeOf(PostEdited.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostEdited).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostEdited, [{
@@ -25703,41 +24337,31 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/hel
           }
         }]);
         return PostEdited;
-      })(Component);
+      }(Component);
 
       _export('default', PostEdited);
     }
   };
 });;
-System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/fullTime'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostMeta` component displays the time of a post, and when clicked, shows
-   * a dropdown containing more information about the post (number, full time,
-   * permalink).
-   *
-   * ### Props
-   *
-   * - `post`
-   */
-  'use strict';
-
+System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/fullTime'], function (_export, _context) {
   var Component, humanTime, fullTime, PostMeta;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersHumanTime) {
-      humanTime = _flarumHelpersHumanTime['default'];
+      humanTime = _flarumHelpersHumanTime.default;
     }, function (_flarumHelpersFullTime) {
-      fullTime = _flarumHelpersFullTime['default'];
+      fullTime = _flarumHelpersFullTime.default;
     }],
     execute: function () {
-      PostMeta = (function (_Component) {
+      PostMeta = function (_Component) {
         babelHelpers.inherits(PostMeta, _Component);
 
         function PostMeta() {
           babelHelpers.classCallCheck(this, PostMeta);
-          babelHelpers.get(Object.getPrototypeOf(PostMeta.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostMeta).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostMeta, [{
@@ -25746,15 +24370,15 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
             var post = this.props.post;
             var time = post.time();
             var permalink = this.getPermalink(post);
-            var touch = ('ontouchstart' in document.documentElement);
+            var touch = 'ontouchstart' in document.documentElement;
 
             // When the dropdown menu is shown, select the contents of the permalink
             // input so that the user can quickly copy the URL.
             var selectPermalink = function selectPermalink() {
-              var _this = this;
+              var _this2 = this;
 
               setTimeout(function () {
-                return $(_this).parent().find('.PostMeta-permalink').select();
+                return $(_this2).parent().find('.PostMeta-permalink').select();
               });
 
               m.redraw.strategy('none');
@@ -25782,19 +24406,12 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
                   'a',
                   { className: 'Button PostMeta-permalink', href: permalink },
                   permalink
-                ) : m('input', { className: 'FormControl PostMeta-permalink', value: permalink, onclick: function (e) {
+                ) : m('input', { className: 'FormControl PostMeta-permalink', value: permalink, onclick: function onclick(e) {
                     return e.stopPropagation();
                   } })
               )
             );
           }
-
-          /**
-           * Get the permalink for the given post.
-           *
-           * @param {Post} post
-           * @returns {String}
-           */
         }, {
           key: 'getPermalink',
           value: function getPermalink(post) {
@@ -25802,42 +24419,33 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
           }
         }]);
         return PostMeta;
-      })(Component);
+      }(Component);
 
       _export('default', PostMeta);
     }
   };
 });;
-System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostPreview` component shows a link to a post containing the avatar and
-   * username of the author, and a short excerpt of the post's content.
-   *
-   * ### Props
-   *
-   * - `post`
-   */
-  'use strict';
-
+System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight'], function (_export, _context) {
   var Component, avatar, username, highlight, PostPreview;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumHelpersHighlight) {
-      highlight = _flarumHelpersHighlight['default'];
+      highlight = _flarumHelpersHighlight.default;
     }],
     execute: function () {
-      PostPreview = (function (_Component) {
+      PostPreview = function (_Component) {
         babelHelpers.inherits(PostPreview, _Component);
 
         function PostPreview() {
           babelHelpers.classCallCheck(this, PostPreview);
-          babelHelpers.get(Object.getPrototypeOf(PostPreview.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostPreview).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostPreview, [{
@@ -25866,58 +24474,43 @@ System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/he
           }
         }]);
         return PostPreview;
-      })(Component);
+      }(Component);
 
       _export('default', PostPreview);
     }
   };
 });;
-System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostStream` component displays an infinitely-scrollable wall of posts in
-   * a discussion. Posts that have not loaded will be displayed as placeholders.
-   *
-   * ### Props
-   *
-   * - `discussion`
-   * - `includedPosts`
-   */
-  'use strict';
-
+System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder', 'flarum/components/Button'], function (_export, _context) {
   var Component, ScrollListener, PostLoading, anchorScroll, mixin, evented, ReplyPlaceholder, Button, PostStream;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsScrollListener) {
-      ScrollListener = _flarumUtilsScrollListener['default'];
+      ScrollListener = _flarumUtilsScrollListener.default;
     }, function (_flarumComponentsLoadingPost) {
-      PostLoading = _flarumComponentsLoadingPost['default'];
+      PostLoading = _flarumComponentsLoadingPost.default;
     }, function (_flarumUtilsAnchorScroll) {
-      anchorScroll = _flarumUtilsAnchorScroll['default'];
+      anchorScroll = _flarumUtilsAnchorScroll.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsEvented) {
-      evented = _flarumUtilsEvented['default'];
+      evented = _flarumUtilsEvented.default;
     }, function (_flarumComponentsReplyPlaceholder) {
-      ReplyPlaceholder = _flarumComponentsReplyPlaceholder['default'];
+      ReplyPlaceholder = _flarumComponentsReplyPlaceholder.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      PostStream = (function (_Component) {
+      PostStream = function (_Component) {
         babelHelpers.inherits(PostStream, _Component);
 
         function PostStream() {
           babelHelpers.classCallCheck(this, PostStream);
-          babelHelpers.get(Object.getPrototypeOf(PostStream.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostStream).apply(this, arguments));
         }
 
-        /**
-         * The number of posts to load per page.
-         *
-         * @type {Integer}
-         */
         babelHelpers.createClass(PostStream, [{
           key: 'init',
           value: function init() {
@@ -25942,19 +24535,10 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             this.show(this.props.includedPosts);
           }
-
-          /**
-           * Load and scroll to a post with a certain number.
-           *
-           * @param {Integer|String} number The post number to go to. If 'reply', go to
-           *     the last post and scroll the reply preview into view.
-           * @param {Boolean} noAnimation
-           * @return {Promise}
-           */
         }, {
           key: 'goToNumber',
           value: function goToNumber(number, noAnimation) {
-            var _this = this;
+            var _this2 = this;
 
             // If we want to go to the reply preview, then we will go to the end of the
             // discussion and then scroll to the very bottom of the page.
@@ -25963,7 +24547,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
                 $('html,body').stop(true).animate({
                   scrollTop: $(document).height() - $(window).height()
                 }, 'fast', function () {
-                  _this.flashItem(_this.$('.PostStream-item:last-child'));
+                  _this2.flashItem(_this2.$('.PostStream-item:last-child'));
                 });
               });
             }
@@ -25977,23 +24561,13 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             return promise.then(function () {
               m.redraw(true);
 
-              _this.scrollToNumber(number, noAnimation).done(_this.unpause.bind(_this));
+              _this2.scrollToNumber(number, noAnimation).done(_this2.unpause.bind(_this2));
             });
           }
-
-          /**
-           * Load and scroll to a certain index within the discussion.
-           *
-           * @param {Integer} index
-           * @param {Boolean} backwards Whether or not to load backwards from the given
-           *     index.
-           * @param {Boolean} noAnimation
-           * @return {Promise}
-           */
         }, {
           key: 'goToIndex',
           value: function goToIndex(index, backwards, noAnimation) {
-            var _this2 = this;
+            var _this3 = this;
 
             this.paused = true;
 
@@ -26002,42 +24576,23 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             m.redraw(true);
 
             return promise.then(function () {
-              anchorScroll(_this2.$('.PostStream-item:' + (backwards ? 'last' : 'first')), function () {
+              anchorScroll(_this3.$('.PostStream-item:' + (backwards ? 'last' : 'first')), function () {
                 return m.redraw(true);
               });
 
-              _this2.scrollToIndex(index, noAnimation, backwards).done(_this2.unpause.bind(_this2));
+              _this3.scrollToIndex(index, noAnimation, backwards).done(_this3.unpause.bind(_this3));
             });
           }
-
-          /**
-           * Load and scroll up to the first post in the discussion.
-           *
-           * @return {Promise}
-           */
         }, {
           key: 'goToFirst',
           value: function goToFirst() {
             return this.goToIndex(0);
           }
-
-          /**
-           * Load and scroll down to the last post in the discussion.
-           *
-           * @return {Promise}
-           */
         }, {
           key: 'goToLast',
           value: function goToLast() {
             return this.goToIndex(this.count() - 1, true);
           }
-
-          /**
-           * Update the stream so that it loads and includes the latest posts in the
-           * discussion, if the end is being viewed.
-           *
-           * @public
-           */
         }, {
           key: 'update',
           value: function update() {
@@ -26049,62 +24604,28 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
               return m.redraw();
             });
           }
-
-          /**
-           * Get the total number of posts in the discussion.
-           *
-           * @return {Integer}
-           */
         }, {
           key: 'count',
           value: function count() {
             return this.discussion.postIds().length;
           }
-
-          /**
-           * Make sure that the given index is not outside of the possible range of
-           * indexes in the discussion.
-           *
-           * @param {Integer} index
-           * @protected
-           */
         }, {
           key: 'sanitizeIndex',
           value: function sanitizeIndex(index) {
             return Math.max(0, Math.min(this.count(), index));
           }
-
-          /**
-           * Set up the stream with the given array of posts.
-           *
-           * @param {Post[]} posts
-           */
         }, {
           key: 'show',
           value: function show(posts) {
             this.visibleStart = posts.length ? this.discussion.postIds().indexOf(posts[0].id()) : 0;
             this.visibleEnd = this.visibleStart + posts.length;
           }
-
-          /**
-           * Reset the stream so that a specific range of posts is displayed. If a range
-           * is not specified, the first page of posts will be displayed.
-           *
-           * @param {Integer} [start]
-           * @param {Integer} [end]
-           */
         }, {
           key: 'reset',
           value: function reset(start, end) {
             this.visibleStart = start || 0;
             this.visibleEnd = this.sanitizeIndex(end || this.constructor.loadCount);
           }
-
-          /**
-           * Get the visible page of posts.
-           *
-           * @return {Post[]}
-           */
         }, {
           key: 'posts',
           value: function posts() {
@@ -26117,14 +24638,14 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
         }, {
           key: 'view',
           value: function view() {
-            var _this3 = this;
+            var _this4 = this;
 
             function fadeIn(element, isInitialized, context) {
               if (!context.fadedIn) $(element).hide().fadeIn();
               context.fadedIn = true;
             }
 
-            var lastTime = undefined;
+            var lastTime = void 0;
 
             this.visibleEnd = this.sanitizeIndex(this.visibleEnd);
             this.viewingEnd = this.visibleEnd === this.count();
@@ -26133,8 +24654,8 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             var postIds = this.discussion.postIds();
 
             var items = posts.map(function (post, i) {
-              var content = undefined;
-              var attrs = { 'data-index': _this3.visibleStart + i };
+              var content = void 0;
+              var attrs = { 'data-index': _this4.visibleStart + i };
 
               if (post) {
                 var time = post.time();
@@ -26167,14 +24688,14 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
                 lastTime = time;
               } else {
-                attrs.key = 'post' + postIds[_this3.visibleStart + i];
+                attrs.key = 'post' + postIds[_this4.visibleStart + i];
 
                 content = PostLoading.component();
               }
 
               return m(
                 'div',
-                babelHelpers._extends({ className: 'PostStream-item' }, attrs),
+                babelHelpers.extends({ className: 'PostStream-item' }, attrs),
                 content
               );
             });
@@ -26210,28 +24731,21 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
         }, {
           key: 'config',
           value: function config(isInitialized, context) {
-            var _this4 = this;
+            var _this5 = this;
 
             if (isInitialized) return;
 
             // This is wrapped in setTimeout due to the following Mithril issue:
             // https://github.com/lhorie/mithril.js/issues/637
             setTimeout(function () {
-              return _this4.scrollListener.start();
+              return _this5.scrollListener.start();
             });
 
             context.onunload = function () {
-              _this4.scrollListener.stop();
-              clearTimeout(_this4.calculatePositionTimeout);
+              _this5.scrollListener.stop();
+              clearTimeout(_this5.calculatePositionTimeout);
             };
           }
-
-          /**
-           * When the window is scrolled, check if either extreme of the post stream is
-           * in the viewport, and if so, trigger loading the next/previous page.
-           *
-           * @param {Integer} top
-           */
         }, {
           key: 'onscroll',
           value: function onscroll(top) {
@@ -26251,9 +24765,9 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             }
 
             if (this.visibleEnd < this.count()) {
-              var $item = this.$('.PostStream-item[data-index=' + (this.visibleEnd - 1) + ']');
+              var _$item = this.$('.PostStream-item[data-index=' + (this.visibleEnd - 1) + ']');
 
-              if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
+              if (_$item.length && _$item.offset().top + _$item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
                 this.loadNext();
               }
             }
@@ -26263,10 +24777,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             clearTimeout(this.calculatePositionTimeout);
             this.calculatePositionTimeout = setTimeout(this.calculatePosition.bind(this), 100);
           }
-
-          /**
-           * Load the next page of posts.
-           */
         }, {
           key: 'loadNext',
           value: function loadNext() {
@@ -26288,10 +24798,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             this.loadPage(start, end);
           }
-
-          /**
-           * Load the previous page of posts.
-           */
         }, {
           key: 'loadPrevious',
           value: function loadPrevious() {
@@ -26313,50 +24819,33 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             this.loadPage(start, end, true);
           }
-
-          /**
-           * Load a page of posts into the stream and redraw.
-           *
-           * @param {Integer} start
-           * @param {Integer} end
-           * @param {Boolean} backwards
-           */
         }, {
           key: 'loadPage',
           value: function loadPage(start, end, backwards) {
-            var _this5 = this;
+            var _this6 = this;
 
             var redraw = function redraw() {
-              if (start < _this5.visibleStart || end > _this5.visibleEnd) return;
+              if (start < _this6.visibleStart || end > _this6.visibleEnd) return;
 
-              var anchorIndex = backwards ? _this5.visibleEnd - 1 : _this5.visibleStart;
+              var anchorIndex = backwards ? _this6.visibleEnd - 1 : _this6.visibleStart;
               anchorScroll('.PostStream-item[data-index="' + anchorIndex + '"]', function () {
                 return m.redraw(true);
               });
 
-              _this5.unpause();
+              _this6.unpause();
             };
             redraw();
 
             this.loadPageTimeouts[start] = setTimeout(function () {
-              _this5.loadRange(start, end).then(function () {
+              _this6.loadRange(start, end).then(function () {
                 redraw();
-                _this5.pagesLoading--;
+                _this6.pagesLoading--;
               });
-              _this5.loadPageTimeouts[start] = null;
+              _this6.loadPageTimeouts[start] = null;
             }, this.pagesLoading ? 1000 : 0);
 
             this.pagesLoading++;
           }
-
-          /**
-           * Load and inject the specified range of posts into the stream, without
-           * clearing it.
-           *
-           * @param {Integer} start
-           * @param {Integer} end
-           * @return {Promise}
-           */
         }, {
           key: 'loadRange',
           value: function loadRange(start, end) {
@@ -26375,15 +24864,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             return loadIds.length ? app.store.find('posts', loadIds) : m.deferred().resolve(loaded).promise;
           }
-
-          /**
-           * Clear the stream and load posts near a certain number. Returns a promise.
-           * If the post with the given number is already loaded, the promise will be
-           * resolved immediately.
-           *
-           * @param {Integer} number
-           * @return {Promise}
-           */
         }, {
           key: 'loadNearNumber',
           value: function loadNearNumber(number) {
@@ -26400,15 +24880,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
               page: { near: number }
             }).then(this.show.bind(this));
           }
-
-          /**
-           * Clear the stream and load posts near a certain index. A page of posts
-           * surrounding the given index will be loaded. Returns a promise. If the given
-           * index is already loaded, the promise will be resolved immediately.
-           *
-           * @param {Integer} index
-           * @return {Promise}
-           */
         }, {
           key: 'loadNearIndex',
           value: function loadNearIndex(index) {
@@ -26423,11 +24894,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             return this.loadRange(start, end).then(this.show.bind(this));
           }
-
-          /**
-           * Work out which posts (by number) are currently visible in the viewport, and
-           * fire an event with the information.
-           */
         }, {
           key: 'calculatePosition',
           value: function calculatePosition() {
@@ -26435,8 +24901,8 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
             var $window = $(window);
             var viewportHeight = $window.height() - marginTop;
             var scrollTop = $window.scrollTop() + marginTop;
-            var startNumber = undefined;
-            var endNumber = undefined;
+            var startNumber = void 0;
+            var endNumber = void 0;
 
             this.$('.PostStream-item').each(function () {
               var $item = $(this);
@@ -26460,26 +24926,11 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
               this.trigger('positionChanged', startNumber || 1, endNumber);
             }
           }
-
-          /**
-           * Get the distance from the top of the viewport to the point at which we
-           * would consider a post to be the first one visible.
-           *
-           * @return {Integer}
-           */
         }, {
           key: 'getMarginTop',
           value: function getMarginTop() {
             return this.$() && $('#header').outerHeight() + parseInt(this.$().css('margin-top'), 10);
           }
-
-          /**
-           * Scroll down to a certain post by number and 'flash' it.
-           *
-           * @param {Integer} number
-           * @param {Boolean} noAnimation
-           * @return {jQuery.Deferred}
-           */
         }, {
           key: 'scrollToNumber',
           value: function scrollToNumber(number, noAnimation) {
@@ -26487,16 +24938,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             return this.scrollToItem($item, noAnimation).done(this.flashItem.bind(this, $item));
           }
-
-          /**
-           * Scroll down to a certain post by index.
-           *
-           * @param {Integer} index
-           * @param {Boolean} noAnimation
-           * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
-           *     at the given index, instead of the top of it.
-           * @return {jQuery.Deferred}
-           */
         }, {
           key: 'scrollToIndex',
           value: function scrollToIndex(index, noAnimation, bottom) {
@@ -26504,18 +24945,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             return this.scrollToItem($item, noAnimation, true, bottom);
           }
-
-          /**
-           * Scroll down to the given post.
-           *
-           * @param {jQuery} $item
-           * @param {Boolean} noAnimation
-           * @param {Boolean} force Whether or not to force scrolling to the item, even
-           *     if it is already in the viewport.
-           * @param {Boolean} bottom Whether or not to scroll to the bottom of the post
-           *     at the given index, instead of the top of it.
-           * @return {jQuery.Deferred}
-           */
         }, {
           key: 'scrollToItem',
           value: function scrollToItem($item, noAnimation, force, bottom) {
@@ -26531,24 +24960,18 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
               // If we're scrolling to the bottom of an item, then we'll make sure the
               // bottom will line up with the top of the composer.
               if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-                var _top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+                var top = bottom ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
 
                 if (noAnimation) {
-                  $container.scrollTop(_top);
-                } else if (_top !== scrollTop) {
-                  $container.animate({ scrollTop: _top }, 'fast');
+                  $container.scrollTop(top);
+                } else if (top !== scrollTop) {
+                  $container.animate({ scrollTop: top }, 'fast');
                 }
               }
             }
 
             return $container.promise();
           }
-
-          /**
-           * 'Flash' the given post, drawing the user's attention to it.
-           *
-           * @param {jQuery} $item
-           */
         }, {
           key: 'flashItem',
           value: function flashItem($item) {
@@ -26556,10 +24979,6 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
               return $item.removeClass('flash');
             });
           }
-
-          /**
-           * Resume the stream's ability to auto-load posts on scroll.
-           */
         }, {
           key: 'unpause',
           value: function unpause() {
@@ -26569,51 +24988,46 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
           }
         }]);
         return PostStream;
-      })(Component);
+      }(Component);
 
+      /**
+       * The number of posts to load per page.
+       *
+       * @type {Integer}
+       */
       PostStream.loadCount = 20;
 
-      babelHelpers._extends(PostStream.prototype, evented);
+      babelHelpers.extends(PostStream.prototype, evented);
 
       _export('default', PostStream);
     }
   };
 });;
-System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/ScrollListener', 'flarum/utils/SubtreeRetainer', 'flarum/utils/computed', 'flarum/utils/formatNumber'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostStreamScrubber` component displays a scrubber which can be used to
-   * navigate/scrub through a post stream.
-   *
-   * ### Props
-   *
-   * - `stream`
-   * - `className`
-   */
-  'use strict';
-
+System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/ScrollListener', 'flarum/utils/SubtreeRetainer', 'flarum/utils/computed', 'flarum/utils/formatNumber'], function (_export, _context) {
   var Component, icon, ScrollListener, SubtreeRetainer, computed, formatNumber, PostStreamScrubber;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsScrollListener) {
-      ScrollListener = _flarumUtilsScrollListener['default'];
+      ScrollListener = _flarumUtilsScrollListener.default;
     }, function (_flarumUtilsSubtreeRetainer) {
-      SubtreeRetainer = _flarumUtilsSubtreeRetainer['default'];
+      SubtreeRetainer = _flarumUtilsSubtreeRetainer.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }, function (_flarumUtilsFormatNumber) {
-      formatNumber = _flarumUtilsFormatNumber['default'];
+      formatNumber = _flarumUtilsFormatNumber.default;
     }],
     execute: function () {
-      PostStreamScrubber = (function (_Component) {
+      PostStreamScrubber = function (_Component) {
         babelHelpers.inherits(PostStreamScrubber, _Component);
 
         function PostStreamScrubber() {
           babelHelpers.classCallCheck(this, PostStreamScrubber);
-          babelHelpers.get(Object.getPrototypeOf(PostStreamScrubber.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostStreamScrubber).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostStreamScrubber, [{
@@ -26759,10 +25173,6 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               )
             );
           }
-
-          /**
-           * Go to the first post in the discussion.
-           */
         }, {
           key: 'goToFirst',
           value: function goToFirst() {
@@ -26770,10 +25180,6 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             this.index = 0;
             this.renderScrollbar(true);
           }
-
-          /**
-           * Go to the last post in the discussion.
-           */
         }, {
           key: 'goToLast',
           value: function goToLast() {
@@ -26781,46 +25187,22 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             this.index = this.props.stream.count();
             this.renderScrollbar(true);
           }
-
-          /**
-           * Get the number of posts in the discussion.
-           *
-           * @return {Integer}
-           */
         }, {
           key: 'count',
           value: function count() {
             return this.props.stream.count();
           }
-
-          /**
-           * When the stream is unpaused, update the scrubber to reflect its position.
-           */
         }, {
           key: 'streamWasUnpaused',
           value: function streamWasUnpaused() {
             this.update(window.pageYOffset);
             this.renderScrollbar(true);
           }
-
-          /**
-           * Check whether or not the scrubber should be disabled, i.e. if all of the
-           * posts are visible in the viewport.
-           *
-           * @return {Boolean}
-           */
         }, {
           key: 'disabled',
           value: function disabled() {
             return this.visible >= this.count();
           }
-
-          /**
-           * When the page is scrolled, update the scrollbar to reflect the visible
-           * posts.
-           *
-           * @param {Integer} top
-           */
         }, {
           key: 'onscroll',
           value: function onscroll(top) {
@@ -26831,13 +25213,6 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             this.update(top);
             this.renderScrollbar();
           }
-
-          /**
-           * Update the index/visible/description properties according to the window's
-           * current scroll position.
-           *
-           * @param {Integer} scrollTop
-           */
         }, {
           key: 'update',
           value: function update(scrollTop) {
@@ -26954,13 +25329,6 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
 
             $(document).off('mousemove touchmove', this.handlers.onmousemove).off('mouseup touchend', this.handlers.onmouseup);
           }
-
-          /**
-           * Update the scrollbar's position to reflect the current values of the
-           * index/visible properties.
-           *
-           * @param {Boolean} animate
-           */
         }, {
           key: 'renderScrollbar',
           value: function renderScrollbar(animate) {
@@ -26989,17 +25357,6 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               if (func === 'animate') $part.css('overflow', 'visible');
             }
           }
-
-          /**
-           * Get the percentage of the height of the scrubber that should be allocated
-           * to each post.
-           *
-           * @return {Object}
-           * @property {Number} index The percent per post for posts on either side of
-           *     the visible part of the scrubber.
-           * @property {Number} visible The percent per post for the visible part of the
-           *     scrubber.
-           */
         }, {
           key: 'percentPerPost',
           value: function percentPerPost() {
@@ -27105,38 +25462,33 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
           }
         }]);
         return PostStreamScrubber;
-      })(Component);
+      }(Component);
 
       _export('default', PostStreamScrubber);
     }
   };
 });;
-System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage', 'flarum/components/LoadingIndicator', 'flarum/components/Button', 'flarum/components/CommentPost'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostsUserPage` component shows a user's activity feed inside of their
-   * profile.
-   */
-  'use strict';
-
+System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage', 'flarum/components/LoadingIndicator', 'flarum/components/Button', 'flarum/components/CommentPost'], function (_export, _context) {
   var UserPage, LoadingIndicator, Button, CommentPost, PostsUserPage;
   return {
     setters: [function (_flarumComponentsUserPage) {
-      UserPage = _flarumComponentsUserPage['default'];
+      UserPage = _flarumComponentsUserPage.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }],
     execute: function () {
-      PostsUserPage = (function (_UserPage) {
+      PostsUserPage = function (_UserPage) {
         babelHelpers.inherits(PostsUserPage, _UserPage);
 
         function PostsUserPage() {
           babelHelpers.classCallCheck(this, PostsUserPage);
-          babelHelpers.get(Object.getPrototypeOf(PostsUserPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostsUserPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostsUserPage, [{
@@ -27177,7 +25529,7 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
         }, {
           key: 'content',
           value: function content() {
-            var footer = undefined;
+            var footer = void 0;
 
             if (this.loading) {
               footer = LoadingIndicator.component();
@@ -27219,11 +25571,6 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
               footer
             );
           }
-
-          /**
-           * Initialize the component with a user, and trigger the loading of their
-           * activity feed.
-           */
         }, {
           key: 'show',
           value: function show(user) {
@@ -27231,12 +25578,6 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
 
             this.refresh();
           }
-
-          /**
-           * Clear and reload the user's activity feed.
-           *
-           * @public
-           */
         }, {
           key: 'refresh',
           value: function refresh() {
@@ -27247,14 +25588,6 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
 
             this.loadResults().then(this.parseResults.bind(this));
           }
-
-          /**
-           * Load a new page of the user's activity feed.
-           *
-           * @param {Integer} [offset] The position to start getting results from.
-           * @return {Promise}
-           * @protected
-           */
         }, {
           key: 'loadResults',
           value: function loadResults(offset) {
@@ -27267,25 +25600,12 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
               sort: '-time'
             });
           }
-
-          /**
-           * Load the next page of results.
-           *
-           * @public
-           */
         }, {
           key: 'loadMore',
           value: function loadMore() {
             this.loading = true;
             this.loadResults(this.posts.length).then(this.parseResults.bind(this));
           }
-
-          /**
-           * Parse results and append them to the activity feed.
-           *
-           * @param {Post[]} results
-           * @return {Post[]}
-           */
         }, {
           key: 'parseResults',
           value: function parseResults(results) {
@@ -27300,45 +25620,37 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
           }
         }]);
         return PostsUserPage;
-      })(UserPage);
+      }(UserPage);
 
       _export('default', PostsUserPage);
     }
   };
 });;
-System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/userOnline', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostUser` component shows the avatar and username of a post's author.
-   *
-   * ### Props
-   *
-   * - `post`
-   */
-  'use strict';
-
+System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/userOnline', 'flarum/helpers/listItems'], function (_export, _context) {
   var Component, UserCard, avatar, username, userOnline, listItems, PostUser;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsUserCard) {
-      UserCard = _flarumComponentsUserCard['default'];
+      UserCard = _flarumComponentsUserCard.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumHelpersUserOnline) {
-      userOnline = _flarumHelpersUserOnline['default'];
+      userOnline = _flarumHelpersUserOnline.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      PostUser = (function (_Component) {
+      PostUser = function (_Component) {
         babelHelpers.inherits(PostUser, _Component);
 
         function PostUser() {
           babelHelpers.classCallCheck(this, PostUser);
-          babelHelpers.get(Object.getPrototypeOf(PostUser.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostUser).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostUser, [{
@@ -27407,63 +25719,56 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
         }, {
           key: 'config',
           value: function config(isInitialized) {
-            var _this = this;
+            var _this2 = this;
 
             if (isInitialized) return;
 
-            var timeout = undefined;
+            var timeout = void 0;
 
             this.$().on('mouseover', 'h3 a, .UserCard', function () {
               clearTimeout(timeout);
-              timeout = setTimeout(_this.showCard.bind(_this), 500);
+              timeout = setTimeout(_this2.showCard.bind(_this2), 500);
             }).on('mouseout', 'h3 a, .UserCard', function () {
               clearTimeout(timeout);
-              timeout = setTimeout(_this.hideCard.bind(_this), 250);
+              timeout = setTimeout(_this2.hideCard.bind(_this2), 250);
             });
           }
-
-          /**
-           * Show the user card.
-           */
         }, {
           key: 'showCard',
           value: function showCard() {
-            var _this2 = this;
+            var _this3 = this;
 
             this.cardVisible = true;
 
             m.redraw();
 
             setTimeout(function () {
-              return _this2.$('.UserCard').addClass('in');
+              return _this3.$('.UserCard').addClass('in');
             });
           }
-
-          /**
-           * Hide the user card.
-           */
         }, {
           key: 'hideCard',
           value: function hideCard() {
-            var _this3 = this;
+            var _this4 = this;
 
             this.$('.UserCard').removeClass('in').one('transitionend webkitTransitionEnd oTransitionEnd', function () {
-              _this3.cardVisible = false;
+              _this4.cardVisible = false;
               m.redraw();
             });
           }
         }]);
         return PostUser;
-      })(Component);
+      }(Component);
 
       _export('default', PostUser);
     }
   };
 });;
-System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export, _context) {
   var ComposerBody, Alert, Button, icon, extractText, ReplyComposer;
+
 
   function minimizeComposerIfFullScreen(e) {
     if (app.composer.isFullScreen()) {
@@ -27483,36 +25788,36 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
    */
   return {
     setters: [function (_flarumComponentsComposerBody) {
-      ComposerBody = _flarumComponentsComposerBody['default'];
+      ComposerBody = _flarumComponentsComposerBody.default;
     }, function (_flarumComponentsAlert) {
-      Alert = _flarumComponentsAlert['default'];
+      Alert = _flarumComponentsAlert.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      ReplyComposer = (function (_ComposerBody) {
+      ReplyComposer = function (_ComposerBody) {
         babelHelpers.inherits(ReplyComposer, _ComposerBody);
 
         function ReplyComposer() {
           babelHelpers.classCallCheck(this, ReplyComposer);
-          babelHelpers.get(Object.getPrototypeOf(ReplyComposer.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ReplyComposer).apply(this, arguments));
         }
 
         babelHelpers.createClass(ReplyComposer, [{
           key: 'init',
           value: function init() {
-            var _this = this;
+            var _this2 = this;
 
             babelHelpers.get(Object.getPrototypeOf(ReplyComposer.prototype), 'init', this).call(this);
 
             this.editor.props.preview = function (e) {
               minimizeComposerIfFullScreen(e);
 
-              m.route(app.route.discussion(_this.props.discussion, 'reply'));
+              m.route(app.route.discussion(_this2.props.discussion, 'reply'));
             };
           }
         }, {
@@ -27542,12 +25847,6 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
 
             return items;
           }
-
-          /**
-           * Get the data to submit to the server when the reply is saved.
-           *
-           * @return {Object}
-           */
         }, {
           key: 'data',
           value: function data() {
@@ -27576,7 +25875,7 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
                   // Otherwise, we'll create an alert message to inform the user that
                   // their reply has been posted, containing a button which will
                   // transition to their new post when clicked.
-                  var alert = undefined;
+                  var alert = void 0;
                   var viewButton = Button.component({
                     className: 'Button Button--link',
                     children: app.translator.trans('core.forum.composer_reply.view_button'),
@@ -27607,49 +25906,39 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
           }
         }]);
         return ReplyComposer;
-      })(ComposerBody);
+      }(ComposerBody);
 
       _export('default', ReplyComposer);
     }
   };
 });;
-System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/utils/DiscussionControls'], function (_export) {
-  /*global s9e*/
+'use strict';
 
-  /**
-   * The `ReplyPlaceholder` component displays a placeholder for a reply, which,
-   * when clicked, opens the reply composer.
-   *
-   * ### Props
-   *
-   * - `discussion`
-   */
-  'use strict';
-
+System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/utils/DiscussionControls'], function (_export, _context) {
   var Component, avatar, username, DiscussionControls, ReplyPlaceholder;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }],
     execute: function () {
-      ReplyPlaceholder = (function (_Component) {
+      ReplyPlaceholder = function (_Component) {
         babelHelpers.inherits(ReplyPlaceholder, _Component);
 
         function ReplyPlaceholder() {
           babelHelpers.classCallCheck(this, ReplyPlaceholder);
-          babelHelpers.get(Object.getPrototypeOf(ReplyPlaceholder.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ReplyPlaceholder).apply(this, arguments));
         }
 
         babelHelpers.createClass(ReplyPlaceholder, [{
           key: 'view',
           value: function view() {
-            var _this = this;
+            var _this2 = this;
 
             if (app.composingReplyTo(this.props.discussion)) {
               return m(
@@ -27679,7 +25968,7 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
             }
 
             var reply = function reply() {
-              DiscussionControls.replyAction.call(_this.props.discussion, true);
+              DiscussionControls.replyAction.call(_this2.props.discussion, true);
             };
 
             return m(
@@ -27701,7 +25990,7 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
 
             // Every 50ms, if the composer content has changed, then update the post's
             // body with a preview.
-            var preview = undefined;
+            var preview = void 0;
             var updateInterval = setInterval(function () {
               var content = app.composer.component.content();
 
@@ -27724,27 +26013,27 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
           }
         }]);
         return ReplyPlaceholder;
-      })(Component);
+      }(Component);
 
       _export('default', ReplyPlaceholder);
     }
   };
 });;
-System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export, _context) {
   var Modal, RequestErrorModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }],
     execute: function () {
-      RequestErrorModal = (function (_Modal) {
+      RequestErrorModal = function (_Modal) {
         babelHelpers.inherits(RequestErrorModal, _Modal);
 
         function RequestErrorModal() {
           babelHelpers.classCallCheck(this, RequestErrorModal);
-          babelHelpers.get(Object.getPrototypeOf(RequestErrorModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(RequestErrorModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(RequestErrorModal, [{
@@ -27760,7 +26049,7 @@ System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal
         }, {
           key: 'content',
           value: function content() {
-            var responseText = undefined;
+            var responseText = void 0;
 
             try {
               responseText = JSON.stringify(JSON.parse(this.props.error.responseText), null, 2);
@@ -27785,51 +26074,41 @@ System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal
           }
         }]);
         return RequestErrorModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', RequestErrorModal);
     }
   };
 });;
-System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export) {
+'use strict';
 
-  /**
-   * The `Search` component displays a menu of as-you-type results from a variety
-   * of sources.
-   *
-   * The search box will be 'activated' if the app's current controller implements
-   * a `searching` method that returns a truthy value. If this is the case, an 'x'
-   * button will be shown next to the search field, and clicking it will call the
-   * `clearSearch` method on the controller.
-   */
-  'use strict';
-
+System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export, _context) {
   var Component, LoadingIndicator, ItemList, classList, extractText, icon, DiscussionsSearchSource, UsersSearchSource, Search;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
+      classList = _flarumUtilsClassList.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsDiscussionsSearchSource) {
-      DiscussionsSearchSource = _flarumComponentsDiscussionsSearchSource['default'];
+      DiscussionsSearchSource = _flarumComponentsDiscussionsSearchSource.default;
     }, function (_flarumComponentsUsersSearchSource) {
-      UsersSearchSource = _flarumComponentsUsersSearchSource['default'];
+      UsersSearchSource = _flarumComponentsUsersSearchSource.default;
     }],
     execute: function () {
-      Search = (function (_Component) {
+      Search = function (_Component) {
         babelHelpers.inherits(Search, _Component);
 
         function Search() {
           babelHelpers.classCallCheck(this, Search);
-          babelHelpers.get(Object.getPrototypeOf(Search.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Search).apply(this, arguments));
         }
 
         babelHelpers.createClass(Search, [{
@@ -27883,7 +26162,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
         }, {
           key: 'view',
           value: function view() {
-            var _this = this;
+            var _this2 = this;
 
             var currentSearch = this.getCurrentSearch();
 
@@ -27908,11 +26187,11 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
                   placeholder: extractText(app.translator.trans('core.forum.header.search_placeholder')),
                   value: this.value(),
                   oninput: m.withAttr('value', this.value),
-                  onfocus: function () {
-                    return _this.hasFocus = true;
+                  onfocus: function onfocus() {
+                    return _this2.hasFocus = true;
                   },
-                  onblur: function () {
-                    return _this.hasFocus = false;
+                  onblur: function onblur() {
+                    return _this2.hasFocus = false;
                   } }),
                 this.loadingSources ? LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' }) : currentSearch ? m(
                   'button',
@@ -27924,7 +26203,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
                 'ul',
                 { className: 'Dropdown-menu Search-results' },
                 this.value() && this.hasFocus ? this.sources.map(function (source) {
-                  return source.view(_this.value());
+                  return source.view(_this2.value());
                 }) : ''
               )
             );
@@ -27932,7 +26211,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
         }, {
           key: 'config',
           value: function config(isInitialized) {
-            var _this2 = this;
+            var _this3 = this;
 
             // Highlight the item that is currently selected.
             this.setIndex(this.getCurrentNumericIndex());
@@ -27944,7 +26223,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
             this.$('.Search-results').on('mousedown', function (e) {
               return e.preventDefault();
             }).on('click', function () {
-              return _this2.$('input').blur();
+              return _this3.$('input').blur();
             })
 
             // Whenever the mouse is hovered over a search result, highlight it.
@@ -27957,23 +26236,23 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
               switch (e.which) {
                 case 40:case 38:
                   // Down/Up
-                  _this2.setIndex(_this2.getCurrentNumericIndex() + (e.which === 40 ? 1 : -1), true);
+                  _this3.setIndex(_this3.getCurrentNumericIndex() + (e.which === 40 ? 1 : -1), true);
                   e.preventDefault();
                   break;
 
                 case 13:
                   // Return
-                  if (_this2.value()) {
-                    m.route(_this2.getItem(_this2.index).find('a').attr('href'));
+                  if (_this3.value()) {
+                    m.route(_this3.getItem(_this3.index).find('a').attr('href'));
                   } else {
-                    _this2.clear();
+                    _this3.clear();
                   }
-                  _this2.$('input').blur();
+                  _this3.$('input').blur();
                   break;
 
                 case 27:
                   // Escape
-                  _this2.clear();
+                  _this3.clear();
                   break;
 
                 default:
@@ -28014,21 +26293,11 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
               }).select();
             });
           }
-
-          /**
-           * Get the active search in the app's current controller.
-           *
-           * @return {String}
-           */
         }, {
           key: 'getCurrentSearch',
           value: function getCurrentSearch() {
             return app.current && typeof app.current.searching === 'function' && app.current.searching();
           }
-
-          /**
-           * Clear the search input and the current controller's active search.
-           */
         }, {
           key: 'clear',
           value: function clear() {
@@ -28040,12 +26309,6 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
               m.redraw();
             }
           }
-
-          /**
-           * Build an item list of SearchSources.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'sourceItems',
           value: function sourceItems() {
@@ -28056,35 +26319,16 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
 
             return items;
           }
-
-          /**
-           * Get all of the search result items that are selectable.
-           *
-           * @return {jQuery}
-           */
         }, {
           key: 'selectableItems',
           value: function selectableItems() {
             return this.$('.Search-results > li:not(.Dropdown-header)');
           }
-
-          /**
-           * Get the position of the currently selected search result item.
-           *
-           * @return {Integer}
-           */
         }, {
           key: 'getCurrentNumericIndex',
           value: function getCurrentNumericIndex() {
             return this.selectableItems().index(this.getItem(this.index));
           }
-
-          /**
-           * Get the <li> in the search results with the given index (numeric or named).
-           *
-           * @param {String} index
-           * @return {DOMElement}
-           */
         }, {
           key: 'getItem',
           value: function getItem(index) {
@@ -28097,15 +26341,6 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
 
             return $item;
           }
-
-          /**
-           * Set the currently-selected search result item to the one with the given
-           * index.
-           *
-           * @param {Integer} index
-           * @param {Boolean} scrollToItem Whether or not to scroll the dropdown so that
-           *     the item is in view.
-           */
         }, {
           key: 'setIndex',
           value: function setIndex(index, scrollToItem) {
@@ -28130,7 +26365,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
               var itemTop = $item.offset().top;
               var itemBottom = itemTop + $item.outerHeight();
 
-              var scrollTop = undefined;
+              var scrollTop = void 0;
               if (itemTop < dropdownTop) {
                 scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt($dropdown.css('padding-top'), 10);
               } else if (itemBottom > dropdownBottom) {
@@ -28144,91 +26379,55 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
           }
         }]);
         return Search;
-      })(Component);
+      }(Component);
 
       _export('default', Search);
     }
   };
 });;
-System.register("flarum/components/SearchSource", [], function (_export) {
-  /**
-   * The `SearchSource` interface defines a section of search results in the
-   * search dropdown.
-   *
-   * Search sources should be registered with the `Search` component instance
-   * (app.search) by extending the `sourceItems` method. When the user types a
-   * query, each search source will be prompted to load search results via the
-   * `search` method. When the dropdown is redrawn, it will be constructed by
-   * putting together the output from the `view` method of each source.
-   *
-   * @interface
-   */
-  "use strict";
+"use strict";
 
+System.register("flarum/components/SearchSource", [], function (_export, _context) {
   var SearchSource;
   return {
     setters: [],
     execute: function () {
-      SearchSource = (function () {
+      SearchSource = function () {
         function SearchSource() {
           babelHelpers.classCallCheck(this, SearchSource);
         }
 
         babelHelpers.createClass(SearchSource, [{
           key: "search",
-
-          /**
-           * Make a request to get results for the given query.
-           *
-           * @param {String} query
-           * @return {Promise}
-           */
           value: function search() {}
-
-          /**
-           * Get an array of virtual <li>s that list the search results for the given
-           * query.
-           *
-           * @param {String} query
-           * @return {Object}
-           */
         }, {
           key: "view",
           value: function view() {}
         }]);
         return SearchSource;
-      })();
+      }();
 
       _export("default", SearchSource);
     }
   };
 });;
-System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
+'use strict';
 
-  /**
-   * The `Select` component displays a <select> input, surrounded with some extra
-   * elements for styling. It accepts the following props:
-   *
-   * - `options` A map of option values to labels.
-   * - `onchange` A callback to run when the selected value is changed.
-   * - `value` The value of the selected option.
-   */
-  'use strict';
-
+System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export, _context) {
   var Component, icon, Select;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      Select = (function (_Component) {
+      Select = function (_Component) {
         babelHelpers.inherits(Select, _Component);
 
         function Select() {
           babelHelpers.classCallCheck(this, Select);
-          babelHelpers.get(Object.getPrototypeOf(Select.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Select).apply(this, arguments));
         }
 
         babelHelpers.createClass(Select, [{
@@ -28238,6 +26437,7 @@ System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers
             var options = _props.options;
             var onchange = _props.onchange;
             var value = _props.value;
+
 
             return m(
               'span',
@@ -28258,40 +26458,29 @@ System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers
           }
         }]);
         return Select;
-      })(Component);
+      }(Component);
 
       _export('default', Select);
     }
   };
 });;
-System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export) {
+'use strict';
 
-  /**
-   * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle
-   * button's label is set as the label of the first child which has a truthy
-   * `active` prop.
-   *
-   * ### Props
-   *
-   * - `caretIcon`
-   * - `defaultLabel`
-   */
-  'use strict';
-
+System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export, _context) {
   var Dropdown, icon, SelectDropdown;
   return {
     setters: [function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      SelectDropdown = (function (_Dropdown) {
+      SelectDropdown = function (_Dropdown) {
         babelHelpers.inherits(SelectDropdown, _Dropdown);
 
         function SelectDropdown() {
           babelHelpers.classCallCheck(this, SelectDropdown);
-          babelHelpers.get(Object.getPrototypeOf(SelectDropdown.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SelectDropdown).apply(this, arguments));
         }
 
         babelHelpers.createClass(SelectDropdown, [{
@@ -28321,31 +26510,27 @@ System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown
           }
         }]);
         return SelectDropdown;
-      })(Dropdown);
+      }(Dropdown);
 
       _export('default', SelectDropdown);
     }
   };
 });;
-System.register("flarum/components/Separator", ["flarum/Component"], function (_export) {
+"use strict";
 
-  /**
-   * The `Separator` component defines a menu separator item.
-   */
-  "use strict";
-
+System.register("flarum/components/Separator", ["flarum/Component"], function (_export, _context) {
   var Component, Separator;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent["default"];
+      Component = _flarumComponent.default;
     }],
     execute: function () {
-      Separator = (function (_Component) {
+      Separator = function (_Component) {
         babelHelpers.inherits(Separator, _Component);
 
         function Separator() {
           babelHelpers.classCallCheck(this, Separator);
-          babelHelpers.get(Object.getPrototypeOf(Separator.prototype), "constructor", this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Separator).apply(this, arguments));
         }
 
         babelHelpers.createClass(Separator, [{
@@ -28355,7 +26540,7 @@ System.register("flarum/components/Separator", ["flarum/Component"], function (_
           }
         }]);
         return Separator;
-      })(Component);
+      }(Component);
 
       Separator.isListItem = true;
 
@@ -28363,40 +26548,35 @@ System.register("flarum/components/Separator", ["flarum/Component"], function (_
     }
   };
 });;
-System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/components/Separator', 'flarum/models/Group'], function (_export) {
+'use strict';
 
-  /**
-   * The `SessionDropdown` component shows a button with the current user's
-   * avatar/name, with a dropdown of session controls.
-   */
-  'use strict';
-
+System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/components/Separator', 'flarum/models/Group'], function (_export, _context) {
   var avatar, username, Dropdown, LinkButton, Button, ItemList, Separator, Group, SessionDropdown;
   return {
     setters: [function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
+      Separator = _flarumComponentsSeparator.default;
     }, function (_flarumModelsGroup) {
-      Group = _flarumModelsGroup['default'];
+      Group = _flarumModelsGroup.default;
     }],
     execute: function () {
-      SessionDropdown = (function (_Dropdown) {
+      SessionDropdown = function (_Dropdown) {
         babelHelpers.inherits(SessionDropdown, _Dropdown);
 
         function SessionDropdown() {
           babelHelpers.classCallCheck(this, SessionDropdown);
-          babelHelpers.get(Object.getPrototypeOf(SessionDropdown.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SessionDropdown).apply(this, arguments));
         }
 
         babelHelpers.createClass(SessionDropdown, [{
@@ -28417,12 +26597,6 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
               username(user)
             )];
           }
-
-          /**
-           * Build an item list for the contents of the dropdown menu.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'items',
           value: function items() {
@@ -28474,48 +26648,43 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
           }
         }]);
         return SessionDropdown;
-      })(Dropdown);
+      }(Dropdown);
 
       _export('default', SessionDropdown);
     }
   };
 });;
-System.register('flarum/components/SettingsPage', ['flarum/components/UserPage', 'flarum/utils/ItemList', 'flarum/components/Switch', 'flarum/components/Button', 'flarum/components/FieldSet', 'flarum/components/NotificationGrid', 'flarum/components/ChangePasswordModal', 'flarum/components/ChangeEmailModal', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `SettingsPage` component displays the user's settings control panel, in
-   * the context of their user profile.
-   */
-  'use strict';
-
+System.register('flarum/components/SettingsPage', ['flarum/components/UserPage', 'flarum/utils/ItemList', 'flarum/components/Switch', 'flarum/components/Button', 'flarum/components/FieldSet', 'flarum/components/NotificationGrid', 'flarum/components/ChangePasswordModal', 'flarum/components/ChangeEmailModal', 'flarum/helpers/listItems'], function (_export, _context) {
   var UserPage, ItemList, Switch, Button, FieldSet, NotificationGrid, ChangePasswordModal, ChangeEmailModal, listItems, SettingsPage;
   return {
     setters: [function (_flarumComponentsUserPage) {
-      UserPage = _flarumComponentsUserPage['default'];
+      UserPage = _flarumComponentsUserPage.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsSwitch) {
-      Switch = _flarumComponentsSwitch['default'];
+      Switch = _flarumComponentsSwitch.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsFieldSet) {
-      FieldSet = _flarumComponentsFieldSet['default'];
+      FieldSet = _flarumComponentsFieldSet.default;
     }, function (_flarumComponentsNotificationGrid) {
-      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+      NotificationGrid = _flarumComponentsNotificationGrid.default;
     }, function (_flarumComponentsChangePasswordModal) {
-      ChangePasswordModal = _flarumComponentsChangePasswordModal['default'];
+      ChangePasswordModal = _flarumComponentsChangePasswordModal.default;
     }, function (_flarumComponentsChangeEmailModal) {
-      ChangeEmailModal = _flarumComponentsChangeEmailModal['default'];
+      ChangeEmailModal = _flarumComponentsChangeEmailModal.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      SettingsPage = (function (_UserPage) {
+      SettingsPage = function (_UserPage) {
         babelHelpers.inherits(SettingsPage, _UserPage);
 
         function SettingsPage() {
           babelHelpers.classCallCheck(this, SettingsPage);
-          babelHelpers.get(Object.getPrototypeOf(SettingsPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SettingsPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(SettingsPage, [{
@@ -28539,12 +26708,6 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
               )
             );
           }
-
-          /**
-           * Build an item list for the user's settings controls.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'settingsItems',
           value: function settingsItems() {
@@ -28570,12 +26733,6 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
 
             return items;
           }
-
-          /**
-           * Build an item list for the user's account settings.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'accountItems',
           value: function accountItems() {
@@ -28599,12 +26756,6 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
 
             return items;
           }
-
-          /**
-           * Build an item list for the user's notification settings.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'notificationsItems',
           value: function notificationsItems() {
@@ -28614,38 +26765,25 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
 
             return items;
           }
-
-          /**
-           * Generate a callback that will save a value to the given preference.
-           *
-           * @param {String} key
-           * @return {Function}
-           */
         }, {
           key: 'preferenceSaver',
           value: function preferenceSaver(key) {
-            var _this = this;
+            var _this2 = this;
 
             return function (value, component) {
               if (component) component.loading = true;
               m.redraw();
 
-              _this.user.savePreferences(babelHelpers.defineProperty({}, key, value)).then(function () {
+              _this2.user.savePreferences(babelHelpers.defineProperty({}, key, value)).then(function () {
                 if (component) component.loading = false;
                 m.redraw();
               });
             };
           }
-
-          /**
-           * Build an item list for the user's privacy settings.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'privacyItems',
           value: function privacyItems() {
-            var _this2 = this;
+            var _this3 = this;
 
             var items = new ItemList();
 
@@ -28653,8 +26791,8 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
               children: app.translator.trans('core.forum.settings.privacy_disclose_online_label'),
               state: this.user.preferences().discloseOnline,
               onchange: function onchange(value, component) {
-                _this2.user.pushAttributes({ lastSeenTime: null });
-                _this2.preferenceSaver('discloseOnline')(value, component);
+                _this3.user.pushAttributes({ lastSeenTime: null });
+                _this3.preferenceSaver('discloseOnline')(value, component);
               }
             }));
 
@@ -28662,48 +26800,37 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
           }
         }]);
         return SettingsPage;
-      })(UserPage);
+      }(UserPage);
 
       _export('default', SettingsPage);
     }
   };
 });;
-System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'flarum/components/LogInModal', 'flarum/helpers/avatar', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `SignUpModal` component displays a modal dialog with a singup form.
-   *
-   * ### Props
-   *
-   * - `username`
-   * - `email`
-   * - `password`
-   * - `token` An email token to sign up with.
-   */
-  'use strict';
-
+System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'flarum/components/LogInModal', 'flarum/helpers/avatar', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export, _context) {
   var Modal, LogInModal, avatar, Button, LogInButtons, extractText, SignUpModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsLogInModal) {
-      LogInModal = _flarumComponentsLogInModal['default'];
+      LogInModal = _flarumComponentsLogInModal.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLogInButtons) {
-      LogInButtons = _flarumComponentsLogInButtons['default'];
+      LogInButtons = _flarumComponentsLogInButtons.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      SignUpModal = (function (_Modal) {
+      SignUpModal = function (_Modal) {
         babelHelpers.inherits(SignUpModal, _Modal);
 
         function SignUpModal() {
           babelHelpers.classCallCheck(this, SignUpModal);
-          babelHelpers.get(Object.getPrototypeOf(SignUpModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SignUpModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(SignUpModal, [{
@@ -28808,13 +26935,6 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
               app.translator.trans('core.forum.sign_up.log_in_text', { a: m('a', { onclick: this.logIn.bind(this) }) })
             )];
           }
-
-          /**
-           * Open the log in modal, prefilling it with an email/username/password if
-           * the user has entered one.
-           *
-           * @public
-           */
         }, {
           key: 'logIn',
           value: function logIn() {
@@ -28852,13 +26972,6 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
               return window.location.reload();
             }, this.loaded.bind(this));
           }
-
-          /**
-           * Get the data that should be submitted in the sign-up request.
-           *
-           * @return {Object}
-           * @public
-           */
         }, {
           key: 'submitData',
           value: function submitData() {
@@ -28881,36 +26994,31 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
           }
         }]);
         return SignUpModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', SignUpModal);
     }
   };
 });;
-System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export) {
+'use strict';
 
-  /**
-   * The `SplitDropdown` component is similar to `Dropdown`, but the first child
-   * is displayed as its own button prior to the toggle button.
-   */
-  'use strict';
-
+System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export, _context) {
   var Dropdown, Button, icon, SplitDropdown;
   return {
     setters: [function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      SplitDropdown = (function (_Dropdown) {
+      SplitDropdown = function (_Dropdown) {
         babelHelpers.inherits(SplitDropdown, _Dropdown);
 
         function SplitDropdown() {
           babelHelpers.classCallCheck(this, SplitDropdown);
-          babelHelpers.get(Object.getPrototypeOf(SplitDropdown.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SplitDropdown).apply(this, arguments));
         }
 
         babelHelpers.createClass(SplitDropdown, [{
@@ -28920,7 +27028,7 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
             // these props to a new button, so that it has exactly the same behaviour as
             // the first child.
             var firstChild = this.getFirstChild();
-            var buttonProps = babelHelpers._extends({}, firstChild.props);
+            var buttonProps = babelHelpers.extends({}, firstChild.props);
             buttonProps.className = (buttonProps.className || '') + ' SplitDropdown-button Button ' + this.props.buttonClassName;
 
             return [Button.component(buttonProps), m(
@@ -28932,22 +27040,14 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
               icon('caret-down', { className: 'Button-caret' })
             )];
           }
-
-          /**
-           * Get the first child. If the first child is an array, the first item in that
-           * array will be returned.
-           *
-           * @return {*}
-           * @protected
-           */
         }, {
           key: 'getFirstChild',
           value: function getFirstChild() {
             var firstChild = this.props.children;
 
-            while (firstChild instanceof Array) firstChild = firstChild[0];
-
-            return firstChild;
+            while (firstChild instanceof Array) {
+              firstChild = firstChild[0];
+            }return firstChild;
           }
         }], [{
           key: 'initProps',
@@ -28959,32 +27059,27 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
           }
         }]);
         return SplitDropdown;
-      })(Dropdown);
+      }(Dropdown);
 
       _export('default', SplitDropdown);
     }
   };
 });;
-System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export) {
+'use strict';
 
-  /**
-   * The `Switch` component is a `Checkbox`, but with a switch display instead of
-   * a tick/cross one.
-   */
-  'use strict';
-
+System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export, _context) {
   var Checkbox, Switch;
   return {
     setters: [function (_flarumComponentsCheckbox) {
-      Checkbox = _flarumComponentsCheckbox['default'];
+      Checkbox = _flarumComponentsCheckbox.default;
     }],
     execute: function () {
-      Switch = (function (_Checkbox) {
+      Switch = function (_Checkbox) {
         babelHelpers.inherits(Switch, _Checkbox);
 
         function Switch() {
           babelHelpers.classCallCheck(this, Switch);
-          babelHelpers.get(Object.getPrototypeOf(Switch.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Switch).apply(this, arguments));
         }
 
         babelHelpers.createClass(Switch, [{
@@ -29001,40 +27096,31 @@ System.register('flarum/components/Switch', ['flarum/components/Checkbox'], func
           }
         }]);
         return Switch;
-      })(Checkbox);
+      }(Checkbox);
 
       _export('default', Switch);
     }
   };
 });;
-System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/icon'], function (_export) {
+'use strict';
 
-  /**
-   * Displays information about a the first or last post in a discussion.
-   *
-   * ### Props
-   *
-   * - `discussion`
-   * - `lastPost`
-   */
-  'use strict';
-
+System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/icon'], function (_export, _context) {
   var Component, humanTime, icon, TerminalPost;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersHumanTime) {
-      humanTime = _flarumHelpersHumanTime['default'];
+      humanTime = _flarumHelpersHumanTime.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      TerminalPost = (function (_Component) {
+      TerminalPost = function (_Component) {
         babelHelpers.inherits(TerminalPost, _Component);
 
         function TerminalPost() {
           babelHelpers.classCallCheck(this, TerminalPost);
-          babelHelpers.get(Object.getPrototypeOf(TerminalPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(TerminalPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(TerminalPost, [{
@@ -29059,45 +27145,33 @@ System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/h
           }
         }]);
         return TerminalPost;
-      })(Component);
+      }(Component);
 
       _export('default', TerminalPost);
     }
   };
 });;
-System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `TextEditor` component displays a textarea with controls, including a
-   * submit button.
-   *
-   * ### Props
-   *
-   * - `submitLabel`
-   * - `value`
-   * - `placeholder`
-   * - `disabled`
-   */
-  'use strict';
-
+System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export, _context) {
   var Component, ItemList, listItems, Button, TextEditor;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      TextEditor = (function (_Component) {
+      TextEditor = function (_Component) {
         babelHelpers.inherits(TextEditor, _Component);
 
         function TextEditor() {
           babelHelpers.classCallCheck(this, TextEditor);
-          babelHelpers.get(Object.getPrototypeOf(TextEditor.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(TextEditor).apply(this, arguments));
         }
 
         babelHelpers.createClass(TextEditor, [{
@@ -29129,34 +27203,21 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
               )
             );
           }
-
-          /**
-           * Configure the textarea element.
-           *
-           * @param {DOMElement} element
-           * @param {Boolean} isInitialized
-           */
         }, {
           key: 'configTextarea',
           value: function configTextarea(element, isInitialized) {
-            var _this = this;
+            var _this2 = this;
 
             if (isInitialized) return;
 
             var handler = function handler() {
-              _this.onsubmit();
+              _this2.onsubmit();
               m.redraw();
             };
 
             $(element).bind('keydown', 'meta+return', handler);
             $(element).bind('keydown', 'ctrl+return', handler);
           }
-
-          /**
-           * Build an item list for the text editor controls.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'controlItems',
           value: function controlItems() {
@@ -29180,24 +27241,11 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 
             return items;
           }
-
-          /**
-           * Set the value of the text editor.
-           *
-           * @param {String} value
-           */
         }, {
           key: 'setValue',
           value: function setValue(value) {
             this.$('textarea').val(value).trigger('input');
           }
-
-          /**
-           * Set the selected range of the textarea.
-           *
-           * @param {Integer} start
-           * @param {Integer} end
-           */
         }, {
           key: 'setSelectionRange',
           value: function setSelectionRange(start, end) {
@@ -29206,12 +27254,6 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
             $textarea[0].setSelectionRange(start, end);
             $textarea.focus();
           }
-
-          /**
-           * Get the selected range of the textarea.
-           *
-           * @return {Array}
-           */
         }, {
           key: 'getSelectionRange',
           value: function getSelectionRange() {
@@ -29219,12 +27261,6 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 
             return [$textarea[0].selectionStart, $textarea[0].selectionEnd];
           }
-
-          /**
-           * Insert content into the textarea at the position of the cursor.
-           *
-           * @param {String} insert
-           */
         }, {
           key: 'insertAtCursor',
           value: function insertAtCursor(insert) {
@@ -29240,12 +27276,6 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
               this.setSelectionRange(pos, pos);
             }
           }
-
-          /**
-           * Handle input into the textarea.
-           *
-           * @param {String} value
-           */
         }, {
           key: 'oninput',
           value: function oninput(value) {
@@ -29255,10 +27285,6 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 
             m.redraw.strategy('none');
           }
-
-          /**
-           * Handle the submit button being clicked.
-           */
         }, {
           key: 'onsubmit',
           value: function onsubmit() {
@@ -29266,38 +27292,33 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
           }
         }]);
         return TextEditor;
-      })(Component);
+      }(Component);
 
       _export('default', TextEditor);
     }
   };
 });;
-System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `UserBio` component displays a user's bio, optionally letting the user
-   * edit it.
-   */
-  'use strict';
-
+System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export, _context) {
   var Component, LoadingIndicator, classList, extractText, UserBio;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
+      classList = _flarumUtilsClassList.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
-      UserBio = (function (_Component) {
+      UserBio = function (_Component) {
         babelHelpers.inherits(UserBio, _Component);
 
         function UserBio() {
           babelHelpers.classCallCheck(this, UserBio);
-          babelHelpers.get(Object.getPrototypeOf(UserBio.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UserBio).apply(this, arguments));
         }
 
         babelHelpers.createClass(UserBio, [{
@@ -29321,12 +27342,12 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
           key: 'view',
           value: function view() {
             var user = this.props.user;
-            var content = undefined;
+            var content = void 0;
 
             if (this.editing) {
               content = m('textarea', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.user.bio_placeholder')), rows: '3', value: user.bio() });
             } else {
-              var subContent = undefined;
+              var subContent = void 0;
 
               if (this.loading) {
                 subContent = m(
@@ -29365,10 +27386,6 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
               content
             );
           }
-
-          /**
-           * Edit the bio.
-           */
         }, {
           key: 'edit',
           value: function edit() {
@@ -29386,24 +27403,18 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
 
             this.$('textarea').focus().bind('blur', save).bind('keydown', 'return', save);
           }
-
-          /**
-           * Save the bio.
-           *
-           * @param {String} value
-           */
         }, {
           key: 'save',
           value: function save(value) {
-            var _this = this;
+            var _this2 = this;
 
             var user = this.props.user;
 
             if (user.bio() !== value) {
               this.loading = true;
 
-              user.save({ bio: value })['catch'](function () {}).then(function () {
-                _this.loading = false;
+              user.save({ bio: value }).catch(function () {}).then(function () {
+                _this2.loading = false;
                 m.redraw();
               });
             }
@@ -29413,60 +27424,47 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
           }
         }]);
         return UserBio;
-      })(Component);
+      }(Component);
 
       _export('default', UserBio);
     }
   };
 });;
-System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `UserCard` component displays a user's profile card. This is used both on
-   * the `UserPage` (in the hero) and in discussions, shown when hovering over a
-   * post author.
-   *
-   * ### Props
-   *
-   * - `user`
-   * - `className`
-   * - `editable`
-   * - `controlsButtonClassName`
-   */
-  'use strict';
-
+System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export, _context) {
   var Component, humanTime, ItemList, UserControls, avatar, username, icon, Dropdown, UserBio, AvatarEditor, listItems, UserCard;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumUtilsHumanTime) {
-      humanTime = _flarumUtilsHumanTime['default'];
+      humanTime = _flarumUtilsHumanTime.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsUserControls) {
-      UserControls = _flarumUtilsUserControls['default'];
+      UserControls = _flarumUtilsUserControls.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsUserBio) {
-      UserBio = _flarumComponentsUserBio['default'];
+      UserBio = _flarumComponentsUserBio.default;
     }, function (_flarumComponentsAvatarEditor) {
-      AvatarEditor = _flarumComponentsAvatarEditor['default'];
+      AvatarEditor = _flarumComponentsAvatarEditor.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      UserCard = (function (_Component) {
+      UserCard = function (_Component) {
         babelHelpers.inherits(UserCard, _Component);
 
         function UserCard() {
           babelHelpers.classCallCheck(this, UserCard);
-          babelHelpers.get(Object.getPrototypeOf(UserCard.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UserCard).apply(this, arguments));
         }
 
         babelHelpers.createClass(UserCard, [{
@@ -29527,12 +27525,6 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
               )
             );
           }
-
-          /**
-           * Build an item list of tidbits of info to show on this user's profile.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'infoItems',
           value: function infoItems() {
@@ -29561,51 +27553,43 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
           }
         }]);
         return UserCard;
-      })(Component);
+      }(Component);
 
       _export('default', UserCard);
     }
   };
 });;
-System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/utils/affixSidebar', 'flarum/components/UserCard', 'flarum/components/LoadingIndicator', 'flarum/components/SelectDropdown', 'flarum/components/LinkButton', 'flarum/components/Separator', 'flarum/helpers/listItems'], function (_export) {
+'use strict';
 
-  /**
-   * The `UserPage` component shows a user's profile. It can be extended to show
-   * content inside of the content area. See `ActivityPage` and `SettingsPage` for
-   * examples.
-   *
-   * @abstract
-   */
-  'use strict';
-
+System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/utils/affixSidebar', 'flarum/components/UserCard', 'flarum/components/LoadingIndicator', 'flarum/components/SelectDropdown', 'flarum/components/LinkButton', 'flarum/components/Separator', 'flarum/helpers/listItems'], function (_export, _context) {
   var Page, ItemList, affixSidebar, UserCard, LoadingIndicator, SelectDropdown, LinkButton, Separator, listItems, UserPage;
   return {
     setters: [function (_flarumComponentsPage) {
-      Page = _flarumComponentsPage['default'];
+      Page = _flarumComponentsPage.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsAffixSidebar) {
-      affixSidebar = _flarumUtilsAffixSidebar['default'];
+      affixSidebar = _flarumUtilsAffixSidebar.default;
     }, function (_flarumComponentsUserCard) {
-      UserCard = _flarumComponentsUserCard['default'];
+      UserCard = _flarumComponentsUserCard.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumComponentsSelectDropdown) {
-      SelectDropdown = _flarumComponentsSelectDropdown['default'];
+      SelectDropdown = _flarumComponentsSelectDropdown.default;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }, function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
+      Separator = _flarumComponentsSeparator.default;
     }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems['default'];
+      listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      UserPage = (function (_Page) {
+      UserPage = function (_Page) {
         babelHelpers.inherits(UserPage, _Page);
 
         function UserPage() {
           babelHelpers.classCallCheck(this, UserPage);
-          babelHelpers.get(Object.getPrototypeOf(UserPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UserPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(UserPage, [{
@@ -29655,23 +27639,9 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
               )] : [LoadingIndicator.component({ className: 'LoadingIndicator--block' })]
             );
           }
-
-          /**
-           * Get the content to display in the user page.
-           *
-           * @return {VirtualElement}
-           */
         }, {
           key: 'content',
           value: function content() {}
-
-          /**
-           * Initialize the component with a user, and trigger the loading of their
-           * activity feed.
-           *
-           * @param {User} user
-           * @protected
-           */
         }, {
           key: 'show',
           value: function show(user) {
@@ -29682,23 +27652,16 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
 
             m.redraw();
           }
-
-          /**
-           * Given a username, load the user's profile from the store, or make a request
-           * if we don't have it yet. Then initialize the profile page with that user.
-           *
-           * @param {String} username
-           */
         }, {
           key: 'loadUser',
           value: function loadUser(username) {
-            var _this = this;
+            var _this2 = this;
 
             var lowercaseUsername = username.toLowerCase();
 
             app.store.all('users').some(function (user) {
               if (user.username().toLowerCase() === lowercaseUsername && user.joinTime()) {
-                _this.show(user);
+                _this2.show(user);
                 return true;
               }
             });
@@ -29707,12 +27670,6 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
               app.store.find('users', username).then(this.show.bind(this));
             }
           }
-
-          /**
-           * Build an item list for the content of the sidebar.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'sidebarItems',
           value: function sidebarItems() {
@@ -29726,12 +27683,6 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
 
             return items;
           }
-
-          /**
-           * Build an item list for the navigation in the sidebar.
-           *
-           * @return {ItemList}
-           */
         }, {
           key: 'navItems',
           value: function navItems() {
@@ -29771,33 +27722,26 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
           }
         }]);
         return UserPage;
-      })(Page);
+      }(Page);
 
       _export('default', UserPage);
     }
   };
 });;
-System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export) {
+'use strict';
 
-  /**
-   * The `UsersSearchSource` finds and displays user search results in the search
-   * dropdown.
-   *
-   * @implements SearchSource
-   */
-  'use strict';
-
+System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export, _context) {
   var highlight, avatar, username, UsersSearchResults;
   return {
     setters: [function (_flarumHelpersHighlight) {
-      highlight = _flarumHelpersHighlight['default'];
+      highlight = _flarumHelpersHighlight.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }],
     execute: function () {
-      UsersSearchResults = (function () {
+      UsersSearchResults = function () {
         function UsersSearchResults() {
           babelHelpers.classCallCheck(this, UsersSearchResults);
         }
@@ -29841,34 +27785,29 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
           }
         }]);
         return UsersSearchResults;
-      })();
+      }();
 
       _export('default', UsersSearchResults);
     }
   };
 });;
-System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/components/Button'], function (_export) {
+'use strict';
 
-  /**
-   * The `WelcomeHero` component displays a hero that welcomes the user to the
-   * forum.
-   */
-  'use strict';
-
+System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/components/Button'], function (_export, _context) {
   var Component, Button, WelcomeHero;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      WelcomeHero = (function (_Component) {
+      WelcomeHero = function (_Component) {
         babelHelpers.inherits(WelcomeHero, _Component);
 
         function WelcomeHero() {
           babelHelpers.classCallCheck(this, WelcomeHero);
-          babelHelpers.get(Object.getPrototypeOf(WelcomeHero.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(WelcomeHero).apply(this, arguments));
         }
 
         babelHelpers.createClass(WelcomeHero, [{
@@ -29879,12 +27818,12 @@ System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/co
         }, {
           key: 'view',
           value: function view() {
-            var _this = this;
+            var _this2 = this;
 
             if (this.hidden) return m('div', null);
 
             var slideUp = function slideUp() {
-              _this.$().slideUp(_this.hide.bind(_this));
+              _this2.$().slideUp(_this2.hide.bind(_this2));
             };
 
             return m(
@@ -29915,10 +27854,6 @@ System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/co
               )
             );
           }
-
-          /**
-           * Hide the welcome hero.
-           */
         }, {
           key: 'hide',
           value: function hide() {
@@ -29928,131 +27863,133 @@ System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/co
           }
         }]);
         return WelcomeHero;
-      })(Component);
+      }(Component);
 
       _export('default', WelcomeHero);
     }
   };
 });;
-System.register("flarum/extend", [], function (_export) {
-  /**
-   * Extend an object's method by running its output through a mutating callback
-   * every time it is called.
-   *
-   * The callback accepts the method's return value and should perform any
-   * mutations directly on this value. For this reason, this function will not be
-   * effective on methods which return scalar values (numbers, strings, booleans).
-   *
-   * Care should be taken to extend the correct object – in most cases, a class'
-   * prototype will be the desired target of extension, not the class itself.
-   *
-   * @example
-   * extend(Discussion.prototype, 'badges', function(badges) {
-   *   // do something with `badges`
-   * });
-   *
-   * @param {Object} object The object that owns the method
-   * @param {String} method The name of the method to extend
-   * @param {function} callback A callback which mutates the method's output
-   */
-  "use strict";
+"use strict";
 
-  /**
-   * Override an object's method by replacing it with a new function, so that the
-   * new function will be run every time the object's method is called.
-   *
-   * The replacement function accepts the original method as its first argument,
-   * which is like a call to 'super'. Any arguments passed to the original method
-   * are also passed to the replacement.
-   *
-   * Care should be taken to extend the correct object – in most cases, a class'
-   * prototype will be the desired target of extension, not the class itself.
-   *
-   * @example
-   * override(Discussion.prototype, 'badges', function(original) {
-   *   const badges = original();
-   *   // do something with badges
-   *   return badges;
-   * });
-   *
-   * @param {Object} object The object that owns the method
-   * @param {String} method The name of the method to override
-   * @param {function} newMethod The method to replace it with
-   */
-
-  _export("extend", extend);
-
-  _export("override", override);
-
-  function extend(object, method, callback) {
-    var original = object[method];
-
-    object[method] = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      var value = original ? original.apply(this, args) : undefined;
-
-      callback.apply(this, [value].concat(args));
-
-      return value;
-    };
-
-    babelHelpers._extends(object[method], original);
-  }
-
-  function override(object, method, newMethod) {
-    var original = object[method];
-
-    object[method] = function () {
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
-      }
-
-      return newMethod.apply(this, [original.bind(this)].concat(args));
-    };
-
-    babelHelpers._extends(object[method], original);
-  }
-
+System.register("flarum/extend", [], function (_export, _context) {
   return {
     setters: [],
-    execute: function () {}
+    execute: function () {
+      /**
+       * Extend an object's method by running its output through a mutating callback
+       * every time it is called.
+       *
+       * The callback accepts the method's return value and should perform any
+       * mutations directly on this value. For this reason, this function will not be
+       * effective on methods which return scalar values (numbers, strings, booleans).
+       *
+       * Care should be taken to extend the correct object – in most cases, a class'
+       * prototype will be the desired target of extension, not the class itself.
+       *
+       * @example
+       * extend(Discussion.prototype, 'badges', function(badges) {
+       *   // do something with `badges`
+       * });
+       *
+       * @param {Object} object The object that owns the method
+       * @param {String} method The name of the method to extend
+       * @param {function} callback A callback which mutates the method's output
+       */
+      function extend(object, method, callback) {
+        var original = object[method];
+
+        object[method] = function () {
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          var value = original ? original.apply(this, args) : undefined;
+
+          callback.apply(this, [value].concat(args));
+
+          return value;
+        };
+
+        babelHelpers.extends(object[method], original);
+      }
+
+      /**
+       * Override an object's method by replacing it with a new function, so that the
+       * new function will be run every time the object's method is called.
+       *
+       * The replacement function accepts the original method as its first argument,
+       * which is like a call to 'super'. Any arguments passed to the original method
+       * are also passed to the replacement.
+       *
+       * Care should be taken to extend the correct object – in most cases, a class'
+       * prototype will be the desired target of extension, not the class itself.
+       *
+       * @example
+       * override(Discussion.prototype, 'badges', function(original) {
+       *   const badges = original();
+       *   // do something with badges
+       *   return badges;
+       * });
+       *
+       * @param {Object} object The object that owns the method
+       * @param {String} method The name of the method to override
+       * @param {function} newMethod The method to replace it with
+       */
+
+      _export("extend", extend);
+
+      function override(object, method, newMethod) {
+        var original = object[method];
+
+        object[method] = function () {
+          for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
+          }
+
+          return newMethod.apply(this, [original.bind(this)].concat(args));
+        };
+
+        babelHelpers.extends(object[method], original);
+      }
+
+      _export("override", override);
+    }
   };
 });;
-System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flarum/components/Search', 'flarum/components/Composer', 'flarum/components/ReplyComposer', 'flarum/components/DiscussionPage', 'flarum/components/SignUpModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flarum/components/Search', 'flarum/components/Composer', 'flarum/components/ReplyComposer', 'flarum/components/DiscussionPage', 'flarum/components/SignUpModal'], function (_export, _context) {
   var History, App, Search, Composer, ReplyComposer, DiscussionPage, SignUpModal, ForumApp;
   return {
     setters: [function (_flarumUtilsHistory) {
-      History = _flarumUtilsHistory['default'];
+      History = _flarumUtilsHistory.default;
     }, function (_flarumApp) {
-      App = _flarumApp['default'];
+      App = _flarumApp.default;
     }, function (_flarumComponentsSearch) {
-      Search = _flarumComponentsSearch['default'];
+      Search = _flarumComponentsSearch.default;
     }, function (_flarumComponentsComposer) {
-      Composer = _flarumComponentsComposer['default'];
+      Composer = _flarumComponentsComposer.default;
     }, function (_flarumComponentsReplyComposer) {
-      ReplyComposer = _flarumComponentsReplyComposer['default'];
+      ReplyComposer = _flarumComponentsReplyComposer.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsSignUpModal) {
-      SignUpModal = _flarumComponentsSignUpModal['default'];
+      SignUpModal = _flarumComponentsSignUpModal.default;
     }],
     execute: function () {
-      ForumApp = (function (_App) {
+      ForumApp = function (_App) {
         babelHelpers.inherits(ForumApp, _App);
 
         function ForumApp() {
+          var _Object$getPrototypeO;
+
           babelHelpers.classCallCheck(this, ForumApp);
 
           for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
             args[_key] = arguments[_key];
           }
 
-          babelHelpers.get(Object.getPrototypeOf(ForumApp.prototype), 'constructor', this).apply(this, args);
+          var _this = babelHelpers.possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(ForumApp)).call.apply(_Object$getPrototypeO, [this].concat(args)));
 
           /**
            * The app's history stack, which keeps track of which routes the user visits
@@ -30060,42 +27997,43 @@ System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flaru
            *
            * @type {History}
            */
-          this.history = new History();
+          _this.history = new History();
 
           /**
            * An object which controls the state of the page's side pane.
            *
            * @type {Pane}
            */
-          this.pane = null;
+          _this.pane = null;
 
           /**
            * The page's search component instance.
            *
            * @type {SearchBox}
            */
-          this.search = new Search();
+          _this.search = new Search();
 
           /**
            * An object which controls the state of the page's drawer.
            *
            * @type {Drawer}
            */
-          this.drawer = null;
+          _this.drawer = null;
 
           /**
            * A map of post types to their components.
            *
            * @type {Object}
            */
-          this.postComponents = {};
+          _this.postComponents = {};
 
           /**
            * A map of notification types to their components.
            *
            * @type {Object}
            */
-          this.notificationComponents = {};
+          _this.notificationComponents = {};
+          return _this;
         }
 
         /**
@@ -30105,37 +28043,18 @@ System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flaru
          * @param {Discussion} discussion
          * @return {Boolean}
          */
+
+
         babelHelpers.createClass(ForumApp, [{
           key: 'composingReplyTo',
           value: function composingReplyTo(discussion) {
             return this.composer.component instanceof ReplyComposer && this.composer.component.props.discussion === discussion && this.composer.position !== Composer.PositionEnum.HIDDEN;
           }
-
-          /**
-           * Check whether or not the user is currently viewing a discussion.
-           *
-           * @param {Discussion} discussion
-           * @return {Boolean}
-           */
         }, {
           key: 'viewingDiscussion',
           value: function viewingDiscussion(discussion) {
             return this.current instanceof DiscussionPage && this.current.discussion === discussion;
           }
-
-          /**
-           * Callback for when an external authenticator (social login) action has
-           * completed.
-           *
-           * If the payload indicates that the user has been logged in, then the page
-           * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
-           * with the provided details.
-           *
-           * @param {Object} payload A dictionary of props to pass into the sign up
-           *     modal. A truthy `authenticated` prop indicates that the user has logged
-           *     in, and thus the page is reloaded.
-           * @public
-           */
         }, {
           key: 'authenticationComplete',
           value: function authenticationComplete(payload) {
@@ -30149,24 +28068,15 @@ System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flaru
           }
         }]);
         return ForumApp;
-      })(App);
+      }(App);
 
       _export('default', ForumApp);
     }
   };
 });;
-System.register('flarum/helpers/avatar', [], function (_export) {
-  /**
-   * The `avatar` helper displays a user's avatar.
-   *
-   * @param {User} user
-   * @param {Object} attrs Attributes to apply to the avatar element
-   * @return {Object}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', avatar);
-
+System.register('flarum/helpers/avatar', [], function (_export, _context) {
   function avatar(user) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -30189,7 +28099,7 @@ System.register('flarum/helpers/avatar', [], function (_export) {
       if (hasTitle) attrs.title = attrs.title || username;
 
       if (avatarUrl) {
-        return m('img', babelHelpers._extends({}, attrs, { src: avatarUrl }));
+        return m('img', babelHelpers.extends({}, attrs, { src: avatarUrl }));
       }
 
       content = username.charAt(0).toUpperCase();
@@ -30203,23 +28113,16 @@ System.register('flarum/helpers/avatar', [], function (_export) {
     );
   }
 
+  _export('default', avatar);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/fullTime', [], function (_export) {
-  /**
-   * The `fullTime` helper displays a formatted time string wrapped in a <time>
-   * tag.
-   *
-   * @param {Date} time
-   * @return {Object}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', fullTime);
-
+System.register('flarum/helpers/fullTime', [], function (_export, _context) {
   function fullTime(time) {
     var mo = moment(time);
 
@@ -30233,29 +28136,17 @@ System.register('flarum/helpers/fullTime', [], function (_export) {
     );
   }
 
+  _export('default', fullTime);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export) {
+'use strict';
 
-  /**
-   * The `highlight` helper searches for a word phrase in a string, and wraps
-   * matches with the <mark> tag.
-   *
-   * @param {String} string The string to highlight.
-   * @param {String|RegExp} phrase The word or words to highlight.
-   * @param {Integer} [length] The number of characters to truncate the string to.
-   *     The string will be truncated surrounding the first match.
-   * @return {Object}
-   */
-  'use strict';
-
+System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export, _context) {
   var truncate;
-
-  _export('default', highlight);
-
   function highlight(string, phrase, length) {
     if (!phrase && !length) return string;
 
@@ -30282,6 +28173,8 @@ System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_
     return m.trust(highlighted);
   }
 
+  _export('default', highlight);
+
   return {
     setters: [function (_flarumUtilsString) {
       truncate = _flarumUtilsString.truncate;
@@ -30289,22 +28182,10 @@ System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export) {
+'use strict';
 
-  /**
-   * The `humanTime` helper displays a time in a human-friendly time-ago format
-   * (e.g. '12 days ago'), wrapped in a <time> tag with other information about
-   * the time.
-   *
-   * @param {Date} time
-   * @return {Object}
-   */
-  'use strict';
-
+System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export, _context) {
   var humanTimeUtil;
-
-  _export('default', humanTime);
-
   function humanTime(time) {
     var mo = moment(time);
 
@@ -30319,25 +28200,18 @@ System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function
     );
   }
 
+  _export('default', humanTime);
+
   return {
     setters: [function (_flarumUtilsHumanTime) {
-      humanTimeUtil = _flarumUtilsHumanTime['default'];
+      humanTimeUtil = _flarumUtilsHumanTime.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/icon', [], function (_export) {
-  /**
-   * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
-   *
-   * @param {String} name The name of the icon class, without the `fa-` prefix.
-   * @param {Object} attrs Any other attributes to apply.
-   * @return {Object}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', icon);
-
+System.register('flarum/helpers/icon', [], function (_export, _context) {
   function icon(name) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -30346,25 +28220,18 @@ System.register('flarum/helpers/icon', [], function (_export) {
     return m('i', attrs);
   }
 
+  _export('default', icon);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export, _context) {
   var Separator, classList;
 
-  _export('default', listItems);
-
-  /**
-   * The `listItems` helper wraps a collection of components in <li> tags,
-   * stripping out any unnecessary `Separator` components.
-   *
-   * @param {*} items
-   * @return {Array}
-   */
 
   function isSeparator(item) {
     return item && item.component === Separator;
@@ -30372,7 +28239,7 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
 
   function withoutUnnecessarySeparators(items) {
     var newItems = [];
-    var prevItem = undefined;
+    var prevItem = void 0;
 
     items.forEach(function (item, i) {
       if (!isSeparator(item) || prevItem && !isSeparator(prevItem) && i !== items.length - 1) {
@@ -30383,6 +28250,14 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
 
     return newItems;
   }
+
+  /**
+   * The `listItems` helper wraps a collection of components in <li> tags,
+   * stripping out any unnecessary `Separator` components.
+   *
+   * @param {*} items
+   * @return {Array}
+   */
   function listItems(items) {
     if (!(items instanceof Array)) items = [items];
 
@@ -30408,31 +28283,20 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
     });
   }
 
+  _export('default', listItems);
+
   return {
     setters: [function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
+      Separator = _flarumComponentsSeparator.default;
     }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList['default'];
+      classList = _flarumUtilsClassList.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/punctuateSeries', [], function (_export) {
-  /**
-   * The `punctuateSeries` helper formats a list of strings (e.g. names) to read
-   * fluently in the application's locale.
-   *
-   * ```js
-   * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
-   * ```
-   *
-   * @param {Array} items
-   * @return {VirtualElement}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', punctuateSeries);
-
+System.register('flarum/helpers/punctuateSeries', [], function (_export, _context) {
   function punctuateSeries(items) {
     if (items.length === 2) {
       return app.translator.trans('core.lib.series.two_text', {
@@ -30457,23 +28321,16 @@ System.register('flarum/helpers/punctuateSeries', [], function (_export) {
     return items;
   }
 
+  _export('default', punctuateSeries);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register("flarum/helpers/username", [], function (_export) {
-  /**
-   * The `username` helper displays a user's username in a <span class="username">
-   * tag. If the user doesn't exist, the username will be displayed as [deleted].
-   *
-   * @param {User} user
-   * @return {Object}
-   */
-  "use strict";
+"use strict";
 
-  _export("default", username);
-
+System.register("flarum/helpers/username", [], function (_export, _context) {
   function username(user) {
     var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
 
@@ -30484,25 +28341,17 @@ System.register("flarum/helpers/username", [], function (_export) {
     );
   }
 
+  _export("default", username);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (_export) {
+'use strict';
 
-    /**
-     * The `useronline` helper displays a green circle if the user is online
-     *
-     * @param {User} user
-     * @return {Object}
-     */
-    'use strict';
-
+System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (_export, _context) {
     var icon;
-
-    _export('default', userOnline);
-
     function userOnline(user) {
         if (user.lastSeenTime() && user.isOnline()) {
             return m(
@@ -30513,28 +28362,19 @@ System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (
         }
     }
 
+    _export('default', userOnline);
+
     return {
         setters: [function (_flarumHelpersIcon) {
-            icon = _flarumHelpersIcon['default'];
+            icon = _flarumHelpersIcon.default;
         }],
         execute: function () {}
     };
 });;
-System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/helpers/icon', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export) {
-  /*global FastClick*/
+'use strict';
 
-  /**
-   * The `boot` initializer boots up the forum app. It initializes some app
-   * globals, mounts components to the page, and begins routing.
-   *
-   * @param {ForumApp} app
-   */
-  'use strict';
-
+System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/helpers/icon', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export, _context) {
   var ScrollListener, Pane, Drawer, mapRoutes, icon, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
-
-  _export('default', boot);
-
   function boot(app) {
     // Get the configured default route and update that route's path to be '/'.
     // Push the homepage as the first route, so that the user will always be
@@ -30597,47 +28437,39 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
     app.booted = true;
   }
 
+  _export('default', boot);
+
   return {
     setters: [function (_flarumUtilsScrollListener) {
-      ScrollListener = _flarumUtilsScrollListener['default'];
+      ScrollListener = _flarumUtilsScrollListener.default;
     }, function (_flarumUtilsPane) {
-      Pane = _flarumUtilsPane['default'];
+      Pane = _flarumUtilsPane.default;
     }, function (_flarumUtilsDrawer) {
-      Drawer = _flarumUtilsDrawer['default'];
+      Drawer = _flarumUtilsDrawer.default;
     }, function (_flarumUtilsMapRoutes) {
-      mapRoutes = _flarumUtilsMapRoutes['default'];
+      mapRoutes = _flarumUtilsMapRoutes.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsNavigation) {
-      Navigation = _flarumComponentsNavigation['default'];
+      Navigation = _flarumComponentsNavigation.default;
     }, function (_flarumComponentsHeaderPrimary) {
-      HeaderPrimary = _flarumComponentsHeaderPrimary['default'];
+      HeaderPrimary = _flarumComponentsHeaderPrimary.default;
     }, function (_flarumComponentsHeaderSecondary) {
-      HeaderSecondary = _flarumComponentsHeaderSecondary['default'];
+      HeaderSecondary = _flarumComponentsHeaderSecondary.default;
     }, function (_flarumComponentsComposer) {
-      Composer = _flarumComponentsComposer['default'];
+      Composer = _flarumComponentsComposer.default;
     }, function (_flarumComponentsModalManager) {
-      ModalManager = _flarumComponentsModalManager['default'];
+      ModalManager = _flarumComponentsModalManager.default;
     }, function (_flarumComponentsAlertManager) {
-      AlertManager = _flarumComponentsAlertManager['default'];
+      AlertManager = _flarumComponentsAlertManager.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/PostedActivity', 'flarum/components/JoinedActivity', 'flarum/components/DiscussionRenamedNotification'], function (_export) {
+'use strict';
 
-  /**
-   * The `components` initializer registers components to display the default post
-   * types, activity types, and notifications type with the application.
-   *
-   * @param {ForumApp} app
-   */
-  'use strict';
-
+System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/PostedActivity', 'flarum/components/JoinedActivity', 'flarum/components/DiscussionRenamedNotification'], function (_export, _context) {
   var CommentPost, DiscussionRenamedPost, PostedActivity, JoinedActivity, DiscussionRenamedNotification;
-
-  _export('default', components);
-
   function components(app) {
     app.postComponents.comment = CommentPost;
     app.postComponents.discussionRenamed = DiscussionRenamedPost;
@@ -30645,32 +28477,28 @@ System.register('flarum/initializers/components', ['flarum/components/CommentPos
     app.notificationComponents.discussionRenamed = DiscussionRenamedNotification;
   }
 
+  _export('default', components);
+
   return {
     setters: [function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumComponentsDiscussionRenamedPost) {
-      DiscussionRenamedPost = _flarumComponentsDiscussionRenamedPost['default'];
+      DiscussionRenamedPost = _flarumComponentsDiscussionRenamedPost.default;
     }, function (_flarumComponentsPostedActivity) {
-      PostedActivity = _flarumComponentsPostedActivity['default'];
+      PostedActivity = _flarumComponentsPostedActivity.default;
     }, function (_flarumComponentsJoinedActivity) {
-      JoinedActivity = _flarumComponentsJoinedActivity['default'];
+      JoinedActivity = _flarumComponentsJoinedActivity.default;
     }, function (_flarumComponentsDiscussionRenamedNotification) {
-      DiscussionRenamedNotification = _flarumComponentsDiscussionRenamedNotification['default'];
+      DiscussionRenamedNotification = _flarumComponentsDiscussionRenamedNotification.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export, _context) {
   var humanTimeUtil;
 
-  _export('default', humanTime);
-
-  /**
-   * The `humanTime` initializer sets up a loop every 1 second to update
-   * timestamps rendered with the `humanTime` helper.
-   */
 
   function updateHumanTimes() {
     $('[data-humantime]').each(function () {
@@ -30680,37 +28508,28 @@ System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], fun
       $this.html(ago);
     });
   }
+
+  /**
+   * The `humanTime` initializer sets up a loop every 1 second to update
+   * timestamps rendered with the `humanTime` helper.
+   */
   function humanTime() {
     setInterval(updateHumanTimes, 1000);
   }
 
+  _export('default', humanTime);
+
   return {
     setters: [function (_flarumUtilsHumanTime) {
-      humanTimeUtil = _flarumUtilsHumanTime['default'];
+      humanTimeUtil = _flarumUtilsHumanTime.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/initializers/preload', ['flarum/Session'], function (_export) {
+'use strict';
 
-  /**
-   * The `preload` initializer creates the application session and preloads it
-   * with data that has been set on the application's `preload` property. It also
-   * preloads any data on the application's `preload` property into the store.
-   * Finally, it sets the application's `forum` instance to the one that was
-   * preloaded.
-   *
-   * `app.preload.session` should be the same as the response from the /api/token
-   * endpoint: it should contain `token` and `userId` keys.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
+System.register('flarum/initializers/preload', ['flarum/Session'], function (_export, _context) {
   var Session;
-
-  _export('default', preload);
-
   function preload(app) {
     app.store.pushPayload({ data: app.preload.data });
 
@@ -30719,107 +28538,94 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
     app.session = new Session(app.store.getById('users', app.preload.session.userId), app.preload.session.csrfToken);
   }
 
+  _export('default', preload);
+
   return {
     setters: [function (_flarumSession) {
-      Session = _flarumSession['default'];
+      Session = _flarumSession.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'flarum/components/DiscussionPage', 'flarum/components/PostsUserPage', 'flarum/components/DiscussionsUserPage', 'flarum/components/SettingsPage', 'flarum/components/NotificationsPage'], function (_export) {
+'use strict';
 
-  /**
-   * The `routes` initializer defines the forum app's routes.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
+System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'flarum/components/DiscussionPage', 'flarum/components/PostsUserPage', 'flarum/components/DiscussionsUserPage', 'flarum/components/SettingsPage', 'flarum/components/NotificationsPage'], function (_export, _context) {
   var IndexPage, DiscussionPage, PostsUserPage, DiscussionsUserPage, SettingsPage, NotificationsPage;
+
+  _export('default', function (app) {
+    app.routes = {
+      'index': { path: '/all', component: IndexPage.component() },
+      'index.filter': { path: '/:filter', component: IndexPage.component() },
+
+      'discussion': { path: '/d/:id', component: DiscussionPage.component() },
+      'discussion.near': { path: '/d/:id/:near', component: DiscussionPage.component() },
+
+      'user': { path: '/u/:username', component: PostsUserPage.component() },
+      'user.posts': { path: '/u/:username', component: PostsUserPage.component() },
+      'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage.component() },
+
+      'settings': { path: '/settings', component: SettingsPage.component() },
+      'notifications': { path: '/notifications', component: NotificationsPage.component() }
+    };
+
+    /**
+     * Generate a URL to a discussion.
+     *
+     * @param {Discussion} discussion
+     * @param {Integer} [near]
+     * @return {String}
+     */
+    app.route.discussion = function (discussion, near) {
+      return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
+        id: discussion.id() + '-' + discussion.slug(),
+        near: near && near !== 1 ? near : undefined
+      });
+    };
+
+    /**
+     * Generate a URL to a post.
+     *
+     * @param {Post} post
+     * @return {String}
+     */
+    app.route.post = function (post) {
+      return app.route.discussion(post.discussion(), post.number());
+    };
+
+    /**
+     * Generate a URL to a user.
+     *
+     * @param {User} user
+     * @return {String}
+     */
+    app.route.user = function (user) {
+      return app.route('user', {
+        username: user.username()
+      });
+    };
+  });
+
   return {
     setters: [function (_flarumComponentsIndexPage) {
-      IndexPage = _flarumComponentsIndexPage['default'];
+      IndexPage = _flarumComponentsIndexPage.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsPostsUserPage) {
-      PostsUserPage = _flarumComponentsPostsUserPage['default'];
+      PostsUserPage = _flarumComponentsPostsUserPage.default;
     }, function (_flarumComponentsDiscussionsUserPage) {
-      DiscussionsUserPage = _flarumComponentsDiscussionsUserPage['default'];
+      DiscussionsUserPage = _flarumComponentsDiscussionsUserPage.default;
     }, function (_flarumComponentsSettingsPage) {
-      SettingsPage = _flarumComponentsSettingsPage['default'];
+      SettingsPage = _flarumComponentsSettingsPage.default;
     }, function (_flarumComponentsNotificationsPage) {
-      NotificationsPage = _flarumComponentsNotificationsPage['default'];
+      NotificationsPage = _flarumComponentsNotificationsPage.default;
     }],
-    execute: function () {
-      _export('default', function (app) {
-        app.routes = {
-          'index': { path: '/all', component: IndexPage.component() },
-          'index.filter': { path: '/:filter', component: IndexPage.component() },
-
-          'discussion': { path: '/d/:id', component: DiscussionPage.component() },
-          'discussion.near': { path: '/d/:id/:near', component: DiscussionPage.component() },
-
-          'user': { path: '/u/:username', component: PostsUserPage.component() },
-          'user.posts': { path: '/u/:username', component: PostsUserPage.component() },
-          'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage.component() },
-
-          'settings': { path: '/settings', component: SettingsPage.component() },
-          'notifications': { path: '/notifications', component: NotificationsPage.component() }
-        };
-
-        /**
-         * Generate a URL to a discussion.
-         *
-         * @param {Discussion} discussion
-         * @param {Integer} [near]
-         * @return {String}
-         */
-        app.route.discussion = function (discussion, near) {
-          return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
-            id: discussion.id() + '-' + discussion.slug(),
-            near: near && near !== 1 ? near : undefined
-          });
-        };
-
-        /**
-         * Generate a URL to a post.
-         *
-         * @param {Post} post
-         * @return {String}
-         */
-        app.route.post = function (post) {
-          return app.route.discussion(post.discussion(), post.number());
-        };
-
-        /**
-         * Generate a URL to a user.
-         *
-         * @param {User} user
-         * @return {String}
-         */
-        app.route.user = function (user) {
-          return app.route('user', {
-            username: user.username()
-          });
-        };
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export) {
+'use strict';
 
-  /**
-   * The `store` initializer creates the application's data store and registers
-   * the default resource types to their models.
-   *
-   * @param {App} app
-   */
-  'use strict';
-
+System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export, _context) {
   var Store, Forum, User, Discussion, Post, Group, Activity, Notification;
-
-  _export('default', store);
-
   function store(app) {
     app.store = new Store({
       forums: Forum,
@@ -30832,41 +28638,37 @@ System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/For
     });
   }
 
+  _export('default', store);
+
   return {
     setters: [function (_flarumStore) {
-      Store = _flarumStore['default'];
+      Store = _flarumStore.default;
     }, function (_flarumModelsForum) {
-      Forum = _flarumModelsForum['default'];
+      Forum = _flarumModelsForum.default;
     }, function (_flarumModelsUser) {
-      User = _flarumModelsUser['default'];
+      User = _flarumModelsUser.default;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumModelsPost) {
-      Post = _flarumModelsPost['default'];
+      Post = _flarumModelsPost.default;
     }, function (_flarumModelsGroup) {
-      Group = _flarumModelsGroup['default'];
+      Group = _flarumModelsGroup.default;
     }, function (_flarumModelsActivity) {
-      Activity = _flarumModelsActivity['default'];
+      Activity = _flarumModelsActivity.default;
     }, function (_flarumModelsNotification) {
-      Notification = _flarumModelsNotification['default'];
+      Notification = _flarumModelsNotification.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/Model', [], function (_export) {
-  /**
-   * The `Model` class represents a local data resource. It provides methods to
-   * persist changes via the API.
-   *
-   * @abstract
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/Model', [], function (_export, _context) {
   var Model;
   return {
     setters: [],
     execute: function () {
-      Model = (function () {
+      Model = function () {
         /**
          * @param {Object} data A resource object from the API.
          * @param {Store} store The data store that this model should be persisted to.
@@ -30920,32 +28722,18 @@ System.register('flarum/Model', [], function (_export) {
          * @public
          * @final
          */
+
+
         babelHelpers.createClass(Model, [{
           key: 'id',
           value: function id() {
             return this.data.id;
           }
-
-          /**
-           * Get one of the model's attributes.
-           *
-           * @param {String} attribute
-           * @return {*}
-           * @public
-           * @final
-           */
         }, {
           key: 'attribute',
           value: function attribute(_attribute) {
             return this.data.attributes[_attribute];
           }
-
-          /**
-           * Merge new data into this model locally.
-           *
-           * @param {Object} data A resource object to merge into this model
-           * @public
-           */
         }, {
           key: 'pushData',
           value: function pushData(data) {
@@ -30953,7 +28741,7 @@ System.register('flarum/Model', [], function (_export) {
             // (e.g. relationships, attributes), we'll need to check and perform the
             // merge at the second level if that's the case.
             for (var key in data) {
-              if (typeof data[key] === 'object') {
+              if (babelHelpers.typeof(data[key]) === 'object') {
                 this.data[key] = this.data[key] || {};
 
                 // For every item in a second-level object, we want to check if we've
@@ -30974,28 +28762,11 @@ System.register('flarum/Model', [], function (_export) {
             // This is an easy way to invalidate retained subtrees etc.
             this.freshness = new Date();
           }
-
-          /**
-           * Merge new attributes into this model locally.
-           *
-           * @param {Object} attributes The attributes to merge.
-           * @public
-           */
         }, {
           key: 'pushAttributes',
           value: function pushAttributes(attributes) {
             this.pushData({ attributes: attributes });
           }
-
-          /**
-           * Merge new attributes into this model, both locally and with persistence.
-           *
-           * @param {Object} attributes The attributes to save. If a 'relationships' key
-           *     exists, it will be extracted and relationships will also be saved.
-           * @param {Object} [options]
-           * @return {Promise}
-           * @public
-           */
         }, {
           key: 'save',
           value: function save(attributes) {
@@ -31036,7 +28807,7 @@ System.register('flarum/Model', [], function (_export) {
             var request = { data: data };
             if (options.meta) request.meta = options.meta;
 
-            return app.request(babelHelpers._extends({
+            return app.request(babelHelpers.extends({
               method: this.exists ? 'PATCH' : 'POST',
               url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
               data: request
@@ -31058,15 +28829,6 @@ System.register('flarum/Model', [], function (_export) {
               throw response;
             });
           }
-
-          /**
-           * Send a request to delete the resource.
-           *
-           * @param {Object} data Data to send along with the DELETE request.
-           * @param {Object} [options]
-           * @return {Promise}
-           * @public
-           */
         }, {
           key: 'delete',
           value: function _delete(data) {
@@ -31076,7 +28838,7 @@ System.register('flarum/Model', [], function (_export) {
 
             if (!this.exists) return m.deferred.resolve().promise;
 
-            return app.request(babelHelpers._extends({
+            return app.request(babelHelpers.extends({
               method: 'DELETE',
               url: app.forum.attribute('apiUrl') + this.apiEndpoint(),
               data: data
@@ -31085,13 +28847,6 @@ System.register('flarum/Model', [], function (_export) {
               _this2.store.remove(_this2);
             });
           }
-
-          /**
-           * Construct a path to the API endpoint for this resource.
-           *
-           * @return {String}
-           * @protected
-           */
         }, {
           key: 'apiEndpoint',
           value: function apiEndpoint() {
@@ -31102,15 +28857,6 @@ System.register('flarum/Model', [], function (_export) {
           value: function copyData() {
             return JSON.parse(JSON.stringify(this.data));
           }
-
-          /**
-           * Generate a function which returns the value of the given attribute.
-           *
-           * @param {String} name
-           * @param {function} [transform] A function to transform the attribute value
-           * @return {*}
-           * @public
-           */
         }], [{
           key: 'attribute',
           value: function attribute(name, transform) {
@@ -31120,17 +28866,6 @@ System.register('flarum/Model', [], function (_export) {
               return transform ? transform(value) : value;
             };
           }
-
-          /**
-           * Generate a function which returns the value of the given has-one
-           * relationship.
-           *
-           * @param {String} name
-           * @return {Model|Boolean|undefined} false if no information about the
-           *     relationship exists; undefined if the relationship exists but the model
-           *     has not been loaded; or the model if it has been loaded.
-           * @public
-           */
         }, {
           key: 'hasOne',
           value: function hasOne(name) {
@@ -31146,17 +28881,6 @@ System.register('flarum/Model', [], function (_export) {
               return false;
             };
           }
-
-          /**
-           * Generate a function which returns the value of the given has-many
-           * relationship.
-           *
-           * @param {String} name
-           * @return {Array|Boolean} false if no information about the relationship
-           *     exists; an array if it does, containing models if they have been
-           *     loaded, and undefined for those that have not.
-           * @public
-           */
         }, {
           key: 'hasMany',
           value: function hasMany(name) {
@@ -31174,27 +28898,11 @@ System.register('flarum/Model', [], function (_export) {
               return false;
             };
           }
-
-          /**
-           * Transform the given value into a Date object.
-           *
-           * @param {String} value
-           * @return {Date|null}
-           * @public
-           */
         }, {
           key: 'transformDate',
           value: function transformDate(value) {
             return value ? new Date(value) : null;
           }
-
-          /**
-           * Get a resource identifier object for the given model.
-           *
-           * @param {Model} model
-           * @return {Object}
-           * @protected
-           */
         }, {
           key: 'getIdentifier',
           value: function getIdentifier(model) {
@@ -31205,43 +28913,43 @@ System.register('flarum/Model', [], function (_export) {
           }
         }]);
         return Model;
-      })();
+      }();
 
       _export('default', Model);
     }
   };
 });;
-System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/components/Badge'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/components/Badge'], function (_export, _context) {
   var Model, mixin, computed, ItemList, Badge, Discussion;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
+      Badge = _flarumComponentsBadge.default;
     }],
     execute: function () {
-      Discussion = (function (_Model) {
+      Discussion = function (_Model) {
         babelHelpers.inherits(Discussion, _Model);
 
         function Discussion() {
           babelHelpers.classCallCheck(this, Discussion);
-          babelHelpers.get(Object.getPrototypeOf(Discussion.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Discussion).apply(this, arguments));
         }
 
         return Discussion;
-      })(Model);
+      }(Model);
 
       _export('default', Discussion);
 
-      babelHelpers._extends(Discussion.prototype, {
+      babelHelpers.extends(Discussion.prototype, {
         title: Model.attribute('title'),
         slug: Model.attribute('slug'),
 
@@ -31281,12 +28989,6 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
         canHide: Model.attribute('canHide'),
         canDelete: Model.attribute('canDelete'),
 
-        /**
-         * Remove a post from the discussion's posts relationship.
-         *
-         * @param {Integer} id The ID of the post to remove.
-         * @public
-         */
         removePost: function removePost(id) {
           var relationships = this.data.relationships;
           var posts = relationships && relationships.posts;
@@ -31300,14 +29002,6 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
             });
           }
         },
-
-        /**
-         * Get the estimated number of unread posts in this discussion for the current
-         * user.
-         *
-         * @return {Integer}
-         * @public
-         */
         unreadCount: function unreadCount() {
           var user = app.session.user;
 
@@ -31317,13 +29011,6 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
 
           return 0;
         },
-
-        /**
-         * Get the Badge components that apply to this discussion.
-         *
-         * @return {ItemList}
-         * @public
-         */
         badges: function badges() {
           var items = new ItemList();
 
@@ -31333,13 +29020,6 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
 
           return items;
         },
-
-        /**
-         * Get a list of all of the post IDs in this discussion.
-         *
-         * @return {Array}
-         * @public
-         */
         postIds: function postIds() {
           var posts = this.data.relationships.posts;
 
@@ -31353,23 +29033,23 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
     }
   };
 });;
-System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export, _context) {
   var Model, mixin, Forum;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }],
     execute: function () {
-      Forum = (function (_Model) {
+      Forum = function (_Model) {
         babelHelpers.inherits(Forum, _Model);
 
         function Forum() {
           babelHelpers.classCallCheck(this, Forum);
-          babelHelpers.get(Object.getPrototypeOf(Forum.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Forum).apply(this, arguments));
         }
 
         babelHelpers.createClass(Forum, [{
@@ -31379,35 +29059,35 @@ System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], f
           }
         }]);
         return Forum;
-      })(Model);
+      }(Model);
 
       _export('default', Forum);
     }
   };
 });;
-System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export, _context) {
   var Model, mixin, Group;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }],
     execute: function () {
-      Group = (function (_Model) {
+      Group = function (_Model) {
         babelHelpers.inherits(Group, _Model);
 
         function Group() {
           babelHelpers.classCallCheck(this, Group);
-          babelHelpers.get(Object.getPrototypeOf(Group.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Group).apply(this, arguments));
         }
 
         return Group;
-      })(Model);
+      }(Model);
 
-      babelHelpers._extends(Group.prototype, {
+      babelHelpers.extends(Group.prototype, {
         nameSingular: Model.attribute('nameSingular'),
         namePlural: Model.attribute('namePlural'),
         color: Model.attribute('color'),
@@ -31422,33 +29102,33 @@ System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], f
     }
   };
 });;
-System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export, _context) {
   var Model, mixin, computed, Notification;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }],
     execute: function () {
-      Notification = (function (_Model) {
+      Notification = function (_Model) {
         babelHelpers.inherits(Notification, _Model);
 
         function Notification() {
           babelHelpers.classCallCheck(this, Notification);
-          babelHelpers.get(Object.getPrototypeOf(Notification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Notification).apply(this, arguments));
         }
 
         return Notification;
-      })(Model);
+      }(Model);
 
       _export('default', Notification);
 
-      babelHelpers._extends(Notification.prototype, {
+      babelHelpers.extends(Notification.prototype, {
         contentType: Model.attribute('contentType'),
         subjectId: Model.attribute('subjectId'),
         content: Model.attribute('content'),
@@ -31469,35 +29149,35 @@ System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mix
     }
   };
 });;
-System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export, _context) {
   var Model, mixin, computed, getPlainContent, Post;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }, function (_flarumUtilsString) {
       getPlainContent = _flarumUtilsString.getPlainContent;
     }],
     execute: function () {
-      Post = (function (_Model) {
+      Post = function (_Model) {
         babelHelpers.inherits(Post, _Model);
 
         function Post() {
           babelHelpers.classCallCheck(this, Post);
-          babelHelpers.get(Object.getPrototypeOf(Post.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Post).apply(this, arguments));
         }
 
         return Post;
-      })(Model);
+      }(Model);
 
       _export('default', Post);
 
-      babelHelpers._extends(Post.prototype, {
+      babelHelpers.extends(Post.prototype, {
         number: Model.attribute('number'),
         discussion: Model.hasOne('discussion'),
 
@@ -31528,41 +29208,39 @@ System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'fl
     }
   };
 });;
-System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export) {
-  /*global ColorThief*/
+'use strict';
 
-  'use strict';
-
+System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export, _context) {
   var Model, mixin, stringToColor, ItemList, computed, GroupBadge, User;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsStringToColor) {
-      stringToColor = _flarumUtilsStringToColor['default'];
+      stringToColor = _flarumUtilsStringToColor.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }, function (_flarumComponentsGroupBadge) {
-      GroupBadge = _flarumComponentsGroupBadge['default'];
+      GroupBadge = _flarumComponentsGroupBadge.default;
     }],
     execute: function () {
-      User = (function (_Model) {
+      User = function (_Model) {
         babelHelpers.inherits(User, _Model);
 
         function User() {
           babelHelpers.classCallCheck(this, User);
-          babelHelpers.get(Object.getPrototypeOf(User.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(User).apply(this, arguments));
         }
 
         return User;
-      })(Model);
+      }(Model);
 
       _export('default', User);
 
-      babelHelpers._extends(User.prototype, {
+      babelHelpers.extends(User.prototype, {
         username: Model.attribute('username'),
         email: Model.attribute('email'),
         isActivated: Model.attribute('isActivated'),
@@ -31604,21 +29282,9 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
           return '#' + stringToColor(username);
         }),
 
-        /**
-         * Check whether or not the user has been seen in the last 5 minutes.
-         *
-         * @return {Boolean}
-         * @public
-         */
         isOnline: function isOnline() {
           return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate();
         },
-
-        /**
-         * Get the Badge components that apply to this user.
-         *
-         * @return {ItemList}
-         */
         badges: function badges() {
           var items = new ItemList();
           var groups = this.groups();
@@ -31631,13 +29297,6 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
 
           return items;
         },
-
-        /**
-         * Calculate the dominant color of the user's avatar. The dominant color will
-         * be set to the `avatarColor` property once it has been calculated.
-         *
-         * @protected
-         */
         calculateAvatarColor: function calculateAvatarColor() {
           var image = new Image();
           var user = this;
@@ -31650,17 +29309,10 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
           };
           image.src = this.avatarUrl();
         },
-
-        /**
-         * Update the user's preferences.
-         *
-         * @param {Object} newPreferences
-         * @return {Promise}
-         */
         savePreferences: function savePreferences(newPreferences) {
           var preferences = this.preferences();
 
-          babelHelpers._extends(preferences, newPreferences);
+          babelHelpers.extends(preferences, newPreferences);
 
           return this.save({ preferences: preferences });
         }
@@ -31670,18 +29322,14 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'fl
     }
   };
 });;
-System.register('flarum/Session', [], function (_export) {
-  /**
-   * The `Session` class defines the current user session. It stores a reference
-   * to the current authenticated user, and provides methods to log in/out.
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/Session', [], function (_export, _context) {
   var Session;
   return {
     setters: [],
     execute: function () {
-      Session = (function () {
+      Session = function () {
         function Session(user, csrfToken) {
           babelHelpers.classCallCheck(this, Session);
 
@@ -31711,23 +29359,19 @@ System.register('flarum/Session', [], function (_export) {
          * @return {Promise}
          * @public
          */
+
+
         babelHelpers.createClass(Session, [{
           key: 'login',
           value: function login(identification, password) {
             var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-            return app.request(babelHelpers._extends({
+            return app.request(babelHelpers.extends({
               method: 'POST',
               url: app.forum.attribute('baseUrl') + '/login',
               data: { identification: identification, password: password }
             }, options));
           }
-
-          /**
-           * Log the user out.
-           *
-           * @public
-           */
         }, {
           key: 'logout',
           value: function logout() {
@@ -31735,24 +29379,20 @@ System.register('flarum/Session', [], function (_export) {
           }
         }]);
         return Session;
-      })();
+      }();
 
       _export('default', Session);
     }
   };
 });;
-System.register('flarum/Store', [], function (_export) {
-  /**
-   * The `Store` class defines a local data store, and provides methods to
-   * retrieve data from the API.
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/Store', [], function (_export, _context) {
   var Store;
   return {
     setters: [],
     execute: function () {
-      Store = (function () {
+      Store = function () {
         function Store(models) {
           babelHelpers.classCallCheck(this, Store);
 
@@ -31783,6 +29423,8 @@ System.register('flarum/Store', [], function (_export) {
          *     within the 'data' key of the payload.
          * @public
          */
+
+
         babelHelpers.createClass(Store, [{
           key: 'pushPayload',
           value: function pushPayload(payload) {
@@ -31797,16 +29439,6 @@ System.register('flarum/Store', [], function (_export) {
 
             return result;
           }
-
-          /**
-           * Create a model to represent a resource object (or update an existing one),
-           * and push it into the store.
-           *
-           * @param {Object} data The resource object
-           * @return {Model|null} The model, or null if no model class has been
-           *     registered for this resource type.
-           * @public
-           */
         }, {
           key: 'pushObject',
           value: function pushObject(data) {
@@ -31824,19 +29456,6 @@ System.register('flarum/Store', [], function (_export) {
 
             return type[data.id];
           }
-
-          /**
-           * Make a request to the API to find record(s) of a specific type.
-           *
-           * @param {String} type The resource type.
-           * @param {Integer|Integer[]|Object} [id] The ID(s) of the model(s) to retreive.
-           *     Alternatively, if an object is passed, it will be handled as the
-           *     `query` parameter.
-           * @param {Object} [query]
-           * @param {Object} [options]
-           * @return {Promise}
-           * @public
-           */
         }, {
           key: 'find',
           value: function find(type, id) {
@@ -31848,42 +29467,23 @@ System.register('flarum/Store', [], function (_export) {
 
             if (id instanceof Array) {
               url += '?filter[id]=' + id.join(',');
-            } else if (typeof id === 'object') {
+            } else if ((typeof id === 'undefined' ? 'undefined' : babelHelpers.typeof(id)) === 'object') {
               data = id;
             } else if (id) {
               url += '/' + id;
             }
 
-            return app.request(babelHelpers._extends({
+            return app.request(babelHelpers.extends({
               method: 'GET',
               url: url,
               data: data
             }, options)).then(this.pushPayload.bind(this));
           }
-
-          /**
-           * Get a record from the store by ID.
-           *
-           * @param {String} type The resource type.
-           * @param {Integer} id The resource ID.
-           * @return {Model}
-           * @public
-           */
         }, {
           key: 'getById',
           value: function getById(type, id) {
             return this.data[type] && this.data[type][id];
           }
-
-          /**
-           * Get a record from the store by the value of a model attribute.
-           *
-           * @param {String} type The resource type.
-           * @param {String} key The name of the method on the model.
-           * @param {*} value The value of the model attribute.
-           * @return {Model}
-           * @public
-           */
         }, {
           key: 'getBy',
           value: function getBy(type, key, value) {
@@ -31891,14 +29491,6 @@ System.register('flarum/Store', [], function (_export) {
               return model[key]() === value;
             })[0];
           }
-
-          /**
-           * Get all loaded records of a specific type.
-           *
-           * @param {String} type
-           * @return {Model[]}
-           * @public
-           */
         }, {
           key: 'all',
           value: function all(type) {
@@ -31908,26 +29500,11 @@ System.register('flarum/Store', [], function (_export) {
               return records[id];
             }) : [];
           }
-
-          /**
-           * Remove the given model from the store.
-           *
-           * @param {Model} model
-           */
         }, {
           key: 'remove',
           value: function remove(model) {
             delete this.data[model.data.type][model.id()];
           }
-
-          /**
-           * Create a new record of the given type.
-           *
-           * @param {String} type The resource type
-           * @param {Object} [data] Any data to initialize the model with
-           * @return {Model}
-           * @public
-           */
         }, {
           key: 'createRecord',
           value: function createRecord(type) {
@@ -31939,36 +29516,28 @@ System.register('flarum/Store', [], function (_export) {
           }
         }]);
         return Store;
-      })();
+      }();
 
       _export('default', Store);
     }
   };
 });;
-System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export) {
+'use strict';
 
-  /**
-   * Translator with the same API as Symfony's.
-   *
-   * Derived from https://github.com/willdurand/BazingaJsTranslationBundle
-   * which is available under the MIT License.
-   * Copyright (c) William Durand <william.durand1@gmail.com>
-   */
-  'use strict';
-
+System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export, _context) {
   var User, username, extractText, extract, Translator;
   return {
     setters: [function (_flarumModelsUser) {
-      User = _flarumModelsUser['default'];
+      User = _flarumModelsUser.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }, function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }],
     execute: function () {
-      Translator = (function () {
+      Translator = function () {
         function Translator() {
           babelHelpers.classCallCheck(this, Translator);
 
@@ -32068,8 +29637,8 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
                 var matches = part.match(cPluralRegex);
                 explicitRules[matches[0]] = matches[matches.length - 1];
               } else if (sPluralRegex.test(part)) {
-                var matches = part.match(sPluralRegex);
-                standardRules.push(matches[1]);
+                var _matches = part.match(sPluralRegex);
+                standardRules.push(_matches[1]);
               } else {
                 standardRules.push(part);
               }
@@ -32253,27 +29822,15 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
           }
         }]);
         return Translator;
-      })();
+      }();
 
       _export('default', Translator);
     }
   };
 });;
-System.register('flarum/utils/abbreviateNumber', [], function (_export) {
-  /**
-   * The `abbreviateNumber` utility converts a number to a shorter localized form.
-   *
-   * @example
-   * abbreviateNumber(1234);
-   * // "1.2K"
-   *
-   * @param {Integer} number
-   * @return {String}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', abbreviateNumber);
-
+System.register('flarum/utils/abbreviateNumber', [], function (_export, _context) {
   function abbreviateNumber(number) {
     // TODO: translation
     if (number >= 1000000) {
@@ -32285,23 +29842,16 @@ System.register('flarum/utils/abbreviateNumber', [], function (_export) {
     }
   }
 
+  _export('default', abbreviateNumber);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/affixSidebar', [], function (_export) {
-  /**
-   * Setup the sidebar DOM element to be affixed to the top of the viewport
-   * using Bootstrap's affix plugin.
-   *
-   * @param {DOMElement} element
-   * @param {Boolean} isInitialized
-   */
-  'use strict';
+'use strict';
 
-  _export('default', affixSidebar);
-
+System.register('flarum/utils/affixSidebar', [], function (_export, _context) {
   function affixSidebar(element, isInitialized) {
     var _this = this;
 
@@ -32327,29 +29877,16 @@ System.register('flarum/utils/affixSidebar', [], function (_export) {
     });
   }
 
+  _export('default', affixSidebar);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register("flarum/utils/anchorScroll", [], function (_export) {
-  /**
-   * The `anchorScroll` utility saves the scroll position relative to an element,
-   * and then restores it after a callback has been run.
-   *
-   * This is useful if a redraw will change the page's content above the viewport.
-   * Normally doing this will result in the content in the viewport being pushed
-   * down or pulled up. By wrapping the redraw with this utility, the scroll
-   * position can be anchor to an element that is in or below the viewport, so
-   * the content in the viewport will stay the same.
-   *
-   * @param {DOMElement} element The element to anchor the scroll position to.
-   * @param {Function} callback The callback to run that will change page content.
-   */
-  "use strict";
+"use strict";
 
-  _export("default", anchorScroll);
-
+System.register("flarum/utils/anchorScroll", [], function (_export, _context) {
   function anchorScroll(element, callback) {
     var $window = $(window);
     var relativeScroll = $(element).offset().top - $window.scrollTop();
@@ -32359,29 +29896,18 @@ System.register("flarum/utils/anchorScroll", [], function (_export) {
     $window.scrollTop($(element).offset().top - relativeScroll);
   }
 
+  _export("default", anchorScroll);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/classList', [], function (_export) {
-  /**
-   * The `classList` utility creates a list of class names by joining an object's
-   * keys, but only for values which are truthy.
-   *
-   * @example
-   * classList({ foo: true, bar: false, qux: 'qaz' });
-   * // "foo qux"
-   *
-   * @param {Object} classes
-   * @return {String}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', classList);
-
+System.register('flarum/utils/classList', [], function (_export, _context) {
   function classList(classes) {
-    var classNames = undefined;
+    var classNames = void 0;
 
     if (classes instanceof Array) {
       classNames = classes.filter(function (name) {
@@ -32398,25 +29924,16 @@ System.register('flarum/utils/classList', [], function (_export) {
     return classNames.join(' ');
   }
 
+  _export('default', classList);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/computed', [], function (_export) {
-  /**
-   * The `computed` utility creates a function that will cache its output until
-   * any of the dependent values are dirty.
-   *
-   * @param {...String} dependentKeys The keys of the dependent values.
-   * @param {function} compute The function which computes the value using the
-   *     dependent values.
-   * @return {Function}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', computed);
-
+System.register('flarum/utils/computed', [], function (_export, _context) {
   function computed() {
     for (var _len = arguments.length, dependentKeys = Array(_len), _key = 0; _key < _len; _key++) {
       dependentKeys[_key] = arguments[_key];
@@ -32426,7 +29943,7 @@ System.register('flarum/utils/computed', [], function (_export) {
     var compute = dependentKeys.slice(-1)[0];
 
     var dependentValues = {};
-    var computedValue = undefined;
+    var computedValue = void 0;
 
     return function () {
       var _this = this;
@@ -32454,47 +29971,35 @@ System.register('flarum/utils/computed', [], function (_export) {
     };
   }
 
+  _export('default', computed);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export) {
+'use strict';
 
-  /**
-   * The `DiscussionControls` utility constructs a list of buttons for a
-   * discussion which perform actions on it.
-   */
-  'use strict';
-
+System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export, _context) {
   var DiscussionPage, ReplyComposer, LogInModal, Button, Separator, ItemList, extractText;
   return {
     setters: [function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsReplyComposer) {
-      ReplyComposer = _flarumComponentsReplyComposer['default'];
+      ReplyComposer = _flarumComponentsReplyComposer.default;
     }, function (_flarumComponentsLogInModal) {
-      LogInModal = _flarumComponentsLogInModal['default'];
+      LogInModal = _flarumComponentsLogInModal.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
+      Separator = _flarumComponentsSeparator.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText['default'];
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
       _export('default', {
-        /**
-         * Get a list of controls for a discussion.
-         *
-         * @param {Discussion} discussion
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @public
-         */
         controls: function controls(discussion, context) {
           var _this = this;
 
@@ -32512,17 +30017,6 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
           return items;
         },
-
-        /**
-         * Get controls for a discussion pertaining to the current user (e.g. reply,
-         * follow).
-         *
-         * @param {Discussion} discussion
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         userControls: function userControls(discussion, context) {
           var items = new ItemList();
 
@@ -32544,16 +30038,6 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
           return items;
         },
-
-        /**
-         * Get controls for a discussion pertaining to moderation (e.g. rename, lock).
-         *
-         * @param {Discussion} discussion
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         moderationControls: function moderationControls(discussion) {
           var items = new ItemList();
 
@@ -32567,16 +30051,6 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
           return items;
         },
-
-        /**
-         * Get controls for a discussion which are destructive (e.g. delete).
-         *
-         * @param {Discussion} discussion
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         destructiveControls: function destructiveControls(discussion) {
           var items = new ItemList();
 
@@ -32605,20 +30079,6 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
           return items;
         },
-
-        /**
-         * Open the reply composer for the discussion. A promise will be returned,
-         * which resolves when the composer opens successfully. If the user is not
-         * logged in, they will be prompted and then the reply composer will open (and
-         * the promise will resolve) after they do. If they don't have permission to
-         * reply, the promise will be rejected.
-         *
-         * @param {Boolean} goToLast Whether or not to scroll down to the last post if
-         *     the discussion is being viewed.
-         * @param {Boolean} forceRefresh Whether or not to force a reload of the
-         *     composer component, even if it is already open for this discussion.
-         * @return {Promise}
-         */
         replyAction: function replyAction(goToLast, forceRefresh) {
           var _this2 = this;
 
@@ -32664,34 +30124,16 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
           return deferred.promise;
         },
-
-        /**
-         * Hide a discussion.
-         *
-         * @return {Promise}
-         */
         hideAction: function hideAction() {
           this.pushAttributes({ hideTime: new Date(), hideUser: app.session.user });
 
           return this.save({ isHidden: true });
         },
-
-        /**
-         * Restore a discussion.
-         *
-         * @return {Promise}
-         */
         restoreAction: function restoreAction() {
           this.pushAttributes({ hideTime: null, hideUser: null });
 
           return this.save({ isHidden: false });
         },
-
-        /**
-         * Delete the discussion after confirming with the user.
-         *
-         * @return {Promise}
-         */
         deleteAction: function deleteAction() {
           var _this3 = this;
 
@@ -32702,7 +30144,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
               app.history.back();
             }
 
-            return this['delete']().then(function () {
+            return this.delete().then(function () {
               // If there is a discussion list in the cache, remove this discussion.
               if (app.cache.discussionList) {
                 app.cache.discussionList.removeDiscussion(_this3);
@@ -32711,12 +30153,6 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
             });
           }
         },
-
-        /**
-         * Rename the discussion.
-         *
-         * @return {Promise}
-         */
         renameAction: function renameAction() {
           var _this4 = this;
 
@@ -32739,19 +30175,14 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
     }
   };
 });;
-System.register('flarum/utils/Drawer', [], function (_export) {
-  /**
-   * The `Drawer` class controls the page's drawer. The drawer is the area the
-   * slides out from the left on mobile devices; it contains the header and the
-   * footer.
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/utils/Drawer', [], function (_export, _context) {
   var Drawer;
   return {
     setters: [],
     execute: function () {
-      Drawer = (function () {
+      Drawer = function () {
         function Drawer() {
           var _this = this;
 
@@ -32773,17 +30204,13 @@ System.register('flarum/utils/Drawer', [], function (_export) {
          * @return {Boolean}
          * @public
          */
+
+
         babelHelpers.createClass(Drawer, [{
           key: 'isOpen',
           value: function isOpen() {
             return $('#app').hasClass('drawerOpen');
           }
-
-          /**
-           * Hide the drawer.
-           *
-           * @public
-           */
         }, {
           key: 'hide',
           value: function hide() {
@@ -32791,12 +30218,6 @@ System.register('flarum/utils/Drawer', [], function (_export) {
 
             if (this.$backdrop) this.$backdrop.remove();
           }
-
-          /**
-           * Show the drawer.
-           *
-           * @public
-           */
         }, {
           key: 'show',
           value: function show() {
@@ -32814,19 +30235,15 @@ System.register('flarum/utils/Drawer', [], function (_export) {
           }
         }]);
         return Drawer;
-      })();
+      }();
 
       _export('default', Drawer);
     }
   };
 });;
-System.register("flarum/utils/evented", [], function (_export) {
-  /**
-   * The `evented` mixin provides methods allowing an object to trigger events,
-   * running externally registered event handlers.
-   */
-  "use strict";
+"use strict";
 
+System.register("flarum/utils/evented", [], function (_export, _context) {
   return {
     setters: [],
     execute: function () {
@@ -32839,13 +30256,6 @@ System.register("flarum/utils/evented", [], function (_export) {
          */
         handlers: null,
 
-        /**
-         * Get all of the registered handlers for an event.
-         *
-         * @param {String} event The name of the event.
-         * @return {Array}
-         * @protected
-         */
         getHandlers: function getHandlers(event) {
           this.handlers = this.handlers || {};
 
@@ -32853,14 +30263,6 @@ System.register("flarum/utils/evented", [], function (_export) {
 
           return this.handlers[event];
         },
-
-        /**
-         * Trigger an event.
-         *
-         * @param {String} event The name of the event.
-         * @param {...*} args Arguments to pass to event handlers.
-         * @public
-         */
         trigger: function trigger(event) {
           var _this = this;
 
@@ -32872,24 +30274,9 @@ System.register("flarum/utils/evented", [], function (_export) {
             return handler.apply(_this, args);
           });
         },
-
-        /**
-         * Register an event handler.
-         *
-         * @param {String} event The name of the event.
-         * @param {function} handler The function to handle the event.
-         */
         on: function on(event, handler) {
           this.getHandlers(event).push(handler);
         },
-
-        /**
-         * Register an event handler so that it will run only once, and then
-         * unregister itself.
-         *
-         * @param {String} event The name of the event.
-         * @param {function} handler The function to handle the event.
-         */
         one: function one(event, handler) {
           var wrapper = function wrapper() {
             handler.apply(this, arguments);
@@ -32899,13 +30286,6 @@ System.register("flarum/utils/evented", [], function (_export) {
 
           this.getHandlers(event).push(wrapper);
         },
-
-        /**
-         * Unregister an event handler.
-         *
-         * @param {String} event The name of the event.
-         * @param {function} handler The function that handles the event.
-         */
         off: function off(event, handler) {
           var handlers = this.getHandlers(event);
           var index = handlers.indexOf(handler);
@@ -32918,19 +30298,9 @@ System.register("flarum/utils/evented", [], function (_export) {
     }
   };
 });;
-System.register("flarum/utils/extract", [], function (_export) {
-  /**
-   * The `extract` utility deletes a property from an object and returns its
-   * value.
-   *
-   * @param {Object} object The object that owns the property
-   * @param {String} property The name of the property to extract
-   * @return {*} The value of the property
-   */
-  "use strict";
+"use strict";
 
-  _export("default", extract);
-
+System.register("flarum/utils/extract", [], function (_export, _context) {
   function extract(object, property) {
     var value = object[property];
 
@@ -32939,22 +30309,16 @@ System.register("flarum/utils/extract", [], function (_export) {
     return value;
   }
 
+  _export("default", extract);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/extractText', [], function (_export) {
-  /**
-   * Extract the text nodes from a virtual element.
-   *
-   * @param {VirtualElement} vdom
-   * @return {String}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', extractText);
-
+System.register('flarum/utils/extractText', [], function (_export, _context) {
   function extractText(vdom) {
     var text = '';
 
@@ -32962,7 +30326,7 @@ System.register('flarum/utils/extractText', [], function (_export) {
       text += vdom.map(function (element) {
         return extractText(element);
       }).join('');
-    } else if (typeof vdom === 'object') {
+    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object') {
       text += extractText(vdom.children);
     } else {
       text += vdom;
@@ -32971,55 +30335,35 @@ System.register('flarum/utils/extractText', [], function (_export) {
     return text;
   }
 
+  _export('default', extractText);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/formatNumber', [], function (_export) {
-  /**
-   * The `formatNumber` utility localizes a number into a string with the
-   * appropriate punctuation.
-   *
-   * @example
-   * formatNumber(1234);
-   * // 1,234
-   *
-   * @param {Number} number
-   * @return {String}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', formatNumber);
-
+System.register('flarum/utils/formatNumber', [], function (_export, _context) {
   function formatNumber(number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
+  _export('default', formatNumber);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/History', [], function (_export) {
-  /**
-   * The `History` class keeps track and manages a stack of routes that the user
-   * has navigated to in their session.
-   *
-   * An item can be pushed to the top of the stack using the `push` method. An
-   * item in the stack has a name and a URL. The name need not be unique; if it is
-   * the same as the item before it, that will be overwritten with the new URL. In
-   * this way, if a user visits a discussion, and then visits another discussion,
-   * popping the history stack will still take them back to the discussion list
-   * rather than the previous discussion.
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/utils/History', [], function (_export, _context) {
   var History;
   return {
     setters: [],
     execute: function () {
-      History = (function () {
+      History = function () {
         function History(defaultRoute) {
           babelHelpers.classCallCheck(this, History);
 
@@ -33038,33 +30382,18 @@ System.register('flarum/utils/History', [], function (_export) {
          * @return {Object}
          * @public
          */
+
+
         babelHelpers.createClass(History, [{
           key: 'getCurrent',
           value: function getCurrent() {
             return this.stack[this.stack.length - 1];
           }
-
-          /**
-           * Get the previous item on the stack.
-           *
-           * @return {Object}
-           * @public
-           */
         }, {
           key: 'getPrevious',
           value: function getPrevious() {
             return this.stack[this.stack.length - 2];
           }
-
-          /**
-           * Push an item to the top of the stack.
-           *
-           * @param {String} name The name of the route.
-           * @param {String} title The title of the route.
-           * @param {String} [url] The URL of the route. The current URL will be used if
-           *     not provided.
-           * @public
-           */
         }, {
           key: 'push',
           value: function push(name, title) {
@@ -33084,29 +30413,16 @@ System.register('flarum/utils/History', [], function (_export) {
             // then we'll overwrite it with the new URL.
             var top = this.getCurrent();
             if (top && top.name === name) {
-              babelHelpers._extends(top, { url: url, title: title });
+              babelHelpers.extends(top, { url: url, title: title });
             } else {
               this.stack.push({ name: name, url: url, title: title });
             }
           }
-
-          /**
-           * Check whether or not the history stack is able to be popped.
-           *
-           * @return {Boolean}
-           * @public
-           */
         }, {
           key: 'canGoBack',
           value: function canGoBack() {
             return this.stack.length > 1;
           }
-
-          /**
-           * Go back to the previous route in the history stack.
-           *
-           * @public
-           */
         }, {
           key: 'back',
           value: function back() {
@@ -33114,12 +30430,6 @@ System.register('flarum/utils/History', [], function (_export) {
 
             m.route(this.getCurrent().url);
           }
-
-          /**
-           * Get the URL of the previous page.
-           *
-           * @public
-           */
         }, {
           key: 'backUrl',
           value: function backUrl() {
@@ -33127,12 +30437,6 @@ System.register('flarum/utils/History', [], function (_export) {
 
             return secondTop.url;
           }
-
-          /**
-           * Go to the first route in the history stack.
-           *
-           * @public
-           */
         }, {
           key: 'home',
           value: function home() {
@@ -33142,24 +30446,15 @@ System.register('flarum/utils/History', [], function (_export) {
           }
         }]);
         return History;
-      })();
+      }();
 
       _export('default', History);
     }
   };
 });;
-System.register('flarum/utils/humanTime', [], function (_export) {
-  /**
-   * The `humanTime` utility converts a date to a localized, human-readable time-
-   * ago string.
-   *
-   * @param {Date} time
-   * @return {String}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', humanTime);
-
+System.register('flarum/utils/humanTime', [], function (_export, _context) {
   function humanTime(time) {
     var m = moment(time);
 
@@ -33181,17 +30476,24 @@ System.register('flarum/utils/humanTime', [], function (_export) {
 
     return ago;
   }
+  _export('default', humanTime);
 
   return {
     setters: [],
     execute: function () {
-      ;
+      ; /**
+         * The `humanTime` utility converts a date to a localized, human-readable time-
+         * ago string.
+         *
+         * @param {Date} time
+         * @return {String}
+         */
     }
   };
 });;
-System.register("flarum/utils/ItemList", [], function (_export) {
-  "use strict";
+"use strict";
 
+System.register("flarum/utils/ItemList", [], function (_export, _context) {
   var Item, ItemList;
   return {
     setters: [],
@@ -33201,15 +30503,9 @@ System.register("flarum/utils/ItemList", [], function (_export) {
 
         this.content = content;
         this.priority = priority;
-      }
+      };
 
-      /**
-       * The `ItemList` class collects items and then arranges them into an array
-       * by priority.
-       */
-      ;
-
-      ItemList = (function () {
+      ItemList = function () {
         function ItemList() {
           babelHelpers.classCallCheck(this, ItemList);
 
@@ -33228,34 +30524,18 @@ System.register("flarum/utils/ItemList", [], function (_export) {
          * @param key
          * @returns {boolean}
          */
+
+
         babelHelpers.createClass(ItemList, [{
           key: "has",
           value: function has(key) {
             return !!this.items[key];
           }
-
-          /**
-           * Get the content of an item.
-           *
-           * @param {String} key
-           * @return {*}
-           * @public
-           */
         }, {
           key: "get",
           value: function get(key) {
             return this.items[key].content;
           }
-
-          /**
-           * Add an item to the list.
-           *
-           * @param {String} key A unique key for the item.
-           * @param {*} content The item's content.
-           * @param {Integer} [priority] The priority of the item. Items with a higher
-           *     priority will be positioned before items with a lower priority.
-           * @public
-           */
         }, {
           key: "add",
           value: function add(key, content) {
@@ -33263,15 +30543,6 @@ System.register("flarum/utils/ItemList", [], function (_export) {
 
             this.items[key] = new Item(content, priority);
           }
-
-          /**
-           * Replace an item in the list, only if it is already present.
-           *
-           * @param {String} key
-           * @param {*} [content]
-           * @param {Integer} [priority]
-           * @public
-           */
         }, {
           key: "replace",
           value: function replace(key) {
@@ -33288,25 +30559,11 @@ System.register("flarum/utils/ItemList", [], function (_export) {
               }
             }
           }
-
-          /**
-           * Remove an item from the list.
-           *
-           * @param {String} key
-           * @public
-           */
         }, {
           key: "remove",
           value: function remove(key) {
             delete this.items[key];
           }
-
-          /**
-           * Merge another list's items into this one.
-           *
-           * @param {ItemList} items
-           * @public
-           */
         }, {
           key: "merge",
           value: function merge(items) {
@@ -33316,15 +30573,6 @@ System.register("flarum/utils/ItemList", [], function (_export) {
               }
             }
           }
-
-          /**
-           * Convert the list into an array of item content arranged by priority. Each
-           * item's content will be assigned an `itemName` property equal to the item's
-           * unique key.
-           *
-           * @return {Array}
-           * @public
-           */
         }, {
           key: "toArray",
           value: function toArray() {
@@ -33353,26 +30601,15 @@ System.register("flarum/utils/ItemList", [], function (_export) {
           }
         }]);
         return ItemList;
-      })();
+      }();
 
       _export("default", ItemList);
     }
   };
 });;
-System.register('flarum/utils/mapRoutes', [], function (_export) {
-  /**
-   * The `mapRoutes` utility converts a map of named application routes into a
-   * format that can be understood by Mithril.
-   *
-   * @see https://lhorie.github.io/mithril/mithril.route.html#defining-routes
-   * @param {Object} routes
-   * @param {String} [basePath]
-   * @return {Object}
-   */
-  'use strict';
+'use strict';
 
-  _export('default', mapRoutes);
-
+System.register('flarum/utils/mapRoutes', [], function (_export, _context) {
   function mapRoutes(routes) {
     var basePath = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
 
@@ -33389,69 +30626,54 @@ System.register('flarum/utils/mapRoutes', [], function (_export) {
     return map;
   }
 
+  _export('default', mapRoutes);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register("flarum/utils/mixin", [], function (_export) {
-  /**
-   * The `mixin` utility assigns the properties of a set of 'mixin' objects to
-   * the prototype of a parent object.
-   *
-   * @example
-   * class MyClass extends mixin(ExtistingClass, evented, etc) {}
-   *
-   * @param {Class} Parent The class to extend the new class from.
-   * @param {...Object} mixins The objects to mix in.
-   * @return {Class} A new class that extends Parent and contains the mixins.
-   */
-  "use strict";
+"use strict";
 
-  _export("default", mixin);
-
+System.register("flarum/utils/mixin", [], function (_export, _context) {
   function mixin(Parent) {
-    for (var _len = arguments.length, mixins = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      mixins[_key - 1] = arguments[_key];
-    }
-
-    var Mixed = (function (_Parent) {
+    var Mixed = function (_Parent) {
       babelHelpers.inherits(Mixed, _Parent);
 
       function Mixed() {
         babelHelpers.classCallCheck(this, Mixed);
-        babelHelpers.get(Object.getPrototypeOf(Mixed.prototype), "constructor", this).apply(this, arguments);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Mixed).apply(this, arguments));
       }
 
       return Mixed;
-    })(Parent);
+    }(Parent);
+
+    for (var _len = arguments.length, mixins = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      mixins[_key - 1] = arguments[_key];
+    }
 
     mixins.forEach(function (object) {
-      babelHelpers._extends(Mixed.prototype, object);
+      babelHelpers.extends(Mixed.prototype, object);
     });
 
     return Mixed;
   }
 
+  _export("default", mixin);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/Pane', [], function (_export) {
-  /**
-   * The `Pane` class manages the page's discussion list sidepane. The pane is a
-   * part of the content view (DiscussionPage component), but its visibility is
-   * determined by CSS classes applied to the outer page element. This class
-   * manages the application of those CSS classes.
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/utils/Pane', [], function (_export, _context) {
   var Pane;
   return {
     setters: [],
     execute: function () {
-      Pane = (function () {
+      Pane = function () {
         function Pane(element) {
           babelHelpers.classCallCheck(this, Pane);
 
@@ -33504,18 +30726,14 @@ System.register('flarum/utils/Pane', [], function (_export) {
          *
          * @public
          */
+
+
         babelHelpers.createClass(Pane, [{
           key: 'enable',
           value: function enable() {
             this.active = true;
             this.render();
           }
-
-          /**
-           * Disable the pane.
-           *
-           * @public
-           */
         }, {
           key: 'disable',
           value: function disable() {
@@ -33523,12 +30741,6 @@ System.register('flarum/utils/Pane', [], function (_export) {
             this.showing = false;
             this.render();
           }
-
-          /**
-           * Show the pane.
-           *
-           * @public
-           */
         }, {
           key: 'show',
           value: function show() {
@@ -33536,36 +30748,17 @@ System.register('flarum/utils/Pane', [], function (_export) {
             this.showing = true;
             this.render();
           }
-
-          /**
-           * Hide the pane.
-           *
-           * @public
-           */
         }, {
           key: 'hide',
           value: function hide() {
             this.showing = false;
             this.render();
           }
-
-          /**
-           * Begin a timeout to hide the pane, which can be cancelled by showing the
-           * pane.
-           *
-           * @public
-           */
         }, {
           key: 'onmouseleave',
           value: function onmouseleave() {
             this.hideTimeout = setTimeout(this.hide.bind(this), 250);
           }
-
-          /**
-           * Toggle whether or not the pane is pinned.
-           *
-           * @public
-           */
         }, {
           key: 'togglePinned',
           value: function togglePinned() {
@@ -33575,12 +30768,6 @@ System.register('flarum/utils/Pane', [], function (_export) {
 
             this.render();
           }
-
-          /**
-           * Apply the appropriate CSS classes to the page element.
-           *
-           * @protected
-           */
         }, {
           key: 'render',
           value: function render() {
@@ -33588,19 +30775,16 @@ System.register('flarum/utils/Pane', [], function (_export) {
           }
         }]);
         return Pane;
-      })();
+      }();
 
       _export('default', Pane);
     }
   };
 });;
-System.register('flarum/utils/patchMithril', ['../Component'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/utils/patchMithril', ['../Component'], function (_export, _context) {
   var Component;
-
-  _export('default', patchMithril);
-
   function patchMithril(global) {
     var mo = global.m;
 
@@ -33646,43 +30830,31 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
     global.m = m;
   }
 
+  _export('default', patchMithril);
+
   return {
     setters: [function (_Component) {
-      Component = _Component['default'];
+      Component = _Component.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/PostControls', ['flarum/components/EditPostComposer', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList'], function (_export) {
+'use strict';
 
-  /**
-   * The `PostControls` utility constructs a list of buttons for a post which
-   * perform actions on it.
-   */
-  'use strict';
-
+System.register('flarum/utils/PostControls', ['flarum/components/EditPostComposer', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList'], function (_export, _context) {
   var EditPostComposer, Button, Separator, ItemList;
   return {
     setters: [function (_flarumComponentsEditPostComposer) {
-      EditPostComposer = _flarumComponentsEditPostComposer['default'];
+      EditPostComposer = _flarumComponentsEditPostComposer.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
+      Separator = _flarumComponentsSeparator.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
       _export('default', {
-        /**
-         * Get a list of controls for a post.
-         *
-         * @param {Post} post
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @public
-         */
         controls: function controls(post, context) {
           var _this = this;
 
@@ -33700,29 +30872,9 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
 
           return items;
         },
-
-        /**
-         * Get controls for a post pertaining to the current user (e.g. report).
-         *
-         * @param {Post} post
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         userControls: function userControls(post, context) {
           return new ItemList();
         },
-
-        /**
-         * Get controls for a post pertaining to moderation (e.g. edit).
-         *
-         * @param {Post} post
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         moderationControls: function moderationControls(post, context) {
           var items = new ItemList();
 
@@ -33738,16 +30890,6 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
 
           return items;
         },
-
-        /**
-         * Get controls for a post that are destructive (e.g. delete).
-         *
-         * @param {Post} post
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         destructiveControls: function destructiveControls(post, context) {
           var items = new ItemList();
 
@@ -33778,20 +30920,10 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
 
           return items;
         },
-
-        /**
-         * Open the composer to edit a post.
-         */
         editAction: function editAction() {
           app.composer.load(new EditPostComposer({ post: this }));
           app.composer.show();
         },
-
-        /**
-         * Hide a post.
-         *
-         * @return {Promise}
-         */
         hideAction: function hideAction() {
           this.pushAttributes({ hideTime: new Date(), hideUser: app.session.user });
 
@@ -33799,12 +30931,6 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
             return m.redraw();
           });
         },
-
-        /**
-         * Restore a post.
-         *
-         * @return {Promise}
-         */
         restoreAction: function restoreAction() {
           this.pushAttributes({ hideTime: null, hideUser: null });
 
@@ -33812,18 +30938,12 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
             return m.redraw();
           });
         },
-
-        /**
-         * Delete a post.
-         *
-         * @return {Promise}
-         */
         deleteAction: function deleteAction(context) {
           var _this2 = this;
 
           if (context) context.loading = true;
 
-          return this['delete']().then(function () {
+          return this.delete().then(function () {
             var discussion = _this2.discussion();
 
             discussion.removePost(_this2.id());
@@ -33840,7 +30960,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
                 app.history.back();
               }
             }
-          })['catch'](function () {}).then(function () {
+          }).catch(function () {}).then(function () {
             if (context) context.loading = false;
             m.redraw();
           });
@@ -33849,9 +30969,9 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
     }
   };
 });;
-System.register("flarum/utils/RequestError", [], function (_export) {
-  "use strict";
+"use strict";
 
+System.register("flarum/utils/RequestError", [], function (_export, _context) {
   var RequestError;
   return {
     setters: [],
@@ -33877,9 +30997,9 @@ System.register("flarum/utils/RequestError", [], function (_export) {
     }
   };
 });;
-System.register("flarum/utils/ScrollListener", [], function (_export) {
-  "use strict";
+"use strict";
 
+System.register("flarum/utils/ScrollListener", [], function (_export, _context) {
   var scroll, ScrollListener;
   return {
     setters: [],
@@ -33888,12 +31008,7 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
         return window.setTimeout(callback, 1000 / 60);
       };
 
-      /**
-       * The `ScrollListener` class sets up a listener that handles window scroll
-       * events.
-       */
-
-      ScrollListener = (function () {
+      ScrollListener = function () {
         /**
          * @param {Function} callback The callback to run when the scroll position
          *     changes.
@@ -33913,6 +31028,8 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
          *
          * @protected
          */
+
+
         babelHelpers.createClass(ScrollListener, [{
           key: "loop",
           value: function loop() {
@@ -33922,14 +31039,6 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
 
             scroll(this.loop.bind(this));
           }
-
-          /**
-           * Check if the scroll position has changed; if it has, run the handler.
-           *
-           * @param {Boolean} [force=false] Whether or not to force the handler to be
-           *     run, even if the scroll position hasn't changed.
-           * @public
-           */
         }, {
           key: "update",
           value: function update(force) {
@@ -33940,12 +31049,6 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
               this.lastTop = top;
             }
           }
-
-          /**
-           * Start listening to and handling the window's scroll position.
-           *
-           * @public
-           */
         }, {
           key: "start",
           value: function start() {
@@ -33954,12 +31057,6 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
               this.loop();
             }
           }
-
-          /**
-           * Stop listening to and handling the window's scroll position.
-           *
-           * @public
-           */
         }, {
           key: "stop",
           value: function stop() {
@@ -33967,39 +31064,24 @@ System.register("flarum/utils/ScrollListener", [], function (_export) {
           }
         }]);
         return ScrollListener;
-      })();
+      }();
 
       _export("default", ScrollListener);
     }
   };
 });;
-System.register('flarum/utils/slidable', [], function (_export) {
-  /**
-   * The `slidable` utility adds touch gestures to an element so that it can be
-   * slid away to reveal controls underneath, and then released to activate those
-   * controls.
-   *
-   * It relies on the element having children with particular CSS classes.
-   * TODO: document
-   *
-   * @param {DOMElement} element
-   * @return {Object}
-   * @property {function} reset Revert the slider to its original position. This
-   *     should be called, for example, when a controls dropdown is closed.
-   */
-  'use strict';
+'use strict';
 
-  _export('default', slidable);
-
+System.register('flarum/utils/slidable', [], function (_export, _context) {
   function slidable(element) {
     var $element = $(element);
     var threshold = 50;
 
-    var $underneathLeft = undefined;
-    var $underneathRight = undefined;
+    var $underneathLeft = void 0;
+    var $underneathRight = void 0;
 
-    var startX = undefined;
-    var startY = undefined;
+    var startX = void 0;
+    var startY = void 0;
     var couldBeSliding = false;
     var isSliding = false;
     var pos = 0;
@@ -34125,106 +31207,110 @@ System.register('flarum/utils/slidable', [], function (_export) {
 
     return { reset: reset };
   }
+  _export('default', slidable);
 
   return {
     setters: [],
     execute: function () {
-      ;
+      ; /**
+         * The `slidable` utility adds touch gestures to an element so that it can be
+         * slid away to reveal controls underneath, and then released to activate those
+         * controls.
+         *
+         * It relies on the element having children with particular CSS classes.
+         * TODO: document
+         *
+         * @param {DOMElement} element
+         * @return {Object}
+         * @property {function} reset Revert the slider to its original position. This
+         *     should be called, for example, when a controls dropdown is closed.
+         */
     }
   };
 });;
-System.register('flarum/utils/string', [], function (_export) {
-  /**
-   * Truncate a string to the given length, appending ellipses if necessary.
-   *
-   * @param {String} string
-   * @param {Number} length
-   * @param {Number} [start=0]
-   * @return {String}
-   */
-  'use strict';
+'use strict';
 
-  /**
-   * Create a slug out of the given string. Non-alphanumeric characters are
-   * converted to hyphens.
-   *
-   * @param {String} string
-   * @return {String}
-   */
-
-  _export('truncate', truncate);
-
-  /**
-   * Strip HTML tags and quotes out of the given string, replacing them with
-   * meaningful punctuation.
-   *
-   * @param {String} string
-   * @return {String}
-   */
-
-  _export('slug', slug);
-
-  /**
-   * An array of DOM selectors to remove when getting plain content.
-   *
-   * @type {Array}
-   */
-
-  _export('getPlainContent', getPlainContent);
-
-  _export('ucfirst', ucfirst);
-
-  function truncate(string, length) {
-    var start = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-
-    return (start > 0 ? '...' : '') + string.substring(start, start + length) + (string.length > start + length ? '...' : '');
-  }
-
-  function slug(string) {
-    return string.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-';
-  }
-
-  function getPlainContent(string) {
-    var dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;'));
-
-    dom.find(getPlainContent.removeSelectors.join(',')).remove();
-
-    return dom.text();
-  }
-
-  /**
-   * Make a string's first character uppercase.
-   *
-   * @param {String} string
-   * @return {String}
-   */
-
-  function ucfirst(string) {
-    return string.substr(0, 1).toUpperCase() + string.substr(1);
-  }
-
+System.register('flarum/utils/string', [], function (_export, _context) {
   return {
     setters: [],
     execute: function () {
+      /**
+       * Truncate a string to the given length, appending ellipses if necessary.
+       *
+       * @param {String} string
+       * @param {Number} length
+       * @param {Number} [start=0]
+       * @return {String}
+       */
+      function truncate(string, length) {
+        var start = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
+        return (start > 0 ? '...' : '') + string.substring(start, start + length) + (string.length > start + length ? '...' : '');
+      }
+
+      /**
+       * Create a slug out of the given string. Non-alphanumeric characters are
+       * converted to hyphens.
+       *
+       * @param {String} string
+       * @return {String}
+       */
+
+      _export('truncate', truncate);
+
+      function slug(string) {
+        return string.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-';
+      }
+
+      /**
+       * Strip HTML tags and quotes out of the given string, replacing them with
+       * meaningful punctuation.
+       *
+       * @param {String} string
+       * @return {String}
+       */
+
+      _export('slug', slug);
+
+      function getPlainContent(string) {
+        var dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;'));
+
+        dom.find(getPlainContent.removeSelectors.join(',')).remove();
+
+        return dom.text();
+      }
+
+      /**
+       * An array of DOM selectors to remove when getting plain content.
+       *
+       * @type {Array}
+       */
+
+      _export('getPlainContent', getPlainContent);
+
       getPlainContent.removeSelectors = ['blockquote', 'script'];
+
+      /**
+       * Make a string's first character uppercase.
+       *
+       * @param {String} string
+       * @return {String}
+       */
+      function ucfirst(string) {
+        return string.substr(0, 1).toUpperCase() + string.substr(1);
+      }
+
+      _export('ucfirst', ucfirst);
     }
   };
 });;
-System.register('flarum/utils/stringToColor', [], function (_export) {
-  'use strict';
+'use strict';
 
-  _export('default', stringToColor);
-
-  /**
-   * Convert the given string to a unique color.
-   *
-   * @param {String} string
-   * @return {String}
-   */
+System.register('flarum/utils/stringToColor', [], function (_export, _context) {
   function hsvToRgb(h, s, v) {
-    var r = undefined;
-    var g = undefined;
-    var b = undefined;
+    var r = void 0;
+    var g = void 0;
+    var b = void 0;
 
     var i = Math.floor(h * 6);
     var f = h * 6 - i;
@@ -34253,6 +31339,13 @@ System.register('flarum/utils/stringToColor', [], function (_export) {
       b: Math.floor(b * 255)
     };
   }
+
+  /**
+   * Convert the given string to a unique color.
+   *
+   * @param {String} string
+   * @return {String}
+   */
   function stringToColor(string) {
     var num = 0;
 
@@ -34270,37 +31363,21 @@ System.register('flarum/utils/stringToColor', [], function (_export) {
     return '' + rgb.r.toString(16) + rgb.g.toString(16) + rgb.b.toString(16);
   }
 
+  _export('default', stringToColor);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
-  /**
-   * The `SubtreeRetainer` class represents a Mithril virtual DOM subtree. It
-   * keeps track of a number of pieces of data, allowing the subtree to be
-   * retained if none of them have changed.
-   *
-   * @example
-   * // constructor
-   * this.subtree = new SubtreeRetainer(
-   *   () => this.props.post.freshness,
-   *   () => this.showing
-   * );
-   * this.subtree.check(() => this.props.user.freshness);
-   *
-   * // view
-   * this.subtree.retain() || 'expensive expression'
-   *
-   * @see https://lhorie.github.io/mithril/mithril.html#persisting-dom-elements-across-route-changes
-   */
-  'use strict';
+'use strict';
 
+System.register('flarum/utils/SubtreeRetainer', [], function (_export, _context) {
   var SubtreeRetainer;
   return {
     setters: [],
     execute: function () {
-      SubtreeRetainer = (function () {
+      SubtreeRetainer = function () {
         /**
          * @param {...callbacks} callbacks Functions returning data to keep track of.
          */
@@ -34323,6 +31400,8 @@ System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
          * @return {Object|false}
          * @public
          */
+
+
         babelHelpers.createClass(SubtreeRetainer, [{
           key: 'retain',
           value: function retain() {
@@ -34341,13 +31420,6 @@ System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
 
             return needsRebuild ? false : { subtree: 'retain' };
           }
-
-          /**
-           * Add another callback to be checked.
-           *
-           * @param {...Function} callbacks
-           * @public
-           */
         }, {
           key: 'check',
           value: function check() {
@@ -34357,12 +31429,6 @@ System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
 
             this.callbacks = this.callbacks.concat(callbacks);
           }
-
-          /**
-           * Invalidate the subtree, forcing it to be rerendered.
-           *
-           * @public
-           */
         }, {
           key: 'invalidate',
           value: function invalidate() {
@@ -34370,44 +31436,30 @@ System.register('flarum/utils/SubtreeRetainer', [], function (_export) {
           }
         }]);
         return SubtreeRetainer;
-      })();
+      }();
 
       _export('default', SubtreeRetainer);
     }
   };
 });;
-System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flarum/components/Separator', 'flarum/components/EditUserModal', 'flarum/components/UserPage', 'flarum/utils/ItemList'], function (_export) {
+'use strict';
 
-  /**
-   * The `UserControls` utility constructs a list of buttons for a user which
-   * perform actions on it.
-   */
-  'use strict';
-
+System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flarum/components/Separator', 'flarum/components/EditUserModal', 'flarum/components/UserPage', 'flarum/utils/ItemList'], function (_export, _context) {
   var Button, Separator, EditUserModal, UserPage, ItemList;
   return {
     setters: [function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsSeparator) {
-      Separator = _flarumComponentsSeparator['default'];
+      Separator = _flarumComponentsSeparator.default;
     }, function (_flarumComponentsEditUserModal) {
-      EditUserModal = _flarumComponentsEditUserModal['default'];
+      EditUserModal = _flarumComponentsEditUserModal.default;
     }, function (_flarumComponentsUserPage) {
-      UserPage = _flarumComponentsUserPage['default'];
+      UserPage = _flarumComponentsUserPage.default;
     }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
+      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
       _export('default', {
-        /**
-         * Get a list of controls for a user.
-         *
-         * @param {User} user
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @public
-         */
         controls: function controls(discussion, context) {
           var _this = this;
 
@@ -34425,29 +31477,9 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
 
           return items;
         },
-
-        /**
-         * Get controls for a user pertaining to the current user (e.g. poke, follow).
-         *
-         * @param {User} user
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         userControls: function userControls() {
           return new ItemList();
         },
-
-        /**
-         * Get controls for a user pertaining to moderation (e.g. suspend, edit).
-         *
-         * @param {User} user
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         moderationControls: function moderationControls(user) {
           var items = new ItemList();
 
@@ -34461,16 +31493,6 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
 
           return items;
         },
-
-        /**
-         * Get controls for a user which are destructive (e.g. delete).
-         *
-         * @param {User} user
-         * @param {*} context The parent component under which the controls menu will
-         *     be displayed.
-         * @return {ItemList}
-         * @protected
-         */
         destructiveControls: function destructiveControls(user) {
           var items = new ItemList();
 
@@ -34484,15 +31506,11 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
 
           return items;
         },
-
-        /**
-         * Delete the user.
-         */
         deleteAction: function deleteAction() {
           var _this2 = this;
 
           if (confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
-            this['delete']().then(function () {
+            this.delete().then(function () {
               if (app.current instanceof UserPage && app.current.user === _this2) {
                 app.history.back();
               } else {
@@ -34501,10 +31519,6 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
             });
           }
         },
-
-        /**
-         * Edit the user.
-         */
         editAction: function editAction() {
           app.modal.show(new EditUserModal({ user: this }));
         }
