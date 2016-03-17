@@ -1,18 +1,18 @@
-System.register('flarum/flags/components/FlagsSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/flags/components/FlagsSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
   var SettingsModal, FlagsSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
-      SettingsModal = _flarumComponentsSettingsModal['default'];
+      SettingsModal = _flarumComponentsSettingsModal.default;
     }],
     execute: function () {
-      FlagsSettingsModal = (function (_SettingsModal) {
+      FlagsSettingsModal = function (_SettingsModal) {
         babelHelpers.inherits(FlagsSettingsModal, _SettingsModal);
 
         function FlagsSettingsModal() {
           babelHelpers.classCallCheck(this, FlagsSettingsModal);
-          babelHelpers.get(Object.getPrototypeOf(FlagsSettingsModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FlagsSettingsModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(FlagsSettingsModal, [{
@@ -41,25 +41,25 @@ System.register('flarum/flags/components/FlagsSettingsModal', ['flarum/component
           }
         }]);
         return FlagsSettingsModal;
-      })(SettingsModal);
+      }(SettingsModal);
 
       _export('default', FlagsSettingsModal);
     }
   };
 });;
-System.register('flarum/flags/main', ['flarum/extend', 'flarum/app', 'flarum/components/PermissionGrid', 'flarum/flags/components/FlagsSettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/flags/main', ['flarum/extend', 'flarum/app', 'flarum/components/PermissionGrid', 'flarum/flags/components/FlagsSettingsModal'], function (_export, _context) {
   var extend, app, PermissionGrid, FlagsSettingsModal;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumComponentsPermissionGrid) {
-      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+      PermissionGrid = _flarumComponentsPermissionGrid.default;
     }, function (_flarumFlagsComponentsFlagsSettingsModal) {
-      FlagsSettingsModal = _flarumFlagsComponentsFlagsSettingsModal['default'];
+      FlagsSettingsModal = _flarumFlagsComponentsFlagsSettingsModal.default;
     }],
     execute: function () {
 
