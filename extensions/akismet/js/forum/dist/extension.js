@@ -1,17 +1,17 @@
-System.register('flarum/akismet/main', ['flarum/extend', 'flarum/app', 'flarum/utils/PostControls', 'flarum/components/CommentPost'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/akismet/main', ['flarum/extend', 'flarum/app', 'flarum/utils/PostControls', 'flarum/components/CommentPost'], function (_export, _context) {
   var extend, override, app, PostControls, CommentPost;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
       override = _flarumExtend.override;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumUtilsPostControls) {
-      PostControls = _flarumUtilsPostControls['default'];
+      PostControls = _flarumUtilsPostControls.default;
     }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }],
     execute: function () {
 

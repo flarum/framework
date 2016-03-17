@@ -1,18 +1,18 @@
-System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
   var SettingsModal, AkismetSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
-      SettingsModal = _flarumComponentsSettingsModal['default'];
+      SettingsModal = _flarumComponentsSettingsModal.default;
     }],
     execute: function () {
-      AkismetSettingsModal = (function (_SettingsModal) {
+      AkismetSettingsModal = function (_SettingsModal) {
         babelHelpers.inherits(AkismetSettingsModal, _SettingsModal);
 
         function AkismetSettingsModal() {
           babelHelpers.classCallCheck(this, AkismetSettingsModal);
-          babelHelpers.get(Object.getPrototypeOf(AkismetSettingsModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AkismetSettingsModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(AkismetSettingsModal, [{
@@ -41,21 +41,21 @@ System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/compo
           }
         }]);
         return AkismetSettingsModal;
-      })(SettingsModal);
+      }(SettingsModal);
 
       _export('default', AkismetSettingsModal);
     }
   };
 });;
-System.register('flarum/akismet/main', ['flarum/app', 'flarum/akismet/components/AkismetSettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/akismet/main', ['flarum/app', 'flarum/akismet/components/AkismetSettingsModal'], function (_export, _context) {
   var app, AkismetSettingsModal;
   return {
     setters: [function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumAkismetComponentsAkismetSettingsModal) {
-      AkismetSettingsModal = _flarumAkismetComponentsAkismetSettingsModal['default'];
+      AkismetSettingsModal = _flarumAkismetComponentsAkismetSettingsModal.default;
     }],
     execute: function () {
 
