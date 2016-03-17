@@ -98,8 +98,9 @@ export default class IndexPage extends Page {
 
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
-    // of the hero so that the 'fixed' sidebar doesn't jump around.
-    const heroHeight = this.$('.Hero').outerHeight();
+    // of the hero so that the sidebar doesn't jump around.
+    const oldHeroHeight = app.cache.heroHeight;
+    const heroHeight = app.cache.heroHeight = this.$('.Hero').outerHeight();
     const scrollTop = app.cache.scrollTop;
 
     $('#app').css('min-height', $(window).height() + heroHeight);
@@ -107,9 +108,9 @@ export default class IndexPage extends Page {
     // Scroll to the remembered position. We do this after a short delay so that
     // it happens after the browser has done its own "back button" scrolling,
     // which isn't right. https://github.com/flarum/core/issues/835
-    setTimeout(() => $(window).scrollTop(scrollTop - app.cache.heroHeight + heroHeight), 1);
-
-    app.cache.heroHeight = heroHeight;
+    const scroll = () => $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+    scroll();
+    setTimeout(scroll, 1);
 
     // If we've just returned from a discussion page, then the constructor will
     // have set the `lastDiscussion` property. If this is the case, we want to
