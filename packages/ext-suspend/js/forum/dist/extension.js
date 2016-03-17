@@ -1,20 +1,20 @@
-System.register('flarum/suspend/components/SuspendUserModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/suspend/components/SuspendUserModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
   var Modal, Button, SuspendUserModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
-      SuspendUserModal = (function (_Modal) {
+      SuspendUserModal = function (_Modal) {
         babelHelpers.inherits(SuspendUserModal, _Modal);
 
         function SuspendUserModal() {
           babelHelpers.classCallCheck(this, SuspendUserModal);
-          babelHelpers.get(Object.getPrototypeOf(SuspendUserModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SuspendUserModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(SuspendUserModal, [{
@@ -47,7 +47,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
         }, {
           key: 'content',
           value: function content() {
-            var _this = this;
+            var _this2 = this;
 
             return m(
               'div',
@@ -81,10 +81,10 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                     m(
                       'label',
                       { className: 'checkbox SuspendUserModal-days' },
-                      m('input', { type: 'radio', name: 'status', checked: this.status() === 'limited', value: 'limited', onclick: function (e) {
-                          _this.status(e.target.value);
+                      m('input', { type: 'radio', name: 'status', checked: this.status() === 'limited', value: 'limited', onclick: function onclick(e) {
+                          _this2.status(e.target.value);
                           m.redraw(true);
-                          _this.$('.SuspendUserModal-days-input input').select();
+                          _this2.$('.SuspendUserModal-days-input input').select();
                           m.redraw.strategy('none');
                         } }),
                       app.translator.trans('flarum-suspend.forum.suspend_user.limited_time_label'),
@@ -116,7 +116,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this2 = this;
+            var _this3 = this;
 
             e.preventDefault();
 
@@ -137,38 +137,38 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
             }
 
             this.props.user.save({ suspendUntil: suspendUntil }).then(function () {
-              return _this2.hide();
+              return _this3.hide();
             }, this.loaded.bind(this));
           }
         }]);
         return SuspendUserModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', SuspendUserModal);
     }
   };
 });;
-System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal'], function (_export, _context) {
   var extend, app, UserControls, Button, Badge, Model, User, SuspendUserModal;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumUtilsUserControls) {
-      UserControls = _flarumUtilsUserControls['default'];
+      UserControls = _flarumUtilsUserControls.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
+      Badge = _flarumComponentsBadge.default;
     }, function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumModelsUser) {
-      User = _flarumModelsUser['default'];
+      User = _flarumModelsUser.default;
     }, function (_flarumSuspendComponentsSuspendUserModal) {
-      SuspendUserModal = _flarumSuspendComponentsSuspendUserModal['default'];
+      SuspendUserModal = _flarumSuspendComponentsSuspendUserModal.default;
     }],
     execute: function () {
 
