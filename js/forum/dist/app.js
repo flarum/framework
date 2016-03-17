@@ -22541,15 +22541,16 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
           key: 'viewItems',
           value: function viewItems() {
             var items = new ItemList();
+            var sortMap = app.cache.discussionList.sortMap();
 
             var sortOptions = {};
-            for (var i in app.cache.discussionList.sortMap()) {
+            for (var i in sortMap) {
               sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
             }
 
             items.add('sort', Select.component({
               options: sortOptions,
-              value: this.params().sort || Object.keys(app.cache.discussionList.sortMap())[0],
+              value: this.params().sort || Object.keys(sortMap)[0],
               onchange: this.changeSort.bind(this)
             }));
 
@@ -23351,10 +23352,10 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var previous = history.getPrevious() || {};
 
             return LinkButton.component({
-              className: 'Button Navigation-back Button--icon',
+              className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
               href: history.backUrl(),
-              icon: 'list-ul',
-              //children: previous.title,
+              icon: 'chevron-left',
+              children: previous.title,
               config: function config() {},
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;

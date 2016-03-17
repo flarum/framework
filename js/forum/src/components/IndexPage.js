@@ -204,16 +204,17 @@ export default class IndexPage extends Page {
    */
   viewItems() {
     const items = new ItemList();
+    const sortMap = app.cache.discussionList.sortMap();
 
     const sortOptions = {};
-    for (const i in app.cache.discussionList.sortMap()) {
+    for (const i in sortMap) {
       sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
     }
 
     items.add('sort',
       Select.component({
         options: sortOptions,
-        value: this.params().sort || Object.keys(app.cache.discussionList.sortMap())[0],
+        value: this.params().sort || Object.keys(sortMap)[0],
         onchange: this.changeSort.bind(this)
       })
     );
