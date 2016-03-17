@@ -1,22 +1,22 @@
-System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/components/DiscussionList', 'flarum/components/DiscussionPage', 'flarum/components/IndexPage', 'flarum/components/Button'], function (_export) {
-  /*global Pusher*/
+'use strict';
 
-  'use strict';
-
+System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/components/DiscussionList', 'flarum/components/DiscussionPage', 'flarum/components/IndexPage', 'flarum/components/Button'], function (_export, _context) {
   var extend, app, DiscussionList, DiscussionPage, IndexPage, Button;
   return {
     setters: [function (_flarumExtend) {
+      /*global Pusher*/
+
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumComponentsDiscussionList) {
-      DiscussionList = _flarumComponentsDiscussionList['default'];
+      DiscussionList = _flarumComponentsDiscussionList.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsIndexPage) {
-      IndexPage = _flarumComponentsIndexPage['default'];
+      IndexPage = _flarumComponentsIndexPage.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
 
