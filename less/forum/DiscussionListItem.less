@@ -199,7 +199,7 @@
     transition: background 0.2s;
 
     &:hover {
-      background: @control-bg;
+      background: mix(@control-bg, @body-bg, 50%);
     }
     &:hover .DiscussionListItem-controls,
     .DiscussionListItem-controls.open {
