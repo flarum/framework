@@ -1,18 +1,18 @@
-System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
   var SettingsModal, PusherSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
-      SettingsModal = _flarumComponentsSettingsModal['default'];
+      SettingsModal = _flarumComponentsSettingsModal.default;
     }],
     execute: function () {
-      PusherSettingsModal = (function (_SettingsModal) {
+      PusherSettingsModal = function (_SettingsModal) {
         babelHelpers.inherits(PusherSettingsModal, _SettingsModal);
 
         function PusherSettingsModal() {
           babelHelpers.classCallCheck(this, PusherSettingsModal);
-          babelHelpers.get(Object.getPrototypeOf(PusherSettingsModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PusherSettingsModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(PusherSettingsModal, [{
@@ -68,23 +68,23 @@ System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/compone
           }
         }]);
         return PusherSettingsModal;
-      })(SettingsModal);
+      }(SettingsModal);
 
       _export('default', PusherSettingsModal);
     }
   };
 });;
-System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pusher/components/PusherSettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pusher/components/PusherSettingsModal'], function (_export, _context) {
   var extend, app, PusherSettingsModal;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumPusherComponentsPusherSettingsModal) {
-      PusherSettingsModal = _flarumPusherComponentsPusherSettingsModal['default'];
+      PusherSettingsModal = _flarumPusherComponentsPusherSettingsModal.default;
     }],
     execute: function () {
 
