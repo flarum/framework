@@ -37,7 +37,7 @@
         @endif
           var app = System.get('flarum/app').default;
 
-          babelHelpers._extends(app, {!! json_encode($app) !!});
+          babelHelpers.extends(app, {!! json_encode($app) !!});
 
           @foreach ($bootstrappers as $bootstrapper)
             System.get('{{ $bootstrapper }}');
