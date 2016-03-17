@@ -412,219 +412,219 @@ $.fn.sortable = function(options) {
 return sortable;
 }));
 ;
-System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/SettingDropdown'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/SettingDropdown'], function (_export, _context) {
   var extend, PermissionGrid, SettingDropdown;
+
+  _export('default', function () {
+    extend(PermissionGrid.prototype, 'startItems', function (items) {
+      items.add('allowTagChange', {
+        icon: 'tags',
+        label: app.translator.trans('flarum-tags.admin.permissions.allow_edit_tags_label'),
+        setting: function setting() {
+          var minutes = parseInt(app.settings.allow_tag_change, 10);
+
+          return SettingDropdown.component({
+            defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
+            key: 'allow_tag_change',
+            options: [{ value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') }, { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') }, { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') }]
+          });
+        }
+      }, 90);
+    });
+  });
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsPermissionGrid) {
-      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+      PermissionGrid = _flarumComponentsPermissionGrid.default;
     }, function (_flarumComponentsSettingDropdown) {
-      SettingDropdown = _flarumComponentsSettingDropdown['default'];
+      SettingDropdown = _flarumComponentsSettingDropdown.default;
     }],
-    execute: function () {
-      _export('default', function () {
-        extend(PermissionGrid.prototype, 'startItems', function (items) {
-          items.add('allowTagChange', {
-            icon: 'tags',
-            label: app.translator.trans('flarum-tags.admin.permissions.allow_edit_tags_label'),
-            setting: function setting() {
-              var minutes = parseInt(app.settings.allow_tag_change, 10);
-
-              return SettingDropdown.component({
-                defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
-                key: 'allow_tag_change',
-                options: [{ value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') }, { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') }, { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') }]
-              });
-            }
-          }, 90);
-        });
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/tags/addTagPermission', ['flarum/extend', 'flarum/components/PermissionGrid'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/addTagPermission', ['flarum/extend', 'flarum/components/PermissionGrid'], function (_export, _context) {
   var extend, PermissionGrid;
+
+  _export('default', function () {
+    extend(PermissionGrid.prototype, 'moderateItems', function (items) {
+      items.add('tag', {
+        icon: 'tag',
+        label: app.translator.trans('flarum-tags.admin.permissions.tag_discussions_label'),
+        permission: 'discussion.tag'
+      }, 95);
+    });
+  });
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsPermissionGrid) {
-      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+      PermissionGrid = _flarumComponentsPermissionGrid.default;
     }],
-    execute: function () {
-      _export('default', function () {
-        extend(PermissionGrid.prototype, 'moderateItems', function (items) {
-          items.add('tag', {
-            icon: 'tag',
-            label: app.translator.trans('flarum-tags.admin.permissions.tag_discussions_label'),
-            permission: 'discussion.tag'
-          }, 95);
-        });
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/tags/addTagsHomePageOption', ['flarum/extend', 'flarum/components/BasicsPage'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/addTagsHomePageOption', ['flarum/extend', 'flarum/components/BasicsPage'], function (_export, _context) {
   var extend, BasicsPage;
+
+  _export('default', function () {
+    extend(BasicsPage.prototype, 'homePageItems', function (items) {
+      items.add('tags', {
+        path: '/tags',
+        label: app.translator.trans('flarum-tags.admin.basics.tags_label')
+      });
+    });
+  });
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsBasicsPage) {
-      BasicsPage = _flarumComponentsBasicsPage['default'];
+      BasicsPage = _flarumComponentsBasicsPage.default;
     }],
-    execute: function () {
-      _export('default', function () {
-        extend(BasicsPage.prototype, 'homePageItems', function (items) {
-          items.add('tags', {
-            path: '/tags',
-            label: app.translator.trans('flarum-tags.admin.basics.tags_label')
-          });
-        });
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/tags/addTagsPane', ['flarum/extend', 'flarum/components/AdminNav', 'flarum/components/AdminLinkButton', 'flarum/tags/components/TagsPage'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/addTagsPane', ['flarum/extend', 'flarum/components/AdminNav', 'flarum/components/AdminLinkButton', 'flarum/tags/components/TagsPage'], function (_export, _context) {
   var extend, AdminNav, AdminLinkButton, TagsPage;
+
+  _export('default', function () {
+    app.routes.tags = { path: '/tags', component: TagsPage.component() };
+
+    app.extensionSettings['flarum-tags'] = function () {
+      return m.route(app.route('tags'));
+    };
+
+    extend(AdminNav.prototype, 'items', function (items) {
+      items.add('tags', AdminLinkButton.component({
+        href: app.route('tags'),
+        icon: 'tags',
+        children: app.translator.trans('flarum-tags.admin.nav.tags_button'),
+        description: app.translator.trans('flarum-tags.admin.nav.tags_text')
+      }));
+    });
+  });
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsAdminNav) {
-      AdminNav = _flarumComponentsAdminNav['default'];
+      AdminNav = _flarumComponentsAdminNav.default;
     }, function (_flarumComponentsAdminLinkButton) {
-      AdminLinkButton = _flarumComponentsAdminLinkButton['default'];
+      AdminLinkButton = _flarumComponentsAdminLinkButton.default;
     }, function (_flarumTagsComponentsTagsPage) {
-      TagsPage = _flarumTagsComponentsTagsPage['default'];
+      TagsPage = _flarumTagsComponentsTagsPage.default;
     }],
-    execute: function () {
-      _export('default', function () {
-        app.routes.tags = { path: '/tags', component: TagsPage.component() };
-
-        app.extensionSettings['flarum-tags'] = function () {
-          return m.route(app.route('tags'));
-        };
-
-        extend(AdminNav.prototype, 'items', function (items) {
-          items.add('tags', AdminLinkButton.component({
-            href: app.route('tags'),
-            icon: 'tags',
-            children: app.translator.trans('flarum-tags.admin.nav.tags_button'),
-            description: app.translator.trans('flarum-tags.admin.nav.tags_text')
-          }));
-        });
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/PermissionDropdown', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/PermissionDropdown', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export, _context) {
   var extend, PermissionGrid, PermissionDropdown, Dropdown, Button, tagLabel, tagIcon, sortTags;
+
+  _export('default', function () {
+    extend(PermissionGrid.prototype, 'scopeItems', function (items) {
+      sortTags(app.store.all('tags')).filter(function (tag) {
+        return tag.isRestricted();
+      }).forEach(function (tag) {
+        return items.add('tag' + tag.id(), {
+          label: tagLabel(tag),
+          onremove: function onremove() {
+            return tag.save({ isRestricted: false });
+          },
+          render: function render(item) {
+            if (item.permission === 'viewDiscussions' || item.permission === 'startDiscussion' || item.permission && item.permission.indexOf('discussion.') === 0) {
+              return PermissionDropdown.component({
+                permission: 'tag' + tag.id() + '.' + item.permission,
+                allowGuest: item.allowGuest
+              });
+            }
+
+            return '';
+          }
+        });
+      });
+    });
+
+    extend(PermissionGrid.prototype, 'scopeControlItems', function (items) {
+      var tags = sortTags(app.store.all('tags').filter(function (tag) {
+        return !tag.isRestricted();
+      }));
+
+      if (tags.length) {
+        items.add('tag', Dropdown.component({
+          className: 'Dropdown--restrictByTag',
+          buttonClassName: 'Button Button--text',
+          label: app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
+          icon: 'plus',
+          caretIcon: null,
+          children: tags.map(function (tag) {
+            return Button.component({
+              icon: true,
+              children: [tagIcon(tag, { className: 'Button-icon' }), ' ', tag.name()],
+              onclick: function onclick() {
+                return tag.save({ isRestricted: true });
+              }
+            });
+          })
+        }));
+      }
+    });
+  });
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsPermissionGrid) {
-      PermissionGrid = _flarumComponentsPermissionGrid['default'];
+      PermissionGrid = _flarumComponentsPermissionGrid.default;
     }, function (_flarumComponentsPermissionDropdown) {
-      PermissionDropdown = _flarumComponentsPermissionDropdown['default'];
+      PermissionDropdown = _flarumComponentsPermissionDropdown.default;
     }, function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumTagsHelpersTagLabel) {
-      tagLabel = _flarumTagsHelpersTagLabel['default'];
+      tagLabel = _flarumTagsHelpersTagLabel.default;
     }, function (_flarumTagsHelpersTagIcon) {
-      tagIcon = _flarumTagsHelpersTagIcon['default'];
+      tagIcon = _flarumTagsHelpersTagIcon.default;
     }, function (_flarumTagsUtilsSortTags) {
-      sortTags = _flarumTagsUtilsSortTags['default'];
+      sortTags = _flarumTagsUtilsSortTags.default;
     }],
-    execute: function () {
-      _export('default', function () {
-        extend(PermissionGrid.prototype, 'scopeItems', function (items) {
-          sortTags(app.store.all('tags')).filter(function (tag) {
-            return tag.isRestricted();
-          }).forEach(function (tag) {
-            return items.add('tag' + tag.id(), {
-              label: tagLabel(tag),
-              onremove: function onremove() {
-                return tag.save({ isRestricted: false });
-              },
-              render: function render(item) {
-                if (item.permission === 'viewDiscussions' || item.permission === 'startDiscussion' || item.permission && item.permission.indexOf('discussion.') === 0) {
-                  return PermissionDropdown.component({
-                    permission: 'tag' + tag.id() + '.' + item.permission,
-                    allowGuest: item.allowGuest
-                  });
-                }
-
-                return '';
-              }
-            });
-          });
-        });
-
-        extend(PermissionGrid.prototype, 'scopeControlItems', function (items) {
-          var tags = sortTags(app.store.all('tags').filter(function (tag) {
-            return !tag.isRestricted();
-          }));
-
-          if (tags.length) {
-            items.add('tag', Dropdown.component({
-              className: 'Dropdown--restrictByTag',
-              buttonClassName: 'Button Button--text',
-              label: app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
-              icon: 'plus',
-              caretIcon: null,
-              children: tags.map(function (tag) {
-                return Button.component({
-                  icon: true,
-                  children: [tagIcon(tag, { className: 'Button-icon' }), ' ', tag.name()],
-                  onclick: function onclick() {
-                    return tag.save({ isRestricted: true });
-                  }
-                });
-              })
-            }));
-          }
-        });
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/string', 'flarum/tags/helpers/tagLabel'], function (_export) {
+'use strict';
 
-  /**
-   * The `EditTagModal` component shows a modal dialog which allows the user
-   * to create or edit a tag.
-   */
-  'use strict';
-
+System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/string', 'flarum/tags/helpers/tagLabel'], function (_export, _context) {
   var Modal, Button, slug, tagLabel, EditTagModal;
   return {
     setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal['default'];
+      Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumUtilsString) {
       slug = _flarumUtilsString.slug;
     }, function (_flarumTagsHelpersTagLabel) {
-      tagLabel = _flarumTagsHelpersTagLabel['default'];
+      tagLabel = _flarumTagsHelpersTagLabel.default;
     }],
     execute: function () {
-      EditTagModal = (function (_Modal) {
+      EditTagModal = function (_Modal) {
         babelHelpers.inherits(EditTagModal, _Modal);
 
         function EditTagModal() {
           babelHelpers.classCallCheck(this, EditTagModal);
-          babelHelpers.get(Object.getPrototypeOf(EditTagModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditTagModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(EditTagModal, [{
@@ -656,7 +656,7 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
         }, {
           key: 'content',
           value: function content() {
-            var _this = this;
+            var _this2 = this;
 
             return m(
               'div',
@@ -672,9 +672,9 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
                     null,
                     app.translator.trans('flarum-tags.admin.edit_tag.name_label')
                   ),
-                  m('input', { className: 'FormControl', placeholder: app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder'), value: this.name(), oninput: function (e) {
-                      _this.name(e.target.value);
-                      _this.slug(slug(e.target.value));
+                  m('input', { className: 'FormControl', placeholder: app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder'), value: this.name(), oninput: function oninput(e) {
+                      _this2.name(e.target.value);
+                      _this2.slug(slug(e.target.value));
                     } })
                 ),
                 m(
@@ -732,7 +732,7 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
                   }),
                   this.tag.exists ? m(
                     'button',
-                    { type: 'button', className: 'Button EditTagModal-delete', onclick: this['delete'].bind(this) },
+                    { type: 'button', className: 'Button EditTagModal-delete', onclick: this.delete.bind(this) },
                     app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')
                   ) : ''
                 )
@@ -742,7 +742,7 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this2 = this;
+            var _this3 = this;
 
             e.preventDefault();
 
@@ -755,17 +755,17 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
               color: this.color(),
               isHidden: this.isHidden()
             }).then(function () {
-              return _this2.hide();
+              return _this3.hide();
             }, function (response) {
-              _this2.loading = false;
-              _this2.handleErrors(response);
+              _this3.loading = false;
+              _this3.handleErrors(response);
             });
           }
         }, {
           key: 'delete',
           value: function _delete() {
             if (confirm(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation'))) {
-              this.tag['delete']().then(function () {
+              this.tag.delete().then(function () {
                 return m.redraw();
               });
               this.hide();
@@ -773,27 +773,27 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
           }
         }]);
         return EditTagModal;
-      })(Modal);
+      }(Modal);
 
       _export('default', EditTagModal);
     }
   };
 });;
-System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/SettingsModal'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
   var SettingsModal, TagSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
-      SettingsModal = _flarumComponentsSettingsModal['default'];
+      SettingsModal = _flarumComponentsSettingsModal.default;
     }],
     execute: function () {
-      TagSettingsModal = (function (_SettingsModal) {
+      TagSettingsModal = function (_SettingsModal) {
         babelHelpers.inherits(TagSettingsModal, _SettingsModal);
 
         function TagSettingsModal() {
           babelHelpers.classCallCheck(this, TagSettingsModal);
-          babelHelpers.get(Object.getPrototypeOf(TagSettingsModal.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(TagSettingsModal).apply(this, arguments));
         }
 
         babelHelpers.createClass(TagSettingsModal, [{
@@ -879,16 +879,17 @@ System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/S
           }
         }]);
         return TagSettingsModal;
-      })(SettingsModal);
+      }(SettingsModal);
 
       _export('default', TagSettingsModal);
     }
   };
 });;
-System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/tags/components/EditTagModal', 'flarum/tags/components/TagSettingsModal', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/tags/components/EditTagModal', 'flarum/tags/components/TagSettingsModal', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export, _context) {
   var Page, Button, EditTagModal, TagSettingsModal, tagIcon, sortTags, TagsPage;
+
 
   function tagItem(tag) {
     return m(
@@ -923,25 +924,25 @@ System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'f
 
   return {
     setters: [function (_flarumComponentsPage) {
-      Page = _flarumComponentsPage['default'];
+      Page = _flarumComponentsPage.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumTagsComponentsEditTagModal) {
-      EditTagModal = _flarumTagsComponentsEditTagModal['default'];
+      EditTagModal = _flarumTagsComponentsEditTagModal.default;
     }, function (_flarumTagsComponentsTagSettingsModal) {
-      TagSettingsModal = _flarumTagsComponentsTagSettingsModal['default'];
+      TagSettingsModal = _flarumTagsComponentsTagSettingsModal.default;
     }, function (_flarumTagsHelpersTagIcon) {
-      tagIcon = _flarumTagsHelpersTagIcon['default'];
+      tagIcon = _flarumTagsHelpersTagIcon.default;
     }, function (_flarumTagsUtilsSortTags) {
-      sortTags = _flarumTagsUtilsSortTags['default'];
+      sortTags = _flarumTagsUtilsSortTags.default;
     }],
     execute: function () {
-      TagsPage = (function (_Page) {
+      TagsPage = function (_Page) {
         babelHelpers.inherits(TagsPage, _Page);
 
         function TagsPage() {
           babelHelpers.classCallCheck(this, TagsPage);
-          babelHelpers.get(Object.getPrototypeOf(TagsPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(TagsPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(TagsPage, [{
@@ -1025,7 +1026,7 @@ System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'f
         }, {
           key: 'config',
           value: function config() {
-            var _this = this;
+            var _this2 = this;
 
             this.$('ol, ul').sortable({ connectWith: 'primary' }).on('sortupdate', function (e, ui) {
               // If we've moved a tag from 'primary' to 'secondary', then we'll update
@@ -1043,7 +1044,7 @@ System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'f
 
               // Construct an array of primary tag IDs and their children, in the same
               // order that they have been arranged in.
-              var order = _this.$('.TagList--primary > li').map(function () {
+              var order = _this2.$('.TagList--primary > li').map(function () {
                 return {
                   id: $(this).data('id'),
                   children: $(this).find('li').map(function () {
@@ -1091,17 +1092,15 @@ System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'f
           }
         }]);
         return TagsPage;
-      })(Page);
+      }(Page);
 
       _export('default', TagsPage);
     }
   };
 });;
-System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
-  'use strict';
+'use strict';
 
-  _export('default', tagIcon);
-
+System.register('flarum/tags/helpers/tagIcon', [], function (_export, _context) {
   function tagIcon(tag) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -1117,18 +1116,17 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export) {
     return m('span', attrs);
   }
 
+  _export('default', tagIcon);
+
   return {
     setters: [],
     execute: function () {}
   };
 });;
-System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], function (_export, _context) {
   var extract;
-
-  _export('default', tagLabel);
-
   function tagLabel(tag) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -1160,20 +1158,19 @@ System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], functi
     ));
   }
 
+  _export('default', tagLabel);
+
   return {
     setters: [function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export, _context) {
   var extract, tagLabel, sortTags;
-
-  _export('default', tagsLabel);
-
   function tagsLabel(tags) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -1199,34 +1196,36 @@ System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flaru
     );
   }
 
+  _export('default', tagsLabel);
+
   return {
     setters: [function (_flarumUtilsExtract) {
-      extract = _flarumUtilsExtract['default'];
+      extract = _flarumUtilsExtract.default;
     }, function (_flarumTagsHelpersTagLabel) {
-      tagLabel = _flarumTagsHelpersTagLabel['default'];
+      tagLabel = _flarumTagsHelpersTagLabel.default;
     }, function (_flarumTagsUtilsSortTags) {
-      sortTags = _flarumTagsUtilsSortTags['default'];
+      sortTags = _flarumTagsUtilsSortTags.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addTagsPermissionScope', 'flarum/tags/addTagPermission', 'flarum/tags/addTagsPane', 'flarum/tags/addTagsHomePageOption', 'flarum/tags/addTagChangePermission'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addTagsPermissionScope', 'flarum/tags/addTagPermission', 'flarum/tags/addTagsPane', 'flarum/tags/addTagsHomePageOption', 'flarum/tags/addTagChangePermission'], function (_export, _context) {
   var Tag, addTagsPermissionScope, addTagPermission, addTagsPane, addTagsHomePageOption, addTagChangePermission;
   return {
     setters: [function (_flarumTagsModelsTag) {
-      Tag = _flarumTagsModelsTag['default'];
+      Tag = _flarumTagsModelsTag.default;
     }, function (_flarumTagsAddTagsPermissionScope) {
-      addTagsPermissionScope = _flarumTagsAddTagsPermissionScope['default'];
+      addTagsPermissionScope = _flarumTagsAddTagsPermissionScope.default;
     }, function (_flarumTagsAddTagPermission) {
-      addTagPermission = _flarumTagsAddTagPermission['default'];
+      addTagPermission = _flarumTagsAddTagPermission.default;
     }, function (_flarumTagsAddTagsPane) {
-      addTagsPane = _flarumTagsAddTagsPane['default'];
+      addTagsPane = _flarumTagsAddTagsPane.default;
     }, function (_flarumTagsAddTagsHomePageOption) {
-      addTagsHomePageOption = _flarumTagsAddTagsHomePageOption['default'];
+      addTagsHomePageOption = _flarumTagsAddTagsHomePageOption.default;
     }, function (_flarumTagsAddTagChangePermission) {
-      addTagChangePermission = _flarumTagsAddTagChangePermission['default'];
+      addTagChangePermission = _flarumTagsAddTagChangePermission.default;
     }],
     execute: function () {
 
@@ -1242,29 +1241,29 @@ System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addT
     }
   };
 });;
-System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export, _context) {
   var Model, mixin, computed, Tag;
   return {
     setters: [function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin['default'];
+      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed['default'];
+      computed = _flarumUtilsComputed.default;
     }],
     execute: function () {
-      Tag = (function (_mixin) {
+      Tag = function (_mixin) {
         babelHelpers.inherits(Tag, _mixin);
 
         function Tag() {
           babelHelpers.classCallCheck(this, Tag);
-          babelHelpers.get(Object.getPrototypeOf(Tag.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Tag).apply(this, arguments));
         }
 
         return Tag;
-      })(mixin(Model, {
+      }(mixin(Model, {
         name: Model.attribute('name'),
         slug: Model.attribute('slug'),
         description: Model.attribute('description'),
@@ -1295,11 +1294,9 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
     }
   };
 });;
-System.register("flarum/tags/utils/sortTags", [], function (_export) {
-  "use strict";
+"use strict";
 
-  _export("default", sortTags);
-
+System.register("flarum/tags/utils/sortTags", [], function (_export, _context) {
   function sortTags(tags) {
     return tags.slice(0).sort(function (a, b) {
       var aPos = a.position();
@@ -1335,6 +1332,8 @@ System.register("flarum/tags/utils/sortTags", [], function (_export) {
       return 0;
     });
   }
+
+  _export("default", sortTags);
 
   return {
     setters: [],
