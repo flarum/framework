@@ -1,10 +1,7 @@
-System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export, _context) {
   var extend, Discussion, Badge;
-
-  _export('default', addLockBadge);
-
   function addLockBadge() {
     extend(Discussion.prototype, 'badges', function (badges) {
       if (this.isLocked()) {
@@ -17,24 +14,23 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
     });
   }
 
+  _export('default', addLockBadge);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
+      Badge = _flarumComponentsBadge.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/lock/addLockControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/lock/addLockControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export, _context) {
   var extend, DiscussionControls, DiscussionPage, Button;
-
-  _export('default', addLockControl);
-
   function addLockControl() {
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
       if (discussion.canLock()) {
@@ -57,34 +53,36 @@ System.register('flarum/lock/addLockControl', ['flarum/extend', 'flarum/utils/Di
     };
   }
 
+  _export('default', addLockControl);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/lock/components/DiscussionLockedNotification', ['flarum/components/Notification'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/lock/components/DiscussionLockedNotification', ['flarum/components/Notification'], function (_export, _context) {
   var Notification, DiscussionLockedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
-      Notification = _flarumComponentsNotification['default'];
+      Notification = _flarumComponentsNotification.default;
     }],
     execute: function () {
-      DiscussionLockedNotification = (function (_Notification) {
+      DiscussionLockedNotification = function (_Notification) {
         babelHelpers.inherits(DiscussionLockedNotification, _Notification);
 
         function DiscussionLockedNotification() {
           babelHelpers.classCallCheck(this, DiscussionLockedNotification);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionLockedNotification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionLockedNotification).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionLockedNotification, [{
@@ -106,27 +104,27 @@ System.register('flarum/lock/components/DiscussionLockedNotification', ['flarum/
           }
         }]);
         return DiscussionLockedNotification;
-      })(Notification);
+      }(Notification);
 
       _export('default', DiscussionLockedNotification);
     }
   };
 });;
-System.register('flarum/lock/components/DiscussionLockedPost', ['flarum/components/EventPost'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/lock/components/DiscussionLockedPost', ['flarum/components/EventPost'], function (_export, _context) {
   var EventPost, DiscussionLockedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
-      EventPost = _flarumComponentsEventPost['default'];
+      EventPost = _flarumComponentsEventPost.default;
     }],
     execute: function () {
-      DiscussionLockedPost = (function (_EventPost) {
+      DiscussionLockedPost = function (_EventPost) {
         babelHelpers.inherits(DiscussionLockedPost, _EventPost);
 
         function DiscussionLockedPost() {
           babelHelpers.classCallCheck(this, DiscussionLockedPost);
-          babelHelpers.get(Object.getPrototypeOf(DiscussionLockedPost.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionLockedPost).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionLockedPost, [{
@@ -141,35 +139,35 @@ System.register('flarum/lock/components/DiscussionLockedPost', ['flarum/componen
           }
         }]);
         return DiscussionLockedPost;
-      })(EventPost);
+      }(EventPost);
 
       _export('default', DiscussionLockedPost);
     }
   };
 });;
-System.register('flarum/lock/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/lock/components/DiscussionLockedPost', 'flarum/lock/components/DiscussionLockedNotification', 'flarum/lock/addLockBadge', 'flarum/lock/addLockControl'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/lock/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/lock/components/DiscussionLockedPost', 'flarum/lock/components/DiscussionLockedNotification', 'flarum/lock/addLockBadge', 'flarum/lock/addLockControl'], function (_export, _context) {
   var extend, app, Model, Discussion, NotificationGrid, DiscussionLockedPost, DiscussionLockedNotification, addLockBadge, addLockControl;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumComponentsNotificationGrid) {
-      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+      NotificationGrid = _flarumComponentsNotificationGrid.default;
     }, function (_flarumLockComponentsDiscussionLockedPost) {
-      DiscussionLockedPost = _flarumLockComponentsDiscussionLockedPost['default'];
+      DiscussionLockedPost = _flarumLockComponentsDiscussionLockedPost.default;
     }, function (_flarumLockComponentsDiscussionLockedNotification) {
-      DiscussionLockedNotification = _flarumLockComponentsDiscussionLockedNotification['default'];
+      DiscussionLockedNotification = _flarumLockComponentsDiscussionLockedNotification.default;
     }, function (_flarumLockAddLockBadge) {
-      addLockBadge = _flarumLockAddLockBadge['default'];
+      addLockBadge = _flarumLockAddLockBadge.default;
     }, function (_flarumLockAddLockControl) {
-      addLockControl = _flarumLockAddLockControl['default'];
+      addLockControl = _flarumLockAddLockControl.default;
     }],
     execute: function () {
 
