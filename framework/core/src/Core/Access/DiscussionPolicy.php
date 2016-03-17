@@ -109,6 +109,8 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function delete(User $actor, Discussion $discussion)
     {
-        return $this->rename($actor, $discussion);
+        if ($discussion->start_user_id == $actor->id && $discussion->participants_count <= 1) {
+            return true;
+        }
     }
 }
