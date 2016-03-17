@@ -1,13 +1,10 @@
-System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export, _context) {
   var extend, Discussion, Badge;
-
-  _export('default', addSubscriptionBadge);
-
   function addSubscriptionBadge() {
     extend(Discussion.prototype, 'badges', function (badges) {
-      var badge = undefined;
+      var badge = void 0;
 
       switch (this.subscription()) {
         case 'follow':
@@ -36,24 +33,23 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
     });
   }
 
+  _export('default', addSubscriptionBadge);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumComponentsBadge) {
-      Badge = _flarumComponentsBadge['default'];
+      Badge = _flarumComponentsBadge.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/subscriptions/addSubscriptionControls', ['flarum/extend', 'flarum/components/Button', 'flarum/components/DiscussionPage', 'flarum/utils/DiscussionControls', 'flarum/subscriptions/components/SubscriptionMenu'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/addSubscriptionControls', ['flarum/extend', 'flarum/components/Button', 'flarum/components/DiscussionPage', 'flarum/utils/DiscussionControls', 'flarum/subscriptions/components/SubscriptionMenu'], function (_export, _context) {
   var extend, Button, DiscussionPage, DiscussionControls, SubscriptionMenu;
-
-  _export('default', addSubscriptionControls);
-
   function addSubscriptionControls() {
     extend(DiscussionControls, 'userControls', function (items, discussion, context) {
       if (app.session.user && !(context instanceof DiscussionPage)) {
@@ -82,28 +78,27 @@ System.register('flarum/subscriptions/addSubscriptionControls', ['flarum/extend'
     });
   }
 
+  _export('default', addSubscriptionControls);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsDiscussionPage) {
-      DiscussionPage = _flarumComponentsDiscussionPage['default'];
+      DiscussionPage = _flarumComponentsDiscussionPage.default;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }, function (_flarumSubscriptionsComponentsSubscriptionMenu) {
-      SubscriptionMenu = _flarumSubscriptionsComponentsSubscriptionMenu['default'];
+      SubscriptionMenu = _flarumSubscriptionsComponentsSubscriptionMenu.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/subscriptions/addSubscriptionFilter', ['flarum/extend', 'flarum/components/LinkButton', 'flarum/components/IndexPage', 'flarum/components/DiscussionList'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/addSubscriptionFilter', ['flarum/extend', 'flarum/components/LinkButton', 'flarum/components/IndexPage', 'flarum/components/DiscussionList'], function (_export, _context) {
   var extend, LinkButton, IndexPage, DiscussionList;
-
-  _export('default', addSubscriptionFilter);
-
   function addSubscriptionFilter() {
     extend(IndexPage.prototype, 'navItems', function (items) {
       if (app.session.user) {
@@ -126,36 +121,68 @@ System.register('flarum/subscriptions/addSubscriptionFilter', ['flarum/extend', 
     });
   }
 
+  _export('default', addSubscriptionFilter);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }, function (_flarumComponentsIndexPage) {
-      IndexPage = _flarumComponentsIndexPage['default'];
+      IndexPage = _flarumComponentsIndexPage.default;
     }, function (_flarumComponentsDiscussionList) {
-      DiscussionList = _flarumComponentsDiscussionList['default'];
+      DiscussionList = _flarumComponentsDiscussionList.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/components/Notification', 'flarum/helpers/username'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/addSubscriptionSettings', ['flarum/extend', 'flarum/components/SettingsPage', 'flarum/components/FieldSet', 'flarum/components/Switch', 'flarum/utils/ItemList'], function (_export, _context) {
+  var extend, SettingsPage, FieldSet, Switch, ItemList;
+
+  _export('default', function () {
+    extend(SettingsPage.prototype, 'notificationsItems', function (items) {
+      items.add('followAfterReply', Switch.component({
+        children: app.translator.trans('flarum-subscriptions.forum.settings.forum_follow_after_reply_label'),
+        state: this.user.preferences().followAfterReply,
+        onchange: this.preferenceSaver('followAfterReply')
+      }));
+    });
+  });
+
+  return {
+    setters: [function (_flarumExtend) {
+      extend = _flarumExtend.extend;
+    }, function (_flarumComponentsSettingsPage) {
+      SettingsPage = _flarumComponentsSettingsPage.default;
+    }, function (_flarumComponentsFieldSet) {
+      FieldSet = _flarumComponentsFieldSet.default;
+    }, function (_flarumComponentsSwitch) {
+      Switch = _flarumComponentsSwitch.default;
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList.default;
+    }],
+    execute: function () {}
+  };
+});;
+'use strict';
+
+System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/components/Notification', 'flarum/helpers/username'], function (_export, _context) {
   var Notification, username, NewPostNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
-      Notification = _flarumComponentsNotification['default'];
+      Notification = _flarumComponentsNotification.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }],
     execute: function () {
-      NewPostNotification = (function (_Notification) {
+      NewPostNotification = function (_Notification) {
         babelHelpers.inherits(NewPostNotification, _Notification);
 
         function NewPostNotification() {
           babelHelpers.classCallCheck(this, NewPostNotification);
-          babelHelpers.get(Object.getPrototypeOf(NewPostNotification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NewPostNotification).apply(this, arguments));
         }
 
         babelHelpers.createClass(NewPostNotification, [{
@@ -179,33 +206,33 @@ System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/
           }
         }]);
         return NewPostNotification;
-      })(Notification);
+      }(Notification);
 
       _export('default', NewPostNotification);
     }
   };
 });;
-System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export, _context) {
   var Dropdown, Button, icon, SubscriptionMenuItem, SubscriptionMenu;
   return {
     setters: [function (_flarumComponentsDropdown) {
-      Dropdown = _flarumComponentsDropdown['default'];
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }, function (_flarumSubscriptionsComponentsSubscriptionMenuItem) {
-      SubscriptionMenuItem = _flarumSubscriptionsComponentsSubscriptionMenuItem['default'];
+      SubscriptionMenuItem = _flarumSubscriptionsComponentsSubscriptionMenuItem.default;
     }],
     execute: function () {
-      SubscriptionMenu = (function (_Dropdown) {
+      SubscriptionMenu = function (_Dropdown) {
         babelHelpers.inherits(SubscriptionMenu, _Dropdown);
 
         function SubscriptionMenu() {
           babelHelpers.classCallCheck(this, SubscriptionMenu);
-          babelHelpers.get(Object.getPrototypeOf(SubscriptionMenu.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SubscriptionMenu).apply(this, arguments));
         }
 
         babelHelpers.createClass(SubscriptionMenu, [{
@@ -231,7 +258,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
         }, {
           key: 'view',
           value: function view() {
-            var _this = this;
+            var _this2 = this;
 
             var discussion = this.props.discussion;
             var subscription = discussion.subscription();
@@ -294,7 +321,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
                 'ul',
                 { className: 'Dropdown-menu dropdown-menu Dropdown-menu--right' },
                 this.options.map(function (props) {
-                  props.onclick = _this.saveSubscription.bind(_this, discussion, props.subscription);
+                  props.onclick = _this2.saveSubscription.bind(_this2, discussion, props.subscription);
                   props.active = subscription === props.subscription;
 
                   return m(
@@ -315,29 +342,29 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
           }
         }]);
         return SubscriptionMenu;
-      })(Dropdown);
+      }(Dropdown);
 
       _export('default', SubscriptionMenu);
     }
   };
 });;
-System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum/Component', 'flarum/helpers/icon'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum/Component', 'flarum/helpers/icon'], function (_export, _context) {
   var Component, icon, SubscriptionMenuItem;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {
-      SubscriptionMenuItem = (function (_Component) {
+      SubscriptionMenuItem = function (_Component) {
         babelHelpers.inherits(SubscriptionMenuItem, _Component);
 
         function SubscriptionMenuItem() {
           babelHelpers.classCallCheck(this, SubscriptionMenuItem);
-          babelHelpers.get(Object.getPrototypeOf(SubscriptionMenuItem.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SubscriptionMenuItem).apply(this, arguments));
         }
 
         babelHelpers.createClass(SubscriptionMenuItem, [{
@@ -366,37 +393,37 @@ System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum
           }
         }]);
         return SubscriptionMenuItem;
-      })(Component);
+      }(Component);
 
       _export('default', SubscriptionMenuItem);
     }
   };
 });;
-System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/subscriptions/addSubscriptionBadge', 'flarum/subscriptions/addSubscriptionControls', 'flarum/subscriptions/addSubscriptionFilter', 'flarum/subscriptions/addSubscriptionSettings', 'flarum/subscriptions/components/NewPostNotification'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/subscriptions/addSubscriptionBadge', 'flarum/subscriptions/addSubscriptionControls', 'flarum/subscriptions/addSubscriptionFilter', 'flarum/subscriptions/addSubscriptionSettings', 'flarum/subscriptions/components/NewPostNotification'], function (_export, _context) {
   var extend, app, Model, Discussion, NotificationGrid, addSubscriptionBadge, addSubscriptionControls, addSubscriptionFilter, addSubscriptionSettings, NewPostNotification;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumModelsDiscussion) {
-      Discussion = _flarumModelsDiscussion['default'];
+      Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumComponentsNotificationGrid) {
-      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+      NotificationGrid = _flarumComponentsNotificationGrid.default;
     }, function (_flarumSubscriptionsAddSubscriptionBadge) {
-      addSubscriptionBadge = _flarumSubscriptionsAddSubscriptionBadge['default'];
+      addSubscriptionBadge = _flarumSubscriptionsAddSubscriptionBadge.default;
     }, function (_flarumSubscriptionsAddSubscriptionControls) {
-      addSubscriptionControls = _flarumSubscriptionsAddSubscriptionControls['default'];
+      addSubscriptionControls = _flarumSubscriptionsAddSubscriptionControls.default;
     }, function (_flarumSubscriptionsAddSubscriptionFilter) {
-      addSubscriptionFilter = _flarumSubscriptionsAddSubscriptionFilter['default'];
+      addSubscriptionFilter = _flarumSubscriptionsAddSubscriptionFilter.default;
     }, function (_flarumSubscriptionsAddSubscriptionSettings) {
-      addSubscriptionSettings = _flarumSubscriptionsAddSubscriptionSettings['default'];
+      addSubscriptionSettings = _flarumSubscriptionsAddSubscriptionSettings.default;
     }, function (_flarumSubscriptionsComponentsNewPostNotification) {
-      NewPostNotification = _flarumSubscriptionsComponentsNewPostNotification['default'];
+      NewPostNotification = _flarumSubscriptionsComponentsNewPostNotification.default;
     }],
     execute: function () {
 
@@ -416,35 +443,6 @@ System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'fl
             icon: 'star',
             label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label')
           });
-        });
-      });
-    }
-  };
-});;
-System.register('flarum/subscriptions/addSubscriptionSettings', ['flarum/extend', 'flarum/components/SettingsPage', 'flarum/components/FieldSet', 'flarum/components/Switch', 'flarum/utils/ItemList'], function (_export) {
-  'use strict';
-
-  var extend, SettingsPage, FieldSet, Switch, ItemList;
-  return {
-    setters: [function (_flarumExtend) {
-      extend = _flarumExtend.extend;
-    }, function (_flarumComponentsSettingsPage) {
-      SettingsPage = _flarumComponentsSettingsPage['default'];
-    }, function (_flarumComponentsFieldSet) {
-      FieldSet = _flarumComponentsFieldSet['default'];
-    }, function (_flarumComponentsSwitch) {
-      Switch = _flarumComponentsSwitch['default'];
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList['default'];
-    }],
-    execute: function () {
-      _export('default', function () {
-        extend(SettingsPage.prototype, 'notificationsItems', function (items) {
-          items.add('followAfterReply', Switch.component({
-            children: app.translator.trans('flarum-subscriptions.forum.settings.forum_follow_after_reply_label'),
-            state: this.user.preferences().followAfterReply,
-            onchange: this.preferenceSaver('followAfterReply')
-          }));
         });
       });
     }
