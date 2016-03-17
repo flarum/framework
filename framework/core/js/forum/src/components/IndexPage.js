@@ -213,7 +213,7 @@ export default class IndexPage extends Page {
     items.add('sort',
       Select.component({
         options: sortOptions,
-        value: this.params().sort,
+        value: this.params().sort || Object.keys(app.cache.discussionList.sortMap())[0],
         onchange: this.changeSort.bind(this)
       })
     );
