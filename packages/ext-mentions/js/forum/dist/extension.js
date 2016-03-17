@@ -129,15 +129,10 @@ if (typeof module != 'undefined' && typeof module.exports != 'undefined') {
 
 }());
 ;
-System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export) {
-  /*global getCaretCoordinates*/
+'use strict';
 
-  'use strict';
-
+System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight', 'flarum/utils/string', 'flarum/mentions/components/AutocompleteDropdown'], function (_export, _context) {
   var extend, ComposerBody, avatar, usernameHelper, highlight, truncate, AutocompleteDropdown;
-
-  _export('default', addComposerAutocomplete);
-
   function addComposerAutocomplete() {
     extend(ComposerBody.prototype, 'config', function (original, isInitialized) {
       if (isInitialized) return;
@@ -147,9 +142,9 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
       var dropdown = new AutocompleteDropdown({ items: [] });
       var $textarea = this.$('textarea').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
       var searched = [];
-      var mentionStart = undefined;
-      var typed = undefined;
-      var searchTimeout = undefined;
+      var mentionStart = void 0;
+      var typed = void 0;
+      var searchTimeout = void 0;
 
       var applySuggestion = function applySuggestion(replacement) {
         var insert = replacement + ' ';
@@ -205,10 +200,10 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
               return m(
                 'button',
                 { className: 'PostPreview ' + className,
-                  onclick: function () {
+                  onclick: function onclick() {
                     return applySuggestion(replacement);
                   },
-                  onmouseenter: function () {
+                  onmouseenter: function onmouseenter() {
                     dropdown.setIndex($(this).parent().index());
                   } },
                 m(
@@ -264,16 +259,16 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
                 var coordinates = getCaretCoordinates(_this, mentionStart);
                 var width = dropdown.$().outerWidth();
                 var height = dropdown.$().outerHeight();
-                var _parent = dropdown.$().offsetParent();
+                var parent = dropdown.$().offsetParent();
                 var left = coordinates.left;
-                var _top = coordinates.top + 15;
-                if (_top + height > _parent.height()) {
-                  _top = coordinates.top - height - 15;
+                var top = coordinates.top + 15;
+                if (top + height > parent.height()) {
+                  top = coordinates.top - height - 15;
                 }
-                if (left + width > _parent.width()) {
-                  left = _parent.width() - width;
+                if (left + width > parent.width()) {
+                  left = parent.width() - width;
                 }
-                dropdown.show(left, _top);
+                dropdown.show(left, top);
               }
             };
 
@@ -301,32 +296,33 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
     });
   }
 
+  _export('default', addComposerAutocomplete);
+
   return {
     setters: [function (_flarumExtend) {
+      /*global getCaretCoordinates*/
+
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsComposerBody) {
-      ComposerBody = _flarumComponentsComposerBody['default'];
+      ComposerBody = _flarumComponentsComposerBody.default;
     }, function (_flarumHelpersAvatar) {
-      avatar = _flarumHelpersAvatar['default'];
+      avatar = _flarumHelpersAvatar.default;
     }, function (_flarumHelpersUsername) {
-      usernameHelper = _flarumHelpersUsername['default'];
+      usernameHelper = _flarumHelpersUsername.default;
     }, function (_flarumHelpersHighlight) {
-      highlight = _flarumHelpersHighlight['default'];
+      highlight = _flarumHelpersHighlight.default;
     }, function (_flarumUtilsString) {
       truncate = _flarumUtilsString.truncate;
     }, function (_flarumMentionsComponentsAutocompleteDropdown) {
-      AutocompleteDropdown = _flarumMentionsComponentsAutocompleteDropdown['default'];
+      AutocompleteDropdown = _flarumMentionsComponentsAutocompleteDropdown.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/Model', 'flarum/models/Post', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export, _context) {
   var extend, Model, Post, CommentPost, PostPreview, punctuateSeries, username, icon;
-
-  _export('default', addMentionedByList);
-
   function addMentionedByList() {
     Post.prototype.mentionedBy = Model.hasMany('mentionedBy');
 
@@ -337,12 +333,12 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
       var replies = post.mentionedBy();
 
       if (replies && replies.length) {
-        var _ret = (function () {
+        var _ret = function () {
           // If there is only one reply, and it's adjacent to this post, we don't
           // really need to show the list.
           if (replies.length === 1 && replies[0].number() === post.number() + 1) {
             return {
-              v: undefined
+              v: void 0
             };
           }
 
@@ -356,7 +352,7 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
             if (isInitialized) return;
 
             var $this = $(element);
-            var timeout = undefined;
+            var timeout = void 0;
 
             var $preview = $('<ul class="Dropdown-menu Post-mentionedBy-preview fade"/>');
             $this.append($preview);
@@ -450,41 +446,40 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
               })
             )
           ));
-        })();
+        }();
 
-        if (typeof _ret === 'object') return _ret.v;
+        if ((typeof _ret === 'undefined' ? 'undefined' : babelHelpers.typeof(_ret)) === "object") return _ret.v;
       }
     });
   }
+
+  _export('default', addMentionedByList);
 
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumModel) {
-      Model = _flarumModel['default'];
+      Model = _flarumModel.default;
     }, function (_flarumModelsPost) {
-      Post = _flarumModelsPost['default'];
+      Post = _flarumModelsPost.default;
     }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumComponentsPostPreview) {
-      PostPreview = _flarumComponentsPostPreview['default'];
+      PostPreview = _flarumComponentsPostPreview.default;
     }, function (_flarumHelpersPunctuateSeries) {
-      punctuateSeries = _flarumHelpersPunctuateSeries['default'];
+      punctuateSeries = _flarumHelpersPunctuateSeries.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon['default'];
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'flarum/components/CommentPost', 'flarum/components/PostPreview', 'flarum/components/LoadingIndicator'], function (_export, _context) {
   var extend, CommentPost, PostPreview, LoadingIndicator;
-
-  _export('default', addPostMentionPreviews);
-
   function addPostMentionPreviews() {
     extend(CommentPost.prototype, 'config', function () {
       var contentHtml = this.props.post.contentHtml();
@@ -503,7 +498,7 @@ System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'fla
       this.$('.PostMention').each(function () {
         var $this = $(this);
         var id = $this.data('id');
-        var timeout = undefined;
+        var timeout = void 0;
 
         // Wrap the mention link in a wrapper element so that we can insert a
         // preview popup as its sibling and relatively position it.
@@ -521,9 +516,9 @@ System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'fla
           var $post = getPostElement();
           var visible = false;
           if ($post.length) {
-            var _top = $post.offset().top;
+            var top = $post.offset().top;
             var scrollTop = window.pageYOffset;
-            if (_top > scrollTop && _top + $post.height() < scrollTop + $(window).height()) {
+            if (top > scrollTop && top + $post.height() < scrollTop + $(window).height()) {
               $post.addClass('pulsate');
               visible = true;
             }
@@ -604,95 +599,98 @@ System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'fla
     });
   }
 
+  _export('default', addPostMentionPreviews);
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumComponentsPostPreview) {
-      PostPreview = _flarumComponentsPostPreview['default'];
+      PostPreview = _flarumComponentsPostPreview.default;
     }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator['default'];
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }],
     execute: function () {}
   };
 });;
-System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/utils/DiscussionControls'], function (_export, _context) {
   var extend, Button, CommentPost, DiscussionControls;
+
+  _export('default', function () {
+    extend(CommentPost.prototype, 'actionItems', function (items) {
+      var post = this.props.post;
+
+      if (post.isHidden() || app.session.user && !post.discussion().canReply()) return;
+
+      function insertMention(component, quote) {
+        var user = post.user();
+        var mention = '@' + (user ? user.username() : post.number()) + '#' + post.id() + ' ';
+
+        // If the composer is empty, then assume we're starting a new reply.
+        // In which case we don't want the user to have to confirm if they
+        // close the composer straight away.
+        if (!component.content()) {
+          component.props.originalContent = mention;
+        }
+
+        var cursorPosition = component.editor.getSelectionRange()[0];
+        var preceding = component.editor.value().slice(0, cursorPosition);
+        var precedingNewlines = preceding.length == 0 ? 0 : 3 - preceding.match(/(\n{0,2})$/)[0].length;
+
+        component.editor.insertAtCursor(Array(precedingNewlines).join('\n') + ( // Insert up to two newlines, depending on preceding whitespace
+        quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention));
+      }
+
+      items.add('reply', Button.component({
+        className: 'Button Button--link',
+        children: app.translator.trans('flarum-mentions.forum.post.reply_link'),
+        onclick: function onclick() {
+          var quote = window.getSelection().toString();
+
+          var component = app.composer.component;
+          if (component && component.props.post && component.props.post.discussion() === post.discussion()) {
+            insertMention(component, quote);
+          } else {
+            DiscussionControls.replyAction.call(post.discussion()).then(function (newComponent) {
+              return insertMention(newComponent, quote);
+            });
+          }
+        }
+      }));
+    });
+  });
+
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton['default'];
+      Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost['default'];
+      CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumUtilsDiscussionControls) {
-      DiscussionControls = _flarumUtilsDiscussionControls['default'];
+      DiscussionControls = _flarumUtilsDiscussionControls.default;
     }],
-    execute: function () {
-      _export('default', function () {
-        extend(CommentPost.prototype, 'actionItems', function (items) {
-          var post = this.props.post;
-
-          if (post.isHidden() || app.session.user && !post.discussion().canReply()) return;
-
-          function insertMention(component, quote) {
-            var user = post.user();
-            var mention = '@' + (user ? user.username() : post.number()) + '#' + post.id() + ' ';
-
-            // If the composer is empty, then assume we're starting a new reply.
-            // In which case we don't want the user to have to confirm if they
-            // close the composer straight away.
-            if (!component.content()) {
-              component.props.originalContent = mention;
-            }
-
-            var cursorPosition = component.editor.getSelectionRange()[0];
-            var preceding = component.editor.value().slice(0, cursorPosition);
-            var precedingNewlines = preceding.length == 0 ? 0 : 3 - preceding.match(/(\n{0,2})$/)[0].length;
-
-            component.editor.insertAtCursor(Array(precedingNewlines).join('\n') + ( // Insert up to two newlines, depending on preceding whitespace
-            quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention));
-          }
-
-          items.add('reply', Button.component({
-            className: 'Button Button--link',
-            children: app.translator.trans('flarum-mentions.forum.post.reply_link'),
-            onclick: function onclick() {
-              var quote = window.getSelection().toString();
-
-              var component = app.composer.component;
-              if (component && component.props.post && component.props.post.discussion() === post.discussion()) {
-                insertMention(component, quote);
-              } else {
-                DiscussionControls.replyAction.call(post.discussion()).then(function (newComponent) {
-                  return insertMention(newComponent, quote);
-                });
-              }
-            }
-          }));
-        });
-      });
-    }
+    execute: function () {}
   };
 });;
-System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Component'], function (_export, _context) {
   var Component, AutocompleteDropdown;
   return {
     setters: [function (_flarumComponent) {
-      Component = _flarumComponent['default'];
+      Component = _flarumComponent.default;
     }],
     execute: function () {
-      AutocompleteDropdown = (function (_Component) {
+      AutocompleteDropdown = function (_Component) {
         babelHelpers.inherits(AutocompleteDropdown, _Component);
 
         function AutocompleteDropdown() {
           babelHelpers.classCallCheck(this, AutocompleteDropdown);
-          babelHelpers.get(Object.getPrototypeOf(AutocompleteDropdown.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AutocompleteDropdown).apply(this, arguments));
         }
 
         babelHelpers.createClass(AutocompleteDropdown, [{
@@ -735,7 +733,7 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
         }, {
           key: 'navigate',
           value: function navigate(e) {
-            var _this = this;
+            var _this2 = this;
 
             if (!this.active) return;
 
@@ -746,7 +744,7 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
                 this.setIndex(this.index + (e.which === 40 ? 1 : -1), true);
                 clearTimeout(this.keyWasJustPressedTimeout);
                 this.keyWasJustPressedTimeout = setTimeout(function () {
-                  return _this.keyWasJustPressed = false;
+                  return _this2.keyWasJustPressed = false;
                 }, 500);
                 e.preventDefault();
                 break;
@@ -794,7 +792,7 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
               var itemTop = $item.offset().top;
               var itemBottom = itemTop + $item.outerHeight();
 
-              var scrollTop = undefined;
+              var scrollTop = void 0;
               if (itemTop < dropdownTop) {
                 scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt($dropdown.css('padding-top'), 10);
               } else if (itemBottom > dropdownBottom) {
@@ -808,43 +806,31 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
           }
         }]);
         return AutocompleteDropdown;
-      })(Component);
+      }(Component);
 
       _export('default', AutocompleteDropdown);
     }
   };
 });;
-System.register('flarum/mentions/components/MentionsUserPage', ['flarum/components/PostsUserPage'], function (_export) {
+'use strict';
 
-  /**
-   * The `MentionsUserPage` component shows post which user Mentioned at
-   */
-  'use strict';
-
+System.register('flarum/mentions/components/MentionsUserPage', ['flarum/components/PostsUserPage'], function (_export, _context) {
   var PostsUserPage, MentionsUserPage;
   return {
     setters: [function (_flarumComponentsPostsUserPage) {
-      PostsUserPage = _flarumComponentsPostsUserPage['default'];
+      PostsUserPage = _flarumComponentsPostsUserPage.default;
     }],
     execute: function () {
-      MentionsUserPage = (function (_PostsUserPage) {
+      MentionsUserPage = function (_PostsUserPage) {
         babelHelpers.inherits(MentionsUserPage, _PostsUserPage);
 
         function MentionsUserPage() {
           babelHelpers.classCallCheck(this, MentionsUserPage);
-          babelHelpers.get(Object.getPrototypeOf(MentionsUserPage.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(MentionsUserPage).apply(this, arguments));
         }
 
         babelHelpers.createClass(MentionsUserPage, [{
           key: 'loadResults',
-
-          /**
-           * Load a new page of the user's activity feed.
-           *
-           * @param {Integer} [offset] The position to start getting results from.
-           * @return {Promise}
-           * @protected
-           */
           value: function loadResults(offset) {
             return app.store.find('posts', {
               filter: {
@@ -857,31 +843,31 @@ System.register('flarum/mentions/components/MentionsUserPage', ['flarum/componen
           }
         }]);
         return MentionsUserPage;
-      })(PostsUserPage);
+      }(PostsUserPage);
 
       _export('default', MentionsUserPage);
     }
   };
 });;
-System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/components/PostMentionedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export, _context) {
   var Notification, username, punctuateSeries, PostMentionedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
-      Notification = _flarumComponentsNotification['default'];
+      Notification = _flarumComponentsNotification.default;
     }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername['default'];
+      username = _flarumHelpersUsername.default;
     }, function (_flarumHelpersPunctuateSeries) {
-      punctuateSeries = _flarumHelpersPunctuateSeries['default'];
+      punctuateSeries = _flarumHelpersPunctuateSeries.default;
     }],
     execute: function () {
-      PostMentionedNotification = (function (_Notification) {
+      PostMentionedNotification = function (_Notification) {
         babelHelpers.inherits(PostMentionedNotification, _Notification);
 
         function PostMentionedNotification() {
           babelHelpers.classCallCheck(this, PostMentionedNotification);
-          babelHelpers.get(Object.getPrototypeOf(PostMentionedNotification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostMentionedNotification).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostMentionedNotification, [{
@@ -918,27 +904,27 @@ System.register('flarum/mentions/components/PostMentionedNotification', ['flarum
           }
         }]);
         return PostMentionedNotification;
-      })(Notification);
+      }(Notification);
 
       _export('default', PostMentionedNotification);
     }
   };
 });;
-System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/components/UserMentionedNotification', ['flarum/components/Notification'], function (_export, _context) {
   var Notification, UserMentionedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
-      Notification = _flarumComponentsNotification['default'];
+      Notification = _flarumComponentsNotification.default;
     }],
     execute: function () {
-      UserMentionedNotification = (function (_Notification) {
+      UserMentionedNotification = function (_Notification) {
         babelHelpers.inherits(UserMentionedNotification, _Notification);
 
         function UserMentionedNotification() {
           babelHelpers.classCallCheck(this, UserMentionedNotification);
-          babelHelpers.get(Object.getPrototypeOf(UserMentionedNotification.prototype), 'constructor', this).apply(this, arguments);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UserMentionedNotification).apply(this, arguments));
         }
 
         babelHelpers.createClass(UserMentionedNotification, [{
@@ -967,43 +953,43 @@ System.register('flarum/mentions/components/UserMentionedNotification', ['flarum
           }
         }]);
         return UserMentionedNotification;
-      })(Notification);
+      }(Notification);
 
       _export('default', UserMentionedNotification);
     }
   };
 });;
-System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification', 'flarum/components/UserPage', 'flarum/components/LinkButton', 'flarum/mentions/components/MentionsUserPage'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/components/NotificationGrid', 'flarum/utils/string', 'flarum/mentions/addPostMentionPreviews', 'flarum/mentions/addMentionedByList', 'flarum/mentions/addPostReplyAction', 'flarum/mentions/addComposerAutocomplete', 'flarum/mentions/components/PostMentionedNotification', 'flarum/mentions/components/UserMentionedNotification', 'flarum/components/UserPage', 'flarum/components/LinkButton', 'flarum/mentions/components/MentionsUserPage'], function (_export, _context) {
   var extend, app, NotificationGrid, getPlainContent, addPostMentionPreviews, addMentionedByList, addPostReplyAction, addComposerAutocomplete, PostMentionedNotification, UserMentionedNotification, UserPage, LinkButton, MentionsUserPage;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
-      app = _flarumApp['default'];
+      app = _flarumApp.default;
     }, function (_flarumComponentsNotificationGrid) {
-      NotificationGrid = _flarumComponentsNotificationGrid['default'];
+      NotificationGrid = _flarumComponentsNotificationGrid.default;
     }, function (_flarumUtilsString) {
       getPlainContent = _flarumUtilsString.getPlainContent;
     }, function (_flarumMentionsAddPostMentionPreviews) {
-      addPostMentionPreviews = _flarumMentionsAddPostMentionPreviews['default'];
+      addPostMentionPreviews = _flarumMentionsAddPostMentionPreviews.default;
     }, function (_flarumMentionsAddMentionedByList) {
-      addMentionedByList = _flarumMentionsAddMentionedByList['default'];
+      addMentionedByList = _flarumMentionsAddMentionedByList.default;
     }, function (_flarumMentionsAddPostReplyAction) {
-      addPostReplyAction = _flarumMentionsAddPostReplyAction['default'];
+      addPostReplyAction = _flarumMentionsAddPostReplyAction.default;
     }, function (_flarumMentionsAddComposerAutocomplete) {
-      addComposerAutocomplete = _flarumMentionsAddComposerAutocomplete['default'];
+      addComposerAutocomplete = _flarumMentionsAddComposerAutocomplete.default;
     }, function (_flarumMentionsComponentsPostMentionedNotification) {
-      PostMentionedNotification = _flarumMentionsComponentsPostMentionedNotification['default'];
+      PostMentionedNotification = _flarumMentionsComponentsPostMentionedNotification.default;
     }, function (_flarumMentionsComponentsUserMentionedNotification) {
-      UserMentionedNotification = _flarumMentionsComponentsUserMentionedNotification['default'];
+      UserMentionedNotification = _flarumMentionsComponentsUserMentionedNotification.default;
     }, function (_flarumComponentsUserPage) {
-      UserPage = _flarumComponentsUserPage['default'];
+      UserPage = _flarumComponentsUserPage.default;
     }, function (_flarumComponentsLinkButton) {
-      LinkButton = _flarumComponentsLinkButton['default'];
+      LinkButton = _flarumComponentsLinkButton.default;
     }, function (_flarumMentionsComponentsMentionsUserPage) {
-      MentionsUserPage = _flarumMentionsComponentsMentionsUserPage['default'];
+      MentionsUserPage = _flarumMentionsComponentsMentionsUserPage.default;
     }],
     execute: function () {
 
