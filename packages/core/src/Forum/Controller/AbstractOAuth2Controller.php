@@ -24,6 +24,18 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
     protected $authResponse;
 
     /**
+     * @var \League\OAuth2\Client\Provider\AbstractProvider
+     */
+    protected $provider;
+
+    /**
+     * The access token, once obtained.
+     *
+     * @var string
+     */
+    protected $token;
+
+    /**
      * @param AuthenticationResponseFactory $authResponse
      */
     public function __construct(AuthenticationResponseFactory $authResponse)
@@ -39,7 +51,7 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
     {
         $redirectUri = (string) $request->getAttribute('originalUri', $request->getUri())->withQuery('');
 
-        $provider = $this->getProvider($redirectUri);
+        $this->provider = $this->getProvider($redirectUri);
 
         $session = $request->getAttribute('session');
 
@@ -48,8 +60,8 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
         $state = array_get($queryParams, 'state');
 
         if (! $code) {
-            $authUrl = $provider->getAuthorizationUrl($this->getAuthorizationUrlOptions());
-            $session->set('oauth2state', $provider->getState());
+            $authUrl = $this->provider->getAuthorizationUrl($this->getAuthorizationUrlOptions());
+            $session->set('oauth2state', $this->provider->getState());
 
             return new RedirectResponse($authUrl.'&display=popup');
         } elseif (! $state || $state !== $session->get('oauth2state')) {
@@ -58,9 +70,9 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
             exit;
         }
 
-        $token = $provider->getAccessToken('authorization_code', compact('code'));
+        $this->token = $this->provider->getAccessToken('authorization_code', compact('code'));
 
-        $owner = $provider->getResourceOwner($token);
+        $owner = $this->provider->getResourceOwner($this->token);
 
         $identification = $this->getIdentification($owner);
         $suggestions = $this->getSuggestions($owner);
