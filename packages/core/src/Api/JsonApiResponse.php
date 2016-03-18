@@ -22,6 +22,9 @@ class JsonApiResponse extends JsonResponse
     {
         $headers['content-type'] = 'application/vnd.api+json';
 
-        parent::__construct($document, $status, $headers, $encodingOptions);
+        // The call to jsonSerialize prevents rare issues with json_encode() failing with a
+        // syntax error even though Document implements the JsonSerializable interface.
+        // See https://github.com/flarum/core/issues/685
+        parent::__construct($document->jsonSerialize(), $status, $headers, $encodingOptions);
     }
 }
