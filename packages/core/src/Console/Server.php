@@ -36,6 +36,7 @@ class Server extends AbstractServer
 
         $console->add($app->make('Flarum\Install\Console\InstallCommand'));
         $console->add($app->make('Flarum\Update\Console\MigrateCommand'));
+        $console->add($app->make('Flarum\Debug\Console\InfoCommand'));
         $console->add($app->make('Flarum\Console\Command\GenerateExtensionCommand'));
         $console->add($app->make('Flarum\Console\Command\GenerateMigrationCommand'));
 
