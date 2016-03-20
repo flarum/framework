@@ -10,7 +10,6 @@
 
 namespace Flarum\Core\Access;
 
-use Flarum\Api\Exception\InvalidAccessTokenException;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\User;
 
