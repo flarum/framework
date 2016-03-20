@@ -11,7 +11,12 @@
 
 namespace Flarum\Console;
 
+use Flarum\Console\Command\GenerateExtensionCommand;
+use Flarum\Console\Command\GenerateMigrationCommand;
+use Flarum\Debug\Console\InfoCommand;
 use Flarum\Foundation\AbstractServer;
+use Flarum\Install\Console\InstallCommand;
+use Flarum\Update\Console\MigrateCommand;
 use Symfony\Component\Console\Application;
 
 class Server extends AbstractServer
@@ -29,16 +34,21 @@ class Server extends AbstractServer
     protected function getConsoleApplication()
     {
         $app = $this->getApp();
-
         $console = new Application('Flarum', $app->version());
 
         $app->register('Flarum\Install\InstallServiceProvider');
 
-        $console->add($app->make('Flarum\Install\Console\InstallCommand'));
-        $console->add($app->make('Flarum\Update\Console\MigrateCommand'));
-        $console->add($app->make('Flarum\Debug\Console\InfoCommand'));
-        $console->add($app->make('Flarum\Console\Command\GenerateExtensionCommand'));
-        $console->add($app->make('Flarum\Console\Command\GenerateMigrationCommand'));
+        $commands = [
+            InstallCommand::class,
+            MigrateCommand::class,
+            InfoCommand::class,
+            GenerateExtensionCommand::class,
+            GenerateMigrationCommand::class,
+        ];
+
+        foreach ($commands as $command) {
+            $console->add($app->make($command));
+        }
 
         return $console;
     }
