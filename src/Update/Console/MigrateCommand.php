@@ -37,7 +37,7 @@ class MigrateCommand extends AbstractCommand
     {
         $this
             ->setName('migrate')
-            ->setDescription('Run outstanding migrations.');
+            ->setDescription('Run outstanding migrations');
     }
 
     /**
