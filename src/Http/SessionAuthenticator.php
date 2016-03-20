@@ -10,7 +10,6 @@
 
 namespace Flarum\Http;
 
-use DateTime;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionAuthenticator
