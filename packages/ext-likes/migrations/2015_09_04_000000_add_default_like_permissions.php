@@ -8,27 +8,23 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Core\Group;
-use Flarum\Core\Permission;
+use Illuminate\Database\ConnectionInterface;
 
-$getPermissionAttributes = function () {
-    return [
-        'group_id' => Group::MEMBER_ID,
-        'permission' => 'discussion.likePosts',
-    ];
-};
+$permissionAttributes = [
+    'group_id' => 3, // Default group ID of members
+    'permission' => 'discussion.likePosts',
+];
 
 return [
-    'up' => function () use ($getPermissionAttributes) {
-        Permission::unguard();
+    'up' => function (ConnectionInterface $db) use ($permissionAttributes) {
+        $instance = $db->table('permissions')->where($permissionAttributes)->first();
 
-        $permission = Permission::firstOrNew($getPermissionAttributes());
-
-        $permission->save();
+        if (is_null($instance)) {
+            $db->table('permissions')->insert($permissionAttributes);
+        }
     },
 
-    'down' => function () use ($getPermissionAttributes) {
-
-        Permission::where($getPermissionAttributes())->delete();
+    'down' => function (ConnectionInterface $db) use ($permissionAttributes) {
+        $db->table('permissions')->where($permissionAttributes)->delete();
     }
 ];
