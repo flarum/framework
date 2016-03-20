@@ -38,7 +38,7 @@ class GenerateMigrationCommand extends AbstractCommand
     {
         $this
             ->setName('generate:migration')
-            ->setDescription('Generate a migration.')
+            ->setDescription('Generate a migration')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,

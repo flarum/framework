@@ -57,7 +57,7 @@ class InstallCommand extends AbstractCommand
     {
         $this
             ->setName('install')
-            ->setDescription("Run Flarum's installation migration and seeds.")
+            ->setDescription("Run Flarum's installation migration and seeds")
             ->addOption(
                 'defaults',
                 'd',

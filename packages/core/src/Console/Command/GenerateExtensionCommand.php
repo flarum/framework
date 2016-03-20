@@ -19,7 +19,7 @@ class GenerateExtensionCommand extends AbstractCommand
     {
         $this
             ->setName('generate:extension')
-            ->setDescription('Generate a Flarum extension skeleton.');
+            ->setDescription('Generate a Flarum extension skeleton');
     }
 
     /**
