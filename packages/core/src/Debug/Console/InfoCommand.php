@@ -48,6 +48,8 @@ class InfoCommand extends AbstractCommand
     {
         $this->info('Flarum core '.Application::VERSION);
 
+        $this->info('PHP '.PHP_VERSION);
+
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             /** @var \Flarum\Extension\Extension $extension */
             $name = $extension->getId();
