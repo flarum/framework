@@ -57,6 +57,9 @@ class InfoCommand extends AbstractCommand
 
         $this->info('PHP '.PHP_VERSION);
 
+        $phpExtensions = implode(', ', get_loaded_extensions());
+        $this->info("Loaded extensions: $phpExtensions");
+
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             /** @var \Flarum\Extension\Extension $extension */
             $name = $extension->getId();
