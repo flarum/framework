@@ -72,8 +72,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit -c tests/phpunit.xml",
-        "test-ci": "vendor/bin/phpunit -c tests/phpunit.xml --coverage-clover=coverage.xml"
+        "test": "vendor/bin/phpunit -c tests/phpunit.xml"
     },
     "extra": {
         "branch-alias": {
