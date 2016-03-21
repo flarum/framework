@@ -17,7 +17,7 @@ before_script:
   - composer install
 
 script:
-  - composer test
+  - composer test-ci
 
 notifications:
   email:
