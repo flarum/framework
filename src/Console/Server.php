@@ -47,7 +47,10 @@ class Server extends AbstractServer
         ];
 
         foreach ($commands as $command) {
-            $console->add($app->make($command));
+            $console->add($app->make(
+                $command,
+                ['config' => $app->make('flarum.config')]
+            ));
         }
 
         return $console;

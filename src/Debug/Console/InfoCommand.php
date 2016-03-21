@@ -22,11 +22,18 @@ class InfoCommand extends AbstractCommand
     protected $extensions;
 
     /**
-     * @param ExtensionManager $extensions
+     * @var array
      */
-    public function __construct(ExtensionManager $extensions)
+    protected $config;
+
+    /**
+     * @param ExtensionManager $extensions
+     * @param array $config
+     */
+    public function __construct(ExtensionManager $extensions, array $config)
     {
         $this->extensions = $extensions;
+        $this->config = $config;
 
         parent::__construct();
     }
@@ -57,5 +64,7 @@ class InfoCommand extends AbstractCommand
 
             $this->info("EXT $name $version");
         }
+
+        $this->info('Base URL: '.$this->config['url']);
     }
 }
