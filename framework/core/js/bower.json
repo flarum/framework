@@ -7,10 +7,10 @@
     "spin.js": "~2.0.1",
     "moment": "~2.8.4",
     "color-thief": "v2.0",
-    "mithril": "lhorie/mithril.js#next",
+    "mithril": "lhorie/mithril.js#v0.2.3",
     "es6-micro-loader": "caridy/es6-micro-loader#v0.2.1",
     "fastclick": "~1.0.6",
-    "autolink": "*",
+    "autolink": "~1.0.0",
     "m.attrs.bidi": "tobscure/m.attrs.bidi"
   }
 }
