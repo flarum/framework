@@ -53,7 +53,8 @@ class InfoCommand extends AbstractCommand
      */
     protected function fire()
     {
-        $this->info('Flarum core '.Application::VERSION);
+        $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
+        $this->info("Flarum core $coreVersion");
 
         $this->info('PHP '.PHP_VERSION);
 
@@ -63,12 +64,42 @@ class InfoCommand extends AbstractCommand
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             /** @var \Flarum\Extension\Extension $extension */
             $name = $extension->getId();
-            $version = $extension->getVersion();
+            $version = $this->findPackageVersion($extension->getPath(), $extension->getVersion());
 
             $this->info("EXT $name $version");
         }
 
         $this->info('Base URL: '.$this->config['url']);
         $this->info('Installation path: '.getcwd());
+    }
+
+    /**
+     * Try to detect a package's exact version.
+     *
+     * If the package seems to be a Git version, we extract the currently
+     * checked out commit using the command line.
+     *
+     * @param string $path
+     * @param string $fallback
+     * @return string
+     */
+    private function findPackageVersion($path, $fallback)
+    {
+        if (file_exists("$path/.git")) {
+            $cwd = getcwd();
+            chdir($path);
+
+            $output = [];
+            $status = null;
+            exec('git rev-parse HEAD', $output, $status);
+
+            chdir($cwd);
+
+            if ($status == 0) {
+                return "$fallback ($output[0])";
+            }
+        }
+
+        return $fallback;
     }
 }
