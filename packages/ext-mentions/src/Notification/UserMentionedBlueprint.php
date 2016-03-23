@@ -51,7 +51,6 @@ class UserMentionedBlueprint implements BlueprintInterface, MailableInterface
      */
     public function getData()
     {
-        return;
     }
 
     /**
