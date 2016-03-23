@@ -28386,32 +28386,67 @@ System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (
 });;
 'use strict';
 
-System.register('flarum/initializers/alertEmailConfirmation', ['flarum/components/Alert', 'flarum/components/Button'], function (_export, _context) {
-  var Alert, Button;
+System.register('flarum/initializers/alertEmailConfirmation', ['flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export, _context) {
+  var Alert, Button, icon;
   function alertEmailConfirmation(app) {
     var user = app.session.user;
 
     if (!user || user.isActivated()) return;
 
-    var alert = void 0;
-
     var resendButton = Button.component({
       className: 'Button Button--link',
-      children: app.translator.trans('core.forum.user_confirmation.resend_button'),
+      children: app.translator.trans('core.forum.user_email_confirmation.resend_button'),
       onclick: function onclick() {
+        resendButton.props.loading = true;
+        m.redraw();
+
         app.request({
           method: 'POST',
           url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation'
         }).then(function () {
-          return app.alerts.dismiss(alert);
+          resendButton.props.loading = false;
+          resendButton.props.children = [icon('check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
+          resendButton.props.disabled = true;
+          m.redraw();
+        }).catch(function () {
+          resendButton.props.loading = false;
+          m.redraw();
         });
       }
     });
 
-    app.alerts.show(alert = new Alert({
-      type: 'error',
+    var ContainedAlert = function (_Alert) {
+      babelHelpers.inherits(ContainedAlert, _Alert);
+
+      function ContainedAlert() {
+        babelHelpers.classCallCheck(this, ContainedAlert);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ContainedAlert).apply(this, arguments));
+      }
+
+      babelHelpers.createClass(ContainedAlert, [{
+        key: 'view',
+        value: function view() {
+          var vdom = babelHelpers.get(Object.getPrototypeOf(ContainedAlert.prototype), 'view', this).call(this);
+
+          vdom.children = [m(
+            'div',
+            { className: 'container' },
+            vdom.children
+          )];
+
+          return vdom;
+        }
+      }]);
+      return ContainedAlert;
+    }(Alert);
+
+    m.mount($('<div/>').insertBefore('#content')[0], ContainedAlert.component({
       dismissible: false,
-      children: app.translator.trans('core.forum.user_confirmation.alert_message'),
+      children: app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: m(
+          'strong',
+          null,
+          user.email()
+        ) }),
       controls: [resendButton]
     }));
   }
@@ -28423,6 +28458,8 @@ System.register('flarum/initializers/alertEmailConfirmation', ['flarum/component
       Alert = _flarumComponentsAlert.default;
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton.default;
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon.default;
     }],
     execute: function () {}
   };
