@@ -63,6 +63,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\AuthorGambit');
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\CreatedGambit');
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\HiddenGambit');
+                $gambits->add('Flarum\Core\Search\Discussion\Gambit\TitleGambit');
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\UnreadGambit');
 
                 $app->make('events')->fire(
