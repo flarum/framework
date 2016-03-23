@@ -58,7 +58,6 @@ class PostLikedBlueprint implements BlueprintInterface
      */
     public function getData()
     {
-        return;
     }
 
     /**
