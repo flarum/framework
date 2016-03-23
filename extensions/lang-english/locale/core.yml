@@ -333,6 +333,11 @@ core:
       posts_link: Posts
       settings_link: => core.ref.settings
 
+    # These translations are used in unverified user alert box.
+    user_confirmation:
+      alert_message: You need to confirm your email address.
+      resend_button: Resend Confirmation Email
+
     # These translations are found on the user profile page (admin function).
     user_controls:
       button: Controls
