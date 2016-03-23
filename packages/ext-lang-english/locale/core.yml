@@ -246,7 +246,6 @@ core:
 
     # These translations are used in the Log In modal dialog.
     log_in:
-      confirmation_required_message: "You need to confirm your email before you can log in. We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
       forgot_password_link: "Forgot password?"
       invalid_login_message: Your login details were incorrect.
       password_placeholder: => core.ref.password
@@ -310,7 +309,6 @@ core:
 
     # These translations are used in the Sign Up modal dialog.
     sign_up:
-      confirmation_message: => core.ref.confirmation_email_sent
       email_placeholder: => core.ref.email
       dismiss_button: => core.ref.okay
       log_in_text: "Already have an account? <a>Log In</a>"
@@ -333,17 +331,18 @@ core:
       posts_link: Posts
       settings_link: => core.ref.settings
 
-    # These translations are used in unverified user alert box.
-    user_confirmation:
-      alert_message: You need to confirm your email address.
-      resend_button: Resend Confirmation Email
-
     # These translations are found on the user profile page (admin function).
     user_controls:
       button: Controls
       delete_button: => core.ref.delete
       delete_confirmation: "Are you sure you want to delete this user? All of the user's posts will be deleted."
       edit_button: => core.ref.edit
+
+    # These translations are used in the alert that is shown when a new user has not confirmed their email address.
+    user_email_confirmation:
+      alert_message: => core.ref.confirmation_email_sent
+      resend_button: Resend Confirmation Email
+      sent_message: Sent
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
