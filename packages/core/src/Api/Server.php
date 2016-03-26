@@ -33,7 +33,6 @@ class Server extends AbstractServer
             $pipe->pipe($path, $app->make('Flarum\Api\Middleware\FakeHttpMethods'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
-            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\SharedHosts'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\AuthenticateWithSession'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\AuthenticateWithHeader'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\SetLocale'));
