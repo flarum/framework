@@ -81,8 +81,8 @@
 .define-header(true) {
   @header-bg:                      @primary-color;
   @header-color:                   @body-bg;
-  @header-control-bg:              fade(#000, 10%);
-  @header-control-color:           @body-bg;
+  @header-control-bg:              mix(#000, @header-bg, 10%);
+  @header-control-color:           mix(@body-bg, @header-bg, 60%);
 }
 
 // ---------------------------------

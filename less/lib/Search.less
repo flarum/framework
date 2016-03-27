@@ -2,12 +2,15 @@
   position: relative;
 }
 @media @tablet-up {
-  .Search.focused {
-    margin-left: -400px;
-    .transition(all 0.4s);
+  .Search {
+    .transition(margin-left 0.4s);
 
-    input, .Search-results {
-      width: 400px;
+    &.focused {
+      margin-left: -400px;
+
+      input, .Search-results {
+        width: 400px;
+      }
     }
   }
 }
