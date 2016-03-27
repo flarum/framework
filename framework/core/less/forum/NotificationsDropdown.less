@@ -24,11 +24,6 @@
   }
 }
 
-.NotificationsDropdown .Dropdown-toggle .Button-icon {
-  & when (@config-colored-header = true) {
-    color: mix(@header-bg, @header-color);
-  }
-}
 .NotificationsDropdown .Dropdown-toggle.new .Button-icon {
   color: @header-color;
 }
@@ -37,7 +32,7 @@
   position: absolute;
   top: 1px;
   left: 17px;
-  background: @control-color;
+  background: @header-control-color;
   color: @header-bg;
   font-size: 11px;
   font-weight: bold;
@@ -48,10 +43,6 @@
   min-width: 18px;
   height: 18px;
   text-align: center;
-
-  & when (@config-colored-header = true) {
-    background: mix(@header-bg, @header-color);
-  }
 
   @media @phone {
     left: 20px;
