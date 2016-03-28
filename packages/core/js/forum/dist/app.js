@@ -23063,12 +23063,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
           key: 'onerror',
           value: function onerror(error) {
             if (error.status === 401) {
-              if (error.response.emailConfirmationRequired) {
-                error.alert.props.children = app.translator.trans('core.forum.log_in.confirmation_required_message', { email: error.response.emailConfirmationRequired });
-                delete error.alert.props.type;
-              } else {
-                error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
-              }
+              error.alert.props.children = app.translator.trans('core.forum.log_in.invalid_login_message');
             }
 
             babelHelpers.get(Object.getPrototypeOf(LogInModal.prototype), 'onerror', this).call(this, error);
