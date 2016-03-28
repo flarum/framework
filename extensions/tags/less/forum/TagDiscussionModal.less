@@ -98,7 +98,11 @@
       border-top: 2px solid @control-bg;
     }
     &.child {
-      padding-left: 48px;
+      padding-left: 45px;
+
+      .SelectTagListItem-name {
+        width: 125px;
+      }
     }
     &.active {
       background: @control-bg;
@@ -122,6 +126,10 @@
         color: #fff;
       }
     }
+    .TagIcon {
+      vertical-align: top;
+      margin-top: 3px;
+    }
   }
 }
 .SelectTagListItem-name {
@@ -132,6 +140,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: top;
 
   @media @phone {
     width: auto;
@@ -143,7 +152,7 @@
   width: 370px;
   display: inline-block;
   vertical-align: top;
-  margin-top: 3px;
+  margin-top: 2px;
 
   @media @phone {
     display: none;
