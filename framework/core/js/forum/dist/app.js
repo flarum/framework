@@ -22110,11 +22110,21 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
             app.request({
               method: 'POST',
               url: app.forum.attribute('apiUrl') + '/forgot',
-              data: { email: this.email() }
+              data: { email: this.email() },
+              errorHandler: this.onerror.bind(this)
             }).then(function () {
               _this2.success = true;
               _this2.alert = null;
             }).catch(function () {}).then(this.loaded.bind(this));
+          }
+        }, {
+          key: 'onerror',
+          value: function onerror(error) {
+            if (error.status === 404) {
+              error.alert.props.children = app.translator.trans('core.forum.forgot_password.not_found_message');
+            }
+
+            babelHelpers.get(Object.getPrototypeOf(ForgotPasswordModal.prototype), 'onerror', this).call(this, error);
           }
         }]);
         return ForgotPasswordModal;

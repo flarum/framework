@@ -85,7 +85,8 @@ export default class ForgotPasswordModal extends Modal {
     app.request({
       method: 'POST',
       url: app.forum.attribute('apiUrl') + '/forgot',
-      data: {email: this.email()}
+      data: {email: this.email()},
+      errorHandler: this.onerror.bind(this)
     })
       .then(() => {
         this.success = true;
@@ -93,5 +94,13 @@ export default class ForgotPasswordModal extends Modal {
       })
       .catch(() => {})
       .then(this.loaded.bind(this));
+  }
+
+  onerror(error) {
+    if (error.status === 404) {
+      error.alert.props.children = app.translator.trans('core.forum.forgot_password.not_found_message');
+    }
+
+    super.onerror(error);
   }
 }
