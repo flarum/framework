@@ -531,7 +531,18 @@ System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'fla
               // Position the preview so that it appears above the mention.
               // (The offsetParent should be .Post-body.)
               var positionPreview = function positionPreview() {
-                $preview.show().css('top', $this.offset().top - $parentPost.offset().top - $preview.outerHeight(true)).css('left', $this.offsetParent().offset().left - $parentPost.offset().left).css('max-width', $this.offsetParent().width());
+                var previewHeight = $preview.outerHeight(true);
+                var offset = 0;
+
+                // If the preview goes off the top of the viewport, reposition it to
+                // be below the mention.
+                if ($this.offset().top - previewHeight < $(window).scrollTop() + $('#header').outerHeight()) {
+                  offset += $this.outerHeight(true);
+                } else {
+                  offset -= previewHeight;
+                }
+
+                $preview.show().css('top', $this.offset().top - $parentPost.offset().top + offset).css('left', $this.offsetParent().offset().left - $parentPost.offset().left).css('max-width', $this.offsetParent().width());
               };
 
               var showPost = function showPost(post) {
