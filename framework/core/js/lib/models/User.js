@@ -1,7 +1,6 @@
 /*global ColorThief*/
 
 import Model from 'flarum/Model';
-import mixin from 'flarum/utils/mixin';
 import stringToColor from 'flarum/utils/stringToColor';
 import ItemList from 'flarum/utils/ItemList';
 import computed from 'flarum/utils/computed';
