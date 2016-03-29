@@ -1,5 +1,4 @@
 import Model from 'flarum/Model';
-import mixin from 'flarum/utils/mixin';
 import computed from 'flarum/utils/computed';
 
 export default class Notification extends Model {}
