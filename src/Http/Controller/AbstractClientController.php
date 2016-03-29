@@ -308,9 +308,7 @@ abstract class AbstractClientController extends AbstractHtmlController
         }
 
         $filtered = array_filter(array_keys($translations), function ($id) {
-            if (preg_match($this->translations, $id)) {
-                return true;
-            }
+            return preg_match($this->translations, $id);
         });
 
         return array_only($translations, $filtered);
