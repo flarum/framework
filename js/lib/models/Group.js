@@ -1,5 +1,4 @@
 import Model from 'flarum/Model';
-import mixin from 'flarum/utils/mixin';
 
 class Group extends Model {}
 

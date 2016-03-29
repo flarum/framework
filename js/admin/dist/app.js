@@ -21239,13 +21239,11 @@ System.register('flarum/Model', [], function (_export, _context) {
 });;
 'use strict';
 
-System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/components/Badge'], function (_export, _context) {
-  var Model, mixin, computed, ItemList, Badge, Discussion;
+System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/components/Badge'], function (_export, _context) {
+  var Model, computed, ItemList, Badge, Discussion;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel.default;
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
       computed = _flarumUtilsComputed.default;
     }, function (_flarumUtilsItemList) {
@@ -21353,13 +21351,11 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/mixin
 });;
 'use strict';
 
-System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], function (_export, _context) {
-  var Model, mixin, Forum;
+System.register('flarum/models/Forum', ['flarum/Model'], function (_export, _context) {
+  var Model, Forum;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel.default;
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin.default;
     }],
     execute: function () {
       Forum = function (_Model) {
@@ -21385,13 +21381,11 @@ System.register('flarum/models/Forum', ['flarum/Model', 'flarum/utils/mixin'], f
 });;
 'use strict';
 
-System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], function (_export, _context) {
-  var Model, mixin, Group;
+System.register('flarum/models/Group', ['flarum/Model'], function (_export, _context) {
+  var Model, Group;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel.default;
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin.default;
     }],
     execute: function () {
       Group = function (_Model) {
@@ -21422,13 +21416,11 @@ System.register('flarum/models/Group', ['flarum/Model', 'flarum/utils/mixin'], f
 });;
 'use strict';
 
-System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export, _context) {
-  var Model, mixin, computed, Notification;
+System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/computed'], function (_export, _context) {
+  var Model, computed, Notification;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel.default;
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
       computed = _flarumUtilsComputed.default;
     }],
@@ -21469,13 +21461,11 @@ System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/mix
 });;
 'use strict';
 
-System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed', 'flarum/utils/string'], function (_export, _context) {
-  var Model, mixin, computed, getPlainContent, Post;
+System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/computed', 'flarum/utils/string'], function (_export, _context) {
+  var Model, computed, getPlainContent, Post;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel.default;
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsComputed) {
       computed = _flarumUtilsComputed.default;
     }, function (_flarumUtilsString) {
@@ -21528,13 +21518,11 @@ System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/mixin', 'fl
 });;
 'use strict';
 
-System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export, _context) {
-  var Model, mixin, stringToColor, ItemList, computed, GroupBadge, User;
+System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export, _context) {
+  var Model, stringToColor, ItemList, computed, GroupBadge, User;
   return {
     setters: [function (_flarumModel) {
       Model = _flarumModel.default;
-    }, function (_flarumUtilsMixin) {
-      mixin = _flarumUtilsMixin.default;
     }, function (_flarumUtilsStringToColor) {
       stringToColor = _flarumUtilsStringToColor.default;
     }, function (_flarumUtilsItemList) {
