@@ -1,6 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
-import Badge from 'flarum/components/Badge';
+import GroupBadge from 'flarum/components/GroupBadge';
 import Group from 'flarum/models/Group';
 
 /**
@@ -23,9 +23,10 @@ export default class EditGroupModal extends Modal {
 
   title() {
     return [
-      this.color() || this.icon() ? Badge.component({
-        icon: this.icon(),
-        style: {backgroundColor: this.color()}
+      this.color() || this.icon() ? GroupBadge.component({
+        group: this.group,
+        className: 'Group-icon',
+        label: null
       }) : '',
       ' ',
       this.namePlural() || app.translator.trans('core.admin.edit_group.title')
