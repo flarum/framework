@@ -29,7 +29,7 @@ class ClientController extends AbstractClientController
     /**
      * {@inheritdoc}
      */
-    protected $translations = '/[^\.]\.(forum|lib)\.*+/';
+    protected $translations = '/^[^\.]+\.(?:forum|lib)\./';
 
     /**
      * @var Formatter
