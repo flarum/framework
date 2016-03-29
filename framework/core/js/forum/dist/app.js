@@ -30555,6 +30555,14 @@ System.register('flarum/utils/History', [], function (_export, _context) {
 System.register('flarum/utils/humanTime', [], function (_export, _context) {
   function humanTime(time) {
     var m = moment(time);
+    var now = moment();
+
+    // To prevent showing things like "in a few seconds" due to small offsets
+    // between client and server time, we always reset future dates to the
+    // current time. This will result in "just now" being shown instead.
+    if (m.isAfter(now)) {
+      m = now;
+    }
 
     var day = 864e5;
     var diff = m.diff(moment());
