@@ -6,7 +6,15 @@
  * @return {String}
  */
 export default function humanTime(time) {
-  const m = moment(time);
+  let m = moment(time);
+  const now = moment();
+
+  // To prevent showing things like "in a few seconds" due to small offsets
+  // between client and server time, we always reset future dates to the
+  // current time. This will result in "just now" being shown instead.
+  if (m.isAfter(now)) {
+    m = now;
+  }
 
   const day = 864e5;
   const diff = m.diff(moment());
