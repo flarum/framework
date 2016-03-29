@@ -92,6 +92,7 @@ class StartDiscussionHandler
         // last_time.)
         $discussion->setRawAttributes($post->discussion->getAttributes(), true);
         $discussion->setStartPost($post);
+        $discussion->setLastPost($post);
 
         $this->dispatchEventsFor($discussion, $actor);
 
