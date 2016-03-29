@@ -15,8 +15,8 @@
         "source": "https://github.com/flarum/flarum-ext-akismet"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.3",
-        "flarum/flarum-ext-approval": "^0.1.0-beta.3",
+        "flarum/core": "^0.1.0-beta.5",
+        "flarum/flarum-ext-approval": "^0.1.0-beta.5",
         "tijsverkoyen/akismet": "^1.1"
     },
     "autoload": {
