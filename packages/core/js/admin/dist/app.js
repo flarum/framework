@@ -18257,15 +18257,15 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
 });;
 'use strict';
 
-System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/GroupBadge', 'flarum/models/Group'], function (_export, _context) {
-  var Modal, Button, GroupBadge, Group, EditGroupModal;
+System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/models/Group'], function (_export, _context) {
+  var Modal, Button, Badge, Group, EditGroupModal;
   return {
     setters: [function (_flarumComponentsModal) {
       Modal = _flarumComponentsModal.default;
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton.default;
-    }, function (_flarumComponentsGroupBadge) {
-      GroupBadge = _flarumComponentsGroupBadge.default;
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge.default;
     }, function (_flarumModelsGroup) {
       Group = _flarumModelsGroup.default;
     }],
@@ -18296,10 +18296,9 @@ System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 
         }, {
           key: 'title',
           value: function title() {
-            return [this.color() || this.icon() ? GroupBadge.component({
-              group: this.group,
-              className: 'Group-icon',
-              label: null
+            return [this.color() || this.icon() ? Badge.component({
+              icon: this.icon(),
+              style: { backgroundColor: this.color() }
             }) : '', ' ', this.namePlural() || app.translator.trans('core.admin.edit_group.title')];
           }
         }, {
