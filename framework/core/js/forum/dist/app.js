@@ -28620,7 +28620,7 @@ System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], fun
    * timestamps rendered with the `humanTime` helper.
    */
   function humanTime() {
-    setInterval(updateHumanTimes, 1000);
+    setInterval(updateHumanTimes, 10000);
   }
 
   _export('default', humanTime);
