@@ -30406,19 +30406,15 @@ System.register("flarum/utils/extract", [], function (_export, _context) {
 
 System.register('flarum/utils/extractText', [], function (_export, _context) {
   function extractText(vdom) {
-    var text = '';
-
     if (vdom instanceof Array) {
-      text += vdom.map(function (element) {
+      return vdom.map(function (element) {
         return extractText(element);
       }).join('');
     } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object') {
-      text += extractText(vdom.children);
+      return extractText(vdom.children);
     } else {
-      text += vdom;
+      return vdom;
     }
-
-    return text;
   }
 
   _export('default', extractText);
