@@ -14,5 +14,5 @@ function updateHumanTimes() {
  * timestamps rendered with the `humanTime` helper.
  */
 export default function humanTime() {
-  setInterval(updateHumanTimes, 1000);
+  setInterval(updateHumanTimes, 10000);
 }
