@@ -16,7 +16,6 @@ use Flarum\Core\Repository\UserRepository;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Core\Exception\ValidationException;
-use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Message;
