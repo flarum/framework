@@ -1,6 +1,7 @@
 import Component from 'flarum/Component';
 import icon from 'flarum/helpers/icon';
 import extract from 'flarum/utils/extract';
+import extractText from 'flarum/utils/extractText';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 
 /**
@@ -27,6 +28,7 @@ export default class Button extends Component {
 
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
+    attrs.title = attrs.title || this.getDefaultTitle();
 
     const iconName = extract(attrs, 'icon');
     if (iconName) attrs.className += ' hasIcon';
@@ -38,6 +40,16 @@ export default class Button extends Component {
     }
 
     return <button {...attrs}>{this.getButtonContent()}</button>;
+  }
+
+  /**
+   * Get the default value for the title attribute.
+   *
+   * @return string
+   * @protected
+   */
+  getDefaultTitle() {
+    return extractText(this.props.children);
   }
 
   /**

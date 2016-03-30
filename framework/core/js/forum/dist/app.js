@@ -19153,8 +19153,8 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
 });;
 'use strict';
 
-System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/components/LoadingIndicator'], function (_export, _context) {
-  var Component, icon, extract, LoadingIndicator, Button;
+System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/utils/extractText', 'flarum/components/LoadingIndicator'], function (_export, _context) {
+  var Component, icon, extract, extractText, LoadingIndicator, Button;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -19162,6 +19162,8 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
       icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsExtract) {
       extract = _flarumUtilsExtract.default;
+    }, function (_flarumUtilsExtractText) {
+      extractText = _flarumUtilsExtractText.default;
     }, function (_flarumComponentsLoadingIndicator) {
       LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }],
@@ -19183,6 +19185,7 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
 
             attrs.className = attrs.className || '';
             attrs.type = attrs.type || 'button';
+            attrs.title = attrs.title || this.getDefaultTitle();
 
             var iconName = extract(attrs, 'icon');
             if (iconName) attrs.className += ' hasIcon';
@@ -19198,6 +19201,11 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
               attrs,
               this.getButtonContent()
             );
+          }
+        }, {
+          key: 'getDefaultTitle',
+          value: function getDefaultTitle() {
+            return extractText(this.props.children);
           }
         }, {
           key: 'getButtonContent',
