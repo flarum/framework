@@ -15,6 +15,8 @@ use Flarum\Core\PasswordToken;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Core\Exception\ValidationException;
+use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Message;
@@ -70,6 +72,11 @@ class RequestPasswordResetHandler
      */
     public function handle(RequestPasswordReset $command)
     {
+
+        if (! $command->email) {
+            throw new ValidationException(['The email field is required']);
+        }
+
         $user = $this->users->findByEmail($command->email);
 
         if (! $user) {
