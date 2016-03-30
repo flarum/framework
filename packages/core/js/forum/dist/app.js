@@ -21254,10 +21254,12 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export, _context) {
-  var EventPost, DiscussionRenamedPost;
+System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/Button', 'flarum/components/EventPost'], function (_export, _context) {
+  var Button, EventPost, DiscussionRenamedPost;
   return {
-    setters: [function (_flarumComponentsEventPost) {
+    setters: [function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }, function (_flarumComponentsEventPost) {
       EventPost = _flarumComponentsEventPost.default;
     }],
     execute: function () {
@@ -21270,14 +21272,21 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
         }
 
         babelHelpers.createClass(DiscussionRenamedPost, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(Object.getPrototypeOf(DiscussionRenamedPost.prototype), 'init', this).call(this);
+
+            this.expanded = true;
+          }
+        }, {
           key: 'icon',
           value: function icon() {
             return 'pencil';
           }
         }, {
-          key: 'descriptionKey',
-          value: function descriptionKey() {
-            return 'core.forum.post_stream.discussion_renamed_text';
+          key: 'description',
+          value: function description(data) {
+            return [app.translator.trans('core.forum.post_stream.discussion_renamed_text', data), this.toggleButton(), this.expanded ? this.full(data) : null];
           }
         }, {
           key: 'descriptionData',
@@ -21298,6 +21307,30 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
                 newTitle
               )
             };
+          }
+        }, {
+          key: 'full',
+          value: function full(data) {
+            return [m('br', null), app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data), m('br', null), app.translator.trans('core.forum.post_stream.discussion_renamed_new_text', data)];
+          }
+        }, {
+          key: 'collapsed',
+          value: function collapsed() {
+            return this.toggleButton();
+          }
+        }, {
+          key: 'toggle',
+          value: function toggle() {
+            this.expanded = !this.expanded;
+          }
+        }, {
+          key: 'toggleButton',
+          value: function toggleButton() {
+            return Button.component({
+              className: 'Button Button--default Button--more',
+              icon: 'ellipsis-h',
+              onclick: this.toggle.bind(this)
+            });
           }
         }]);
         return DiscussionRenamedPost;

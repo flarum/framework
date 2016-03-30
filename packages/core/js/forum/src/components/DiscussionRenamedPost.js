@@ -1,3 +1,4 @@
+import Button from 'flarum/components/Button';
 import EventPost from 'flarum/components/EventPost';
 
 /**
@@ -9,12 +10,22 @@ import EventPost from 'flarum/components/EventPost';
  * - All of the props for EventPost
  */
 export default class DiscussionRenamedPost extends EventPost {
+  init() {
+    super.init();
+
+    this.expanded = true;
+  }
+
   icon() {
     return 'pencil';
   }
 
-  descriptionKey() {
-    return 'core.forum.post_stream.discussion_renamed_text';
+  description(data) {
+    return [
+      app.translator.trans('core.forum.post_stream.discussion_renamed_text', data),
+      this.toggleButton(),
+      this.expanded ? this.full(data) : null
+    ];
   }
 
   descriptionData() {
@@ -26,5 +37,30 @@ export default class DiscussionRenamedPost extends EventPost {
       'old': <strong className="DiscussionRenamedPost-old">{oldTitle}</strong>,
       'new': <strong className="DiscussionRenamedPost-new">{newTitle}</strong>
     };
+  }
+
+  full(data) {
+    return [
+      <br />,
+      app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data),
+      <br />,
+      app.translator.trans('core.forum.post_stream.discussion_renamed_new_text', data)
+    ];
+  }
+
+  collapsed() {
+    return this.toggleButton();
+  }
+
+  toggle() {
+    this.expanded = !this.expanded;
+  }
+
+  toggleButton() {
+    return Button.component({
+      className: 'Button Button--default Button--more',
+      icon: 'ellipsis-h',
+      onclick: this.toggle.bind(this)
+    });
   }
 }
