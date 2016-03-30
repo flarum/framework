@@ -21923,13 +21923,18 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
             return [icon(this.icon(), { className: 'EventPost-icon' }), m(
               'div',
               { 'class': 'EventPost-info' },
-              app.translator.transChoice(this.descriptionKey(), data.count, data)
+              this.description(data)
             )];
           }
         }, {
           key: 'icon',
           value: function icon() {
             return '';
+          }
+        }, {
+          key: 'description',
+          value: function description(data) {
+            return app.translator.transChoice(this.descriptionKey(), data.count, data);
           }
         }, {
           key: 'descriptionKey',

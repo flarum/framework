@@ -34,7 +34,7 @@ export default class EventPost extends Post {
     return [
       icon(this.icon(), {className: 'EventPost-icon'}),
       <div class="EventPost-info">
-        {app.translator.transChoice(this.descriptionKey(), data.count, data)}
+        {this.description(data)}
       </div>
     ];
   }
@@ -46,6 +46,16 @@ export default class EventPost extends Post {
    */
   icon() {
     return '';
+  }
+
+  /**
+   * Get the description text for the event.
+   *
+   * @param {Object} data
+   * @return {String|Object} The description to render in the DOM
+   */
+  description(data) {
+    return app.translator.transChoice(this.descriptionKey(), data.count, data);
   }
 
   /**
