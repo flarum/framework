@@ -105,7 +105,7 @@ export default class ExtensionsPage extends Page {
       method: 'PATCH',
       data: {enabled: !enabled}
     }).then(() => {
-      if (enabled) localStorage.setItem('enabledExtension', id);
+      if (!enabled) localStorage.setItem('enabledExtension', id);
       window.location.reload();
     });
 
