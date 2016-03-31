@@ -40,10 +40,7 @@ class Rememberer
 
     public function forget(ResponseInterface $response)
     {
-        return FigResponseCookies::set(
-            $response,
-            $this->createCookie()->withMaxAge(-2628000)
-        );
+        return FigResponseCookies::expire($response, $this->cookieName);
     }
 
     private function createCookie()
