@@ -53,10 +53,6 @@ export default class DiscussionRenamedPost extends EventPost {
     ];
   }
 
-  collapsed() {
-    return this.toggleButton();
-  }
-
   toggle() {
     this.expanded = !this.expanded;
   }
