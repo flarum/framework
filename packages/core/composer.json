@@ -50,7 +50,7 @@
         "symfony/translation": "^2.7",
         "symfony/yaml": "^2.7",
         "s9e/text-formatter": "^0.4.12",
-        "tobscure/json-api": "^0.2.0",
+        "tobscure/json-api": "^0.3.0",
         "zendframework/zend-diactoros": "^1.1",
         "zendframework/zend-stratigility": "^1.1"
     },
