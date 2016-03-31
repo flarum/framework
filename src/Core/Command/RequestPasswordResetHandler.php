@@ -75,7 +75,7 @@ class RequestPasswordResetHandler
         $this->url = $url;
         $this->translator = $translator;
         $this->validator = $validator;
-        $this->validatorFactory = $validatorFactory
+        $this->validatorFactory = $validatorFactory;
     }
 
     /**
