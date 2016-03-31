@@ -11,7 +11,6 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core;
-use Flarum\Core\Exception\ValidationException;
 use Flarum\Core\PasswordToken;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Forum\UrlGenerator;
