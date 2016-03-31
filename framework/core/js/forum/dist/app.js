@@ -21321,11 +21321,6 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/B
             return [m('br', null), app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data), m('br', null), app.translator.trans('core.forum.post_stream.discussion_renamed_new_text', data)];
           }
         }, {
-          key: 'collapsed',
-          value: function collapsed() {
-            return this.toggleButton();
-          }
-        }, {
           key: 'toggle',
           value: function toggle() {
             this.expanded = !this.expanded;
