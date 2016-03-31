@@ -16,6 +16,8 @@ use Flarum\Core\Repository\UserRepository;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Message;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -48,19 +50,31 @@ class RequestPasswordResetHandler
     protected $translator;
 
     /**
+     * @var UserValidator
+     */
+    protected $validator;
+
+    /**
+     * @var Factory
+     */
+    private $validatorFactory;
+
+    /**
      * @param UserRepository $users
      * @param SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
      * @param TranslatorInterface $translator
      */
-    public function __construct(UserRepository $users, SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(UserRepository $users, SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator, UserValidator $validator, Factory $validatorFactory)
     {
         $this->users = $users;
         $this->settings = $settings;
         $this->mailer = $mailer;
         $this->url = $url;
         $this->translator = $translator;
+        $this->validator = $validator;
+        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -70,6 +84,12 @@ class RequestPasswordResetHandler
      */
     public function handle(RequestPasswordReset $command)
     {
+        $validation = $this->validatorFactory->make(['email' => $command->email], ['email' => 'required|email']);
+
+        if ($validation->fails()) {
+            throw new ValidationException($validation);
+        }
+
         $user = $this->users->findByEmail($command->email);
 
         if (! $user) {
