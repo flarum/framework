@@ -13,7 +13,12 @@ export default class DiscussionRenamedPost extends EventPost {
   init() {
     super.init();
 
-    this.expanded = true;
+    this.expanded = false;
+
+    // Rerender the post content when we toggle the details.
+    this.subtree.check(
+      () => this.expanded
+    );
   }
 
   icon() {

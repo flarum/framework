@@ -21274,9 +21274,16 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/B
         babelHelpers.createClass(DiscussionRenamedPost, [{
           key: 'init',
           value: function init() {
+            var _this2 = this;
+
             babelHelpers.get(Object.getPrototypeOf(DiscussionRenamedPost.prototype), 'init', this).call(this);
 
-            this.expanded = true;
+            this.expanded = false;
+
+            // Rerender the post content when we toggle the details.
+            this.subtree.check(function () {
+              return _this2.expanded;
+            });
           }
         }, {
           key: 'icon',
