@@ -21,7 +21,7 @@
     },
     "require": {
         "php": ">=5.5.9",
-        "dflydev/fig-cookies": "^1.0",
+        "dflydev/fig-cookies": "^1.0.2",
         "doctrine/dbal": "^2.5",
         "franzl/whoops-middleware": "^0.2.0",
         "illuminate/bus": "5.1.*",
