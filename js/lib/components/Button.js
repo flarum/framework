@@ -28,7 +28,11 @@ export default class Button extends Component {
 
     attrs.className = attrs.className || '';
     attrs.type = attrs.type || 'button';
-    attrs.title = attrs.title || this.getDefaultTitle();
+
+    // If nothing else is provided, we use the textual button content as tooltip
+    if (!attrs.title && this.props.children) {
+      attrs.title = extractText(attrs.title);
+    }
 
     const iconName = extract(attrs, 'icon');
     if (iconName) attrs.className += ' hasIcon';
@@ -40,16 +44,6 @@ export default class Button extends Component {
     }
 
     return <button {...attrs}>{this.getButtonContent()}</button>;
-  }
-
-  /**
-   * Get the default value for the title attribute.
-   *
-   * @return string
-   * @protected
-   */
-  getDefaultTitle() {
-    return extractText(this.props.children);
   }
 
   /**

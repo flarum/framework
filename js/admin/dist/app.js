@@ -17862,7 +17862,11 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
 
             attrs.className = attrs.className || '';
             attrs.type = attrs.type || 'button';
-            attrs.title = attrs.title || this.getDefaultTitle();
+
+            // If nothing else is provided, we use the textual button content as tooltip
+            if (!attrs.title && this.props.children) {
+              attrs.title = extractText(attrs.title);
+            }
 
             var iconName = extract(attrs, 'icon');
             if (iconName) attrs.className += ' hasIcon';
@@ -17878,11 +17882,6 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
               attrs,
               this.getButtonContent()
             );
-          }
-        }, {
-          key: 'getDefaultTitle',
-          value: function getDefaultTitle() {
-            return extractText(this.props.children);
           }
         }, {
           key: 'getButtonContent',
@@ -18576,7 +18575,7 @@ System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', '
               method: 'PATCH',
               data: { enabled: !enabled }
             }).then(function () {
-              if (enabled) localStorage.setItem('enabledExtension', id);
+              if (!enabled) localStorage.setItem('enabledExtension', id);
               window.location.reload();
             });
 
