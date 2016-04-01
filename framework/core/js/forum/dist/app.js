@@ -21253,11 +21253,13 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export, _context) {
-  var EventPost, DiscussionRenamedPost;
+System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost', 'flarum/utils/extractText'], function (_export, _context) {
+  var EventPost, extractText, DiscussionRenamedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
       EventPost = _flarumComponentsEventPost.default;
+    }, function (_flarumUtilsExtractText) {
+      extractText = _flarumUtilsExtractText.default;
     }],
     execute: function () {
       DiscussionRenamedPost = function (_EventPost) {
@@ -21281,7 +21283,7 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
 
             return m(
               'span',
-              { title: oldName },
+              { title: extractText(oldName) },
               renamed
             );
           }
