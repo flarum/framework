@@ -1,4 +1,3 @@
-import Button from 'flarum/components/Button';
 import EventPost from 'flarum/components/EventPost';
 
 /**
@@ -10,27 +9,15 @@ import EventPost from 'flarum/components/EventPost';
  * - All of the props for EventPost
  */
 export default class DiscussionRenamedPost extends EventPost {
-  init() {
-    super.init();
-
-    this.expanded = false;
-
-    // Rerender the post content when we toggle the details.
-    this.subtree.check(
-      () => this.expanded
-    );
-  }
-
   icon() {
     return 'pencil';
   }
 
   description(data) {
-    return [
-      app.translator.trans('core.forum.post_stream.discussion_renamed_text', data),
-      this.toggleButton(),
-      this.expanded ? this.full(data) : null
-    ];
+    const renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
+    const oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data);
+
+    return <span title={oldName}>{renamed}</span>;
   }
 
   descriptionData() {
@@ -39,29 +26,8 @@ export default class DiscussionRenamedPost extends EventPost {
     const newTitle = post.content()[1];
 
     return {
-      'old': <strong className="DiscussionRenamedPost-old">{oldTitle}</strong>,
+      'old': oldTitle,
       'new': <strong className="DiscussionRenamedPost-new">{newTitle}</strong>
     };
-  }
-
-  full(data) {
-    return [
-      <br />,
-      app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data),
-      <br />,
-      app.translator.trans('core.forum.post_stream.discussion_renamed_new_text', data)
-    ];
-  }
-
-  toggle() {
-    this.expanded = !this.expanded;
-  }
-
-  toggleButton() {
-    return Button.component({
-      className: 'Button Button--default Button--more',
-      icon: 'ellipsis-h',
-      onclick: this.toggle.bind(this)
-    });
   }
 }
