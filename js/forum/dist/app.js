@@ -21253,12 +21253,10 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/Button', 'flarum/components/EventPost'], function (_export, _context) {
-  var Button, EventPost, DiscussionRenamedPost;
+System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost'], function (_export, _context) {
+  var EventPost, DiscussionRenamedPost;
   return {
-    setters: [function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton.default;
-    }, function (_flarumComponentsEventPost) {
+    setters: [function (_flarumComponentsEventPost) {
       EventPost = _flarumComponentsEventPost.default;
     }],
     execute: function () {
@@ -21271,20 +21269,6 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/B
         }
 
         babelHelpers.createClass(DiscussionRenamedPost, [{
-          key: 'init',
-          value: function init() {
-            var _this2 = this;
-
-            babelHelpers.get(Object.getPrototypeOf(DiscussionRenamedPost.prototype), 'init', this).call(this);
-
-            this.expanded = false;
-
-            // Rerender the post content when we toggle the details.
-            this.subtree.check(function () {
-              return _this2.expanded;
-            });
-          }
-        }, {
           key: 'icon',
           value: function icon() {
             return 'pencil';
@@ -21292,7 +21276,14 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/B
         }, {
           key: 'description',
           value: function description(data) {
-            return [app.translator.trans('core.forum.post_stream.discussion_renamed_text', data), this.toggleButton(), this.expanded ? this.full(data) : null];
+            var renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
+            var oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data);
+
+            return m(
+              'span',
+              { title: oldName },
+              renamed
+            );
           }
         }, {
           key: 'descriptionData',
@@ -21302,36 +21293,13 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/B
             var newTitle = post.content()[1];
 
             return {
-              'old': m(
-                'strong',
-                { className: 'DiscussionRenamedPost-old' },
-                oldTitle
-              ),
+              'old': oldTitle,
               'new': m(
                 'strong',
                 { className: 'DiscussionRenamedPost-new' },
                 newTitle
               )
             };
-          }
-        }, {
-          key: 'full',
-          value: function full(data) {
-            return [m('br', null), app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data), m('br', null), app.translator.trans('core.forum.post_stream.discussion_renamed_new_text', data)];
-          }
-        }, {
-          key: 'toggle',
-          value: function toggle() {
-            this.expanded = !this.expanded;
-          }
-        }, {
-          key: 'toggleButton',
-          value: function toggleButton() {
-            return Button.component({
-              className: 'Button Button--default Button--more',
-              icon: 'ellipsis-h',
-              onclick: this.toggle.bind(this)
-            });
           }
         }]);
         return DiscussionRenamedPost;
