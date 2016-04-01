@@ -16,7 +16,7 @@ export default class DiscussionRenamedPost extends EventPost {
 
   description(data) {
     const renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
-    const oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data);
+    const oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_tooltip', data);
 
     return <span title={extractText(oldName)}>{renamed}</span>;
   }
