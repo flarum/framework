@@ -11,6 +11,7 @@
 
 namespace Flarum\Console;
 
+use Flarum\Console\Command\CacheClearCommand;
 use Flarum\Console\Command\GenerateExtensionCommand;
 use Flarum\Console\Command\GenerateMigrationCommand;
 use Flarum\Debug\Console\InfoCommand;
@@ -42,6 +43,7 @@ class Server extends AbstractServer
             InstallCommand::class,
             MigrateCommand::class,
             InfoCommand::class,
+            CacheClearCommand::class,
             GenerateExtensionCommand::class,
             GenerateMigrationCommand::class,
         ];
