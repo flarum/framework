@@ -11,9 +11,9 @@
 
 namespace Flarum\Console;
 
-use Flarum\Console\Command\CacheClearCommand;
 use Flarum\Console\Command\GenerateExtensionCommand;
 use Flarum\Console\Command\GenerateMigrationCommand;
+use Flarum\Debug\Console\CacheClearCommand;
 use Flarum\Debug\Console\InfoCommand;
 use Flarum\Foundation\AbstractServer;
 use Flarum\Install\Console\InstallCommand;
