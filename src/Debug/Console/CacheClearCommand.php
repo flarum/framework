@@ -8,10 +8,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Console\Command;
+namespace Flarum\Debug\Console;
+
+use Flarum\Console\Command\AbstractCommand;
+use Illuminate\Contracts\Cache\Store;
 
 class CacheClearCommand extends AbstractCommand
 {
+    /**
+     * @var \Illuminate\Contracts\Cache\Store
+     */
+    protected $cache;
+
+    public function __construct(Store $cache)
+    {
+        $this->cache = $cache;
+
+        parent::__construct();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -31,6 +46,8 @@ class CacheClearCommand extends AbstractCommand
 
         $this->removeFilesMatching('assets', '*.js');
         $this->removeFilesMatching('assets', '*.css');
+
+        $this->cache->flush();
     }
 
     protected function removeFilesMatching($path, $pattern)
