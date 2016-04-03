@@ -86,11 +86,12 @@ abstract class AbstractServer
 
         $this->registerLogger($app);
 
+        $this->registerCache($app);
+
         $app->register('Flarum\Database\DatabaseServiceProvider');
         $app->register('Flarum\Settings\SettingsServiceProvider');
         $app->register('Flarum\Locale\LocaleServiceProvider');
         $app->register('Illuminate\Bus\BusServiceProvider');
-        $app->register('Illuminate\Cache\CacheServiceProvider');
         $app->register('Illuminate\Filesystem\FilesystemServiceProvider');
         $app->register('Illuminate\Hashing\HashServiceProvider');
         $app->register('Illuminate\Mail\MailServiceProvider');
@@ -135,16 +136,6 @@ abstract class AbstractServer
             'mail' => [
                 'driver' => 'mail',
             ],
-            'cache' => [
-                'default' => 'file',
-                'stores' => [
-                    'file' => [
-                        'driver' => 'file',
-                        'path'   => $app->storagePath().'/cache',
-                    ],
-                ],
-                'prefix' => 'flarum',
-            ],
             'filesystems' => [
                 'default' => 'local',
                 'cloud' => 's3',
@@ -173,5 +164,25 @@ abstract class AbstractServer
 
         $app->instance('log', $logger);
         $app->alias('log', 'Psr\Log\LoggerInterface');
+    }
+
+    /**
+     * @param Application $app
+     */
+    protected function registerCache(Application $app)
+    {
+        $app->singleton('cache.store', function ($app) {
+            return new \Illuminate\Cache\Repository($app->make('cache.filestore'));
+        });
+
+        $app->singleton('cache.filestore', function ($app) {
+            return new \Illuminate\Cache\FileStore(
+                new \Illuminate\Filesystem\Filesystem(),
+                $app->storagePath().'/cache'
+            );
+        });
+
+        $app->alias('cache.filestore', 'Illuminate\Contracts\Cache\Store');
+        $app->alias('cache.store', 'Illuminate\Contracts\Cache\Repository');
     }
 }
