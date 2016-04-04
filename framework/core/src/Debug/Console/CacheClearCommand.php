@@ -10,7 +10,9 @@
 
 namespace Flarum\Debug\Console;
 
+use Flarum\Admin\Controller\ClientController as AdminClient;
 use Flarum\Console\Command\AbstractCommand;
+use Flarum\Forum\Controller\ClientController as ForumClient;
 use Illuminate\Contracts\Cache\Store;
 
 class CacheClearCommand extends AbstractCommand
@@ -20,9 +22,21 @@ class CacheClearCommand extends AbstractCommand
      */
     protected $cache;
 
-    public function __construct(Store $cache)
+    /**
+     * @var \Flarum\Forum\Controller\ClientController
+     */
+    protected $forum;
+
+    /**
+     * @var \Flarum\Admin\Controller\ClientController
+     */
+    protected $admin;
+
+    public function __construct(Store $cache, ForumClient $forum, AdminClient $admin)
     {
         $this->cache = $cache;
+        $this->forum = $forum;
+        $this->admin = $admin;
 
         parent::__construct();
     }
@@ -44,22 +58,9 @@ class CacheClearCommand extends AbstractCommand
     {
         $this->info('Clearing the cache...');
 
-        $this->removeFilesMatching('assets', '*.js');
-        $this->removeFilesMatching('assets', '*.css');
+        $this->forum->flushAssets();
+        $this->admin->flushAssets();
 
         $this->cache->flush();
-    }
-
-    protected function removeFilesMatching($path, $pattern)
-    {
-        $this->info("Removing $pattern files in $path...");
-
-        $path = $this->getPath($path);
-        array_map('unlink', glob("$path/$pattern"));
-    }
-
-    protected function getPath($path)
-    {
-        return base_path($path);
     }
 }
