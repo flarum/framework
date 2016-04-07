@@ -2,7 +2,7 @@
 $url = app('Flarum\Forum\UrlGenerator');
 ?>
 <div class="container">
-    <h2>{{ $translator->trans('core.ref.all_discussions') }}</h2>
+    <h2>{{ $translator->trans('core.views.index.all_discussions_heading') }}</h2>
 
     <ul>
         @foreach ($document->data as $discussion)
@@ -16,5 +16,5 @@ $url = app('Flarum\Forum\UrlGenerator');
         @endforeach
     </ul>
 
-    <a href="{{ $url->toRoute('index') }}?page={{ $page + 1 }}">{{ $translator->trans('core.basic.next_page_button') }} &raquo;</a>
+    <a href="{{ $url->toRoute('index') }}?page={{ $page + 1 }}">{{ $translator->trans('core.views.index.next_page_button') }} &raquo;</a>
 </div>
