@@ -20,10 +20,10 @@ $postsCount = count($discussion->relationships->posts->data);
     </div>
 
     @if ($page > 1)
-        <a href="{{ $url(['page' => $page - 1]) }}">&laquo; {{ $translator->trans('core.basic.previous_page_button') }}</a>
+        <a href="{{ $url(['page' => $page - 1]) }}">&laquo; {{ $translator->trans('core.views.discussion.previous_page_button') }}</a>
     @endif
 
     @if ($page < $postsCount / 20)
-        <a href="{{ $url(['page' => $page + 1]) }}">{{ $translator->trans('core.basic.next_page_button') }} &raquo;</a>
+        <a href="{{ $url(['page' => $page + 1]) }}">{{ $translator->trans('core.views.discussion.next_page_button') }} &raquo;</a>
     @endif
 </div>
