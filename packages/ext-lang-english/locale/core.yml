@@ -139,7 +139,7 @@ core:
     # These translations are used in the Change Email modal dialog.
     change_email:
       confirmation_message: => core.ref.confirmation_email_sent
-      confirm_password_label: Confirm Password
+      confirm_password_label: => core.ref.confirm_password
       dismiss_button: => core.ref.okay
       incorrect_password_message: The password you entered is incorrect.
       submit_button: => core.ref.save_changes
@@ -375,13 +375,31 @@ core:
       three_text: "{first}, {second}, and {third}"
       two_text: "{first} and {second}"
 
-  # Translations in this namespace are used in basic HTML interface.
-  basic:
-    javascript_disabled_message: This site is best viewed in a modern browser with JavaScript enabled.
-    load_error_message: Something went wrong while trying to load the full version of this site.
-    loading_text: Loading...
-    next_page_button: Next Page
-    previous_page_button: Previous Page
+  # Translations in this namespace are used in views other than Flarum's normal JS client.
+  views:
+
+    # Translations in this namespace are displayed by the basic HTML content loader.
+    content:
+      javascript_disabled_message: This site is best viewed in a modern browser with JavaScript enabled.
+      load_error_message: Something went wrong while trying to load the full version of this site.
+      loading_text: Loading...
+
+    # Translations in this namespace are displayed in the basic HTML discussion view.
+    discussion:
+      next_page_button: => core.ref.next_page
+      previous_page_button: Previous Page
+
+    # Translations in this namespace are displayed by the basic HTML discussion index.
+    index:
+      all_discussions_heading: => core.ref.all_discussions
+      next_page_button: => core.ref.next_page
+
+    # Translations in this namespace are displayed by the Reset Password interface.
+    reset:
+      confirm_password_label: => core.ref.confirm_password
+      password_label: => core.ref.password
+      submit_button: Reset Password
+      title: => core.ref.reset_your_password
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
@@ -423,7 +441,7 @@ core:
         {url}
 
         If you do not wish to change your password, just ignore this email and nothing will happen.
-      subject: Reset Your Password
+      subject: => core.ref.reset_your_password
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
@@ -434,6 +452,7 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
+    confirm_password: Confirm Password
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     delete: Delete
     delete_forever: Delete Forever
@@ -444,10 +463,12 @@ core:
     log_in: Log In
     log_out: Log Out
     mark_all_as_read: Mark All as Read
+    next_page: Next Page
     notifications: Notifications
     okay: OK                                     # Referenced by flarum-tags.yml
     password: Password
     reply: Reply                                 # Referenced by flarum-mentions.yml
+    reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
     settings: Settings
