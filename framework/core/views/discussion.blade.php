@@ -9,7 +9,7 @@ $postsCount = count($discussion->relationships->posts->data);
         @foreach ($posts as $post)
             <div>
                 <?php $user = $getResource($post->relationships->user->data); ?>
-                <h3>{{ $user ? $user->attributes->username : $translator->trans('core.lib.deleted_user_text') }}</h3>
+                <h3>{{ $user ? $user->attributes->username : $translator->trans('core.lib.username.deleted_text') }}</h3>
                 <div class="Post-body">
                     {!! $post->attributes->contentHtml !!}
                 </div>
