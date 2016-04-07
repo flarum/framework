@@ -21279,7 +21279,7 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
           key: 'description',
           value: function description(data) {
             var renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
-            var oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_text', data);
+            var oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_tooltip', data);
 
             return m(
               'span',
