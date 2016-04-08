@@ -17420,6 +17420,14 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
             );
           }
         }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
+          }
+        }, {
           key: 'show',
           value: function show(component) {
             if (!(component instanceof Alert)) {
@@ -18704,6 +18712,14 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
             );
           }
         }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
+          }
+        }, {
           key: 'items',
           value: function items() {
             return new ItemList();
@@ -18747,6 +18763,14 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
               { className: 'Header-controls' },
               listItems(this.items().toArray())
             );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
           }
         }, {
           key: 'items',
@@ -19073,6 +19097,9 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
           value: function config(isInitialized, context) {
             if (isInitialized) return;
 
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
             context.retain = true;
 
             this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));

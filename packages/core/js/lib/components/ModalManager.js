@@ -23,6 +23,9 @@ export default class ModalManager extends Component {
   config(isInitialized, context) {
     if (isInitialized) return;
 
+    // Since this component is 'above' the content of the page (that is, it is a
+    // part of the global UI that persists between routes), we will flag the DOM
+    // to be retained across route changes.
     context.retain = true;
 
     this.$()
