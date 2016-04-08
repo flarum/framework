@@ -21756,10 +21756,9 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                     'Username'
                   ),
                   m('input', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.edit_user.username_label')),
-                    value: this.username(),
-                    onchange: m.withAttr('value', this.username) })
+                    bidi: this.username })
                 ),
-                m(
+                app.session.user !== this.props.user ? [m(
                   'div',
                   { className: 'Form-group' },
                   m(
@@ -21771,11 +21770,9 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                     'div',
                     null,
                     m('input', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.edit_user.email_label')),
-                      value: this.email(),
-                      onchange: m.withAttr('value', this.email) })
+                      bidi: this.email })
                   )
-                ),
-                m(
+                ), m(
                   'div',
                   { className: 'Form-group' },
                   m(
@@ -21798,10 +21795,9 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                       'Set new password'
                     ),
                     this.setPassword() ? m('input', { className: 'FormControl', type: 'password', name: 'password', placeholder: extractText(app.translator.trans('core.forum.edit_user.password_label')),
-                      value: this.password(),
-                      onchange: m.withAttr('value', this.password) }) : ''
+                      bidi: this.password }) : ''
                   )
-                ),
+                )] : '',
                 m(
                   'div',
                   { className: 'Form-group EditUserModal-groups' },
@@ -21820,9 +21816,8 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                         'label',
                         { className: 'checkbox' },
                         m('input', { type: 'checkbox',
-                          checked: _this3.groups[group.id()](),
-                          disabled: _this3.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID,
-                          onchange: m.withAttr('checked', _this3.groups[group.id()]) }),
+                          bidi: _this3.groups[group.id()],
+                          disabled: _this3.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID }),
                         GroupBadge.component({ group: group, label: '' }),
                         ' ',
                         group.nameSingular()
@@ -21856,9 +21851,12 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
 
             var data = {
               username: this.username(),
-              email: this.email(),
               relationships: { groups: groups }
             };
+
+            if (app.session.user !== this.props.user) {
+              data.email = this.email();
+            }
 
             if (this.setPassword()) {
               data.password = this.password();
