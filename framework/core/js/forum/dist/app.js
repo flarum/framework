@@ -19196,7 +19196,7 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
 
             // If nothing else is provided, we use the textual button content as tooltip
             if (!attrs.title && this.props.children) {
-              attrs.title = extractText(attrs.title);
+              attrs.title = extractText(this.props.children);
             }
 
             var iconName = extract(attrs, 'icon');
