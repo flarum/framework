@@ -1,6 +1,7 @@
 import Dropdown from 'flarum/components/Dropdown';
 import Button from 'flarum/components/Button';
 import icon from 'flarum/helpers/icon';
+import extractText from 'flarum/utils/extractText';
 
 import SubscriptionMenuItem from 'flarum/subscriptions/components/SubscriptionMenuItem';
 
@@ -51,16 +52,20 @@ export default class SubscriptionMenu extends Dropdown {
         // no default
     }
 
+    const preferences = app.session.user.preferences();
+    const notifyEmail = preferences['notify_newPost_email'];
+    const notifyAlert = preferences['notify_newPost_alert'];
+    const title = extractText(app.translator.trans(notifyEmail
+      ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip'
+      : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip'));
+
     const buttonProps = {
       className: 'Button SubscriptionMenu-button ' + buttonClass,
       icon: buttonIcon,
       children: buttonLabel,
-      onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
+      onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow'),
+      title: title
     };
-
-    const preferences = app.session.user.preferences();
-    const notifyEmail = preferences['notify_newPost_email'];
-    const notifyAlert = preferences['notify_newPost_alert'];
 
     if ((notifyEmail || notifyAlert) && subscription === false) {
       buttonProps.config = element => {
@@ -68,9 +73,7 @@ export default class SubscriptionMenu extends Dropdown {
           container: '.SubscriptionMenu',
           placement: 'bottom',
           delay: 250,
-          title: app.translator.trans(notifyEmail
-            ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip'
-            : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip')
+          title
         });
       }
     } else {

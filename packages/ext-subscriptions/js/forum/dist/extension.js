@@ -214,8 +214,8 @@ System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/
 });;
 'use strict';
 
-System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export, _context) {
-  var Dropdown, Button, icon, SubscriptionMenuItem, SubscriptionMenu;
+System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export, _context) {
+  var Dropdown, Button, icon, extractText, SubscriptionMenuItem, SubscriptionMenu;
   return {
     setters: [function (_flarumComponentsDropdown) {
       Dropdown = _flarumComponentsDropdown.default;
@@ -223,6 +223,8 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
       Button = _flarumComponentsButton.default;
     }, function (_flarumHelpersIcon) {
       icon = _flarumHelpersIcon.default;
+    }, function (_flarumUtilsExtractText) {
+      extractText = _flarumUtilsExtractText.default;
     }, function (_flarumSubscriptionsComponentsSubscriptionMenuItem) {
       SubscriptionMenuItem = _flarumSubscriptionsComponentsSubscriptionMenuItem.default;
     }],
@@ -282,16 +284,18 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
               // no default
             }
 
+            var preferences = app.session.user.preferences();
+            var notifyEmail = preferences['notify_newPost_email'];
+            var notifyAlert = preferences['notify_newPost_alert'];
+            var title = extractText(app.translator.trans(notifyEmail ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip' : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip'));
+
             var buttonProps = {
               className: 'Button SubscriptionMenu-button ' + buttonClass,
               icon: buttonIcon,
               children: buttonLabel,
-              onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow')
+              onclick: this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? false : 'follow'),
+              title: title
             };
-
-            var preferences = app.session.user.preferences();
-            var notifyEmail = preferences['notify_newPost_email'];
-            var notifyAlert = preferences['notify_newPost_alert'];
 
             if ((notifyEmail || notifyAlert) && subscription === false) {
               buttonProps.config = function (element) {
@@ -299,7 +303,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
                   container: '.SubscriptionMenu',
                   placement: 'bottom',
                   delay: 250,
-                  title: app.translator.trans(notifyEmail ? 'flarum-subscriptions.forum.sub_controls.notify_email_tooltip' : 'flarum-subscriptions.forum.sub_controls.notify_alert_tooltip')
+                  title: title
                 });
               };
             } else {
