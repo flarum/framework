@@ -134,8 +134,7 @@ export default {
   /**
    * Open the reply composer for the discussion. A promise will be returned,
    * which resolves when the composer opens successfully. If the user is not
-   * logged in, they will be prompted and then the reply composer will open (and
-   * the promise will resolve) after they do. If they don't have permission to
+   * logged in, they will be prompted. If they don't have permission to
    * reply, the promise will be rejected.
    *
    * @param {Boolean} goToLast Whether or not to scroll down to the last post if
@@ -147,15 +146,8 @@ export default {
   replyAction(goToLast, forceRefresh) {
     const deferred = m.deferred();
 
-    // Define a function that will check the user's permission to reply, and
-    // either open the reply composer for this discussion and resolve the
-    // promise, or reject it.
-    const reply = () => {
+    if (app.session.user) {
       if (this.canReply()) {
-        if (goToLast && app.viewingDiscussion(this)) {
-          app.current.stream.goToLast();
-        }
-
         let component = app.composer.component;
         if (!app.composingReplyTo(this) || forceRefresh) {
           component = new ReplyComposer({
@@ -166,23 +158,16 @@ export default {
         }
         app.composer.show();
 
+        if (goToLast && app.viewingDiscussion(this)) {
+          app.current.stream.goToNumber('reply');
+        }
+
         deferred.resolve(component);
       } else {
         deferred.reject();
       }
-    };
-
-    // If the user is logged in, then we can run that function right away. But
-    // if they're not, we'll prompt them to log in and then run the function
-    // after the discussion has reloaded.
-    if (app.session.user) {
-      reply();
     } else {
-      app.modal.show(
-        new LogInModal({
-          onlogin: () => app.current.one('loaded', reply)
-        })
-      );
+      app.modal.show(new LogInModal());
     }
 
     return deferred.promise;

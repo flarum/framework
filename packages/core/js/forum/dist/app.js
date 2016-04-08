@@ -30204,46 +30204,30 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           return items;
         },
         replyAction: function replyAction(goToLast, forceRefresh) {
-          var _this2 = this;
-
           var deferred = m.deferred();
 
-          // Define a function that will check the user's permission to reply, and
-          // either open the reply composer for this discussion and resolve the
-          // promise, or reject it.
-          var reply = function reply() {
-            if (_this2.canReply()) {
-              if (goToLast && app.viewingDiscussion(_this2)) {
-                app.current.stream.goToLast();
-              }
-
+          if (app.session.user) {
+            if (this.canReply()) {
               var component = app.composer.component;
-              if (!app.composingReplyTo(_this2) || forceRefresh) {
+              if (!app.composingReplyTo(this) || forceRefresh) {
                 component = new ReplyComposer({
                   user: app.session.user,
-                  discussion: _this2
+                  discussion: this
                 });
                 app.composer.load(component);
               }
               app.composer.show();
 
+              if (goToLast && app.viewingDiscussion(this)) {
+                app.current.stream.goToNumber('reply');
+              }
+
               deferred.resolve(component);
             } else {
               deferred.reject();
             }
-          };
-
-          // If the user is logged in, then we can run that function right away. But
-          // if they're not, we'll prompt them to log in and then run the function
-          // after the discussion has reloaded.
-          if (app.session.user) {
-            reply();
           } else {
-            app.modal.show(new LogInModal({
-              onlogin: function onlogin() {
-                return app.current.one('loaded', reply);
-              }
-            }));
+            app.modal.show(new LogInModal());
           }
 
           return deferred.promise;
@@ -30259,7 +30243,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           return this.save({ isHidden: false });
         },
         deleteAction: function deleteAction() {
-          var _this3 = this;
+          var _this2 = this;
 
           if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
             // If we're currently viewing the discussion that was deleted, go back
@@ -30271,14 +30255,14 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
             return this.delete().then(function () {
               // If there is a discussion list in the cache, remove this discussion.
               if (app.cache.discussionList) {
-                app.cache.discussionList.removeDiscussion(_this3);
+                app.cache.discussionList.removeDiscussion(_this2);
                 m.redraw();
               }
             });
           }
         },
         renameAction: function renameAction() {
-          var _this4 = this;
+          var _this3 = this;
 
           var currentTitle = this.title();
           var title = prompt(extractText(app.translator.trans('core.forum.discussion_controls.rename_text')), currentTitle);
@@ -30288,7 +30272,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           // indicating that the discussion was renamed.
           if (title && title !== currentTitle) {
             return this.save({ title: title }).then(function () {
-              if (app.viewingDiscussion(_this4)) {
+              if (app.viewingDiscussion(_this3)) {
                 app.current.stream.update();
               }
               m.redraw();
