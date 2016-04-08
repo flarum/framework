@@ -32,7 +32,7 @@ class ConfigureLocales
     /**
      * Load language pack resources from the given directory.
      *
-     * @param $directory
+     * @param string $directory
      */
     public function loadLanguagePackFrom($directory)
     {

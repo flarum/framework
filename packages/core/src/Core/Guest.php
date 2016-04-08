@@ -22,7 +22,7 @@ class Guest extends User
     /**
      * Get the guest's group, containing only the 'guests' group model.
      *
-     * @return \Flarum\Core\Models\Group
+     * @return Group
      */
     public function getGroupsAttribute()
     {
