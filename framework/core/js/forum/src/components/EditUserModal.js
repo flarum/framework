@@ -39,38 +39,37 @@ export default class EditUserModal extends Modal {
           <div className="Form-group">
             <label>Username</label>
             <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))}
-              value={this.username()}
-              onchange={m.withAttr('value', this.username)} />
+              bidi={this.username} />
           </div>
 
-          <div className="Form-group">
-            <label>Email</label>
-            <div>
-              <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
-                value={this.email()}
-                onchange={m.withAttr('value', this.email)} />
-            </div>
-          </div>
+          {app.session.user !== this.props.user ? [
+            <div className="Form-group">
+              <label>Email</label>
+              <div>
+                <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
+                  bidi={this.email} />
+              </div>
+            </div>,
 
-          <div className="Form-group">
-            <label>Password</label>
-            <div>
-              <label className="checkbox">
-                <input type="checkbox" checked={this.setPassword()} onchange={e => {
-                  this.setPassword(e.target.checked);
-                  m.redraw(true);
-                  if (e.target.checked) this.$('[name=password]').select();
-                  m.redraw.strategy('none');
-                }}/>
-                Set new password
-              </label>
-              {this.setPassword() ? (
-                <input className="FormControl" type="password" name="password" placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
-                  value={this.password()}
-                  onchange={m.withAttr('value', this.password)} />
-              ) : ''}
+            <div className="Form-group">
+              <label>Password</label>
+              <div>
+                <label className="checkbox">
+                  <input type="checkbox" checked={this.setPassword()} onchange={e => {
+                    this.setPassword(e.target.checked);
+                    m.redraw(true);
+                    if (e.target.checked) this.$('[name=password]').select();
+                    m.redraw.strategy('none');
+                  }}/>
+                  Set new password
+                </label>
+                {this.setPassword() ? (
+                  <input className="FormControl" type="password" name="password" placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
+                    bidi={this.password} />
+                ) : ''}
+              </div>
             </div>
-          </div>
+          ] : ''}
 
           <div className="Form-group EditUserModal-groups">
             <label>Groups</label>
@@ -80,9 +79,8 @@ export default class EditUserModal extends Modal {
                 .map(group => (
                   <label className="checkbox">
                     <input type="checkbox"
-                      checked={this.groups[group.id()]()}
-                      disabled={this.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID}
-                      onchange={m.withAttr('checked', this.groups[group.id()])}/>
+                      bidi={this.groups[group.id()]}
+                      disabled={this.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID} />
                     {GroupBadge.component({group, label: ''})} {group.nameSingular()}
                   </label>
                 ))}
@@ -109,9 +107,12 @@ export default class EditUserModal extends Modal {
 
     const data = {
       username: this.username(),
-      email: this.email(),
       relationships: {groups}
     };
+
+    if (app.session.user !== this.props.user) {
+      data.email = this.email();
+    }
 
     if (this.setPassword()) {
       data.password = this.password();
