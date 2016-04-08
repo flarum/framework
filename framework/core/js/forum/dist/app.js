@@ -18902,6 +18902,14 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
             );
           }
         }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
+          }
+        }, {
           key: 'show',
           value: function show(component) {
             if (!(component instanceof Alert)) {
@@ -22192,8 +22200,8 @@ System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], fun
 });;
 'use strict';
 
-System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/SelectDropdown', 'flarum/components/Button'], function (_export, _context) {
-  var Component, ItemList, listItems, SelectDropdown, Button, HeaderPrimary;
+System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
+  var Component, ItemList, listItems, HeaderPrimary;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -22201,10 +22209,6 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
       ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
       listItems = _flarumHelpersListItems.default;
-    }, function (_flarumComponentsSelectDropdown) {
-      SelectDropdown = _flarumComponentsSelectDropdown.default;
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
       HeaderPrimary = function (_Component) {
@@ -22223,6 +22227,14 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
               { className: 'Header-controls' },
               listItems(this.items().toArray())
             );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
           }
         }, {
           key: 'items',
@@ -22278,6 +22290,14 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
               { className: 'Header-controls' },
               listItems(this.items().toArray())
             );
+          }
+        }, {
+          key: 'config',
+          value: function config(isInitialized, context) {
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
+            context.retain = true;
           }
         }, {
           key: 'items',
@@ -23264,6 +23284,9 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
           value: function config(isInitialized, context) {
             if (isInitialized) return;
 
+            // Since this component is 'above' the content of the page (that is, it is a
+            // part of the global UI that persists between routes), we will flag the DOM
+            // to be retained across route changes.
             context.retain = true;
 
             this.$().on('hidden.bs.modal', this.clear.bind(this)).on('shown.bs.modal', this.onready.bind(this));

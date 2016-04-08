@@ -1,8 +1,6 @@
 import Component from 'flarum/Component';
 import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
-import SelectDropdown from 'flarum/components/SelectDropdown';
-import Button from 'flarum/components/Button';
 
 /**
  * The `HeaderPrimary` component displays primary header controls. On the
@@ -15,6 +13,13 @@ export default class HeaderPrimary extends Component {
         {listItems(this.items().toArray())}
       </ul>
     );
+  }
+
+  config(isInitialized, context) {
+    // Since this component is 'above' the content of the page (that is, it is a
+    // part of the global UI that persists between routes), we will flag the DOM
+    // to be retained across route changes.
+    context.retain = true;
   }
 
   /**
