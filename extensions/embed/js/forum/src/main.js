@@ -20,7 +20,7 @@ app.initializers.replace('boot', () => {
     } else if (arguments.length === 4 && typeof arg1 === 'string') {
 
     } else if (root.addEventListener || root.attachEvent) {
-      root.href = vdom.attrs.href;
+      root.href = vdom.attrs.href.replace('/embed', '/d');
       root.target = '_blank';
 
       // TODO: If href leads to a post within this discussion that we have
