@@ -99,7 +99,7 @@ class UploadAvatarHandler
 
         $encodedImage = $manager->make($tmpFile)->fit(100, 100)->encode('jpg', 100);
 
-        @file_put_contents($tmpFile, $encodedImage);
+        file_put_contents($tmpFile, $encodedImage);
 
         $this->events->fire(
             new AvatarWillBeSaved($user, $actor, $tmpFile)
