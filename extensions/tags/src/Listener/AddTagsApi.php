@@ -24,6 +24,7 @@ class AddTagsApi
 
     public function configureApiRoutes(ConfigureApiRoutes $event)
     {
+        $event->get('/tags', 'tags.index', Controller\ListTagsController::class);
         $event->post('/tags', 'tags.create', Controller\CreateTagController::class);
         $event->post('/tags/order', 'tags.order', Controller\OrderTagsController::class);
         $event->patch('/tags/{id}', 'tags.update', Controller\UpdateTagController::class);

@@ -41,7 +41,7 @@ class TagRepository
      */
     public function all(User $user = null)
     {
-        $query = Tag::newQuery();
+        $query = Tag::query();
 
         return $this->scopeVisibleTo($query, $user)->get();
     }
