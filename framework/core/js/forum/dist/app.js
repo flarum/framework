@@ -28604,8 +28604,8 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
 });;
 'use strict';
 
-System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/PostedActivity', 'flarum/components/JoinedActivity', 'flarum/components/DiscussionRenamedNotification'], function (_export, _context) {
-  var CommentPost, DiscussionRenamedPost, PostedActivity, JoinedActivity, DiscussionRenamedNotification;
+System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/DiscussionRenamedNotification'], function (_export, _context) {
+  var CommentPost, DiscussionRenamedPost, DiscussionRenamedNotification;
   function components(app) {
     app.postComponents.comment = CommentPost;
     app.postComponents.discussionRenamed = DiscussionRenamedPost;
@@ -28620,10 +28620,6 @@ System.register('flarum/initializers/components', ['flarum/components/CommentPos
       CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumComponentsDiscussionRenamedPost) {
       DiscussionRenamedPost = _flarumComponentsDiscussionRenamedPost.default;
-    }, function (_flarumComponentsPostedActivity) {
-      PostedActivity = _flarumComponentsPostedActivity.default;
-    }, function (_flarumComponentsJoinedActivity) {
-      JoinedActivity = _flarumComponentsJoinedActivity.default;
     }, function (_flarumComponentsDiscussionRenamedNotification) {
       DiscussionRenamedNotification = _flarumComponentsDiscussionRenamedNotification.default;
     }],
