@@ -37,6 +37,7 @@ flarum-flags:
     # These translations are used by the Flagged Posts dropdown, a.k.a. "the flag".
     flagged_posts:
       empty_text: No Flags
+      item_text: "{username} in <em>{discussion}</em>"
       title: => flarum-flags.ref.flagged_posts
       tooltip: => flarum-flags.ref.flagged_posts
 
