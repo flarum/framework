@@ -6,6 +6,7 @@ import { getPlainContent } from 'flarum/utils/string';
 import addPostMentionPreviews from 'flarum/mentions/addPostMentionPreviews';
 import addMentionedByList from 'flarum/mentions/addMentionedByList';
 import addPostReplyAction from 'flarum/mentions/addPostReplyAction';
+import addPostQuoteButton from 'flarum/mentions/addPostQuoteButton';
 import addComposerAutocomplete from 'flarum/mentions/addComposerAutocomplete';
 import PostMentionedNotification from 'flarum/mentions/components/PostMentionedNotification';
 import UserMentionedNotification from 'flarum/mentions/components/UserMentionedNotification';
@@ -25,6 +26,9 @@ app.initializers.add('flarum-mentions', function() {
   // Add a 'reply' control to the footer of each post. When clicked, it will
   // open up the composer and add a post mention to its contents.
   addPostReplyAction();
+
+  // Show a Quote button when Post text is selected
+  addPostQuoteButton();
 
   // After typing '@' in the composer, show a dropdown suggesting a bunch of
   // posts or users that the user could mention.
