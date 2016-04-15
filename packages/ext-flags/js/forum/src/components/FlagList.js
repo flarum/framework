@@ -39,7 +39,7 @@ export default class FlagList extends Component {
                       {avatar(post.user())}
                       {icon('flag', {className: 'Notification-icon'})}
                       <span className="Notification-content">
-                        {username(post.user())} in <em>{post.discussion().title()}</em>
+                        {app.translator.trans('flarum-flags.forum.flagged_posts.item_text', {username: username(post.user()), em: <em/>, discussion: post.discussion().title()})}
                       </span>
                       {humanTime(flag.time())}
                       <div className="Notification-excerpt">
