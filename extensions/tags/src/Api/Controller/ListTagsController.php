@@ -42,6 +42,6 @@ class ListTagsController extends AbstractCollectionController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        return $this->tags->all();
+        return $this->tags->all($request->getAttribute('actor'));
     }
 }
