@@ -278,13 +278,7 @@ System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum
                         m(
                           'span',
                           { className: 'Notification-content' },
-                          username(post.user()),
-                          ' in ',
-                          m(
-                            'em',
-                            null,
-                            post.discussion().title()
-                          )
+                          app.translator.trans('flarum-flags.forum.flagged_posts.item_text', { username: username(post.user()), em: m('em', null), discussion: post.discussion().title() })
                         ),
                         humanTime(flag.time()),
                         m(
