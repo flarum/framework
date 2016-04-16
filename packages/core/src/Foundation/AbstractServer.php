@@ -18,6 +18,11 @@ use Monolog\Logger;
 abstract class AbstractServer
 {
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
      * @var string
      */
     protected $path;
@@ -41,6 +46,8 @@ abstract class AbstractServer
         if (file_exists($file = $this->path.'/config.php')) {
             $this->config = include $file;
         }
+
+        $this->app = $this->getApp();
     }
 
     /**
