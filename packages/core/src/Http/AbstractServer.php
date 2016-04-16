@@ -24,18 +24,14 @@ abstract class AbstractServer extends BaseAbstractServer
 {
     public function listen()
     {
-        $this->collectGarbage($this->app);
-
-        $server = Server::createServer(
-            $this->getMiddleware($this->app),
+        Server::createServer(
+            $this,
             $_SERVER,
             $_GET,
             $_POST,
             $_COOKIE,
             $_FILES
-        );
-
-        $server->listen();
+        )->listen();
     }
 
     /**
