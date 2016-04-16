@@ -37,10 +37,10 @@ abstract class AbstractServer extends BaseAbstractServer
     /**
      * Use as PSR-7 middleware.
      *
-     * @param $request
-     * @param $response
-     * @param null $out
-     * @return mixed
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param callable|null $out
+     * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out = null)
     {
