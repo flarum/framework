@@ -30,8 +30,12 @@ abstract class AbstractServer
     /**
      * @param string $path
      */
-    public function __construct($path)
+    public function __construct($path = null)
     {
+        if ($path === null) {
+            $path = getcwd();
+        }
+
         $this->path = $path;
 
         if (file_exists($file = $this->path.'/config.php')) {
