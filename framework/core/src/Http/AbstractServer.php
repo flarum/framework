@@ -35,7 +35,7 @@ abstract class AbstractServer extends BaseAbstractServer
     }
 
     /**
-     * Use as PSR-7 middleware
+     * Use as PSR-7 middleware.
      *
      * @param $request
      * @param $response
