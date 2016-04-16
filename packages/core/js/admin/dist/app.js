@@ -17293,6 +17293,13 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
               description: app.translator.trans('core.admin.nav.extensions_text')
             }));
 
+            items.add('advanced', AdminLinkButton.component({
+              href: app.route('advanced'),
+              icon: 'cog',
+              children: app.translator.trans('core.admin.nav.advanced_button'),
+              description: app.translator.trans('core.admin.nav.advanced_text')
+            }));
+
             return items;
           }
         }]);
@@ -17300,6 +17307,140 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
       }(Component);
 
       _export('default', AdminNav);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/AdvancedPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export, _context) {
+  var Page, FieldSet, Button, Alert, saveSettings, ItemList, AdvancedPage;
+  return {
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage.default;
+    }, function (_flarumComponentsFieldSet) {
+      FieldSet = _flarumComponentsFieldSet.default;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }, function (_flarumComponentsAlert) {
+      Alert = _flarumComponentsAlert.default;
+    }, function (_flarumUtilsSaveSettings) {
+      saveSettings = _flarumUtilsSaveSettings.default;
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList.default;
+    }],
+    execute: function () {
+      AdvancedPage = function (_Page) {
+        babelHelpers.inherits(AdvancedPage, _Page);
+
+        function AdvancedPage() {
+          babelHelpers.classCallCheck(this, AdvancedPage);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AdvancedPage).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(AdvancedPage, [{
+          key: 'init',
+          value: function init() {
+            var _this2 = this;
+
+            babelHelpers.get(Object.getPrototypeOf(AdvancedPage.prototype), 'init', this).call(this);
+
+            this.loading = false;
+
+            this.fields = ['mail_driver', 'mail_host', 'mail_from', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption'];
+            this.values = {};
+
+            var settings = app.settings;
+            this.fields.forEach(function (key) {
+              return _this2.values[key] = m.prop(settings[key]);
+            });
+
+            this.localeOptions = {};
+            var locales = app.locales;
+            for (var i in locales) {
+              this.localeOptions[i] = locales[i] + ' (' + i + ')';
+            }
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: 'AdvancedPage' },
+              m(
+                'div',
+                { className: 'container' },
+                m(
+                  'form',
+                  { onsubmit: this.onsubmit.bind(this) },
+                  FieldSet.component({
+                    label: app.translator.trans('core.admin.advanced.mail_heading'),
+                    className: 'AdvancedPage-MailSettings',
+                    children: [m(
+                      'div',
+                      { className: 'helpText' },
+                      app.translator.trans('core.admin.advanced.mail_text')
+                    ), m(
+                      'div',
+                      { className: 'AdvancedPage-mailSettings-input' },
+                      m('input', { className: 'FormControl', value: this.values.mail_driver() || '', oninput: m.withAttr('value', this.values.mail_driver), placeholder: app.translator.trans('core.admin.advanced.mail_driver') }),
+                      m('input', { className: 'FormControl', value: this.values.mail_host() || '', oninput: m.withAttr('value', this.values.mail_host), placeholder: app.translator.trans('core.admin.advanced.mail_host') }),
+                      m('input', { className: 'FormControl', value: this.values.mail_from() || '', oninput: m.withAttr('value', this.values.mail_from), placeholder: app.translator.trans('core.admin.advanced.mail_from') }),
+                      m('input', { className: 'FormControl', value: this.values.mail_port() || '', oninput: m.withAttr('value', this.values.mail_port), placeholder: app.translator.trans('core.admin.advanced.mail_port') }),
+                      m('input', { className: 'FormControl', value: this.values.mail_username() || '', oninput: m.withAttr('value', this.values.mail_username), placeholder: app.translator.trans('core.admin.advanced.mail_username') }),
+                      m('input', { className: 'FormControl', value: this.values.mail_password() || '', oninput: m.withAttr('value', this.values.mail_password), placeholder: app.translator.trans('core.admin.advanced.mail_password') }),
+                      m('input', { className: 'FormControl', value: this.values.mail_encryption() || '', oninput: m.withAttr('value', this.values.mail_encryption), placeholder: app.translator.trans('core.admin.advanced.mail_encryption') })
+                    )]
+                  }),
+                  Button.component({
+                    type: 'submit',
+                    className: 'Button Button--primary',
+                    children: app.translator.trans('core.admin.advanced.submit_button'),
+                    loading: this.loading,
+                    disabled: !this.changed()
+                  })
+                )
+              )
+            );
+          }
+        }, {
+          key: 'changed',
+          value: function changed() {
+            var _this3 = this;
+
+            return this.fields.some(function (key) {
+              return _this3.values[key]() !== app.settings[key];
+            });
+          }
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit(e) {
+            var _this4 = this;
+
+            e.preventDefault();
+
+            if (this.loading) return;
+
+            this.loading = true;
+            app.alerts.dismiss(this.successAlert);
+
+            var settings = {};
+
+            this.fields.forEach(function (key) {
+              return settings[key] = _this4.values[key]();
+            });
+
+            saveSettings(settings).then(function () {
+              app.alerts.show(_this4.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') }));
+            }).catch(function () {}).then(function () {
+              _this4.loading = false;
+              m.redraw();
+            });
+          }
+        }]);
+        return AdvancedPage;
+      }(Page);
+
+      _export('default', AdvancedPage);
     }
   };
 });;
@@ -20946,8 +21087,8 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
 });;
 'use strict';
 
-System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage'], function (_export, _context) {
-  var DashboardPage, BasicsPage, PermissionsPage, AppearancePage, ExtensionsPage;
+System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage', 'flarum/components/AdvancedPage'], function (_export, _context) {
+  var DashboardPage, BasicsPage, PermissionsPage, AppearancePage, ExtensionsPage, AdvancedPage;
 
   _export('default', function (app) {
     app.routes = {
@@ -20955,7 +21096,8 @@ System.register('flarum/initializers/routes', ['flarum/components/DashboardPage'
       'basics': { path: '/basics', component: BasicsPage.component() },
       'permissions': { path: '/permissions', component: PermissionsPage.component() },
       'appearance': { path: '/appearance', component: AppearancePage.component() },
-      'extensions': { path: '/extensions', component: ExtensionsPage.component() }
+      'extensions': { path: '/extensions', component: ExtensionsPage.component() },
+      'advanced': { path: '/advanced', component: AdvancedPage.component() }
     };
   });
 
@@ -20970,6 +21112,8 @@ System.register('flarum/initializers/routes', ['flarum/components/DashboardPage'
       AppearancePage = _flarumComponentsAppearancePage.default;
     }, function (_flarumComponentsExtensionsPage) {
       ExtensionsPage = _flarumComponentsExtensionsPage.default;
+    }, function (_flarumComponentsAdvancedPage) {
+      AdvancedPage = _flarumComponentsAdvancedPage.default;
     }],
     execute: function () {}
   };
