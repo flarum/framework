@@ -15,6 +15,8 @@ use Flarum\Core\EmailToken;
 use Flarum\Core\PasswordToken;
 use Flarum\Foundation\AbstractServer as BaseAbstractServer;
 use Flarum\Foundation\Application;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Server;
 use Zend\Stratigility\MiddlewareInterface;
 
@@ -34,6 +36,23 @@ abstract class AbstractServer extends BaseAbstractServer
         );
 
         $server->listen();
+    }
+
+    /**
+     * Use as PSR-7 middleware
+     *
+     * @param $request
+     * @param $response
+     * @param null $out
+     * @return mixed
+     */
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out = null)
+    {
+        $this->collectGarbage($this->app);
+
+        $middleware = $this->getMiddleware($this->app);
+
+        return $middleware($request, $response, $out);
     }
 
     /**
