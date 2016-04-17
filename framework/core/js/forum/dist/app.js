@@ -18995,10 +18995,10 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
               avatar(user),
               m(
                 'a',
-                { className: 'Dropdown-toggle',
+                { className: user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar",
                   'data-toggle': 'dropdown',
                   onclick: this.quickUpload.bind(this) },
-                this.loading ? LoadingIndicator.component() : icon('pencil')
+                this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('pencil') : icon('upload')
               ),
               m(
                 'ul',
