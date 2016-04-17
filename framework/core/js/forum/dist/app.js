@@ -18998,7 +18998,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
                 { className: user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar",
                   'data-toggle': 'dropdown',
                   onclick: this.quickUpload.bind(this) },
-                this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('pencil') : icon('upload')
+                this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('pencil') : icon('plus-circle')
               ),
               m(
                 'ul',
