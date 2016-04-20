@@ -345,10 +345,11 @@
 @media @tablet-up {
   .Post {
     padding-left: 20px + @avatar-column-width;
+    min-height: 64px + 20px;
   }
   .PostUser-avatar {
     margin-left: -@avatar-column-width;
-    float: left;
+    position: absolute;
     .Avatar--size(64px);
   }
   .PostUser-badges {
