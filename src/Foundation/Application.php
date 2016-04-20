@@ -34,6 +34,13 @@ class Application extends Container implements ApplicationContract
     protected $basePath;
 
     /**
+     * The public path for the Flarum installation.
+     *
+     * @var string
+     */
+    protected $publicPath;
+
+    /**
      * Indicates if the application has "booted".
      *
      * @var bool
@@ -87,7 +94,7 @@ class Application extends Container implements ApplicationContract
      *
      * @param string|null $basePath
      */
-    public function __construct($basePath = null)
+    public function __construct($basePath = null, $publicPath = null)
     {
         $this->registerBaseBindings();
 
@@ -95,8 +102,8 @@ class Application extends Container implements ApplicationContract
 
         $this->registerCoreContainerAliases();
 
-        if ($basePath) {
-            $this->setBasePath($basePath);
+        if ($basePath && $publicPath) {
+            $this->setPaths($basePath, $publicPath);
         }
     }
 
@@ -203,11 +210,14 @@ class Application extends Container implements ApplicationContract
      * Set the base path for the application.
      *
      * @param string $basePath
+     * @param string $publicPath
      * @return $this
      */
-    public function setBasePath($basePath)
+    public function setPaths($basePath, $publicPath)
     {
         $this->basePath = rtrim($basePath, '\/');
+
+        $this->publicPath = rtrim($publicPath, '\/');
 
         $this->bindPathsInContainer();
 
@@ -243,7 +253,7 @@ class Application extends Container implements ApplicationContract
      */
     public function publicPath()
     {
-        return $this->basePath;
+        return $this->publicPath;
     }
 
     /**
