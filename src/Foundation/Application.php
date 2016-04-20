@@ -102,8 +102,12 @@ class Application extends Container implements ApplicationContract
 
         $this->registerCoreContainerAliases();
 
-        if ($basePath && $publicPath) {
-            $this->setPaths($basePath, $publicPath);
+        if ($basePath) {
+            $this->setBasePath($basePath);
+        }
+
+        if ($publicPath) {
+            $this->setPublicPath($publicPath);
         }
     }
 
@@ -213,10 +217,24 @@ class Application extends Container implements ApplicationContract
      * @param string $publicPath
      * @return $this
      */
-    public function setPaths($basePath, $publicPath)
+    public function setBasePath($basePath)
     {
         $this->basePath = rtrim($basePath, '\/');
 
+        $this->bindPathsInContainer();
+
+        return $this;
+    }
+
+    /**
+     * Set the public path for the application.
+     *
+     * @param string $basePath
+     * @param string $publicPath
+     * @return $this
+     */
+    public function setPublicPath($publicPath)
+    {
         $this->publicPath = rtrim($publicPath, '\/');
 
         $this->bindPathsInContainer();

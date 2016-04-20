@@ -63,11 +63,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists(base_path('vendor/composer/installed.json'))) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->app->basePath().'/vendor/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get(base_path('vendor/composer/installed.json')), true);
+            $installed = json_decode($this->filesystem->get($this->app->basePath().'/vendor/composer/installed.json'), true);
 
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
@@ -318,6 +318,6 @@ class ExtensionManager
      */
     protected function getExtensionsDir()
     {
-        return base_path('vendor');
+        return $this->app->basePath().'/vendor';
     }
 }

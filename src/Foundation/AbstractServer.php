@@ -25,12 +25,12 @@ abstract class AbstractServer
     /**
      * @var string
      */
-    protected $base_path;
+    protected $basePath;
 
     /**
      * @var string
      */
-    protected $public_path;
+    protected $publicPath;
 
     /**
      * @var array
@@ -40,20 +40,20 @@ abstract class AbstractServer
     /**
      * @param string $path
      */
-    public function __construct($base_path = null, $public_path = null)
+    public function __construct($basePath = null, $publicPath = null)
     {
-        if ($base_path === null) {
-            $base_path = getcwd();
+        if ($basePath === null) {
+            $basePath = getcwd();
         }
 
-        if ($public_path === null) {
-            $public_path = $base_path;
+        if ($publicPath === null) {
+            $publicPath = $basePath;
         }
 
-        $this->base_path = $base_path;
-        $this->public_path = $public_path;
+        $this->basePath = $basePath;
+        $this->publicPath = $publicPath;
 
-        if (file_exists($file = $this->base_path.'/config.php')) {
+        if (file_exists($file = $this->basePath.'/config.php')) {
             $this->config = include $file;
         }
 
@@ -65,7 +65,7 @@ abstract class AbstractServer
      */
     public function getBasePath()
     {
-        return $this->base_path;
+        return $this->basePath;
     }
 
     /**
@@ -73,23 +73,23 @@ abstract class AbstractServer
      */
     public function getPublicPath()
     {
-        return $this->public_path;
+        return $this->publicPath;
     }
 
     /**
      * @param string $base_path
      */
-    public function setBasePath($base_path)
+    public function setBasePath($basePath)
     {
-        $this->base_path = $base_path;
+        $this->basePath = $basePath;
     }
 
     /**
      * @param string $public_path
      */
-    public function setPublicPath($public_path)
+    public function setPublicPath($publicPath)
     {
-        $this->public_path = $public_path;
+        $this->publicPath = $publicPath;
     }
 
     /**
@@ -115,7 +115,7 @@ abstract class AbstractServer
     {
         date_default_timezone_set('UTC');
 
-        $app = new Application($this->base_path, $this->public_path);
+        $app = new Application($this->basePath, $this->publicPath);
 
         $app->instance('env', 'production');
         $app->instance('flarum.config', $this->config);
