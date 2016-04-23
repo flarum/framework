@@ -25,7 +25,12 @@ abstract class AbstractServer
     /**
      * @var string
      */
-    protected $path;
+    protected $basePath;
+
+    /**
+     * @var string
+     */
+    protected $publicPath;
 
     /**
      * @var array
@@ -35,15 +40,20 @@ abstract class AbstractServer
     /**
      * @param string $path
      */
-    public function __construct($path = null)
+    public function __construct($basePath = null, $publicPath = null)
     {
-        if ($path === null) {
-            $path = getcwd();
+        if ($basePath === null) {
+            $basePath = getcwd();
         }
 
-        $this->path = $path;
+        if ($publicPath === null) {
+            $publicPath = $basePath;
+        }
 
-        if (file_exists($file = $this->path.'/config.php')) {
+        $this->basePath = $basePath;
+        $this->publicPath = $publicPath;
+
+        if (file_exists($file = $this->basePath.'/config.php')) {
             $this->config = include $file;
         }
 
@@ -53,17 +63,33 @@ abstract class AbstractServer
     /**
      * @return string
      */
-    public function getPath()
+    public function getBasePath()
     {
-        return $this->path;
+        return $this->basePath;
     }
 
     /**
-     * @param string $path
+     * @return string
      */
-    public function setPath($path)
+    public function getPublicPath()
     {
-        $this->path = $path;
+        return $this->publicPath;
+    }
+
+    /**
+     * @param string $base_path
+     */
+    public function setBasePath($basePath)
+    {
+        $this->basePath = $basePath;
+    }
+
+    /**
+     * @param string $public_path
+     */
+    public function setPublicPath($publicPath)
+    {
+        $this->publicPath = $publicPath;
     }
 
     /**
@@ -89,7 +115,7 @@ abstract class AbstractServer
     {
         date_default_timezone_set('UTC');
 
-        $app = new Application($this->path);
+        $app = new Application($this->basePath, $this->publicPath);
 
         $app->instance('env', 'production');
         $app->instance('flarum.config', $this->config);
