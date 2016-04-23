@@ -358,7 +358,7 @@ class InstallCommand extends AbstractCommand
     {
         $this->filesystem->copyDirectory(
             __DIR__.'/../../../assets',
-            $this->application->basePath().'/assets'
+            $this->application->publicPath().'/assets'
         );
     }
 
