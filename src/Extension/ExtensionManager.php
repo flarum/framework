@@ -63,11 +63,11 @@ class ExtensionManager
      */
     public function getExtensions()
     {
-        if (is_null($this->extensions) && $this->filesystem->exists(public_path('vendor/composer/installed.json'))) {
+        if (is_null($this->extensions) && $this->filesystem->exists($this->app->basePath().'/vendor/composer/installed.json')) {
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get(public_path('vendor/composer/installed.json')), true);
+            $installed = json_decode($this->filesystem->get($this->app->basePath().'/vendor/composer/installed.json'), true);
 
             foreach ($installed as $package) {
                 if (Arr::get($package, 'type') != 'flarum-extension' || empty(Arr::get($package, 'name'))) {
@@ -180,7 +180,7 @@ class ExtensionManager
         if ($extension->hasAssets()) {
             $this->filesystem->copyDirectory(
                 $extension->getPath().'/assets',
-                $this->app->basePath().'/assets/extensions/'.$extension->getId()
+                $this->app->publicPath().'/assets/extensions/'.$extension->getId()
             );
         }
     }
@@ -192,7 +192,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->filesystem->deleteDirectory($this->app->basePath().'/assets/extensions/'.$extension);
+        $this->filesystem->deleteDirectory($this->app->publicPath().'/assets/extensions/'.$extension);
     }
 
     /**
@@ -204,7 +204,7 @@ class ExtensionManager
      */
     public function getAsset(Extension $extension, $path)
     {
-        return $this->app->basePath().'/assets/extensions/'.$extension->getId().$path;
+        return $this->app->publicPath().'/assets/extensions/'.$extension->getId().$path;
     }
 
     /**
@@ -318,6 +318,6 @@ class ExtensionManager
      */
     protected function getExtensionsDir()
     {
-        return public_path('vendor');
+        return $this->app->basePath().'/vendor';
     }
 }
