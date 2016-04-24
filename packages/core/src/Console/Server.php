@@ -42,16 +42,21 @@ class Server extends AbstractServer
         $commands = [
             InstallCommand::class,
             MigrateCommand::class,
-            InfoCommand::class,
-            CacheClearCommand::class,
             GenerateExtensionCommand::class,
             GenerateMigrationCommand::class,
         ];
 
+        if ($app->isInstalled()) {
+            $commands = array_merge($commands, [
+                InfoCommand::class,
+                CacheClearCommand::class
+            ]);
+        }
+
         foreach ($commands as $command) {
             $console->add($app->make(
                 $command,
-                ['config' => $app->make('flarum.config')]
+                ['config' => $app->isInstalled() ? $app->make('flarum.config') : []]
             ));
         }
 
