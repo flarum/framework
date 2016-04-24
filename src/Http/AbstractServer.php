@@ -44,9 +44,11 @@ abstract class AbstractServer extends BaseAbstractServer
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out = null)
     {
-        $this->collectGarbage($this->app);
+        $app = $this->getApp();
 
-        $middleware = $this->getMiddleware($this->app);
+        $this->collectGarbage($app);
+
+        $middleware = $this->getMiddleware($app);
 
         return $middleware($request, $response, $out);
     }
