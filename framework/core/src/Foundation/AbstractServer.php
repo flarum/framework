@@ -62,8 +62,6 @@ abstract class AbstractServer
         if (file_exists($file = $this->basePath.'/config.php')) {
             $this->config = include $file;
         }
-
-        $this->app = $this->getApp();
     }
 
     /**
@@ -135,6 +133,10 @@ abstract class AbstractServer
      */
     protected function getApp()
     {
+        if ($this->app !== null) {
+            return $this->app;
+        }
+
         date_default_timezone_set('UTC');
 
         $app = new Application($this->basePath, $this->publicPath);
@@ -181,6 +183,8 @@ abstract class AbstractServer
         }
 
         $app->boot();
+
+        $this->app = $app;
 
         return $app;
     }
