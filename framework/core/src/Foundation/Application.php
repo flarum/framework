@@ -93,6 +93,7 @@ class Application extends Container implements ApplicationContract
      * Create a new Flarum application instance.
      *
      * @param string|null $basePath
+     * @param string|null $publicPath
      */
     public function __construct($basePath = null, $publicPath = null)
     {
@@ -214,7 +215,6 @@ class Application extends Container implements ApplicationContract
      * Set the base path for the application.
      *
      * @param string $basePath
-     * @param string $publicPath
      * @return $this
      */
     public function setBasePath($basePath)
@@ -229,7 +229,6 @@ class Application extends Container implements ApplicationContract
     /**
      * Set the public path for the application.
      *
-     * @param string $basePath
      * @param string $publicPath
      * @return $this
      */
