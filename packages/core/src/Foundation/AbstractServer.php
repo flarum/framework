@@ -33,12 +33,18 @@ abstract class AbstractServer
     protected $publicPath;
 
     /**
+     * @var string
+     */
+    protected $storagePath;
+
+    /**
      * @var array
      */
     protected $config;
 
     /**
-     * @param string $path
+     * @param null $basePath
+     * @param null $publicPath
      */
     public function __construct($basePath = null, $publicPath = null)
     {
@@ -77,7 +83,15 @@ abstract class AbstractServer
     }
 
     /**
-     * @param string $base_path
+     * @return string
+     */
+    public function getStoragePath()
+    {
+        return $this->storagePath;
+    }
+
+    /**
+     * @param $basePath
      */
     public function setBasePath($basePath)
     {
@@ -85,11 +99,19 @@ abstract class AbstractServer
     }
 
     /**
-     * @param string $public_path
+     * @param $publicPath
      */
     public function setPublicPath($publicPath)
     {
         $this->publicPath = $publicPath;
+    }
+
+    /**
+     * @param $storagePath
+     */
+    public function setStoragePath($storagePath)
+    {
+        $this->storagePath = $storagePath;
     }
 
     /**
@@ -116,6 +138,10 @@ abstract class AbstractServer
         date_default_timezone_set('UTC');
 
         $app = new Application($this->basePath, $this->publicPath);
+
+        if ($this->storagePath) {
+            $app->useStoragePath($this->storagePath);
+        }
 
         $app->instance('env', 'production');
         $app->instance('flarum.config', $this->config);
