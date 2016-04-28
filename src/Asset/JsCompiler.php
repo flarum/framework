@@ -93,11 +93,11 @@ class JsCompiler extends RevisionCompiler
 
         $hostedMinifer = $minifier->add('HostedMinifier');
         $hostedMinifer->url = 'http://s9e-textformatter.rhcloud.com/flarum-minifier/';
-        $hostedMinifer->timeout = 30;
+        $hostedMinifer->httpClient->timeout = 30;
 
         $ccs = $minifier->add('ClosureCompilerService');
         $ccs->compilationLevel = 'SIMPLE_OPTIMIZATIONS';
-        $ccs->timeout = 30;
+        $ccs->httpClient->timeout = 30;
 
         $minifier->add('MatthiasMullieMinify');
 
