@@ -368,7 +368,7 @@ class InstallCommand extends AbstractCommand
             $host = @parse_url($_SERVER['SERVER_NAME'], PHP_URL_HOST);
 
             if ($host) {
-                if (substr($host, 0, 4) == "www.") {
+                if (substr($host, 0, 4) == 'www.') {
                     $host = substr($host, 4);
                 }
 
