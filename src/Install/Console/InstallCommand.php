@@ -364,6 +364,20 @@ class InstallCommand extends AbstractCommand
 
     protected function getConfigFile()
     {
+        if (isset($_SERVER['SERVER_NAME'])) {
+            $host = @parse_url($_SERVER['SERVER_NAME'], PHP_URL_HOST);
+
+            if (! $host) {
+                $host = $_SERVER['SERVER_NAME'];
+            }
+
+            if (substr($host, 0, 4) == 'www.') {
+                $host = substr($host, 4);
+            }
+
+            return base_path('config.'.$host.'.php');
+        }
+
         return base_path('config.php');
     }
 
