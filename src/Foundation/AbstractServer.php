@@ -65,7 +65,7 @@ abstract class AbstractServer
             if (isset($_SERVER['SERVER_NAME'])) {
                 $host = @parse_url($_SERVER['SERVER_NAME'], PHP_URL_HOST);
 
-                if (!$host) {
+                if (! $host) {
                     $host = $_SERVER['SERVER_NAME'];
                 }
 
