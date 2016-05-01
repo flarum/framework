@@ -65,14 +65,16 @@ abstract class AbstractServer
             if (isset($_SERVER['SERVER_NAME'])) {
                 $host = @parse_url($_SERVER['SERVER_NAME'], PHP_URL_HOST);
 
-                if ($host) {
-                    if (substr($host, 0, 4) == 'www.') {
-                        $host = substr($host, 4);
-                    }
+                if (!$host) {
+                    $host = $_SERVER['SERVER_NAME'];
+                }
 
-                    if (file_exists($file = $this->basePath.'/config.'.$host.'.php')) {
-                        $this->config = include $file;
-                    }
+                if (substr($host, 0, 4) == 'www.') {
+                    $host = substr($host, 4);
+                }
+
+                if (file_exists($file = $this->basePath.'/config.'.$host.'.php')) {
+                    $this->config = include $file;
                 }
             }
         }
