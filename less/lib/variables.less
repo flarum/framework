@@ -37,6 +37,9 @@
   @control-danger-color:           #d66;
 
   @overlay-bg:                     fade(@secondary-color, 90%);
+
+  @code-bg:                        #F2F7F9;
+  @code-color:                     #60646D;
 }
 .define-colors(true) {
   @primary-color:                  @config-primary-color;
@@ -56,6 +59,9 @@
   @control-danger-color:           #a88;
 
   @overlay-bg:                     fade(darken(@body-bg, 5%), 90%);
+
+  @code-bg:                        darken(#F2F7F9, 90%);
+  @code-color:                     lighten(#60646D, 90%);
 }
 
 @hero-bg:                          @control-bg;
