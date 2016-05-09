@@ -42,7 +42,10 @@ class LessCompiler extends RevisionCompiler
 
         $parser = new Less_Parser([
             'compress' => true,
-            'cache_dir' => $this->cachePath
+            'cache_dir' => $this->cachePath,
+            'import_dirs' => [
+                'vendor/fortawesome/font-awesome/less' => '',
+            ],
         ]);
 
         try {
