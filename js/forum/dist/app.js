@@ -24381,8 +24381,8 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/hel
 
             return m(
               'span',
-              { className: 'PostEdited', title: title },
-              icon('pencil')
+              { className: 'PostEdited' },
+              title
             );
           }
         }, {
