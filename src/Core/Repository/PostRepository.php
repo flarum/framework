@@ -146,9 +146,11 @@ class PostRepository
 
     protected function getDiscussionsForPosts($postIds, User $actor)
     {
-        return Discussion::query()
-            ->whereIn('posts.id', $postIds)
+	    return Discussion::query()
+            ->select('discussions.*')
             ->join('posts', 'posts.discussion_id', '=', 'discussions.id')
+            ->whereIn('posts.id', $postIds)
+            ->groupBy('discussions.id')
             ->whereVisibleTo($actor)
             ->get();
     }
