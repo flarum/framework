@@ -4,6 +4,7 @@ import Post from 'flarum/components/Post';
 import classList from 'flarum/utils/classList';
 import PostUser from 'flarum/components/PostUser';
 import PostMeta from 'flarum/components/PostMeta';
+import PostIp from 'flarum/components/PostIp';
 import PostEdited from 'flarum/components/PostEdited';
 import EditPostComposer from 'flarum/components/EditPostComposer';
 import Composer from 'flarum/components/Composer';
@@ -128,7 +129,9 @@ export default class CommentPost extends Post {
 
     items.add('user', this.postUser.render(), 100);
     items.add('meta', PostMeta.component(props));
-
+    if (post.data.attributes.canViewIp) {
+      items.add('ip', PostIp.component(props));
+    }
     if (post.isEdited() && !post.isHidden()) {
       items.add('edited', PostEdited.component(props));
     }
