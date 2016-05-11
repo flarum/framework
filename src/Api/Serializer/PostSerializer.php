@@ -40,7 +40,7 @@ class PostSerializer extends PostBasicSerializer
         $gate = $this->gate->forUser($this->actor);
 
         $canEdit = $gate->allows('edit', $post);
-        
+
         $canViewIp = $gate->allows('viewIpOfPost', $post);
 
         if ($post instanceof CommentPost) {
