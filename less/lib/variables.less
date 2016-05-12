@@ -38,8 +38,8 @@
 
   @overlay-bg:                     fade(@secondary-color, 90%);
 
-  @code-bg:                        #F2F7F9;
-  @code-color:                     #60646D;
+  @code-bg:                        darken(@body-bg, 3%);
+  @code-color:                     lighten(@text-color, 30%);
 }
 .define-colors(true) {
   @primary-color:                  @config-primary-color;
@@ -60,8 +60,8 @@
 
   @overlay-bg:                     fade(darken(@body-bg, 5%), 90%);
 
-  @code-bg:                        darken(#F2F7F9, 90%);
-  @code-color:                     lighten(#60646D, 90%);
+  @code-bg:                        darken(@body-bg, 3%);
+  @code-color:                     #fff;
 }
 
 @hero-bg:                          @control-bg;
