@@ -3,7 +3,6 @@ import FieldSet from 'flarum/components/FieldSet';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
 import saveSettings from 'flarum/utils/saveSettings';
-import ItemList from 'flarum/utils/ItemList';
 
 export default class MailPage extends Page {
   init() {
