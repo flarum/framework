@@ -17293,6 +17293,13 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
               description: app.translator.trans('core.admin.nav.extensions_text')
             }));
 
+            items.add('mail', AdminLinkButton.component({
+              href: app.route('mail'),
+              icon: 'envelope',
+              children: app.translator.trans('core.admin.nav.mail_button'),
+              description: app.translator.trans('core.admin.nav.mail_text')
+            }));
+
             return items;
           }
         }]);
@@ -18923,6 +18930,173 @@ System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], f
       }(Modal);
 
       _export('default', LoadingModal);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings'], function (_export, _context) {
+  var Page, FieldSet, Button, Alert, saveSettings, MailPage;
+  return {
+    setters: [function (_flarumComponentsPage) {
+      Page = _flarumComponentsPage.default;
+    }, function (_flarumComponentsFieldSet) {
+      FieldSet = _flarumComponentsFieldSet.default;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }, function (_flarumComponentsAlert) {
+      Alert = _flarumComponentsAlert.default;
+    }, function (_flarumUtilsSaveSettings) {
+      saveSettings = _flarumUtilsSaveSettings.default;
+    }],
+    execute: function () {
+      MailPage = function (_Page) {
+        babelHelpers.inherits(MailPage, _Page);
+
+        function MailPage() {
+          babelHelpers.classCallCheck(this, MailPage);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(MailPage).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(MailPage, [{
+          key: 'init',
+          value: function init() {
+            var _this2 = this;
+
+            babelHelpers.get(Object.getPrototypeOf(MailPage.prototype), 'init', this).call(this);
+
+            this.loading = false;
+
+            this.fields = ['mail_driver', 'mail_host', 'mail_from', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption'];
+            this.values = {};
+
+            var settings = app.settings;
+            this.fields.forEach(function (key) {
+              return _this2.values[key] = m.prop(settings[key]);
+            });
+
+            this.localeOptions = {};
+            var locales = app.locales;
+            for (var i in locales) {
+              this.localeOptions[i] = locales[i] + ' (' + i + ')';
+            }
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: 'MailPage' },
+              m(
+                'div',
+                { className: 'container' },
+                m(
+                  'form',
+                  { onsubmit: this.onsubmit.bind(this) },
+                  FieldSet.component({
+                    label: app.translator.trans('core.admin.mail.heading'),
+                    className: 'MailPage-MailSettings',
+                    children: [m(
+                      'div',
+                      { className: 'helpText' },
+                      app.translator.trans('core.admin.mail.text')
+                    ), m(
+                      'div',
+                      { className: 'MailPage-MailSettings-input' },
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.driver')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_driver() || '', oninput: m.withAttr('value', this.values.mail_driver) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.host')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_host() || '', oninput: m.withAttr('value', this.values.mail_host) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.from')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_from() || '', oninput: m.withAttr('value', this.values.mail_from) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.port')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_port() || '', oninput: m.withAttr('value', this.values.mail_port) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.username')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_username() || '', oninput: m.withAttr('value', this.values.mail_username) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.password')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_password() || '', oninput: m.withAttr('value', this.values.mail_password) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.mail.encryption')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_encryption() || '', oninput: m.withAttr('value', this.values.mail_encryption) })
+                    )]
+                  }),
+                  Button.component({
+                    type: 'submit',
+                    className: 'Button Button--primary',
+                    children: app.translator.trans('core.admin.mail.submit_button'),
+                    loading: this.loading,
+                    disabled: !this.changed()
+                  })
+                )
+              )
+            );
+          }
+        }, {
+          key: 'changed',
+          value: function changed() {
+            var _this3 = this;
+
+            return this.fields.some(function (key) {
+              return _this3.values[key]() !== app.settings[key];
+            });
+          }
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit(e) {
+            var _this4 = this;
+
+            e.preventDefault();
+
+            if (this.loading) return;
+
+            this.loading = true;
+            app.alerts.dismiss(this.successAlert);
+
+            var settings = {};
+
+            this.fields.forEach(function (key) {
+              return settings[key] = _this4.values[key]();
+            });
+
+            saveSettings(settings).then(function () {
+              app.alerts.show(_this4.successAlert = new Alert({ type: 'success', children: app.translator.trans('core.admin.basics.saved_message') }));
+            }).catch(function () {}).then(function () {
+              _this4.loading = false;
+              m.redraw();
+            });
+          }
+        }]);
+        return MailPage;
+      }(Page);
+
+      _export('default', MailPage);
     }
   };
 });;
@@ -20946,8 +21120,8 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
 });;
 'use strict';
 
-System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage'], function (_export, _context) {
-  var DashboardPage, BasicsPage, PermissionsPage, AppearancePage, ExtensionsPage;
+System.register('flarum/initializers/routes', ['flarum/components/DashboardPage', 'flarum/components/BasicsPage', 'flarum/components/PermissionsPage', 'flarum/components/AppearancePage', 'flarum/components/ExtensionsPage', 'flarum/components/MailPage'], function (_export, _context) {
+  var DashboardPage, BasicsPage, PermissionsPage, AppearancePage, ExtensionsPage, MailPage;
 
   _export('default', function (app) {
     app.routes = {
@@ -20955,7 +21129,8 @@ System.register('flarum/initializers/routes', ['flarum/components/DashboardPage'
       'basics': { path: '/basics', component: BasicsPage.component() },
       'permissions': { path: '/permissions', component: PermissionsPage.component() },
       'appearance': { path: '/appearance', component: AppearancePage.component() },
-      'extensions': { path: '/extensions', component: ExtensionsPage.component() }
+      'extensions': { path: '/extensions', component: ExtensionsPage.component() },
+      'mail': { path: '/mail', component: MailPage.component() }
     };
   });
 
@@ -20970,6 +21145,8 @@ System.register('flarum/initializers/routes', ['flarum/components/DashboardPage'
       AppearancePage = _flarumComponentsAppearancePage.default;
     }, function (_flarumComponentsExtensionsPage) {
       ExtensionsPage = _flarumComponentsExtensionsPage.default;
+    }, function (_flarumComponentsMailPage) {
+      MailPage = _flarumComponentsMailPage.default;
     }],
     execute: function () {}
   };
