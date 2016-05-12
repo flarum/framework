@@ -45,7 +45,7 @@ class DiscussionSerializer extends DiscussionBasicSerializer
             'canRename'         => $gate->allows('rename', $discussion),
             'canDelete'         => $gate->allows('delete', $discussion),
             'canHide'           => $gate->allows('hide', $discussion),
-            'canViewIp'         => $gate->allows('viewIpOfPost', $discussion)
+            'canViewIp'         => $gate->allows('viewIpOfPost', $discussion),
         ];
 
         if ($discussion->hide_time) {
