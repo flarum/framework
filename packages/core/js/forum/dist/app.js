@@ -25141,7 +25141,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               index: m(
                 'span',
                 { className: 'Scrubber-index' },
-                retain || formatNumber(Math.ceil(this.index + this.visible))
+                retain || formatNumber(Math.min(Math.ceil(this.index + this.visible), count))
               ),
               count: m(
                 'span',
