@@ -18935,8 +18935,8 @@ System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], f
 });;
 'use strict';
 
-System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export, _context) {
-  var Page, FieldSet, Button, Alert, saveSettings, ItemList, MailPage;
+System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings'], function (_export, _context) {
+  var Page, FieldSet, Button, Alert, saveSettings, MailPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
@@ -18948,8 +18948,6 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
       Alert = _flarumComponentsAlert.default;
     }, function (_flarumUtilsSaveSettings) {
       saveSettings = _flarumUtilsSaveSettings.default;
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList.default;
     }],
     execute: function () {
       MailPage = function (_Page) {
