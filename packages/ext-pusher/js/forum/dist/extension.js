@@ -74,7 +74,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
             });
 
             extend(context, 'onunload', function () {
-              return channels.main.unbind();
+              return channels.main.unbind('newPost');
             });
           });
         });
@@ -151,7 +151,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
             });
 
             extend(context, 'onunload', function () {
-              return channels.main.unbind();
+              return channels.main.unbind('newPost');
             });
           });
         });
