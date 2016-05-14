@@ -24351,13 +24351,11 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
 });;
 'use strict';
 
-System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export, _context) {
-  var Component, icon, humanTime, extractText, PostEdited;
+System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export, _context) {
+  var Component, humanTime, extractText, PostEdited;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsHumanTime) {
       humanTime = _flarumUtilsHumanTime.default;
     }, function (_flarumUtilsExtractText) {
@@ -24377,12 +24375,12 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/hel
           value: function view() {
             var post = this.props.post;
             var editUser = post.editUser();
-            var title = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editUser, ago: humanTime(post.editTime()) }));
+            var editedInfo = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editUser, ago: humanTime(post.editTime()) }));
 
             return m(
               'span',
               { className: 'PostEdited' },
-              title
+              editedInfo
             );
           }
         }, {
