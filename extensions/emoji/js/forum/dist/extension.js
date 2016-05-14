@@ -195,7 +195,7 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
 
             var makeSuggestion = function makeSuggestion(key) {
               var code = ':' + key + ':';
-              var imageName = (emojiMap[key].indexOf('-20e3') != -1 || emojiMap[key] == 'a9' || emojiMap[key] == 'ae' ? '00' : '') + emojiMap[key];
+              var imageName = emojiMap[key];
               return m(
                 'button',
                 {

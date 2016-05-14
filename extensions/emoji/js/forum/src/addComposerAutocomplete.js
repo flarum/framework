@@ -68,7 +68,7 @@ export default function addComposerAutocomplete() {
 
           const makeSuggestion = function(key) {
             const code = ':' + key + ':';
-            const imageName = (emojiMap[key].indexOf('-20e3') != -1 || emojiMap[key] == 'a9' || emojiMap[key] == 'ae' ? '00' : '') + emojiMap[key];
+            const imageName = emojiMap[key];
             return (
               <button
                 key={key}
