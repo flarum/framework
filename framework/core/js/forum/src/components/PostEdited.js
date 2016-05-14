@@ -18,7 +18,7 @@ export default class PostEdited extends Component {
     const title = extractText(app.translator.trans('core.forum.post.edited_tooltip', {user: editUser, ago: humanTime(post.editTime())}));
 
     return (
-      <span className="PostEdited" title={title}>{icon('pencil')}</span>
+      <span className="PostEdited">{title}</span>
     );
   }
 
