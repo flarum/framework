@@ -86,20 +86,31 @@ export default function addComposerAutocomplete() {
             const suggestions = [];
             let similarEmoji = [];
 
+            // Build a regular expression to do a fuzzy match of the given input string
             const fuzzyRegexp = function(str) {
               const reEscape = new RegExp('\\(([' + ('+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1')) + '])\\)', 'g');
               return new RegExp('(.*)' + (str.toLowerCase().replace(/(.)/g, '($1)(.*?)')).replace(reEscape, '(\\$1)') + '$', 'i');
             };
-
             const regTyped = fuzzyRegexp(typed);
-            for (var i=0, maxSuggestions = 7; i < emojiKeys.length && maxSuggestions > 0; i++) {
-              if(regTyped.test(emojiKeys[i])) {
-                --maxSuggestions;
-                similarEmoji.push(emojiKeys[i]);
-              }
-            }
 
-            similarEmoji = similarEmoji.sort((a,b) => {
+            let maxSuggestions = 7;
+
+            const findMatchingEmojis = matcher => {
+              for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
+                if (matcher(emojiKeys[i])) {
+                  --maxSuggestions;
+                  similarEmoji.push(emojiKeys[i]);
+                }
+              }
+            };
+
+            // First, try to find all emojis starting with the given string
+            findMatchingEmojis(emoji => emoji.indexOf(typed) === 0);
+
+            // If there are still suggestions left, try for some fuzzy matches
+            findMatchingEmojis(emoji => regTyped.test(emoji));
+
+            similarEmoji = similarEmoji.sort((a, b) => {
               return a.length - b.length
             });
 

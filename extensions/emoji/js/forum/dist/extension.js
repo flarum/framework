@@ -215,18 +215,33 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
               var suggestions = [];
               var similarEmoji = [];
 
+              // Build a regular expression to do a fuzzy match of the given input string
               var fuzzyRegexp = function fuzzyRegexp(str) {
                 var reEscape = new RegExp('\\(([' + '+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1') + '])\\)', 'g');
                 return new RegExp('(.*)' + str.toLowerCase().replace(/(.)/g, '($1)(.*?)').replace(reEscape, '(\\$1)') + '$', 'i');
               };
-
               var regTyped = fuzzyRegexp(typed);
-              for (var i = 0, maxSuggestions = 7; i < emojiKeys.length && maxSuggestions > 0; i++) {
-                if (regTyped.test(emojiKeys[i])) {
-                  --maxSuggestions;
-                  similarEmoji.push(emojiKeys[i]);
+
+              var maxSuggestions = 7;
+
+              var findMatchingEmojis = function findMatchingEmojis(matcher) {
+                for (var _i = 0; _i < emojiKeys.length && maxSuggestions > 0; _i++) {
+                  if (matcher(emojiKeys[_i])) {
+                    --maxSuggestions;
+                    similarEmoji.push(emojiKeys[_i]);
+                  }
                 }
-              }
+              };
+
+              // First, try to find all emojis starting with the given string
+              findMatchingEmojis(function (emoji) {
+                return emoji.indexOf(typed) === 0;
+              });
+
+              // If there are still suggestions left, try for some fuzzy matches
+              findMatchingEmojis(function (emoji) {
+                return regTyped.test(emoji);
+              });
 
               similarEmoji = similarEmoji.sort(function (a, b) {
                 return a.length - b.length;
