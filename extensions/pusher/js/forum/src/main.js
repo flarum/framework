@@ -58,7 +58,7 @@ app.initializers.add('flarum-pusher', () => {
         }
       });
 
-      extend(context, 'onunload', () => channels.main.unbind());
+      extend(context, 'onunload', () => channels.main.unbind('newPost'));
     });
   });
 
@@ -127,7 +127,7 @@ app.initializers.add('flarum-pusher', () => {
         }
       });
 
-      extend(context, 'onunload', () => channels.main.unbind());
+      extend(context, 'onunload', () => channels.main.unbind('newPost'));
     });
   });
 
