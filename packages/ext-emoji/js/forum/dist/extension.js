@@ -131,8 +131,8 @@ if (typeof module != 'undefined' && typeof module.exports != 'undefined') {
 ;
 'use strict';
 
-System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/emoji/helpers/emojiMap', 'flarum/emoji/components/AutocompleteDropdown'], function (_export, _context) {
-  var extend, ComposerBody, emojiMap, AutocompleteDropdown;
+System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/emoji/helpers/emojiMap', 'flarum/utils/KeyboardNavigatable', 'flarum/emoji/components/AutocompleteDropdown'], function (_export, _context) {
+  var extend, ComposerBody, emojiMap, KeyboardNavigatable, AutocompleteDropdown;
   function addComposerAutocomplete() {
 
     var emojiKeys = Object.keys(emojiMap);
@@ -159,7 +159,16 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
         dropdown.hide();
       };
 
-      $textarea.after($container).on('keydown', dropdown.navigate.bind(dropdown)).on('click keyup', function (e) {
+      this.navigator = new KeyboardNavigatable();
+      this.navigator.when(function () {
+        return dropdown.active;
+      }).onUp(function () {
+        return dropdown.navigate(-1);
+      }).onDown(function () {
+        return dropdown.navigate(1);
+      }).onSelect(dropdown.complete.bind(dropdown)).onCancel(dropdown.hide.bind(dropdown)).bindTo($textarea);
+
+      $textarea.after($container).on('click keyup', function (e) {
         var _this = this;
 
         // Up, down, enter, tab, escape, left, right.
@@ -315,6 +324,8 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
       ComposerBody = _flarumComponentsComposerBody.default;
     }, function (_flarumEmojiHelpersEmojiMap) {
       emojiMap = _flarumEmojiHelpersEmojiMap.default;
+    }, function (_flarumUtilsKeyboardNavigatable) {
+      KeyboardNavigatable = _flarumUtilsKeyboardNavigatable.default;
     }, function (_flarumEmojiComponentsAutocompleteDropdown) {
       AutocompleteDropdown = _flarumEmojiComponentsAutocompleteDropdown.default;
     }],
@@ -377,39 +388,20 @@ System.register('flarum/emoji/components/AutocompleteDropdown', ['flarum/Compone
           }
         }, {
           key: 'navigate',
-          value: function navigate(e) {
+          value: function navigate(delta) {
             var _this2 = this;
 
-            if (!this.active) return;
-
-            switch (e.which) {
-              case 40:case 38:
-                // Down/Up
-                this.keyWasJustPressed = true;
-                this.setIndex(this.index + (e.which === 40 ? 1 : -1), true);
-                clearTimeout(this.keyWasJustPressedTimeout);
-                this.keyWasJustPressedTimeout = setTimeout(function () {
-                  return _this2.keyWasJustPressed = false;
-                }, 500);
-                e.preventDefault();
-                break;
-
-              case 13:case 9:
-                // Enter/Tab
-                this.$('li').eq(this.index).find('button').click();
-                e.preventDefault();
-                break;
-
-              case 27:
-                // Escape
-                this.hide();
-                e.stopPropagation();
-                e.preventDefault();
-                break;
-
-              default:
-              // no default
-            }
+            this.keyWasJustPressed = true;
+            this.setIndex(this.index + delta, true);
+            clearTimeout(this.keyWasJustPressedTimeout);
+            this.keyWasJustPressedTimeout = setTimeout(function () {
+              return _this2.keyWasJustPressed = false;
+            }, 500);
+          }
+        }, {
+          key: 'complete',
+          value: function complete() {
+            this.$('li').eq(this.index).find('button').click();
           }
         }, {
           key: 'setIndex',

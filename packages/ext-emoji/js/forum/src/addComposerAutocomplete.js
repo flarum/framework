@@ -3,6 +3,7 @@
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
 import emojiMap from 'flarum/emoji/helpers/emojiMap';
+import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from 'flarum/emoji/components/AutocompleteDropdown';
 
@@ -32,9 +33,17 @@ export default function addComposerAutocomplete() {
       dropdown.hide();
     };
 
+    this.navigator = new KeyboardNavigatable();
+    this.navigator
+      .when(() => dropdown.active)
+      .onUp(() => dropdown.navigate(-1))
+      .onDown(() => dropdown.navigate(1))
+      .onSelect(dropdown.complete.bind(dropdown))
+      .onCancel(dropdown.hide.bind(dropdown))
+      .bindTo($textarea);
+
     $textarea
       .after($container)
-      .on('keydown', dropdown.navigate.bind(dropdown))
       .on('click keyup', function(e) {
         // Up, down, enter, tab, escape, left, right.
         if ([9, 13, 27, 40, 38, 37, 39].indexOf(e.which) !== -1) return;
