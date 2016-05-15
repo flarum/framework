@@ -116,11 +116,11 @@ export default class TagDiscussionModal extends Modal {
 
     // If the number of selected primary/secondary tags is at the maximum, then
     // we'll filter out all other tags of that type.
-    if (primaryCount >= app.forum.attribute('maxPrimaryTags')) {
+    if (primaryCount >= this.maxPrimary) {
       tags = tags.filter(tag => !tag.isPrimary() || this.selected.indexOf(tag) !== -1);
     }
 
-    if (secondaryCount >= app.forum.attribute('maxSecondaryTags')) {
+    if (secondaryCount >= this.maxSecondary) {
       tags = tags.filter(tag => tag.isPrimary() || this.selected.indexOf(tag) !== -1);
     }
 

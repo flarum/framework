@@ -553,13 +553,13 @@ System.register('flarum/tags/components/TagDiscussionModal', ['flarum/components
 
             // If the number of selected primary/secondary tags is at the maximum, then
             // we'll filter out all other tags of that type.
-            if (primaryCount >= app.forum.attribute('maxPrimaryTags')) {
+            if (primaryCount >= this.maxPrimary) {
               tags = tags.filter(function (tag) {
                 return !tag.isPrimary() || _this2.selected.indexOf(tag) !== -1;
               });
             }
 
-            if (secondaryCount >= app.forum.attribute('maxSecondaryTags')) {
+            if (secondaryCount >= this.maxSecondary) {
               tags = tags.filter(function (tag) {
                 return tag.isPrimary() || _this2.selected.indexOf(tag) !== -1;
               });
