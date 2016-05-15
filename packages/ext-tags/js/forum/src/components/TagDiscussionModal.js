@@ -4,6 +4,7 @@ import Button from 'flarum/components/Button';
 import highlight from 'flarum/helpers/highlight';
 import classList from 'flarum/utils/classList';
 import extractText from 'flarum/utils/extractText';
+import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
 import tagLabel from 'flarum/tags/helpers/tagLabel';
 import tagIcon from 'flarum/tags/helpers/tagIcon';
@@ -30,6 +31,13 @@ export default class TagDiscussionModal extends Modal {
     this.maxPrimary = app.forum.attribute('maxPrimaryTags');
     this.minSecondary = app.forum.attribute('minSecondaryTags');
     this.maxSecondary = app.forum.attribute('maxSecondaryTags');
+
+    this.navigator = new KeyboardNavigatable();
+    this.navigator
+      .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
+      .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
+      .onSelect(this.select.bind(this))
+      .onRemove(() => this.selected.splice(this.selected.length - 1, 1));
   }
 
   primaryCount() {
@@ -151,7 +159,7 @@ export default class TagDiscussionModal extends Modal {
                 placeholder={extractText(this.getInstruction(primaryCount, secondaryCount))}
                 value={this.filter()}
                 oninput={m.withAttr('value', this.filter)}
-                onkeydown={this.onkeydown.bind(this)}
+                onkeydown={this.navigator.navigate.bind(this.navigator)}
                 onfocus={() => this.focused = true}
                 onblur={() => this.focused = false}/>
             </div>
@@ -219,34 +227,14 @@ export default class TagDiscussionModal extends Modal {
     this.onready();
   }
 
-  onkeydown(e) {
-    switch (e.which) {
-      case 40:
-      case 38: // Down/Up
-        e.preventDefault();
-        this.setIndex(this.getCurrentNumericIndex() + (e.which === 40 ? 1 : -1), true);
-        break;
-
-      case 13: // Return
-        e.preventDefault();
-        if (e.metaKey || e.ctrlKey || this.selected.indexOf(this.index) !== -1) {
-          if (this.selected.length) {
-            this.$('form').submit();
-          }
-        } else {
-          this.getItem(this.index)[0].dispatchEvent(new Event('click'));
-        }
-        break;
-
-      case 8: // Backspace
-        if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
-          e.preventDefault();
-          this.selected.splice(this.selected.length - 1, 1);
-        }
-        break;
-
-      default:
-        // no default
+  select(e) {
+    // Ctrl + Enter submits the selection, just Enter completes the current entry
+    if (e.metaKey || e.ctrlKey || this.selected.indexOf(this.index) !== -1) {
+      if (this.selected.length) {
+        this.$('form').submit();
+      }
+    } else {
+      this.getItem(this.index)[0].dispatchEvent(new Event('click'));
     }
   }
 
