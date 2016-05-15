@@ -23,7 +23,10 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onUp(callback) {
-    this.callbacks[38] = callback;
+    this.callbacks[38] = e => {
+      e.preventDefault();
+      callback(e);
+    };
 
     return this;
   }
@@ -38,7 +41,10 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onDown(callback) {
-    this.callbacks[40] = callback;
+    this.callbacks[40] = e => {
+      e.preventDefault();
+      callback(e);
+    };
 
     return this;
   }
@@ -53,7 +59,10 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onSelect(callback) {
-    this.callbacks[9] = this.callbacks[13] = callback;
+    this.callbacks[9] = this.callbacks[13] = e => {
+      e.preventDefault();
+      callback(e);
+    };
 
     return this;
   }
@@ -68,7 +77,31 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onCancel(callback) {
-    this.callbacks[27] = callback;
+    this.callbacks[27] = e => {
+      e.stopPropagation();
+      e.preventDefault();
+      callback(e);
+    }
+
+    return this;
+  }
+
+  /**
+   * Provide a callback to be executed when previous input is removed.
+   *
+   * This will be triggered by the Backspace key.
+   *
+   * @public
+   * @param {Function} callback
+   * @return {KeyboardNavigatable}
+   */
+  onRemove(callback) {
+    this.callbacks[8] = e => {
+      if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
+        callback(e);
+        e.preventDefault();
+      }
+    };
 
     return this;
   }
@@ -109,9 +142,7 @@ export default class KeyboardNavigatable {
 
     const keyCallback = this.callbacks[event.which];
     if (keyCallback) {
-      keyCallback();
-      event.stopPropagation();
-      event.preventDefault();
+      keyCallback(event);
     }
   }
 }
