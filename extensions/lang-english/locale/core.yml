@@ -69,6 +69,22 @@ core:
       submit_button: => core.ref.save_changes
       title: Create Group
 
+    # These translations are used in the email page of the admin interface.
+    email:
+      account_heading: SMTP Account
+      addresses_heading: Addresses
+      driver_label: Driver
+      encryption_label: Encryption
+      from_label: Sender
+      heading: => core.ref.email
+      host_label: Host
+      password_label: Password
+      port_label: Port
+      server_heading: SMTP Server
+      submit_button: => core.ref.save_changes
+      text: Configure the SMTP settings and addresses your forum will use to send email.
+      username_label: Username
+
     # These translations are used in the Extensions page.
     extensions:
       add_button: Add Extension
@@ -93,6 +109,8 @@ core:
       basics_text: "Set your forum title, language, and other basic settings."
       dashboard_button: Dashboard
       dashboard_text: Your forum at a glance.
+      email_button: => core.ref.email
+      email_text: "Configure your forum's email settings."
       extensions_button: Extensions
       extensions_text: Add extra functionality to your forum and make it your own.
       permissions_button: Permissions
