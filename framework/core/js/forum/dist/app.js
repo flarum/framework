@@ -31658,28 +31658,53 @@ System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _cont
         babelHelpers.createClass(KeyboardNavigatable, [{
           key: 'onUp',
           value: function onUp(callback) {
-            this.callbacks[38] = callback;
+            this.callbacks[38] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
 
             return this;
           }
         }, {
           key: 'onDown',
           value: function onDown(callback) {
-            this.callbacks[40] = callback;
+            this.callbacks[40] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
 
             return this;
           }
         }, {
           key: 'onSelect',
           value: function onSelect(callback) {
-            this.callbacks[9] = this.callbacks[13] = callback;
+            this.callbacks[9] = this.callbacks[13] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
 
             return this;
           }
         }, {
           key: 'onCancel',
           value: function onCancel(callback) {
-            this.callbacks[27] = callback;
+            this.callbacks[27] = function (e) {
+              e.stopPropagation();
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onRemove',
+          value: function onRemove(callback) {
+            this.callbacks[8] = function (e) {
+              if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
+                callback(e);
+                e.preventDefault();
+              }
+            };
 
             return this;
           }
@@ -31704,9 +31729,7 @@ System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _cont
 
             var keyCallback = this.callbacks[event.which];
             if (keyCallback) {
-              keyCallback();
-              event.stopPropagation();
-              event.preventDefault();
+              keyCallback(event);
             }
           }
         }]);
