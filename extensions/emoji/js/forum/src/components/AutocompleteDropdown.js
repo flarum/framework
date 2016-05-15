@@ -28,32 +28,15 @@ export default class AutocompleteDropdown extends Component {
     this.active = false;
   }
 
-  navigate(e) {
-    if (!this.active) return;
-
-    switch (e.which) {
-      case 40: case 38: // Down/Up
-        this.keyWasJustPressed = true;
-        this.setIndex(this.index + (e.which === 40 ? 1 : -1), true);
-        clearTimeout(this.keyWasJustPressedTimeout);
-        this.keyWasJustPressedTimeout = setTimeout(() => this.keyWasJustPressed = false, 500);
-        e.preventDefault();
-        break;
-
-      case 13: case 9: // Enter/Tab
-        this.$('li').eq(this.index).find('button').click();
-        e.preventDefault();
-        break;
-
-      case 27: // Escape
-        this.hide();
-        e.stopPropagation();
-        e.preventDefault();
-        break;
-
-      default:
-        // no default
-    }
+  navigate(delta) {
+    this.keyWasJustPressed = true;
+    this.setIndex(this.index + delta, true);
+    clearTimeout(this.keyWasJustPressedTimeout);
+    this.keyWasJustPressedTimeout = setTimeout(() => this.keyWasJustPressed = false, 500);
+  }
+  
+  complete() {
+    this.$('li').eq(this.index).find('button').click();
   }
 
   setIndex(index, scrollToItem) {
