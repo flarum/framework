@@ -18993,14 +18993,15 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
                 m(
                   'form',
                   { onsubmit: this.onsubmit.bind(this) },
+                  m(
+                    'div',
+                    { className: 'helpText' },
+                    app.translator.trans('core.admin.email.text')
+                  ),
                   FieldSet.component({
-                    label: app.translator.trans('core.admin.email.heading'),
+                    label: app.translator.trans('core.admin.email.server_heading'),
                     className: 'MailPage-MailSettings',
                     children: [m(
-                      'div',
-                      { className: 'helpText' },
-                      app.translator.trans('core.admin.email.text')
-                    ), m(
                       'div',
                       { className: 'MailPage-MailSettings-input' },
                       m(
@@ -19018,15 +19019,23 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.email.from_label')
-                      ),
-                      m('input', { className: 'FormControl', value: this.values.mail_from() || '', oninput: m.withAttr('value', this.values.mail_from) }),
-                      m(
-                        'label',
-                        null,
                         app.translator.trans('core.admin.email.port_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_port() || '', oninput: m.withAttr('value', this.values.mail_port) }),
+                      m(
+                        'label',
+                        null,
+                        app.translator.trans('core.admin.email.encryption_label')
+                      ),
+                      m('input', { className: 'FormControl', value: this.values.mail_encryption() || '', oninput: m.withAttr('value', this.values.mail_encryption) })
+                    )]
+                  }),
+                  FieldSet.component({
+                    label: app.translator.trans('core.admin.email.account_heading'),
+                    className: 'MailPage-MailSettings',
+                    children: [m(
+                      'div',
+                      { className: 'MailPage-MailSettings-input' },
                       m(
                         'label',
                         null,
@@ -19038,13 +19047,21 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
                         null,
                         app.translator.trans('core.admin.email.password_label')
                       ),
-                      m('input', { className: 'FormControl', value: this.values.mail_password() || '', oninput: m.withAttr('value', this.values.mail_password) }),
+                      m('input', { className: 'FormControl', value: this.values.mail_password() || '', oninput: m.withAttr('value', this.values.mail_password) })
+                    )]
+                  }),
+                  FieldSet.component({
+                    label: app.translator.trans('core.admin.email.addresses_heading'),
+                    className: 'MailPage-MailSettings',
+                    children: [m(
+                      'div',
+                      { className: 'MailPage-MailSettings-input' },
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.email.encryption_label')
+                        app.translator.trans('core.admin.email.from_label')
                       ),
-                      m('input', { className: 'FormControl', value: this.values.mail_encryption() || '', oninput: m.withAttr('value', this.values.mail_encryption) })
+                      m('input', { className: 'FormControl', value: this.values.mail_from() || '', oninput: m.withAttr('value', this.values.mail_from) })
                     )]
                   }),
                   Button.component({
