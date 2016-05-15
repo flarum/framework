@@ -78,12 +78,12 @@ core:
       from_label: Sender
       heading: => core.ref.email
       host_label: Host
-      password_label: Password
+      password_label: => core.ref.password
       port_label: Port
       server_heading: SMTP Server
       submit_button: => core.ref.save_changes
       text: Configure the SMTP settings and addresses your forum will use to send email.
-      username_label: Username
+      username_label: => core.ref.username
 
     # These translations are used in the Extensions page.
     extensions:
