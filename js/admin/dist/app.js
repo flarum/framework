@@ -17272,6 +17272,13 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
               description: app.translator.trans('core.admin.nav.basics_text')
             }));
 
+            items.add('mail', AdminLinkButton.component({
+              href: app.route('mail'),
+              icon: 'envelope',
+              children: app.translator.trans('core.admin.nav.email_button'),
+              description: app.translator.trans('core.admin.nav.email_text')
+            }));
+
             items.add('permissions', AdminLinkButton.component({
               href: app.route('permissions'),
               icon: 'key',
@@ -17291,13 +17298,6 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
               icon: 'puzzle-piece',
               children: app.translator.trans('core.admin.nav.extensions_button'),
               description: app.translator.trans('core.admin.nav.extensions_text')
-            }));
-
-            items.add('mail', AdminLinkButton.component({
-              href: app.route('mail'),
-              icon: 'envelope',
-              children: app.translator.trans('core.admin.nav.email_button'),
-              description: app.translator.trans('core.admin.nav.email_text')
             }));
 
             return items;
