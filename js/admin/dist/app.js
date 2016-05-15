@@ -18994,6 +18994,11 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
                   'form',
                   { onsubmit: this.onsubmit.bind(this) },
                   m(
+                    'h2',
+                    null,
+                    app.translator.trans('core.admin.email.heading')
+                  ),
+                  m(
                     'div',
                     { className: 'helpText' },
                     app.translator.trans('core.admin.email.text')
