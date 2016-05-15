@@ -31636,13 +31636,7 @@ System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _cont
         function KeyboardNavigatable() {
           babelHelpers.classCallCheck(this, KeyboardNavigatable);
 
-          var defaultCallback = function defaultCallback() {/* noop */};
-
-          // Set all callbacks to a noop function so that not all of them have to be set.
-          this.upCallback = defaultCallback;
-          this.downCallback = defaultCallback;
-          this.selectCallback = defaultCallback;
-          this.cancelCallback = defaultCallback;
+          this.callbacks = {};
 
           // By default, always handle keyboard navigation.
           this.whenCallback = function () {
@@ -31664,28 +31658,28 @@ System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _cont
         babelHelpers.createClass(KeyboardNavigatable, [{
           key: 'onUp',
           value: function onUp(callback) {
-            this.upCallback = callback;
+            this.callbacks[38] = callback;
 
             return this;
           }
         }, {
           key: 'onDown',
           value: function onDown(callback) {
-            this.downCallback = callback;
+            this.callbacks[40] = callback;
 
             return this;
           }
         }, {
           key: 'onSelect',
           value: function onSelect(callback) {
-            this.selectCallback = callback;
+            this.callbacks[9] = this.callbacks[13] = callback;
 
             return this;
           }
         }, {
           key: 'onCancel',
           value: function onCancel(callback) {
-            this.cancelCallback = callback;
+            this.callbacks[27] = callback;
 
             return this;
           }
@@ -31708,34 +31702,11 @@ System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _cont
             // This callback determines whether keyboard should be handled or ignored.
             if (!this.whenCallback()) return;
 
-            switch (event.which) {
-              case 9:case 13:
-                // Tab / Return
-                this.selectCallback();
-                event.preventDefault();
-                break;
-
-              case 27:
-                // Escape
-                this.cancelCallback();
-                event.stopPropagation();
-                event.preventDefault();
-                break;
-
-              case 38:
-                // Up
-                this.upCallback();
-                event.preventDefault();
-                break;
-
-              case 40:
-                // Down
-                this.downCallback();
-                event.preventDefault();
-                break;
-
-              default:
-              // no default
+            var keyCallback = this.callbacks[event.which];
+            if (keyCallback) {
+              keyCallback();
+              event.stopPropagation();
+              event.preventDefault();
             }
           }
         }]);
