@@ -5,6 +5,7 @@ import ComposerBody from 'flarum/components/ComposerBody';
 import avatar from 'flarum/helpers/avatar';
 import usernameHelper from 'flarum/helpers/username';
 import highlight from 'flarum/helpers/highlight';
+import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/utils/string';
 
 import AutocompleteDropdown from 'flarum/mentions/components/AutocompleteDropdown';
@@ -34,9 +35,17 @@ export default function addComposerAutocomplete() {
       dropdown.hide();
     };
 
+    this.navigator = new KeyboardNavigatable();
+    this.navigator
+      .when(() => dropdown.active)
+      .onUp(() => dropdown.navigate(-1))
+      .onDown(() => dropdown.navigate(1))
+      .onSelect(dropdown.complete.bind(dropdown))
+      .onCancel(dropdown.hide.bind(dropdown))
+      .bindTo($textarea);
+
     $textarea
       .after($container)
-      .on('keydown', dropdown.navigate.bind(dropdown))
       .on('click keyup', function(e) {
         // Up, down, enter, tab, escape, left, right.
         if ([9, 13, 27, 40, 38, 37, 39].indexOf(e.which) !== -1) return;
