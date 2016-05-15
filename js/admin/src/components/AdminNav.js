@@ -70,8 +70,8 @@ export default class AdminNav extends Component {
     items.add('mail', AdminLinkButton.component({
       href: app.route('mail'),
       icon: 'envelope',
-      children: app.translator.trans('core.admin.nav.mail_button'),
-      description: app.translator.trans('core.admin.nav.mail_text')
+      children: app.translator.trans('core.admin.nav.email_button'),
+      description: app.translator.trans('core.admin.nav.email_text')
     }))
 
     return items;

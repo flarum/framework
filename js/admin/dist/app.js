@@ -17296,8 +17296,8 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
             items.add('mail', AdminLinkButton.component({
               href: app.route('mail'),
               icon: 'envelope',
-              children: app.translator.trans('core.admin.nav.mail_button'),
-              description: app.translator.trans('core.admin.nav.mail_text')
+              children: app.translator.trans('core.admin.nav.email_button'),
+              description: app.translator.trans('core.admin.nav.email_text')
             }));
 
             return items;
@@ -18994,55 +18994,55 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
                   'form',
                   { onsubmit: this.onsubmit.bind(this) },
                   FieldSet.component({
-                    label: app.translator.trans('core.admin.mail.heading'),
+                    label: app.translator.trans('core.admin.email.heading'),
                     className: 'MailPage-MailSettings',
                     children: [m(
                       'div',
                       { className: 'helpText' },
-                      app.translator.trans('core.admin.mail.text')
+                      app.translator.trans('core.admin.email.text')
                     ), m(
                       'div',
                       { className: 'MailPage-MailSettings-input' },
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.driver')
+                        app.translator.trans('core.admin.email.driver_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_driver() || '', oninput: m.withAttr('value', this.values.mail_driver) }),
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.host')
+                        app.translator.trans('core.admin.email.host_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_host() || '', oninput: m.withAttr('value', this.values.mail_host) }),
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.from')
+                        app.translator.trans('core.admin.email.from_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_from() || '', oninput: m.withAttr('value', this.values.mail_from) }),
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.port')
+                        app.translator.trans('core.admin.email.port_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_port() || '', oninput: m.withAttr('value', this.values.mail_port) }),
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.username')
+                        app.translator.trans('core.admin.email.username_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_username() || '', oninput: m.withAttr('value', this.values.mail_username) }),
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.password')
+                        app.translator.trans('core.admin.email.password_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_password() || '', oninput: m.withAttr('value', this.values.mail_password) }),
                       m(
                         'label',
                         null,
-                        app.translator.trans('core.admin.mail.encryption')
+                        app.translator.trans('core.admin.email.encryption_label')
                       ),
                       m('input', { className: 'FormControl', value: this.values.mail_encryption() || '', oninput: m.withAttr('value', this.values.mail_encryption) })
                     )]
@@ -19050,7 +19050,7 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
                   Button.component({
                     type: 'submit',
                     className: 'Button Button--primary',
-                    children: app.translator.trans('core.admin.mail.submit_button'),
+                    children: app.translator.trans('core.admin.email.submit_button'),
                     loading: this.loading,
                     disabled: !this.changed()
                   })
