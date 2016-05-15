@@ -7,13 +7,7 @@
  */
 export default class KeyboardNavigatable {
   constructor() {
-    const defaultCallback = () => { /* noop */ };
-
-    // Set all callbacks to a noop function so that not all of them have to be set.
-    this.upCallback = defaultCallback;
-    this.downCallback = defaultCallback;
-    this.selectCallback = defaultCallback;
-    this.cancelCallback = defaultCallback;
+    this.callbacks = {};
 
     // By default, always handle keyboard navigation.
     this.whenCallback = () => true;
@@ -29,7 +23,7 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onUp(callback) {
-    this.upCallback = callback;
+    this.callbacks[38] = callback;
 
     return this;
   }
@@ -44,7 +38,7 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onDown(callback) {
-    this.downCallback = callback;
+    this.callbacks[40] = callback;
 
     return this;
   }
@@ -59,7 +53,7 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onSelect(callback) {
-    this.selectCallback = callback;
+    this.callbacks[9] = this.callbacks[13] = callback;
 
     return this;
   }
@@ -74,7 +68,7 @@ export default class KeyboardNavigatable {
    * @return {KeyboardNavigatable}
    */
   onCancel(callback) {
-    this.cancelCallback = callback;
+    this.callbacks[27] = callback;
 
     return this;
   }
@@ -113,30 +107,11 @@ export default class KeyboardNavigatable {
     // This callback determines whether keyboard should be handled or ignored.
     if (!this.whenCallback()) return;
 
-    switch (event.which) {
-      case 9: case 13: // Tab / Return
-        this.selectCallback();
-        event.preventDefault();
-        break;
-
-      case 27: // Escape
-        this.cancelCallback();
-        event.stopPropagation();
-        event.preventDefault();
-        break;
-
-      case 38: // Up
-        this.upCallback();
-        event.preventDefault();
-        break;
-
-      case 40: // Down
-        this.downCallback();
-        event.preventDefault();
-        break;
-
-      default:
-      // no default
+    const keyCallback = this.callbacks[event.which];
+    if (keyCallback) {
+      keyCallback();
+      event.stopPropagation();
+      event.preventDefault();
     }
   }
 }
