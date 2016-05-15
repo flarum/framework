@@ -36,6 +36,7 @@ export default class MailPage extends Page {
       <div className="MailPage">
         <div className="container">
           <form onsubmit={this.onsubmit.bind(this)}>
+            <h2>{app.translator.trans('core.admin.email.heading')}</h2>
             <div className="helpText">
               {app.translator.trans('core.admin.email.text')}
             </div>
