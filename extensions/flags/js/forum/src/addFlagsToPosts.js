@@ -65,7 +65,7 @@ export default function() {
 
     items.merge(controls);
 
-    items.add('dismiss', <Button className="Button Button--icon Button--link" icon="times" onclick={this.dismissFlag.bind(this)} title={app.translator.trans('flarum-flags.forum.post.dismiss_flag_tooltip')}/>, -100);
+    items.add('dismiss', <Button className="Button Button--icon Button--link" icon="ban" onclick={this.dismissFlag.bind(this)} title={app.translator.trans('flarum-flags.forum.post.dismiss_flag_tooltip')}/>, -100);
 
     return items;
   };
