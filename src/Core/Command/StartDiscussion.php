@@ -32,9 +32,10 @@ class StartDiscussion
      * @param User $actor The user authoring the discussion.
      * @param array $data The discussion attributes.
      */
-    public function __construct(User $actor, array $data)
+    public function __construct(User $actor, array $data, $ipAddress)
     {
         $this->actor = $actor;
         $this->data = $data;
+        $this->ipAddress = $ipAddress;
     }
 }
