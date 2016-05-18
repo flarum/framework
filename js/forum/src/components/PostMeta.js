@@ -35,7 +35,7 @@ export default class PostMeta extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <span className="PostMeta-number">{app.translator.trans('core.forum.post.number_tooltip', {number: post.number()})}</span>{' '}
           {fullTime(time)}
-          {post.data.attributes.canViewIp && post.data.attributes.userIp ? ' @ ' + post.data.attributes.userIp : ""}
+          {post.data.attributes.canViewIp && post.data.attributes.userIp ? ' @ ' + post.data.attributes.userIp : ''}
           {touch
             ? <a className="Button PostMeta-permalink" href={permalink}>{permalink}</a>
             : <input className="FormControl PostMeta-permalink" value={permalink} onclick={e => e.stopPropagation()} />}
