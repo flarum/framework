@@ -129,9 +129,6 @@ export default class CommentPost extends Post {
 
     items.add('user', this.postUser.render(), 100);
     items.add('meta', PostMeta.component(props));
-    if (post.data.attributes.canViewIp && post.data.attributes.userIp) {
-      items.add('ip', PostIp.component(props));
-    }
     if (post.isEdited() && !post.isHidden()) {
       items.add('edited', PostEdited.component(props));
     }
