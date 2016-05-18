@@ -172,7 +172,7 @@ export default class PermissionGrid extends Component {
 
   moderateItems() {
     const items = new ItemList();
-    
+
     items.add('viewIpOfPost', {
       icon: 'bullseye',
       label: app.translator.trans('core.admin.permissions.view_ip_post_label'),
