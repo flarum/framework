@@ -3,7 +3,6 @@ import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import ItemList from 'flarum/utils/ItemList';
 import classList from 'flarum/utils/classList';
 import extractText from 'flarum/utils/extractText';
-import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 import icon from 'flarum/helpers/icon';
 import DiscussionsSearchSource from 'flarum/components/DiscussionsSearchSource';
 import UsersSearchSource from 'flarum/components/UsersSearchSource';
@@ -122,18 +121,35 @@ export default class Search extends Component {
         );
       });
 
-    const $input = this.$('input');
+    // Handle navigation key events on the search input.
+    this.$('input')
+      .on('keydown', e => {
+        switch (e.which) {
+          case 40: case 38: // Down/Up
+            this.setIndex(this.getCurrentNumericIndex() + (e.which === 40 ? 1 : -1), true);
+            e.preventDefault();
+            break;
 
-    this.navigator = new KeyboardNavigatable();
-    this.navigator
-      .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
-      .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
-      .onSelect(this.selectResult.bind(this))
-      .onCancel(this.clear.bind(this))
-      .bindTo($input);
+          case 13: // Return
+            if (this.value()) {
+              m.route(this.getItem(this.index).find('a').attr('href'));
+            } else {
+              this.clear();
+            }
+            this.$('input').blur();
+            break;
 
-    // Handle input key events on the search input, triggering results to load.
-    $input
+          case 27: // Escape
+            this.clear();
+            break;
+
+          default:
+            // no default
+        }
+      })
+
+      // Handle input key events on the search input, triggering results to
+      // load.
       .on('input focus', function() {
         const query = this.value.toLowerCase();
 
@@ -173,19 +189,6 @@ export default class Search extends Component {
    */
   getCurrentSearch() {
     return app.current && typeof app.current.searching === 'function' && app.current.searching();
-  }
-
-  /**
-   * Navigate to the currently selected search result and close the list.
-   */
-  selectResult() {
-    if (this.value()) {
-      m.route(this.getItem(this.index).find('a').attr('href'));
-    } else {
-      this.clear();
-    }
-
-    this.$('input').blur();
   }
 
   /**

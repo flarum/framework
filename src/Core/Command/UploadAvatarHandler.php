@@ -96,10 +96,7 @@ class UploadAvatarHandler
         $this->validator->assertValid(['avatar' => $file]);
 
         $manager = new ImageManager;
-
-        // Explicitly tell Intervention to encode the image as JSON (instead of having to guess from the extension)
-        $encodedImage = $manager->make($tmpFile)->fit(100, 100)->encode('jpg', 100);
-        file_put_contents($tmpFile, $encodedImage);
+        $manager->make($tmpFile)->fit(100, 100)->save();
 
         $this->events->fire(
             new AvatarWillBeSaved($user, $actor, $tmpFile)

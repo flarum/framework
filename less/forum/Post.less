@@ -116,32 +116,17 @@
     border-bottom: 2px dotted @body-bg;
     margin: 1em 0;
   }
-  // Inline code
-  code {
-    font-family: source-code-pro, Monaco, Consolas, "Courier New", monospace;
-    padding: 5px;
-    background: @code-bg;
-    color: @code-color;
-    line-height: 1.3;
-    font-size: 90%;
-    border-radius: 4px
-  }
-  // Code blocks
   pre {
     border: 0;
     padding: 15px;
-    background: @code-bg;
+    background: darken(@body-bg, 3%);
     color: #666;
     font-size: 90%;
     border-radius: @border-radius;
 
-    code {
+    .hljs {
       padding: 0;
       background: none;
-      color: inherit;
-      line-height: inherit;
-      font-size: 100%;
-      border-radius: 0;
     }
   }
   h1 {
@@ -273,10 +258,6 @@
   margin-top: -5px;
   float: right;
   position: relative;
-
-  // Make sure the post actions are not covered by relatively positioned items in the post footer
-  z-index: 2;
-
   .transition(opacity 0.2s);
 
   .EventPost &, .Post--hidden:not(.revealContent) & {
