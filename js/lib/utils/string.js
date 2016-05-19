@@ -34,11 +34,11 @@ export function slug(string) {
  * @return {String}
  */
 export function getPlainContent(string) {
-  const dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;'));
+  const dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img/g, '<eximg'));
 
   dom.find(getPlainContent.removeSelectors.join(',')).remove();
 
-  return dom.text();
+  return dom.text().replace(/([\S^\s])[\s]+([\S$\s])/g, '$1 $2');
 }
 
 /**
