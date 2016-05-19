@@ -24351,13 +24351,11 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
 });;
 'use strict';
 
-System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export, _context) {
-  var Component, icon, humanTime, extractText, PostEdited;
+System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export, _context) {
+  var Component, humanTime, extractText, PostEdited;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon.default;
     }, function (_flarumUtilsHumanTime) {
       humanTime = _flarumUtilsHumanTime.default;
     }, function (_flarumUtilsExtractText) {
@@ -24377,12 +24375,12 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/hel
           value: function view() {
             var post = this.props.post;
             var editUser = post.editUser();
-            var title = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editUser, ago: humanTime(post.editTime()) }));
+            var editedInfo = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editUser, ago: humanTime(post.editTime()) }));
 
             return m(
               'span',
-              { className: 'PostEdited', title: title },
-              icon('pencil')
+              { className: 'PostEdited' },
+              editedInfo
             );
           }
         }, {
@@ -25141,7 +25139,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
               index: m(
                 'span',
                 { className: 'Scrubber-index' },
-                retain || formatNumber(Math.ceil(this.index + this.visible))
+                retain || formatNumber(Math.min(Math.ceil(this.index + this.visible), count))
               ),
               count: m(
                 'span',
@@ -26139,8 +26137,8 @@ System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal
 });;
 'use strict';
 
-System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export, _context) {
-  var Component, LoadingIndicator, ItemList, classList, extractText, icon, DiscussionsSearchSource, UsersSearchSource, Search;
+System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/utils/KeyboardNavigatable', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export, _context) {
+  var Component, LoadingIndicator, ItemList, classList, extractText, KeyboardNavigatable, icon, DiscussionsSearchSource, UsersSearchSource, Search;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -26152,6 +26150,8 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
       classList = _flarumUtilsClassList.default;
     }, function (_flarumUtilsExtractText) {
       extractText = _flarumUtilsExtractText.default;
+    }, function (_flarumUtilsKeyboardNavigatable) {
+      KeyboardNavigatable = _flarumUtilsKeyboardNavigatable.default;
     }, function (_flarumHelpersIcon) {
       icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsDiscussionsSearchSource) {
@@ -26288,38 +26288,17 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
               search.setIndex(search.selectableItems().index(this));
             });
 
-            // Handle navigation key events on the search input.
-            this.$('input').on('keydown', function (e) {
-              switch (e.which) {
-                case 40:case 38:
-                  // Down/Up
-                  _this3.setIndex(_this3.getCurrentNumericIndex() + (e.which === 40 ? 1 : -1), true);
-                  e.preventDefault();
-                  break;
+            var $input = this.$('input');
 
-                case 13:
-                  // Return
-                  if (_this3.value()) {
-                    m.route(_this3.getItem(_this3.index).find('a').attr('href'));
-                  } else {
-                    _this3.clear();
-                  }
-                  _this3.$('input').blur();
-                  break;
+            this.navigator = new KeyboardNavigatable();
+            this.navigator.onUp(function () {
+              return _this3.setIndex(_this3.getCurrentNumericIndex() - 1, true);
+            }).onDown(function () {
+              return _this3.setIndex(_this3.getCurrentNumericIndex() + 1, true);
+            }).onSelect(this.selectResult.bind(this)).onCancel(this.clear.bind(this)).bindTo($input);
 
-                case 27:
-                  // Escape
-                  _this3.clear();
-                  break;
-
-                default:
-                // no default
-              }
-            })
-
-            // Handle input key events on the search input, triggering results to
-            // load.
-            .on('input focus', function () {
+            // Handle input key events on the search input, triggering results to load.
+            $input.on('input focus', function () {
               var query = this.value.toLowerCase();
 
               if (!query) return;
@@ -26354,6 +26333,17 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
           key: 'getCurrentSearch',
           value: function getCurrentSearch() {
             return app.current && typeof app.current.searching === 'function' && app.current.searching();
+          }
+        }, {
+          key: 'selectResult',
+          value: function selectResult() {
+            if (this.value()) {
+              m.route(this.getItem(this.index).find('a').attr('href'));
+            } else {
+              this.clear();
+            }
+
+            this.$('input').blur();
           }
         }, {
           key: 'clear',
@@ -31632,6 +31622,121 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
           app.modal.show(new EditUserModal({ user: this }));
         }
       });
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _context) {
+  var KeyboardNavigatable;
+  return {
+    setters: [],
+    execute: function () {
+      KeyboardNavigatable = function () {
+        function KeyboardNavigatable() {
+          babelHelpers.classCallCheck(this, KeyboardNavigatable);
+
+          this.callbacks = {};
+
+          // By default, always handle keyboard navigation.
+          this.whenCallback = function () {
+            return true;
+          };
+        }
+
+        /**
+         * Provide a callback to be executed when navigating upwards.
+         *
+         * This will be triggered by the Up key.
+         *
+         * @public
+         * @param {Function} callback
+         * @return {KeyboardNavigatable}
+         */
+
+
+        babelHelpers.createClass(KeyboardNavigatable, [{
+          key: 'onUp',
+          value: function onUp(callback) {
+            this.callbacks[38] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onDown',
+          value: function onDown(callback) {
+            this.callbacks[40] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onSelect',
+          value: function onSelect(callback) {
+            this.callbacks[9] = this.callbacks[13] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onCancel',
+          value: function onCancel(callback) {
+            this.callbacks[27] = function (e) {
+              e.stopPropagation();
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onRemove',
+          value: function onRemove(callback) {
+            this.callbacks[8] = function (e) {
+              if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
+                callback(e);
+                e.preventDefault();
+              }
+            };
+
+            return this;
+          }
+        }, {
+          key: 'when',
+          value: function when(callback) {
+            this.whenCallback = callback;
+
+            return this;
+          }
+        }, {
+          key: 'bindTo',
+          value: function bindTo($element) {
+            // Handle navigation key events on the navigatable element.
+            $element.on('keydown', this.navigate.bind(this));
+          }
+        }, {
+          key: 'navigate',
+          value: function navigate(event) {
+            // This callback determines whether keyboard should be handled or ignored.
+            if (!this.whenCallback()) return;
+
+            var keyCallback = this.callbacks[event.which];
+            if (keyCallback) {
+              keyCallback(event);
+            }
+          }
+        }]);
+        return KeyboardNavigatable;
+      }();
+
+      _export('default', KeyboardNavigatable);
     }
   };
 });

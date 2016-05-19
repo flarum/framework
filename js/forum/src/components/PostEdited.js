@@ -1,5 +1,4 @@
 import Component from 'flarum/Component';
-import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/utils/humanTime';
 import extractText from 'flarum/utils/extractText';
 
@@ -15,10 +14,13 @@ export default class PostEdited extends Component {
   view() {
     const post = this.props.post;
     const editUser = post.editUser();
-    const title = extractText(app.translator.trans('core.forum.post.edited_tooltip', {user: editUser, ago: humanTime(post.editTime())}));
+    const editedInfo = extractText(app.translator.trans(
+      'core.forum.post.edited_tooltip',
+      {user: editUser, ago: humanTime(post.editTime())}
+    ));
 
     return (
-      <span className="PostEdited" title={title}>{icon('pencil')}</span>
+      <span className="PostEdited">{editedInfo}</span>
     );
   }
 

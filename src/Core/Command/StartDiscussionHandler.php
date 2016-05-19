@@ -55,7 +55,6 @@ class StartDiscussionHandler
     {
         $actor = $command->actor;
         $data = $command->data;
-        $ipAddress = $command->ipAddress;
 
         $this->assertCan($actor, 'startDiscussion');
 
@@ -80,7 +79,7 @@ class StartDiscussionHandler
         // We will do this by running the PostReply command.
         try {
             $post = $this->bus->dispatch(
-                new PostReply($discussion->id, $actor, $data, $ipAddress)
+                new PostReply($discussion->id, $actor, $data)
             );
         } catch (Exception $e) {
             $discussion->delete();

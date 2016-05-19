@@ -41,16 +41,11 @@ class PostSerializer extends PostBasicSerializer
 
         $canEdit = $gate->allows('edit', $post);
 
-        $canViewIp = $gate->allows('viewIpOfPost', $post);
-
         if ($post instanceof CommentPost) {
             $attributes['contentHtml'] = $post->content_html;
 
             if ($canEdit) {
                 $attributes['content'] = $post->content;
-            }
-            if ($canViewIp) {
-                $attributes['userIp'] = $post->ip_address;
             }
         } else {
             $attributes['content'] = $post->content;
@@ -67,8 +62,7 @@ class PostSerializer extends PostBasicSerializer
 
         $attributes += [
             'canEdit'   => $canEdit,
-            'canDelete' => $gate->allows('delete', $post),
-            'canViewIp' => $canViewIp,
+            'canDelete' => $gate->allows('delete', $post)
         ];
 
         return $attributes;
