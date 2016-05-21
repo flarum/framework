@@ -88,8 +88,6 @@ core:
     # These translations are used in the Extensions page.
     extensions:
       add_button: Add Extension
-      disable_button: Disable
-      enable_button: Enable
       settings_button: => core.ref.settings
       uninstall_button: Uninstall
 
@@ -157,7 +155,7 @@ core:
     # These translations are used in the Change Email modal dialog.
     change_email:
       confirmation_message: => core.ref.confirmation_email_sent
-      confirm_password_label: => core.ref.confirm_password
+      confirm_password_placeholder: => core.ref.confirm_password
       dismiss_button: => core.ref.okay
       incorrect_password_message: The password you entered is incorrect.
       submit_button: => core.ref.save_changes
@@ -224,6 +222,7 @@ core:
       email_label: => core.ref.email
       password_label: => core.ref.password
       submit_button: => core.ref.save_changes
+      title: Edit User
       username_label: => core.ref.username
 
     # These translations are used in the Forgot Password modal dialog.
@@ -426,6 +425,7 @@ core:
 
     # These translations are used in emails sent when users register new accounts.
     activate_account:
+      subject: Activate Your New Account
       body: |
         Hey {username}!
 
@@ -435,10 +435,10 @@ core:
         {url}
 
         If you did not sign up, please ignore this email.
-      subject: Activate Your New Account
 
     # These translations are used in emails sent when users change their email address.
     confirm_email:
+      subject: Confirm Your New Email Address
       body: |
         Hey {username}!
 
@@ -448,10 +448,10 @@ core:
         {url}
 
         If this was not you, please ignore this email.
-      subject: Confirm Your New Email Address
 
     # These translations are used in emails sent when users ask to reset their passwords.
     reset_password:
+      subject: => core.ref.reset_your_password
       body: |
         Hey {username}!
 
@@ -461,7 +461,6 @@ core:
         {url}
 
         If you do not wish to change your password, just ignore this email and nothing will happen.
-      subject: => core.ref.reset_your_password
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
