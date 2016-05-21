@@ -74,7 +74,7 @@ export default class Translator {
           if (match[2]) {
             open.shift();
           } else {
-            let tag = input[match[3]] || [];
+            let tag = input[match[3]] || {tag: match[3], children: []};
             open[0].push(tag);
             open.unshift(tag.children || tag);
           }

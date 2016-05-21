@@ -18368,7 +18368,7 @@ System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 
                   m(
                     'div',
                     { className: 'helpText' },
-                    app.translator.trans('core.admin.edit_group.icon_text', { a: m('a', { href: 'http://fortawesome.github.io/Font-Awesome/icons/', tabindex: '-1' }) }, { em: m('em', null) }, { code: m('code', null) })
+                    app.translator.trans('core.admin.edit_group.icon_text', { a: m('a', { href: 'http://fortawesome.github.io/Font-Awesome/icons/', tabindex: '-1' }) })
                   ),
                   m('input', { className: 'FormControl', placeholder: 'bolt', value: this.icon(), oninput: m.withAttr('value', this.icon) })
                 ),
@@ -22146,7 +22146,7 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
                   if (match[2]) {
                     open.shift();
                   } else {
-                    var tag = input[match[3]] || [];
+                    var tag = input[match[3]] || { tag: match[3], children: [] };
                     open[0].push(tag);
                     open.unshift(tag.children || tag);
                   }
