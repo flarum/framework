@@ -63,9 +63,17 @@ export default function() {
       extend(props, 'onclick', () => this.dismissFlag());
     });
 
-    items.merge(controls);
+    items.add('controls', (
+      <div className="ButtonGroup">
+        {controls.toArray()}
+      </div>
+    ));
 
-    items.add('dismiss', <Button className="Button Button--icon Button--link" icon="ban" onclick={this.dismissFlag.bind(this)} title={app.translator.trans('flarum-flags.forum.post.dismiss_flag_tooltip')}/>, -100);
+    items.add('dismiss', (
+      <Button className="Button" icon="eye-slash" onclick={this.dismissFlag.bind(this)}>
+        {app.translator.trans('flarum-flags.forum.post.dismiss_flag_button')}
+      </Button>
+    ), -100);
 
     return items;
   };

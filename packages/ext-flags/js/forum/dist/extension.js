@@ -123,9 +123,17 @@ System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 
         });
       });
 
-      items.merge(controls);
+      items.add('controls', m(
+        'div',
+        { className: 'ButtonGroup' },
+        controls.toArray()
+      ));
 
-      items.add('dismiss', m(Button, { className: 'Button Button--icon Button--link', icon: 'times', onclick: this.dismissFlag.bind(this), title: app.translator.trans('flarum-flags.forum.post.dismiss_flag_tooltip') }), -100);
+      items.add('dismiss', m(
+        Button,
+        { className: 'Button', icon: 'eye-slash', onclick: this.dismissFlag.bind(this) },
+        app.translator.trans('flarum-flags.forum.post.dismiss_flag_button')
+      ), -100);
 
       return items;
     };
