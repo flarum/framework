@@ -19887,6 +19887,12 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
           value: function moderateItems() {
             var items = new ItemList();
 
+            items.add('viewPostIps', {
+              icon: 'bullseye',
+              label: app.translator.trans('core.admin.permissions.view_post_ips_label'),
+              permission: 'discussion.viewPostIps'
+            }, 110);
+
             items.add('renameDiscussions', {
               icon: 'i-cursor',
               label: app.translator.trans('core.admin.permissions.rename_discussions_label'),

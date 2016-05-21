@@ -24456,7 +24456,17 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
                   app.translator.trans('core.forum.post.number_tooltip', { number: post.number() })
                 ),
                 ' ',
-                fullTime(time),
+                m(
+                  'span',
+                  { className: 'PostMeta-time' },
+                  fullTime(time)
+                ),
+                ' ',
+                m(
+                  'span',
+                  { className: 'PostMeta-ip' },
+                  post.data.attributes.ipAddress
+                ),
                 touch ? m(
                   'a',
                   { className: 'Button PostMeta-permalink', href: permalink },
