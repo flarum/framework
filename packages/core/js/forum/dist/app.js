@@ -29718,7 +29718,7 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
                   if (match[2]) {
                     open.shift();
                   } else {
-                    var tag = input[match[3]] || [];
+                    var tag = input[match[3]] || { tag: match[3], children: [] };
                     open[0].push(tag);
                     open.unshift(tag.children || tag);
                   }
