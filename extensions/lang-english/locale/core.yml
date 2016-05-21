@@ -283,6 +283,7 @@ core:
 
     # These translations are used by tooltips displayed for individual posts.
     post:
+      edited_text: "Edited"
       edited_tooltip: "{username} edited {ago}"
       number_tooltip: "Post #{number}"
 
