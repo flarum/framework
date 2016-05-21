@@ -43,6 +43,11 @@ abstract class AbstractServer
     protected $config;
 
     /**
+     * @var callable[]
+     */
+    protected $registerCallbacks = [];
+
+    /**
      * @param null $basePath
      * @param null $publicPath
      */
@@ -129,6 +134,14 @@ abstract class AbstractServer
     }
 
     /**
+     * @param callable $callback
+     */
+    public function register(callable $callback)
+    {
+        $this->registerCallbacks[] = $callback;
+    }
+
+    /**
      * @return Application
      */
     protected function getApp()
@@ -179,6 +192,11 @@ abstract class AbstractServer
             $app->register('Flarum\Api\ApiServiceProvider');
             $app->register('Flarum\Forum\ForumServiceProvider');
             $app->register('Flarum\Admin\AdminServiceProvider');
+
+            foreach ($this->registerCallbacks as $callback) {
+                $callback($app);
+            }
+
             $app->register('Flarum\Extension\ExtensionServiceProvider');
         }
 
