@@ -24379,8 +24379,8 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/uti
 
             return m(
               'span',
-              { className: 'PostEdited' },
-              editedInfo
+              { className: 'PostEdited', title: editedInfo },
+              app.translator.trans('core.forum.post.edited_text')
             );
           }
         }, {
