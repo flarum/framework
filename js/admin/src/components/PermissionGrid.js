@@ -173,35 +173,41 @@ export default class PermissionGrid extends Component {
   moderateItems() {
     const items = new ItemList();
 
+    items.add('viewIpOfPost', {
+      icon: 'bullseye',
+      label: app.translator.trans('core.admin.permissions.view_ip_post_label'),
+      permission: 'discussion.viewIpOfPost'
+    }, 100);
+    
     items.add('renameDiscussions', {
       icon: 'i-cursor',
       label: app.translator.trans('core.admin.permissions.rename_discussions_label'),
       permission: 'discussion.rename'
-    }, 100);
+    }, 90);
 
     items.add('hideDiscussions', {
       icon: 'trash-o',
       label: app.translator.trans('core.admin.permissions.delete_discussions_label'),
       permission: 'discussion.hide'
-    }, 90);
+    }, 80);
 
     items.add('deleteDiscussions', {
       icon: 'times',
       label: app.translator.trans('core.admin.permissions.delete_discussions_forever_label'),
       permission: 'discussion.delete'
-    }, 80);
+    }, 70);
 
     items.add('editPosts', {
       icon: 'pencil',
       label: app.translator.trans('core.admin.permissions.edit_and_delete_posts_label'),
       permission: 'discussion.editPosts'
-    }, 70);
+    }, 60);
 
     items.add('deletePosts', {
       icon: 'times',
       label: app.translator.trans('core.admin.permissions.delete_posts_forever_label'),
       permission: 'discussion.deletePosts'
-    }, 60);
+    }, 50);
 
     return items;
   }
