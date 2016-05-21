@@ -30708,6 +30708,121 @@ System.register("flarum/utils/ItemList", [], function (_export, _context) {
 });;
 'use strict';
 
+System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _context) {
+  var KeyboardNavigatable;
+  return {
+    setters: [],
+    execute: function () {
+      KeyboardNavigatable = function () {
+        function KeyboardNavigatable() {
+          babelHelpers.classCallCheck(this, KeyboardNavigatable);
+
+          this.callbacks = {};
+
+          // By default, always handle keyboard navigation.
+          this.whenCallback = function () {
+            return true;
+          };
+        }
+
+        /**
+         * Provide a callback to be executed when navigating upwards.
+         *
+         * This will be triggered by the Up key.
+         *
+         * @public
+         * @param {Function} callback
+         * @return {KeyboardNavigatable}
+         */
+
+
+        babelHelpers.createClass(KeyboardNavigatable, [{
+          key: 'onUp',
+          value: function onUp(callback) {
+            this.callbacks[38] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onDown',
+          value: function onDown(callback) {
+            this.callbacks[40] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onSelect',
+          value: function onSelect(callback) {
+            this.callbacks[9] = this.callbacks[13] = function (e) {
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onCancel',
+          value: function onCancel(callback) {
+            this.callbacks[27] = function (e) {
+              e.stopPropagation();
+              e.preventDefault();
+              callback(e);
+            };
+
+            return this;
+          }
+        }, {
+          key: 'onRemove',
+          value: function onRemove(callback) {
+            this.callbacks[8] = function (e) {
+              if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
+                callback(e);
+                e.preventDefault();
+              }
+            };
+
+            return this;
+          }
+        }, {
+          key: 'when',
+          value: function when(callback) {
+            this.whenCallback = callback;
+
+            return this;
+          }
+        }, {
+          key: 'bindTo',
+          value: function bindTo($element) {
+            // Handle navigation key events on the navigatable element.
+            $element.on('keydown', this.navigate.bind(this));
+          }
+        }, {
+          key: 'navigate',
+          value: function navigate(event) {
+            // This callback determines whether keyboard should be handled or ignored.
+            if (!this.whenCallback()) return;
+
+            var keyCallback = this.callbacks[event.which];
+            if (keyCallback) {
+              keyCallback(event);
+            }
+          }
+        }]);
+        return KeyboardNavigatable;
+      }();
+
+      _export('default', KeyboardNavigatable);
+    }
+  };
+});;
+'use strict';
+
 System.register('flarum/utils/mapRoutes', [], function (_export, _context) {
   function mapRoutes(routes) {
     var basePath = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
@@ -31622,121 +31737,6 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
           app.modal.show(new EditUserModal({ user: this }));
         }
       });
-    }
-  };
-});;
-'use strict';
-
-System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _context) {
-  var KeyboardNavigatable;
-  return {
-    setters: [],
-    execute: function () {
-      KeyboardNavigatable = function () {
-        function KeyboardNavigatable() {
-          babelHelpers.classCallCheck(this, KeyboardNavigatable);
-
-          this.callbacks = {};
-
-          // By default, always handle keyboard navigation.
-          this.whenCallback = function () {
-            return true;
-          };
-        }
-
-        /**
-         * Provide a callback to be executed when navigating upwards.
-         *
-         * This will be triggered by the Up key.
-         *
-         * @public
-         * @param {Function} callback
-         * @return {KeyboardNavigatable}
-         */
-
-
-        babelHelpers.createClass(KeyboardNavigatable, [{
-          key: 'onUp',
-          value: function onUp(callback) {
-            this.callbacks[38] = function (e) {
-              e.preventDefault();
-              callback(e);
-            };
-
-            return this;
-          }
-        }, {
-          key: 'onDown',
-          value: function onDown(callback) {
-            this.callbacks[40] = function (e) {
-              e.preventDefault();
-              callback(e);
-            };
-
-            return this;
-          }
-        }, {
-          key: 'onSelect',
-          value: function onSelect(callback) {
-            this.callbacks[9] = this.callbacks[13] = function (e) {
-              e.preventDefault();
-              callback(e);
-            };
-
-            return this;
-          }
-        }, {
-          key: 'onCancel',
-          value: function onCancel(callback) {
-            this.callbacks[27] = function (e) {
-              e.stopPropagation();
-              e.preventDefault();
-              callback(e);
-            };
-
-            return this;
-          }
-        }, {
-          key: 'onRemove',
-          value: function onRemove(callback) {
-            this.callbacks[8] = function (e) {
-              if (e.target.selectionStart === 0 && e.target.selectionEnd === 0) {
-                callback(e);
-                e.preventDefault();
-              }
-            };
-
-            return this;
-          }
-        }, {
-          key: 'when',
-          value: function when(callback) {
-            this.whenCallback = callback;
-
-            return this;
-          }
-        }, {
-          key: 'bindTo',
-          value: function bindTo($element) {
-            // Handle navigation key events on the navigatable element.
-            $element.on('keydown', this.navigate.bind(this));
-          }
-        }, {
-          key: 'navigate',
-          value: function navigate(event) {
-            // This callback determines whether keyboard should be handled or ignored.
-            if (!this.whenCallback()) return;
-
-            var keyCallback = this.callbacks[event.which];
-            if (keyCallback) {
-              keyCallback(event);
-            }
-          }
-        }]);
-        return KeyboardNavigatable;
-      }();
-
-      _export('default', KeyboardNavigatable);
     }
   };
 });
