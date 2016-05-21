@@ -29,7 +29,7 @@ export default class EditUserModal extends Modal {
   }
 
   title() {
-    return 'Edit User';
+    return app.translator.trans('core.forum.edit_user.title');
   }
 
   content() {
