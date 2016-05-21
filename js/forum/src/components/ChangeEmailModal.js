@@ -66,7 +66,7 @@ export default class ChangeEmailModal extends Modal {
           </div>
           <div className="Form-group">
             <input type="password" name="password" className="FormControl"
-              placeholder={app.translator.trans('core.forum.change_email.confirm_password_label')}
+              placeholder={app.translator.trans('core.forum.change_email.confirm_password_placeholder')}
               bidi={this.password}
               disabled={this.loading}/>
           </div>
