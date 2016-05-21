@@ -16,6 +16,7 @@ use Flarum\Core\PasswordToken;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class ResetPasswordController extends AbstractHtmlController
 {
@@ -25,11 +26,17 @@ class ResetPasswordController extends AbstractHtmlController
     protected $view;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
      * @param Factory $view
      */
-    public function __construct(Factory $view)
+    public function __construct(Factory $view, TranslatorInterface $translator)
     {
         $this->view = $view;
+        $this->translator = $translator;
     }
 
     /**
@@ -48,6 +55,7 @@ class ResetPasswordController extends AbstractHtmlController
         }
 
         return $this->view->make('flarum::reset')
+            ->with('translator', $this->translator)
             ->with('passwordToken', $token->id)
             ->with('csrfToken', $request->getAttribute('session')->get('csrf_token'));
     }
