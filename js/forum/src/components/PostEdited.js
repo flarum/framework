@@ -20,7 +20,9 @@ export default class PostEdited extends Component {
     ));
 
     return (
-      <span className="PostEdited">{editedInfo}</span>
+      <span className="PostEdited" title={editedInfo}>
+        {app.translator.trans('core.forum.post.edited_text')}
+      </span>
     );
   }
 
