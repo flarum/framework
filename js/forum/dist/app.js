@@ -19339,7 +19339,7 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
                   'div',
                   { className: 'Form-group' },
                   m('input', { type: 'password', name: 'password', className: 'FormControl',
-                    placeholder: app.translator.trans('core.forum.change_email.confirm_password_label'),
+                    placeholder: app.translator.trans('core.forum.change_email.confirm_password_placeholder'),
                     bidi: this.password,
                     disabled: this.loading })
                 ),
@@ -21735,7 +21735,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
         }, {
           key: 'title',
           value: function title() {
-            return 'Edit User';
+            return app.translator.trans('core.forum.edit_user.title');
           }
         }, {
           key: 'content',
