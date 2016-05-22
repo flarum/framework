@@ -26,14 +26,21 @@ export default function addPostQuoteButton() {
             const parent = range.commonAncestorContainer;
 
             if ($postBody[0] === parent || $.contains($postBody[0], parent)) {
-              const content = $.trim(selection.toString());
+              const content = selection.toString();
 
               if (content) {
                 const button = new PostQuoteButton({post, content});
                 m.render($container[0], button.render());
 
-                const rect = range.getClientRects()[0];
-                button.show(rect.left, $(window).scrollTop() + rect.top);
+                const rects = range.getClientRects();
+                const firstRect = rects[0];
+
+                if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
+                  button.showStart(firstRect.left, firstRect.top);
+                } else {
+                  const lastRect = rects[rects.length - 1];
+                  button.showEnd(lastRect.right, lastRect.bottom);
+                }
               }
             }
           }
