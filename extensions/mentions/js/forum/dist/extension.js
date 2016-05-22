@@ -661,14 +661,21 @@ System.register('flarum/mentions/addPostQuoteButton', ['flarum/extend', 'flarum/
             var parent = range.commonAncestorContainer;
 
             if ($postBody[0] === parent || $.contains($postBody[0], parent)) {
-              var content = $.trim(selection.toString());
+              var content = selection.toString();
 
               if (content) {
                 var button = new PostQuoteButton({ post: post, content: content });
                 m.render($container[0], button.render());
 
-                var rect = range.getClientRects()[0];
-                button.show(rect.left, $(window).scrollTop() + rect.top);
+                var rects = range.getClientRects();
+                var firstRect = rects[0];
+
+                if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
+                  button.showStart(firstRect.left, firstRect.top);
+                } else {
+                  var lastRect = rects[rects.length - 1];
+                  button.showEnd(lastRect.right, lastRect.bottom);
+                }
               }
             }
           }
@@ -991,11 +998,18 @@ System.register('flarum/mentions/components/PostQuoteButton', ['flarum/component
             $(document).on('mousedown', this.hide.bind(this));
           }
         }, {
-          key: 'show',
-          value: function show(left, top) {
+          key: 'showStart',
+          value: function showStart(left, top) {
             var $this = this.$();
 
-            $this.show().css('top', top - $this.outerHeight() - 5).css('left', left);
+            $this.show().css('left', left).css('top', $(window).scrollTop() + top - $this.outerHeight() - 5);
+          }
+        }, {
+          key: 'showEnd',
+          value: function showEnd(right, bottom) {
+            var $this = this.$();
+
+            $this.show().css('left', right - $this.outerWidth()).css('top', $(window).scrollTop() + bottom + 5);
           }
         }, {
           key: 'hide',
