@@ -31481,11 +31481,13 @@ System.register('flarum/utils/string', [], function (_export, _context) {
       _export('slug', slug);
 
       function getPlainContent(string) {
-        var dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;'));
+        var html = string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img\b[^>]*>/ig, ' ');
+
+        var dom = $('<div/>').html(html);
 
         dom.find(getPlainContent.removeSelectors.join(',')).remove();
 
-        return dom.text();
+        return dom.text().replace(/\s+/g, ' ').trim();
       }
 
       /**
