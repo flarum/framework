@@ -423,7 +423,7 @@ System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/
         icon: 'tags',
         label: app.translator.trans('flarum-tags.admin.permissions.allow_edit_tags_label'),
         setting: function setting() {
-          var minutes = parseInt(app.settings.allow_tag_change, 10);
+          var minutes = parseInt(app.data.settings.allow_tag_change, 10);
 
           return SettingDropdown.component({
             defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
