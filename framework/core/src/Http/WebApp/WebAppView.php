@@ -343,7 +343,7 @@ class WebAppView
     {
         return array_map(function ($file) use ($baseUrl) {
             return $baseUrl.str_replace(public_path(), '', $file);
-        }, $files);
+        }, array_filter($files));
     }
 
     /**
