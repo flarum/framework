@@ -1,16 +1,16 @@
 <?php namespace {{namespace}}\Listener;
 
-use Flarum\Event\ConfigureClientView;
+use Flarum\Event\ConfigureWebApp;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureClientView::class, [$this, 'addAssets']);
+        $events->listen(ConfigureWebApp::class, [$this, 'addAssets']);
     }
 
-    public function addAssets(ConfigureClientView $event)
+    public function addAssets(ConfigureWebApp $event)
     {
         if ($event->isForum()) {
             $event->addAssets([

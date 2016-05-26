@@ -21,7 +21,7 @@ export default class MailPage extends Page {
     ];
     this.values = {};
 
-    const settings = app.settings;
+    const settings = app.data.settings;
     this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     this.localeOptions = {};
@@ -96,7 +96,7 @@ export default class MailPage extends Page {
   }
 
   changed() {
-    return this.fields.some(key => this.values[key]() !== app.settings[key]);
+    return this.fields.some(key => this.values[key]() !== app.data.settings[key]);
   }
 
   onsubmit(e) {

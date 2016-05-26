@@ -22,11 +22,11 @@ export default class BasicsPage extends Page {
     ];
     this.values = {};
 
-    const settings = app.settings;
+    const settings = app.data.settings;
     this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     this.localeOptions = {};
-    const locales = app.locales;
+    const locales = app.data.locales;
     for (const i in locales) {
       this.localeOptions[i] = `${locales[i]} (${i})`;
     }
@@ -110,7 +110,7 @@ export default class BasicsPage extends Page {
   }
 
   changed() {
-    return this.fields.some(key => this.values[key]() !== app.settings[key]);
+    return this.fields.some(key => this.values[key]() !== app.data.settings[key]);
   }
 
   /**

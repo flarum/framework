@@ -16,7 +16,7 @@ use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\GenerateRouteHandlerTrait;
+use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 use Tobscure\JsonApi\ErrorHandler;
 use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
@@ -24,8 +24,6 @@ use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
-    use GenerateRouteHandlerTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -101,27 +99,27 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $toController = $this->getHandlerGenerator($this->app);
+        $route = $this->app->make(RouteHandlerFactory::class);
 
         // Get forum information
         $routes->get(
             '/forum',
             'forum.show',
-            $toController('Flarum\Api\Controller\ShowForumController')
+            $route->toController(Controller\ShowForumController::class)
         );
 
         // Retrieve authentication token
         $routes->post(
             '/token',
             'token',
-            $toController('Flarum\Api\Controller\TokenController')
+            $route->toController(Controller\TokenController::class)
         );
 
         // Send forgot password email
         $routes->post(
             '/forgot',
             'forgot',
-            $toController('Flarum\Api\Controller\ForgotPasswordController')
+            $route->toController(Controller\ForgotPasswordController::class)
         );
 
         /*
@@ -134,56 +132,56 @@ class ApiServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/users',
             'users.index',
-            $toController('Flarum\Api\Controller\ListUsersController')
+            $route->toController(Controller\ListUsersController::class)
         );
 
         // Register a user
         $routes->post(
             '/users',
             'users.create',
-            $toController('Flarum\Api\Controller\CreateUserController')
+            $route->toController(Controller\CreateUserController::class)
         );
 
         // Get a single user
         $routes->get(
             '/users/{id}',
             'users.show',
-            $toController('Flarum\Api\Controller\ShowUserController')
+            $route->toController(Controller\ShowUserController::class)
         );
 
         // Edit a user
         $routes->patch(
             '/users/{id}',
             'users.update',
-            $toController('Flarum\Api\Controller\UpdateUserController')
+            $route->toController(Controller\UpdateUserController::class)
         );
 
         // Delete a user
         $routes->delete(
             '/users/{id}',
             'users.delete',
-            $toController('Flarum\Api\Controller\DeleteUserController')
+            $route->toController(Controller\DeleteUserController::class)
         );
 
         // Upload avatar
         $routes->post(
             '/users/{id}/avatar',
             'users.avatar.upload',
-            $toController('Flarum\Api\Controller\UploadAvatarController')
+            $route->toController(Controller\UploadAvatarController::class)
         );
 
         // Remove avatar
         $routes->delete(
             '/users/{id}/avatar',
             'users.avatar.delete',
-            $toController('Flarum\Api\Controller\DeleteAvatarController')
+            $route->toController(Controller\DeleteAvatarController::class)
         );
 
         // send confirmation email
         $routes->post(
             '/users/{id}/send-confirmation',
             'users.confirmation.send',
-            $toController('Flarum\Api\Controller\SendConfirmationEmailController')
+            $route->toController(Controller\SendConfirmationEmailController::class)
         );
 
         /*
@@ -196,21 +194,21 @@ class ApiServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/notifications',
             'notifications.index',
-            $toController('Flarum\Api\Controller\ListNotificationsController')
+            $route->toController(Controller\ListNotificationsController::class)
         );
 
         // Mark all notifications as read
         $routes->post(
             '/notifications/read',
             'notifications.readAll',
-            $toController('Flarum\Api\Controller\ReadAllNotificationsController')
+            $route->toController(Controller\ReadAllNotificationsController::class)
         );
 
         // Mark a single notification as read
         $routes->patch(
             '/notifications/{id}',
             'notifications.update',
-            $toController('Flarum\Api\Controller\UpdateNotificationController')
+            $route->toController(Controller\UpdateNotificationController::class)
         );
 
         /*
@@ -223,35 +221,35 @@ class ApiServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/discussions',
             'discussions.index',
-            $toController('Flarum\Api\Controller\ListDiscussionsController')
+            $route->toController(Controller\ListDiscussionsController::class)
         );
 
         // Create a discussion
         $routes->post(
             '/discussions',
             'discussions.create',
-            $toController('Flarum\Api\Controller\CreateDiscussionController')
+            $route->toController(Controller\CreateDiscussionController::class)
         );
 
         // Show a single discussion
         $routes->get(
             '/discussions/{id}',
             'discussions.show',
-            $toController('Flarum\Api\Controller\ShowDiscussionController')
+            $route->toController(Controller\ShowDiscussionController::class)
         );
 
         // Edit a discussion
         $routes->patch(
             '/discussions/{id}',
             'discussions.update',
-            $toController('Flarum\Api\Controller\UpdateDiscussionController')
+            $route->toController(Controller\UpdateDiscussionController::class)
         );
 
         // Delete a discussion
         $routes->delete(
             '/discussions/{id}',
             'discussions.delete',
-            $toController('Flarum\Api\Controller\DeleteDiscussionController')
+            $route->toController(Controller\DeleteDiscussionController::class)
         );
 
         /*
@@ -264,35 +262,35 @@ class ApiServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/posts',
             'posts.index',
-            $toController('Flarum\Api\Controller\ListPostsController')
+            $route->toController(Controller\ListPostsController::class)
         );
 
         // Create a post
         $routes->post(
             '/posts',
             'posts.create',
-            $toController('Flarum\Api\Controller\CreatePostController')
+            $route->toController(Controller\CreatePostController::class)
         );
 
         // Show a single or multiple posts by ID
         $routes->get(
             '/posts/{id}',
             'posts.show',
-            $toController('Flarum\Api\Controller\ShowPostController')
+            $route->toController(Controller\ShowPostController::class)
         );
 
         // Edit a post
         $routes->patch(
             '/posts/{id}',
             'posts.update',
-            $toController('Flarum\Api\Controller\UpdatePostController')
+            $route->toController(Controller\UpdatePostController::class)
         );
 
         // Delete a post
         $routes->delete(
             '/posts/{id}',
             'posts.delete',
-            $toController('Flarum\Api\Controller\DeletePostController')
+            $route->toController(Controller\DeletePostController::class)
         );
 
         /*
@@ -305,28 +303,28 @@ class ApiServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/groups',
             'groups.index',
-            $toController('Flarum\Api\Controller\ListGroupsController')
+            $route->toController(Controller\ListGroupsController::class)
         );
 
         // Create a group
         $routes->post(
             '/groups',
             'groups.create',
-            $toController('Flarum\Api\Controller\CreateGroupController')
+            $route->toController(Controller\CreateGroupController::class)
         );
 
         // Edit a group
         $routes->patch(
             '/groups/{id}',
             'groups.update',
-            $toController('Flarum\Api\Controller\UpdateGroupController')
+            $route->toController(Controller\UpdateGroupController::class)
         );
 
         // Delete a group
         $routes->delete(
             '/groups/{id}',
             'groups.delete',
-            $toController('Flarum\Api\Controller\DeleteGroupController')
+            $route->toController(Controller\DeleteGroupController::class)
         );
 
         /*
@@ -339,32 +337,32 @@ class ApiServiceProvider extends AbstractServiceProvider
         $routes->patch(
             '/extensions/{name}',
             'extensions.update',
-            $toController('Flarum\Api\Controller\UpdateExtensionController')
+            $route->toController(Controller\UpdateExtensionController::class)
         );
 
         // Uninstall an extension
         $routes->delete(
             '/extensions/{name}',
             'extensions.delete',
-            $toController('Flarum\Api\Controller\UninstallExtensionController')
+            $route->toController(Controller\UninstallExtensionController::class)
         );
 
         // Update settings
         $routes->post(
             '/settings',
             'settings',
-            $toController('Flarum\Api\Controller\SetSettingsController')
+            $route->toController(Controller\SetSettingsController::class)
         );
 
         // Update a permission
         $routes->post(
             '/permission',
             'permission',
-            $toController('Flarum\Api\Controller\SetPermissionController')
+            $route->toController(Controller\SetPermissionController::class)
         );
 
         $this->app->make('events')->fire(
-            new ConfigureApiRoutes($routes, $toController)
+            new ConfigureApiRoutes($routes, $route)
         );
     }
 }

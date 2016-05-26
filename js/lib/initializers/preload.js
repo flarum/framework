@@ -13,12 +13,12 @@ import Session from 'flarum/Session';
  * @param {App} app
  */
 export default function preload(app) {
-  app.store.pushPayload({data: app.preload.data});
+  app.store.pushPayload({data: app.data.resources});
 
   app.forum = app.store.getById('forums', 1);
 
   app.session = new Session(
-    app.store.getById('users', app.preload.session.userId),
-    app.preload.session.csrfToken
+    app.store.getById('users', app.data.session.userId),
+    app.data.session.csrfToken
   );
 }

@@ -10,18 +10,43 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Api\Client as ApiClient;
 use Flarum\Core\User;
+use Flarum\Forum\WebApp;
+use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class DiscussionController extends ClientController
+class DiscussionController extends WebAppController
 {
+    /**
+     * @var ApiClient
+     */
+    protected $api;
+
+    /**
+     * @var UrlGenerator
+     */
+    protected $url;
+
     /**
      * {@inheritdoc}
      */
-    public function render(Request $request)
+    public function __construct(WebApp $webApp, Dispatcher $events, ApiClient $api, UrlGenerator $url)
     {
-        $view = parent::render($request);
+        parent::__construct($webApp, $events);
+
+        $this->api = $api;
+        $this->url = $url;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getView(Request $request)
+    {
+        $view = parent::getView($request);
 
         $queryParams = $request->getQueryParams();
         $page = max(1, array_get($queryParams, 'page'));
@@ -35,7 +60,7 @@ class DiscussionController extends ClientController
             ]
         ];
 
-        $document = $this->preload($request->getAttribute('actor'), $params);
+        $document = $this->getDocument($request->getAttribute('actor'), $params);
 
         $getResource = function ($link) use ($document) {
             return array_first($document->included, function ($key, $value) use ($link) {
@@ -47,9 +72,8 @@ class DiscussionController extends ClientController
             $newQueryParams = array_merge($queryParams, $newQueryParams);
             $queryString = http_build_query($newQueryParams);
 
-            return app('Flarum\Forum\UrlGenerator')
-                ->toRoute('discussion', ['id' => $document->data->id]).
-                ($queryString ? '?'.$queryString : '');
+            return $this->url->toRoute('discussion', ['id' => $document->data->id]).
+            ($queryString ? '?'.$queryString : '');
         };
 
         $posts = [];
@@ -75,7 +99,7 @@ class DiscussionController extends ClientController
      * @return object
      * @throws RouteNotFoundException
      */
-    protected function preload(User $actor, array $params)
+    protected function getDocument(User $actor, array $params)
     {
         $response = $this->api->send('Flarum\Api\Controller\ShowDiscussionController', $actor, $params);
         $statusCode = $response->getStatusCode();

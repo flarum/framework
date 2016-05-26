@@ -8,11 +8,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Admin;
 
-/**
- * @deprecated
- */
-class ConfigureClientView extends ConfigureWebApp
+use Flarum\Http\WebApp\AbstractWebApp;
+
+class WebApp extends AbstractWebApp
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected function getName()
+    {
+        return 'admin';
+    }
 }

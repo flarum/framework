@@ -16670,24 +16670,6 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           this.routes = {};
 
           /**
-           * An object containing data to preload into the application.
-           *
-           * @type {Object}
-           * @property {Object} preload.data An array of resource objects to preload
-           *     into the data store.
-           * @property {Object} preload.document An API response document to be used
-           *     by the route that is first activated.
-           * @property {Object} preload.session A response from the /api/token
-           *     endpoint containing the session's authentication token and user ID.
-           * @public
-           */
-          this.preload = {
-            data: null,
-            document: null,
-            session: null
-          };
-
-          /**
            * An ordered list of initializers to bootstrap the application.
            *
            * @type {ItemList}
@@ -16758,10 +16740,12 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
         babelHelpers.createClass(App, [{
           key: 'boot',
-          value: function boot() {
+          value: function boot(data) {
             var _this = this;
 
-            this.translator.locale = this.locale;
+            this.data = data;
+
+            this.translator.locale = data.locale;
 
             this.initializers.toArray().forEach(function (initializer) {
               return initializer(_this);
@@ -16770,9 +16754,9 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
         }, {
           key: 'preloadedDocument',
           value: function preloadedDocument() {
-            if (app.preload.document) {
-              var results = app.store.pushPayload(app.preload.document);
-              app.preload.document = null;
+            if (this.data.document) {
+              var results = this.store.pushPayload(this.data.document);
+              this.data.document = null;
 
               return results;
             }
@@ -17500,10 +17484,10 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
           value: function init() {
             babelHelpers.get(Object.getPrototypeOf(AppearancePage.prototype), 'init', this).call(this);
 
-            this.primaryColor = m.prop(app.settings.theme_primary_color);
-            this.secondaryColor = m.prop(app.settings.theme_secondary_color);
-            this.darkMode = m.prop(app.settings.theme_dark_mode === '1');
-            this.coloredHeader = m.prop(app.settings.theme_colored_header === '1');
+            this.primaryColor = m.prop(app.data.settings.theme_primary_color);
+            this.secondaryColor = m.prop(app.data.settings.theme_secondary_color);
+            this.darkMode = m.prop(app.data.settings.theme_dark_mode === '1');
+            this.coloredHeader = m.prop(app.data.settings.theme_colored_header === '1');
           }
         }, {
           key: 'view',
@@ -17702,13 +17686,13 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
             this.fields = ['forum_title', 'forum_description', 'default_locale', 'default_route', 'welcome_title', 'welcome_message'];
             this.values = {};
 
-            var settings = app.settings;
+            var settings = app.data.settings;
             this.fields.forEach(function (key) {
               return _this2.values[key] = m.prop(settings[key]);
             });
 
             this.localeOptions = {};
-            var locales = app.locales;
+            var locales = app.data.locales;
             for (var i in locales) {
               this.localeOptions[i] = locales[i] + ' (' + i + ')';
             }
@@ -17795,7 +17779,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
             var _this4 = this;
 
             return this.fields.some(function (key) {
-              return _this4.values[key]() !== app.settings[key];
+              return _this4.values[key]() !== app.data.settings[key];
             });
           }
         }, {
@@ -18212,7 +18196,7 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
         babelHelpers.createClass(EditCustomCssModal, [{
           key: 'init',
           value: function init() {
-            this.customLess = m.prop(app.settings.custom_less || '');
+            this.customLess = m.prop(app.data.settings.custom_less || '');
           }
         }, {
           key: 'className',
@@ -18495,8 +18479,8 @@ System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', '
                   m(
                     'ul',
                     { className: 'ExtensionList' },
-                    Object.keys(app.extensions).map(function (id) {
-                      var extension = app.extensions[id];
+                    Object.keys(app.data.extensions).map(function (id) {
+                      var extension = app.data.extensions[id];
                       var controls = _this2.controlItems(extension.id).toArray();
 
                       return m(
@@ -18576,7 +18560,7 @@ System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', '
         }, {
           key: 'isEnabled',
           value: function isEnabled(name) {
-            var enabled = JSON.parse(app.settings.extensions_enabled);
+            var enabled = JSON.parse(app.data.settings.extensions_enabled);
 
             return enabled.indexOf(name) !== -1;
           }
@@ -18970,7 +18954,7 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
             this.fields = ['mail_driver', 'mail_host', 'mail_from', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption'];
             this.values = {};
 
-            var settings = app.settings;
+            var settings = app.data.settings;
             this.fields.forEach(function (key) {
               return _this2.values[key] = m.prop(settings[key]);
             });
@@ -19086,7 +19070,7 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
             var _this3 = this;
 
             return this.fields.some(function (key) {
-              return _this3.values[key]() !== app.settings[key];
+              return _this3.values[key]() !== app.data.settings[key];
             });
           }
         }, {
@@ -19567,7 +19551,7 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
 
             this.props.children = [];
 
-            var groupIds = app.permissions[this.props.permission] || [];
+            var groupIds = app.data.permissions[this.props.permission] || [];
             var everyone = groupIds.indexOf(Group.GUEST_ID) !== -1;
             var members = groupIds.indexOf(Group.MEMBER_ID) !== -1;
             var adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
@@ -19626,7 +19610,7 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
           value: function save(groupIds) {
             var permission = this.props.permission;
 
-            app.permissions[permission] = groupIds;
+            app.data.permissions[permission] = groupIds;
 
             app.request({
               method: 'POST',
@@ -19639,7 +19623,7 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
           value: function toggle(groupId) {
             var permission = this.props.permission;
 
-            var groupIds = app.permissions[permission] || [];
+            var groupIds = app.data.permissions[permission] || [];
 
             var index = groupIds.indexOf(groupId);
 
@@ -19843,7 +19827,7 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
               icon: 'i-cursor',
               label: app.translator.trans('core.admin.permissions.allow_renaming_label'),
               setting: function setting() {
-                var minutes = parseInt(app.settings.allow_renaming, 10);
+                var minutes = parseInt(app.data.settings.allow_renaming, 10);
 
                 return SettingDropdown.component({
                   defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
@@ -19870,7 +19854,7 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
               icon: 'pencil',
               label: app.translator.trans('core.admin.permissions.allow_post_editing_label'),
               setting: function setting() {
-                var minutes = parseInt(app.settings.allow_post_editing, 10);
+                var minutes = parseInt(app.data.settings.allow_post_editing, 10);
 
                 return SettingDropdown.component({
                   defaultLabel: minutes ? app.translator.transChoice('core.admin.permissions_controls.allow_some_minutes_button', minutes, { count: minutes }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
@@ -20399,7 +20383,7 @@ System.register('flarum/components/SettingDropdown', ['flarum/components/SelectD
               var value = _ref.value;
               var label = _ref.label;
 
-              var active = app.settings[props.key] === value;
+              var active = app.data.settings[props.key] === value;
 
               return Button.component({
                 children: label,
@@ -20485,7 +20469,7 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
           value: function setting(key) {
             var fallback = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
 
-            this.settings[key] = this.settings[key] || m.prop(app.settings[key] || fallback);
+            this.settings[key] = this.settings[key] || m.prop(app.data.settings[key] || fallback);
 
             return this.settings[key];
           }
@@ -20499,7 +20483,7 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
             Object.keys(this.settings).forEach(function (key) {
               var value = _this2.settings[key]();
 
-              if (value !== app.settings[key]) {
+              if (value !== app.data.settings[key]) {
                 dirty[key] = value;
               }
             });
@@ -21130,11 +21114,11 @@ System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], fun
 System.register('flarum/initializers/preload', ['flarum/Session'], function (_export, _context) {
   var Session;
   function preload(app) {
-    app.store.pushPayload({ data: app.preload.data });
+    app.store.pushPayload({ data: app.data.resources });
 
     app.forum = app.store.getById('forums', 1);
 
-    app.session = new Session(app.store.getById('users', app.preload.session.userId), app.preload.session.csrfToken);
+    app.session = new Session(app.store.getById('users', app.data.session.userId), app.data.session.csrfToken);
   }
 
   _export('default', preload);
@@ -22977,16 +22961,16 @@ System.register("flarum/utils/RequestError", [], function (_export, _context) {
 
 System.register('flarum/utils/saveSettings', [], function (_export, _context) {
   function saveSettings(settings) {
-    var oldSettings = JSON.parse(JSON.stringify(app.settings));
+    var oldSettings = JSON.parse(JSON.stringify(app.data.settings));
 
-    babelHelpers.extends(app.settings, settings);
+    babelHelpers.extends(app.data.settings, settings);
 
     return app.request({
       method: 'POST',
       url: app.forum.attribute('apiUrl') + '/settings',
       data: settings
     }).catch(function (error) {
-      app.settings = oldSettings;
+      app.data.settings = oldSettings;
       throw error;
     });
   }

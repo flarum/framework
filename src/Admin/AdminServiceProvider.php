@@ -14,13 +14,11 @@ use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\GenerateRouteHandlerTrait;
+use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
-    use GenerateRouteHandlerTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -44,9 +42,9 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
-        $this->flushAssetsWhenThemeChanged();
+        $this->flushWebAppAssetsWhenThemeChanged();
 
-        $this->flushAssetsWhenExtensionsChanged();
+        $this->flushWebAppAssetsWhenExtensionsChanged();
     }
 
     /**
@@ -56,42 +54,42 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $toController = $this->getHandlerGenerator($this->app);
+        $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
             '/',
             'index',
-            $toController('Flarum\Admin\Controller\ClientController')
+            $route->toController(Controller\WebAppController::class)
         );
     }
 
-    protected function flushAssetsWhenThemeChanged()
+    protected function flushWebAppAssetsWhenThemeChanged()
     {
         $this->app->make('events')->listen(SettingWasSet::class, function (SettingWasSet $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getClientController()->flushCss();
+                $this->getWebAppAssets()->flushCss();
             }
         });
     }
 
-    protected function flushAssetsWhenExtensionsChanged()
+    protected function flushWebAppAssetsWhenExtensionsChanged()
     {
         $events = $this->app->make('events');
 
-        $events->listen(ExtensionWasEnabled::class, [$this, 'flushAssets']);
-        $events->listen(ExtensionWasDisabled::class, [$this, 'flushAssets']);
+        $events->listen(ExtensionWasEnabled::class, [$this, 'flushWebAppAssets']);
+        $events->listen(ExtensionWasDisabled::class, [$this, 'flushWebAppAssets']);
     }
 
-    public function flushAssets()
+    public function flushWebAppAssets()
     {
-        $this->getClientController()->flushAssets();
+        $this->getWebAppAssets()->flush();
     }
 
     /**
-     * @return \Flarum\Admin\Controller\ClientController
+     * @return \Flarum\Http\WebApp\WebAppAssets
      */
-    protected function getClientController()
+    protected function getWebAppAssets()
     {
-        return $this->app->make('Flarum\Admin\Controller\ClientController');
+        return $this->app->make(WebApp::class)->getAssets();
     }
 }
