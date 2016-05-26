@@ -18330,24 +18330,6 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           this.routes = {};
 
           /**
-           * An object containing data to preload into the application.
-           *
-           * @type {Object}
-           * @property {Object} preload.data An array of resource objects to preload
-           *     into the data store.
-           * @property {Object} preload.document An API response document to be used
-           *     by the route that is first activated.
-           * @property {Object} preload.session A response from the /api/token
-           *     endpoint containing the session's authentication token and user ID.
-           * @public
-           */
-          this.preload = {
-            data: null,
-            document: null,
-            session: null
-          };
-
-          /**
            * An ordered list of initializers to bootstrap the application.
            *
            * @type {ItemList}
