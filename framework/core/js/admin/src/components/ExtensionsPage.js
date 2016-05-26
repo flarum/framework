@@ -27,9 +27,9 @@ export default class ExtensionsPage extends Page {
         <div className="ExtensionsPage-list">
           <div className="container">
             <ul className="ExtensionList">
-              {Object.keys(app.extensions)
+              {Object.keys(app.data.extensions)
                 .map(id => {
-                  const extension = app.extensions[id];
+                  const extension = app.data.extensions[id];
                   const controls = this.controlItems(extension.id).toArray();
 
                   return <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
@@ -92,7 +92,7 @@ export default class ExtensionsPage extends Page {
   }
 
   isEnabled(name) {
-    const enabled = JSON.parse(app.settings.extensions_enabled);
+    const enabled = JSON.parse(app.data.settings.extensions_enabled);
 
     return enabled.indexOf(name) !== -1;
   }

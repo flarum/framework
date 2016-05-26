@@ -21,7 +21,7 @@ export default class PermissionDropdown extends Dropdown {
   view() {
     this.props.children = [];
 
-    const groupIds = app.permissions[this.props.permission] || [];
+    const groupIds = app.data.permissions[this.props.permission] || [];
     const everyone = groupIds.indexOf(Group.GUEST_ID) !== -1;
     const members = groupIds.indexOf(Group.MEMBER_ID) !== -1;
     const adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
@@ -87,7 +87,7 @@ export default class PermissionDropdown extends Dropdown {
   save(groupIds) {
     const permission = this.props.permission;
 
-    app.permissions[permission] = groupIds;
+    app.data.permissions[permission] = groupIds;
 
     app.request({
       method: 'POST',
@@ -99,7 +99,7 @@ export default class PermissionDropdown extends Dropdown {
   toggle(groupId) {
     const permission = this.props.permission;
 
-    let groupIds = app.permissions[permission] || [];
+    let groupIds = app.data.permissions[permission] || [];
 
     const index = groupIds.indexOf(groupId);
 

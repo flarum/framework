@@ -8,10 +8,10 @@ export default class AppearancePage extends Page {
   init() {
     super.init();
 
-    this.primaryColor = m.prop(app.settings.theme_primary_color);
-    this.secondaryColor = m.prop(app.settings.theme_secondary_color);
-    this.darkMode = m.prop(app.settings.theme_dark_mode === '1');
-    this.coloredHeader = m.prop(app.settings.theme_colored_header === '1');
+    this.primaryColor = m.prop(app.data.settings.theme_primary_color);
+    this.secondaryColor = m.prop(app.data.settings.theme_secondary_color);
+    this.darkMode = m.prop(app.data.settings.theme_dark_mode === '1');
+    this.coloredHeader = m.prop(app.data.settings.theme_colored_header === '1');
   }
 
   view() {

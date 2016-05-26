@@ -24,7 +24,7 @@ abstract class AbstractHtmlController implements ControllerInterface
         $view = $this->render($request);
 
         $response = new Response;
-        $response->getBody()->write($view->render());
+        $response->getBody()->write($view);
 
         return $response;
     }

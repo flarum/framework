@@ -39,7 +39,7 @@ export default class SettingsModal extends Modal {
   }
 
   setting(key, fallback = '') {
-    this.settings[key] = this.settings[key] || m.prop(app.settings[key] || fallback);
+    this.settings[key] = this.settings[key] || m.prop(app.data.settings[key] || fallback);
 
     return this.settings[key];
   }
@@ -50,7 +50,7 @@ export default class SettingsModal extends Modal {
     Object.keys(this.settings).forEach(key => {
       const value = this.settings[key]();
 
-      if (value !== app.settings[key]) {
+      if (value !== app.data.settings[key]) {
         dirty[key] = value;
       }
     });

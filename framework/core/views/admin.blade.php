@@ -8,8 +8,8 @@
       <div id="header-navigation" class="Header-navigation"></div>
       <div class="container">
         <h1 class="Header-title">
-          <a href="{{ $forum->attributes->baseUrl }}">
-            {{ $forum->attributes->title }}
+          <a href="{{ array_get($forum, 'attributes.baseUrl') }}">
+            {{ array_get($forum, 'attributes.title') }}
           </a>
         </h1>
         <div id="header-primary" class="Header-primary"></div>
