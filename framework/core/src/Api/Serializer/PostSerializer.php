@@ -47,7 +47,7 @@ class PostSerializer extends PostBasicSerializer
             if ($canEdit) {
                 $attributes['content'] = $post->content;
             }
-            if ($gate->allows('viewPostIps', $post)) {
+            if ($gate->allows('viewIps', $post)) {
                 $attributes['ipAddress'] = $post->ip_address;
             }
         } else {
