@@ -173,10 +173,10 @@ export default class PermissionGrid extends Component {
   moderateItems() {
     const items = new ItemList();
 
-    items.add('viewPostIps', {
+    items.add('viewIpsPosts', {
       icon: 'bullseye',
       label: app.translator.trans('core.admin.permissions.view_post_ips_label'),
-      permission: 'discussion.viewPostIps'
+      permission: 'discussion.viewIpsPosts'
     }, 110);
 
     items.add('renameDiscussions', {
