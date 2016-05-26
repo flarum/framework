@@ -15,13 +15,11 @@ use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\GenerateRouteHandlerTrait;
+use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
-    use GenerateRouteHandlerTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -45,9 +43,9 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
-        $this->flushAssetsWhenThemeChanged();
+        $this->flushWebAppAssetsWhenThemeChanged();
 
-        $this->flushAssetsWhenExtensionsChanged();
+        $this->flushWebAppAssetsWhenExtensionsChanged();
     }
 
     /**
@@ -57,76 +55,76 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $toController = $this->getHandlerGenerator($this->app);
+        $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
             '/all',
             'index',
-            $toDefaultController = $toController('Flarum\Forum\Controller\IndexController')
+            $toDefaultController = $route->toController(Controller\IndexController::class)
         );
 
         $routes->get(
             '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
             'discussion',
-            $toController('Flarum\Forum\Controller\DiscussionController')
+            $route->toController(Controller\DiscussionController::class)
         );
 
         $routes->get(
             '/u/{username}[/{filter:[^/]*}]',
             'user',
-            $toController('Flarum\Forum\Controller\ClientController')
+            $route->toController(Controller\WebAppController::class)
         );
 
         $routes->get(
             '/settings',
             'settings',
-            $toController('Flarum\Forum\Controller\AuthorizedClientController')
+            $route->toController(Controller\AuthorizedWebAppController::class)
         );
 
         $routes->get(
             '/notifications',
             'notifications',
-            $toController('Flarum\Forum\Controller\AuthorizedClientController')
+            $route->toController(Controller\AuthorizedWebAppController::class)
         );
 
         $routes->get(
             '/logout',
             'logout',
-            $toController('Flarum\Forum\Controller\LogOutController')
+            $route->toController(Controller\LogOutController::class)
         );
 
         $routes->post(
             '/login',
             'login',
-            $toController('Flarum\Forum\Controller\LogInController')
+            $route->toController(Controller\LogInController::class)
         );
 
         $routes->post(
             '/register',
             'register',
-            $toController('Flarum\Forum\Controller\RegisterController')
+            $route->toController(Controller\RegisterController::class)
         );
 
         $routes->get(
             '/confirm/{token}',
             'confirmEmail',
-            $toController('Flarum\Forum\Controller\ConfirmEmailController')
+            $route->toController(Controller\ConfirmEmailController::class)
         );
 
         $routes->get(
             '/reset/{token}',
             'resetPassword',
-            $toController('Flarum\Forum\Controller\ResetPasswordController')
+            $route->toController(Controller\ResetPasswordController::class)
         );
 
         $routes->post(
             '/reset',
             'savePassword',
-            $toController('Flarum\Forum\Controller\SavePasswordController')
+            $route->toController(Controller\SavePasswordController::class)
         );
 
         $this->app->make('events')->fire(
-            new ConfigureForumRoutes($routes, $toController)
+            new ConfigureForumRoutes($routes, $route)
         );
 
         $defaultRoute = $this->app->make('flarum.settings')->get('default_route');
@@ -142,33 +140,33 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
     }
 
-    protected function flushAssetsWhenThemeChanged()
+    protected function flushWebAppAssetsWhenThemeChanged()
     {
         $this->app->make('events')->listen(SettingWasSet::class, function (SettingWasSet $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getClientController()->flushCss();
+                $this->getWebAppAssets()->flushCss();
             }
         });
     }
 
-    protected function flushAssetsWhenExtensionsChanged()
+    protected function flushWebAppAssetsWhenExtensionsChanged()
     {
         $events = $this->app->make('events');
 
-        $events->listen(ExtensionWasEnabled::class, [$this, 'flushAssets']);
-        $events->listen(ExtensionWasDisabled::class, [$this, 'flushAssets']);
+        $events->listen(ExtensionWasEnabled::class, [$this, 'flushWebAppAssets']);
+        $events->listen(ExtensionWasDisabled::class, [$this, 'flushWebAppAssets']);
     }
 
-    public function flushAssets()
+    public function flushWebAppAssets()
     {
-        $this->getClientController()->flushAssets();
+        $this->getWebAppAssets()->flush();
     }
 
     /**
-     * @return \Flarum\Forum\Controller\ClientController
+     * @return \Flarum\Http\WebApp\WebAppAssets
      */
-    protected function getClientController()
+    protected function getWebAppAssets()
     {
-        return $this->app->make('Flarum\Forum\Controller\ClientController');
+        return $this->app->make(WebApp::class)->getAssets();
     }
 }

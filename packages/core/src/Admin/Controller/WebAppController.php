@@ -10,29 +10,23 @@
 
 namespace Flarum\Admin\Controller;
 
-use Flarum\Api\Client;
+use Flarum\Admin\WebApp;
 use Flarum\Core\Permission;
 use Flarum\Event\PrepareUnserializedSettings;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
-use Flarum\Http\Controller\AbstractClientController as BaseClientController;
+use Flarum\Http\Controller\AbstractWebAppController;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ServerRequestInterface;
 
-class ClientController extends BaseClientController
+class WebAppController extends AbstractWebAppController
 {
     /**
-     * {@inheritdoc}
+     * @var SettingsRepositoryInterface
      */
-    protected $clientName = 'admin';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $translations = '/^[^\.]+\.(?:admin|lib)\./';
+    protected $settings;
 
     /**
      * @var ExtensionManager
@@ -40,29 +34,25 @@ class ClientController extends BaseClientController
     protected $extensions;
 
     /**
-     * {@inheritdoc}
+     * @param WebApp $webApp
+     * @param Dispatcher $events
+     * @param SettingsRepositoryInterface $settings
+     * @param ExtensionManager $extensions
      */
-    public function __construct(
-        Application $app,
-        Client $apiClient,
-        LocaleManager $locales,
-        SettingsRepositoryInterface $settings,
-        Dispatcher $events,
-        Repository $cache,
-        ExtensionManager $extensions
-    ) {
-        BaseClientController::__construct($app, $apiClient, $locales, $settings, $events, $cache);
-
-        $this->layout = __DIR__.'/../../../views/admin.blade.php';
+    public function __construct(WebApp $webApp, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions)
+    {
+        $this->webApp = $webApp;
+        $this->events = $events;
+        $this->settings = $settings;
         $this->extensions = $extensions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function render(Request $request)
+    protected function getView(ServerRequestInterface $request)
     {
-        $view = BaseClientController::render($request);
+        $view = parent::getView($request);
 
         $settings = $this->settings->all();
 

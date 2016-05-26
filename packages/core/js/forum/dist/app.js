@@ -18418,10 +18418,12 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
         babelHelpers.createClass(App, [{
           key: 'boot',
-          value: function boot() {
+          value: function boot(data) {
             var _this = this;
 
-            this.translator.locale = this.locale;
+            this.data = data;
+
+            this.translator.locale = data.locale;
 
             this.initializers.toArray().forEach(function (initializer) {
               return initializer(_this);
@@ -18430,9 +18432,9 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
         }, {
           key: 'preloadedDocument',
           value: function preloadedDocument() {
-            if (app.preload.document) {
-              var results = app.store.pushPayload(app.preload.document);
-              app.preload.document = null;
+            if (this.data.document) {
+              var results = this.store.pushPayload(this.data.document);
+              this.data.document = null;
 
               return results;
             }
@@ -22305,14 +22307,14 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
 
             items.add('search', app.search.render(), 30);
 
-            if (Object.keys(app.locales).length > 1) {
+            if (Object.keys(app.data.locales).length > 1) {
               var locales = [];
 
               var _loop = function _loop(locale) {
                 locales.push(Button.component({
-                  active: app.locale === locale,
-                  children: app.locales[locale],
-                  icon: app.locale === locale ? 'check' : true,
+                  active: app.data.locale === locale,
+                  children: app.data.locales[locale],
+                  icon: app.data.locale === locale ? 'check' : true,
                   onclick: function onclick() {
                     if (app.session.user) {
                       app.session.user.savePreferences({ locale: locale }).then(function () {
@@ -22326,7 +22328,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
                 }));
               };
 
-              for (var locale in app.locales) {
+              for (var locale in app.data.locales) {
                 _loop(locale);
               }
 
@@ -28664,11 +28666,11 @@ System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], fun
 System.register('flarum/initializers/preload', ['flarum/Session'], function (_export, _context) {
   var Session;
   function preload(app) {
-    app.store.pushPayload({ data: app.preload.data });
+    app.store.pushPayload({ data: app.data.resources });
 
     app.forum = app.store.getById('forums', 1);
 
-    app.session = new Session(app.store.getById('users', app.preload.session.userId), app.preload.session.csrfToken);
+    app.session = new Session(app.store.getById('users', app.data.session.userId), app.data.session.csrfToken);
   }
 
   _export('default', preload);

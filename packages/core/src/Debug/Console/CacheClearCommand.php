@@ -10,9 +10,9 @@
 
 namespace Flarum\Debug\Console;
 
-use Flarum\Admin\Controller\ClientController as AdminClient;
+use Flarum\Admin\WebApp as AdminWebApp;
 use Flarum\Console\Command\AbstractCommand;
-use Flarum\Forum\Controller\ClientController as ForumClient;
+use Flarum\Forum\WebApp as ForumWebApp;
 use Illuminate\Contracts\Cache\Store;
 
 class CacheClearCommand extends AbstractCommand
@@ -23,16 +23,21 @@ class CacheClearCommand extends AbstractCommand
     protected $cache;
 
     /**
-     * @var \Flarum\Forum\Controller\ClientController
+     * @var \Flarum\Forum\WebApp
      */
     protected $forum;
 
     /**
-     * @var \Flarum\Admin\Controller\ClientController
+     * @var \Flarum\Admin\WebApp
      */
     protected $admin;
 
-    public function __construct(Store $cache, ForumClient $forum, AdminClient $admin)
+    /**
+     * @param Store $cache
+     * @param ForumWebApp $forum
+     * @param AdminWebApp $admin
+     */
+    public function __construct(Store $cache, ForumWebApp $forum, AdminWebApp $admin)
     {
         $this->cache = $cache;
         $this->forum = $forum;
@@ -58,8 +63,8 @@ class CacheClearCommand extends AbstractCommand
     {
         $this->info('Clearing the cache...');
 
-        $this->forum->flushAssets();
-        $this->admin->flushAssets();
+        $this->forum->getAssets()->flush();
+        $this->admin->getAssets()->flush();
 
         $this->cache->flush();
     }

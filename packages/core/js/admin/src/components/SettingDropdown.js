@@ -12,7 +12,7 @@ export default class SettingDropdown extends SelectDropdown {
     props.defaultLabel = 'Custom';
 
     props.children = props.options.map(({value, label}) => {
-      const active = app.settings[props.key] === value;
+      const active = app.data.settings[props.key] === value;
 
       return Button.component({
         children: label,

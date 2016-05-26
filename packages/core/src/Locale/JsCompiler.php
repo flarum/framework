@@ -23,16 +23,20 @@ class JsCompiler extends BaseJsCompiler
 
     public function compile()
     {
-        $output = "System.register('locale', [], function() {
+        $output = "
+ System.register('locale', [], function(_export) {
     return {
         execute: function() {
-            app.translator.translations = ".json_encode($this->translations).";\n";
+            _export('default', function(app) {
+                app.translator.translations = ".json_encode($this->translations).";\n";
 
         foreach ($this->files as $filename) {
             $output .= file_get_contents($filename);
         }
 
-        $output .= '}
+        $output .= '
+            });
+        }
     };
 });';
 

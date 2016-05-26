@@ -1,6 +1,6 @@
 <?php
 /**
- * Forum Client Template
+ * Forum WebApp Template
  *
  * NOTE: You shouldn't edit this file directly. Your changes will be overwritten
  * when you update Flarum. See flarum.org/docs/templates to learn how to
@@ -31,8 +31,8 @@
       <div id="header-navigation" class="Header-navigation"></div>
       <div class="container">
         <h1 class="Header-title">
-          <a href="{{ $forum->attributes->baseUrl }}" id="home-link">
-            {{ $forum->attributes->title }}
+          <a href="{{ array_get($forum, 'attributes.baseUrl') }}" id="home-link">
+            {{ array_get($forum, 'attributes.title') }}
           </a>
         </h1>
         <div id="header-primary" class="Header-primary"></div>

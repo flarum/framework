@@ -10,11 +10,19 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Api\Client as ApiClient;
 use Flarum\Core\User;
+use Flarum\Forum\WebApp;
+use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class IndexController extends ClientController
+class IndexController extends WebAppController
 {
+    /**
+     * @var ApiClient
+     */
+    protected $api;
+
     /**
      * A map of sort query param values to their API sort param.
      *
@@ -30,9 +38,19 @@ class IndexController extends ClientController
     /**
      * {@inheritdoc}
      */
-    public function render(Request $request)
+    public function __construct(WebApp $webApp, Dispatcher $events, ApiClient $api)
     {
-        $view = parent::render($request);
+        parent::__construct($webApp, $events);
+
+        $this->api = $api;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getView(Request $request)
+    {
+        $view = parent::getView($request);
 
         $queryParams = $request->getQueryParams();
 
@@ -46,7 +64,7 @@ class IndexController extends ClientController
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
 
-        $document = $this->preload($request->getAttribute('actor'), $params);
+        $document = $this->getDocument($request->getAttribute('actor'), $params);
 
         $view->setDocument($document);
         $view->setContent(app('view')->make('flarum.forum::index', compact('document', 'page', 'forum')));
@@ -61,7 +79,7 @@ class IndexController extends ClientController
      * @param array $params
      * @return object
      */
-    protected function preload(User $actor, array $params)
+    private function getDocument(User $actor, array $params)
     {
         return json_decode($this->api->send('Flarum\Api\Controller\ListDiscussionsController', $actor, $params)->getBody());
     }

@@ -119,7 +119,7 @@ export default class PermissionGrid extends Component {
       icon: 'i-cursor',
       label: app.translator.trans('core.admin.permissions.allow_renaming_label'),
       setting: () => {
-        const minutes = parseInt(app.settings.allow_renaming, 10);
+        const minutes = parseInt(app.data.settings.allow_renaming, 10);
 
         return SettingDropdown.component({
           defaultLabel: minutes
@@ -151,7 +151,7 @@ export default class PermissionGrid extends Component {
       icon: 'pencil',
       label: app.translator.trans('core.admin.permissions.allow_post_editing_label'),
       setting: () => {
-        const minutes = parseInt(app.settings.allow_post_editing, 10);
+        const minutes = parseInt(app.data.settings.allow_post_editing, 10);
 
         return SettingDropdown.component({
           defaultLabel: minutes

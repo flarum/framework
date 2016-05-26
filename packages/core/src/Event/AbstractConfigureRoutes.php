@@ -10,6 +10,7 @@
 
 namespace Flarum\Event;
 
+use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 abstract class AbstractConfigureRoutes
@@ -20,18 +21,18 @@ abstract class AbstractConfigureRoutes
     public $routes;
 
     /**
-     * @var callable
+     * @var RouteHandlerFactory
      */
-    protected $handlerGenerator;
+    protected $route;
 
     /**
      * @param RouteCollection $routes
-     * @param callable $handlerGenerator
+     * @param RouteHandlerFactory $route
      */
-    public function __construct(RouteCollection $routes, callable $handlerGenerator)
+    public function __construct(RouteCollection $routes, RouteHandlerFactory $route)
     {
         $this->routes = $routes;
-        $this->handlerGenerator = $handlerGenerator;
+        $this->route = $route;
     }
 
     /**
@@ -91,6 +92,6 @@ abstract class AbstractConfigureRoutes
      */
     protected function toController($controller)
     {
-        return call_user_func($this->handlerGenerator, $controller);
+        return $this->route->toController($controller);
     }
 }
