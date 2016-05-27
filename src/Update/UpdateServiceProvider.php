@@ -12,6 +12,7 @@ namespace Flarum\Update;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\GenerateRouteHandlerTrait;
+use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 class UpdateServiceProvider extends AbstractServiceProvider
@@ -24,33 +25,37 @@ class UpdateServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->singleton('flarum.update.routes', function () {
-            return $this->getRoutes();
+            return new RouteCollection;
         });
 
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.update');
     }
 
     /**
-     * @return RouteCollection
+     * {@inheritdoc}
      */
-    protected function getRoutes()
+    public function boot()
     {
-        $routes = new RouteCollection;
+        $this->populateRoutes($this->app->make('flarum.install.routes'));
+    }
 
-        $toController = $this->getHandlerGenerator($this->app);
+    /**
+     * @param RouteCollection $routes
+     */
+    protected function populateRoutes(RouteCollection $routes)
+    {
+        $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
             '/',
             'index',
-            $toController('Flarum\Update\Controller\IndexController')
+            $route->toController(Controller\IndexController::class)
         );
 
         $routes->post(
             '/',
             'update',
-            $toController('Flarum\Update\Controller\UpdateController')
+            $route->toController(Controller\UpdateController::class)
         );
-
-        return $routes;
     }
 }
