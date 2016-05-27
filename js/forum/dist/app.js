@@ -21457,13 +21457,18 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
         }
 
         babelHelpers.createClass(Dropdown, [{
+          key: 'init',
+          value: function init() {
+            this.showing = false;
+          }
+        }, {
           key: 'view',
           value: function view() {
             var items = this.props.children ? listItems(this.props.children) : [];
 
             return m(
               'div',
-              { className: 'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length },
+              { className: 'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length + (this.showing ? ' open' : '') },
               this.getButton(),
               this.getMenu(items)
             );
@@ -21479,25 +21484,32 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
             // bottom of the viewport. If it does, we will apply class to make it show
             // above the toggle button instead of below it.
             this.$().on('shown.bs.dropdown', function () {
+              _this2.showing = true;
+
+              if (_this2.props.onshow) {
+                _this2.props.onshow();
+              }
+
+              m.redraw();
+
               var $menu = _this2.$('.Dropdown-menu');
               var isRight = $menu.hasClass('Dropdown-menu--right');
+
               $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
 
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
-
-              if (_this2.props.onshow) {
-                _this2.props.onshow();
-                m.redraw();
-              }
             });
 
             this.$().on('hidden.bs.dropdown', function () {
+              _this2.showing = false;
+
               if (_this2.props.onhide) {
                 _this2.props.onhide();
-                m.redraw();
               }
+
+              m.redraw();
             });
           }
         }, {
