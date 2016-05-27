@@ -97,7 +97,7 @@ class RevisionCompiler implements CompilerInterface
 
                 file_put_contents($file, $this->compile());
             } else {
-                return null;
+                return;
             }
         }
 

@@ -10,7 +10,6 @@
 
 namespace Flarum\Http\WebApp;
 
-use Flarum\Http\Controller;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 
