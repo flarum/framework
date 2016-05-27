@@ -2,6 +2,7 @@ import { extend, override } from 'flarum/extend';
 import app from 'flarum/app';
 import Discussion from 'flarum/models/Discussion';
 import Post from 'flarum/models/Post';
+import Badge from 'flarum/components/Badge';
 import DiscussionListItem from 'flarum/components/DiscussionListItem';
 import CommentPost from 'flarum/components/CommentPost';
 import Button from 'flarum/components/Button';
@@ -9,6 +10,13 @@ import PostControls from 'flarum/utils/PostControls';
 
 app.initializers.add('flarum-approval', () => {
   Discussion.prototype.isApproved = Discussion.attribute('isApproved');
+
+  extend(Discussion.prototype, 'badges', function(items) {
+    if (!this.isApproved()) {
+      items.remove('hidden');
+      items.add('awaitingApproval', <Badge type="awaitingApproval" icon="gavel" label={app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip')}/>);
+    }
+  });
 
   Post.prototype.isApproved = Post.attribute('isApproved');
   Post.prototype.canApprove = Post.attribute('canApprove');
@@ -52,5 +60,9 @@ app.initializers.add('flarum-approval', () => {
 
   PostControls.approveAction = function() {
     this.save({isApproved: true});
+
+    if (this.number() === 1) {
+      this.discussion().pushAttributes({isApproved: true});
+    }
   };
 }, -10); // set initializer priority to run after reports

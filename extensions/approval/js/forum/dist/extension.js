@@ -1,7 +1,7 @@
 'use strict';
 
-System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/DiscussionListItem', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export, _context) {
-  var extend, override, app, Discussion, Post, DiscussionListItem, CommentPost, Button, PostControls;
+System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/Badge', 'flarum/components/DiscussionListItem', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export, _context) {
+  var extend, override, app, Discussion, Post, Badge, DiscussionListItem, CommentPost, Button, PostControls;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -12,6 +12,8 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
       Discussion = _flarumModelsDiscussion.default;
     }, function (_flarumModelsPost) {
       Post = _flarumModelsPost.default;
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge.default;
     }, function (_flarumComponentsDiscussionListItem) {
       DiscussionListItem = _flarumComponentsDiscussionListItem.default;
     }, function (_flarumComponentsCommentPost) {
@@ -25,6 +27,13 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
 
       app.initializers.add('flarum-approval', function () {
         Discussion.prototype.isApproved = Discussion.attribute('isApproved');
+
+        extend(Discussion.prototype, 'badges', function (items) {
+          if (!this.isApproved()) {
+            items.remove('hidden');
+            items.add('awaitingApproval', m(Badge, { type: 'awaitingApproval', icon: 'gavel', label: app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip') }));
+          }
+        });
 
         Post.prototype.isApproved = Post.attribute('isApproved');
         Post.prototype.canApprove = Post.attribute('canApprove');
@@ -67,6 +76,10 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
 
         PostControls.approveAction = function () {
           this.save({ isApproved: true });
+
+          if (this.number() === 1) {
+            this.discussion().pushAttributes({ isApproved: true });
+          }
         };
       }, -10); // set initializer priority to run after reports
     }
