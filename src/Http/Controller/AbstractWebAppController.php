@@ -10,6 +10,7 @@
 
 namespace Flarum\Http\Controller;
 
+use Flarum\Event\ConfigureClientView;
 use Flarum\Event\ConfigureWebApp;
 use Flarum\Http\WebApp\AbstractWebApp;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -34,6 +35,9 @@ abstract class AbstractWebAppController extends AbstractHtmlController
     {
         $view = $this->getView($request);
 
+        $this->events->fire(
+            new ConfigureClientView($this, $view, $request)
+        );
         $this->events->fire(
             new ConfigureWebApp($this, $view, $request)
         );
