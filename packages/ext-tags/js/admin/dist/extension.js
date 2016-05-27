@@ -531,9 +531,25 @@ System.register('flarum/tags/addTagsPane', ['flarum/extend', 'flarum/components/
 'use strict';
 
 System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/PermissionDropdown', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export, _context) {
-  var extend, PermissionGrid, PermissionDropdown, Dropdown, Button, tagLabel, tagIcon, sortTags;
+  var extend, override, PermissionGrid, PermissionDropdown, Dropdown, Button, tagLabel, tagIcon, sortTags;
 
   _export('default', function () {
+    override(app, 'getRequiredPermissions', function (original, permission) {
+      var tagPrefix = permission.match(/^tag\d+\./);
+
+      if (tagPrefix) {
+        var globalPermission = permission.substr(tagPrefix[0].length);
+
+        var required = original(globalPermission);
+
+        return required.map(function (required) {
+          return tagPrefix[0] + required;
+        });
+      }
+
+      return original(permission);
+    });
+
     extend(PermissionGrid.prototype, 'scopeItems', function (items) {
       sortTags(app.store.all('tags')).filter(function (tag) {
         return tag.isRestricted();
@@ -586,6 +602,7 @@ System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
+      override = _flarumExtend.override;
     }, function (_flarumComponentsPermissionGrid) {
       PermissionGrid = _flarumComponentsPermissionGrid.default;
     }, function (_flarumComponentsPermissionDropdown) {
