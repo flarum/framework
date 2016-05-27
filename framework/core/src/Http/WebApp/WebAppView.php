@@ -12,10 +12,7 @@ namespace Flarum\Http\WebApp;
 
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Asset\CompilerInterface;
-use Flarum\Core\Exception\ValidationException;
-use Flarum\Core\User;
 use Flarum\Locale\JsCompiler;
 use Flarum\Locale\LocaleManager;
 use Illuminate\View\Factory;
@@ -113,7 +110,7 @@ class WebAppView
     protected $localeCss;
 
     /**
-     * @var ClientAssets
+     * @var WebAppAssets
      */
     protected $assets;
 
@@ -139,7 +136,7 @@ class WebAppView
 
     /**
      * @param string $layout
-     * @param ClientAssets $assets
+     * @param WebAppAssets $assets
      * @param Client $api
      * @param Factory $view
      * @param LocaleManager $locales
@@ -285,7 +282,7 @@ class WebAppView
 
         return $view->render();
     }
-    
+
     protected function buildTitle($forumTitle)
     {
         return ($this->title ? $this->title.' - ' : '').$forumTitle;
