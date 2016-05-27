@@ -39,7 +39,7 @@
   white-space: nowrap;
 
   td, th {
-    padding: 10px 0;
+    padding: 5px;
     text-align: left;
   }
   td {
@@ -65,11 +65,6 @@
         font-size: 14px;
       }
     }
-    tr:last-child {
-      td, th {
-        padding-bottom: 15px !important;
-      }
-    }
     .Dropdown {
       display: block;
 
@@ -79,12 +74,15 @@
         text-align: left;
         float: none;
       }
+      .Dropdown-menu {
+        margin: 0;
+      }
     }
     .Button {
       text-decoration: none;
 
       .Badge {
-        margin: -3px 0;
+        margin: -3px 2px -3px 0;
         vertical-align: 0;
       }
     }
@@ -113,15 +111,17 @@
 }
 .PermissionGrid-section {
   td, th {
-    padding-top: 15px;
-    border-top: 1px solid @control-bg;
+    padding-top: 20px;
   }
 }
 .PermissionGrid-child {
   td, th {
-    padding: 5px 0;
+    position: relative;
   }
   th {
     font-weight: normal;
+  }
+  &:hover {
+    background: lighten(@control-bg, 3%);
   }
 }
