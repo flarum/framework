@@ -28,17 +28,17 @@ class WebAppAssets
      * @var Application
      */
     protected $app;
-    
+
     /**
      * @var Repository
      */
     protected $cache;
-    
+
     /**
      * @var LocaleManager
      */
     protected $locales;
-    
+
     /**
      * @param string $name
      * @param Application $app
@@ -52,7 +52,7 @@ class WebAppAssets
         $this->cache = $cache;
         $this->locales = $locales;
     }
-    
+
     public function flush()
     {
         $this->flushJs();

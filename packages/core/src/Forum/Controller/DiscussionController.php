@@ -12,8 +12,8 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client as ApiClient;
 use Flarum\Core\User;
-use Flarum\Forum\WebApp;
 use Flarum\Forum\UrlGenerator;
+use Flarum\Forum\WebApp;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
