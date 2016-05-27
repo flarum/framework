@@ -74,7 +74,11 @@ class PostReplyHandler
         // it, check if they have permission to reply.
         $discussion = $this->discussions->findOrFail($command->discussionId, $actor);
 
-        $this->assertCan($actor, 'reply', $discussion);
+        // If this is the first post in the discussion, it's technically not a
+        // "reply", so we won't check for that permission.
+        if ($discussion->number_index > 0) {
+            $this->assertCan($actor, 'reply', $discussion);
+        }
 
         // Create a new Post entity, persist it, and dispatch domain events.
         // Before persistence, though, fire an event to give plugins an
