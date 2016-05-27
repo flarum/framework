@@ -16609,6 +16609,22 @@ System.register('flarum/app', ['flarum/App', 'flarum/initializers/store', 'flaru
 
       app.extensionSettings = {};
 
+      app.getRequiredPermissions = function (permission) {
+        var required = [];
+
+        if (permission === 'startDiscussion' || permission.indexOf('discussion.') === 0) {
+          required.push('viewDiscussions');
+        }
+        if (permission === 'discussion.delete') {
+          required.push('discussion.hide');
+        }
+        if (permission === 'discussion.deletePosts') {
+          required.push('discussion.editPosts');
+        }
+
+        return required;
+      };
+
       _export('default', app);
     }
   };
@@ -18080,13 +18096,18 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
         }
 
         babelHelpers.createClass(Dropdown, [{
+          key: 'init',
+          value: function init() {
+            this.showing = false;
+          }
+        }, {
           key: 'view',
           value: function view() {
             var items = this.props.children ? listItems(this.props.children) : [];
 
             return m(
               'div',
-              { className: 'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length },
+              { className: 'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length + (this.showing ? ' open' : '') },
               this.getButton(),
               this.getMenu(items)
             );
@@ -18102,25 +18123,32 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
             // bottom of the viewport. If it does, we will apply class to make it show
             // above the toggle button instead of below it.
             this.$().on('shown.bs.dropdown', function () {
+              _this2.showing = true;
+
+              if (_this2.props.onshow) {
+                _this2.props.onshow();
+              }
+
+              m.redraw();
+
               var $menu = _this2.$('.Dropdown-menu');
               var isRight = $menu.hasClass('Dropdown-menu--right');
+
               $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
 
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
-
-              if (_this2.props.onshow) {
-                _this2.props.onshow();
-                m.redraw();
-              }
             });
 
             this.$().on('hidden.bs.dropdown', function () {
+              _this2.showing = false;
+
               if (_this2.props.onhide) {
                 _this2.props.onhide();
-                m.redraw();
               }
+
+              m.redraw();
             });
           }
         }, {
@@ -19513,14 +19541,38 @@ System.register('flarum/components/Page', ['flarum/Component'], function (_expor
 });;
 'use strict';
 
-System.register('flarum/components/PermissionDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/models/Group', 'flarum/components/GroupBadge'], function (_export, _context) {
-  var Dropdown, Button, Separator, Group, GroupBadge, PermissionDropdown;
+System.register('flarum/components/PermissionDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/models/Group', 'flarum/components/Badge', 'flarum/components/GroupBadge'], function (_export, _context) {
+  var Dropdown, Button, Separator, Group, Badge, GroupBadge, PermissionDropdown;
 
 
   function badgeForId(id) {
     var group = app.store.getById('groups', id);
 
     return group ? GroupBadge.component({ group: group, label: null }) : '';
+  }
+
+  function filterByRequiredPermissions(groupIds, permission) {
+    app.getRequiredPermissions(permission).forEach(function (required) {
+      var restrictToGroupIds = app.data.permissions[required] || [];
+
+      if (restrictToGroupIds.indexOf(Group.GUEST_ID) !== -1) {
+        // do nothing
+      } else if (restrictToGroupIds.indexOf(Group.MEMBER_ID) !== -1) {
+          groupIds = groupIds.filter(function (id) {
+            return id !== Group.GUEST_ID;
+          });
+        } else if (groupIds.indexOf(Group.MEMBER_ID) !== -1) {
+          groupIds = restrictToGroupIds;
+        } else {
+          groupIds = restrictToGroupIds.filter(function (id) {
+            return groupIds.indexOf(id) !== -1;
+          });
+        }
+
+      groupIds = filterByRequiredPermissions(groupIds, required);
+    });
+
+    return groupIds;
   }
 
   return {
@@ -19532,6 +19584,8 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
       Separator = _flarumComponentsSeparator.default;
     }, function (_flarumModelsGroup) {
       Group = _flarumModelsGroup.default;
+    }, function (_flarumComponentsBadge) {
+      Badge = _flarumComponentsBadge.default;
     }, function (_flarumComponentsGroupBadge) {
       GroupBadge = _flarumComponentsGroupBadge.default;
     }],
@@ -19552,56 +19606,64 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
             this.props.children = [];
 
             var groupIds = app.data.permissions[this.props.permission] || [];
+
+            groupIds = filterByRequiredPermissions(groupIds, this.props.permission);
+
             var everyone = groupIds.indexOf(Group.GUEST_ID) !== -1;
             var members = groupIds.indexOf(Group.MEMBER_ID) !== -1;
             var adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
 
             if (everyone) {
-              this.props.label = app.translator.trans('core.admin.permissions_controls.everyone_button');
+              this.props.label = Badge.component({ icon: 'globe' });
             } else if (members) {
-              this.props.label = app.translator.trans('core.admin.permissions_controls.members_button');
+              this.props.label = Badge.component({ icon: 'user' });
             } else {
               this.props.label = [badgeForId(Group.ADMINISTRATOR_ID), groupIds.map(badgeForId)];
             }
 
-            if (this.props.allowGuest) {
+            if (this.showing) {
+              if (this.props.allowGuest) {
+                this.props.children.push(Button.component({
+                  children: [Badge.component({ icon: 'globe' }), ' ', app.translator.trans('core.admin.permissions_controls.everyone_button')],
+                  icon: everyone ? 'check' : true,
+                  onclick: function onclick() {
+                    return _this2.save([Group.GUEST_ID]);
+                  },
+                  disabled: this.isGroupDisabled(Group.GUEST_ID)
+                }));
+              }
+
               this.props.children.push(Button.component({
-                children: app.translator.trans('core.admin.permissions_controls.everyone_button'),
-                icon: everyone ? 'check' : true,
+                children: [Badge.component({ icon: 'user' }), ' ', app.translator.trans('core.admin.permissions_controls.members_button')],
+                icon: members ? 'check' : true,
                 onclick: function onclick() {
-                  return _this2.save([Group.GUEST_ID]);
-                }
-              }));
-            }
-
-            this.props.children.push(Button.component({
-              children: app.translator.trans('core.admin.permissions_controls.members_button'),
-              icon: members ? 'check' : true,
-              onclick: function onclick() {
-                return _this2.save([Group.MEMBER_ID]);
-              }
-            }), Separator.component(), Button.component({
-              children: [GroupBadge.component({ group: adminGroup, label: null }), ' ', adminGroup.namePlural()],
-              icon: !everyone && !members ? 'check' : true,
-              disabled: !everyone && !members,
-              onclick: function onclick(e) {
-                if (e.shiftKey) e.stopPropagation();
-                _this2.save([]);
-              }
-            }));
-
-            [].push.apply(this.props.children, app.store.all('groups').filter(function (group) {
-              return [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1;
-            }).map(function (group) {
-              return Button.component({
-                children: [GroupBadge.component({ group: group, label: null }), ' ', group.namePlural()],
-                icon: groupIds.indexOf(group.id()) !== -1 ? 'check' : true,
+                  return _this2.save([Group.MEMBER_ID]);
+                },
+                disabled: this.isGroupDisabled(Group.MEMBER_ID)
+              }), Separator.component(), Button.component({
+                children: [badgeForId(adminGroup.id()), ' ', adminGroup.namePlural()],
+                icon: !everyone && !members ? 'check' : true,
+                disabled: !everyone && !members,
                 onclick: function onclick(e) {
                   if (e.shiftKey) e.stopPropagation();
-                  _this2.toggle(group.id());
+                  _this2.save([]);
                 }
-              });
-            }));
+              }));
+
+              [].push.apply(this.props.children, app.store.all('groups').filter(function (group) {
+                return [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1;
+              }).map(function (group) {
+                return Button.component({
+                  children: [badgeForId(group.id()), ' ', group.namePlural()],
+                  icon: groupIds.indexOf(group.id()) !== -1 ? 'check' : true,
+                  onclick: function onclick(e) {
+                    if (e.shiftKey) e.stopPropagation();
+                    _this2.toggle(group.id());
+                  },
+                  disabled: _this2.isGroupDisabled(group.id()) && _this2.isGroupDisabled(Group.MEMBER_ID) && _this2.isGroupDisabled(Group.GUEST_ID)
+                });
+              }));
+            }
 
             return babelHelpers.get(Object.getPrototypeOf(PermissionDropdown.prototype), 'view', this).call(this);
           }
@@ -19637,6 +19699,11 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
             }
 
             this.save(groupIds);
+          }
+        }, {
+          key: 'isGroupDisabled',
+          value: function isGroupDisabled(id) {
+            return filterByRequiredPermissions([id], this.props.permission).indexOf(id) === -1;
           }
         }], [{
           key: 'initProps',
@@ -19749,7 +19816,7 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
                       m(
                         'th',
                         null,
-                        child.icon ? icon(child.icon) : '',
+                        icon(child.icon),
                         child.label
                       ),
                       permissionCells(child),
@@ -19871,10 +19938,10 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
           value: function moderateItems() {
             var items = new ItemList();
 
-            items.add('viewPostIps', {
+            items.add('viewIpsPosts', {
               icon: 'bullseye',
               label: app.translator.trans('core.admin.permissions.view_post_ips_label'),
-              permission: 'discussion.viewPostIps'
+              permission: 'discussion.viewIpsPosts'
             }, 110);
 
             items.add('renameDiscussions', {
@@ -23100,11 +23167,13 @@ System.register('flarum/utils/string', [], function (_export, _context) {
       _export('slug', slug);
 
       function getPlainContent(string) {
-        var dom = $('<div/>').html(string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;'));
+        var html = string.replace(/(<\/p>|<br>)/g, '$1 &nbsp;').replace(/<img\b[^>]*>/ig, ' ');
+
+        var dom = $('<div/>').html(html);
 
         dom.find(getPlainContent.removeSelectors.join(',')).remove();
 
-        return dom.text();
+        return dom.text().replace(/\s+/g, ' ').trim();
       }
 
       /**

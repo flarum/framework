@@ -29,11 +29,15 @@ export default class Dropdown extends Component {
     props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
   }
 
+  init() {
+    this.showing = false;
+  }
+
   view() {
     const items = this.props.children ? listItems(this.props.children) : [];
 
     return (
-      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length}>
+      <div className={'ButtonGroup Dropdown dropdown ' + this.props.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
         {this.getButton()}
         {this.getMenu(items)}
       </div>
@@ -47,8 +51,17 @@ export default class Dropdown extends Component {
     // bottom of the viewport. If it does, we will apply class to make it show
     // above the toggle button instead of below it.
     this.$().on('shown.bs.dropdown', () => {
+      this.showing = true;
+
+      if (this.props.onshow) {
+        this.props.onshow();
+      }
+
+      m.redraw();
+
       const $menu = this.$('.Dropdown-menu');
       const isRight = $menu.hasClass('Dropdown-menu--right');
+
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
       $menu.toggleClass(
@@ -60,18 +73,16 @@ export default class Dropdown extends Component {
         'Dropdown-menu--right',
         isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width()
       );
-
-      if (this.props.onshow) {
-        this.props.onshow();
-        m.redraw();
-      }
     });
 
     this.$().on('hidden.bs.dropdown', () => {
+      this.showing = false;
+
       if (this.props.onhide) {
         this.props.onhide();
-        m.redraw();
       }
+
+      m.redraw();
     });
   }
 
