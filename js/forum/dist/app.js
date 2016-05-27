@@ -24355,11 +24355,21 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/uti
         }
 
         babelHelpers.createClass(PostEdited, [{
+          key: 'init',
+          value: function init() {
+            this.shouldUpdateTooltip = false;
+            this.oldEditedInfo = null;
+          }
+        }, {
           key: 'view',
           value: function view() {
             var post = this.props.post;
             var editUser = post.editUser();
             var editedInfo = extractText(app.translator.trans('core.forum.post.edited_tooltip', { user: editUser, ago: humanTime(post.editTime()) }));
+            if (editedInfo !== this.oldEditedInfo) {
+              this.shouldUpdateTooltip = true;
+              this.oldEditedInfo = editedInfo;
+            }
 
             return m(
               'span',
@@ -24370,9 +24380,10 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/uti
         }, {
           key: 'config',
           value: function config(isInitialized) {
-            if (isInitialized) return;
-
-            this.$().tooltip();
+            if (this.shouldUpdateTooltip) {
+              this.$().tooltip('destroy').tooltip();
+              this.shouldUpdateTooltip = false;
+            }
           }
         }]);
         return PostEdited;
