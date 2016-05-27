@@ -23961,13 +23961,6 @@ System.register('flarum/components/NotificationsDropdown', ['flarum/components/D
           value: function init() {
             babelHelpers.get(Object.getPrototypeOf(NotificationsDropdown.prototype), 'init', this).call(this);
 
-            /**
-             * Whether or not the notifications dropdown is visible.
-             *
-             * @type {Boolean}
-             */
-            this.showing = false;
-
             this.list = new NotificationList();
           }
         }, {
@@ -24013,7 +24006,6 @@ System.register('flarum/components/NotificationsDropdown', ['flarum/components/D
             if (app.drawer.isOpen()) {
               this.goToRoute();
             } else {
-              this.showing = true;
               this.list.load();
             }
           }

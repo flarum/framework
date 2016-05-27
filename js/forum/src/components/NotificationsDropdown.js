@@ -16,13 +16,6 @@ export default class NotificationsDropdown extends Dropdown {
   init() {
     super.init();
 
-    /**
-     * Whether or not the notifications dropdown is visible.
-     *
-     * @type {Boolean}
-     */
-    this.showing = false;
-
     this.list = new NotificationList();
   }
 
@@ -60,7 +53,6 @@ export default class NotificationsDropdown extends Dropdown {
     if (app.drawer.isOpen()) {
       this.goToRoute();
     } else {
-      this.showing = true;
       this.list.load();
     }
   }
