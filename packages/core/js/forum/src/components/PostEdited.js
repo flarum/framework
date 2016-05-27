@@ -11,6 +11,11 @@ import extractText from 'flarum/utils/extractText';
  * - `post`
  */
 export default class PostEdited extends Component {
+  init() {
+    this.shouldUpdateTooltip = false;
+    this.oldEditedInfo = null;
+  }
+
   view() {
     const post = this.props.post;
     const editUser = post.editUser();
@@ -18,6 +23,10 @@ export default class PostEdited extends Component {
       'core.forum.post.edited_tooltip',
       {user: editUser, ago: humanTime(post.editTime())}
     ));
+    if (editedInfo !== this.oldEditedInfo) {
+      this.shouldUpdateTooltip = true;
+      this.oldEditedInfo = editedInfo;
+    }
 
     return (
       <span className="PostEdited" title={editedInfo}>
@@ -27,8 +36,9 @@ export default class PostEdited extends Component {
   }
 
   config(isInitialized) {
-    if (isInitialized) return;
-
-    this.$().tooltip();
+    if (this.shouldUpdateTooltip) {
+      this.$().tooltip('destroy').tooltip();
+      this.shouldUpdateTooltip = false;
+    }
   }
 }
