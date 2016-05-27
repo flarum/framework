@@ -11,7 +11,7 @@
 namespace Flarum\Install;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\GenerateRouteHandlerTrait;
+use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 use Flarum\Install\Prerequisite\Composite;
 use Flarum\Install\Prerequisite\PhpExtensions;
@@ -20,8 +20,6 @@ use Flarum\Install\Prerequisite\WritablePaths;
 
 class InstallServiceProvider extends AbstractServiceProvider
 {
-    use GenerateRouteHandlerTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -51,33 +49,37 @@ class InstallServiceProvider extends AbstractServiceProvider
         );
 
         $this->app->singleton('flarum.install.routes', function () {
-            return $this->getRoutes();
+            return new RouteCollection;
         });
 
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
     }
 
     /**
-     * @return RouteCollection
+     * {@inheritdoc}
      */
-    protected function getRoutes()
+    public function boot()
     {
-        $routes = new RouteCollection;
+        $this->populateRoutes($this->app->make('flarum.install.routes'));
+    }
 
-        $toController = $this->getHandlerGenerator($this->app);
+    /**
+     * @param RouteCollection $routes
+     */
+    protected function populateRoutes(RouteCollection $routes)
+    {
+        $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
             '/',
             'index',
-            $toController('Flarum\Install\Controller\IndexController')
+            $route->toController(Controller\IndexController::class)
         );
 
         $routes->post(
             '/',
             'install',
-            $toController('Flarum\Install\Controller\InstallController')
+            $route->toController(Controller\InstallController::class)
         );
-
-        return $routes;
     }
 }
