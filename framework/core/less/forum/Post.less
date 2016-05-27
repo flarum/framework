@@ -169,29 +169,19 @@
   .Post-header, .Post-header a, .PostUser h3, .PostUser h3 a {
     color: @muted-more-color;
   }
-  &:not(.revealContent) .Post-header {
-    margin-bottom: 0;
+  &:not(.revealContent) {
+    .Post-header {
+      margin-bottom: 0;
+    }
+    .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+      display: none;
+    }
   }
   .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
-    position: absolute;
-    visibility: hidden;
-    opacity: 0;
-    margin-top: -5px;
-    .transition(~"margin-top 0.2s, opacity 0.2s");
-  }
-  &.revealContent {
-    .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
-      visibility: visible;
-      opacity: 0.5;
-      margin-top: 0;
-    }
-    .Post-body, .Post-footer, .PostUser-badges {
-      position: static;
-    }
+    opacity: 0.5;
   }
   .Post-header .Button--more {
-    background: fade(@muted-more-color, 30%);
-    color: @muted-more-color;
+    .Button--color(@muted-more-color, fade(@muted-more-color, 30%));
   }
 }
 .Post--loading {
