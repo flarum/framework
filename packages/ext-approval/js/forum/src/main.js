@@ -13,8 +13,7 @@ app.initializers.add('flarum-approval', () => {
   Discussion.prototype.isApproved = Discussion.attribute('isApproved');
 
   extend(Discussion.prototype, 'badges', function(items) {
-    if (!this.isApproved()) {
-      items.remove('hidden');
+    if (!this.isApproved() && !items.has('hidden')) {
       items.add('awaitingApproval', <Badge type="awaitingApproval" icon="gavel" label={app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip')}/>);
     }
   });
