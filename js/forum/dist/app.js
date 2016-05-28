@@ -29107,8 +29107,8 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
 
         hideTime: Model.attribute('hideTime', Model.transformDate),
         hideUser: Model.hasOne('hideUser'),
-        isHidden: computed('hideTime', 'commentsCount', function (hideTime, commentsCount) {
-          return !!hideTime || commentsCount === 0;
+        isHidden: computed('hideTime', function (hideTime) {
+          return !!hideTime;
         }),
 
         canReply: Model.attribute('canReply'),
@@ -30179,19 +30179,22 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
                 onclick: this.hideAction.bind(discussion)
               }));
             }
-          } else if (discussion.canDelete()) {
-            items.add('restore', Button.component({
-              icon: 'reply',
-              children: app.translator.trans('core.forum.discussion_controls.restore_button'),
-              onclick: this.restoreAction.bind(discussion),
-              disabled: discussion.commentsCount() === 0
-            }));
+          } else {
+            if (discussion.canHide()) {
+              items.add('restore', Button.component({
+                icon: 'reply',
+                children: app.translator.trans('core.forum.discussion_controls.restore_button'),
+                onclick: this.restoreAction.bind(discussion)
+              }));
+            }
 
-            items.add('delete', Button.component({
-              icon: 'times',
-              children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
-              onclick: this.deleteAction.bind(discussion)
-            }));
+            if (discussion.canDelete()) {
+              items.add('delete', Button.component({
+                icon: 'times',
+                children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
+                onclick: this.deleteAction.bind(discussion)
+              }));
+            }
           }
 
           return items;
