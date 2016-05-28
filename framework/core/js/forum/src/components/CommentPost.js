@@ -42,14 +42,14 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    return [
+    return super.content().concat([
       <header className="Post-header"><ul>{listItems(this.headerItems().toArray())}</ul></header>,
       <div className="Post-body">
         {this.isEditing()
           ? <div className="Post-preview" config={this.configPreview.bind(this)}/>
           : m.trust(this.props.post.contentHtml())}
       </div>
-    ];
+    ]);
   }
 
   config(isInitialized, context) {
@@ -76,16 +76,17 @@ export default class CommentPost extends Post {
 
   attrs() {
     const post = this.props.post;
+    const attrs = super.attrs();
 
-    return {
-      className: classList({
-        'CommentPost': true,
-        'Post--hidden': post.isHidden(),
-        'Post--edited': post.isEdited(),
-        'revealContent': this.revealContent,
-        'editing': this.isEditing()
-      })
-    };
+    attrs.className += ' '+classList({
+      'CommentPost': true,
+      'Post--hidden': post.isHidden(),
+      'Post--edited': post.isEdited(),
+      'revealContent': this.revealContent,
+      'editing': this.isEditing()
+    });
+
+    return attrs;
   }
 
   configPreview(element, isInitialized, context) {
