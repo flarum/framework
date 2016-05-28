@@ -420,7 +420,7 @@ System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/
   _export('default', function () {
     extend(PermissionGrid.prototype, 'startItems', function (items) {
       items.add('allowTagChange', {
-        icon: 'tags',
+        icon: 'tag',
         label: app.translator.trans('flarum-tags.admin.permissions.allow_edit_tags_label'),
         setting: function setting() {
           var minutes = parseInt(app.data.settings.allow_tag_change, 10);
