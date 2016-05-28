@@ -81,12 +81,18 @@ class SaveTagsToDatabase
 
             if ($discussion->exists) {
                 $oldTags = $discussion->tags()->get();
-                $oldTagIds = $oldTags->lists('id');
+                $oldTagIds = $oldTags->lists('id')->all();
 
                 if ($oldTagIds == $newTagIds) {
                     return;
                 }
 
+                foreach ($newTags as $tag) {
+                    if (! in_array($tag->id, $oldTagIds) && $actor->cannot('addToDiscussion', $tag)) {
+                        throw new PermissionDeniedException;
+                    }
+                }
+                
                 $discussion->raise(
                     new DiscussionWasTagged($discussion, $actor, $oldTags->all())
                 );

@@ -23,6 +23,7 @@ export default class Tag extends mixin(Model, {
 
   isRestricted: Model.attribute('isRestricted'),
   canStartDiscussion: Model.attribute('canStartDiscussion'),
+  canAddToDiscussion: Model.attribute('canAddToDiscussion'),
 
   isPrimary: computed('position', 'parent', (position, parent) => position !== null && parent === false)
 }) {}

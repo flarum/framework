@@ -43,4 +43,14 @@ class TagPolicy extends AbstractPolicy
             return true;
         }
     }
+
+    /**
+     * @param User $actor
+     * @param Tag $tag
+     * @return bool|null
+     */
+    public function addToDiscussion(User $actor, Tag $tag)
+    {
+        return $this->startDiscussion($actor, $tag);
+    }
 }

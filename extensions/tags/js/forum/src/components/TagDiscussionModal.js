@@ -14,7 +14,15 @@ export default class TagDiscussionModal extends Modal {
   init() {
     super.init();
 
-    this.tags = sortTags(app.store.all('tags').filter(tag => tag.canStartDiscussion()));
+    this.tags = app.store.all('tags');
+
+    if (this.props.discussion) {
+      this.tags = this.tags.filter(tag => tag.canAddToDiscussion() || this.props.discussion.tags().indexOf(tag) !== -1);
+    } else {
+      this.tags = this.tags.filter(tag => tag.canStartDiscussion());
+    }
+
+    this.tags = sortTags(this.tags);
 
     this.selected = [];
     this.filter = m.prop('');
