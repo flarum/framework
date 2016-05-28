@@ -28327,15 +28327,12 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
         item.attrs.key = item.attrs.key || item.itemName;
       }
 
-      var space = new String(' ');
-      space.attrs = { key: '_space_' + item.itemName };
-
       return [isListItem ? item : m(
         'li',
         { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']),
           key: item.itemName },
         item
-      ), space];
+      )];
     });
   }
 
