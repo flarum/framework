@@ -56,7 +56,7 @@ class DiscussionPolicy extends AbstractPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function before(User $actor, $ability)
+    public function after(User $actor, $ability)
     {
         if ($actor->hasPermission('discussion.'.$ability)) {
             return true;
@@ -107,7 +107,7 @@ class DiscussionPolicy extends AbstractPolicy
      * @param Discussion $discussion
      * @return bool|null
      */
-    public function delete(User $actor, Discussion $discussion)
+    public function hide(User $actor, Discussion $discussion)
     {
         if ($discussion->start_user_id == $actor->id && $discussion->participants_count <= 1) {
             return true;

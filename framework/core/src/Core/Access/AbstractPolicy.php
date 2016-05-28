@@ -27,6 +27,7 @@ abstract class AbstractPolicy
     public function subscribe(Dispatcher $events)
     {
         $events->listen(GetPermission::class, [$this, 'getPermission']);
+        $events->listen(GetPermission::class, [$this, 'getPermissionAfter'], -100);
         $events->listen(ScopeModelVisibility::class, [$this, 'scopeModelVisibility']);
     }
 
@@ -36,22 +37,19 @@ abstract class AbstractPolicy
      */
     public function getPermission(GetPermission $event)
     {
-        if (isset($event->arguments[0]) && $event->arguments[0] instanceof $this->model) {
-            if (method_exists($this, 'before')) {
-                $arguments = array_merge([$event->actor, $event->ability], $event->arguments);
+        if ($event->model instanceof $this->model && method_exists($this, $event->ability)) {
+            return call_user_func_array([$this, $event->ability], [$event->actor, $event->model]);
+        }
+    }
 
-                $result = call_user_func_array([$this, 'before'], $arguments);
-
-                if (! is_null($result)) {
-                    return $result;
-                }
-            }
-
-            if (method_exists($this, $event->ability)) {
-                $arguments = array_merge([$event->actor], $event->arguments);
-
-                return call_user_func_array([$this, $event->ability], $arguments);
-            }
+    /**
+     * @param GetPermission $event
+     * @return bool|null
+     */
+    public function getPermissionAfter(GetPermission $event)
+    {
+        if ($event->model instanceof $this->model && method_exists($this, 'after')) {
+            return call_user_func_array([$this, 'after'], [$event->actor, $event->ability, $event->model]);
         }
     }
 

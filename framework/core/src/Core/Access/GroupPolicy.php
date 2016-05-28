@@ -25,7 +25,7 @@ class GroupPolicy extends AbstractPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function before(User $actor, $ability)
+    public function after(User $actor, $ability)
     {
         if ($actor->hasPermission('group.'.$ability)) {
             return true;
