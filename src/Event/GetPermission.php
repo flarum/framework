@@ -25,19 +25,19 @@ class GetPermission
     public $ability;
 
     /**
-     * @var array
+     * @var mixed
      */
-    public $arguments;
+    public $model;
 
     /**
      * @param User $actor
      * @param string $ability
-     * @param array $arguments
+     * @param mixed $model
      */
-    public function __construct(User $actor, $ability, array $arguments)
+    public function __construct(User $actor, $ability, $model)
     {
         $this->actor = $actor;
         $this->ability = $ability;
-        $this->arguments = $arguments;
+        $this->model = $model;
     }
 }

@@ -30,18 +30,11 @@ class PostPolicy extends AbstractPolicy
     protected $settings;
 
     /**
-     * @var Gate
-     */
-    protected $gate;
-
-    /**
      * @param SettingsRepositoryInterface $settings
-     * @param Gate $gate
      */
-    public function __construct(SettingsRepositoryInterface $settings, Gate $gate)
+    public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
-        $this->gate = $gate;
     }
 
     /**
@@ -60,9 +53,9 @@ class PostPolicy extends AbstractPolicy
      * @param Post $post
      * @return bool|null
      */
-    public function before(User $actor, $ability, Post $post)
+    public function after(User $actor, $ability, Post $post)
     {
-        if ($this->discussionAllows($actor, $ability, $post)) {
+        if ($actor->can($ability.'Posts', $post->discussion)) {
             return true;
         }
     }
@@ -75,7 +68,7 @@ class PostPolicy extends AbstractPolicy
         // When fetching a discussion's posts: if the user doesn't have permission
         // to moderate the discussion, then they can't see posts that have been
         // hidden by someone other than themself.
-        if ($this->gate->forUser($event->actor)->denies('editPosts', $event->discussion)) {
+        if ($event->actor->cannot('editPosts', $event->discussion)) {
             $event->query->where(function ($query) use ($event) {
                 $query->whereNull('hide_time')
                     ->orWhere('user_id', $event->actor->id);
@@ -90,10 +83,6 @@ class PostPolicy extends AbstractPolicy
      */
     public function edit(User $actor, Post $post)
     {
-        if ($this->discussionAllows($actor, 'edit', $post)) {
-            return true;
-        }
-
         // A post is allowed to be edited if the user has permission to moderate
         // the discussion which it's in, or if they are the author and the post
         // hasn't been deleted by someone else.
@@ -106,16 +95,5 @@ class PostPolicy extends AbstractPolicy
                 return true;
             }
         }
-    }
-
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @param Post $post
-     * @return bool
-     */
-    protected function discussionAllows(User $actor, $ability, Post $post)
-    {
-        return $this->gate->forUser($actor)->allows($ability.'Posts', $post->discussion);
     }
 }
