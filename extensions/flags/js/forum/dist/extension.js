@@ -60,17 +60,17 @@ System.register('flarum/flags/addFlagsDropdown', ['flarum/extend', 'flarum/app',
 });;
 'use strict';
 
-System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/helpers/punctuate', 'flarum/helpers/username', 'flarum/utils/ItemList', 'flarum/utils/PostControls'], function (_export, _context) {
-  var extend, app, CommentPost, Button, punctuate, username, ItemList, PostControls;
+System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 'flarum/components/Post', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/utils/PostControls'], function (_export, _context) {
+  var extend, app, Post, Button, ItemList, PostControls;
 
   _export('default', function () {
-    extend(CommentPost.prototype, 'attrs', function (attrs) {
+    extend(Post.prototype, 'attrs', function (attrs) {
       if (this.props.post.flags().length) {
         attrs.className += ' Post--flagged';
       }
     });
 
-    CommentPost.prototype.dismissFlag = function (data) {
+    Post.prototype.dismissFlag = function (data) {
       var post = this.props.post;
 
       delete post.data.relationships.flags;
@@ -106,7 +106,7 @@ System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 
       });
     };
 
-    CommentPost.prototype.flagActionItems = function () {
+    Post.prototype.flagActionItems = function () {
       var _this = this;
 
       var items = new ItemList();
@@ -138,7 +138,7 @@ System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 
       return items;
     };
 
-    extend(CommentPost.prototype, 'content', function (vdom) {
+    extend(Post.prototype, 'content', function (vdom) {
       var _this2 = this;
 
       var post = this.props.post;
@@ -170,7 +170,7 @@ System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 
       ));
     });
 
-    CommentPost.prototype.flagReason = function (flag) {
+    Post.prototype.flagReason = function (flag) {
       if (flag.type() === 'user') {
         var user = flag.user();
         var reason = flag.reason();
@@ -190,14 +190,10 @@ System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
       app = _flarumApp.default;
-    }, function (_flarumComponentsCommentPost) {
-      CommentPost = _flarumComponentsCommentPost.default;
+    }, function (_flarumComponentsPost) {
+      Post = _flarumComponentsPost.default;
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton.default;
-    }, function (_flarumHelpersPunctuate) {
-      punctuate = _flarumHelpersPunctuate.default;
-    }, function (_flarumHelpersUsername) {
-      username = _flarumHelpersUsername.default;
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsPostControls) {
