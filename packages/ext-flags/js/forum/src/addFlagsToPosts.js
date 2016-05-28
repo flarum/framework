@@ -1,20 +1,18 @@
 import { extend } from 'flarum/extend';
 import app from 'flarum/app';
-import CommentPost from 'flarum/components/CommentPost';
+import Post from 'flarum/components/Post';
 import Button from 'flarum/components/Button';
-import punctuate from 'flarum/helpers/punctuate';
-import username from 'flarum/helpers/username';
 import ItemList from 'flarum/utils/ItemList';
 import PostControls from 'flarum/utils/PostControls';
 
 export default function() {
-  extend(CommentPost.prototype, 'attrs', function(attrs) {
+  extend(Post.prototype, 'attrs', function(attrs) {
     if (this.props.post.flags().length) {
       attrs.className += ' Post--flagged';
     }
   });
 
-  CommentPost.prototype.dismissFlag = function(data) {
+  Post.prototype.dismissFlag = function(data) {
     const post = this.props.post;
 
     delete post.data.relationships.flags;
@@ -50,7 +48,7 @@ export default function() {
     });
   };
 
-  CommentPost.prototype.flagActionItems = function() {
+  Post.prototype.flagActionItems = function() {
     const items = new ItemList();
 
     const controls = PostControls.destructiveControls(this.props.post);
@@ -78,7 +76,7 @@ export default function() {
     return items;
   };
 
-  extend(CommentPost.prototype, 'content', function(vdom) {
+  extend(Post.prototype, 'content', function(vdom) {
     const post = this.props.post;
     const flags = post.flags();
 
@@ -102,7 +100,7 @@ export default function() {
     );
   });
 
-  CommentPost.prototype.flagReason = function(flag) {
+  Post.prototype.flagReason = function(flag) {
     if (flag.type() === 'user') {
       const user = flag.user();
       const reason = flag.reason();
