@@ -79,6 +79,6 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
      */
     public static function buildContent(array $oldTagIds, array $newTagIds)
     {
-        return [$oldTagIds, $newTagIds];
+        return [array_map('intval', $oldTagIds), array_map('intval', $newTagIds)];
     }
 }
