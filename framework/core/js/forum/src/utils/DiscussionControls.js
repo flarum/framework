@@ -113,19 +113,22 @@ export default {
           onclick: this.hideAction.bind(discussion)
         }));
       }
-    } else if (discussion.canDelete()) {
-      items.add('restore', Button.component({
-        icon: 'reply',
-        children: app.translator.trans('core.forum.discussion_controls.restore_button'),
-        onclick: this.restoreAction.bind(discussion),
-        disabled: discussion.commentsCount() === 0
-      }));
+    } else {
+      if (discussion.canHide()) {
+        items.add('restore', Button.component({
+          icon: 'reply',
+          children: app.translator.trans('core.forum.discussion_controls.restore_button'),
+          onclick: this.restoreAction.bind(discussion)
+        }));
+      }
 
-      items.add('delete', Button.component({
-        icon: 'times',
-        children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
-        onclick: this.deleteAction.bind(discussion)
-      }));
+      if (discussion.canDelete()) {
+        items.add('delete', Button.component({
+          icon: 'times',
+          children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
+          onclick: this.deleteAction.bind(discussion)
+        }));
+      }
     }
 
     return items;

@@ -30,7 +30,7 @@ Object.assign(Discussion.prototype, {
 
   hideTime: Model.attribute('hideTime', Model.transformDate),
   hideUser: Model.hasOne('hideUser'),
-  isHidden: computed('hideTime', 'commentsCount', (hideTime, commentsCount) => !!hideTime || commentsCount === 0),
+  isHidden: computed('hideTime', hideTime => !!hideTime),
 
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
