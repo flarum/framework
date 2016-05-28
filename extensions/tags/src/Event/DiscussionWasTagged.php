@@ -24,7 +24,7 @@ class DiscussionWasTagged
     /**
      * @var User
      */
-    public $user;
+    public $actor;
 
     /**
      * @var array
@@ -33,13 +33,13 @@ class DiscussionWasTagged
 
     /**
      * @param Discussion $discussion
-     * @param User $user
+     * @param User $actor
      * @param \Flarum\Tags\Tag[] $oldTags
      */
-    public function __construct(Discussion $discussion, User $user, array $oldTags)
+    public function __construct(Discussion $discussion, User $actor, array $oldTags)
     {
         $this->discussion = $discussion;
-        $this->user = $user;
+        $this->actor = $actor;
         $this->oldTags = $oldTags;
     }
 }
