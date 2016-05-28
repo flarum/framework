@@ -16,9 +16,11 @@ import icon from 'flarum/helpers/icon';
  */
 export default class EventPost extends Post {
   attrs() {
-    return {
-      className: 'EventPost ' + ucfirst(this.props.post.contentType()) + 'Post'
-    };
+    const attrs = super.attrs();
+
+    attrs.className += ' EventPost ' + ucfirst(this.props.post.contentType()) + 'Post';
+
+    return attrs;
   }
 
   content() {
@@ -31,12 +33,12 @@ export default class EventPost extends Post {
         : username
     });
 
-    return [
+    return super.content().concat([
       icon(this.icon(), {className: 'EventPost-icon'}),
       <div class="EventPost-info">
         {this.description(data)}
       </div>
-    ];
+    ]);
   }
 
   /**

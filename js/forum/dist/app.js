@@ -19593,7 +19593,7 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
         }, {
           key: 'content',
           value: function content() {
-            return [m(
+            return babelHelpers.get(Object.getPrototypeOf(CommentPost.prototype), 'content', this).call(this).concat([m(
               'header',
               { className: 'Post-header' },
               m(
@@ -19605,7 +19605,7 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
               'div',
               { className: 'Post-body' },
               this.isEditing() ? m('div', { className: 'Post-preview', config: this.configPreview.bind(this) }) : m.trust(this.props.post.contentHtml())
-            )];
+            )]);
           }
         }, {
           key: 'config',
@@ -19634,16 +19634,17 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
           key: 'attrs',
           value: function attrs() {
             var post = this.props.post;
+            var attrs = babelHelpers.get(Object.getPrototypeOf(CommentPost.prototype), 'attrs', this).call(this);
 
-            return {
-              className: classList({
-                'CommentPost': true,
-                'Post--hidden': post.isHidden(),
-                'Post--edited': post.isEdited(),
-                'revealContent': this.revealContent,
-                'editing': this.isEditing()
-              })
-            };
+            attrs.className += ' ' + classList({
+              'CommentPost': true,
+              'Post--hidden': post.isHidden(),
+              'Post--edited': post.isEdited(),
+              'revealContent': this.revealContent,
+              'editing': this.isEditing()
+            });
+
+            return attrs;
           }
         }, {
           key: 'configPreview',
@@ -21909,9 +21910,11 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
         babelHelpers.createClass(EventPost, [{
           key: 'attrs',
           value: function attrs() {
-            return {
-              className: 'EventPost ' + ucfirst(this.props.post.contentType()) + 'Post'
-            };
+            var attrs = babelHelpers.get(Object.getPrototypeOf(EventPost.prototype), 'attrs', this).call(this);
+
+            attrs.className += ' EventPost ' + ucfirst(this.props.post.contentType()) + 'Post';
+
+            return attrs;
           }
         }, {
           key: 'content',
@@ -21927,11 +21930,11 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
               ) : username
             });
 
-            return [icon(this.icon(), { className: 'EventPost-icon' }), m(
+            return babelHelpers.get(Object.getPrototypeOf(EventPost.prototype), 'content', this).call(this).concat([icon(this.icon(), { className: 'EventPost-icon' }), m(
               'div',
               { 'class': 'EventPost-info' },
               this.description(data)
-            )];
+            )]);
           }
         }, {
           key: 'icon',
@@ -24317,7 +24320,7 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
         }, {
           key: 'content',
           value: function content() {
-            return '';
+            return [];
           }
         }, {
           key: 'actionItems',

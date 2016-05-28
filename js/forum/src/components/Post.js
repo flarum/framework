@@ -92,10 +92,10 @@ export default class Post extends Component {
   /**
    * Get the post's content.
    *
-   * @return {Object}
+   * @return {Array}
    */
   content() {
-    return '';
+    return [];
   }
 
   /**
