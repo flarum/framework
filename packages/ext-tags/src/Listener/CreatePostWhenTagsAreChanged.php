@@ -42,7 +42,7 @@ class CreatePostWhenTagsAreChanged
     {
         $post = DiscussionTaggedPost::reply(
             $event->discussion->id,
-            $event->user->id,
+            $event->actor->id,
             array_pluck($event->oldTags, 'id'),
             $event->discussion->tags()->lists('id')->all()
         );
