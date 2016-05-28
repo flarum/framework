@@ -4,6 +4,7 @@ import Discussion from 'flarum/models/Discussion';
 import Post from 'flarum/models/Post';
 import Badge from 'flarum/components/Badge';
 import DiscussionListItem from 'flarum/components/DiscussionListItem';
+import PostComponent from 'flarum/components/Post';
 import CommentPost from 'flarum/components/CommentPost';
 import Button from 'flarum/components/Button';
 import PostControls from 'flarum/utils/PostControls';
@@ -27,9 +28,9 @@ app.initializers.add('flarum-approval', () => {
     }
   });
 
-  extend(CommentPost.prototype, 'attrs', function(attrs) {
-    if (!this.props.post.isApproved() && !this.props.post.isHidden()) {
-      attrs.className += ' CommentPost--unapproved';
+  extend(PostComponent.prototype, 'attrs', function(attrs) {
+    if (!this.props.post.isApproved()) {
+      attrs.className += ' Post--unapproved';
     }
   });
 
@@ -39,7 +40,7 @@ app.initializers.add('flarum-approval', () => {
     }
   });
 
-  override(CommentPost.prototype, 'flagReason', function(original, flag) {
+  override(PostComponent.prototype, 'flagReason', function(original, flag) {
     if (flag.type() === 'approval') {
       return app.translator.trans('flarum-approval.forum.post.awaiting_approval_text');
     }

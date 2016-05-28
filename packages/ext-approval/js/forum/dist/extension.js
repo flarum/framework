@@ -1,7 +1,7 @@
 'use strict';
 
-System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/Badge', 'flarum/components/DiscussionListItem', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export, _context) {
-  var extend, override, app, Discussion, Post, Badge, DiscussionListItem, CommentPost, Button, PostControls;
+System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/Badge', 'flarum/components/DiscussionListItem', 'flarum/components/Post', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export, _context) {
+  var extend, override, app, Discussion, Post, Badge, DiscussionListItem, PostComponent, CommentPost, Button, PostControls;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -16,6 +16,8 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
       Badge = _flarumComponentsBadge.default;
     }, function (_flarumComponentsDiscussionListItem) {
       DiscussionListItem = _flarumComponentsDiscussionListItem.default;
+    }, function (_flarumComponentsPost) {
+      PostComponent = _flarumComponentsPost.default;
     }, function (_flarumComponentsCommentPost) {
       CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumComponentsButton) {
@@ -44,9 +46,9 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
           }
         });
 
-        extend(CommentPost.prototype, 'attrs', function (attrs) {
-          if (!this.props.post.isApproved() && !this.props.post.isHidden()) {
-            attrs.className += ' CommentPost--unapproved';
+        extend(PostComponent.prototype, 'attrs', function (attrs) {
+          if (!this.props.post.isApproved()) {
+            attrs.className += ' Post--unapproved';
           }
         });
 
@@ -56,7 +58,7 @@ System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/
           }
         });
 
-        override(CommentPost.prototype, 'flagReason', function (original, flag) {
+        override(PostComponent.prototype, 'flagReason', function (original, flag) {
           if (flag.type() === 'approval') {
             return app.translator.trans('flarum-approval.forum.post.awaiting_approval_text');
           }
