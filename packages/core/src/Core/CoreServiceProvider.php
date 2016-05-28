@@ -77,7 +77,7 @@ class CoreServiceProvider extends AbstractServiceProvider
             // this permission query and explicitly grant or deny the
             // permission.
             $allowed = $this->app->make('events')->until(
-                new GetPermission($actor, $ability, $model ? [$model] : [])
+                new GetPermission($actor, $ability, $model)
             );
 
             if (! is_null($allowed)) {
