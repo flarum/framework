@@ -11,6 +11,7 @@
 namespace Flarum\Database;
 
 use Flarum\Event\ConfigureModelDates;
+use Flarum\Event\ConfigureModelDefaultAttributes;
 use Flarum\Event\GetModelRelationship;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -64,6 +65,22 @@ abstract class AbstractModel extends Eloquent
                 $callback($model);
             }
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(array $attributes = [])
+    {
+        $defaults = [];
+        
+        static::$dispatcher->fire(
+            new ConfigureModelDefaultAttributes($this, $defaults)
+        );
+
+        $this->attributes = $defaults;
+        
+        parent::__construct($attributes);
     }
 
     /**
