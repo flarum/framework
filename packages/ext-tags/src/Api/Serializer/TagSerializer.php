@@ -40,7 +40,8 @@ class TagSerializer extends AbstractSerializer
             'isChild'            => (bool) $tag->parent_id,
             'isHidden'           => (bool) $tag->is_hidden,
             'lastTime'           => $this->formatDate($tag->last_time),
-            'canStartDiscussion' => $this->actor->can('startDiscussion', $tag)
+            'canStartDiscussion' => $this->actor->can('startDiscussion', $tag),
+            'canAddToDiscussion' => $this->actor->can('addToDiscussion', $tag)
         ];
 
         if ($this->actor->isAdmin()) {

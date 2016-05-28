@@ -1301,6 +1301,7 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
 
         isRestricted: Model.attribute('isRestricted'),
         canStartDiscussion: Model.attribute('canStartDiscussion'),
+        canAddToDiscussion: Model.attribute('canAddToDiscussion'),
 
         isPrimary: computed('position', 'parent', function (position, parent) {
           return position !== null && parent === false;

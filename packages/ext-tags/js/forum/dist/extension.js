@@ -446,9 +446,19 @@ System.register('flarum/tags/components/TagDiscussionModal', ['flarum/components
 
             babelHelpers.get(Object.getPrototypeOf(TagDiscussionModal.prototype), 'init', this).call(this);
 
-            this.tags = sortTags(app.store.all('tags').filter(function (tag) {
-              return tag.canStartDiscussion();
-            }));
+            this.tags = app.store.all('tags');
+
+            if (this.props.discussion) {
+              this.tags = this.tags.filter(function (tag) {
+                return tag.canAddToDiscussion() || _this2.props.discussion.tags().indexOf(tag) !== -1;
+              });
+            } else {
+              this.tags = this.tags.filter(function (tag) {
+                return tag.canStartDiscussion();
+              });
+            }
+
+            this.tags = sortTags(this.tags);
 
             this.selected = [];
             this.filter = m.prop('');
@@ -1258,6 +1268,7 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
 
         isRestricted: Model.attribute('isRestricted'),
         canStartDiscussion: Model.attribute('canStartDiscussion'),
+        canAddToDiscussion: Model.attribute('canAddToDiscussion'),
 
         isPrimary: computed('position', 'parent', function (position, parent) {
           return position !== null && parent === false;
