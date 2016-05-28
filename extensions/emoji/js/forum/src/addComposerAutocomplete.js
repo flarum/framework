@@ -106,7 +106,8 @@ export default function addComposerAutocomplete() {
 
             const findMatchingEmojis = matcher => {
               for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
-                if (matcher(emojiKeys[i])) {
+                const curEmoji = emojiKeys[i];
+                if (matcher(curEmoji) && similarEmoji.indexOf(curEmoji) === -1) {
                   --maxSuggestions;
                   similarEmoji.push(emojiKeys[i]);
                 }

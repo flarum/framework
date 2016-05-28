@@ -235,7 +235,8 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
 
               var findMatchingEmojis = function findMatchingEmojis(matcher) {
                 for (var _i = 0; _i < emojiKeys.length && maxSuggestions > 0; _i++) {
-                  if (matcher(emojiKeys[_i])) {
+                  var curEmoji = emojiKeys[_i];
+                  if (matcher(curEmoji) && similarEmoji.indexOf(curEmoji) === -1) {
                     --maxSuggestions;
                     similarEmoji.push(emojiKeys[_i]);
                   }
