@@ -39,9 +39,6 @@ export default function listItems(items) {
       item.attrs.key = item.attrs.key || item.itemName;
     }
 
-    const space = new String(' ');
-    space.attrs = {key: '_space_'+item.itemName};
-
     return [
       isListItem
         ? item
@@ -52,8 +49,7 @@ export default function listItems(items) {
           ])}
             key={item.itemName}>
             {item}
-          </li>,
-      space
+          </li>
     ];
   });
 }
