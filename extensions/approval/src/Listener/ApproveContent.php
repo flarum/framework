@@ -47,7 +47,7 @@ class ApproveContent
         if (! empty($isApproved)) {
             $post->is_approved = true;
 
-            $post->raise(new PostWasApproved($post));
+            $post->raise(new PostWasApproved($post, $event->actor));
         }
     }
 

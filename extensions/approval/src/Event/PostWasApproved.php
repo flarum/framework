@@ -11,6 +11,7 @@
 namespace Flarum\Approval\Event;
 
 use Flarum\Core\Post;
+use Flarum\Core\User;
 
 class PostWasApproved
 {
@@ -22,10 +23,17 @@ class PostWasApproved
     public $post;
 
     /**
-     * @param Post $post
+     * @var User
      */
-    public function __construct(Post $post)
+    public $actor;
+
+    /**
+     * @param Post $post
+     * @param User $actor
+     */
+    public function __construct(Post $post, User $actor)
     {
         $this->post = $post;
+        $this->actor = $actor;
     }
 }
