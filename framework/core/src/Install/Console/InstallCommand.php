@@ -357,7 +357,7 @@ class InstallCommand extends AbstractCommand
     protected function publishAssets()
     {
         $this->filesystem->copyDirectory(
-            $this->application->basePath().'/vendor/fortawesome/font-awesome/fonts',
+            $this->application->basePath().'/vendor/components/font-awesome/fonts',
             $this->application->publicPath().'/assets/fonts'
         );
     }
