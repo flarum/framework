@@ -23,7 +23,7 @@
         "php": ">=5.5.9",
         "dflydev/fig-cookies": "^1.0.2",
         "doctrine/dbal": "^2.5",
-        "fortawesome/font-awesome": "^4.6",
+        "components/font-awesome": "^4.6",
         "franzl/whoops-middleware": "^0.4.0",
         "illuminate/bus": "5.1.*",
         "illuminate/cache": "5.1.*",

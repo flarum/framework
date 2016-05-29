@@ -48,7 +48,7 @@ class LessCompiler extends RevisionCompiler
             'compress' => true,
             'cache_dir' => $this->cachePath,
             'import_dirs' => [
-                base_path().'/vendor/fortawesome/font-awesome/less' => '',
+                base_path().'/vendor/components/font-awesome/less' => '',
             ],
         ]);
 
