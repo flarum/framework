@@ -10,26 +10,26 @@
 
 namespace Flarum\Event;
 
-use Flarum\Admin\Controller\WebAppController as AdminClientController;
-use Flarum\Forum\Controller\WebAppController as ForumClientController;
+use Flarum\Admin\Controller\WebAppController as AdminWebAppController;
+use Flarum\Forum\Controller\WebAppController as ForumWebAppController;
 use Flarum\Http\Controller\AbstractWebAppController;
 use Flarum\Http\WebApp\WebAppView;
 
 class ConfigureWebApp
 {
     /**
-     * @var AbstractClientController
+     * @var AbstractWebAppController
      */
     public $controller;
 
     /**
-     * @var ClientView
+     * @var WebAppView
      */
     public $view;
 
     /**
-     * @param AbstractClientController $controller
-     * @param ClientView $view
+     * @param AbstractWebAppController $controller
+     * @param WebAppView $view
      */
     public function __construct(AbstractWebAppController $controller, WebAppView $view)
     {
@@ -39,12 +39,12 @@ class ConfigureWebApp
 
     public function isForum()
     {
-        return $this->controller instanceof ForumClientController;
+        return $this->controller instanceof ForumWebAppController;
     }
 
     public function isAdmin()
     {
-        return $this->controller instanceof AdminClientController;
+        return $this->controller instanceof AdminWebAppController;
     }
 
     public function addAssets($files)
