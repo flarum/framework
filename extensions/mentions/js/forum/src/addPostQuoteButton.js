@@ -2,6 +2,7 @@ import { extend } from 'flarum/extend';
 import CommentPost from 'flarum/components/CommentPost';
 
 import PostQuoteButton from 'flarum/mentions/components/PostQuoteButton';
+import selectedText from 'flarum/mentions/utils/selectedText';
 
 export default function addPostQuoteButton() {
   extend(CommentPost.prototype, 'config', function(original, isInitialized) {
@@ -9,7 +10,7 @@ export default function addPostQuoteButton() {
 
     if (isInitialized || post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
 
-    const $postBody = this.$().find('.Post-body');
+    const $postBody = this.$('.Post-body');
 
     // Wrap the quote button in a wrapper element so that we can render
     // button into it.
@@ -19,29 +20,19 @@ export default function addPostQuoteButton() {
       .after($container)
       .on('mouseup', function(e) {
         setTimeout(() => {
-          const selection = window.getSelection();
+          const content = selectedText($postBody);
+          if (content) {
+            const button = new PostQuoteButton({post, content});
+            m.render($container[0], button.render());
 
-          if (selection.rangeCount) {
-            const range = selection.getRangeAt(0);
-            const parent = range.commonAncestorContainer;
+            const rects = window.getSelection().getRangeAt(0).getClientRects();
+            const firstRect = rects[0];
 
-            if ($postBody[0] === parent || $.contains($postBody[0], parent)) {
-              const content = selection.toString();
-
-              if (content) {
-                const button = new PostQuoteButton({post, content});
-                m.render($container[0], button.render());
-
-                const rects = range.getClientRects();
-                const firstRect = rects[0];
-
-                if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
-                  button.showStart(firstRect.left, firstRect.top);
-                } else {
-                  const lastRect = rects[rects.length - 1];
-                  button.showEnd(lastRect.right, lastRect.bottom);
-                }
-              }
+            if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
+              button.showStart(firstRect.left, firstRect.top);
+            } else {
+              const lastRect = rects[rects.length - 1];
+              button.showEnd(lastRect.right, lastRect.bottom);
             }
           }
         }, 1);
