@@ -415,6 +415,8 @@ return sortable;
 'use strict';
 
 System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/SettingDropdown'], function (_export, _context) {
+  "use strict";
+
   var extend, PermissionGrid, SettingDropdown;
 
   _export('default', function () {
@@ -449,6 +451,8 @@ System.register('flarum/tags/addTagChangePermission', ['flarum/extend', 'flarum/
 'use strict';
 
 System.register('flarum/tags/addTagPermission', ['flarum/extend', 'flarum/components/PermissionGrid'], function (_export, _context) {
+  "use strict";
+
   var extend, PermissionGrid;
 
   _export('default', function () {
@@ -473,6 +477,8 @@ System.register('flarum/tags/addTagPermission', ['flarum/extend', 'flarum/compon
 'use strict';
 
 System.register('flarum/tags/addTagsHomePageOption', ['flarum/extend', 'flarum/components/BasicsPage'], function (_export, _context) {
+  "use strict";
+
   var extend, BasicsPage;
 
   _export('default', function () {
@@ -496,6 +502,8 @@ System.register('flarum/tags/addTagsHomePageOption', ['flarum/extend', 'flarum/c
 'use strict';
 
 System.register('flarum/tags/addTagsPane', ['flarum/extend', 'flarum/components/AdminNav', 'flarum/components/AdminLinkButton', 'flarum/tags/components/TagsPage'], function (_export, _context) {
+  "use strict";
+
   var extend, AdminNav, AdminLinkButton, TagsPage;
 
   _export('default', function () {
@@ -531,6 +539,8 @@ System.register('flarum/tags/addTagsPane', ['flarum/extend', 'flarum/components/
 'use strict';
 
 System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/components/PermissionGrid', 'flarum/components/PermissionDropdown', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var extend, override, PermissionGrid, PermissionDropdown, Dropdown, Button, tagLabel, tagIcon, sortTags;
 
   _export('default', function () {
@@ -624,6 +634,8 @@ System.register('flarum/tags/addTagsPermissionScope', ['flarum/extend', 'flarum/
 'use strict';
 
 System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/string', 'flarum/tags/helpers/tagLabel'], function (_export, _context) {
+  "use strict";
+
   var Modal, Button, slug, tagLabel, EditTagModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -799,6 +811,8 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
 'use strict';
 
 System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
+  "use strict";
+
   var SettingsModal, TagSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
@@ -905,6 +919,8 @@ System.register('flarum/tags/components/TagSettingsModal', ['flarum/components/S
 'use strict';
 
 System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/tags/components/EditTagModal', 'flarum/tags/components/TagSettingsModal', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var Page, Button, EditTagModal, TagSettingsModal, tagIcon, sortTags, TagsPage;
 
 
@@ -1118,6 +1134,8 @@ System.register('flarum/tags/components/TagsPage', ['flarum/components/Page', 'f
 'use strict';
 
 System.register('flarum/tags/helpers/tagIcon', [], function (_export, _context) {
+  "use strict";
+
   function tagIcon(tag) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -1143,6 +1161,8 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export, _context) 
 'use strict';
 
 System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], function (_export, _context) {
+  "use strict";
+
   var extract;
   function tagLabel(tag) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -1187,6 +1207,8 @@ System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], functi
 'use strict';
 
 System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var extract, tagLabel, sortTags;
   function tagsLabel(tags) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -1229,6 +1251,8 @@ System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flaru
 'use strict';
 
 System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addTagsPermissionScope', 'flarum/tags/addTagPermission', 'flarum/tags/addTagsPane', 'flarum/tags/addTagsHomePageOption', 'flarum/tags/addTagChangePermission'], function (_export, _context) {
+  "use strict";
+
   var Tag, addTagsPermissionScope, addTagPermission, addTagsPane, addTagsHomePageOption, addTagChangePermission;
   return {
     setters: [function (_flarumTagsModelsTag) {
@@ -1261,6 +1285,8 @@ System.register('flarum/tags/main', ['flarum/tags/models/Tag', 'flarum/tags/addT
 'use strict';
 
 System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export, _context) {
+  "use strict";
+
   var Model, mixin, computed, Tag;
   return {
     setters: [function (_flarumModel) {
@@ -1315,6 +1341,8 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
 "use strict";
 
 System.register("flarum/tags/utils/sortTags", [], function (_export, _context) {
+  "use strict";
+
   function sortTags(tags) {
     return tags.slice(0).sort(function (a, b) {
       var aPos = a.position();

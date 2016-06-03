@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/tags/addTagComposer', ['flarum/extend', 'flarum/components/IndexPage', 'flarum/components/DiscussionComposer', 'flarum/tags/components/TagDiscussionModal', 'flarum/tags/helpers/tagsLabel'], function (_export, _context) {
+  "use strict";
+
   var extend, override, IndexPage, DiscussionComposer, TagDiscussionModal, tagsLabel;
 
   _export('default', function () {
@@ -88,6 +90,8 @@ System.register('flarum/tags/addTagComposer', ['flarum/extend', 'flarum/componen
 'use strict';
 
 System.register('flarum/tags/addTagControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/Button', 'flarum/tags/components/TagDiscussionModal'], function (_export, _context) {
+  "use strict";
+
   var extend, DiscussionControls, Button, TagDiscussionModal;
 
   _export('default', function () {
@@ -121,6 +125,8 @@ System.register('flarum/tags/addTagControl', ['flarum/extend', 'flarum/utils/Dis
 'use strict';
 
 System.register('flarum/tags/addTagFilter', ['flarum/extend', 'flarum/components/IndexPage', 'flarum/components/DiscussionList', 'flarum/tags/components/TagHero'], function (_export, _context) {
+  "use strict";
+
   var extend, override, IndexPage, DiscussionList, TagHero;
 
   _export('default', function () {
@@ -186,6 +192,8 @@ System.register('flarum/tags/addTagFilter', ['flarum/extend', 'flarum/components
 'use strict';
 
 System.register('flarum/tags/addTagLabels', ['flarum/extend', 'flarum/components/DiscussionListItem', 'flarum/components/DiscussionPage', 'flarum/components/DiscussionHero', 'flarum/tags/helpers/tagsLabel', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var extend, DiscussionListItem, DiscussionPage, DiscussionHero, tagsLabel, sortTags;
 
   _export('default', function () {
@@ -247,6 +255,8 @@ System.register('flarum/tags/addTagLabels', ['flarum/extend', 'flarum/components
 'use strict';
 
 System.register('flarum/tags/addTagList', ['flarum/extend', 'flarum/components/IndexPage', 'flarum/components/Separator', 'flarum/components/LinkButton', 'flarum/tags/components/TagLinkButton', 'flarum/tags/components/TagsPage', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var extend, IndexPage, Separator, LinkButton, TagLinkButton, TagsPage, sortTags;
 
   _export('default', function () {
@@ -320,6 +330,8 @@ System.register('flarum/tags/addTagList', ['flarum/extend', 'flarum/components/I
 'use strict';
 
 System.register('flarum/tags/components/DiscussionTaggedPost', ['flarum/components/EventPost', 'flarum/helpers/punctuateSeries', 'flarum/tags/helpers/tagsLabel'], function (_export, _context) {
+  "use strict";
+
   var EventPost, punctuateSeries, tagsLabel, DiscussionTaggedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
@@ -407,6 +419,8 @@ System.register('flarum/tags/components/DiscussionTaggedPost', ['flarum/componen
 'use strict';
 
 System.register('flarum/tags/components/TagDiscussionModal', ['flarum/components/Modal', 'flarum/components/DiscussionPage', 'flarum/components/Button', 'flarum/helpers/highlight', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/utils/KeyboardNavigatable', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var Modal, DiscussionPage, Button, highlight, classList, extractText, KeyboardNavigatable, tagLabel, tagIcon, sortTags, TagDiscussionModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -806,6 +820,8 @@ System.register('flarum/tags/components/TagDiscussionModal', ['flarum/components
 'use strict';
 
 System.register('flarum/tags/components/TagHero', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
   var Component, TagHero;
   return {
     setters: [function (_flarumComponent) {
@@ -861,6 +877,8 @@ System.register('flarum/tags/components/TagHero', ['flarum/Component'], function
 'use strict';
 
 System.register('flarum/tags/components/TagLinkButton', ['flarum/components/LinkButton', 'flarum/tags/helpers/tagIcon'], function (_export, _context) {
+  "use strict";
+
   var LinkButton, tagIcon, TagLinkButton;
   return {
     setters: [function (_flarumComponentsLinkButton) {
@@ -913,6 +931,8 @@ System.register('flarum/tags/components/TagLinkButton', ['flarum/components/Link
 'use strict';
 
 System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/components/IndexPage', 'flarum/helpers/listItems', 'flarum/helpers/humanTime', 'flarum/helpers/icon', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var Component, IndexPage, listItems, humanTime, icon, tagLabel, sortTags, TagsPage;
   return {
     setters: [function (_flarumComponent) {
@@ -1063,6 +1083,8 @@ System.register('flarum/tags/components/TagsPage', ['flarum/Component', 'flarum/
 'use strict';
 
 System.register('flarum/tags/helpers/tagIcon', [], function (_export, _context) {
+  "use strict";
+
   function tagIcon(tag) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -1088,6 +1110,8 @@ System.register('flarum/tags/helpers/tagIcon', [], function (_export, _context) 
 'use strict';
 
 System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], function (_export, _context) {
+  "use strict";
+
   var extract;
   function tagLabel(tag) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -1132,6 +1156,8 @@ System.register('flarum/tags/helpers/tagLabel', ['flarum/utils/extract'], functi
 'use strict';
 
 System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flarum/tags/helpers/tagLabel', 'flarum/tags/utils/sortTags'], function (_export, _context) {
+  "use strict";
+
   var extract, tagLabel, sortTags;
   function tagsLabel(tags) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -1174,6 +1200,8 @@ System.register('flarum/tags/helpers/tagsLabel', ['flarum/utils/extract', 'flaru
 'use strict';
 
 System.register('flarum/tags/main', ['flarum/Model', 'flarum/models/Discussion', 'flarum/components/IndexPage', 'flarum/tags/models/Tag', 'flarum/tags/components/TagsPage', 'flarum/tags/components/DiscussionTaggedPost', 'flarum/tags/addTagList', 'flarum/tags/addTagFilter', 'flarum/tags/addTagLabels', 'flarum/tags/addTagControl', 'flarum/tags/addTagComposer'], function (_export, _context) {
+  "use strict";
+
   var Model, Discussion, IndexPage, Tag, TagsPage, DiscussionTaggedPost, addTagList, addTagFilter, addTagLabels, addTagControl, addTagComposer;
   return {
     setters: [function (_flarumModel) {
@@ -1228,6 +1256,8 @@ System.register('flarum/tags/main', ['flarum/Model', 'flarum/models/Discussion',
 'use strict';
 
 System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin', 'flarum/utils/computed'], function (_export, _context) {
+  "use strict";
+
   var Model, mixin, computed, Tag;
   return {
     setters: [function (_flarumModel) {
@@ -1282,6 +1312,8 @@ System.register('flarum/tags/models/Tag', ['flarum/Model', 'flarum/utils/mixin',
 "use strict";
 
 System.register("flarum/tags/utils/sortTags", [], function (_export, _context) {
+  "use strict";
+
   function sortTags(tags) {
     return tags.slice(0).sort(function (a, b) {
       var aPos = a.position();
