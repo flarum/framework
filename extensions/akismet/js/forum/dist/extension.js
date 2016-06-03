@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/akismet/main', ['flarum/extend', 'flarum/app', 'flarum/utils/PostControls', 'flarum/components/CommentPost'], function (_export, _context) {
+  "use strict";
+
   var extend, override, app, PostControls, CommentPost;
   return {
     setters: [function (_flarumExtend) {
