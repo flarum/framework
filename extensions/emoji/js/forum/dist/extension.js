@@ -132,6 +132,8 @@ if (typeof module != 'undefined' && typeof module.exports != 'undefined') {
 'use strict';
 
 System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flarum/components/ComposerBody', 'flarum/emoji/helpers/emojiMap', 'flarum/utils/KeyboardNavigatable', 'flarum/emoji/components/AutocompleteDropdown'], function (_export, _context) {
+  "use strict";
+
   var extend, ComposerBody, emojiMap, KeyboardNavigatable, AutocompleteDropdown;
   function addComposerAutocomplete() {
 
@@ -336,6 +338,8 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
 'use strict';
 
 System.register('flarum/emoji/components/AutocompleteDropdown', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
   var Component, AutocompleteDropdown;
   return {
     setters: [function (_flarumComponent) {
@@ -453,6 +457,8 @@ System.register('flarum/emoji/components/AutocompleteDropdown', ['flarum/Compone
 'use strict';
 
 System.register('flarum/emoji/helpers/emojiMap', [], function (_export, _context) {
+  "use strict";
+
   return {
     setters: [],
     execute: function () {
@@ -2524,6 +2530,8 @@ System.register('flarum/emoji/helpers/emojiMap', [], function (_export, _context
 'use strict';
 
 System.register('flarum/emoji/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post', 'flarum/emoji/addComposerAutocomplete'], function (_export, _context) {
+  "use strict";
+
   var override, app, Post, addComposerAutocomplete;
   return {
     setters: [function (_flarumExtend) {
