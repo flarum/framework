@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
+  "use strict";
+
   var SettingsModal, AkismetSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
@@ -50,6 +52,8 @@ System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/compo
 'use strict';
 
 System.register('flarum/akismet/main', ['flarum/app', 'flarum/akismet/components/AkismetSettingsModal'], function (_export, _context) {
+  "use strict";
+
   var app, AkismetSettingsModal;
   return {
     setters: [function (_flarumApp) {
