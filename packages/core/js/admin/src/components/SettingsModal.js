@@ -68,8 +68,12 @@ export default class SettingsModal extends Modal {
     this.loading = true;
 
     saveSettings(this.dirty()).then(
-      this.hide.bind(this),
+      this.onsaved.bind(this),
       this.loaded.bind(this)
     );
+  }
+
+  onsaved() {
+    this.hide();
   }
 }
