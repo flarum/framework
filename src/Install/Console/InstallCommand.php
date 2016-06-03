@@ -69,6 +69,12 @@ class InstallCommand extends AbstractCommand
                 'f',
                 InputOption::VALUE_REQUIRED,
                 'Use external configuration file in YAML format'
+            )
+            ->addOption(
+                'config',
+                'c',
+                InputOption::VALUE_REQUIRED,
+                'Set the path to write the config file to'
             );
     }
 
@@ -187,7 +193,7 @@ class InstallCommand extends AbstractCommand
         $dbConfig = $this->dbConfig;
 
         $config = [
-            'debug'    => true,
+            'debug'    => false,
             'database' => [
                 'driver'    => $dbConfig['driver'],
                 'host'      => $dbConfig['host'],
@@ -364,7 +370,7 @@ class InstallCommand extends AbstractCommand
 
     protected function getConfigFile()
     {
-        return base_path('config.php');
+        return $this->input->getOption('config') ?: base_path('config.php');
     }
 
     /**
