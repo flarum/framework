@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export, _context) {
+  "use strict";
+
   var extend, Discussion, Badge;
   function addSubscriptionBadge() {
     extend(Discussion.prototype, 'badges', function (badges) {
@@ -49,6 +51,8 @@ System.register('flarum/subscriptions/addSubscriptionBadge', ['flarum/extend', '
 'use strict';
 
 System.register('flarum/subscriptions/addSubscriptionControls', ['flarum/extend', 'flarum/components/Button', 'flarum/components/DiscussionPage', 'flarum/utils/DiscussionControls', 'flarum/subscriptions/components/SubscriptionMenu'], function (_export, _context) {
+  "use strict";
+
   var extend, Button, DiscussionPage, DiscussionControls, SubscriptionMenu;
   function addSubscriptionControls() {
     extend(DiscussionControls, 'userControls', function (items, discussion, context) {
@@ -98,6 +102,8 @@ System.register('flarum/subscriptions/addSubscriptionControls', ['flarum/extend'
 'use strict';
 
 System.register('flarum/subscriptions/addSubscriptionFilter', ['flarum/extend', 'flarum/components/LinkButton', 'flarum/components/IndexPage', 'flarum/components/DiscussionList'], function (_export, _context) {
+  "use strict";
+
   var extend, LinkButton, IndexPage, DiscussionList;
   function addSubscriptionFilter() {
     extend(IndexPage.prototype, 'navItems', function (items) {
@@ -139,6 +145,8 @@ System.register('flarum/subscriptions/addSubscriptionFilter', ['flarum/extend', 
 'use strict';
 
 System.register('flarum/subscriptions/addSubscriptionSettings', ['flarum/extend', 'flarum/components/SettingsPage', 'flarum/components/FieldSet', 'flarum/components/Switch', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var extend, SettingsPage, FieldSet, Switch, ItemList;
 
   _export('default', function () {
@@ -169,6 +177,8 @@ System.register('flarum/subscriptions/addSubscriptionSettings', ['flarum/extend'
 'use strict';
 
 System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/components/Notification', 'flarum/helpers/username'], function (_export, _context) {
+  "use strict";
+
   var Notification, username, NewPostNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
@@ -215,6 +225,8 @@ System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/
 'use strict';
 
 System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText', 'flarum/subscriptions/components/SubscriptionMenuItem'], function (_export, _context) {
+  "use strict";
+
   var Dropdown, Button, icon, extractText, SubscriptionMenuItem, SubscriptionMenu;
   return {
     setters: [function (_flarumComponentsDropdown) {
@@ -355,6 +367,8 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
 'use strict';
 
 System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum/Component', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Component, icon, SubscriptionMenuItem;
   return {
     setters: [function (_flarumComponent) {
@@ -406,6 +420,8 @@ System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum
 'use strict';
 
 System.register('flarum/subscriptions/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/subscriptions/addSubscriptionBadge', 'flarum/subscriptions/addSubscriptionControls', 'flarum/subscriptions/addSubscriptionFilter', 'flarum/subscriptions/addSubscriptionSettings', 'flarum/subscriptions/components/NewPostNotification'], function (_export, _context) {
+  "use strict";
+
   var extend, app, Model, Discussion, NotificationGrid, addSubscriptionBadge, addSubscriptionControls, addSubscriptionFilter, addSubscriptionSettings, NewPostNotification;
   return {
     setters: [function (_flarumExtend) {
