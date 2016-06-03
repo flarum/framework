@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export, _context) {
+  "use strict";
+
   var extend, Discussion, Badge;
   function addLockBadge() {
     extend(Discussion.prototype, 'badges', function (badges) {
@@ -30,6 +32,8 @@ System.register('flarum/lock/addLockBadge', ['flarum/extend', 'flarum/models/Dis
 'use strict';
 
 System.register('flarum/lock/addLockControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var extend, DiscussionControls, DiscussionPage, Button;
   function addLockControl() {
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
@@ -71,6 +75,8 @@ System.register('flarum/lock/addLockControl', ['flarum/extend', 'flarum/utils/Di
 'use strict';
 
 System.register('flarum/lock/components/DiscussionLockedNotification', ['flarum/components/Notification'], function (_export, _context) {
+  "use strict";
+
   var Notification, DiscussionLockedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
@@ -113,6 +119,8 @@ System.register('flarum/lock/components/DiscussionLockedNotification', ['flarum/
 'use strict';
 
 System.register('flarum/lock/components/DiscussionLockedPost', ['flarum/components/EventPost'], function (_export, _context) {
+  "use strict";
+
   var EventPost, DiscussionLockedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
@@ -148,6 +156,8 @@ System.register('flarum/lock/components/DiscussionLockedPost', ['flarum/componen
 'use strict';
 
 System.register('flarum/lock/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/components/NotificationGrid', 'flarum/lock/components/DiscussionLockedPost', 'flarum/lock/components/DiscussionLockedNotification', 'flarum/lock/addLockBadge', 'flarum/lock/addLockControl'], function (_export, _context) {
+  "use strict";
+
   var extend, app, Model, Discussion, NotificationGrid, DiscussionLockedPost, DiscussionLockedNotification, addLockBadge, addLockControl;
   return {
     setters: [function (_flarumExtend) {
