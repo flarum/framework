@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'flarum/components/Button', 'flarum/components/CommentPost'], function (_export, _context) {
+  "use strict";
+
   var extend, app, Button, CommentPost;
 
   _export('default', function () {
@@ -56,6 +58,8 @@ System.register('flarum/likes/addLikeAction', ['flarum/extend', 'flarum/app', 'f
 'use strict';
 
 System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'flarum/components/CommentPost', 'flarum/helpers/punctuateSeries', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/likes/components/PostLikesModal'], function (_export, _context) {
+  "use strict";
+
   var extend, app, CommentPost, punctuateSeries, username, icon, PostLikesModal;
 
   _export('default', function () {
@@ -130,6 +134,8 @@ System.register('flarum/likes/addLikesList', ['flarum/extend', 'flarum/app', 'fl
 'use strict';
 
 System.register('flarum/likes/components/PostLikedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/punctuateSeries'], function (_export, _context) {
+  "use strict";
+
   var Notification, username, punctuateSeries, PostLikedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
@@ -186,6 +192,8 @@ System.register('flarum/likes/components/PostLikedNotification', ['flarum/compon
 'use strict';
 
 System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Modal', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export, _context) {
+  "use strict";
+
   var Modal, avatar, username, PostLikesModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -251,6 +259,8 @@ System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Mo
 'use strict';
 
 System.register('flarum/likes/main', ['flarum/extend', 'flarum/app', 'flarum/models/Post', 'flarum/Model', 'flarum/components/NotificationGrid', 'flarum/likes/addLikeAction', 'flarum/likes/addLikesList', 'flarum/likes/components/PostLikedNotification'], function (_export, _context) {
+  "use strict";
+
   var extend, app, Post, Model, NotificationGrid, addLikeAction, addLikesList, PostLikedNotification;
   return {
     setters: [function (_flarumExtend) {
