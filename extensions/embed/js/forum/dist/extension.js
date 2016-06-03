@@ -11,6 +11,8 @@
 'use strict';
 
 System.register('flarum/embed/components/DiscussionPage', ['flarum/components/DiscussionPage', 'flarum/components/PostStream', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var BaseDiscussionPage, PostStream, listItems, DiscussionPage;
   return {
     setters: [function (_flarumComponentsDiscussionPage) {
@@ -103,6 +105,8 @@ System.register('flarum/embed/components/DiscussionPage', ['flarum/components/Di
 'use strict';
 
 System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/components/Composer', 'flarum/components/PostStream', 'flarum/components/ModalManager', 'flarum/components/AlertManager', 'flarum/components/PostMeta', 'flarum/utils/mapRoutes', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/embed/components/DiscussionPage'], function (_export, _context) {
+  "use strict";
+
   var override, extend, app, Composer, PostStream, ModalManager, AlertManager, PostMeta, mapRoutes, Pane, Drawer, DiscussionPage;
   return {
     setters: [function (_flarumExtend) {
