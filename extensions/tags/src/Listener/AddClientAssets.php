@@ -10,7 +10,7 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Event\ConfigureClientView;
+use Flarum\Event\ConfigureWebApp;
 use Flarum\Event\ConfigureForumRoutes;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -21,38 +21,38 @@ class AddClientAssets
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureClientView::class, [$this, 'addAssets']);
+        $events->listen(ConfigureWebApp::class, [$this, 'addAssets']);
         $events->listen(ConfigureForumRoutes::class, [$this, 'addRoutes']);
     }
 
     /**
-     * @param ConfigureClientView $event
+     * @param ConfigureWebApp $app
      */
-    public function addAssets(ConfigureClientView $event)
+    public function addAssets(ConfigureWebApp $app)
     {
-        if ($event->isForum()) {
-            $event->addAssets([
+        if ($app->isForum()) {
+            $app->addAssets([
                 __DIR__.'/../../js/forum/dist/extension.js',
                 __DIR__.'/../../less/forum/extension.less'
             ]);
-            $event->addBootstrapper('flarum/tags/main');
+            $app->addBootstrapper('flarum/tags/main');
         }
 
-        if ($event->isAdmin()) {
-            $event->addAssets([
+        if ($app->isAdmin()) {
+            $app->addAssets([
                 __DIR__.'/../../js/admin/dist/extension.js',
                 __DIR__.'/../../less/admin/extension.less'
             ]);
-            $event->addBootstrapper('flarum/tags/main');
+            $app->addBootstrapper('flarum/tags/main');
         }
     }
 
     /**
-     * @param ConfigureForumRoutes $event
+     * @param ConfigureForumRoutes $routes
      */
-    public function addRoutes(ConfigureForumRoutes $event)
+    public function addRoutes(ConfigureForumRoutes $routes)
     {
-        $event->get('/t/{slug}', 'tag');
-        $event->get('/tags', 'tags');
+        $routes->get('/t/{slug}', 'tag');
+        $routes->get('/tags', 'tags');
     }
 }
