@@ -660,7 +660,7 @@ System.register('flarum/mentions/addPostQuoteButton', ['flarum/extend', 'flarum/
       // button into it.
       var $container = $('<div class="Post-quoteButtonContainer"></div>');
 
-      this.$().after($container).on('mouseup', function (e) {
+      var handler = function handler(e) {
         setTimeout(function () {
           var content = selectedText($postBody);
           if (content) {
@@ -678,7 +678,10 @@ System.register('flarum/mentions/addPostQuoteButton', ['flarum/extend', 'flarum/
             }
           }
         }, 1);
-      });
+      };
+
+      this.$().after($container).on('mouseup', handler);
+      document.addEventListener('selectionchange', handler, false);
     });
   }
 
@@ -699,14 +702,13 @@ System.register('flarum/mentions/addPostQuoteButton', ['flarum/extend', 'flarum/
 });;
 'use strict';
 
-System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/mentions/utils/reply', 'flarum/mentions/utils/selectedText'], function (_export, _context) {
+System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/components/Button', 'flarum/components/CommentPost', 'flarum/mentions/utils/reply'], function (_export, _context) {
   "use strict";
 
-  var extend, Button, CommentPost, reply, selectedText;
+  var extend, Button, CommentPost, reply;
 
   _export('default', function () {
     extend(CommentPost.prototype, 'actionItems', function (items) {
-      var _this = this;
 
       var post = this.props.post;
 
@@ -716,7 +718,7 @@ System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/
         className: 'Button Button--link',
         children: app.translator.trans('flarum-mentions.forum.post.reply_link'),
         onclick: function onclick() {
-          reply(post, selectedText(_this.$('.Post-body')));
+          return reply(post);
         }
       }));
     });
@@ -731,8 +733,6 @@ System.register('flarum/mentions/addPostReplyAction', ['flarum/extend', 'flarum/
       CommentPost = _flarumComponentsCommentPost.default;
     }, function (_flarumMentionsUtilsReply) {
       reply = _flarumMentionsUtilsReply.default;
-    }, function (_flarumMentionsUtilsSelectedText) {
-      selectedText = _flarumMentionsUtilsSelectedText.default;
     }],
     execute: function () {}
   };
