@@ -16,26 +16,27 @@ export default function addPostQuoteButton() {
     // button into it.
     const $container = $('<div class="Post-quoteButtonContainer"></div>');
 
-    this.$()
-      .after($container)
-      .on('mouseup', function(e) {
-        setTimeout(() => {
-          const content = selectedText($postBody);
-          if (content) {
-            const button = new PostQuoteButton({post, content});
-            m.render($container[0], button.render());
+    const handler = function(e) {
+      setTimeout(() => {
+        const content = selectedText($postBody);
+        if (content) {
+          const button = new PostQuoteButton({post, content});
+          m.render($container[0], button.render());
 
-            const rects = window.getSelection().getRangeAt(0).getClientRects();
-            const firstRect = rects[0];
+          const rects = window.getSelection().getRangeAt(0).getClientRects();
+          const firstRect = rects[0];
 
-            if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
-              button.showStart(firstRect.left, firstRect.top);
-            } else {
-              const lastRect = rects[rects.length - 1];
-              button.showEnd(lastRect.right, lastRect.bottom);
-            }
+          if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
+            button.showStart(firstRect.left, firstRect.top);
+          } else {
+            const lastRect = rects[rects.length - 1];
+            button.showEnd(lastRect.right, lastRect.bottom);
           }
-        }, 1);
-      });
+        }
+      }, 1);
+    };
+
+    this.$().after($container).on('mouseup', handler);
+    document.addEventListener('selectionchange', handler, false);
   });
 }
