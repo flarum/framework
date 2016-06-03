@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/approval/main', ['flarum/extend', 'flarum/app', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/components/Badge', 'flarum/components/DiscussionListItem', 'flarum/components/Post', 'flarum/components/CommentPost', 'flarum/components/Button', 'flarum/utils/PostControls'], function (_export, _context) {
+  "use strict";
+
   var extend, override, app, Discussion, Post, Badge, DiscussionListItem, PostComponent, CommentPost, Button, PostControls;
   return {
     setters: [function (_flarumExtend) {
