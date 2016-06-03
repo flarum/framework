@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
+  "use strict";
+
   var SettingsModal, PusherSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
@@ -77,6 +79,8 @@ System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/compone
 'use strict';
 
 System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/pusher/components/PusherSettingsModal'], function (_export, _context) {
+  "use strict";
+
   var extend, app, PusherSettingsModal;
   return {
     setters: [function (_flarumExtend) {
