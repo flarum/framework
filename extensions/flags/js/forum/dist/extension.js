@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', 'flarum/utils/PostControls', 'flarum/components/Button', 'flarum/flags/components/FlagPostModal'], function (_export, _context) {
+  "use strict";
+
   var extend, app, PostControls, Button, FlagPostModal;
 
   _export('default', function () {
@@ -35,6 +37,8 @@ System.register('flarum/flags/addFlagControl', ['flarum/extend', 'flarum/app', '
 'use strict';
 
 System.register('flarum/flags/addFlagsDropdown', ['flarum/extend', 'flarum/app', 'flarum/components/HeaderSecondary', 'flarum/flags/components/FlagsDropdown'], function (_export, _context) {
+  "use strict";
+
   var extend, app, HeaderSecondary, FlagsDropdown;
 
   _export('default', function () {
@@ -61,6 +65,8 @@ System.register('flarum/flags/addFlagsDropdown', ['flarum/extend', 'flarum/app',
 'use strict';
 
 System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 'flarum/components/Post', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/utils/PostControls'], function (_export, _context) {
+  "use strict";
+
   var extend, app, Post, Button, ItemList, PostControls;
 
   _export('default', function () {
@@ -205,6 +211,8 @@ System.register('flarum/flags/addFlagsToPosts', ['flarum/extend', 'flarum/app', 
 'use strict';
 
 System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export, _context) {
+  "use strict";
+
   var Component, LoadingIndicator, avatar, username, icon, humanTime, FlagList;
   return {
     setters: [function (_flarumComponent) {
@@ -334,6 +342,8 @@ System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum
 'use strict';
 
 System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Modal, Button, FlagPostModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -507,6 +517,8 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
 'use strict';
 
 System.register('flarum/flags/components/FlagsDropdown', ['flarum/components/NotificationsDropdown', 'flarum/flags/components/FlagList'], function (_export, _context) {
+  "use strict";
+
   var NotificationsDropdown, FlagList, FlagsDropdown;
   return {
     setters: [function (_flarumComponentsNotificationsDropdown) {
@@ -564,6 +576,8 @@ System.register('flarum/flags/components/FlagsDropdown', ['flarum/components/Not
 'use strict';
 
 System.register('flarum/flags/components/FlagsPage', ['flarum/components/Page', 'flarum/flags/components/FlagList'], function (_export, _context) {
+  "use strict";
+
   var Page, FlagList, FlagsPage;
   return {
     setters: [function (_flarumComponentsPage) {
@@ -612,6 +626,8 @@ System.register('flarum/flags/components/FlagsPage', ['flarum/components/Page', 
 'use strict';
 
 System.register('flarum/flags/main', ['flarum/app', 'flarum/Model', 'flarum/flags/models/Flag', 'flarum/flags/components/FlagsPage', 'flarum/flags/addFlagControl', 'flarum/flags/addFlagsDropdown', 'flarum/flags/addFlagsToPosts'], function (_export, _context) {
+  "use strict";
+
   var app, Model, Flag, FlagsPage, addFlagControl, addFlagsDropdown, addFlagsToPosts;
   return {
     setters: [function (_flarumApp) {
@@ -649,6 +665,8 @@ System.register('flarum/flags/main', ['flarum/app', 'flarum/Model', 'flarum/flag
 'use strict';
 
 System.register('flarum/flags/models/Flag', ['flarum/Model', 'flarum/utils/mixin'], function (_export, _context) {
+  "use strict";
+
   var Model, mixin, Flag;
   return {
     setters: [function (_flarumModel) {

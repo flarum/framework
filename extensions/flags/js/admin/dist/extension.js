@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/flags/components/FlagsSettingsModal', ['flarum/components/SettingsModal'], function (_export, _context) {
+  "use strict";
+
   var SettingsModal, FlagsSettingsModal;
   return {
     setters: [function (_flarumComponentsSettingsModal) {
@@ -50,6 +52,8 @@ System.register('flarum/flags/components/FlagsSettingsModal', ['flarum/component
 'use strict';
 
 System.register('flarum/flags/main', ['flarum/extend', 'flarum/app', 'flarum/components/PermissionGrid', 'flarum/flags/components/FlagsSettingsModal'], function (_export, _context) {
+  "use strict";
+
   var extend, app, PermissionGrid, FlagsSettingsModal;
   return {
     setters: [function (_flarumExtend) {
