@@ -18237,6 +18237,8 @@ $('#el').spin('flower', 'red');
 'use strict';
 
 System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', 'flarum/initializers/preload', 'flarum/initializers/routes', 'flarum/initializers/components', 'flarum/initializers/humanTime', 'flarum/initializers/boot', 'flarum/initializers/alertEmailConfirmation'], function (_export, _context) {
+  "use strict";
+
   var ForumApp, store, preload, routes, components, humanTime, boot, alertEmailConfirmation, app;
   return {
     setters: [function (_flarumForumApp) {
@@ -18276,6 +18278,8 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
 'use strict';
 
 System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export, _context) {
+  "use strict";
+
   var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, App;
   return {
     setters: [function (_flarumUtilsItemList) {
@@ -18604,6 +18608,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 'use strict';
 
 System.register('flarum/Component', [], function (_export, _context) {
+  "use strict";
+
   var Component;
   return {
     setters: [],
@@ -18772,6 +18778,8 @@ System.register('flarum/Component', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/components/Alert', ['flarum/Component', 'flarum/components/Button', 'flarum/helpers/listItems', 'flarum/utils/extract'], function (_export, _context) {
+  "use strict";
+
   var Component, Button, listItems, extract, Alert;
   return {
     setters: [function (_flarumComponent) {
@@ -18843,6 +18851,8 @@ System.register('flarum/components/Alert', ['flarum/Component', 'flarum/componen
 'use strict';
 
 System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/components/Alert'], function (_export, _context) {
+  "use strict";
+
   var Component, Alert, AlertManager;
   return {
     setters: [function (_flarumComponent) {
@@ -18932,6 +18942,8 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
 'use strict';
 
 System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList', 'flarum/components/Button', 'flarum/components/LoadingIndicator'], function (_export, _context) {
+  "use strict";
+
   var Component, avatar, icon, listItems, ItemList, Button, LoadingIndicator, AvatarEditor;
   return {
     setters: [function (_flarumComponent) {
@@ -19095,6 +19107,8 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
 'use strict';
 
 System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract'], function (_export, _context) {
+  "use strict";
+
   var Component, icon, extract, Badge;
   return {
     setters: [function (_flarumComponent) {
@@ -19147,6 +19161,8 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
 'use strict';
 
 System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/extract', 'flarum/utils/extractText', 'flarum/components/LoadingIndicator'], function (_export, _context) {
+  "use strict";
+
   var Component, icon, extract, extractText, LoadingIndicator, Button;
   return {
     setters: [function (_flarumComponent) {
@@ -19221,6 +19237,8 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
 'use strict';
 
 System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Modal, Button, ChangeEmailModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -19385,6 +19403,8 @@ System.register('flarum/components/ChangeEmailModal', ['flarum/components/Modal'
 'use strict';
 
 System.register('flarum/components/ChangePasswordModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Modal, Button, ChangePasswordModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -19462,6 +19482,8 @@ System.register('flarum/components/ChangePasswordModal', ['flarum/components/Mod
 'use strict';
 
 System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Component, LoadingIndicator, icon, Checkbox;
   return {
     setters: [function (_flarumComponent) {
@@ -19534,6 +19556,8 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
 'use strict';
 
 System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/components/Composer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Post, classList, PostUser, PostMeta, PostEdited, EditPostComposer, Composer, ItemList, listItems, Button, CommentPost;
   return {
     setters: [function (_flarumComponentsPost) {
@@ -19712,6 +19736,8 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
 'use strict';
 
 System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList', 'flarum/utils/computed'], function (_export, _context) {
+  "use strict";
+
   var Component, ItemList, ComposerButton, listItems, classList, computed, Composer;
   return {
     setters: [function (_flarumComponent) {
@@ -20154,6 +20180,8 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
 'use strict';
 
 System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/components/TextEditor', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var Component, LoadingIndicator, TextEditor, avatar, listItems, ItemList, ComposerBody;
   return {
     setters: [function (_flarumComponent) {
@@ -20272,6 +20300,8 @@ System.register('flarum/components/ComposerBody', ['flarum/Component', 'flarum/c
 'use strict';
 
 System.register('flarum/components/ComposerButton', ['flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Button, ComposerButton;
   return {
     setters: [function (_flarumComponentsButton) {
@@ -20304,6 +20334,8 @@ System.register('flarum/components/ComposerButton', ['flarum/components/Button']
 'use strict';
 
 System.register('flarum/components/DiscussionComposer', ['flarum/components/ComposerBody', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var ComposerBody, extractText, DiscussionComposer;
   return {
     setters: [function (_flarumComponentsComposerBody) {
@@ -20415,6 +20447,8 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
 'use strict';
 
 System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, ItemList, listItems, DiscussionHero;
   return {
     setters: [function (_flarumComponent) {
@@ -20484,6 +20518,8 @@ System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum
 'use strict';
 
 System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum/components/DiscussionListItem', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/components/Placeholder'], function (_export, _context) {
+  "use strict";
+
   var Component, DiscussionListItem, Button, LoadingIndicator, Placeholder, DiscussionList;
   return {
     setters: [function (_flarumComponent) {
@@ -20687,6 +20723,8 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 'use strict';
 
 System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/listItems', 'flarum/helpers/highlight', 'flarum/helpers/icon', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/abbreviateNumber', 'flarum/components/Dropdown', 'flarum/components/TerminalPost', 'flarum/components/PostPreview', 'flarum/utils/SubtreeRetainer', 'flarum/utils/DiscussionControls', 'flarum/utils/slidable', 'flarum/utils/extractText', 'flarum/utils/classList'], function (_export, _context) {
+  "use strict";
+
   var Component, avatar, listItems, highlight, icon, humanTime, ItemList, abbreviateNumber, Dropdown, TerminalPost, PostPreview, SubtreeRetainer, DiscussionControls, slidable, extractText, classList, DiscussionListItem;
   return {
     setters: [function (_flarumComponent) {
@@ -20914,6 +20952,8 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
 'use strict';
 
 System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHero', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export, _context) {
+  "use strict";
+
   var Page, ItemList, DiscussionHero, PostStream, PostStreamScrubber, LoadingIndicator, SplitDropdown, listItems, DiscussionControls, DiscussionPage;
   return {
     setters: [function (_flarumComponentsPage) {
@@ -21206,6 +21246,8 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
 'use strict';
 
 System.register('flarum/components/DiscussionRenamedNotification', ['flarum/components/Notification'], function (_export, _context) {
+  "use strict";
+
   var Notification, DiscussionRenamedNotification;
   return {
     setters: [function (_flarumComponentsNotification) {
@@ -21248,6 +21290,8 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
 'use strict';
 
 System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/EventPost', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var EventPost, extractText, DiscussionRenamedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
@@ -21308,6 +21352,8 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
 'use strict';
 
 System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/highlight', 'flarum/components/LinkButton'], function (_export, _context) {
+  "use strict";
+
   var highlight, LinkButton, DiscussionsSearchSource;
   return {
     setters: [function (_flarumHelpersHighlight) {
@@ -21392,6 +21438,8 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
 'use strict';
 
 System.register('flarum/components/DiscussionsUserPage', ['flarum/components/UserPage', 'flarum/components/DiscussionList'], function (_export, _context) {
+  "use strict";
+
   var UserPage, DiscussionList, DiscussionsUserPage;
   return {
     setters: [function (_flarumComponentsUserPage) {
@@ -21439,6 +21487,8 @@ System.register('flarum/components/DiscussionsUserPage', ['flarum/components/Use
 'use strict';
 
 System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpers/icon', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, icon, listItems, Dropdown;
   return {
     setters: [function (_flarumComponent) {
@@ -21565,6 +21615,8 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
 'use strict';
 
 System.register('flarum/components/EditPostComposer', ['flarum/components/ComposerBody', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var ComposerBody, icon, EditPostComposer;
 
 
@@ -21681,6 +21733,8 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
 'use strict';
 
 System.register('flarum/components/EditUserModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/components/GroupBadge', 'flarum/models/Group', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var Modal, Button, GroupBadge, Group, extractText, EditUserModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -21887,6 +21941,8 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
 'use strict';
 
 System.register('flarum/components/EventPost', ['flarum/components/Post', 'flarum/utils/string', 'flarum/helpers/username', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Post, ucfirst, usernameHelper, icon, EventPost;
   return {
     setters: [function (_flarumComponentsPost) {
@@ -21967,6 +22023,8 @@ System.register('flarum/components/EventPost', ['flarum/components/Post', 'flaru
 'use strict';
 
 System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, listItems, FieldSet;
   return {
     setters: [function (_flarumComponent) {
@@ -22012,6 +22070,8 @@ System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpe
 'use strict';
 
 System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Modal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var Modal, Alert, Button, extractText, ForgotPasswordModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -22160,6 +22220,8 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
 'use strict';
 
 System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], function (_export, _context) {
+  "use strict";
+
   var Badge, GroupBadge;
   return {
     setters: [function (_flarumComponentsBadge) {
@@ -22199,6 +22261,8 @@ System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], fun
 'use strict';
 
 System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, ItemList, listItems, HeaderPrimary;
   return {
     setters: [function (_flarumComponent) {
@@ -22250,6 +22314,8 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
 'use strict';
 
 System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LogInModal', 'flarum/components/SignUpModal', 'flarum/components/SessionDropdown', 'flarum/components/SelectDropdown', 'flarum/components/NotificationsDropdown', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, Button, LogInModal, SignUpModal, SessionDropdown, SelectDropdown, NotificationsDropdown, ItemList, listItems, HeaderSecondary;
   return {
     setters: [function (_flarumComponent) {
@@ -22371,6 +22437,8 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
 'use strict';
 
 System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/helpers/icon', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export, _context) {
+  "use strict";
+
   var extend, Page, ItemList, listItems, icon, DiscussionList, WelcomeHero, DiscussionComposer, LogInModal, DiscussionPage, Select, Button, LinkButton, SelectDropdown, IndexPage;
   return {
     setters: [function (_flarumExtend) {
@@ -22728,6 +22796,8 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 'use strict';
 
 System.register('flarum/components/LinkButton', ['flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Button, LinkButton;
   return {
     setters: [function (_flarumComponentsButton) {
@@ -22773,6 +22843,8 @@ System.register('flarum/components/LinkButton', ['flarum/components/Button'], fu
 'use strict';
 
 System.register('flarum/components/LoadingIndicator', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
   var Component, LoadingIndicator;
   return {
     setters: [function (_flarumComponent) {
@@ -22820,6 +22892,8 @@ System.register('flarum/components/LoadingIndicator', ['flarum/Component'], func
 'use strict';
 
 System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/helpers/avatar'], function (_export, _context) {
+  "use strict";
+
   var Component, avatar, LoadingPost;
   return {
     setters: [function (_flarumComponent) {
@@ -22868,6 +22942,8 @@ System.register('flarum/components/LoadingPost', ['flarum/Component', 'flarum/he
 'use strict';
 
 System.register('flarum/components/LogInButton', ['flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Button, LogInButton;
   return {
     setters: [function (_flarumComponentsButton) {
@@ -22908,6 +22984,8 @@ System.register('flarum/components/LogInButton', ['flarum/components/Button'], f
 'use strict';
 
 System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var Component, ItemList, LogInButtons;
   return {
     setters: [function (_flarumComponent) {
@@ -22949,6 +23027,8 @@ System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/u
 'use strict';
 
 System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var Modal, ForgotPasswordModal, SignUpModal, Alert, Button, LogInButtons, extractText, LogInModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -23114,6 +23194,8 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
 'use strict';
 
 System.register('flarum/components/Modal', ['flarum/Component', 'flarum/components/Alert', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Component, Alert, Button, Modal;
   return {
     setters: [function (_flarumComponent) {
@@ -23246,6 +23328,8 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
 'use strict';
 
 System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/components/Modal'], function (_export, _context) {
+  "use strict";
+
   var Component, Modal, ModalManager;
   return {
     setters: [function (_flarumComponent) {
@@ -23356,6 +23440,8 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
 'use strict';
 
 System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/components/Button', 'flarum/components/LinkButton'], function (_export, _context) {
+  "use strict";
+
   var Component, Button, LinkButton, Navigation;
   return {
     setters: [function (_flarumComponent) {
@@ -23464,6 +23550,8 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
 'use strict';
 
 System.register('flarum/components/Notification', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/icon', 'flarum/helpers/humanTime'], function (_export, _context) {
+  "use strict";
+
   var Component, avatar, icon, humanTime, Notification;
   return {
     setters: [function (_flarumComponent) {
@@ -23546,6 +23634,8 @@ System.register('flarum/components/Notification', ['flarum/Component', 'flarum/h
 'use strict';
 
 System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flarum/components/Checkbox', 'flarum/helpers/icon', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var Component, Checkbox, icon, ItemList, NotificationGrid;
   return {
     setters: [function (_flarumComponent) {
@@ -23757,6 +23847,8 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
 'use strict';
 
 System.register('flarum/components/NotificationList', ['flarum/Component', 'flarum/helpers/listItems', 'flarum/components/Button', 'flarum/components/LoadingIndicator', 'flarum/models/Discussion'], function (_export, _context) {
+  "use strict";
+
   var Component, listItems, Button, LoadingIndicator, Discussion, NotificationList;
   return {
     setters: [function (_flarumComponent) {
@@ -23941,6 +24033,8 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
 'use strict';
 
 System.register('flarum/components/NotificationsDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon', 'flarum/components/NotificationList'], function (_export, _context) {
+  "use strict";
+
   var Dropdown, icon, NotificationList, NotificationsDropdown;
   return {
     setters: [function (_flarumComponentsDropdown) {
@@ -24056,6 +24150,8 @@ System.register('flarum/components/NotificationsDropdown', ['flarum/components/D
 'use strict';
 
 System.register('flarum/components/NotificationsPage', ['flarum/components/Page', 'flarum/components/NotificationList'], function (_export, _context) {
+  "use strict";
+
   var Page, NotificationList, NotificationsPage;
   return {
     setters: [function (_flarumComponentsPage) {
@@ -24104,6 +24200,8 @@ System.register('flarum/components/NotificationsPage', ['flarum/components/Page'
 'use strict';
 
 System.register('flarum/components/Page', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
   var Component, Page;
   return {
     setters: [function (_flarumComponent) {
@@ -24160,6 +24258,8 @@ System.register('flarum/components/Page', ['flarum/Component'], function (_expor
 "use strict";
 
 System.register("flarum/components/Placeholder", ["flarum/Component"], function (_export, _context) {
+  "use strict";
+
   var Component, Placeholder;
   return {
     setters: [function (_flarumComponent) {
@@ -24198,6 +24298,8 @@ System.register("flarum/components/Placeholder", ["flarum/Component"], function 
 'use strict';
 
 System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/SubtreeRetainer', 'flarum/components/Dropdown', 'flarum/utils/PostControls', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var Component, SubtreeRetainer, Dropdown, PostControls, listItems, ItemList, Post;
   return {
     setters: [function (_flarumComponent) {
@@ -24343,6 +24445,8 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
 'use strict';
 
 System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var Component, humanTime, extractText, PostEdited;
   return {
     setters: [function (_flarumComponent) {
@@ -24403,6 +24507,8 @@ System.register('flarum/components/PostEdited', ['flarum/Component', 'flarum/uti
 'use strict';
 
 System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/fullTime'], function (_export, _context) {
+  "use strict";
+
   var Component, humanTime, fullTime, PostMeta;
   return {
     setters: [function (_flarumComponent) {
@@ -24495,6 +24601,8 @@ System.register('flarum/components/PostMeta', ['flarum/Component', 'flarum/helpe
 'use strict';
 
 System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/highlight'], function (_export, _context) {
+  "use strict";
+
   var Component, avatar, username, highlight, PostPreview;
   return {
     setters: [function (_flarumComponent) {
@@ -24550,6 +24658,8 @@ System.register('flarum/components/PostPreview', ['flarum/Component', 'flarum/he
 'use strict';
 
 System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/utils/ScrollListener', 'flarum/components/LoadingPost', 'flarum/utils/anchorScroll', 'flarum/utils/mixin', 'flarum/utils/evented', 'flarum/components/ReplyPlaceholder', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Component, ScrollListener, PostLoading, anchorScroll, mixin, evented, ReplyPlaceholder, Button, PostStream;
   return {
     setters: [function (_flarumComponent) {
@@ -25073,6 +25183,8 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 'use strict';
 
 System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'flarum/helpers/icon', 'flarum/utils/ScrollListener', 'flarum/utils/SubtreeRetainer', 'flarum/utils/computed', 'flarum/utils/formatNumber'], function (_export, _context) {
+  "use strict";
+
   var Component, icon, ScrollListener, SubtreeRetainer, computed, formatNumber, PostStreamScrubber;
   return {
     setters: [function (_flarumComponent) {
@@ -25538,6 +25650,8 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
 'use strict';
 
 System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage', 'flarum/components/LoadingIndicator', 'flarum/components/Button', 'flarum/components/CommentPost'], function (_export, _context) {
+  "use strict";
+
   var UserPage, LoadingIndicator, Button, CommentPost, PostsUserPage;
   return {
     setters: [function (_flarumComponentsUserPage) {
@@ -25696,6 +25810,8 @@ System.register('flarum/components/PostsUserPage', ['flarum/components/UserPage'
 'use strict';
 
 System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/components/UserCard', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/userOnline', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, UserCard, avatar, username, userOnline, listItems, PostUser;
   return {
     setters: [function (_flarumComponent) {
@@ -25834,6 +25950,8 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
 'use strict';
 
 System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var ComposerBody, Alert, Button, icon, extractText, ReplyComposer;
 
 
@@ -25982,6 +26100,8 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
 'use strict';
 
 System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/utils/DiscussionControls'], function (_export, _context) {
+  "use strict";
+
   var Component, avatar, username, DiscussionControls, ReplyPlaceholder;
   return {
     setters: [function (_flarumComponent) {
@@ -26089,6 +26209,8 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
 'use strict';
 
 System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal'], function (_export, _context) {
+  "use strict";
+
   var Modal, RequestErrorModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -26150,6 +26272,8 @@ System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal
 'use strict';
 
 System.register('flarum/components/Search', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/ItemList', 'flarum/utils/classList', 'flarum/utils/extractText', 'flarum/utils/KeyboardNavigatable', 'flarum/helpers/icon', 'flarum/components/DiscussionsSearchSource', 'flarum/components/UsersSearchSource'], function (_export, _context) {
+  "use strict";
+
   var Component, LoadingIndicator, ItemList, classList, extractText, KeyboardNavigatable, icon, DiscussionsSearchSource, UsersSearchSource, Search;
   return {
     setters: [function (_flarumComponent) {
@@ -26447,6 +26571,8 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
 "use strict";
 
 System.register("flarum/components/SearchSource", [], function (_export, _context) {
+  "use strict";
+
   var SearchSource;
   return {
     setters: [],
@@ -26473,6 +26599,8 @@ System.register("flarum/components/SearchSource", [], function (_export, _contex
 'use strict';
 
 System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Component, icon, Select;
   return {
     setters: [function (_flarumComponent) {
@@ -26526,6 +26654,8 @@ System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers
 'use strict';
 
 System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Dropdown, icon, SelectDropdown;
   return {
     setters: [function (_flarumComponentsDropdown) {
@@ -26578,6 +26708,8 @@ System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown
 "use strict";
 
 System.register("flarum/components/Separator", ["flarum/Component"], function (_export, _context) {
+  "use strict";
+
   var Component, Separator;
   return {
     setters: [function (_flarumComponent) {
@@ -26610,6 +26742,8 @@ System.register("flarum/components/Separator", ["flarum/Component"], function (_
 'use strict';
 
 System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/components/Dropdown', 'flarum/components/LinkButton', 'flarum/components/Button', 'flarum/utils/ItemList', 'flarum/components/Separator', 'flarum/models/Group'], function (_export, _context) {
+  "use strict";
+
   var avatar, username, Dropdown, LinkButton, Button, ItemList, Separator, Group, SessionDropdown;
   return {
     setters: [function (_flarumHelpersAvatar) {
@@ -26716,6 +26850,8 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
 'use strict';
 
 System.register('flarum/components/SettingsPage', ['flarum/components/UserPage', 'flarum/utils/ItemList', 'flarum/components/Switch', 'flarum/components/Button', 'flarum/components/FieldSet', 'flarum/components/NotificationGrid', 'flarum/components/ChangePasswordModal', 'flarum/components/ChangeEmailModal', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var UserPage, ItemList, Switch, Button, FieldSet, NotificationGrid, ChangePasswordModal, ChangeEmailModal, listItems, SettingsPage;
   return {
     setters: [function (_flarumComponentsUserPage) {
@@ -26868,6 +27004,8 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
 'use strict';
 
 System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'flarum/components/LogInModal', 'flarum/helpers/avatar', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var Modal, LogInModal, avatar, Button, LogInButtons, extractText, SignUpModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -27062,6 +27200,8 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
 'use strict';
 
 System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Dropdown, Button, icon, SplitDropdown;
   return {
     setters: [function (_flarumComponentsDropdown) {
@@ -27127,6 +27267,8 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
 'use strict';
 
 System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export, _context) {
+  "use strict";
+
   var Checkbox, Switch;
   return {
     setters: [function (_flarumComponentsCheckbox) {
@@ -27164,6 +27306,8 @@ System.register('flarum/components/Switch', ['flarum/components/Checkbox'], func
 'use strict';
 
 System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/helpers/humanTime', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Component, humanTime, icon, TerminalPost;
   return {
     setters: [function (_flarumComponent) {
@@ -27213,6 +27357,8 @@ System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/h
 'use strict';
 
 System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Component, ItemList, listItems, Button, TextEditor;
   return {
     setters: [function (_flarumComponent) {
@@ -27360,6 +27506,8 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 'use strict';
 
 System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var Component, LoadingIndicator, classList, extractText, UserBio;
   return {
     setters: [function (_flarumComponent) {
@@ -27492,6 +27640,8 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
 'use strict';
 
 System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Component, humanTime, ItemList, UserControls, avatar, username, icon, Dropdown, UserBio, AvatarEditor, listItems, UserCard;
   return {
     setters: [function (_flarumComponent) {
@@ -27621,6 +27771,8 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
 'use strict';
 
 System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/utils/affixSidebar', 'flarum/components/UserCard', 'flarum/components/LoadingIndicator', 'flarum/components/SelectDropdown', 'flarum/components/LinkButton', 'flarum/components/Separator', 'flarum/helpers/listItems'], function (_export, _context) {
+  "use strict";
+
   var Page, ItemList, affixSidebar, UserCard, LoadingIndicator, SelectDropdown, LinkButton, Separator, listItems, UserPage;
   return {
     setters: [function (_flarumComponentsPage) {
@@ -27790,6 +27942,8 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
 'use strict';
 
 System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export, _context) {
+  "use strict";
+
   var highlight, avatar, username, UsersSearchResults;
   return {
     setters: [function (_flarumHelpersHighlight) {
@@ -27853,6 +28007,8 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
 'use strict';
 
 System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Component, Button, WelcomeHero;
   return {
     setters: [function (_flarumComponent) {
@@ -27931,6 +28087,8 @@ System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/co
 "use strict";
 
 System.register("flarum/extend", [], function (_export, _context) {
+  "use strict";
+
   return {
     setters: [],
     execute: function () {
@@ -28018,6 +28176,8 @@ System.register("flarum/extend", [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flarum/components/Search', 'flarum/components/Composer', 'flarum/components/ReplyComposer', 'flarum/components/DiscussionPage', 'flarum/components/SignUpModal'], function (_export, _context) {
+  "use strict";
+
   var History, App, Search, Composer, ReplyComposer, DiscussionPage, SignUpModal, ForumApp;
   return {
     setters: [function (_flarumUtilsHistory) {
@@ -28136,6 +28296,8 @@ System.register('flarum/ForumApp', ['flarum/utils/History', 'flarum/App', 'flaru
 'use strict';
 
 System.register('flarum/helpers/avatar', [], function (_export, _context) {
+  "use strict";
+
   function avatar(user) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -28182,6 +28344,8 @@ System.register('flarum/helpers/avatar', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/helpers/fullTime', [], function (_export, _context) {
+  "use strict";
+
   function fullTime(time) {
     var mo = moment(time);
 
@@ -28205,6 +28369,8 @@ System.register('flarum/helpers/fullTime', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_export, _context) {
+  "use strict";
+
   var truncate;
   function highlight(string, phrase, length) {
     if (!phrase && !length) return string;
@@ -28244,6 +28410,8 @@ System.register('flarum/helpers/highlight', ['flarum/utils/string'], function (_
 'use strict';
 
 System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function (_export, _context) {
+  "use strict";
+
   var humanTimeUtil;
   function humanTime(time) {
     var mo = moment(time);
@@ -28271,6 +28439,8 @@ System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function
 'use strict';
 
 System.register('flarum/helpers/icon', [], function (_export, _context) {
+  "use strict";
+
   function icon(name) {
     var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -28289,6 +28459,8 @@ System.register('flarum/helpers/icon', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'flarum/utils/classList'], function (_export, _context) {
+  "use strict";
+
   var Separator, classList;
 
 
@@ -28353,6 +28525,8 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
 'use strict';
 
 System.register('flarum/helpers/punctuateSeries', [], function (_export, _context) {
+  "use strict";
+
   function punctuateSeries(items) {
     if (items.length === 2) {
       return app.translator.trans('core.lib.series.two_text', {
@@ -28387,6 +28561,8 @@ System.register('flarum/helpers/punctuateSeries', [], function (_export, _contex
 "use strict";
 
 System.register("flarum/helpers/username", [], function (_export, _context) {
+  "use strict";
+
   function username(user) {
     var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
 
@@ -28407,6 +28583,8 @@ System.register("flarum/helpers/username", [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (_export, _context) {
+    "use strict";
+
     var icon;
     function userOnline(user) {
         if (user.lastSeenTime() && user.isOnline()) {
@@ -28430,6 +28608,8 @@ System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (
 'use strict';
 
 System.register('flarum/initializers/alertEmailConfirmation', ['flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon'], function (_export, _context) {
+  "use strict";
+
   var Alert, Button, icon;
   function alertEmailConfirmation(app) {
     var user = app.session.user;
@@ -28510,6 +28690,8 @@ System.register('flarum/initializers/alertEmailConfirmation', ['flarum/component
 'use strict';
 
 System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/helpers/icon', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export, _context) {
+  "use strict";
+
   var ScrollListener, Pane, Drawer, mapRoutes, icon, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
   function boot(app) {
     // Get the configured default route and update that route's path to be '/'.
@@ -28605,6 +28787,8 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
 'use strict';
 
 System.register('flarum/initializers/components', ['flarum/components/CommentPost', 'flarum/components/DiscussionRenamedPost', 'flarum/components/DiscussionRenamedNotification'], function (_export, _context) {
+  "use strict";
+
   var CommentPost, DiscussionRenamedPost, DiscussionRenamedNotification;
   function components(app) {
     app.postComponents.comment = CommentPost;
@@ -28629,6 +28813,8 @@ System.register('flarum/initializers/components', ['flarum/components/CommentPos
 'use strict';
 
 System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], function (_export, _context) {
+  "use strict";
+
   var humanTimeUtil;
 
 
@@ -28661,6 +28847,8 @@ System.register('flarum/initializers/humanTime', ['flarum/utils/humanTime'], fun
 'use strict';
 
 System.register('flarum/initializers/preload', ['flarum/Session'], function (_export, _context) {
+  "use strict";
+
   var Session;
   function preload(app) {
     app.store.pushPayload({ data: app.data.resources });
@@ -28682,6 +28870,8 @@ System.register('flarum/initializers/preload', ['flarum/Session'], function (_ex
 'use strict';
 
 System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'flarum/components/DiscussionPage', 'flarum/components/PostsUserPage', 'flarum/components/DiscussionsUserPage', 'flarum/components/SettingsPage', 'flarum/components/NotificationsPage'], function (_export, _context) {
+  "use strict";
+
   var IndexPage, DiscussionPage, PostsUserPage, DiscussionsUserPage, SettingsPage, NotificationsPage;
 
   _export('default', function (app) {
@@ -28757,6 +28947,8 @@ System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'f
 'use strict';
 
 System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/Forum', 'flarum/models/User', 'flarum/models/Discussion', 'flarum/models/Post', 'flarum/models/Group', 'flarum/models/Activity', 'flarum/models/Notification'], function (_export, _context) {
+  "use strict";
+
   var Store, Forum, User, Discussion, Post, Group, Activity, Notification;
   function store(app) {
     app.store = new Store({
@@ -28796,6 +28988,8 @@ System.register('flarum/initializers/store', ['flarum/Store', 'flarum/models/For
 'use strict';
 
 System.register('flarum/Model', [], function (_export, _context) {
+  "use strict";
+
   var Model;
   return {
     setters: [],
@@ -29054,6 +29248,8 @@ System.register('flarum/Model', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/computed', 'flarum/utils/ItemList', 'flarum/components/Badge'], function (_export, _context) {
+  "use strict";
+
   var Model, computed, ItemList, Badge, Discussion;
   return {
     setters: [function (_flarumModel) {
@@ -29166,6 +29362,8 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
 'use strict';
 
 System.register('flarum/models/Forum', ['flarum/Model'], function (_export, _context) {
+  "use strict";
+
   var Model, Forum;
   return {
     setters: [function (_flarumModel) {
@@ -29196,6 +29394,8 @@ System.register('flarum/models/Forum', ['flarum/Model'], function (_export, _con
 'use strict';
 
 System.register('flarum/models/Group', ['flarum/Model'], function (_export, _context) {
+  "use strict";
+
   var Model, Group;
   return {
     setters: [function (_flarumModel) {
@@ -29231,6 +29431,8 @@ System.register('flarum/models/Group', ['flarum/Model'], function (_export, _con
 'use strict';
 
 System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/computed'], function (_export, _context) {
+  "use strict";
+
   var Model, computed, Notification;
   return {
     setters: [function (_flarumModel) {
@@ -29276,6 +29478,8 @@ System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/com
 'use strict';
 
 System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/computed', 'flarum/utils/string'], function (_export, _context) {
+  "use strict";
+
   var Model, computed, getPlainContent, Post;
   return {
     setters: [function (_flarumModel) {
@@ -29333,6 +29537,8 @@ System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/computed', 
 'use strict';
 
 System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToColor', 'flarum/utils/ItemList', 'flarum/utils/computed', 'flarum/components/GroupBadge'], function (_export, _context) {
+  "use strict";
+
   var Model, stringToColor, ItemList, computed, GroupBadge, User;
   return {
     setters: [function (_flarumModel) {
@@ -29445,6 +29651,8 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
 'use strict';
 
 System.register('flarum/Session', [], function (_export, _context) {
+  "use strict";
+
   var Session;
   return {
     setters: [],
@@ -29508,6 +29716,8 @@ System.register('flarum/Session', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/Store', [], function (_export, _context) {
+  "use strict";
+
   var Store;
   return {
     setters: [],
@@ -29645,6 +29855,8 @@ System.register('flarum/Store', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/username', 'flarum/utils/extractText', 'flarum/utils/extract'], function (_export, _context) {
+  "use strict";
+
   var User, username, extractText, extract, Translator;
   return {
     setters: [function (_flarumModelsUser) {
@@ -29951,6 +30163,8 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
 'use strict';
 
 System.register('flarum/utils/abbreviateNumber', [], function (_export, _context) {
+  "use strict";
+
   function abbreviateNumber(number) {
     // TODO: translation
     if (number >= 1000000) {
@@ -29972,6 +30186,8 @@ System.register('flarum/utils/abbreviateNumber', [], function (_export, _context
 'use strict';
 
 System.register('flarum/utils/affixSidebar', [], function (_export, _context) {
+  "use strict";
+
   function affixSidebar(element, isInitialized) {
     var _this = this;
 
@@ -30007,6 +30223,8 @@ System.register('flarum/utils/affixSidebar', [], function (_export, _context) {
 "use strict";
 
 System.register("flarum/utils/anchorScroll", [], function (_export, _context) {
+  "use strict";
+
   function anchorScroll(element, callback) {
     var $window = $(window);
     var relativeScroll = $(element).offset().top - $window.scrollTop();
@@ -30026,6 +30244,8 @@ System.register("flarum/utils/anchorScroll", [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/classList', [], function (_export, _context) {
+  "use strict";
+
   function classList(classes) {
     var classNames = void 0;
 
@@ -30054,6 +30274,8 @@ System.register('flarum/utils/classList', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/computed', [], function (_export, _context) {
+  "use strict";
+
   function computed() {
     for (var _len = arguments.length, dependentKeys = Array(_len), _key = 0; _key < _len; _key++) {
       dependentKeys[_key] = arguments[_key];
@@ -30101,6 +30323,8 @@ System.register('flarum/utils/computed', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
   var DiscussionPage, ReplyComposer, LogInModal, Button, Separator, ItemList, extractText;
   return {
     setters: [function (_flarumComponentsDiscussionPage) {
@@ -30285,6 +30509,8 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 'use strict';
 
 System.register('flarum/utils/Drawer', [], function (_export, _context) {
+  "use strict";
+
   var Drawer;
   return {
     setters: [],
@@ -30351,6 +30577,8 @@ System.register('flarum/utils/Drawer', [], function (_export, _context) {
 "use strict";
 
 System.register("flarum/utils/evented", [], function (_export, _context) {
+  "use strict";
+
   return {
     setters: [],
     execute: function () {
@@ -30408,6 +30636,8 @@ System.register("flarum/utils/evented", [], function (_export, _context) {
 "use strict";
 
 System.register("flarum/utils/extract", [], function (_export, _context) {
+  "use strict";
+
   function extract(object, property) {
     var value = object[property];
 
@@ -30426,6 +30656,8 @@ System.register("flarum/utils/extract", [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/extractText', [], function (_export, _context) {
+  "use strict";
+
   function extractText(vdom) {
     if (vdom instanceof Array) {
       return vdom.map(function (element) {
@@ -30448,6 +30680,8 @@ System.register('flarum/utils/extractText', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/formatNumber', [], function (_export, _context) {
+  "use strict";
+
   function formatNumber(number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
@@ -30462,6 +30696,8 @@ System.register('flarum/utils/formatNumber', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/History', [], function (_export, _context) {
+  "use strict";
+
   var History;
   return {
     setters: [],
@@ -30558,6 +30794,8 @@ System.register('flarum/utils/History', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/humanTime', [], function (_export, _context) {
+  "use strict";
+
   function humanTime(time) {
     var m = moment(time);
     var now = moment();
@@ -30605,6 +30843,8 @@ System.register('flarum/utils/humanTime', [], function (_export, _context) {
 "use strict";
 
 System.register("flarum/utils/ItemList", [], function (_export, _context) {
+  "use strict";
+
   var Item, ItemList;
   return {
     setters: [],
@@ -30721,6 +30961,8 @@ System.register("flarum/utils/ItemList", [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _context) {
+  "use strict";
+
   var KeyboardNavigatable;
   return {
     setters: [],
@@ -30836,6 +31078,8 @@ System.register('flarum/utils/KeyboardNavigatable', [], function (_export, _cont
 'use strict';
 
 System.register('flarum/utils/mapRoutes', [], function (_export, _context) {
+  "use strict";
+
   function mapRoutes(routes) {
     var basePath = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
 
@@ -30862,6 +31106,8 @@ System.register('flarum/utils/mapRoutes', [], function (_export, _context) {
 "use strict";
 
 System.register("flarum/utils/mixin", [], function (_export, _context) {
+  "use strict";
+
   function mixin(Parent) {
     var Mixed = function (_Parent) {
       babelHelpers.inherits(Mixed, _Parent);
@@ -30895,6 +31141,8 @@ System.register("flarum/utils/mixin", [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/Pane', [], function (_export, _context) {
+  "use strict";
+
   var Pane;
   return {
     setters: [],
@@ -31010,6 +31258,8 @@ System.register('flarum/utils/Pane', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/patchMithril', ['../Component'], function (_export, _context) {
+  "use strict";
+
   var Component;
   function patchMithril(global) {
     var mo = global.m;
@@ -31068,6 +31318,8 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
 'use strict';
 
 System.register('flarum/utils/PostControls', ['flarum/components/EditPostComposer', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var EditPostComposer, Button, Separator, ItemList;
   return {
     setters: [function (_flarumComponentsEditPostComposer) {
@@ -31198,6 +31450,8 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
 "use strict";
 
 System.register("flarum/utils/RequestError", [], function (_export, _context) {
+  "use strict";
+
   var RequestError;
   return {
     setters: [],
@@ -31226,6 +31480,8 @@ System.register("flarum/utils/RequestError", [], function (_export, _context) {
 "use strict";
 
 System.register("flarum/utils/ScrollListener", [], function (_export, _context) {
+  "use strict";
+
   var scroll, ScrollListener;
   return {
     setters: [],
@@ -31299,6 +31555,8 @@ System.register("flarum/utils/ScrollListener", [], function (_export, _context) 
 'use strict';
 
 System.register('flarum/utils/slidable', [], function (_export, _context) {
+  "use strict";
+
   function slidable(element) {
     var $element = $(element);
     var threshold = 50;
@@ -31457,6 +31715,8 @@ System.register('flarum/utils/slidable', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/string', [], function (_export, _context) {
+  "use strict";
+
   return {
     setters: [],
     execute: function () {
@@ -31535,6 +31795,8 @@ System.register('flarum/utils/string', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/stringToColor', [], function (_export, _context) {
+  "use strict";
+
   function hsvToRgb(h, s, v) {
     var r = void 0;
     var g = void 0;
@@ -31601,6 +31863,8 @@ System.register('flarum/utils/stringToColor', [], function (_export, _context) {
 'use strict';
 
 System.register('flarum/utils/SubtreeRetainer', [], function (_export, _context) {
+  "use strict";
+
   var SubtreeRetainer;
   return {
     setters: [],
@@ -31673,6 +31937,8 @@ System.register('flarum/utils/SubtreeRetainer', [], function (_export, _context)
 'use strict';
 
 System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flarum/components/Separator', 'flarum/components/EditUserModal', 'flarum/components/UserPage', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
   var Button, Separator, EditUserModal, UserPage, ItemList;
   return {
     setters: [function (_flarumComponentsButton) {
