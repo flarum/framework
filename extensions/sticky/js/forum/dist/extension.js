@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models/Discussion', 'flarum/components/Badge'], function (_export, _context) {
+  "use strict";
+
   var extend, Discussion, Badge;
   function addStickyBadge() {
     extend(Discussion.prototype, 'badges', function (badges) {
@@ -30,6 +32,8 @@ System.register('flarum/sticky/addStickyBadge', ['flarum/extend', 'flarum/models
 'use strict';
 
 System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/DiscussionPage', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var extend, DiscussionControls, DiscussionPage, Button;
   function addStickyControl() {
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
@@ -71,6 +75,8 @@ System.register('flarum/sticky/addStickyControl', ['flarum/extend', 'flarum/util
 'use strict';
 
 System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/components/DiscussionList', 'flarum/components/DiscussionListItem', 'flarum/utils/string'], function (_export, _context) {
+  "use strict";
+
   var extend, DiscussionList, DiscussionListItem, truncate;
   function addStickyControl() {
     extend(DiscussionList.prototype, 'requestParams', function (params) {
@@ -114,6 +120,8 @@ System.register('flarum/sticky/addStickyExcerpt', ['flarum/extend', 'flarum/comp
 'use strict';
 
 System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/components/EventPost'], function (_export, _context) {
+  "use strict";
+
   var EventPost, DiscussionStickiedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
@@ -149,6 +157,8 @@ System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/comp
 'use strict';
 
 System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export, _context) {
+  "use strict";
+
   var extend, notificationType, app, Model, Discussion, DiscussionStickiedPost, addStickyBadge, addStickyControl, addStickyExcerpt;
   return {
     setters: [function (_flarumExtend) {
