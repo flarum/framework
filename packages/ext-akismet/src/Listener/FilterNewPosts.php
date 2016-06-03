@@ -75,6 +75,11 @@ class FilterNewPosts
             $post->is_spam = true;
 
             $post->afterSave(function ($post) {
+                if ($post->number == 1) {
+                    $post->discussion->is_approved = false;
+                    $post->discussion->save();
+                }
+
                 $flag = new Flag;
 
                 $flag->post_id = $post->id;
