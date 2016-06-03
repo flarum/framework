@@ -1,6 +1,8 @@
 'use strict';
 
 System.register('flarum/suspend/components/SuspendUserModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
   var Modal, Button, SuspendUserModal;
   return {
     setters: [function (_flarumComponentsModal) {
@@ -151,6 +153,8 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
 'use strict';
 
 System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal'], function (_export, _context) {
+  "use strict";
+
   var extend, app, UserControls, Button, Badge, Model, User, SuspendUserModal;
   return {
     setters: [function (_flarumExtend) {
