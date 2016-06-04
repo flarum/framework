@@ -793,11 +793,26 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
         }, {
           key: 'delete',
           value: function _delete() {
+            var _this4 = this;
+
             if (confirm(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation'))) {
-              this.tag.delete().then(function () {
-                return m.redraw();
-              });
-              this.hide();
+              (function () {
+                var children = app.store.all('tags').filter(function (tag) {
+                  return tag.parent() === _this4.tag;
+                });
+
+                _this4.tag.delete().then(function () {
+                  children.forEach(function (tag) {
+                    return tag.pushData({
+                      attributes: { isChild: false },
+                      relationships: { parent: null }
+                    });
+                  });
+                  m.redraw();
+                });
+
+                _this4.hide();
+              })();
             }
           }
         }]);

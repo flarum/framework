@@ -110,7 +110,16 @@ export default class EditTagModal extends Modal {
 
   delete() {
     if (confirm(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation'))) {
-      this.tag.delete().then(() => m.redraw());
+      const children = app.store.all('tags').filter(tag => tag.parent() === this.tag);
+
+      this.tag.delete().then(() => {
+        children.forEach(tag => tag.pushData({
+          attributes: {isChild: false},
+          relationships: {parent: null}
+        }));
+        m.redraw();
+      });
+
       this.hide();
     }
   }
