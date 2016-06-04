@@ -19,7 +19,7 @@ core:
       colors_heading: Colors
       colors_text: "Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements."
       custom_header_heading: Custom Header
-      custom_header_text: Add HTML to be displayed at the very top of the page, above Flarum's own header.
+      custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles.
       dark_mode_label: Dark Mode
@@ -78,7 +78,7 @@ core:
 
     # These translations are used in the Edit Custom Header modal dialog.
     edit_header:
-      customize_text: Add HTML to be displayed at the very top of the page, above Flarum's own header.
+      customize_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
       submit_button: => core.ref.save_changes
       title: Edit Custom Header
 
