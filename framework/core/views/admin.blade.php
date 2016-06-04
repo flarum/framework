@@ -9,7 +9,12 @@
       <div class="container">
         <h1 class="Header-title">
           <a href="{{ array_get($forum, 'attributes.baseUrl') }}">
-            {{ array_get($forum, 'attributes.title') }}
+            <?php $title = array_get($forum, 'attributes.title'); ?>
+            @if ($logo = array_get($forum, 'attributes.logoUrl'))
+              <img src="{{ $logo }}" alt="{{ $title }}" class="Header-logo">
+            @else
+              {{ $title }}
+            @endif
           </a>
         </h1>
         <div id="header-primary" class="Header-primary"></div>

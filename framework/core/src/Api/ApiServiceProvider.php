@@ -361,6 +361,34 @@ class ApiServiceProvider extends AbstractServiceProvider
             $route->toController(Controller\SetPermissionController::class)
         );
 
+        // Upload a logo
+        $routes->post(
+            '/logo',
+            'logo',
+            $route->toController(Controller\UploadLogoController::class)
+        );
+
+        // Remove the logo
+        $routes->delete(
+            '/logo',
+            'logo.delete',
+            $route->toController(Controller\DeleteLogoController::class)
+        );
+
+        // Upload a favicon
+        $routes->post(
+            '/favicon',
+            'favicon',
+            $route->toController(Controller\UploadFaviconController::class)
+        );
+
+        // Remove the favicon
+        $routes->delete(
+            '/favicon',
+            'favicon.delete',
+            $route->toController(Controller\DeleteFaviconController::class)
+        );
+
         $this->app->make('events')->fire(
             new ConfigureApiRoutes($routes, $route)
         );
