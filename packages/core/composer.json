@@ -72,9 +72,6 @@
             "Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "test": "vendor/bin/phpunit -c tests/phpunit.xml"
-    },
     "extra": {
         "branch-alias": {
             "dev-master": "0.1.x-dev"

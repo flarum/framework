@@ -12,13 +12,8 @@
 
     <testsuites>
         <testsuite name="all">
-            <directory suffix="Test.php">./</directory>
+            <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>
-
-    <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="CACHE_DRIVER" value="array"/>
-    </php>
 
 </phpunit>

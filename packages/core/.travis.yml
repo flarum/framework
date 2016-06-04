@@ -17,7 +17,7 @@ before_script:
   - composer install
 
 script:
-  - vendor/bin/phpunit -c tests/phpunit.xml --coverage-clover=coverage.xml
+  - vendor/bin/phpunit --coverage-clover=coverage.xml
 
 notifications:
   email:
