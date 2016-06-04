@@ -143,7 +143,7 @@ class Tag extends AbstractModel
         foreach ($tags as $tag) {
             $can = $canForTag($tag);
 
-            if ($can && $tag->parent_id) {
+            if ($can && $tag->parent) {
                 $can = $canForTag($tag->parent);
             }
 
