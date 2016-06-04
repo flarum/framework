@@ -30,18 +30,23 @@ class ValidationExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 422;
+        $errors = array_merge(
+            $this->buildErrors($e->getAttributes(), '/data/attributes'),
+            $this->buildErrors($e->getRelationships(), '/data/relationships')
+        );
 
-        $messages = $e->getMessages();
-        $errors = array_map(function ($path, $detail) use ($status) {
+        return new ResponseBag(422, $errors);
+    }
+
+    private function buildErrors(array $messages, $pointer)
+    {
+        return array_map(function ($path, $detail) use ($pointer) {
             return [
-                'status' => (string) $status,
+                'status' => '422',
                 'code' => 'validation_error',
                 'detail' => $detail,
-                'source' => ['pointer' => "/data/attributes/$path"]
+                'source' => ['pointer' => $pointer.'/'.$path]
             ];
         }, array_keys($messages), $messages);
-
-        return new ResponseBag($status, $errors);
     }
 }
