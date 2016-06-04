@@ -12,13 +12,13 @@
 namespace Flarum\Tags\Listener;
 
 use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Exception\ValidationException;
 use Flarum\Event\DiscussionWillBeSaved;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Contracts\Validation\ValidationException;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class SaveTagsToDatabase
@@ -129,16 +129,15 @@ class SaveTagsToDatabase
     {
         $min = $this->settings->get('flarum-tags.min_'.$type.'_tags');
         $max = $this->settings->get('flarum-tags.max_'.$type.'_tags');
+        $key = 'tag_count_'.$type;
 
         $validator = $this->validator->make(
-            ['tags' => $count],
-            ['tags' => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]],
-            [],
-            ['tags' => $this->translator->trans('flarum-tags.api.'.$type.'_tag_count_text')]
+            [$key => $count],
+            [$key => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]]
         );
 
         if ($validator->fails()) {
-            throw new ValidationException($validator);
+            throw new ValidationException([], ['tags' => $validator->getMessageBag()->first($key)]);
         }
     }
 }
