@@ -1,28 +1,33 @@
 .Alert {
   padding: 12px 16px;
   border-radius: @border-radius;
-  background: @alert-bg;
   line-height: 1.5;
 
-  &, .Button, .Button:hover {
-    color: @alert-color;
-  }
+  .Alert--color(@alert-color, @alert-bg);
 }
 .Alert--error {
-  background: @alert-error-bg;
-
-  &, a, a:hover, .Button, .Button:hover {
-    color: @alert-error-color;
-  }
+  .Alert--color(@alert-error-color, @alert-error-bg);
 }
 .Alert--success {
-  background: @alert-success-bg;
+  .Alert--color(@alert-success-color, @alert-success-bg);
 
-  &, a, a:hover, .Button, .Button:hover {
-    color: @alert-success-color;
-  }
   a, a:hover {
     text-decoration: underline;
+  }
+}
+.Alert--color(@color; @background) {
+  background: @background;
+
+  &,
+  a,
+  a:hover,
+  .Button,
+  .Button:hover,
+  .Button:active,
+  .Button.active,
+  .Button:focus,
+  .Button.focus {
+    color: @color;
   }
 }
 .Alert-controls {
