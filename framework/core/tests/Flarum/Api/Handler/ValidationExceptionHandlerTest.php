@@ -32,15 +32,24 @@ class ValidationExceptionHandlerTest extends TestCase
 
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new ValidationException(['There was an error']));
+        $response = $this->handler->handle(new ValidationException(
+            ['foo' => 'Attribute error'],
+            ['bar' => 'Relationship error']
+        ));
 
         $this->assertEquals(422, $response->getStatus());
         $this->assertEquals([
             [
                 'status' => '422',
                 'code' => 'validation_error',
-                'detail' => 'There was an error',
-                'source' => ['pointer' => '/data/attributes/0']
+                'detail' => 'Attribute error',
+                'source' => ['pointer' => '/data/attributes/foo']
+            ],
+            [
+                'status' => '422',
+                'code' => 'validation_error',
+                'detail' => 'Relationship error',
+                'source' => ['pointer' => '/data/relationships/bar']
             ]
         ], $response->getErrors());
     }
