@@ -14,17 +14,26 @@ use Exception;
 
 class ValidationException extends Exception
 {
-    protected $messages;
+    protected $attributes;
+    protected $relationships;
 
-    public function __construct(array $messages)
+    public function __construct(array $attributes, array $relationships = [])
     {
-        $this->messages = $messages;
+        $this->attributes = $attributes;
+        $this->relationships = $relationships;
+
+        $messages = [implode("\n", $attributes), implode("\n", $relationships)];
 
         parent::__construct(implode("\n", $messages));
     }
 
-    public function getMessages()
+    public function getAttributes()
     {
-        return $this->messages;
+        return $this->attributes;
+    }
+
+    public function getRelationships()
+    {
+        return $this->relationships;
     }
 }
