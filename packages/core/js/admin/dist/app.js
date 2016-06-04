@@ -17488,10 +17488,10 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
 });;
 'use strict';
 
-System.register('flarum/components/AppearancePage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/utils/saveSettings'], function (_export, _context) {
+System.register('flarum/components/AppearancePage', ['flarum/components/Page', 'flarum/components/Button', 'flarum/components/Switch', 'flarum/components/EditCustomCssModal', 'flarum/components/EditCustomHeaderModal', 'flarum/components/UploadImageButton', 'flarum/utils/saveSettings'], function (_export, _context) {
   "use strict";
 
-  var Page, Button, Switch, EditCustomCssModal, saveSettings, AppearancePage;
+  var Page, Button, Switch, EditCustomCssModal, EditCustomHeaderModal, UploadImageButton, saveSettings, AppearancePage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
@@ -17501,6 +17501,10 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
       Switch = _flarumComponentsSwitch.default;
     }, function (_flarumComponentsEditCustomCssModal) {
       EditCustomCssModal = _flarumComponentsEditCustomCssModal.default;
+    }, function (_flarumComponentsEditCustomHeaderModal) {
+      EditCustomHeaderModal = _flarumComponentsEditCustomHeaderModal.default;
+    }, function (_flarumComponentsUploadImageButton) {
+      UploadImageButton = _flarumComponentsUploadImageButton.default;
     }, function (_flarumUtilsSaveSettings) {
       saveSettings = _flarumUtilsSaveSettings.default;
     }],
@@ -17571,6 +17575,57 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
                       loading: this.loading
                     })
                   )
+                ),
+                m(
+                  'fieldset',
+                  null,
+                  m(
+                    'legend',
+                    null,
+                    app.translator.trans('core.admin.appearance.logo_heading')
+                  ),
+                  m(
+                    'div',
+                    { className: 'helpText' },
+                    app.translator.trans('core.admin.appearance.logo_text')
+                  ),
+                  m(UploadImageButton, { name: 'logo' })
+                ),
+                m(
+                  'fieldset',
+                  null,
+                  m(
+                    'legend',
+                    null,
+                    app.translator.trans('core.admin.appearance.favicon_heading')
+                  ),
+                  m(
+                    'div',
+                    { className: 'helpText' },
+                    app.translator.trans('core.admin.appearance.favicon_text')
+                  ),
+                  m(UploadImageButton, { name: 'favicon' })
+                ),
+                m(
+                  'fieldset',
+                  null,
+                  m(
+                    'legend',
+                    null,
+                    app.translator.trans('core.admin.appearance.custom_header_heading')
+                  ),
+                  m(
+                    'div',
+                    { className: 'helpText' },
+                    app.translator.trans('core.admin.appearance.custom_header_text')
+                  ),
+                  Button.component({
+                    className: 'Button',
+                    children: app.translator.trans('core.admin.appearance.edit_header_button'),
+                    onclick: function onclick() {
+                      return app.modal.show(new EditCustomHeaderModal());
+                    }
+                  })
                 ),
                 m(
                   'fieldset',
@@ -18232,21 +18287,17 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
 });;
 'use strict';
 
-System.register('flarum/components/EditCustomCssModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/utils/saveSettings'], function (_export, _context) {
+System.register('flarum/components/EditCustomCssModal', ['flarum/components/SettingsModal'], function (_export, _context) {
   "use strict";
 
-  var Modal, Button, saveSettings, EditCustomCssModal;
+  var SettingsModal, EditCustomCssModal;
   return {
-    setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal.default;
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton.default;
-    }, function (_flarumUtilsSaveSettings) {
-      saveSettings = _flarumUtilsSaveSettings.default;
+    setters: [function (_flarumComponentsSettingsModal) {
+      SettingsModal = _flarumComponentsSettingsModal.default;
     }],
     execute: function () {
-      EditCustomCssModal = function (_Modal) {
-        babelHelpers.inherits(EditCustomCssModal, _Modal);
+      EditCustomCssModal = function (_SettingsModal) {
+        babelHelpers.inherits(EditCustomCssModal, _SettingsModal);
 
         function EditCustomCssModal() {
           babelHelpers.classCallCheck(this, EditCustomCssModal);
@@ -18254,11 +18305,6 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
         }
 
         babelHelpers.createClass(EditCustomCssModal, [{
-          key: 'init',
-          value: function init() {
-            this.customLess = m.prop(app.data.settings.custom_less || '');
-          }
-        }, {
           key: 'className',
           value: function className() {
             return 'EditCustomCssModal Modal--large';
@@ -18269,55 +18315,83 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Moda
             return app.translator.trans('core.admin.edit_css.title');
           }
         }, {
-          key: 'content',
-          value: function content() {
-            return m(
+          key: 'form',
+          value: function form() {
+            return [m(
+              'p',
+              null,
+              app.translator.trans('core.admin.edit_css.customize_text', { a: m('a', { href: 'https://github.com/flarum/core/tree/master/less', target: '_blank' }) })
+            ), m(
               'div',
-              { className: 'Modal-body' },
-              m(
-                'p',
-                null,
-                app.translator.trans('core.admin.edit_css.customize_text', { a: m('a', { href: 'https://github.com/flarum/core/tree/master/less', target: '_blank' }) })
-              ),
-              m(
-                'div',
-                { className: 'Form' },
-                m(
-                  'div',
-                  { className: 'Form-group' },
-                  m('textarea', { className: 'FormControl', rows: '30', value: this.customLess(), onchange: m.withAttr('value', this.customLess) })
-                ),
-                m(
-                  'div',
-                  { className: 'Form-group' },
-                  Button.component({
-                    className: 'Button Button--primary',
-                    type: 'submit',
-                    children: app.translator.trans('core.admin.edit_css.submit_button'),
-                    loading: this.loading
-                  })
-                )
-              )
-            );
+              { className: 'Form-group' },
+              m('textarea', { className: 'FormControl', rows: '30', bidi: this.setting('custom_less') })
+            )];
           }
         }, {
-          key: 'onsubmit',
-          value: function onsubmit(e) {
-            e.preventDefault();
-
-            this.loading = true;
-
-            saveSettings({
-              custom_less: this.customLess()
-            }).then(function () {
-              return window.location.reload();
-            });
+          key: 'onsaved',
+          value: function onsaved() {
+            window.location.reload();
           }
         }]);
         return EditCustomCssModal;
-      }(Modal);
+      }(SettingsModal);
 
       _export('default', EditCustomCssModal);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/EditCustomHeaderModal', ['flarum/components/SettingsModal'], function (_export, _context) {
+  "use strict";
+
+  var SettingsModal, EditCustomHeaderModal;
+  return {
+    setters: [function (_flarumComponentsSettingsModal) {
+      SettingsModal = _flarumComponentsSettingsModal.default;
+    }],
+    execute: function () {
+      EditCustomHeaderModal = function (_SettingsModal) {
+        babelHelpers.inherits(EditCustomHeaderModal, _SettingsModal);
+
+        function EditCustomHeaderModal() {
+          babelHelpers.classCallCheck(this, EditCustomHeaderModal);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditCustomHeaderModal).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(EditCustomHeaderModal, [{
+          key: 'className',
+          value: function className() {
+            return 'EditCustomHeaderModal Modal--large';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return app.translator.trans('core.admin.edit_header.title');
+          }
+        }, {
+          key: 'form',
+          value: function form() {
+            return [m(
+              'p',
+              null,
+              app.translator.trans('core.admin.edit_header.customize_text')
+            ), m(
+              'div',
+              { className: 'Form-group' },
+              m('textarea', { className: 'FormControl', rows: '30', bidi: this.setting('custom_header') })
+            )];
+          }
+        }, {
+          key: 'onsaved',
+          value: function onsaved() {
+            window.location.reload();
+          }
+        }]);
+        return EditCustomHeaderModal;
+      }(SettingsModal);
+
+      _export('default', EditCustomHeaderModal);
     }
   };
 });;
@@ -20651,7 +20725,12 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
 
             this.loading = true;
 
-            saveSettings(this.dirty()).then(this.hide.bind(this), this.loaded.bind(this));
+            saveSettings(this.dirty()).then(this.onsaved.bind(this), this.loaded.bind(this));
+          }
+        }, {
+          key: 'onsaved',
+          value: function onsaved() {
+            this.hide();
           }
         }]);
         return SettingsModal;
@@ -20764,6 +20843,122 @@ System.register('flarum/components/Switch', ['flarum/components/Checkbox'], func
       }(Checkbox);
 
       _export('default', Switch);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/UploadImageButton', ['flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
+  var Button, UploadImageButton;
+  return {
+    setters: [function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }],
+    execute: function () {
+      UploadImageButton = function (_Button) {
+        babelHelpers.inherits(UploadImageButton, _Button);
+
+        function UploadImageButton() {
+          babelHelpers.classCallCheck(this, UploadImageButton);
+          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UploadImageButton).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(UploadImageButton, [{
+          key: 'init',
+          value: function init() {
+            this.loading = false;
+          }
+        }, {
+          key: 'view',
+          value: function view() {
+            this.props.loading = this.loading;
+            this.props.className = (this.props.className || '') + ' Button';
+
+            if (app.data.settings[this.props.name + '_path']) {
+              this.props.onclick = this.remove.bind(this);
+              this.props.children = app.translator.trans('core.admin.upload_image.remove_button');
+
+              return m(
+                'div',
+                null,
+                m(
+                  'p',
+                  null,
+                  m('img', { src: app.forum.attribute(this.props.name + 'Url'), alt: '' })
+                ),
+                m(
+                  'p',
+                  null,
+                  babelHelpers.get(Object.getPrototypeOf(UploadImageButton.prototype), 'view', this).call(this)
+                )
+              );
+            } else {
+              this.props.onclick = this.upload.bind(this);
+              this.props.children = app.translator.trans('core.admin.upload_image.upload_button');
+            }
+
+            return babelHelpers.get(Object.getPrototypeOf(UploadImageButton.prototype), 'view', this).call(this);
+          }
+        }, {
+          key: 'upload',
+          value: function upload() {
+            var _this2 = this;
+
+            if (this.loading) return;
+
+            var $input = $('<input type="file">');
+
+            $input.appendTo('body').hide().click().on('change', function (e) {
+              var data = new FormData();
+              data.append(_this2.props.name, $(e.target)[0].files[0]);
+
+              _this2.loading = true;
+              m.redraw();
+
+              app.request({
+                method: 'POST',
+                url: _this2.resourceUrl(),
+                serialize: function serialize(raw) {
+                  return raw;
+                },
+                data: data
+              }).then(_this2.success.bind(_this2), _this2.failure.bind(_this2));
+            });
+          }
+        }, {
+          key: 'remove',
+          value: function remove() {
+            this.loading = true;
+            m.redraw();
+
+            app.request({
+              method: 'DELETE',
+              url: this.resourceUrl()
+            }).then(this.success.bind(this), this.failure.bind(this));
+          }
+        }, {
+          key: 'resourceUrl',
+          value: function resourceUrl() {
+            return app.forum.attribute('apiUrl') + '/' + this.props.name;
+          }
+        }, {
+          key: 'success',
+          value: function success(response) {
+            window.location.reload();
+          }
+        }, {
+          key: 'failure',
+          value: function failure(response) {
+            this.loading = false;
+            m.redraw();
+          }
+        }]);
+        return UploadImageButton;
+      }(Button);
+
+      _export('default', UploadImageButton);
     }
   };
 });;
@@ -22435,6 +22630,7 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
               case 'vi':
               case 'zh':
                 return 0;
+
               case 'af':
               case 'az':
               case 'bn':

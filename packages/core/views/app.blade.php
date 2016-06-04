@@ -11,10 +11,16 @@
       <link rel="stylesheet" href="{{ $url }}">
     @endforeach
 
+    @if ($faviconUrl = array_get($forum, 'attributes.faviconUrl'))
+      <link href="{{ $faviconUrl }}" rel="shortcut icon">
+    @endif
+
     {!! $head !!}
   </head>
 
   <body>
+    {!! array_get($forum, 'attributes.headerHtml') !!}
+
     {!! $layout !!}
 
     <div id="modal"></div>

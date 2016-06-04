@@ -162,7 +162,7 @@ export default class AvatarEditor extends Component {
    * @param {Object} response
    * @protected
    */
-  failure() {
+  failure(response) {
     this.loading = false;
     m.redraw();
   }
