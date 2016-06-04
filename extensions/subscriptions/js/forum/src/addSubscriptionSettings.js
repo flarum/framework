@@ -8,7 +8,7 @@ export default function() {
   extend(SettingsPage.prototype, 'notificationsItems', function(items) {
     items.add('followAfterReply',
       Switch.component({
-        children: app.translator.trans('flarum-subscriptions.forum.settings.forum_follow_after_reply_label'),
+        children: app.translator.trans('flarum-subscriptions.forum.settings.follow_after_reply_label'),
         state: this.user.preferences().followAfterReply,
         onchange: this.preferenceSaver('followAfterReply')
       })
