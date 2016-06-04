@@ -12,12 +12,14 @@
 namespace Flarum\Tags\Listener;
 
 use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Exception\ValidationException;
 use Flarum\Event\DiscussionWillBeSaved;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Validation\ValidationException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class SaveTagsToDatabase
 {
@@ -27,11 +29,25 @@ class SaveTagsToDatabase
     protected $settings;
 
     /**
-     * @param SettingsRepositoryInterface $settings
+     * @var Factory
      */
-    public function __construct(SettingsRepositoryInterface $settings)
+    protected $validator;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * @param SettingsRepositoryInterface $settings
+     * @param Factory $validator
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(SettingsRepositoryInterface $settings, Factory $validator, TranslatorInterface $translator)
     {
         $this->settings = $settings;
+        $this->validator = $validator;
+        $this->translator = $translator;
     }
 
     /**
@@ -76,8 +92,8 @@ class SaveTagsToDatabase
                 }
             }
 
-            $this->validatePrimaryTagCount($primaryCount);
-            $this->validateSecondaryTagCount($secondaryCount);
+            $this->validateTagCount('primary', $primaryCount);
+            $this->validateTagCount('secondary', $secondaryCount);
 
             if ($discussion->exists) {
                 $oldTags = $discussion->tags()->get();
@@ -105,34 +121,24 @@ class SaveTagsToDatabase
     }
 
     /**
-     * @param $count
+     * @param string $type
+     * @param int $count
      * @throws ValidationException
      */
-    protected function validatePrimaryTagCount($count)
+    protected function validateTagCount($type, $count)
     {
-        $min = $this->settings->get('flarum-tags.min_primary_tags');
-        $max = $this->settings->get('flarum-tags.max_primary_tags');
+        $min = $this->settings->get('flarum-tags.min_'.$type.'_tags');
+        $max = $this->settings->get('flarum-tags.max_'.$type.'_tags');
 
-        if ($count < $min || $count > $max) {
-            throw new ValidationException([
-                'tags' => sprintf('Discussion must have between %d and %d primary tags.', $min, $max)
-            ]);
-        }
-    }
+        $validator = $this->validator->make(
+            ['tags' => $count],
+            ['tags' => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]],
+            [],
+            ['tags' => $this->translator->trans('flarum-tags.api.'.$type.'_tag_count_text')]
+        );
 
-    /**
-     * @param $count
-     * @throws ValidationException
-     */
-    protected function validateSecondaryTagCount($count)
-    {
-        $min = $this->settings->get('flarum-tags.min_secondary_tags');
-        $max = $this->settings->get('flarum-tags.max_secondary_tags');
-
-        if ($count < $min || $count > $max) {
-            throw new ValidationException([
-                'tags' => sprintf('Discussion must have between %d and %d secondary tags.', $min, $max)
-            ]);
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
         }
     }
 }
