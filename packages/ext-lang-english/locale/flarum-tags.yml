@@ -84,18 +84,18 @@ flarum-tags:
       removed_tags_text: "{username} removed the {tagsRemoved}."
       tags_text: "{tags} tag|{tags} tags"
 
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # This translation is displayed in place of the name of a tag that's been deleted.
+    deleted_tag_text: Deleted
+
   # Translations in this namespace are used in messages output by the API.
   api:
 
     # These translations are used in messages regarding the number of tags assigned to a discussion.
     primary_tag_count_text: number of primary tags
     secondary_tag_count_text: number of secondary tags
-
-  # Translations in this namespace are used by the forum and admin interfaces.
-  lib:
-
-    # This translation is displayed in place of the name of a tag that's been deleted.
-    deleted_tag_text: Deleted
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
