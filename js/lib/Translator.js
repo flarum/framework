@@ -167,6 +167,7 @@ export default class Translator {
       case 'vi':
       case 'zh':
         return 0;
+
       case 'af':
       case 'az':
       case 'bn':
