@@ -18,11 +18,18 @@ core:
       colored_header_label: Colored Header
       colors_heading: Colors
       colors_text: "Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements."
+      custom_header_heading: Custom Header
+      custom_header_text: Add HTML to be displayed at the very top of the page, above Flarum's own header.
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles.
       dark_mode_label: Dark Mode
       edit_css_button: Edit Custom CSS
+      edit_header_button: Edit Custom Header
       enter_hex_message: Please enter a hexadecimal color code.
+      favicon_heading: Favicon
+      favicon_text: Upload an image to be displayed as the forum's shortcut icon.
+      logo_heading: Logo
+      logo_text: Upload an image to be displayed in place of the forum title.
       submit_button: => core.ref.save_changes
 
     # These translations are used in the Basics page.
@@ -68,6 +75,12 @@ core:
       singular_placeholder: Singular (e.g. Mod)
       submit_button: => core.ref.save_changes
       title: Create Group
+
+    # These translations are used in the Edit Custom Header modal dialog.
+    edit_header:
+      customize_text: Add HTML to be displayed at the very top of the page, above Flarum's own header.
+      submit_button: => core.ref.save_changes
+      title: Edit Custom Header
 
     # These translations are used in the email page of the admin interface.
     email:
@@ -149,6 +162,11 @@ core:
     # These translations are used in the Settings modal dialog.
     settings:
       submit_button: => core.ref.save_changes
+
+    # These translations are used in image upload buttons.
+    upload_image:
+      remove_button: Remove
+      upload_button: Choose an Image...
 
   # Translations in this namespace are used by the forum user interface.
   forum:
