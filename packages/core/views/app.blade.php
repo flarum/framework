@@ -19,8 +19,6 @@
   </head>
 
   <body>
-    {!! array_get($forum, 'attributes.headerHtml') !!}
-
     {!! $layout !!}
 
     <div id="modal"></div>
