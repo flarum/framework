@@ -11,14 +11,11 @@
 namespace Flarum\Update;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\GenerateRouteHandlerTrait;
 use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {
-    use GenerateRouteHandlerTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -36,7 +33,7 @@ class UpdateServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->populateRoutes($this->app->make('flarum.install.routes'));
+        $this->populateRoutes($this->app->make('flarum.update.routes'));
     }
 
     /**
