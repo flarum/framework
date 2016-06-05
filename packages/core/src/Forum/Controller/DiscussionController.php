@@ -10,7 +10,7 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Api\Client as ApiClient;
+use Flarum\Api\Client;
 use Flarum\Core\User;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Forum\WebApp;
@@ -33,7 +33,7 @@ class DiscussionController extends WebAppController
     /**
      * {@inheritdoc}
      */
-    public function __construct(WebApp $webApp, Dispatcher $events, ApiClient $api, UrlGenerator $url)
+    public function __construct(WebApp $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
     {
         parent::__construct($webApp, $events);
 
