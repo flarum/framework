@@ -10,15 +10,15 @@
 //# sourceMappingURL=iframeResizer.contentWindow.map;
 'use strict';
 
-System.register('flarum/embed/components/DiscussionPage', ['flarum/components/DiscussionPage', 'flarum/components/PostStream', 'flarum/helpers/listItems'], function (_export, _context) {
+System.register('flarum/embed/components/DiscussionPage', ['flarum/components/DiscussionPage', 'flarum/components/LoadingIndicator', 'flarum/helpers/listItems'], function (_export, _context) {
   "use strict";
 
-  var BaseDiscussionPage, PostStream, listItems, DiscussionPage;
+  var BaseDiscussionPage, LoadingIndicator, listItems, DiscussionPage;
   return {
     setters: [function (_flarumComponentsDiscussionPage) {
       BaseDiscussionPage = _flarumComponentsDiscussionPage.default;
-    }, function (_flarumComponentsPostStream) {
-      PostStream = _flarumComponentsPostStream.default;
+    }, function (_flarumComponentsLoadingIndicator) {
+      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
     }, function (_flarumHelpersListItems) {
       listItems = _flarumHelpersListItems.default;
     }],
@@ -50,7 +50,7 @@ System.register('flarum/embed/components/DiscussionPage', ['flarum/components/Di
                 m(
                   'div',
                   { className: 'DiscussionPage-discussion' },
-                  m(
+                  this.discussion ? [m(
                     'nav',
                     { className: 'DiscussionPage-nav--embed' },
                     m(
@@ -58,12 +58,11 @@ System.register('flarum/embed/components/DiscussionPage', ['flarum/components/Di
                       null,
                       listItems(this.sidebarItems().toArray())
                     )
-                  ),
-                  m(
+                  ), m(
                     'div',
                     { className: 'DiscussionPage-stream' },
-                    this.stream ? this.stream.render() : ''
-                  )
+                    this.stream.render()
+                  )] : m(LoadingIndicator, { className: 'LoadingIndicator--block' })
                 )
               )
             );
@@ -104,10 +103,10 @@ System.register('flarum/embed/components/DiscussionPage', ['flarum/components/Di
 });;
 'use strict';
 
-System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/components/Composer', 'flarum/components/PostStream', 'flarum/components/ModalManager', 'flarum/components/AlertManager', 'flarum/components/PostMeta', 'flarum/utils/mapRoutes', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/embed/components/DiscussionPage'], function (_export, _context) {
+System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/components/Composer', 'flarum/components/PostStream', 'flarum/components/ModalManager', 'flarum/components/AlertManager', 'flarum/components/PostMeta', 'flarum/utils/mapRoutes', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/ScrollListener', 'flarum/embed/components/DiscussionPage'], function (_export, _context) {
   "use strict";
 
-  var override, extend, app, Composer, PostStream, ModalManager, AlertManager, PostMeta, mapRoutes, Pane, Drawer, DiscussionPage;
+  var override, extend, app, Composer, PostStream, ModalManager, AlertManager, PostMeta, mapRoutes, Pane, Drawer, ScrollListener, DiscussionPage;
   return {
     setters: [function (_flarumExtend) {
       override = _flarumExtend.override;
@@ -130,6 +129,8 @@ System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/com
       Pane = _flarumUtilsPane.default;
     }, function (_flarumUtilsDrawer) {
       Drawer = _flarumUtilsDrawer.default;
+    }, function (_flarumUtilsScrollListener) {
+      ScrollListener = _flarumUtilsScrollListener.default;
     }, function (_flarumEmbedComponentsDiscussionPage) {
       DiscussionPage = _flarumEmbedComponentsDiscussionPage.default;
     }],
@@ -156,7 +157,7 @@ System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/com
           return original(post).replace('/embed', '/d');
         });
 
-        app.pageInfo = m.prop();
+        app.pageInfo = m.prop({});
 
         var reposition = function reposition() {
           var info = app.pageInfo();
@@ -204,6 +205,15 @@ System.register('flarum/embed/main', ['flarum/extend', 'flarum/app', 'flarum/com
             }
           });
         }
+
+        // Add a class to the body which indicates that the page has been scrolled
+        // down.
+        new ScrollListener(function (top) {
+          var $app = $('#app');
+          var offset = $app.offset().top;
+
+          $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
+        }).start();
 
         // Initialize FastClick, which makes links and buttons much more responsive on
         // touch devices.

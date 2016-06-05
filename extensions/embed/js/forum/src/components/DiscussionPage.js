@@ -1,5 +1,5 @@
 import BaseDiscussionPage from 'flarum/components/DiscussionPage';
-import PostStream from 'flarum/components/PostStream';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import listItems from 'flarum/helpers/listItems';
 
 export default class DiscussionPage extends BaseDiscussionPage {
@@ -14,12 +14,16 @@ export default class DiscussionPage extends BaseDiscussionPage {
       <div className="DiscussionPage">
         <div class="container">
           <div className="DiscussionPage-discussion">
-            <nav className="DiscussionPage-nav--embed">
-              <ul>{listItems(this.sidebarItems().toArray())}</ul>
-            </nav>
-            <div className="DiscussionPage-stream">
-              {this.stream ? this.stream.render() : ''}
-            </div>
+            {this.discussion ? [
+              <nav className="DiscussionPage-nav--embed">
+                <ul>{listItems(this.sidebarItems().toArray())}</ul>
+              </nav>,
+              <div className="DiscussionPage-stream">
+                {this.stream.render()}
+              </div>
+            ] : (
+              <LoadingIndicator className="LoadingIndicator--block"/>
+            )}
           </div>
         </div>
       </div>

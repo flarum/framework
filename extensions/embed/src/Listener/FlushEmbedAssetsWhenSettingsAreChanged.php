@@ -11,6 +11,7 @@
 namespace Flarum\Embed\Listener;
 
 use Flarum\Embed\DiscussionController;
+use Flarum\Embed\EmbedWebApp;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\SettingWasSet;
@@ -21,14 +22,14 @@ class FlushEmbedAssetsWhenSettingsAreChanged
     /**
      * @var DiscussionController
      */
-    protected $controller;
+    protected $webApp;
 
     /**
-     * @param DiscussionController $controller
+     * @param EmbedWebApp $webApp
      */
-    public function __construct(DiscussionController $controller)
+    public function __construct(EmbedWebApp $webApp)
     {
-        $this->controller = $controller;
+        $this->webApp = $webApp;
     }
 
     /**
@@ -47,12 +48,12 @@ class FlushEmbedAssetsWhenSettingsAreChanged
     public function flushCss(SettingWasSet $event)
     {
         if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-            $this->controller->flushCss();
+            $this->webApp->getAssets()->flushCss();
         }
     }
 
     public function flushAssets()
     {
-        $this->controller->flushAssets();
+        $this->webApp->getAssets()->flush();
     }
 }
