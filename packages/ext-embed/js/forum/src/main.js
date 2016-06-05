@@ -8,6 +8,7 @@ import PostMeta from 'flarum/components/PostMeta';
 import mapRoutes from 'flarum/utils/mapRoutes';
 import Pane from 'flarum/utils/Pane';
 import Drawer from 'flarum/utils/Drawer';
+import ScrollListener from 'flarum/utils/ScrollListener';
 
 import DiscussionPage from 'flarum/embed/components/DiscussionPage';
 
@@ -36,7 +37,7 @@ app.initializers.replace('boot', () => {
     return original(post).replace('/embed', '/d');
   });
 
-  app.pageInfo = m.prop();
+  app.pageInfo = m.prop({});
 
   const reposition = function() {
     const info = app.pageInfo();
@@ -88,6 +89,17 @@ app.initializers.replace('boot', () => {
       }
     });
   }
+
+  // Add a class to the body which indicates that the page has been scrolled
+  // down.
+  new ScrollListener(top => {
+    const $app = $('#app');
+    const offset = $app.offset().top;
+
+    $app
+      .toggleClass('affix', top >= offset)
+      .toggleClass('scrolled', top > offset);
+  }).start();
 
   // Initialize FastClick, which makes links and buttons much more responsive on
   // touch devices.
