@@ -41,12 +41,12 @@ class Server extends AbstractServer
                 event(new ConfigureMiddleware($pipe, $path, $this));
 
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.admin.routes')]));
-                $pipe->pipe($path, new HandleErrors($errorDir, $app->inDebugMode()));
+                $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $app->inDebugMode()));
             } else {
                 $app->register('Flarum\Update\UpdateServiceProvider');
 
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.update.routes')]));
-                $pipe->pipe($path, new HandleErrors($errorDir, true));
+                $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), true));
             }
         }
 
