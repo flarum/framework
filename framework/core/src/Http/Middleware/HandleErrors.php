@@ -13,6 +13,7 @@ namespace Flarum\Http\Middleware;
 use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Log\LoggerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\ErrorMiddlewareInterface;
 
@@ -24,17 +25,24 @@ class HandleErrors implements ErrorMiddlewareInterface
     protected $templateDir;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @var bool
      */
     protected $debug;
 
     /**
      * @param string $templateDir
+     * @param LoggerInterface $logger
      * @param bool $debug
      */
-    public function __construct($templateDir, $debug = false)
+    public function __construct($templateDir, LoggerInterface $logger, $debug = false)
     {
         $this->templateDir = $templateDir;
+        $this->logger = $logger;
         $this->debug = $debug;
     }
 
@@ -57,6 +65,9 @@ class HandleErrors implements ErrorMiddlewareInterface
 
             return $whoops($error, $request, $response, $out);
         }
+
+        // Log the exception (with trace)
+        $this->logger->debug($error);
 
         $errorPage = $this->getErrorPage($status);
 
