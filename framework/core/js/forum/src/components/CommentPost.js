@@ -6,7 +6,6 @@ import PostUser from 'flarum/components/PostUser';
 import PostMeta from 'flarum/components/PostMeta';
 import PostEdited from 'flarum/components/PostEdited';
 import EditPostComposer from 'flarum/components/EditPostComposer';
-import Composer from 'flarum/components/Composer';
 import ItemList from 'flarum/utils/ItemList';
 import listItems from 'flarum/helpers/listItems';
 import Button from 'flarum/components/Button';
