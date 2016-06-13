@@ -108,7 +108,7 @@ class SaveTagsToDatabase
                         throw new PermissionDeniedException;
                     }
                 }
-                
+
                 $discussion->raise(
                     new DiscussionWasTagged($discussion, $actor, $oldTags->all())
                 );

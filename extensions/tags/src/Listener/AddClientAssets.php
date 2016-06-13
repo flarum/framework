@@ -10,8 +10,8 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Event\ConfigureWebApp;
 use Flarum\Event\ConfigureForumRoutes;
+use Flarum\Event\ConfigureWebApp;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets
