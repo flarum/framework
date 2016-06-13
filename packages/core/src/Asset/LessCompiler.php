@@ -41,7 +41,7 @@ class LessCompiler extends RevisionCompiler
         if (! count($this->files) || ! count($this->strings)) {
             return;
         }
-        
+
         ini_set('xdebug.max_nesting_level', 200);
 
         $parser = new Less_Parser([

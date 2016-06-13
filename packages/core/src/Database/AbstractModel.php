@@ -73,13 +73,13 @@ abstract class AbstractModel extends Eloquent
     public function __construct(array $attributes = [])
     {
         $defaults = [];
-        
+
         static::$dispatcher->fire(
             new ConfigureModelDefaultAttributes($this, $defaults)
         );
 
         $this->attributes = $defaults;
-        
+
         parent::__construct($attributes);
     }
 

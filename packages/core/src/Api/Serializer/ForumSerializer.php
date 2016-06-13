@@ -10,7 +10,6 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Access\Gate;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
