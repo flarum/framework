@@ -19085,7 +19085,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
           }
         }, {
           key: 'failure',
-          value: function failure() {
+          value: function failure(response) {
             this.loading = false;
             m.redraw();
           }
@@ -19555,10 +19555,10 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
 });;
 'use strict';
 
-System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/components/Composer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export, _context) {
+System.register('flarum/components/CommentPost', ['flarum/components/Post', 'flarum/utils/classList', 'flarum/components/PostUser', 'flarum/components/PostMeta', 'flarum/components/PostEdited', 'flarum/components/EditPostComposer', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/components/Button'], function (_export, _context) {
   "use strict";
 
-  var Post, classList, PostUser, PostMeta, PostEdited, EditPostComposer, Composer, ItemList, listItems, Button, CommentPost;
+  var Post, classList, PostUser, PostMeta, PostEdited, EditPostComposer, ItemList, listItems, Button, CommentPost;
   return {
     setters: [function (_flarumComponentsPost) {
       Post = _flarumComponentsPost.default;
@@ -19572,8 +19572,6 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
       PostEdited = _flarumComponentsPostEdited.default;
     }, function (_flarumComponentsEditPostComposer) {
       EditPostComposer = _flarumComponentsEditPostComposer.default;
-    }, function (_flarumComponentsComposer) {
-      Composer = _flarumComponentsComposer.default;
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
     }, function (_flarumHelpersListItems) {
@@ -30038,6 +30036,7 @@ System.register('flarum/Translator', ['flarum/models/User', 'flarum/helpers/user
               case 'vi':
               case 'zh':
                 return 0;
+
               case 'af':
               case 'az':
               case 'bn':
