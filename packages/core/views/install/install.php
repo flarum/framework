@@ -34,6 +34,11 @@
     </div>
 
     <div class="FormField">
+      <label>MySQL Port</label>
+      <input type="number" name="mysqlPort">
+    </div>
+
+    <div class="FormField">
       <label>Table Prefix</label>
       <input type="text" name="tablePrefix">
     </div>
