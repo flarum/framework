@@ -2766,7 +2766,7 @@ exports.System = System;
 	}
 
 	if( m.attrs ) m.attrs.bidi = bidi
-	
+
 	m.bidi = bidi
 
 	return bidi
@@ -17147,7 +17147,7 @@ a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
         left: o.left,
         top: o.top
       })
-        
+
       if (target) {
         target.insertBefore(el, target.firstChild||null)
       }
@@ -26394,7 +26394,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
                 'ul',
                 { className: 'Dropdown-menu Search-results' },
                 this.value() && this.hasFocus ? this.sources.map(function (source) {
-                  return source.view(_this2.value());
+                  return source.view(_this2.value().toLowerCase());
                 }) : ''
               )
             );
