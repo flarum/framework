@@ -19,7 +19,7 @@ class AvatarValidator extends AbstractValidator
             'max:2048'
         ]
     ];
-    
+
     public function assertValid(array $attributes)
     {
         $validator = $this->makeValidator($attributes);
