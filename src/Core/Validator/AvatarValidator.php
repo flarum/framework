@@ -10,6 +10,8 @@
 
 namespace Flarum\Core\Validator;
 
+use League\Flysystem\FilesystemInterface;
+
 class AvatarValidator extends AbstractValidator
 {
     protected $rules = [
@@ -19,4 +21,14 @@ class AvatarValidator extends AbstractValidator
             'max:2048'
         ]
     ];
+    
+    public function assertValid(array $attributes)
+    {
+        $validator = $this->makeValidator($attributes);
+
+        if ($validator->fails()) {
+            unlink($attributes['avatar']->avatarPath);
+            throw new ValidationException($validator);
+        }
+    }
 }
