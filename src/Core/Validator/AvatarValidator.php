@@ -10,8 +10,6 @@
 
 namespace Flarum\Core\Validator;
 
-use League\Flysystem\FilesystemInterface;
-
 class AvatarValidator extends AbstractValidator
 {
     protected $rules = [
