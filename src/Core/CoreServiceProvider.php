@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -107,6 +108,7 @@ class CoreServiceProvider extends AbstractServiceProvider
         $events->subscribe('Flarum\Core\Listener\UserMetadataUpdater');
         $events->subscribe('Flarum\Core\Listener\EmailConfirmationMailer');
         $events->subscribe('Flarum\Core\Listener\DiscussionRenamedNotifier');
+        $events->subscribe('Flarum\Core\Listener\ExtensionChangeValidator');
 
         $events->subscribe('Flarum\Core\Access\DiscussionPolicy');
         $events->subscribe('Flarum\Core\Access\GroupPolicy');

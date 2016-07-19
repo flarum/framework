@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -138,9 +139,11 @@ class ExtensionManager
         $enabled = $this->getEnabled();
 
         if (($k = array_search($name, $enabled)) !== false) {
-            unset($enabled[$k]);
-
             $extension = $this->getExtension($name);
+
+            $this->dispatcher->fire(new ExtensionWillBeDisabled($extension));
+
+            unset($enabled[$k]);
 
             $this->setEnabled($enabled);
 
