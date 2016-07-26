@@ -61,6 +61,7 @@ export default function boot(app) {
   $('#home-link').click(e => {
     if (e.ctrlKey || e.metaKey || e.which === 2) return;
     e.preventDefault();
+    app.store.find('users', app.session.user.id());
     app.history.home();
   });
 
