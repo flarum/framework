@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -19,4 +20,14 @@ class AvatarValidator extends AbstractValidator
             'max:2048'
         ]
     ];
+
+    public function assertValid(array $attributes)
+    {
+        $validator = $this->makeValidator($attributes);
+
+        if ($validator->fails()) {
+            unlink($attributes['avatar']->avatarPath);
+            throw new ValidationException($validator);
+        }
+    }
 }

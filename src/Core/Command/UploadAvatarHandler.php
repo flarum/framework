@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -92,6 +93,7 @@ class UploadAvatarHandler
             $command->file->getError(),
             true
         );
+        $file->avatarPath = $tmpFile;
 
         $this->validator->assertValid(['avatar' => $file]);
 
