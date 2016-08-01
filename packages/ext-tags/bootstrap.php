@@ -20,6 +20,7 @@ return function (Dispatcher $events) {
     $events->subscribe(Listener\AddTagsApi::class);
     $events->subscribe(Listener\CreatePostWhenTagsAreChanged::class);
     $events->subscribe(Listener\FilterDiscussionListByTags::class);
+    $events->subscribe(Listener\FilterPostsQueryByTags::class);
     $events->subscribe(Listener\SaveTagsToDatabase::class);
     $events->subscribe(Listener\UpdateTagMetadata::class);
 
