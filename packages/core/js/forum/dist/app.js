@@ -21470,6 +21470,8 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
           value: function search(query) {
             var _this = this;
 
+            query = query.toLowerCase();
+
             this.results[query] = [];
 
             var params = {
@@ -21485,6 +21487,8 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
         }, {
           key: 'view',
           value: function view(query) {
+            query = query.toLowerCase();
+
             var results = this.results[query] || [];
 
             return [m(
@@ -28066,6 +28070,8 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
         }, {
           key: 'view',
           value: function view(query) {
+            query = query.toLowerCase();
+
             var results = app.store.all('users').filter(function (user) {
               return user.username().toLowerCase().substr(0, query.length) === query;
             });

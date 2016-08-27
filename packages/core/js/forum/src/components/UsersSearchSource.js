@@ -17,6 +17,8 @@ export default class UsersSearchResults {
   }
 
   view(query) {
+    query = query.toLowerCase();
+
     const results = app.store.all('users')
       .filter(user => user.username().toLowerCase().substr(0, query.length) === query);
 
