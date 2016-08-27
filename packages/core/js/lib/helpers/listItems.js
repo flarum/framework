@@ -39,17 +39,15 @@ export default function listItems(items) {
       item.attrs.key = item.attrs.key || item.itemName;
     }
 
-    return [
-      isListItem
-        ? item
-        : <li className={classList([
-            (item.itemName ? 'item-' + item.itemName : ''),
-            className,
-            (active ? 'active' : '')
-          ])}
-            key={item.itemName}>
-            {item}
-          </li>
-    ];
+    return isListItem
+      ? item
+      : <li className={classList([
+          (item.itemName ? 'item-' + item.itemName : ''),
+          className,
+          (active ? 'active' : '')
+        ])}
+          key={item.itemName}>
+          {item}
+        </li>;
   });
 }
