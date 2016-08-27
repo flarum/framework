@@ -19714,14 +19714,13 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
         }, {
           key: 'content',
           value: function content() {
+            // Note: we avoid using JSX for the <ul> below because it results in some
+            // weirdness in Mithril.js 0.1.x (see flarum/core#975). This workaround can
+            // be reverted when we upgrade to Mithril 1.0.
             return babelHelpers.get(Object.getPrototypeOf(CommentPost.prototype), 'content', this).call(this).concat([m(
               'header',
               { className: 'Post-header' },
-              m(
-                'ul',
-                null,
-                listItems(this.headerItems().toArray())
-              )
+              m('ul', listItems(this.headerItems().toArray()))
             ), m(
               'div',
               { className: 'Post-body' },
@@ -28598,12 +28597,12 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
         item.attrs.key = item.attrs.key || item.itemName;
       }
 
-      return [isListItem ? item : m(
+      return isListItem ? item : m(
         'li',
         { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']),
           key: item.itemName },
         item
-      )];
+      );
     });
   }
 
