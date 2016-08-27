@@ -21358,12 +21358,12 @@ System.register('flarum/helpers/listItems', ['flarum/components/Separator', 'fla
         item.attrs.key = item.attrs.key || item.itemName;
       }
 
-      return [isListItem ? item : m(
+      return isListItem ? item : m(
         'li',
         { className: classList([item.itemName ? 'item-' + item.itemName : '', className, active ? 'active' : '']),
           key: item.itemName },
         item
-      )];
+      );
     });
   }
 
