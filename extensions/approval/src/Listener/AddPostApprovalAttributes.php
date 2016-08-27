@@ -10,7 +10,8 @@
 
 namespace Flarum\Approval\Listener;
 
-use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Api\Serializer\DiscussionBasicSerializer;
+use Flarum\Api\Serializer\PostBasicSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\PrepareApiAttributes;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -30,8 +31,8 @@ class AddPostApprovalAttributes
      */
     public function addApiAttributes(PrepareApiAttributes $event)
     {
-        if ($event->isSerializer(DiscussionSerializer::class)
-            || $event->isSerializer(PostSerializer::class)) {
+        if ($event->isSerializer(DiscussionBasicSerializer::class)
+            || $event->isSerializer(PostBasicSerializer::class)) {
             $event->attributes['isApproved'] = (bool) $event->model->is_approved;
         }
 
