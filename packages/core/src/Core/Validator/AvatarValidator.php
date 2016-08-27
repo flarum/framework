@@ -15,7 +15,7 @@ class AvatarValidator extends AbstractValidator
     protected $rules = [
         'avatar' => [
             'required',
-            'image',
+            'mimes:jpeg,png,bmp,gif',
             'max:2048'
         ]
     ];
