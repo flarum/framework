@@ -22689,8 +22689,10 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               className: 'Button Button--icon',
               onclick: function onclick() {
                 app.cache.discussionList.refresh();
-                app.store.find('users', app.session.user.id());
-                m.redraw();
+                if (app.session.user) {
+                  app.store.find('users', app.session.user.id());
+                  m.redraw();
+                }
               }
             }));
 
@@ -28730,8 +28732,11 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
     $('#home-link').click(function (e) {
       if (e.ctrlKey || e.metaKey || e.which === 2) return;
       e.preventDefault();
-      app.store.find('users', app.session.user.id());
       app.history.home();
+      if (app.session.user) {
+        app.store.find('users', app.session.user.id());
+        m.redraw();
+      }
     });
 
     // Add a class to the body which indicates that the page has been scrolled
