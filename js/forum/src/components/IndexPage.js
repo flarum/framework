@@ -238,8 +238,10 @@ export default class IndexPage extends Page {
         className: 'Button Button--icon',
         onclick: () => {
           app.cache.discussionList.refresh();
-          app.store.find('users', app.session.user.id());
-          m.redraw();
+          if (app.session.user) {
+            app.store.find('users', app.session.user.id());
+            m.redraw();
+          }
         }
       })
     );

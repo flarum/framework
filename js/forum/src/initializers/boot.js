@@ -61,8 +61,11 @@ export default function boot(app) {
   $('#home-link').click(e => {
     if (e.ctrlKey || e.metaKey || e.which === 2) return;
     e.preventDefault();
-    app.store.find('users', app.session.user.id());
     app.history.home();
+    if (app.session.user) {
+      app.store.find('users', app.session.user.id());
+      m.redraw();
+    }
   });
 
   // Add a class to the body which indicates that the page has been scrolled
