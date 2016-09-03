@@ -142,6 +142,10 @@ class AddPostMentionedByRelationship
         }
 
         if (isset($posts)) {
+            $posts = array_filter($posts, function ($post) {
+                return is_object($post);
+            });
+            
             $ids = [];
 
             // Once we have the posts, construct a list of the IDs of all of
