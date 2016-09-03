@@ -32,9 +32,7 @@ export default class ReplyPlaceholder extends Component {
     }
 
     const reply = () => {
-      DiscussionControls.replyAction.call(this.props.discussion, true).then(function (newComponent) {
-        newComponent.focus();
-      });
+      DiscussionControls.replyAction.call(this.props.discussion, true);
     };
 
     return (
