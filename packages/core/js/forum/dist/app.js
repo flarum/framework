@@ -20163,6 +20163,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             if (this.isFullScreen()) {
               this.$().css('top', $(window).scrollTop());
               this.showBackdrop();
+              this.component.focus();
             }
           }
         }, {
@@ -26249,18 +26250,15 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
               );
             }
 
-            function triggerClick(e) {
-              $(this).trigger('click');
-              e.preventDefault();
-            }
-
             var reply = function reply() {
-              DiscussionControls.replyAction.call(_this2.props.discussion, true);
+              DiscussionControls.replyAction.call(_this2.props.discussion, true).then(function (newComponent) {
+                newComponent.focus();
+              });
             };
 
             return m(
               'article',
-              { className: 'Post ReplyPlaceholder', onclick: reply, onmousedown: triggerClick },
+              { className: 'Post ReplyPlaceholder', onclick: reply },
               m(
                 'header',
                 { className: 'Post-header' },
