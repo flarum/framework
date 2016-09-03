@@ -26251,9 +26251,7 @@ System.register('flarum/components/ReplyPlaceholder', ['flarum/Component', 'flar
             }
 
             var reply = function reply() {
-              DiscussionControls.replyAction.call(_this2.props.discussion, true).then(function (newComponent) {
-                newComponent.focus();
-              });
+              DiscussionControls.replyAction.call(_this2.props.discussion, true);
             };
 
             return m(
