@@ -63,6 +63,10 @@ class ConfigureLocales
             $this->locales->addJsFile($locale, $file);
         }
 
+        if (file_exists($file = $localeDir.'/config.css')) {
+            $this->locales->addCssFile($locale, $file);
+        }
+
         foreach (new DirectoryIterator($localeDir) as $file) {
             if ($file->isFile() && in_array($file->getExtension(), ['yml', 'yaml'])) {
                 $this->locales->addTranslations($locale, $file->getPathname());

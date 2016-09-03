@@ -23,6 +23,8 @@ class LocaleManager
 
     protected $js = [];
 
+    protected $css = [];
+
     /**
      * @param SymfonyTranslator $translator
      */
@@ -74,6 +76,24 @@ class LocaleManager
 
         if (count($parts) > 1) {
             $files = array_merge(array_get($this->js, $parts[0], []), $files);
+        }
+
+        return $files;
+    }
+
+    public function addCssFile($locale, $css)
+    {
+        $this->css[$locale][] = $css;
+    }
+
+    public function getCssFiles($locale)
+    {
+        $files = array_get($this->css, $locale, []);
+
+        $parts = explode('-', $locale);
+
+        if (count($parts) > 1) {
+            $files = array_merge(array_get($this->css, $parts[0], []), $files);
         }
 
         return $files;
