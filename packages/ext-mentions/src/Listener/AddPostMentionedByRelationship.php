@@ -17,14 +17,29 @@ use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Api\Controller\ShowPostController;
 use Flarum\Api\Serializer\PostBasicSerializer;
 use Flarum\Core\Post;
+use Flarum\Core\Repository\PostRepository;
 use Flarum\Core\User;
 use Flarum\Event\ConfigureApiController;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
+use Flarum\Event\PrepareApiData;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostMentionedByRelationship
 {
+    /**
+     * @var PostRepository
+     */
+    protected $posts;
+
+    /**
+     * @param PostRepository $posts
+     */
+    public function __construct(PostRepository $posts)
+    {
+        $this->posts = $posts;
+    }
+
     /**
      * @param Dispatcher $events
      */
@@ -33,6 +48,7 @@ class AddPostMentionedByRelationship
         $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
         $events->listen(ConfigureApiController::class, [$this, 'includeRelationships']);
+        $events->listen(PrepareApiData::class, [$this, 'filterVisiblePosts']);
     }
 
     /**
@@ -100,6 +116,52 @@ class AddPostMentionedByRelationship
                 'mentionsPosts',
                 'mentionsPosts.mentionedBy'
             ]);
+        }
+    }
+
+    /**
+     * Apply visibility permissions to API data.
+     *
+     * Each post in an API document has a relationship with posts that have
+     * mentioned it (mentionedBy). This listener will manually filter these
+     * additional posts so that the user can't see any posts which they don't
+     * have access to.
+     *
+     * @param PrepareApiData $event
+     */
+    public function filterVisiblePosts(PrepareApiData $event)
+    {
+        // Firstly we gather a list of posts contained within the API document.
+        // This will vary according to the API endpoint that is being accessed.
+        if ($event->isController(ShowDiscussionController::class)) {
+            $posts = $event->data->posts;
+        } elseif ($event->isController(ShowPostController::class)) {
+            $posts = [$event->data];
+        } elseif ($event->isController(ListPostsController::class)) {
+            $posts = $event->data;
+        }
+
+        if (isset($posts)) {
+            $ids = [];
+
+            // Once we have the posts, construct a list of the IDs of all of
+            // the posts that they have been mentioned in. We can then filter
+            // this list of IDs to weed out all of the ones which the user is
+            // not meant to see.
+            foreach ($posts as $post) {
+                $ids = array_merge($ids, $post->mentionedBy->pluck('id')->all());
+            }
+
+            $ids = $this->posts->filterVisibleIds($ids, $event->actor);
+
+            // Finally, go back through each of the posts and filter out any
+            // of the posts in the relationship data that we now know are
+            // invisible to the user.
+            foreach ($posts as $post) {
+                $post->setRelation('mentionedBy', $post->mentionedBy->filter(function ($post) use ($ids) {
+                    return array_search($post->id, $ids) !== false;
+                }));
+            }
         }
     }
 }
