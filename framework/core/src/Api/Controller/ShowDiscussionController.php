@@ -25,6 +25,11 @@ class ShowDiscussionController extends AbstractResourceController
     protected $discussions;
 
     /**
+     * @var PostRepository
+     */
+    protected $posts;
+
+    /**
      * {@inheritdoc}
      */
     public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
