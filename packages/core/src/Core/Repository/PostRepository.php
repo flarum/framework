@@ -85,21 +85,7 @@ class PostRepository
      */
     public function findByIds(array $ids, User $actor = null)
     {
-        $discussions = $this->getDiscussionsForPosts($ids, $actor);
-
-        $posts = Post::whereIn('id', $ids)
-            ->where(function ($query) use ($discussions, $actor) {
-                foreach ($discussions as $discussion) {
-                    $query->orWhere(function ($query) use ($discussion, $actor) {
-                        $query->where('discussion_id', $discussion->id);
-
-                        event(new ScopePostVisibility($discussion, $query, $actor));
-                    });
-                }
-
-                $query->orWhereRaw('FALSE');
-            })
-            ->get();
+        $posts = $this->queryIds($ids, $actor)->get();
 
         $posts = $posts->sort(function ($a, $b) use ($ids) {
             $aPos = array_search($a->id, $ids);
@@ -113,6 +99,19 @@ class PostRepository
         });
 
         return $posts;
+    }
+
+    /**
+     * Filter a list of post IDs to only include posts that are visible to a
+     * certain user.
+     *
+     * @param array $ids
+     * @param User $actor
+     * @return array
+     */
+    public function filterVisibleIds(array $ids, User $actor)
+    {
+        return $this->queryIds($ids, $actor)->lists('id')->all();
     }
 
     /**
@@ -144,6 +143,34 @@ class PostRepository
         return $query->count();
     }
 
+    /**
+     * @param array $ids
+     * @param User|null $actor
+     * @return mixed
+     */
+    protected function queryIds(array $ids, User $actor = null)
+    {
+        $discussions = $this->getDiscussionsForPosts($ids, $actor);
+
+        return Post::whereIn('id', $ids)
+            ->where(function ($query) use ($discussions, $actor) {
+                foreach ($discussions as $discussion) {
+                    $query->orWhere(function ($query) use ($discussion, $actor) {
+                        $query->where('discussion_id', $discussion->id);
+
+                        event(new ScopePostVisibility($discussion, $query, $actor));
+                    });
+                }
+
+                $query->orWhereRaw('FALSE');
+            });
+    }
+
+    /**
+     * @param $postIds
+     * @param User $actor
+     * @return mixed
+     */
     protected function getDiscussionsForPosts($postIds, User $actor)
     {
         return Discussion::query()
