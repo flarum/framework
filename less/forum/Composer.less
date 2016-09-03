@@ -194,13 +194,8 @@
         }
       }
     }
-    h3 {
-      &, a, input {
-        font-size: 14px;
-      }
-      input {
-        width: 100% !important;
-      }
+    h3 input {
+      width: 100% !important;
     }
   }
   .ComposerBody-editor {
@@ -331,20 +326,22 @@
 // ------------------------------------
 // Text Editor
 
-.TextEditor {
-  & textarea {
-    border-radius: 0;
-    padding: 0 0 10px;
-    border: 0;
-    resize: none;
-    color: @text-color;
-    font-size: 14px;
-    line-height: 1.7;
+.TextEditor textarea {
+  border-radius: 0;
+  padding: 0 0 10px;
+  border: 0;
+  resize: none;
+  color: @text-color;
+  font-size: 14px;
+  line-height: 1.7;
 
-    &, &:focus, &[disabled] {
-      background: none;
-      border: 0;
-    }
+  &, &:focus, &[disabled] {
+    background: none;
+    border: 0;
+  }
+
+  @media @phone {
+    font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
   }
 }
 .TextEditor-controls {

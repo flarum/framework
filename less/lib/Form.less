@@ -18,6 +18,10 @@
     height: 50px;
     padding: 15px 20px;
     font-size: 15px;
+
+    @media @phone {
+      font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
+    }
   }
 
   .Form-group {

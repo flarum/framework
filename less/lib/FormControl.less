@@ -38,6 +38,10 @@
   textarea& {
     height: auto;
   }
+
+  @media @phone {
+    font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
+  }
 }
 .helpText {
   font-size: 12px;
