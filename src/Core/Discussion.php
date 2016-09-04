@@ -12,6 +12,7 @@ namespace Flarum\Core;
 
 use Flarum\Core\Post\MergeableInterface;
 use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Core\Notification;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\DiscussionWasDeleted;
@@ -97,6 +98,9 @@ class Discussion extends AbstractModel
 
             foreach ($posts->get() as $post) {
                 $discussion->raise(new PostWasDeleted($post));
+
+                //Delete notifications about this post
+                Notification::where('subject_id', $post->id)->delete();
             }
 
             $posts->delete();
