@@ -12,6 +12,7 @@ namespace Flarum\Core;
 
 use Flarum\Core\Post\RegisteredTypesScope;
 use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Core\Notification;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\PostWasDeleted;
@@ -87,6 +88,9 @@ class Post extends AbstractModel
 
         static::deleted(function (Post $post) {
             $post->raise(new PostWasDeleted($post));
+
+            //Delete notifications about this post
+            Notification::where('subject_id', $post->id)->delete();
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
