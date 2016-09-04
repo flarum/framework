@@ -10,9 +10,9 @@
 
 namespace Flarum\Core;
 
+use Flarum\Core\Notification;
 use Flarum\Core\Post\RegisteredTypesScope;
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Notification;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\PostWasDeleted;
