@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -10,7 +11,6 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Notification;
 use Flarum\Core\Post\RegisteredTypesScope;
 use Flarum\Core\Support\EventGeneratorTrait;
 use Flarum\Core\Support\ScopeVisibilityTrait;
