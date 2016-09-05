@@ -13,6 +13,8 @@ export default class DiscussionsSearchSource {
   }
 
   search(query) {
+    query = query.toLowerCase();
+
     this.results[query] = [];
 
     const params = {
@@ -25,6 +27,8 @@ export default class DiscussionsSearchSource {
   }
 
   view(query) {
+    query = query.toLowerCase();
+
     const results = this.results[query] || [];
 
     return [

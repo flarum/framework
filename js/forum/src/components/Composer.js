@@ -362,6 +362,7 @@ class Composer extends Component {
     if (this.isFullScreen()) {
       this.$().css('top', $(window).scrollTop());
       this.showBackdrop();
+      this.component.focus();
     }
   }
 

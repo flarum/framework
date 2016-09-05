@@ -159,6 +159,14 @@ class WebAppView
         $locale = $this->locales->getLocale();
         $this->localeJs = $this->assets->getLocaleJs($locale);
         $this->localeCss = $this->assets->getLocaleCss($locale);
+
+        foreach ($this->locales->getJsFiles($locale) as $file) {
+            $this->localeJs->addFile($file);
+        }
+
+        foreach ($this->locales->getCssFiles($locale) as $file) {
+            $this->localeCss->addFile($file);
+        }
     }
 
     /**

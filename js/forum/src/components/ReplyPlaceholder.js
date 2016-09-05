@@ -31,17 +31,12 @@ export default class ReplyPlaceholder extends Component {
       );
     }
 
-    function triggerClick(e) {
-      $(this).trigger('click');
-      e.preventDefault();
-    }
-
     const reply = () => {
       DiscussionControls.replyAction.call(this.props.discussion, true);
     };
 
     return (
-      <article className="Post ReplyPlaceholder" onclick={reply} onmousedown={triggerClick}>
+      <article className="Post ReplyPlaceholder" onclick={reply}>
         <header className="Post-header">
           {avatar(app.session.user, {className: 'PostUser-avatar'})}{' '}
           {app.translator.trans('core.forum.post_stream.reply_placeholder')}
