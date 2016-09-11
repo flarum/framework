@@ -90,16 +90,14 @@ class Post extends AbstractModel
             $post->raise(new PostWasDeleted($post));
 
             //Delete notifications about this post
-            Notification::where([
-              ['subject_id', $post->id,
-              ['type', 'PostLiked'],
-            ])->orWhere([
-              ['subject_id', $post->id,
-              ['type', 'postMentioned'],
-            ])->orWhere([
-              ['subject_id', $post->id,
-              ['type', 'userMentioned'],
-            ])->delete();
+            $notifs = Notification::where('subject_id', $post->id)->orWhere('subject_id', $post->discussion_id)->get();
+
+            foreach ($notifs as $notif)
+            {
+              if (!$notif->subject) {
+                $notif->delete();
+              }
+            }
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
