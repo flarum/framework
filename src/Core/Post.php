@@ -94,9 +94,14 @@ class Post extends AbstractModel
 
             foreach ($notifs as $notif)
             {
-              if (!$notif->subject) {
-                $notif->delete();
-              }
+                if (!$notif->subject) {
+                    $notif->delete();
+                }
+                else {
+                    if ($notif->type == $post->type) {
+                        $notif->delete();
+                    }
+                }
             }
         });
 
