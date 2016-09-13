@@ -10,7 +10,6 @@
 
 namespace Flarum\Core\Listener;
 
-use Flarum\Event\ExtensionWillBeEnabled;
 use Flarum\Event\ExtensionWillBeDisabled;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Http\Exception\MethodNotAllowedException;
@@ -22,18 +21,9 @@ class ExtensionModificationValidator
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ExtensionWillBeEnabled::class, [$this, 'whenExtensionWillBeEnabled']);
         $events->listen(ExtensionWillBeDisabled::class, [$this, 'whenExtensionWillBeDisabled']);
     }
 
-    /**
-     * @param ExtensionWillBeEnabled $event
-     */
-    public function whenExtensionWillBeEnabled(ExtensionWillBeEnabled $event)
-    {
-        
-    }
-    
     /**
      * @param ExtensionWillBeDisabled $event
      * @throws MethodNotAllowedException
