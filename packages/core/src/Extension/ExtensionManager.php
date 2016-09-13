@@ -13,9 +13,9 @@ namespace Flarum\Extension;
 use Flarum\Database\Migrator;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
+use Flarum\Event\ExtensionWasUninstalled;
 use Flarum\Event\ExtensionWillBeEnabled;
 use Flarum\Event\ExtensionWillBeDisabled;
-use Flarum\Event\ExtensionWasUninstalled;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -113,7 +113,7 @@ class ExtensionManager
     {
         if (! $this->isEnabled($name)) {
             $this->dispatcher->fire(new ExtensionWillBeEnabled($extension));
-            
+
             $extension = $this->getExtension($name);
 
             $enabled = $this->getEnabled();
@@ -143,7 +143,7 @@ class ExtensionManager
 
         if (($k = array_search($name, $enabled)) !== false) {
             $this->dispatcher->fire(new ExtensionWillBeDisabled($extension));
-            
+
             unset($enabled[$k]);
 
             $extension = $this->getExtension($name);
