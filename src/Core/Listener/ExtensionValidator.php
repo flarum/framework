@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -11,10 +12,10 @@
 namespace Flarum\Core\Listener;
 
 use Flarum\Event\ExtensionWillBeDisabled;
-use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Http\Exception\MethodNotAllowedException;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class ExtensionModificationValidator
+class ExtensionValidator
 {
     /**
      * @param Dispatcher $events
