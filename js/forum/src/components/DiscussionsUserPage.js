@@ -1,5 +1,5 @@
 import UserPage from 'flarum/components/UserPage';
-import DiscussionList from 'flarum/components/DiscussionList';
+import UserDiscussionList from 'flarum/components/UserDiscussionList';
 
 /**
  * The `DiscussionsUserPage` component shows a discussion list inside of a user
@@ -15,10 +15,11 @@ export default class DiscussionsUserPage extends UserPage {
   content() {
     return (
       <div className="DiscussionsUserPage">
-        {DiscussionList.component({
+        {UserDiscussionList.component({
           params: {
             q: 'author:' + this.user.username()
-          }
+          },
+          user: this.user
         })}
       </div>
     );
