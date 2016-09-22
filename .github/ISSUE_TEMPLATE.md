@@ -16,5 +16,11 @@
 Put any relevant logs here.
 ```
 
+## Flarum info
+
+```
+Output of "php flarum info", run this in terminal in your Flarum directory.
+```
+
 ## Additional comments
 Some additional information you'd like to share, eg what have you tried so far.
