@@ -35,7 +35,7 @@ class ExtensionValidator
             $default_locale = $this->app->make('flarum.settings')->get('default_locale');
             $locale = array_get($event->extension->extra, 'flarum-locale.code');
             if ($locale === $default_locale) {
-                throw new MethodNotAllowedException('You cannot remove all your language packs!');
+                throw new MethodNotAllowedException('You cannot disable the default language pack!');
             }
         }
     }
