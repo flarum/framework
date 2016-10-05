@@ -113,9 +113,9 @@ class ExtensionManager
     public function enable($name)
     {
         if (! $this->isEnabled($name)) {
-            $this->dispatcher->fire(new ExtensionWillBeEnabled($extension));
-
             $extension = $this->getExtension($name);
+            
+            $this->dispatcher->fire(new ExtensionWillBeEnabled($extension));
 
             $enabled = $this->getEnabled();
 
@@ -143,11 +143,11 @@ class ExtensionManager
         $enabled = $this->getEnabled();
 
         if (($k = array_search($name, $enabled)) !== false) {
+            $extension = $this->getExtension($name);
+            
             $this->dispatcher->fire(new ExtensionWillBeDisabled($extension));
 
             unset($enabled[$k]);
-
-            $extension = $this->getExtension($name);
 
             $this->setEnabled($enabled);
 
