@@ -17,5 +17,3 @@ Object.assign(Notification.prototype, {
   sender: Model.hasOne('sender'),
   subject: Model.hasOne('subject')
 });
-
-export default Notification;
