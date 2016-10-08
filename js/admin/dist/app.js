@@ -3,7 +3,7 @@
   babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
   babelHelpers.jsx = function () {
@@ -49,6 +49,186 @@
     };
   }();
 
+  babelHelpers.asyncIterator = function (iterable) {
+    if (typeof Symbol === "function") {
+      if (Symbol.asyncIterator) {
+        var method = iterable[Symbol.asyncIterator];
+        if (method != null) return method.call(iterable);
+      }
+
+      if (Symbol.iterator) {
+        return iterable[Symbol.iterator]();
+      }
+    }
+
+    throw new TypeError("Object is not async iterable");
+  };
+
+  babelHelpers.asyncGenerator = function () {
+    function AwaitValue(value) {
+      this.value = value;
+    }
+
+    function AsyncGenerator(gen) {
+      var front, back;
+
+      function send(key, arg) {
+        return new Promise(function (resolve, reject) {
+          var request = {
+            key: key,
+            arg: arg,
+            resolve: resolve,
+            reject: reject,
+            next: null
+          };
+
+          if (back) {
+            back = back.next = request;
+          } else {
+            front = back = request;
+            resume(key, arg);
+          }
+        });
+      }
+
+      function resume(key, arg) {
+        try {
+          var result = gen[key](arg);
+          var value = result.value;
+
+          if (value instanceof AwaitValue) {
+            Promise.resolve(value.value).then(function (arg) {
+              resume("next", arg);
+            }, function (arg) {
+              resume("throw", arg);
+            });
+          } else {
+            settle(result.done ? "return" : "normal", result.value);
+          }
+        } catch (err) {
+          settle("throw", err);
+        }
+      }
+
+      function settle(type, value) {
+        switch (type) {
+          case "return":
+            front.resolve({
+              value: value,
+              done: true
+            });
+            break;
+
+          case "throw":
+            front.reject(value);
+            break;
+
+          default:
+            front.resolve({
+              value: value,
+              done: false
+            });
+            break;
+        }
+
+        front = front.next;
+
+        if (front) {
+          resume(front.key, front.arg);
+        } else {
+          back = null;
+        }
+      }
+
+      this._invoke = send;
+
+      if (typeof gen.return !== "function") {
+        this.return = undefined;
+      }
+    }
+
+    if (typeof Symbol === "function" && Symbol.asyncIterator) {
+      AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+        return this;
+      };
+    }
+
+    AsyncGenerator.prototype.next = function (arg) {
+      return this._invoke("next", arg);
+    };
+
+    AsyncGenerator.prototype.throw = function (arg) {
+      return this._invoke("throw", arg);
+    };
+
+    AsyncGenerator.prototype.return = function (arg) {
+      return this._invoke("return", arg);
+    };
+
+    return {
+      wrap: function (fn) {
+        return function () {
+          return new AsyncGenerator(fn.apply(this, arguments));
+        };
+      },
+      await: function (value) {
+        return new AwaitValue(value);
+      }
+    };
+  }();
+
+  babelHelpers.asyncGeneratorDelegate = function (inner, awaitWrap) {
+    var iter = {},
+        waiting = false;
+
+    function pump(key, value) {
+      waiting = true;
+      value = new Promise(function (resolve) {
+        resolve(inner[key](value));
+      });
+      return {
+        done: false,
+        value: awaitWrap(value)
+      };
+    }
+
+    ;
+
+    if (typeof Symbol === "function" && Symbol.iterator) {
+      iter[Symbol.iterator] = function () {
+        return this;
+      };
+    }
+
+    iter.next = function (value) {
+      if (waiting) {
+        waiting = false;
+        return value;
+      }
+
+      return pump("next", value);
+    };
+
+    if (typeof inner.throw === "function") {
+      iter.throw = function (value) {
+        if (waiting) {
+          waiting = false;
+          throw value;
+        }
+
+        return pump("throw", value);
+      };
+    }
+
+    if (typeof inner.return === "function") {
+      iter.return = function (value) {
+        return pump("return", value);
+      };
+    }
+
+    return iter;
+  };
+
   babelHelpers.asyncToGenerator = function (fn) {
     return function () {
       var gen = fn.apply(this, arguments);
@@ -66,9 +246,9 @@
             resolve(value);
           } else {
             return Promise.resolve(value).then(function (value) {
-              return step("next", value);
+              step("next", value);
             }, function (err) {
-              return step("throw", err);
+              step("throw", err);
             });
           }
         }
@@ -17043,7 +17223,7 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
         }, {
           key: 'route',
           value: function route(name) {
-            var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+            var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             var url = this.routes[name].path.replace(/:([^\/]+)/g, function (m, key) {
               return extract(params, key);
@@ -17077,8 +17257,8 @@ System.register('flarum/Component', [], function (_export, _context) {
          * @public
          */
         function Component() {
-          var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-          var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+          var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          var children = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
           babelHelpers.classCallCheck(this, Component);
 
           if (children) props.children = children;
@@ -17178,8 +17358,8 @@ System.register('flarum/Component', [], function (_export, _context) {
         }], [{
           key: 'component',
           value: function component() {
-            var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-            var children = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+            var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var children = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
             var componentProps = babelHelpers.extends({}, props);
 
@@ -17246,7 +17426,7 @@ System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal
 
         function AddExtensionModal() {
           babelHelpers.classCallCheck(this, AddExtensionModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AddExtensionModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AddExtensionModal.__proto__ || Object.getPrototypeOf(AddExtensionModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AddExtensionModal, [{
@@ -17306,13 +17486,13 @@ System.register("flarum/components/AdminLinkButton", ["flarum/components/LinkBut
 
         function AdminLinkButton() {
           babelHelpers.classCallCheck(this, AdminLinkButton);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AdminLinkButton).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AdminLinkButton.__proto__ || Object.getPrototypeOf(AdminLinkButton)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AdminLinkButton, [{
           key: "getButtonContent",
           value: function getButtonContent() {
-            var content = babelHelpers.get(Object.getPrototypeOf(AdminLinkButton.prototype), "getButtonContent", this).call(this);
+            var content = babelHelpers.get(AdminLinkButton.prototype.__proto__ || Object.getPrototypeOf(AdminLinkButton.prototype), "getButtonContent", this).call(this);
 
             content.push(m(
               "div",
@@ -17352,7 +17532,7 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
 
         function AdminNav() {
           babelHelpers.classCallCheck(this, AdminNav);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AdminNav).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AdminNav.__proto__ || Object.getPrototypeOf(AdminNav)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AdminNav, [{
@@ -17443,7 +17623,7 @@ System.register('flarum/components/Alert', ['flarum/Component', 'flarum/componen
 
         function Alert() {
           babelHelpers.classCallCheck(this, Alert);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Alert).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Alert.__proto__ || Object.getPrototypeOf(Alert)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Alert, [{
@@ -17512,7 +17692,7 @@ System.register('flarum/components/AlertManager', ['flarum/Component', 'flarum/c
 
         function AlertManager() {
           babelHelpers.classCallCheck(this, AlertManager);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AlertManager).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AlertManager.__proto__ || Object.getPrototypeOf(AlertManager)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AlertManager, [{
@@ -17613,13 +17793,13 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
 
         function AppearancePage() {
           babelHelpers.classCallCheck(this, AppearancePage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AppearancePage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AppearancePage.__proto__ || Object.getPrototypeOf(AppearancePage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AppearancePage, [{
           key: 'init',
           value: function init() {
-            babelHelpers.get(Object.getPrototypeOf(AppearancePage.prototype), 'init', this).call(this);
+            babelHelpers.get(AppearancePage.prototype.__proto__ || Object.getPrototypeOf(AppearancePage.prototype), 'init', this).call(this);
 
             this.primaryColor = m.prop(app.data.settings.theme_primary_color);
             this.secondaryColor = m.prop(app.data.settings.theme_secondary_color);
@@ -17801,7 +17981,7 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
 
         function Badge() {
           babelHelpers.classCallCheck(this, Badge);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Badge).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Badge.__proto__ || Object.getPrototypeOf(Badge)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Badge, [{
@@ -17863,7 +18043,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
 
         function BasicsPage() {
           babelHelpers.classCallCheck(this, BasicsPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(BasicsPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (BasicsPage.__proto__ || Object.getPrototypeOf(BasicsPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(BasicsPage, [{
@@ -17871,7 +18051,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
           value: function init() {
             var _this2 = this;
 
-            babelHelpers.get(Object.getPrototypeOf(BasicsPage.prototype), 'init', this).call(this);
+            babelHelpers.get(BasicsPage.prototype.__proto__ || Object.getPrototypeOf(BasicsPage.prototype), 'init', this).call(this);
 
             this.loading = false;
 
@@ -17930,8 +18110,8 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                       { className: 'helpText' },
                       app.translator.trans('core.admin.basics.home_page_text')
                     ), this.homePageItems().toArray().map(function (_ref) {
-                      var path = _ref.path;
-                      var label = _ref.label;
+                      var path = _ref.path,
+                          label = _ref.label;
                       return m(
                         'label',
                         { className: 'checkbox' },
@@ -18043,7 +18223,7 @@ System.register('flarum/components/Button', ['flarum/Component', 'flarum/helpers
 
         function Button() {
           babelHelpers.classCallCheck(this, Button);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Button).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Button, [{
@@ -18115,7 +18295,7 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
 
         function Checkbox() {
           babelHelpers.classCallCheck(this, Checkbox);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Checkbox).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Checkbox.__proto__ || Object.getPrototypeOf(Checkbox)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Checkbox, [{
@@ -18185,7 +18365,7 @@ System.register("flarum/components/DashboardPage", ["flarum/components/Page"], f
 
         function DashboardPage() {
           babelHelpers.classCallCheck(this, DashboardPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DashboardPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (DashboardPage.__proto__ || Object.getPrototypeOf(DashboardPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(DashboardPage, [{
@@ -18276,7 +18456,7 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
 
         function Dropdown() {
           babelHelpers.classCallCheck(this, Dropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Dropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Dropdown.__proto__ || Object.getPrototypeOf(Dropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Dropdown, [{
@@ -18368,7 +18548,7 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(Dropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(Dropdown.__proto__ || Object.getPrototypeOf(Dropdown), 'initProps', this).call(this, props);
 
             props.className = props.className || '';
             props.buttonClassName = props.buttonClassName || '';
@@ -18400,7 +18580,7 @@ System.register('flarum/components/EditCustomCssModal', ['flarum/components/Sett
 
         function EditCustomCssModal() {
           babelHelpers.classCallCheck(this, EditCustomCssModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditCustomCssModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (EditCustomCssModal.__proto__ || Object.getPrototypeOf(EditCustomCssModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(EditCustomCssModal, [{
@@ -18455,7 +18635,7 @@ System.register('flarum/components/EditCustomHeaderModal', ['flarum/components/S
 
         function EditCustomHeaderModal() {
           babelHelpers.classCallCheck(this, EditCustomHeaderModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditCustomHeaderModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (EditCustomHeaderModal.__proto__ || Object.getPrototypeOf(EditCustomHeaderModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(EditCustomHeaderModal, [{
@@ -18516,7 +18696,7 @@ System.register('flarum/components/EditGroupModal', ['flarum/components/Modal', 
 
         function EditGroupModal() {
           babelHelpers.classCallCheck(this, EditGroupModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(EditGroupModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (EditGroupModal.__proto__ || Object.getPrototypeOf(EditGroupModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(EditGroupModal, [{
@@ -18680,7 +18860,7 @@ System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', '
 
         function ExtensionsPage() {
           babelHelpers.classCallCheck(this, ExtensionsPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ExtensionsPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (ExtensionsPage.__proto__ || Object.getPrototypeOf(ExtensionsPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(ExtensionsPage, [{
@@ -18843,7 +19023,7 @@ System.register('flarum/components/FieldSet', ['flarum/Component', 'flarum/helpe
 
         function FieldSet() {
           babelHelpers.classCallCheck(this, FieldSet);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FieldSet).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (FieldSet.__proto__ || Object.getPrototypeOf(FieldSet)).apply(this, arguments));
         }
 
         babelHelpers.createClass(FieldSet, [{
@@ -18888,13 +19068,13 @@ System.register('flarum/components/GroupBadge', ['flarum/components/Badge'], fun
 
         function GroupBadge() {
           babelHelpers.classCallCheck(this, GroupBadge);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(GroupBadge).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (GroupBadge.__proto__ || Object.getPrototypeOf(GroupBadge)).apply(this, arguments));
         }
 
         babelHelpers.createClass(GroupBadge, null, [{
           key: 'initProps',
           value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(GroupBadge), 'initProps', this).call(this, props);
+            babelHelpers.get(GroupBadge.__proto__ || Object.getPrototypeOf(GroupBadge), 'initProps', this).call(this, props);
 
             if (props.group) {
               props.icon = props.group.icon();
@@ -18933,7 +19113,7 @@ System.register('flarum/components/HeaderPrimary', ['flarum/Component', 'flarum/
 
         function HeaderPrimary() {
           babelHelpers.classCallCheck(this, HeaderPrimary);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(HeaderPrimary).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (HeaderPrimary.__proto__ || Object.getPrototypeOf(HeaderPrimary)).apply(this, arguments));
         }
 
         babelHelpers.createClass(HeaderPrimary, [{
@@ -18988,7 +19168,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
 
         function HeaderSecondary() {
           babelHelpers.classCallCheck(this, HeaderSecondary);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(HeaderSecondary).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (HeaderSecondary.__proto__ || Object.getPrototypeOf(HeaderSecondary)).apply(this, arguments));
         }
 
         babelHelpers.createClass(HeaderSecondary, [{
@@ -19041,13 +19221,13 @@ System.register('flarum/components/LinkButton', ['flarum/components/Button'], fu
 
         function LinkButton() {
           babelHelpers.classCallCheck(this, LinkButton);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LinkButton).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (LinkButton.__proto__ || Object.getPrototypeOf(LinkButton)).apply(this, arguments));
         }
 
         babelHelpers.createClass(LinkButton, [{
           key: 'view',
           value: function view() {
-            var vdom = babelHelpers.get(Object.getPrototypeOf(LinkButton.prototype), 'view', this).call(this);
+            var vdom = babelHelpers.get(LinkButton.prototype.__proto__ || Object.getPrototypeOf(LinkButton.prototype), 'view', this).call(this);
 
             vdom.tag = 'a';
 
@@ -19088,7 +19268,7 @@ System.register('flarum/components/LoadingIndicator', ['flarum/Component'], func
 
         function LoadingIndicator() {
           babelHelpers.classCallCheck(this, LoadingIndicator);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LoadingIndicator).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (LoadingIndicator.__proto__ || Object.getPrototypeOf(LoadingIndicator)).apply(this, arguments));
         }
 
         babelHelpers.createClass(LoadingIndicator, [{
@@ -19137,7 +19317,7 @@ System.register('flarum/components/LoadingModal', ['flarum/components/Modal'], f
 
         function LoadingModal() {
           babelHelpers.classCallCheck(this, LoadingModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(LoadingModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (LoadingModal.__proto__ || Object.getPrototypeOf(LoadingModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(LoadingModal, [{
@@ -19192,7 +19372,7 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
 
         function MailPage() {
           babelHelpers.classCallCheck(this, MailPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(MailPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (MailPage.__proto__ || Object.getPrototypeOf(MailPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(MailPage, [{
@@ -19200,7 +19380,7 @@ System.register('flarum/components/MailPage', ['flarum/components/Page', 'flarum
           value: function init() {
             var _this2 = this;
 
-            babelHelpers.get(Object.getPrototypeOf(MailPage.prototype), 'init', this).call(this);
+            babelHelpers.get(MailPage.prototype.__proto__ || Object.getPrototypeOf(MailPage.prototype), 'init', this).call(this);
 
             this.loading = false;
 
@@ -19379,7 +19559,7 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
 
         function Modal() {
           babelHelpers.classCallCheck(this, Modal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Modal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Modal.__proto__ || Object.getPrototypeOf(Modal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Modal, [{
@@ -19511,7 +19691,7 @@ System.register('flarum/components/ModalManager', ['flarum/Component', 'flarum/c
 
         function ModalManager() {
           babelHelpers.classCallCheck(this, ModalManager);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ModalManager).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (ModalManager.__proto__ || Object.getPrototypeOf(ModalManager)).apply(this, arguments));
         }
 
         babelHelpers.createClass(ModalManager, [{
@@ -19625,15 +19805,15 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
 
         function Navigation() {
           babelHelpers.classCallCheck(this, Navigation);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Navigation).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Navigation.__proto__ || Object.getPrototypeOf(Navigation)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Navigation, [{
           key: 'view',
           value: function view() {
-            var _app = app;
-            var history = _app.history;
-            var pane = _app.pane;
+            var _app = app,
+                history = _app.history,
+                pane = _app.pane;
 
 
             return m(
@@ -19655,8 +19835,8 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
         }, {
           key: 'getBackButton',
           value: function getBackButton() {
-            var _app2 = app;
-            var history = _app2.history;
+            var _app2 = app,
+                history = _app2.history;
 
             var previous = history.getPrevious() || {};
 
@@ -19676,8 +19856,8 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
         }, {
           key: 'getPaneButton',
           value: function getPaneButton() {
-            var _app3 = app;
-            var pane = _app3.pane;
+            var _app3 = app,
+                pane = _app3.pane;
 
 
             if (!pane || !pane.active) return '';
@@ -19693,8 +19873,8 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
           value: function getDrawerButton() {
             if (!this.props.drawer) return '';
 
-            var _app4 = app;
-            var drawer = _app4.drawer;
+            var _app4 = app,
+                drawer = _app4.drawer;
 
             var user = app.session.user;
 
@@ -19731,7 +19911,7 @@ System.register('flarum/components/Page', ['flarum/Component'], function (_expor
 
         function Page() {
           babelHelpers.classCallCheck(this, Page);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Page).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Page.__proto__ || Object.getPrototypeOf(Page)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Page, [{
@@ -19830,7 +20010,7 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
 
         function PermissionDropdown() {
           babelHelpers.classCallCheck(this, PermissionDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PermissionDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PermissionDropdown.__proto__ || Object.getPrototypeOf(PermissionDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PermissionDropdown, [{
@@ -19900,7 +20080,7 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
               }));
             }
 
-            return babelHelpers.get(Object.getPrototypeOf(PermissionDropdown.prototype), 'view', this).call(this);
+            return babelHelpers.get(PermissionDropdown.prototype.__proto__ || Object.getPrototypeOf(PermissionDropdown.prototype), 'view', this).call(this);
           }
         }, {
           key: 'save',
@@ -19943,7 +20123,7 @@ System.register('flarum/components/PermissionDropdown', ['flarum/components/Drop
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(PermissionDropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(PermissionDropdown.__proto__ || Object.getPrototypeOf(PermissionDropdown), 'initProps', this).call(this, props);
 
             props.className = 'PermissionDropdown';
             props.buttonClassName = 'Button Button--text';
@@ -19982,7 +20162,7 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
 
         function PermissionGrid() {
           babelHelpers.classCallCheck(this, PermissionGrid);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PermissionGrid).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PermissionGrid.__proto__ || Object.getPrototypeOf(PermissionGrid)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PermissionGrid, [{
@@ -20275,7 +20455,7 @@ System.register('flarum/components/PermissionsPage', ['flarum/components/Page', 
 
         function PermissionsPage() {
           babelHelpers.classCallCheck(this, PermissionsPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PermissionsPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PermissionsPage.__proto__ || Object.getPrototypeOf(PermissionsPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PermissionsPage, [{
@@ -20359,7 +20539,7 @@ System.register("flarum/components/Placeholder", ["flarum/Component"], function 
 
         function Placeholder() {
           babelHelpers.classCallCheck(this, Placeholder);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Placeholder).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Placeholder.__proto__ || Object.getPrototypeOf(Placeholder)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Placeholder, [{
@@ -20399,7 +20579,7 @@ System.register('flarum/components/RequestErrorModal', ['flarum/components/Modal
 
         function RequestErrorModal() {
           babelHelpers.classCallCheck(this, RequestErrorModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(RequestErrorModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (RequestErrorModal.__proto__ || Object.getPrototypeOf(RequestErrorModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(RequestErrorModal, [{
@@ -20464,16 +20644,16 @@ System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers
 
         function Select() {
           babelHelpers.classCallCheck(this, Select);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Select).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Select.__proto__ || Object.getPrototypeOf(Select)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Select, [{
           key: 'view',
           value: function view() {
-            var _props = this.props;
-            var options = _props.options;
-            var onchange = _props.onchange;
-            var value = _props.value;
+            var _props = this.props,
+                options = _props.options,
+                onchange = _props.onchange,
+                value = _props.value;
 
 
             return m(
@@ -20519,7 +20699,7 @@ System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown
 
         function SelectDropdown() {
           babelHelpers.classCallCheck(this, SelectDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SelectDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SelectDropdown.__proto__ || Object.getPrototypeOf(SelectDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SelectDropdown, [{
@@ -20543,7 +20723,7 @@ System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown
           value: function initProps(props) {
             props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'sort';
 
-            babelHelpers.get(Object.getPrototypeOf(SelectDropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(SelectDropdown.__proto__ || Object.getPrototypeOf(SelectDropdown), 'initProps', this).call(this, props);
 
             props.className += ' Dropdown--select';
           }
@@ -20571,7 +20751,7 @@ System.register("flarum/components/Separator", ["flarum/Component"], function (_
 
         function Separator() {
           babelHelpers.classCallCheck(this, Separator);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Separator).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Separator.__proto__ || Object.getPrototypeOf(Separator)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Separator, [{
@@ -20613,7 +20793,7 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
 
         function SessionDropdown() {
           babelHelpers.classCallCheck(this, SessionDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SessionDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SessionDropdown.__proto__ || Object.getPrototypeOf(SessionDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SessionDropdown, [{
@@ -20621,7 +20801,7 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
           value: function view() {
             this.props.children = this.items().toArray();
 
-            return babelHelpers.get(Object.getPrototypeOf(SessionDropdown.prototype), 'view', this).call(this);
+            return babelHelpers.get(SessionDropdown.prototype.__proto__ || Object.getPrototypeOf(SessionDropdown.prototype), 'view', this).call(this);
           }
         }, {
           key: 'getButtonContent',
@@ -20650,7 +20830,7 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(SessionDropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(SessionDropdown.__proto__ || Object.getPrototypeOf(SessionDropdown), 'initProps', this).call(this, props);
 
             props.className = 'SessionDropdown';
             props.buttonClassName = 'Button Button--user Button--flat';
@@ -20684,7 +20864,7 @@ System.register('flarum/components/SettingDropdown', ['flarum/components/SelectD
 
         function SettingDropdown() {
           babelHelpers.classCallCheck(this, SettingDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SettingDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SettingDropdown.__proto__ || Object.getPrototypeOf(SettingDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SettingDropdown, null, [{
@@ -20692,7 +20872,7 @@ System.register('flarum/components/SettingDropdown', ['flarum/components/SelectD
           value: function initProps(props) {
             var _this2 = this;
 
-            babelHelpers.get(Object.getPrototypeOf(SettingDropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(SettingDropdown.__proto__ || Object.getPrototypeOf(SettingDropdown), 'initProps', this).call(this, props);
 
             props.className = 'SettingDropdown';
             props.buttonClassName = 'Button Button--text';
@@ -20700,8 +20880,8 @@ System.register('flarum/components/SettingDropdown', ['flarum/components/SelectD
             props.defaultLabel = 'Custom';
 
             props.children = props.options.map(function (_ref) {
-              var value = _ref.value;
-              var label = _ref.label;
+              var value = _ref.value,
+                  label = _ref.label;
 
               var active = app.data.settings[props.key] === value;
 
@@ -20741,7 +20921,7 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
 
         function SettingsModal() {
           babelHelpers.classCallCheck(this, SettingsModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SettingsModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SettingsModal.__proto__ || Object.getPrototypeOf(SettingsModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SettingsModal, [{
@@ -20789,7 +20969,7 @@ System.register('flarum/components/SettingsModal', ['flarum/components/Modal', '
         }, {
           key: 'setting',
           value: function setting(key) {
-            var fallback = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+            var fallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
             this.settings[key] = this.settings[key] || m.prop(app.data.settings[key] || fallback);
 
@@ -20859,7 +21039,7 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
 
         function SplitDropdown() {
           babelHelpers.classCallCheck(this, SplitDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SplitDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SplitDropdown.__proto__ || Object.getPrototypeOf(SplitDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SplitDropdown, [{
@@ -20893,7 +21073,7 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(SplitDropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(SplitDropdown.__proto__ || Object.getPrototypeOf(SplitDropdown), 'initProps', this).call(this, props);
 
             props.className += ' Dropdown--split';
             props.menuClassName += ' Dropdown-menu--right';
@@ -20922,18 +21102,18 @@ System.register('flarum/components/Switch', ['flarum/components/Checkbox'], func
 
         function Switch() {
           babelHelpers.classCallCheck(this, Switch);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Switch).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Switch.__proto__ || Object.getPrototypeOf(Switch)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Switch, [{
           key: 'getDisplay',
           value: function getDisplay() {
-            return this.loading ? babelHelpers.get(Object.getPrototypeOf(Switch.prototype), 'getDisplay', this).call(this) : '';
+            return this.loading ? babelHelpers.get(Switch.prototype.__proto__ || Object.getPrototypeOf(Switch.prototype), 'getDisplay', this).call(this) : '';
           }
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            babelHelpers.get(Object.getPrototypeOf(Switch), 'initProps', this).call(this, props);
+            babelHelpers.get(Switch.__proto__ || Object.getPrototypeOf(Switch), 'initProps', this).call(this, props);
 
             props.className = (props.className || '') + ' Checkbox--switch';
           }
@@ -20961,7 +21141,7 @@ System.register('flarum/components/UploadImageButton', ['flarum/components/Butto
 
         function UploadImageButton() {
           babelHelpers.classCallCheck(this, UploadImageButton);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UploadImageButton).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (UploadImageButton.__proto__ || Object.getPrototypeOf(UploadImageButton)).apply(this, arguments));
         }
 
         babelHelpers.createClass(UploadImageButton, [{
@@ -20990,7 +21170,7 @@ System.register('flarum/components/UploadImageButton', ['flarum/components/Butto
                 m(
                   'p',
                   null,
-                  babelHelpers.get(Object.getPrototypeOf(UploadImageButton.prototype), 'view', this).call(this)
+                  babelHelpers.get(UploadImageButton.prototype.__proto__ || Object.getPrototypeOf(UploadImageButton.prototype), 'view', this).call(this)
                 )
               );
             } else {
@@ -20998,7 +21178,7 @@ System.register('flarum/components/UploadImageButton', ['flarum/components/Butto
               this.props.children = app.translator.trans('core.admin.upload_image.upload_button');
             }
 
-            return babelHelpers.get(Object.getPrototypeOf(UploadImageButton.prototype), 'view', this).call(this);
+            return babelHelpers.get(UploadImageButton.prototype.__proto__ || Object.getPrototypeOf(UploadImageButton.prototype), 'view', this).call(this);
           }
         }, {
           key: 'upload',
@@ -21155,7 +21335,7 @@ System.register('flarum/helpers/avatar', [], function (_export, _context) {
   "use strict";
 
   function avatar(user) {
-    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     attrs.className = 'Avatar ' + (attrs.className || '');
     var content = '';
@@ -21298,7 +21478,7 @@ System.register('flarum/helpers/icon', [], function (_export, _context) {
   "use strict";
 
   function icon(name) {
-    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
 
@@ -21691,8 +21871,8 @@ System.register('flarum/Model', [], function (_export, _context) {
          * @public
          */
         function Model() {
-          var data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-          var store = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+          var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          var store = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
           babelHelpers.classCallCheck(this, Model);
 
           /**
@@ -21787,7 +21967,7 @@ System.register('flarum/Model', [], function (_export, _context) {
           value: function save(attributes) {
             var _this = this;
 
-            var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             var data = {
               type: this.data.type,
@@ -21849,7 +22029,7 @@ System.register('flarum/Model', [], function (_export, _context) {
           value: function _delete(data) {
             var _this2 = this;
 
-            var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             if (!this.exists) return m.deferred.resolve().promise;
 
@@ -21956,7 +22136,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
 
         function Discussion() {
           babelHelpers.classCallCheck(this, Discussion);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Discussion).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Discussion.__proto__ || Object.getPrototypeOf(Discussion)).apply(this, arguments));
         }
 
         return Discussion;
@@ -22043,8 +22223,6 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
           }) : [];
         }
       });
-
-      _export('default', Discussion);
     }
   };
 });;
@@ -22064,7 +22242,7 @@ System.register('flarum/models/Forum', ['flarum/Model'], function (_export, _con
 
         function Forum() {
           babelHelpers.classCallCheck(this, Forum);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Forum).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Forum.__proto__ || Object.getPrototypeOf(Forum)).apply(this, arguments));
         }
 
         babelHelpers.createClass(Forum, [{
@@ -22096,7 +22274,7 @@ System.register('flarum/models/Group', ['flarum/Model'], function (_export, _con
 
         function Group() {
           babelHelpers.classCallCheck(this, Group);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Group).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Group.__proto__ || Object.getPrototypeOf(Group)).apply(this, arguments));
         }
 
         return Group;
@@ -22135,7 +22313,7 @@ System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/com
 
         function Notification() {
           babelHelpers.classCallCheck(this, Notification);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Notification).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Notification.__proto__ || Object.getPrototypeOf(Notification)).apply(this, arguments));
         }
 
         return Notification;
@@ -22159,8 +22337,6 @@ System.register('flarum/models/Notification', ['flarum/Model', 'flarum/utils/com
         sender: Model.hasOne('sender'),
         subject: Model.hasOne('subject')
       });
-
-      _export('default', Notification);
     }
   };
 });;
@@ -22184,7 +22360,7 @@ System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/computed', 
 
         function Post() {
           babelHelpers.classCallCheck(this, Post);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Post).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Post.__proto__ || Object.getPrototypeOf(Post)).apply(this, arguments));
         }
 
         return Post;
@@ -22218,8 +22394,6 @@ System.register('flarum/models/Post', ['flarum/Model', 'flarum/utils/computed', 
         canEdit: Model.attribute('canEdit'),
         canDelete: Model.attribute('canDelete')
       });
-
-      _export('default', Post);
     }
   };
 });;
@@ -22247,7 +22421,7 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
 
         function User() {
           babelHelpers.classCallCheck(this, User);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(User).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (User.__proto__ || Object.getPrototypeOf(User)).apply(this, arguments));
         }
 
         return User;
@@ -22332,8 +22506,6 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
           return this.save({ preferences: preferences });
         }
       });
-
-      _export('default', User);
     }
   };
 });;
@@ -22381,7 +22553,7 @@ System.register('flarum/Session', [], function (_export, _context) {
         babelHelpers.createClass(Session, [{
           key: 'login',
           value: function login(identification, password) {
-            var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+            var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
             return app.request(babelHelpers.extends({
               method: 'POST',
@@ -22478,8 +22650,8 @@ System.register('flarum/Store', [], function (_export, _context) {
         }, {
           key: 'find',
           value: function find(type, id) {
-            var query = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-            var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+            var query = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+            var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
             var data = query;
             var url = app.forum.attribute('apiUrl') + '/' + type;
@@ -22527,7 +22699,7 @@ System.register('flarum/Store', [], function (_export, _context) {
         }, {
           key: 'createRecord',
           value: function createRecord(type) {
-            var data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+            var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             data.type = data.type || type;
 
@@ -23259,15 +23431,15 @@ System.register("flarum/utils/ItemList", [], function (_export, _context) {
         }, {
           key: "add",
           value: function add(key, content) {
-            var priority = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+            var priority = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
             this.items[key] = new Item(content, priority);
           }
         }, {
           key: "replace",
           value: function replace(key) {
-            var content = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-            var priority = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+            var content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+            var priority = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
             if (this.items[key]) {
               if (content !== null) {
@@ -23333,7 +23505,7 @@ System.register('flarum/utils/mapRoutes', [], function (_export, _context) {
   "use strict";
 
   function mapRoutes(routes) {
-    var basePath = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+    var basePath = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
     var map = {};
 
@@ -23366,7 +23538,7 @@ System.register("flarum/utils/mixin", [], function (_export, _context) {
 
       function Mixed() {
         babelHelpers.classCallCheck(this, Mixed);
-        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Mixed).apply(this, arguments));
+        return babelHelpers.possibleConstructorReturn(this, (Mixed.__proto__ || Object.getPrototypeOf(Mixed)).apply(this, arguments));
       }
 
       return Mixed;
@@ -23595,7 +23767,7 @@ System.register('flarum/utils/string', [], function (_export, _context) {
    * @return {String}
    */
   function truncate(string, length) {
-    var start = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+    var start = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
     return (start > 0 ? '...' : '') + string.substring(start, start + length) + (string.length > start + length ? '...' : '');
   }
