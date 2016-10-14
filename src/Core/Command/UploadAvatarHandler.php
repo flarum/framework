@@ -83,6 +83,7 @@ class UploadAvatarHandler
         }
 
         $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
+        $tmpFile = $tmpFile . ".jpg";
         $command->file->moveTo($tmpFile);
 
         try {
