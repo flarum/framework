@@ -311,8 +311,6 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
 
   return {
     setters: [function (_flarumExtend) {
-      /*global getCaretCoordinates*/
-
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsComposerBody) {
       ComposerBody = _flarumComponentsComposerBody.default;
@@ -681,7 +679,10 @@ System.register('flarum/mentions/addPostQuoteButton', ['flarum/extend', 'flarum/
       };
 
       this.$().after($container).on('mouseup', handler);
-      document.addEventListener('selectionchange', handler, false);
+
+      if ('ontouchstart' in window) {
+        document.addEventListener('selectionchange', handler, false);
+      }
     });
   }
 

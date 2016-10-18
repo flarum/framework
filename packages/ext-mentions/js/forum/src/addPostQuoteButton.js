@@ -37,6 +37,9 @@ export default function addPostQuoteButton() {
     };
 
     this.$().after($container).on('mouseup', handler);
-    document.addEventListener('selectionchange', handler, false);
+
+    if ('ontouchstart' in window) {
+      document.addEventListener('selectionchange', handler, false);
+    }
   });
 }
