@@ -5,6 +5,7 @@ import Button from 'flarum/components/Button';
 import Separator from 'flarum/components/Separator';
 import ItemList from 'flarum/utils/ItemList';
 import extractText from 'flarum/utils/extractText';
+import DiscussionRenameModal from 'flarum/components/DiscussionRenameModal';
 
 /**
  * The `DiscussionControls` utility constructs a list of buttons for a
@@ -227,19 +228,10 @@ export default {
    * @return {Promise}
    */
   renameAction() {
-    const currentTitle = this.title();
-    const title = prompt(extractText(app.translator.trans('core.forum.discussion_controls.rename_text')), currentTitle);
-
-    // If the title is different to what it was before, then save it. After the
-    // save has completed, update the post stream as there will be a new post
-    // indicating that the discussion was renamed.
-    if (title && title !== currentTitle) {
-      return this.save({title}).then(() => {
-        if (app.viewingDiscussion(this)) {
-          app.current.stream.update();
-        }
-        m.redraw();
-      });
-    }
+    const discussion = this;
+    return app.modal.show(new DiscussionRenameModal({
+      currentTitle: discussion.title(),
+      discussion: discussion
+    }));
   }
 };
