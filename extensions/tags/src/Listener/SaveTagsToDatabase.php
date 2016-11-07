@@ -65,10 +65,11 @@ class SaveTagsToDatabase
      */
     public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
     {
+        $discussion = $event->discussion;
+        $actor = $event->actor;
+
         // TODO: clean up, prevent discussion from being created without tags
         if (isset($event->data['relationships']['tags']['data'])) {
-            $discussion = $event->discussion;
-            $actor = $event->actor;
             $linkage = (array) $event->data['relationships']['tags']['data'];
 
             $newTagIds = [];
@@ -117,6 +118,8 @@ class SaveTagsToDatabase
             $discussion->afterSave(function ($discussion) use ($newTagIds) {
                 $discussion->tags()->sync($newTagIds);
             });
+        } elseif (! $discussion->exists && ! $actor->hasPermission('startDiscussion')) {
+            throw new PermissionDeniedException;
         }
     }
 
