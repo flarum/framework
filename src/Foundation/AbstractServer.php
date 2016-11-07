@@ -144,7 +144,7 @@ abstract class AbstractServer
     /**
      * @return Application
      */
-    protected function getApp()
+    public function getApp()
     {
         if ($this->app !== null) {
             return $this->app;
