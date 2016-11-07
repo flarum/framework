@@ -26,5 +26,3 @@ Object.assign(Post.prototype, {
   canEdit: Model.attribute('canEdit'),
   canDelete: Model.attribute('canDelete')
 });
-
-export default Post;
