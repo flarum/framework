@@ -102,5 +102,3 @@ Object.assign(Discussion.prototype, {
     return posts ? posts.data.map(link => link.id) : [];
   }
 });
-
-export default Discussion;
