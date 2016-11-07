@@ -109,5 +109,3 @@ Object.assign(User.prototype, {
     return this.save({preferences});
   }
 });
-
-export default User;
