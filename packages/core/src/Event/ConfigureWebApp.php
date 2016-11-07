@@ -14,6 +14,7 @@ use Flarum\Admin\Controller\WebAppController as AdminWebAppController;
 use Flarum\Forum\Controller\WebAppController as ForumWebAppController;
 use Flarum\Http\Controller\AbstractWebAppController;
 use Flarum\Http\WebApp\WebAppView;
+use Psr\Http\Message\ServerRequestInterface;
 
 class ConfigureWebApp
 {
@@ -28,13 +29,20 @@ class ConfigureWebApp
     public $view;
 
     /**
+     * @var ServerRequestInterface
+     */
+    public $request;
+
+    /**
      * @param AbstractWebAppController $controller
      * @param WebAppView $view
+     * @param ServerRequestInterface $request
      */
-    public function __construct(AbstractWebAppController $controller, WebAppView $view)
+    public function __construct(AbstractWebAppController $controller, WebAppView $view, ServerRequestInterface $request)
     {
         $this->controller = $controller;
         $this->view = $view;
+        $this->request = $request;
     }
 
     public function isForum()
