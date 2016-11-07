@@ -11,6 +11,7 @@
 namespace Flarum\Tags\Access;
 
 use Flarum\Event\GetPermission;
+use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class GlobalPolicy
@@ -29,8 +30,8 @@ class GlobalPolicy
      */
     public function grantGlobalDiscussionPermissions(GetPermission $event)
     {
-        if (in_array($event->ability, ['viewDiscussions', 'startDiscussion']) && empty($event->arguments)) {
-            return $event->actor->hasPermissionLike($event->ability);
+        if (in_array($event->ability, ['viewDiscussions', 'startDiscussion']) && is_null($event->model)) {
+            return ! empty(Tag::getIdsWhereCan($event->actor, $event->ability));
         }
     }
 }
