@@ -15,6 +15,7 @@ use Flarum\Core\Access\Gate;
 use Flarum\Core\Support\EventGeneratorTrait;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
+use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PrepareUserGroups;
@@ -340,6 +341,12 @@ class User extends AbstractModel
      */
     public function checkPassword($password)
     {
+        $valid = static::$dispatcher->until(new CheckUserPassword($this, $password));
+
+        if ($valid !== null) {
+            return $valid;
+        }
+
         return static::$hasher->check($password, $this->password);
     }
 
