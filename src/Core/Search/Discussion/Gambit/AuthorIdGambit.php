@@ -10,7 +10,6 @@
 
 namespace Flarum\Core\Search\Discussion\Gambit;
 
-use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\Discussion\DiscussionSearch;
