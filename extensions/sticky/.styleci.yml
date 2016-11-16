@@ -5,6 +5,7 @@ enabled:
 
 disabled:
   - align_double_arrow
+  - blank_line_after_opening_tag
   - multiline_array_trailing_comma
   - new_with_braces
   - phpdoc_align
