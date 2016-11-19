@@ -57,13 +57,15 @@ class ApproveContent
     public function approveDiscussion(PostWasApproved $event)
     {
         $post = $event->post;
+        $discussion = $post->discussion;
 
-        $post->discussion->refreshCommentsCount();
-        $post->discussion->refreshLastPost();
+        $discussion->refreshCommentsCount();
+        $discussion->refreshLastPost();
 
         if ($post->number == 1) {
-            $post->discussion->is_approved = true;
+            $discussion->is_approved = true;
         }
-        $post->discussion->save();
+
+        $discussion->save();
     }
 }
