@@ -14,7 +14,7 @@ System.register('flarum/pusher/components/PusherSettingsModal', ['flarum/compone
 
         function PusherSettingsModal() {
           babelHelpers.classCallCheck(this, PusherSettingsModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PusherSettingsModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PusherSettingsModal.__proto__ || Object.getPrototypeOf(PusherSettingsModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PusherSettingsModal, [{

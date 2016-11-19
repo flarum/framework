@@ -6,8 +6,6 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
   var extend, app, DiscussionList, DiscussionPage, IndexPage, Button;
   return {
     setters: [function (_flarumExtend) {
-      /*global Pusher*/
-
       extend = _flarumExtend.extend;
     }, function (_flarumApp) {
       app = _flarumApp.default;
@@ -21,6 +19,7 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
       Button = _flarumComponentsButton.default;
     }],
     execute: function () {
+      /*global Pusher*/
 
       app.initializers.add('flarum-pusher', function () {
         var loadPusher = m.deferred();
