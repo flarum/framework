@@ -14,7 +14,7 @@ System.register('flarum/flags/components/FlagsSettingsModal', ['flarum/component
 
         function FlagsSettingsModal() {
           babelHelpers.classCallCheck(this, FlagsSettingsModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FlagsSettingsModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (FlagsSettingsModal.__proto__ || Object.getPrototypeOf(FlagsSettingsModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(FlagsSettingsModal, [{
