@@ -234,7 +234,7 @@ System.register('flarum/flags/components/FlagList', ['flarum/Component', 'flarum
 
         function FlagList() {
           babelHelpers.classCallCheck(this, FlagList);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FlagList).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (FlagList.__proto__ || Object.getPrototypeOf(FlagList)).apply(this, arguments));
         }
 
         babelHelpers.createClass(FlagList, [{
@@ -357,13 +357,13 @@ System.register('flarum/flags/components/FlagPostModal', ['flarum/components/Mod
 
         function FlagPostModal() {
           babelHelpers.classCallCheck(this, FlagPostModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FlagPostModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (FlagPostModal.__proto__ || Object.getPrototypeOf(FlagPostModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(FlagPostModal, [{
           key: 'init',
           value: function init() {
-            babelHelpers.get(Object.getPrototypeOf(FlagPostModal.prototype), 'init', this).call(this);
+            babelHelpers.get(FlagPostModal.prototype.__proto__ || Object.getPrototypeOf(FlagPostModal.prototype), 'init', this).call(this);
 
             this.success = false;
 
@@ -532,13 +532,13 @@ System.register('flarum/flags/components/FlagsDropdown', ['flarum/components/Not
 
         function FlagsDropdown() {
           babelHelpers.classCallCheck(this, FlagsDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FlagsDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (FlagsDropdown.__proto__ || Object.getPrototypeOf(FlagsDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(FlagsDropdown, [{
           key: 'init',
           value: function init() {
-            babelHelpers.get(Object.getPrototypeOf(FlagsDropdown.prototype), 'init', this).call(this);
+            babelHelpers.get(FlagsDropdown.prototype.__proto__ || Object.getPrototypeOf(FlagsDropdown.prototype), 'init', this).call(this);
 
             this.list = new FlagList();
           }
@@ -563,7 +563,7 @@ System.register('flarum/flags/components/FlagsDropdown', ['flarum/components/Not
             props.label = props.label || app.translator.trans('flarum-flags.forum.flagged_posts.tooltip');
             props.icon = props.icon || 'flag';
 
-            babelHelpers.get(Object.getPrototypeOf(FlagsDropdown), 'initProps', this).call(this, props);
+            babelHelpers.get(FlagsDropdown.__proto__ || Object.getPrototypeOf(FlagsDropdown), 'initProps', this).call(this, props);
           }
         }]);
         return FlagsDropdown;
@@ -591,13 +591,13 @@ System.register('flarum/flags/components/FlagsPage', ['flarum/components/Page', 
 
         function FlagsPage() {
           babelHelpers.classCallCheck(this, FlagsPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FlagsPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (FlagsPage.__proto__ || Object.getPrototypeOf(FlagsPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(FlagsPage, [{
           key: 'init',
           value: function init() {
-            babelHelpers.get(Object.getPrototypeOf(FlagsPage.prototype), 'init', this).call(this);
+            babelHelpers.get(FlagsPage.prototype.__proto__ || Object.getPrototypeOf(FlagsPage.prototype), 'init', this).call(this);
 
             app.history.push('flags');
 
@@ -680,7 +680,7 @@ System.register('flarum/flags/models/Flag', ['flarum/Model', 'flarum/utils/mixin
 
         function Flag() {
           babelHelpers.classCallCheck(this, Flag);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Flag).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (Flag.__proto__ || Object.getPrototypeOf(Flag)).apply(this, arguments));
         }
 
         return Flag;
