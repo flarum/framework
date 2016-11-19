@@ -1,6 +1,6 @@
 import Model from 'flarum/Model';
 
-class Group extends Model {}
+export default class Group extends Model {}
 
 Object.assign(Group.prototype, {
   nameSingular: Model.attribute('nameSingular'),
@@ -12,5 +12,3 @@ Object.assign(Group.prototype, {
 Group.ADMINISTRATOR_ID = '1';
 Group.GUEST_ID = '2';
 Group.MEMBER_ID = '3';
-
-export default Group;
