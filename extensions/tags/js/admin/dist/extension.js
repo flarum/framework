@@ -769,6 +769,17 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
             );
           }
         }, {
+          key: 'submitData',
+          value: function submitData() {
+            return {
+              name: this.name(),
+              slug: this.slug(),
+              description: this.description(),
+              color: this.color(),
+              isHidden: this.isHidden()
+            };
+          }
+        }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
             var _this3 = this;
@@ -777,13 +788,7 @@ System.register('flarum/tags/components/EditTagModal', ['flarum/components/Modal
 
             this.loading = true;
 
-            this.tag.save({
-              name: this.name(),
-              slug: this.slug(),
-              description: this.description(),
-              color: this.color(),
-              isHidden: this.isHidden()
-            }).then(function () {
+            this.tag.save(this.submitData()).then(function () {
               return _this3.hide();
             }, function (response) {
               _this3.loading = false;

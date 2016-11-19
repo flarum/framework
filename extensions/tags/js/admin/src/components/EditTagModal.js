@@ -88,18 +88,22 @@ export default class EditTagModal extends Modal {
     );
   }
 
-  onsubmit(e) {
-    e.preventDefault();
-
-    this.loading = true;
-
-    this.tag.save({
+  submitData() {
+    return {
       name: this.name(),
       slug: this.slug(),
       description: this.description(),
       color: this.color(),
       isHidden: this.isHidden()
-    }).then(
+    };
+  }
+
+  onsubmit(e) {
+    e.preventDefault();
+
+    this.loading = true;
+
+    this.tag.save(this.submitData()).then(
       () => this.hide(),
       response => {
         this.loading = false;
