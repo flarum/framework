@@ -88,7 +88,7 @@ System.register('flarum/lock/components/DiscussionLockedNotification', ['flarum/
 
         function DiscussionLockedNotification() {
           babelHelpers.classCallCheck(this, DiscussionLockedNotification);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionLockedNotification).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (DiscussionLockedNotification.__proto__ || Object.getPrototypeOf(DiscussionLockedNotification)).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionLockedNotification, [{
@@ -132,7 +132,7 @@ System.register('flarum/lock/components/DiscussionLockedPost', ['flarum/componen
 
         function DiscussionLockedPost() {
           babelHelpers.classCallCheck(this, DiscussionLockedPost);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionLockedPost).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (DiscussionLockedPost.__proto__ || Object.getPrototypeOf(DiscussionLockedPost)).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionLockedPost, [{
