@@ -151,7 +151,7 @@ System.register('flarum/likes/components/PostLikedNotification', ['flarum/compon
 
         function PostLikedNotification() {
           babelHelpers.classCallCheck(this, PostLikedNotification);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostLikedNotification).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PostLikedNotification.__proto__ || Object.getPrototypeOf(PostLikedNotification)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostLikedNotification, [{
@@ -209,7 +209,7 @@ System.register('flarum/likes/components/PostLikesModal', ['flarum/components/Mo
 
         function PostLikesModal() {
           babelHelpers.classCallCheck(this, PostLikesModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostLikesModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PostLikesModal.__proto__ || Object.getPrototypeOf(PostLikesModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostLikesModal, [{
