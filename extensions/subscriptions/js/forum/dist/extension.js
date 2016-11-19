@@ -192,7 +192,7 @@ System.register('flarum/subscriptions/components/NewPostNotification', ['flarum/
 
         function NewPostNotification() {
           babelHelpers.classCallCheck(this, NewPostNotification);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NewPostNotification).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (NewPostNotification.__proto__ || Object.getPrototypeOf(NewPostNotification)).apply(this, arguments));
         }
 
         babelHelpers.createClass(NewPostNotification, [{
@@ -246,7 +246,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenu', ['flarum/com
 
         function SubscriptionMenu() {
           babelHelpers.classCallCheck(this, SubscriptionMenu);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SubscriptionMenu).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SubscriptionMenu.__proto__ || Object.getPrototypeOf(SubscriptionMenu)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SubscriptionMenu, [{
@@ -382,7 +382,7 @@ System.register('flarum/subscriptions/components/SubscriptionMenuItem', ['flarum
 
         function SubscriptionMenuItem() {
           babelHelpers.classCallCheck(this, SubscriptionMenuItem);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SubscriptionMenuItem).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SubscriptionMenuItem.__proto__ || Object.getPrototypeOf(SubscriptionMenuItem)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SubscriptionMenuItem, [{
