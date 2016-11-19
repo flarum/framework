@@ -201,7 +201,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
             typed = value.substring(mentionStart, cursor).toLowerCase();
 
             var makeSuggestion = function makeSuggestion(user, replacement, content) {
-              var className = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
+              var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 
               var username = usernameHelper(user);
               if (typed) {
@@ -754,7 +754,7 @@ System.register('flarum/mentions/components/AutocompleteDropdown', ['flarum/Comp
 
         function AutocompleteDropdown() {
           babelHelpers.classCallCheck(this, AutocompleteDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AutocompleteDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AutocompleteDropdown.__proto__ || Object.getPrototypeOf(AutocompleteDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AutocompleteDropdown, [{
@@ -873,7 +873,7 @@ System.register('flarum/mentions/components/MentionsUserPage', ['flarum/componen
 
         function MentionsUserPage() {
           babelHelpers.classCallCheck(this, MentionsUserPage);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(MentionsUserPage).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (MentionsUserPage.__proto__ || Object.getPrototypeOf(MentionsUserPage)).apply(this, arguments));
         }
 
         babelHelpers.createClass(MentionsUserPage, [{
@@ -916,7 +916,7 @@ System.register('flarum/mentions/components/PostMentionedNotification', ['flarum
 
         function PostMentionedNotification() {
           babelHelpers.classCallCheck(this, PostMentionedNotification);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostMentionedNotification).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PostMentionedNotification.__proto__ || Object.getPrototypeOf(PostMentionedNotification)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostMentionedNotification, [{
@@ -979,7 +979,7 @@ System.register('flarum/mentions/components/PostQuoteButton', ['flarum/component
 
         function PostQuoteButton() {
           babelHelpers.classCallCheck(this, PostQuoteButton);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(PostQuoteButton).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (PostQuoteButton.__proto__ || Object.getPrototypeOf(PostQuoteButton)).apply(this, arguments));
         }
 
         babelHelpers.createClass(PostQuoteButton, [{
@@ -1001,7 +1001,7 @@ System.register('flarum/mentions/components/PostQuoteButton', ['flarum/component
               return e.stopPropagation();
             };
 
-            return babelHelpers.get(Object.getPrototypeOf(PostQuoteButton.prototype), 'view', this).call(this);
+            return babelHelpers.get(PostQuoteButton.prototype.__proto__ || Object.getPrototypeOf(PostQuoteButton.prototype), 'view', this).call(this);
           }
         }, {
           key: 'config',
@@ -1053,7 +1053,7 @@ System.register('flarum/mentions/components/UserMentionedNotification', ['flarum
 
         function UserMentionedNotification() {
           babelHelpers.classCallCheck(this, UserMentionedNotification);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(UserMentionedNotification).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (UserMentionedNotification.__proto__ || Object.getPrototypeOf(UserMentionedNotification)).apply(this, arguments));
         }
 
         babelHelpers.createClass(UserMentionedNotification, [{
