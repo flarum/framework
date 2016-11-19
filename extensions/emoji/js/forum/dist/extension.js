@@ -320,8 +320,6 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
 
   return {
     setters: [function (_flarumExtend) {
-      /*global getCaretCoordinates*/
-
       extend = _flarumExtend.extend;
     }, function (_flarumComponentsComposerBody) {
       ComposerBody = _flarumComponentsComposerBody.default;
@@ -351,7 +349,7 @@ System.register('flarum/emoji/components/AutocompleteDropdown', ['flarum/Compone
 
         function AutocompleteDropdown() {
           babelHelpers.classCallCheck(this, AutocompleteDropdown);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AutocompleteDropdown).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AutocompleteDropdown.__proto__ || Object.getPrototypeOf(AutocompleteDropdown)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AutocompleteDropdown, [{
