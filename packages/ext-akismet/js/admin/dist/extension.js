@@ -14,7 +14,7 @@ System.register('flarum/akismet/components/AkismetSettingsModal', ['flarum/compo
 
         function AkismetSettingsModal() {
           babelHelpers.classCallCheck(this, AkismetSettingsModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AkismetSettingsModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (AkismetSettingsModal.__proto__ || Object.getPrototypeOf(AkismetSettingsModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(AkismetSettingsModal, [{
