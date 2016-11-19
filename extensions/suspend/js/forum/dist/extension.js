@@ -16,13 +16,13 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
 
         function SuspendUserModal() {
           babelHelpers.classCallCheck(this, SuspendUserModal);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(SuspendUserModal).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (SuspendUserModal.__proto__ || Object.getPrototypeOf(SuspendUserModal)).apply(this, arguments));
         }
 
         babelHelpers.createClass(SuspendUserModal, [{
           key: 'init',
           value: function init() {
-            babelHelpers.get(Object.getPrototypeOf(SuspendUserModal.prototype), 'init', this).call(this);
+            babelHelpers.get(SuspendUserModal.prototype.__proto__ || Object.getPrototypeOf(SuspendUserModal.prototype), 'init', this).call(this);
 
             var until = this.props.user.suspendUntil();
             var status = null;
