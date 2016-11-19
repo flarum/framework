@@ -133,7 +133,7 @@ System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/comp
 
         function DiscussionStickiedPost() {
           babelHelpers.classCallCheck(this, DiscussionStickiedPost);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DiscussionStickiedPost).apply(this, arguments));
+          return babelHelpers.possibleConstructorReturn(this, (DiscussionStickiedPost.__proto__ || Object.getPrototypeOf(DiscussionStickiedPost)).apply(this, arguments));
         }
 
         babelHelpers.createClass(DiscussionStickiedPost, [{
