@@ -46,7 +46,7 @@
 
           for (var i in modules) {
             var module = System.get(modules[i]);
-            if (module.default) module.default(app);
+            if (module && module.default) module.default(app);
           }
 
           app.boot({!! json_encode($payload) !!});
