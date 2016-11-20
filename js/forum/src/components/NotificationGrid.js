@@ -89,12 +89,12 @@ export default class NotificationGrid extends Component {
   config(isInitialized) {
     if (isInitialized) return;
 
-    this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function(e) {
+    this.$('thead .NotificationGrid-groupToggle').on('mouseenter mouseleave', function(e) {
       const i = parseInt($(this).index(), 10) + 1;
       $(this).parents('table').find('td:nth-child(' + i + ')').toggleClass('highlighted', e.type === 'mouseenter');
     });
 
-    this.$('tbody .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function(e) {
+    this.$('tbody .NotificationGrid-groupToggle').on('mouseenter mouseleave', function(e) {
       $(this).parent().find('td').toggleClass('highlighted', e.type === 'mouseenter');
     });
   }

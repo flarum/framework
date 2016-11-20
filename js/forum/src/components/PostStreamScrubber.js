@@ -258,12 +258,12 @@ export default class PostStreamScrubber extends Component {
     // When any part of the whole scrollbar is clicked, we want to jump to
     // that position.
     this.$('.Scrubber-scrollbar')
-      .bind('click', this.onclick.bind(this))
+      .click(this.onclick.bind(this))
 
       // Now we want to make the scrollbar handle draggable. Let's start by
       // preventing default browser events from messing things up.
       .css({ cursor: 'pointer', 'user-select': 'none' })
-      .bind('dragstart mousedown touchstart', e => e.preventDefault());
+      .on('dragstart mousedown touchstart', e => e.preventDefault());
 
     // When the mouse is pressed on the scrollbar handle, we capture some
     // information about its current position. We will store this
@@ -275,7 +275,7 @@ export default class PostStreamScrubber extends Component {
 
     this.$('.Scrubber-handle')
       .css('cursor', 'move')
-      .bind('mousedown touchstart', this.onmousedown.bind(this))
+      .on('mousedown touchstart', this.onmousedown.bind(this))
 
       // Exempt the scrollbar handle from the 'jump to' click event.
       .click(e => e.stopPropagation());
