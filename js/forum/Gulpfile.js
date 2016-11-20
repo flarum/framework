@@ -9,7 +9,7 @@ gulp({
 
     bowerDir + '/mithril/mithril.js',
     bowerDir + '/m.attrs.bidi/bidi.js',
-    bowerDir + '/jquery/dist/jquery.js',
+    bowerDir + '/jquery/dist/jquery.slim.js',
     bowerDir + '/jquery.hotkeys/jquery.hotkeys.js',
     bowerDir + '/color-thief/src/color-thief.js',
     bowerDir + '/moment/moment.js',

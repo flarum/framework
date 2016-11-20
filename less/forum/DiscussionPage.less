@@ -26,11 +26,14 @@
   .DiscussionPage-nav {
     float: right;
 
+    & > ul.affix {
+      top: @header-height;
+    }
+
     &, > ul {
       width: 150px;
     }
     > ul {
-      position: fixed;
       margin-top: 30px;
       z-index: 1;
 
