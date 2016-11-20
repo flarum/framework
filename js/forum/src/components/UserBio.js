@@ -75,8 +75,8 @@ export default class UserBio extends Component {
     };
 
     this.$('textarea').focus()
-      .bind('blur', save)
-      .bind('keydown', 'return', save);
+      .blur(save)
+      .keydown('return', save);
   }
 
   /**

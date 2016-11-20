@@ -21724,7 +21724,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
 
             var composer = this;
 
-            $(element).css('cursor', 'row-resize').bind('dragstart mousedown', function (e) {
+            $(element).css('cursor', 'row-resize').on('dragstart mousedown', function (e) {
               return e.preventDefault();
             }).mousedown(function (e) {
               composer.mouseStart = e.clientY;
@@ -25636,12 +25636,12 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
           value: function config(isInitialized) {
             if (isInitialized) return;
 
-            this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
+            this.$('thead .NotificationGrid-groupToggle').on('mouseenter mouseleave', function (e) {
               var i = parseInt($(this).index(), 10) + 1;
               $(this).parents('table').find('td:nth-child(' + i + ')').toggleClass('highlighted', e.type === 'mouseenter');
             });
 
-            this.$('tbody .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
+            this.$('tbody .NotificationGrid-groupToggle').on('mouseenter mouseleave', function (e) {
               $(this).parent().find('td').toggleClass('highlighted', e.type === 'mouseenter');
             });
           }
@@ -27347,11 +27347,11 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
 
             // When any part of the whole scrollbar is clicked, we want to jump to
             // that position.
-            this.$('.Scrubber-scrollbar').bind('click', this.onclick.bind(this))
+            this.$('.Scrubber-scrollbar').click(this.onclick.bind(this))
 
             // Now we want to make the scrollbar handle draggable. Let's start by
             // preventing default browser events from messing things up.
-            .css({ cursor: 'pointer', 'user-select': 'none' }).bind('dragstart mousedown touchstart', function (e) {
+            .css({ cursor: 'pointer', 'user-select': 'none' }).on('dragstart mousedown touchstart', function (e) {
               return e.preventDefault();
             });
 
@@ -27363,7 +27363,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
             this.mouseStart = 0;
             this.indexStart = 0;
 
-            this.$('.Scrubber-handle').css('cursor', 'move').bind('mousedown touchstart', this.onmousedown.bind(this))
+            this.$('.Scrubber-handle').css('cursor', 'move').on('mousedown touchstart', this.onmousedown.bind(this))
 
             // Exempt the scrollbar handle from the 'jump to' click event.
             .click(function (e) {
@@ -29397,8 +29397,8 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
               m.redraw();
             };
 
-            $(element).bind('keydown', 'meta+return', handler);
-            $(element).bind('keydown', 'ctrl+return', handler);
+            $(element).keydown('meta+return', handler);
+            $(element).keydown('ctrl+return', handler);
           }
         }, {
           key: 'controlItems',
@@ -29584,7 +29584,7 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
               bio.save($(this).val());
             };
 
-            this.$('textarea').focus().bind('blur', save).bind('keydown', 'return', save);
+            this.$('textarea').focus().blur(save).keydown('return', save);
           }
         }, {
           key: 'save',

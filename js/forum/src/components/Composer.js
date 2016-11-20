@@ -150,7 +150,7 @@ class Composer extends Component {
     const composer = this;
 
     $(element).css('cursor', 'row-resize')
-      .bind('dragstart mousedown', e => e.preventDefault())
+      .on('dragstart mousedown', e => e.preventDefault())
       .mousedown(function(e) {
         composer.mouseStart = e.clientY;
         composer.heightStart = composer.$().height();
