@@ -1,0 +1,36 @@
+{
+    "extends": "eslint-config-airbnb",
+    "rules": {
+      "class-methods-use-this": "off",
+      "func-names": "off",
+      "no-param-reassign": "off",
+      "import/no-unresolved": "off",
+      "import/no-extraneous-dependencies": "off",
+      "import/extensions": ["error", "never"],
+      "react/jsx-filename-extension": ["error", { "extensions": [".js"] }],
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react/sort-comp": ["error", {
+        "order": [
+          "/^constructor$/",
+          "/^init$/",
+          "/^initProps$/",
+          "static-methods",
+          "/^content$/",
+          "/^view$/",
+          "/^config$/",
+          "everything-else",
+          "/^onsubmit$/",
+          "/^onerror$/"
+        ]
+      }]
+    },
+    "env": {
+      "jquery": true,
+      "browser": true
+    },
+    "globals": {
+        "app": false,
+        "m": false
+    }
+}
