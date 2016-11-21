@@ -1,0 +1,11 @@
+{
+  "ignore": [
+    "**/dist/**.**",
+    "**/Gulpfile.js"
+  ],
+  "test": [
+  ],
+  "critics": {
+    "lint": {"engine": "eslint"}
+  }
+}
