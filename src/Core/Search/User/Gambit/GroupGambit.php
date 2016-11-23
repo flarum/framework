@@ -54,6 +54,7 @@ class GroupGambit extends AbstractRegexGambit
             $group = $this->groups->findByName($name);
             if ($group && count($group->users)) {
                 $ids[] = $group->users->pluck('id')->all();
+                
             }           
         }
 
