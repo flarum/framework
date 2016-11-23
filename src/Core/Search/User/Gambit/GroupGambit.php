@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -51,8 +52,8 @@ class GroupGambit extends AbstractRegexGambit
         $ids = [];
         foreach ($groupName as $name) {
             $group = $this->groups->findByName($name);
-            if($group && count($group->users)) {
-                 $ids[] = $group->users->pluck('id')->all();
+            if ($group && count($group->users)) {
+                $ids[] = $group->users->pluck('id')->all();
             }
            
         }
