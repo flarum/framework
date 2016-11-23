@@ -43,10 +43,8 @@ class GroupRepository
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
     }
 
-
-
     /**
-     * Find a group by singular name.
+     * Find a group by name.
      *
      * @param string $name
      * @return User|null
