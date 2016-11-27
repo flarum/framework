@@ -76,7 +76,3 @@ validation:
     name_plural: plural name
     tag_count_primary: number of primary tags
     tag_count_secondary: number of secondary tags
-
-  custom:
-    username:
-      regex: "The username may only contain letters, numbers, and dashes."
