@@ -13,6 +13,7 @@ namespace Flarum\Http\WebApp;
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Asset\CompilerInterface;
+use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler;
 use Flarum\Locale\LocaleManager;
 use Illuminate\View\Factory;
@@ -135,14 +136,20 @@ class WebAppView
     protected $userSerializer;
 
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
      * @param string $layout
      * @param WebAppAssets $assets
      * @param Client $api
      * @param Factory $view
      * @param LocaleManager $locales
      * @param AbstractSerializer $userSerializer
+     * @param Application $app
      */
-    public function __construct($layout, WebAppAssets $assets, Client $api, Factory $view, LocaleManager $locales, AbstractSerializer $userSerializer)
+    public function __construct($layout, WebAppAssets $assets, Client $api, Factory $view, LocaleManager $locales, AbstractSerializer $userSerializer, Application $app)
     {
         $this->layout = $layout;
         $this->api = $api;
@@ -150,6 +157,7 @@ class WebAppView
         $this->view = $view;
         $this->locales = $locales;
         $this->userSerializer = $userSerializer;
+        $this->app = $app;
 
         $this->addHeadString('<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,600">', 'font');
 
@@ -269,7 +277,7 @@ class WebAppView
         $this->view->share('translator', $this->locales->getTranslator());
         $this->view->share('allowJs', ! array_get($request->getQueryParams(), 'nojs'));
         $this->view->share('forum', array_get($forum, 'data'));
-        $this->view->share('debug', array_get($forum, 'data.attributes.debug'));
+        $this->view->share('debug', $this->app->inDebugMode());
 
         $view = $this->view->file(__DIR__.'/../../../views/app.blade.php');
 
