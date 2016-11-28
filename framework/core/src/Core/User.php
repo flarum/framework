@@ -30,6 +30,7 @@ use Flarum\Event\UserWasRegistered;
 use Flarum\Event\UserWasRenamed;
 use Flarum\Foundation\Application;
 use Illuminate\Contracts\Hashing\Hasher;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @property int $id
@@ -75,6 +76,11 @@ class User extends AbstractModel
      * @var string[]|null
      */
     protected $permissions = null;
+
+    /**
+     * @var SessionInterface
+     */
+    protected $session;
 
     /**
      * An array of registered user preferences. Each preference is defined with
@@ -687,6 +693,22 @@ class User extends AbstractModel
     public function cannot($ability, $arguments = [])
     {
         return ! $this->can($ability, $arguments);
+    }
+
+    /**
+     * @return SessionInterface
+     */
+    public function getSession()
+    {
+        return $this->session;
+    }
+
+    /**
+     * @param SessionInterface $session
+     */
+    public function setSession(SessionInterface $session)
+    {
+        $this->session = $session;
     }
 
     /**
