@@ -26653,6 +26653,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
                 'div',
                 { className: 'Search-input' },
                 m('input', { className: 'FormControl',
+                  type: 'search',
                   placeholder: extractText(app.translator.trans('core.forum.header.search_placeholder')),
                   value: this.value(),
                   oninput: m.withAttr('value', this.value),
