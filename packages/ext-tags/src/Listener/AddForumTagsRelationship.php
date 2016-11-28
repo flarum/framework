@@ -68,7 +68,7 @@ class AddForumTagsRelationship
         // doesn't actually have a tags relationship, we will manually load and
         // assign the tags data to it using an event listener.
         if ($event->isController(ShowForumController::class)) {
-            $event->data['tags'] = Tag::whereVisibleTo($event->actor)->with('lastDiscussion')->get();
+            $event->data['tags'] = Tag::whereVisibleTo($event->actor)->withStateFor($event->actor)->with('lastDiscussion')->get();
         }
     }
 
