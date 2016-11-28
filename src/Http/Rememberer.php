@@ -19,17 +19,20 @@ class Rememberer
 {
     protected $cookieName = 'flarum_remember';
 
-    public function remember(ResponseInterface $response, AccessToken $token)
+    public function remember(ResponseInterface $response, AccessToken $token, $session = false)
     {
-        $token->lifetime = 60 * 60 * 24 * 14;
-        $token->save();
+        $cookie = $this->createCookie()->withValue($token->id);
 
-        return FigResponseCookies::set(
-            $response,
-            $this->createCookie()
-                ->withValue($token->id)
-                ->withMaxAge(14 * 24 * 60 * 60)
-        );
+        if (! $session) {
+            $lifetime = 60 * 60 * 24 * 14;
+
+            $token->lifetime = $lifetime;
+            $token->save();
+
+            $cookie = $cookie->withMaxAge($lifetime);
+        }
+
+        return FigResponseCookies::set($response, $cookie);
     }
 
     public function rememberUser(ResponseInterface $response, $userId)
