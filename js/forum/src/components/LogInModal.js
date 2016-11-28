@@ -31,6 +31,13 @@ export default class LogInModal extends Modal {
      * @type {Function}
      */
     this.password = m.prop(this.props.password || '');
+
+    /**
+     * The value of the remember me input.
+     *
+     * @type {Function}
+     */
+    this.remember = m.prop(this.props.remember && true);
   }
 
   className() {
@@ -58,6 +65,11 @@ export default class LogInModal extends Modal {
               bidi={this.password}
               disabled={this.loading} />
           </div>
+
+          <label className="checkbox">
+            <input name="remember" type="checkbox" bidi={this.remember} disabled={this.loading} />
+            {app.translator.trans('core.forum.log_in.remember_me_label')}
+          </label>
 
           <div className="Form-group">
             {Button.component({
@@ -119,13 +131,15 @@ export default class LogInModal extends Modal {
 
     this.loading = true;
 
-    const email = this.email();
+    const identification = this.email();
     const password = this.password();
+    const remember = this.remember();
 
-    app.session.login(email, password, {errorHandler: this.onerror.bind(this)}).then(
-      () => window.location.reload(),
-      this.loaded.bind(this)
-    );
+    app.session.login({identification, password, remember}, {errorHandler: this.onerror.bind(this)})
+      .then(
+        () => window.location.reload(),
+        this.loaded.bind(this)
+      );
   }
 
   onerror(error) {
