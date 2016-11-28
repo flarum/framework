@@ -61,4 +61,14 @@ class UserValidator extends AbstractValidator
             ]
         ];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getMessages()
+    {
+        return [
+            'username.regex' => $this->translator->trans('core.api.invalid_username_message')
+        ];
+    }
 }
