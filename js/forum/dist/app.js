@@ -23882,11 +23882,11 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
             babelHelpers.get(LogInModal.prototype.__proto__ || Object.getPrototypeOf(LogInModal.prototype), 'init', this).call(this);
 
             /**
-             * The value of the email input.
+             * The value of the identification input.
              *
              * @type {Function}
              */
-            this.email = m.prop(this.props.email || '');
+            this.identification = m.prop(this.props.identification || '');
 
             /**
              * The value of the password input.
@@ -23925,8 +23925,8 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                 m(
                   'div',
                   { className: 'Form-group' },
-                  m('input', { className: 'FormControl', name: 'email', type: 'text', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
-                    bidi: this.email,
+                  m('input', { className: 'FormControl', name: 'identification', type: 'text', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
+                    bidi: this.identification,
                     disabled: this.loading })
                 ),
                 m(
@@ -23969,7 +23969,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
         }, {
           key: 'forgotPassword',
           value: function forgotPassword() {
-            var email = this.email();
+            var email = this.identification();
             var props = email.indexOf('@') !== -1 ? { email: email } : undefined;
 
             app.modal.show(new ForgotPasswordModal(props));
@@ -23978,15 +23978,15 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
           key: 'signUp',
           value: function signUp() {
             var props = { password: this.password() };
-            var email = this.email();
-            props[email.indexOf('@') !== -1 ? 'email' : 'username'] = email;
+            var identification = this.identification();
+            props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
             app.modal.show(new SignUpModal(props));
           }
         }, {
           key: 'onready',
           value: function onready() {
-            this.$('[name=' + (this.email() ? 'password' : 'email') + ']').select();
+            this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
           }
         }, {
           key: 'onsubmit',
@@ -23995,7 +23995,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
 
             this.loading = true;
 
-            var identification = this.email();
+            var identification = this.identification();
             var password = this.password();
             var remember = this.remember();
 
@@ -27961,7 +27961,7 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
           key: 'logIn',
           value: function logIn() {
             var props = {
-              email: this.email() || this.username(),
+              identification: this.email() || this.username(),
               password: this.password()
             };
 

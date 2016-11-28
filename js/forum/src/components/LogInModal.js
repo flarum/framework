@@ -11,7 +11,7 @@ import extractText from 'flarum/utils/extractText';
  *
  * ### Props
  *
- * - `email`
+ * - `identification`
  * - `password`
  */
 export default class LogInModal extends Modal {
@@ -19,11 +19,11 @@ export default class LogInModal extends Modal {
     super.init();
 
     /**
-     * The value of the email input.
+     * The value of the identification input.
      *
      * @type {Function}
      */
-    this.email = m.prop(this.props.email || '');
+    this.identification = m.prop(this.props.identification || '');
 
     /**
      * The value of the password input.
@@ -55,8 +55,8 @@ export default class LogInModal extends Modal {
 
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
-              bidi={this.email}
+            <input className="FormControl" name="identification" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
+              bidi={this.identification}
               disabled={this.loading} />
           </div>
 
@@ -102,7 +102,7 @@ export default class LogInModal extends Modal {
    * @public
    */
   forgotPassword() {
-    const email = this.email();
+    const email = this.identification();
     const props = email.indexOf('@') !== -1 ? {email} : undefined;
 
     app.modal.show(new ForgotPasswordModal(props));
@@ -116,14 +116,14 @@ export default class LogInModal extends Modal {
    */
   signUp() {
     const props = {password: this.password()};
-    const email = this.email();
-    props[email.indexOf('@') !== -1 ? 'email' : 'username'] = email;
+    const identification = this.identification();
+    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
     app.modal.show(new SignUpModal(props));
   }
 
   onready() {
-    this.$('[name=' + (this.email() ? 'password' : 'email') + ']').select();
+    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
   }
 
   onsubmit(e) {
@@ -131,7 +131,7 @@ export default class LogInModal extends Modal {
 
     this.loading = true;
 
-    const identification = this.email();
+    const identification = this.identification();
     const password = this.password();
     const remember = this.remember();
 
