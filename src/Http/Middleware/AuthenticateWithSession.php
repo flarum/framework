@@ -28,6 +28,8 @@ class AuthenticateWithSession implements MiddlewareInterface
 
         $actor = $this->getActor($session);
 
+        $actor->setSession($session);
+
         $request = $request->withAttribute('actor', $actor);
 
         return $out ? $out($request, $response) : $response;
