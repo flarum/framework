@@ -13,6 +13,7 @@ namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Api\Controller\AbstractCollectionController;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -25,14 +26,14 @@ class ListTagsController extends AbstractCollectionController
     public $serializer = TagSerializer::class;
 
     /**
-     * @var \Flarum\Tags\TagRepository
+     * @var \Flarum\Tags\Tag
      */
     protected $tags;
 
     /**
-     * @param \Flarum\Tags\TagRepository $tags
+     * @param \Flarum\Tags\Tag $tags
      */
-    public function __construct(TagRepository $tags)
+    public function __construct(Tag $tags)
     {
         $this->tags = $tags;
     }
@@ -42,6 +43,8 @@ class ListTagsController extends AbstractCollectionController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        return $this->tags->all($request->getAttribute('actor'));
+        $actor = $request->getAttribute('actor');
+
+        return $this->tags->whereVisibleTo($actor)->withStateFor($actor)->get();
     }
 }

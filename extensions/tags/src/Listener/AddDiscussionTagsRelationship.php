@@ -64,11 +64,7 @@ class AddDiscussionTagsRelationship
         if ($event->isController(Controller\ListDiscussionsController::class)
             || $event->isController(Controller\ShowDiscussionController::class)
             || $event->isController(Controller\CreateDiscussionController::class)) {
-            $event->addInclude('tags');
-        }
-
-        if ($event->isController(Controller\CreateDiscussionController::class)) {
-            $event->addInclude('tags.lastDiscussion');
+            $event->addInclude(['tags', 'tags.state']);
         }
     }
 

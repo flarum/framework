@@ -15,6 +15,7 @@ use Flarum\Core\Permission;
 use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Core\User;
 use Flarum\Database\AbstractModel;
+use Illuminate\Database\Eloquent\Builder;
 
 class Tag extends AbstractModel
 {
@@ -117,6 +118,50 @@ class Tag extends AbstractModel
         $this->last_discussion_id = $discussion->id;
 
         return $this;
+    }
+
+    /**
+     * Define the relationship with the tag's state for a particular user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function state()
+    {
+        return $this->hasOne(TagState::class);
+    }
+
+    /**
+     * Get the state model for a user, or instantiate a new one if it does not
+     * exist.
+     *
+     * @param User $user
+     * @return TagState
+     */
+    public function stateFor(User $user)
+    {
+        $state = $this->state()->where('user_id', $user->id)->first();
+
+        if (! $state) {
+            $state = new TagState;
+            $state->tag_id = $this->id;
+            $state->user_id = $user->id;
+        }
+
+        return $state;
+    }
+
+    /**
+     * @param Builder $query
+     * @param User $user
+     * @return Builder
+     */
+    public function scopeWithStateFor(Builder $query, User $user)
+    {
+        return $query->with([
+            'state' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }
+        ]);
     }
 
     /**
