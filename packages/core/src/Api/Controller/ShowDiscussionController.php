@@ -83,6 +83,10 @@ class ShowDiscussionController extends AbstractResourceController
             $this->includePosts($discussion, $request, $postRelationships);
         }
 
+        $discussion->load(array_filter($include, function ($relationship) {
+            return ! starts_with($relationship, 'posts');
+        }));
+
         return $discussion;
     }
 
