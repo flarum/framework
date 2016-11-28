@@ -43,7 +43,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
             $translator = new Translator($defaultLocale, new MessageSelector());
             $translator->setFallbackLocales([$defaultLocale, 'en']);
-            $translator->addLoader('yaml', new YamlFileLoader());
+            $translator->addLoader('prefixed_yaml', new PrefixedYamlFileLoader());
 
             return $translator;
         });

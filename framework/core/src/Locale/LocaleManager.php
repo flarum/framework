@@ -58,9 +58,11 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations($locale, $file)
+    public function addTranslations($locale, $file, $module = null)
     {
-        $this->translator->addResource('yaml', $file, $locale);
+        $prefix = $module ? $module.'::' : '';
+
+        $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale);
     }
 
     public function addJsFile($locale, $js)

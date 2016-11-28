@@ -95,7 +95,7 @@ abstract class AbstractWebApp
      */
     protected function getTranslationFilter()
     {
-        return '/^[^\.]+\.(?:'.$this->getName().'|lib)\./';
+        return '/^.+(?:\.|::)(?:'.$this->getName().'|lib)\./';
     }
 
     /**
