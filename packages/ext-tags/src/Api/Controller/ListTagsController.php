@@ -14,7 +14,6 @@ namespace Flarum\Tags\Api\Controller;
 use Flarum\Api\Controller\AbstractCollectionController;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Tag;
-use Flarum\Tags\TagRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
