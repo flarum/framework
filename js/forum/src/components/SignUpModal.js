@@ -116,7 +116,7 @@ export default class SignUpModal extends Modal {
    */
   logIn() {
     const props = {
-      email: this.email() || this.username(),
+      identification: this.email() || this.username(),
       password: this.password()
     };
 
