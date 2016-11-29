@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -13,7 +14,6 @@ namespace Flarum\Locale;
 use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Symfony\Component\Translation\MessageSelector;
 
 class LocaleServiceProvider extends AbstractServiceProvider
