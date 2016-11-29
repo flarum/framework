@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -59,6 +60,16 @@ class UserValidator extends AbstractValidator
                 'required',
                 'min:8'
             ]
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getMessages()
+    {
+        return [
+            'username.regex' => $this->translator->trans('core.api.invalid_username_message')
         ];
     }
 }

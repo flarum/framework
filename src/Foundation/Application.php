@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -164,7 +165,7 @@ class Application extends Container implements ApplicationContract
     public function url($path = null)
     {
         $config = $this->isInstalled() ? $this->make('flarum.config') : [];
-        $url = array_get($config, 'url', $_SERVER['REQUEST_URI']);
+        $url = array_get($config, 'url', array_get($_SERVER, 'REQUEST_URI'));
 
         if (is_array($url)) {
             if (isset($url[$path])) {

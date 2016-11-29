@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -12,6 +13,7 @@ namespace Flarum\Http\WebApp;
 
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Foundation\Application;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\View\Factory;
 
@@ -38,17 +40,24 @@ class WebAppViewFactory
     protected $userSerializer;
 
     /**
+     * @var Application
+     */
+    protected $app;
+
+    /**
      * @param Client $api
      * @param Factory $view
      * @param LocaleManager $locales
      * @param CurrentUserSerializer $userSerializer
+     * @param Application $app
      */
-    public function __construct(Client $api, Factory $view, LocaleManager $locales, CurrentUserSerializer $userSerializer)
+    public function __construct(Client $api, Factory $view, LocaleManager $locales, CurrentUserSerializer $userSerializer, Application $app)
     {
         $this->api = $api;
         $this->view = $view;
         $this->locales = $locales;
         $this->userSerializer = $userSerializer;
+        $this->app = $app;
     }
 
     /**
@@ -58,6 +67,6 @@ class WebAppViewFactory
      */
     public function make($layout, WebAppAssets $assets)
     {
-        return new WebAppView($layout, $assets, $this->api, $this->view, $this->locales, $this->userSerializer);
+        return new WebAppView($layout, $assets, $this->api, $this->view, $this->locales, $this->userSerializer, $this->app);
     }
 }

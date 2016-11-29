@@ -18844,8 +18844,8 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
                     m(
                       'div',
                       { className: 'AppearancePage-colors-input' },
-                      m('input', { className: 'FormControl', placeholder: '#aaaaaa', value: this.primaryColor(), onchange: m.withAttr('value', this.primaryColor) }),
-                      m('input', { className: 'FormControl', placeholder: '#aaaaaa', value: this.secondaryColor(), onchange: m.withAttr('value', this.secondaryColor) })
+                      m('input', { className: 'FormControl', type: 'color', placeholder: '#aaaaaa', value: this.primaryColor(), onchange: m.withAttr('value', this.primaryColor) }),
+                      m('input', { className: 'FormControl', type: 'color', placeholder: '#aaaaaa', value: this.secondaryColor(), onchange: m.withAttr('value', this.secondaryColor) })
                     ),
                     Switch.component({
                       state: this.darkMode(),

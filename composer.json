@@ -50,10 +50,10 @@
         "symfony/http-foundation": "^2.7",
         "symfony/translation": "^2.7",
         "symfony/yaml": "^2.7",
-        "s9e/text-formatter": "^0.6.1",
+        "s9e/text-formatter": "^0.8.1",
         "tobscure/json-api": "^0.3.0",
         "zendframework/zend-diactoros": "^1.1",
-        "zendframework/zend-stratigility": "^1.1"
+        "zendframework/zend-stratigility": "1.2.*"
     },
     "require-dev": {
         "mockery/mockery": "^0.9.4",

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -27,6 +28,8 @@ class AuthenticateWithSession implements MiddlewareInterface
         $session = $request->getAttribute('session');
 
         $actor = $this->getActor($session);
+
+        $actor->setSession($session);
 
         $request = $request->withAttribute('actor', $actor);
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -14,7 +15,6 @@ use Flarum\Event\ConfigureValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
-use Illuminate\Validation\Validator;
 use Symfony\Component\Translation\TranslatorInterface;
 
 abstract class AbstractValidator

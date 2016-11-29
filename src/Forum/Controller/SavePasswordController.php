@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -15,6 +16,8 @@ use Flarum\Core\Validator\UserValidator;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Validation\ValidationException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -36,14 +39,22 @@ class SavePasswordController implements ControllerInterface
     protected $authenticator;
 
     /**
+     * @var Factory
+     */
+    protected $validatorFactory;
+
+    /**
      * @param UrlGenerator $url
      * @param SessionAuthenticator $authenticator
+     * @param UserValidator $validator
+     * @param Factory $validatorFactory
      */
-    public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator)
+    public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory)
     {
         $this->url = $url;
         $this->authenticator = $authenticator;
         $this->validator = $validator;
+        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -57,11 +68,19 @@ class SavePasswordController implements ControllerInterface
         $token = PasswordToken::findOrFail(array_get($input, 'passwordToken'));
 
         $password = array_get($input, 'password');
-        $confirmation = array_get($input, 'password_confirmation');
 
-        $this->validator->assertValid(compact('password'));
+        try {
+            // todo: probably shouldn't use the user validator for this,
+            // passwords should be validated separately
+            $this->validator->assertValid(compact('password'));
 
-        if (! $password || $password !== $confirmation) {
+            $validator = $this->validatorFactory->make($input, ['password' => 'required|confirmed']);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+        } catch (ValidationException $e) {
+            $request->getAttribute('session')->set('error', $e->errors()->first());
+
             return new RedirectResponse($this->url->toRoute('resetPassword', ['token' => $token->id]));
         }
 

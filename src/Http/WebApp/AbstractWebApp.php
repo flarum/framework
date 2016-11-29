@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -95,7 +96,7 @@ abstract class AbstractWebApp
      */
     protected function getTranslationFilter()
     {
-        return '/^[^\.]+\.(?:'.$this->getName().'|lib)\./';
+        return '/^.+(?:\.|::)(?:'.$this->getName().'|lib)\./';
     }
 
     /**

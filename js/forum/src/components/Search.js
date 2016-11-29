@@ -83,6 +83,7 @@ export default class Search extends Component {
       })}>
         <div className="Search-input">
           <input className="FormControl"
+            type="search"
             placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
             value={this.value()}
             oninput={m.withAttr('value', this.value)}
