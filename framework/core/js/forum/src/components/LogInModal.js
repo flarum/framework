@@ -11,7 +11,7 @@ import extractText from 'flarum/utils/extractText';
  *
  * ### Props
  *
- * - `email`
+ * - `identification`
  * - `password`
  */
 export default class LogInModal extends Modal {
@@ -19,11 +19,11 @@ export default class LogInModal extends Modal {
     super.init();
 
     /**
-     * The value of the email input.
+     * The value of the identification input.
      *
      * @type {Function}
      */
-    this.email = m.prop(this.props.email || '');
+    this.identification = m.prop(this.props.identification || '');
 
     /**
      * The value of the password input.
@@ -31,6 +31,13 @@ export default class LogInModal extends Modal {
      * @type {Function}
      */
     this.password = m.prop(this.props.password || '');
+
+    /**
+     * The value of the remember me input.
+     *
+     * @type {Function}
+     */
+    this.remember = m.prop(this.props.remember && true);
   }
 
   className() {
@@ -48,8 +55,8 @@ export default class LogInModal extends Modal {
 
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl" name="email" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
-              bidi={this.email}
+            <input className="FormControl" name="identification" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
+              bidi={this.identification}
               disabled={this.loading} />
           </div>
 
@@ -58,6 +65,11 @@ export default class LogInModal extends Modal {
               bidi={this.password}
               disabled={this.loading} />
           </div>
+
+          <label className="checkbox">
+            <input name="remember" type="checkbox" bidi={this.remember} disabled={this.loading} />
+            {app.translator.trans('core.forum.log_in.remember_me_label')}
+          </label>
 
           <div className="Form-group">
             {Button.component({
@@ -90,7 +102,7 @@ export default class LogInModal extends Modal {
    * @public
    */
   forgotPassword() {
-    const email = this.email();
+    const email = this.identification();
     const props = email.indexOf('@') !== -1 ? {email} : undefined;
 
     app.modal.show(new ForgotPasswordModal(props));
@@ -104,14 +116,14 @@ export default class LogInModal extends Modal {
    */
   signUp() {
     const props = {password: this.password()};
-    const email = this.email();
-    props[email.indexOf('@') !== -1 ? 'email' : 'username'] = email;
+    const identification = this.identification();
+    props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
     app.modal.show(new SignUpModal(props));
   }
 
   onready() {
-    this.$('[name=' + (this.email() ? 'password' : 'email') + ']').select();
+    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
   }
 
   onsubmit(e) {
@@ -119,13 +131,15 @@ export default class LogInModal extends Modal {
 
     this.loading = true;
 
-    const email = this.email();
+    const identification = this.identification();
     const password = this.password();
+    const remember = this.remember();
 
-    app.session.login(email, password, {errorHandler: this.onerror.bind(this)}).then(
-      () => window.location.reload(),
-      this.loaded.bind(this)
-    );
+    app.session.login({identification, password, remember}, {errorHandler: this.onerror.bind(this)})
+      .then(
+        () => window.location.reload(),
+        this.loaded.bind(this)
+      );
   }
 
   onerror(error) {

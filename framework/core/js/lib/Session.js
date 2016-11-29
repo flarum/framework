@@ -30,11 +30,11 @@ export default class Session {
    * @return {Promise}
    * @public
    */
-  login(identification, password, options = {}) {
+  login(data, options = {}) {
     return app.request(Object.assign({
       method: 'POST',
       url: app.forum.attribute('baseUrl') + '/login',
-      data: {identification, password}
+      data
     }, options));
   }
 

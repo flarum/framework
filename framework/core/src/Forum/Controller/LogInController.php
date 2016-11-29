@@ -66,7 +66,8 @@ class LogInController implements ControllerInterface
     public function handle(Request $request)
     {
         $actor = $request->getAttribute('actor');
-        $params = array_only($request->getParsedBody(), ['identification', 'password']);
+        $body = $request->getParsedBody();
+        $params = array_only($body, ['identification', 'password']);
 
         $response = $this->apiClient->send(TokenController::class, $actor, [], $params);
 
@@ -80,7 +81,7 @@ class LogInController implements ControllerInterface
 
             event(new UserLoggedIn($this->users->findOrFail($data->userId), $token));
 
-            $response = $this->rememberer->remember($response, $token);
+            $response = $this->rememberer->remember($response, $token, ! array_get($body, 'remember'));
         }
 
         return $response;
