@@ -12,9 +12,9 @@
 namespace Flarum\Tags\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Tags\Event\TagWillBeSaved;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
-use Flarum\Tags\Event\TagWillBeSaved;
 
 class EditTagHandler
 {
