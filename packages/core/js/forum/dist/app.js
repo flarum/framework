@@ -22984,6 +22984,12 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
                     disabled: this.loading })
                 ),
                 m(
+                  'label',
+                  { className: 'checkbox' },
+                  m('input', { name: 'remember', type: 'checkbox', bidi: this.remember, disabled: this.loading }),
+                  app.translator.trans('core.forum.log_in.remember_me_text')
+                ),
+                m(
                   'div',
                   { className: 'Form-group' },
                   Button.component({
@@ -23876,11 +23882,11 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
             babelHelpers.get(LogInModal.prototype.__proto__ || Object.getPrototypeOf(LogInModal.prototype), 'init', this).call(this);
 
             /**
-             * The value of the email input.
+             * The value of the identification input.
              *
              * @type {Function}
              */
-            this.email = m.prop(this.props.email || '');
+            this.identification = m.prop(this.props.identification || '');
 
             /**
              * The value of the password input.
@@ -23888,6 +23894,13 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
              * @type {Function}
              */
             this.password = m.prop(this.props.password || '');
+
+            /**
+             * The value of the remember me input.
+             *
+             * @type {Function}
+             */
+            this.remember = m.prop(this.props.remember && true);
           }
         }, {
           key: 'className',
@@ -23912,8 +23925,8 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                 m(
                   'div',
                   { className: 'Form-group' },
-                  m('input', { className: 'FormControl', name: 'email', type: 'text', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
-                    bidi: this.email,
+                  m('input', { className: 'FormControl', name: 'identification', type: 'text', placeholder: extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder')),
+                    bidi: this.identification,
                     disabled: this.loading })
                 ),
                 m(
@@ -23956,7 +23969,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
         }, {
           key: 'forgotPassword',
           value: function forgotPassword() {
-            var email = this.email();
+            var email = this.identification();
             var props = email.indexOf('@') !== -1 ? { email: email } : undefined;
 
             app.modal.show(new ForgotPasswordModal(props));
@@ -23965,15 +23978,15 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
           key: 'signUp',
           value: function signUp() {
             var props = { password: this.password() };
-            var email = this.email();
-            props[email.indexOf('@') !== -1 ? 'email' : 'username'] = email;
+            var identification = this.identification();
+            props[identification.indexOf('@') !== -1 ? 'email' : 'username'] = identification;
 
             app.modal.show(new SignUpModal(props));
           }
         }, {
           key: 'onready',
           value: function onready() {
-            this.$('[name=' + (this.email() ? 'password' : 'email') + ']').select();
+            this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
           }
         }, {
           key: 'onsubmit',
@@ -23982,10 +23995,11 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
 
             this.loading = true;
 
-            var email = this.email();
+            var identification = this.identification();
             var password = this.password();
+            var remember = this.remember();
 
-            app.session.login(email, password, { errorHandler: this.onerror.bind(this) }).then(function () {
+            app.session.login({ identification: identification, password: password, remember: remember }, { errorHandler: this.onerror.bind(this) }).then(function () {
               return window.location.reload();
             }, this.loaded.bind(this));
           }
@@ -27947,7 +27961,7 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
           key: 'logIn',
           value: function logIn() {
             var props = {
-              email: this.email() || this.username(),
+              identification: this.email() || this.username(),
               password: this.password()
             };
 
@@ -30494,13 +30508,13 @@ System.register('flarum/Session', [], function (_export, _context) {
 
         babelHelpers.createClass(Session, [{
           key: 'login',
-          value: function login(identification, password) {
-            var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+          value: function login(data) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             return app.request(babelHelpers.extends({
               method: 'POST',
               url: app.forum.attribute('baseUrl') + '/login',
-              data: { identification: identification, password: password }
+              data: data
             }, options));
           }
         }, {

@@ -22552,13 +22552,13 @@ System.register('flarum/Session', [], function (_export, _context) {
 
         babelHelpers.createClass(Session, [{
           key: 'login',
-          value: function login(identification, password) {
-            var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+          value: function login(data) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             return app.request(babelHelpers.extends({
               method: 'POST',
               url: app.forum.attribute('baseUrl') + '/login',
-              data: { identification: identification, password: password }
+              data: data
             }, options));
           }
         }, {
