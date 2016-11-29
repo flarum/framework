@@ -23,7 +23,8 @@ gulp({
 
     bowerDir + '/spin.js/spin.js',
     bowerDir + '/spin.js/jquery.spin.js',
-    bowerDir + '/fastclick/lib/fastclick.js'
+    bowerDir + '/fastclick/lib/fastclick.js',
+    bowerDir + '/punycode/index.js'
   ],
   modules: {
     'flarum': [
