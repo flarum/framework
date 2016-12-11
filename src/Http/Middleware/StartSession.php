@@ -68,6 +68,7 @@ class StartSession implements MiddlewareInterface
             SetCookie::create($session->getName(), $session->getId())
                 ->withPath('/')
                 ->withHttpOnly(true)
+                ->withSecure(true)
         );
     }
 }
