@@ -189,6 +189,16 @@ class WebAppView
     }
 
     /**
+     * The description of the document, to be displayed in the <meta name="description"> tag.
+     *
+     * @param null|string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
      * Set the SEO content of the page, to be displayed in <noscript> tags.
      *
      * @param null|string $content

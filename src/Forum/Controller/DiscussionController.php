@@ -85,6 +85,12 @@ class DiscussionController extends WebAppController
             }
         }
 
+        if ($posts) {
+            $description = substr(strip_tags($posts[0]->attributes->contentHtml), 0, 250).'...';
+
+            $view->setDescription($description);
+        }
+
         $view->setTitle($document->data->attributes->title);
         $view->setDocument($document);
         $view->setContent(app('view')->make('flarum.forum::discussion', compact('document', 'page', 'getResource', 'posts', 'url')));
