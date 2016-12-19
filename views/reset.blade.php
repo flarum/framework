@@ -103,6 +103,12 @@
   <body>
     <h1>{{ $translator->trans('core.views.reset.title') }}</h1>
 
+    @if (! empty($error))
+      <div class="form-horizontal error">
+        <p class="red">{{ $error }}</p>
+      </div>
+    @endif
+
     <form class="form-horizontal" role="form" method="POST" action="{{ app('Flarum\Forum\UrlGenerator')->toRoute('savePassword') }}">
       <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
       <input type="hidden" name="passwordToken" value="{{ $passwordToken }}">
