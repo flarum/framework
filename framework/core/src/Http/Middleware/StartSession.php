@@ -12,7 +12,7 @@
 namespace Flarum\Http\Middleware;
 
 use Dflydev\FigCookies\FigResponseCookies;
-use Dflydev\FigCookies\SetCookie;
+use Flarum\Http\CookieFactory;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -22,6 +22,20 @@ use Zend\Stratigility\MiddlewareInterface;
 
 class StartSession implements MiddlewareInterface
 {
+    /**
+     * @var CookieFactory
+     */
+    protected $cookie;
+
+    /**
+     * Rememberer constructor.
+     * @param CookieFactoy $cookie
+     */
+    public function __construct(CookieFactory $cookie)
+    {
+        $this->cookie = $cookie;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -65,10 +79,7 @@ class StartSession implements MiddlewareInterface
     {
         return FigResponseCookies::set(
             $response,
-            SetCookie::create($session->getName(), $session->getId())
-                ->withPath('/')
-                ->withHttpOnly(true)
-                ->withSecure(true)
+            $this->cookie->make($session->getName(), $session->getId())
         );
     }
 }
