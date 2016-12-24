@@ -15,6 +15,7 @@ export default class EditUserModal extends Modal {
 
     this.username = m.prop(user.username() || '');
     this.email = m.prop(user.email() || '');
+    this.isActivated = m.prop(user.isActivated() || false);
     this.setPassword = m.prop(false);
     this.password = m.prop(user.password() || '');
     this.groups = {};
@@ -49,6 +50,16 @@ export default class EditUserModal extends Modal {
                 <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
                   bidi={this.email} />
               </div>
+              {!this.isActivated() ? (
+                <div>
+                  {Button.component({
+                    className: 'Button Button--block',
+                    children: app.translator.trans('core.forum.edit_user.activate_button'),
+                    loading: this.loading,
+                    onclick: this.activate.bind(this)
+                  })}
+                </div>
+              ) : ''}
             </div>,
 
             <div className="Form-group">
@@ -98,6 +109,24 @@ export default class EditUserModal extends Modal {
         </div>
       </div>
     );
+  }
+
+  activate() {
+    this.loading = true;
+    const data = {
+      username: this.username(),
+      isActivated: true,
+    };
+    this.props.user.save(data, {errorHandler: this.onerror.bind(this)})
+      .then(() => {
+        this.isActivated(true);
+        this.loading = false;
+        m.redraw();
+      })
+      .catch(() => {
+        this.loading = false;
+        m.redraw();
+      });
   }
 
   data() {
