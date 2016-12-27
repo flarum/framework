@@ -15,7 +15,7 @@ export default class AddExtensionModal extends Modal {
   }
 
   title() {
-    return 'Add Extension';
+    return app.translator.trans('core.admin.add_extension.title');
   }
 
   content() {
