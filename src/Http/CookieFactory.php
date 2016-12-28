@@ -30,7 +30,10 @@ class CookieFactory
     }
 
     /**
-     * make a new cookie instance.
+     * Make a new cookie instance.
+     *
+     * This method returns a cookie instance for use with the Set-Cookie HTTP header.
+     * It will be pre-configured according to Flarum's base URL and protocol.
      *
      * @param  string  $name
      * @param  string  $value
@@ -39,16 +42,13 @@ class CookieFactory
      */
     public function make($name, $value = null, $maxAge = null)
     {
+        // Parse the forum's base URL so that we can determine the optimal cookie settings
         $url = parse_url(rtrim($this->app->url(), '/'));
-
-        $path = array_get($url, 'path') ?: '/';
-
-        $secure = array_get($url, 'scheme') === 'https';
 
         return SetCookie::create($name, $value)
             ->withMaxAge($maxAge)
-            ->withPath($path)
-            ->withSecure($secure)
+            ->withPath(array_get($url, 'path') ?: '/')
+            ->withSecure(array_get($url, 'scheme') === 'https')
             ->withHttpOnly(true)
             ->withDomain(null);
     }
