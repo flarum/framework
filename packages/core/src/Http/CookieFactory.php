@@ -35,29 +35,21 @@ class CookieFactory
      * @param  string  $name
      * @param  string  $value
      * @param  int     $maxAge
-     * @param  string  $path
-     * @param  bool    $secure
-     * @param  bool    $httpOnly
-     * @param  string  $domain
      * @return \Dflydev\FigCookies\SetCookie
      */
-    public function make($name, $value = null, $maxAge = null, $path = null, $secure = null, $httpOnly = true, $domain = null)
+    public function make($name, $value = null, $maxAge = null)
     {
         $url = parse_url(rtrim($this->app->url(), '/'));
 
-        if ($path === null) {
-            $path = array_get($url, 'path') ?: '/';
-        }
+        $path = array_get($url, 'path') ?: '/';
 
-        if ($secure === null && array_get($url, 'scheme') === 'https') {
-            $secure = true;
-        }
+        $secure = array_get($url, 'scheme') === 'https';
 
         return SetCookie::create($name, $value)
             ->withMaxAge($maxAge)
             ->withPath($path)
             ->withSecure($secure)
-            ->withHttpOnly($httpOnly)
-            ->withDomain($domain);
+            ->withHttpOnly(true)
+            ->withDomain(null);
     }
 }
