@@ -60,10 +60,8 @@ class DispatchRoute
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
                 throw new RouteNotFoundException;
-
             case Dispatcher::METHOD_NOT_ALLOWED:
                 throw new MethodNotAllowedException;
-
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 $parameters = $routeInfo[2];
