@@ -15,7 +15,6 @@ use Illuminate\Queue\QueueManager as Manager;
 
 class QueueManager extends Manager
 {
-
     /**
      * {@inheritdoc}
      */

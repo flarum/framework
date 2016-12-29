@@ -47,7 +47,7 @@ class MailJob extends AbstractJob
 
     public function handle(Mailer $mailer)
     {
-        $mailer->raw($this->body, function(Message $message) {
+        $mailer->raw($this->body, function (Message $message) {
             $message
                 ->to($this->to)
                 ->subject($this->subject);

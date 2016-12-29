@@ -19,10 +19,10 @@ use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Event\UserWasRegistered;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Bus\Dispatcher as JobDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
 use Symfony\Component\Translation\TranslatorInterface;
-use Illuminate\Contracts\Bus\Dispatcher as JobDispatcher;
 
 class EmailConfirmationMailer
 {
@@ -52,6 +52,7 @@ class EmailConfirmationMailer
      * @param Mailer $mailer
      * @param UrlGenerator $url
      * @param TranslatorInterface $translator
+     * @param JobDispatcher $queue
      */
     public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator, JobDispatcher $queue)
     {

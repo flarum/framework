@@ -69,8 +69,8 @@ class QueueServiceProvider extends Provider
 
     protected function registerDispatcher()
     {
-        $this->app->singleton(DispatcherContract::class, function($app) {
-            return new Dispatcher($app, function() use ($app) {
+        $this->app->singleton(DispatcherContract::class, function ($app) {
+            return new Dispatcher($app, function () use ($app) {
                 return $app['queue']->connection();
             });
         });
