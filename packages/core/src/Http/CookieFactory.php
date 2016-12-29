@@ -49,7 +49,6 @@ class CookieFactory
             ->withMaxAge($maxAge)
             ->withPath(array_get($url, 'path') ?: '/')
             ->withSecure(array_get($url, 'scheme') === 'https')
-            ->withHttpOnly(true)
-            ->withDomain(null);
+            ->withHttpOnly(true);
     }
 }
