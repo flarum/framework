@@ -54,7 +54,10 @@ class QueueServiceProvider extends Provider
             // creating the classes that accept queue configs and instantiate queues.
             $manager = new QueueManager($app);
 
-            $this->registerConnectors($manager);
+            // We've disabled all other queue connectors for now. Once we're able to
+            // configure any of the other connectors, we can easily reset the old
+            // behavior of the parent provider by registering all connectors.
+            $this->registerSyncConnector($manager);
 
             return $manager;
         });
