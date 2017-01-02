@@ -11,14 +11,14 @@
 
 namespace Flarum\Http\Middleware;
 
+use Exception;
 use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
-use Zend\Stratigility\ErrorMiddlewareInterface;
 
-class HandleErrors implements ErrorMiddlewareInterface
+class HandleErrors
 {
     /**
      * @var string
@@ -48,9 +48,23 @@ class HandleErrors implements ErrorMiddlewareInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Catch all errors that happen during further middleware execution.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param callable $out
+     * @return Response
      */
-    public function __invoke($error, Request $request, Response $response, callable $out = null)
+    public function __invoke(Request $request, Response $response, callable $out = null)
+    {
+        try {
+            return $out($request, $response);
+        } catch (Exception $e) {
+            return $this->formatException($e);
+        }
+    }
+
+    protected function formatException(Exception $error)
     {
         $status = 500;
         $errorCode = $error->getCode();
