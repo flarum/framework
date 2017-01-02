@@ -26,6 +26,7 @@ class FullStackServer extends AbstractServer
     protected function getMiddleware(Application $app)
     {
         $pipe = new MiddlewarePipe;
+        $pipe->raiseThrowables();
 
         $pipe->pipe(new ApiServer);
         $pipe->pipe(new AdminServer);
