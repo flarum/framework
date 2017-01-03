@@ -45,6 +45,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 $gambits->setFulltextGambit('Flarum\Core\Search\User\Gambit\FulltextGambit');
                 $gambits->add('Flarum\Core\Search\User\Gambit\EmailGambit');
                 $gambits->add('Flarum\Core\Search\User\Gambit\GroupGambit');
+
                 $app->make('events')->fire(
                     new ConfigureUserGambits($gambits)
                 );
