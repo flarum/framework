@@ -46,11 +46,11 @@ class GroupGambit extends AbstractRegexGambit
             throw new LogicException('This gambit can only be applied on a UserSearch');
         }
 
-        $groupName = trim($matches[1], '"');
-        $groupName = explode(',', $groupName);
+        $groupNames = $this->extractGroupNames($matches);
 
+        // TODO: Use a JOIN instead (and don't forget to remove the findByName() method again)
         $ids = [];
-        foreach ($groupName as $name) {
+        foreach ($groupNames as $name) {
             $group = $this->groups->findByName($name);
             if ($group && count($group->users)) {
                 $ids = array_merge($ids, $group->users->pluck('id')->all());
@@ -58,5 +58,16 @@ class GroupGambit extends AbstractRegexGambit
         }
 
         $search->getQuery()->whereIn('id', $ids, 'and', $negate);
+    }
+
+    /**
+     * Extract the group names from the pattern match.
+     *
+     * @param array $matches
+     * @return array
+     */
+    protected function extractGroupNames(array $matches)
+    {
+        return explode(',', trim($matches[1], '"'));
     }
 }
