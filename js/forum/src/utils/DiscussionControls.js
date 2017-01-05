@@ -228,10 +228,9 @@ export default {
    * @return {Promise}
    */
   renameAction() {
-    const discussion = this;
     return app.modal.show(new DiscussionRenameModal({
-      currentTitle: discussion.title(),
-      discussion: discussion
+      currentTitle: this.title(),
+      discussion: this
     }));
   }
 };

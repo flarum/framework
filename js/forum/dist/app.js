@@ -22203,7 +22203,6 @@ System.register('flarum/components/DiscussionRenameModal', ['flarum/components/M
         }, {
           key: 'content',
           value: function content() {
-
             return m(
               'div',
               { className: 'Modal-body' },
@@ -22237,7 +22236,6 @@ System.register('flarum/components/DiscussionRenameModal', ['flarum/components/M
 
             this.loading = true;
 
-            // const title = $('.DiscussionRenameModal input.title').val();
             var title = this.newTitle;
             var currentTitle = this.currentTitle;
 
@@ -31409,10 +31407,9 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           }
         },
         renameAction: function renameAction() {
-          var discussion = this;
           return app.modal.show(new DiscussionRenameModal({
-            currentTitle: discussion.title(),
-            discussion: discussion
+            currentTitle: this.title(),
+            discussion: this
           }));
         }
       });

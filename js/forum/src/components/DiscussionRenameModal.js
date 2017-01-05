@@ -11,7 +11,6 @@ export default class DiscussionRenameModal extends Modal {
     this.discussion = this.props.discussion;
     this.currentTitle = this.props.currentTitle;
     this.newTitle = m.prop(this.currentTitle);
-
   }
 
   className() {
@@ -23,7 +22,6 @@ export default class DiscussionRenameModal extends Modal {
   }
 
   content() {
-
     return (
       <div className="Modal-body">
         <div className="Form">
@@ -48,7 +46,6 @@ export default class DiscussionRenameModal extends Modal {
 
     this.loading = true;
 
-    // const title = $('.DiscussionRenameModal input.title').val();
     const title = this.newTitle;
     const currentTitle = this.currentTitle;
 
