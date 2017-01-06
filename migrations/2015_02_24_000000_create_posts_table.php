@@ -36,8 +36,11 @@ return [
             $table->engine = 'MyISAM';
         });
 
-        $prefix = $schema->getConnection()->getTablePrefix();
-        $schema->getConnection()->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
+        //@TODO: find equivalent for pqsql
+        if ($schema->getConnection()->getConfig('driver') === 'mysql') {
+            $prefix = $schema->getConnection()->getTablePrefix();
+            $schema->getConnection()->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
+        }
     },
 
     'down' => function (Builder $schema) {

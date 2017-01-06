@@ -1,5 +1,4 @@
 <h2>Install Flarum</h2>
-
 <p>Set up your forum by filling out your details below. If you have any trouble, get help on the <a href="http://flarum.org/docs/installation" target="_blank">Flarum website</a>.</p>
 
 <form method="post">
@@ -14,28 +13,36 @@
 
   <div class="FormGroup">
     <div class="FormField">
-      <label>MySQL Host</label>
-      <input name="mysqlHost" value="localhost">
+      <label>Database type</label>
+      <select name="databaseType">
+          <?php foreach ($drivers as $driver => $driverName): ?>
+          <option value="<?php echo $driver; ?>"><?php echo $driverName; ?></option>
+          <?php endforeach; ?>
+      </select>
+    </div>
+    <div class="FormField">
+      <label>Database Host</label>
+      <input name="databaseHost" value="localhost">
     </div>
 
     <div class="FormField">
-      <label>MySQL Database</label>
-      <input name="mysqlDatabase">
+      <label>Database name</label>
+      <input name="databaseName">
     </div>
 
     <div class="FormField">
-      <label>MySQL Username</label>
-      <input name="mysqlUsername">
+      <label>Database Username</label>
+      <input name="databaseUsername">
     </div>
 
     <div class="FormField">
-      <label>MySQL Password</label>
-      <input type="password" name="mysqlPassword">
+      <label>Database Password</label>
+      <input type="password" name="databasePassword">
     </div>
 
     <div class="FormField">
-      <label>Table Prefix</label>
-      <input type="text" name="tablePrefix">
+      <label>Database Table Prefix</label>
+      <input type="text" name="databaseTablePrefix">
     </div>
   </div>
 

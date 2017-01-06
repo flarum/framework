@@ -36,7 +36,7 @@ class UserDataProvider implements DataProviderInterface
     public function getDatabaseConfiguration()
     {
         return [
-            'driver'   => 'mysql',
+            'driver'   => $this->ask('Database driver:'),
             'host'     => $this->ask('Database host:'),
             'database' => $this->ask('Database name:'),
             'username' => $this->ask('Database user:'),
