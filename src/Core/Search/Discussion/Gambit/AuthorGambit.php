@@ -50,7 +50,7 @@ class AuthorGambit extends AbstractRegexGambit
 
         $ids = [];
         foreach ($usernames as $username) {
-            $ids[] = $this->users->getIdForUsername($username);
+            $ids[] = is_numeric($username) ? $username : $this->users->getIdForUsername($username);
         }
 
         $search->getQuery()->whereIn('start_user_id', $ids, 'and', $negate);
