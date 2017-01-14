@@ -65,6 +65,7 @@ class ForumSerializer extends AbstractSerializer
         $attributes = [
             'title' => $this->settings->get('forum_title'),
             'description' => $this->settings->get('forum_description'),
+            'hideLanguageSelector' => $this->settings->get('hide_language_selector'),
             'baseUrl' => $url = $this->app->url(),
             'basePath' => parse_url($url, PHP_URL_PATH) ?: '',
             'debug' => $this->app->inDebugMode(),

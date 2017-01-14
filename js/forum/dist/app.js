@@ -22984,12 +22984,6 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
                     disabled: this.loading })
                 ),
                 m(
-                  'label',
-                  { className: 'checkbox' },
-                  m('input', { name: 'remember', type: 'checkbox', bidi: this.remember, disabled: this.loading }),
-                  app.translator.trans('core.forum.log_in.remember_me_text')
-                ),
-                m(
                   'div',
                   { className: 'Form-group' },
                   Button.component({
@@ -23191,7 +23185,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
 
             items.add('search', app.search.render(), 30);
 
-            if (Object.keys(app.data.locales).length > 1) {
+            if (app.forum.attribute("hideLanguageSelector") != 1 && Object.keys(app.data.locales).length > 1) {
               var locales = [];
 
               var _loop = function _loop(locale) {
@@ -23935,6 +23929,12 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                   m('input', { className: 'FormControl', name: 'password', type: 'password', placeholder: extractText(app.translator.trans('core.forum.log_in.password_placeholder')),
                     bidi: this.password,
                     disabled: this.loading })
+                ),
+                m(
+                  'label',
+                  { className: 'checkbox' },
+                  m('input', { name: 'remember', type: 'checkbox', bidi: this.remember, disabled: this.loading }),
+                  app.translator.trans('core.forum.log_in.remember_me_label')
                 ),
                 m(
                   'div',
