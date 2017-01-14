@@ -46,7 +46,7 @@ class WebAppView
      *
      * @var null|string
      */
-    protected $language = null;
+    protected $language;
 
     /**
      * The text direction of the document, displayed as the value of the attribute `dir` in the <html> tag.
