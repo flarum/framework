@@ -329,7 +329,7 @@ class WebAppView
         $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
         $view->description = $this->description ? $this->description : array_get($forum, 'data.attributes.description');
         $view->language = $this->language ? $this->language : $this->locales->getLocale();
-        $view->direction = $this->direction ? $this->direction : "ltr";
+        $view->direction = $this->direction ? $this->direction : 'ltr';
 
         $view->modules = $this->modules;
         $view->payload = $this->buildPayload($request, $forum);
