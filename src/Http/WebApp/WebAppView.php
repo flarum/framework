@@ -203,6 +203,16 @@ class WebAppView
     }
 
     /**
+     * The description of the document, displayed in a <meta> tag.
+     *
+     * @param null|string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
      * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
      *
      * @param null|string $language
