@@ -176,7 +176,11 @@ export default class App {
     const descriptionElement = document.querySelector('meta[name=description]');
 
     if (descriptionElement && descriptionElement.attributes.content) {
-      descriptionElement.attributes.content.value = this.description;
+      if (this.description) {
+        descriptionElement.attributes.content.value = this.description;
+      } else {
+        descriptionElement.attributes.content.value = this.forum.attribute('description');
+      }
     }
   }
 

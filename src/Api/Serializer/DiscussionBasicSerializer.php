@@ -35,11 +35,17 @@ class DiscussionBasicSerializer extends AbstractSerializer
             );
         }
 
-        return [
+        $result = [
             'title' => $discussion->title,
             'slug'  => $discussion->slug,
             'description' => $discussion->description,
         ];
+
+        if ($discussion->startPost) {
+            $result['description'] = $discussion->startPost->content;
+        }
+
+        return $result;
     }
 
     /**
