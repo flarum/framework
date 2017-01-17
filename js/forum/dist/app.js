@@ -19207,6 +19207,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
           this.title = '';
           this.titleCount = 0;
+
+          this.description = '';
         }
 
         /**
@@ -19257,6 +19259,21 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           key: 'updateTitle',
           value: function updateTitle() {
             document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+          }
+        }, {
+          key: 'setDescription',
+          value: function setDescription(description) {
+            this.description = description;
+            this.updateDescription();
+          }
+        }, {
+          key: 'updateDescription',
+          value: function updateDescription() {
+            var descriptionElement = document.querySelector('meta[name=description]');
+
+            if (descriptionElement && descriptionElement.attributes.content) {
+              descriptionElement.attributes.content.value = this.description;
+            }
           }
         }, {
           key: 'request',
@@ -21943,6 +21960,8 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
             app.setTitle(discussion.title());
             app.setTitleCount(0);
 
+            app.setDescription(discussion.description());
+
             // When the API responds with a discussion, it will also include a number of
             // posts. Some of these posts are included because they are on the first
             // page of posts we want to display (determined by the `near` parameter) –
@@ -22984,12 +23003,6 @@ System.register('flarum/components/ForgotPasswordModal', ['flarum/components/Mod
                     disabled: this.loading })
                 ),
                 m(
-                  'label',
-                  { className: 'checkbox' },
-                  m('input', { name: 'remember', type: 'checkbox', bidi: this.remember, disabled: this.loading }),
-                  app.translator.trans('core.forum.log_in.remember_me_text')
-                ),
-                m(
                   'div',
                   { className: 'Form-group' },
                   Button.component({
@@ -23404,6 +23417,8 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             app.setTitle('');
             app.setTitleCount(0);
+
+            app.setDescription('');
 
             // Work out the difference between the height of this hero and that of the
             // previous hero. Maintain the same scroll position relative to the bottom
@@ -23935,6 +23950,12 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                   m('input', { className: 'FormControl', name: 'password', type: 'password', placeholder: extractText(app.translator.trans('core.forum.log_in.password_placeholder')),
                     bidi: this.password,
                     disabled: this.loading })
+                ),
+                m(
+                  'label',
+                  { className: 'checkbox' },
+                  m('input', { name: 'remember', type: 'checkbox', bidi: this.remember, disabled: this.loading }),
+                  app.translator.trans('core.forum.log_in.remember_me_label')
                 ),
                 m(
                   'div',
@@ -27714,6 +27735,7 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
 
             this.show(app.session.user);
             app.setTitle(app.translator.trans('core.forum.settings.title'));
+            app.setDescription(app.translator.trans('core.forum.settings.description'));
           }
         }, {
           key: 'content',
@@ -28685,6 +28707,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
 
             app.history.push('user', user.username());
             app.setTitle(user.username());
+            app.setDescription('');
 
             m.redraw();
           }
@@ -30103,6 +30126,8 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
       babelHelpers.extends(Discussion.prototype, {
         title: Model.attribute('title'),
         slug: Model.attribute('slug'),
+
+        description: Model.attribute('description'),
 
         startTime: Model.attribute('startTime', Model.transformDate),
         startUser: Model.hasOne('startUser'),

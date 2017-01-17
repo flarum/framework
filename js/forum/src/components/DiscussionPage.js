@@ -163,6 +163,8 @@ export default class DiscussionPage extends Page {
     app.setTitle(discussion.title());
     app.setTitleCount(0);
 
+    app.setDescription(discussion.description());
+
     // When the API responds with a discussion, it will also include a number of
     // posts. Some of these posts are included because they are on the first
     // page of posts we want to display (determined by the `near` parameter) –

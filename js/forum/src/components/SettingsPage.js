@@ -18,6 +18,7 @@ export default class SettingsPage extends UserPage {
 
     this.show(app.session.user);
     app.setTitle(app.translator.trans('core.forum.settings.title'));
+    app.setDescription(app.translator.trans('core.forum.settings.description'));
   }
 
   content() {

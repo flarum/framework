@@ -9,6 +9,8 @@ Object.assign(Discussion.prototype, {
   title: Model.attribute('title'),
   slug: Model.attribute('slug'),
 
+  description: Model.attribute('description'),
+
   startTime: Model.attribute('startTime', Model.transformDate),
   startUser: Model.hasOne('startUser'),
   startPost: Model.hasOne('startPost'),

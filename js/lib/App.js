@@ -100,6 +100,8 @@ export default class App {
 
     this.title = '';
     this.titleCount = 0;
+
+    this.description = '';
   }
 
   /**
@@ -157,6 +159,25 @@ export default class App {
     document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
       (this.title ? this.title + ' - ' : '') +
       this.forum.attribute('title');
+  }
+
+  /**
+   * Set the <meta name="description"> of the page.
+   *
+   * @param {String} description
+   * @public
+   */
+  setDescription(description) {
+    this.description = description;
+    this.updateDescription();
+  } 
+
+  updateDescription() {
+    const descriptionElement = document.querySelector('meta[name=description]');
+
+    if (descriptionElement && descriptionElement.attributes.content) {
+      descriptionElement.attributes.content.value = this.description;
+    }
   }
 
   /**

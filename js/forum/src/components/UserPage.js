@@ -76,6 +76,7 @@ export default class UserPage extends Page {
 
     app.history.push('user', user.username());
     app.setTitle(user.username());
+    app.setDescription('');
 
     m.redraw();
   }
