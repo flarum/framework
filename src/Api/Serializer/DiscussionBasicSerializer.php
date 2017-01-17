@@ -42,7 +42,7 @@ class DiscussionBasicSerializer extends AbstractSerializer
         ];
 
         if ($discussion->startPost) {
-            $result['description'] = $discussion->startPost->content;
+            $result['description'] = $description = substr(strip_tags($discussion->startPost->content), 0, 250).'...';
         }
 
         return $result;
