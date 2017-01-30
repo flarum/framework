@@ -313,13 +313,13 @@ class WebAppView
         ];
         foreach ($css as $cssUrl) {
             if ($cssUrl != null) {
-                header('Link: <' . $cssUrl . '>; rel=preload, as=style', false);
+                header('Link: <'.$cssUrl.'>; rel=preload, as=style', false);
             }
         }
 
         foreach ($js as $jsUrl) {
             if ($jsUrl != null) {
-                header('Link: <' . $jsUrl . '>; rel=preload, as=script', false);
+                header('Link: <'.$jsUrl.'>; rel=preload, as=script', false);
             }
         }
     }
