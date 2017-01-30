@@ -300,7 +300,7 @@ class WebAppView
 
         return $view->render();
     }
-    
+
     protected function addLinkHeaders()
     {
         $css = [
