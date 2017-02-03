@@ -17437,7 +17437,7 @@ System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal
         }, {
           key: 'title',
           value: function title() {
-            return 'Add Extension';
+            return app.translator.trans('core.admin.add_extension.title');
           }
         }, {
           key: 'content',

@@ -22685,6 +22685,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
 
             this.username = m.prop(user.username() || '');
             this.email = m.prop(user.email() || '');
+            this.isActivated = m.prop(user.isActivated() || false);
             this.setPassword = m.prop(false);
             this.password = m.prop(user.password() || '');
             this.groups = {};
@@ -22722,7 +22723,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                   m(
                     'label',
                     null,
-                    'Username'
+                    app.translator.trans('core.forum.edit_user.username_heading')
                   ),
                   m('input', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.edit_user.username_label')),
                     bidi: this.username })
@@ -22733,21 +22734,31 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                   m(
                     'label',
                     null,
-                    'Email'
+                    app.translator.trans('core.forum.edit_user.email_heading')
                   ),
                   m(
                     'div',
                     null,
                     m('input', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.edit_user.email_label')),
                       bidi: this.email })
-                  )
+                  ),
+                  !this.isActivated() ? m(
+                    'div',
+                    null,
+                    Button.component({
+                      className: 'Button Button--block',
+                      children: app.translator.trans('core.forum.edit_user.activate_button'),
+                      loading: this.loading,
+                      onclick: this.activate.bind(this)
+                    })
+                  ) : ''
                 ), m(
                   'div',
                   { className: 'Form-group' },
                   m(
                     'label',
                     null,
-                    'Password'
+                    app.translator.trans('core.forum.edit_user.password_heading')
                   ),
                   m(
                     'div',
@@ -22761,7 +22772,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                           if (e.target.checked) _this3.$('[name=password]').select();
                           m.redraw.strategy('none');
                         } }),
-                      'Set new password'
+                      app.translator.trans('core.forum.edit_user.set_password_label')
                     ),
                     this.setPassword() ? m('input', { className: 'FormControl', type: 'password', name: 'password', placeholder: extractText(app.translator.trans('core.forum.edit_user.password_label')),
                       bidi: this.password }) : ''
@@ -22773,7 +22784,7 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
                   m(
                     'label',
                     null,
-                    'Groups'
+                    app.translator.trans('core.forum.edit_user.groups_heading')
                   ),
                   m(
                     'div',
@@ -22808,12 +22819,31 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
             );
           }
         }, {
-          key: 'data',
-          value: function data() {
+          key: 'activate',
+          value: function activate() {
             var _this4 = this;
 
+            this.loading = true;
+            var data = {
+              username: this.username(),
+              isActivated: true
+            };
+            this.props.user.save(data, { errorHandler: this.onerror.bind(this) }).then(function () {
+              _this4.isActivated(true);
+              _this4.loading = false;
+              m.redraw();
+            }).catch(function () {
+              _this4.loading = false;
+              m.redraw();
+            });
+          }
+        }, {
+          key: 'data',
+          value: function data() {
+            var _this5 = this;
+
             var groups = Object.keys(this.groups).filter(function (id) {
-              return _this4.groups[id]();
+              return _this5.groups[id]();
             }).map(function (id) {
               return app.store.getById('groups', id);
             });
@@ -22836,14 +22866,14 @@ System.register('flarum/components/EditUserModal', ['flarum/components/Modal', '
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this5 = this;
+            var _this6 = this;
 
             e.preventDefault();
 
             this.loading = true;
 
             this.props.user.save(this.data(), { errorHandler: this.onerror.bind(this) }).then(this.hide.bind(this)).catch(function () {
-              _this5.loading = false;
+              _this6.loading = false;
               m.redraw();
             });
           }
@@ -23608,7 +23638,11 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               icon: 'refresh',
               className: 'Button Button--icon',
               onclick: function onclick() {
-                return app.cache.discussionList.refresh();
+                app.cache.discussionList.refresh();
+                if (app.session.user) {
+                  app.store.find('users', app.session.user.id());
+                  m.redraw();
+                }
               }
             }));
 
@@ -29661,6 +29695,10 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
       if (e.ctrlKey || e.metaKey || e.which === 2) return;
       e.preventDefault();
       app.history.home();
+      if (app.session.user) {
+        app.store.find('users', app.session.user.id());
+        m.redraw();
+      }
     });
 
     // Add a class to the body which indicates that the page has been scrolled
