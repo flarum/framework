@@ -25,10 +25,15 @@ class Server extends AbstractServer
     protected function getMiddleware(Application $app)
     {
         $pipe = new MiddlewarePipe;
+        $pipe->raiseThrowables();
 
         if ($app->isInstalled()) {
             $path = parse_url($app->url('admin'), PHP_URL_PATH);
             $errorDir = __DIR__.'/../../error';
+
+            // All requests should first be piped through our global error handler
+            $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
+            $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $debugMode));
 
             if ($app->isUpToDate()) {
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
@@ -41,12 +46,10 @@ class Server extends AbstractServer
                 event(new ConfigureMiddleware($pipe, $path, $this));
 
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.admin.routes')]));
-                $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $app->inDebugMode()));
             } else {
                 $app->register('Flarum\Update\UpdateServiceProvider');
 
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.update.routes')]));
-                $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), true));
             }
         }
 

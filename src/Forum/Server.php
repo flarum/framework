@@ -26,6 +26,7 @@ class Server extends AbstractServer
     protected function getMiddleware(Application $app)
     {
         $pipe = new MiddlewarePipe;
+        $pipe->raiseThrowables();
 
         $path = parse_url($app->url(), PHP_URL_PATH);
         $errorDir = __DIR__.'/../../error';
@@ -33,10 +34,13 @@ class Server extends AbstractServer
         if (! $app->isInstalled()) {
             $app->register('Flarum\Install\InstallServiceProvider');
 
+            $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), true));
+
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.install.routes')]));
-            $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), true));
         } elseif ($app->isUpToDate() && ! $app->isDownForMaintenance()) {
+            $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $app->inDebugMode()));
+
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\StartSession'));
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\RememberFromCookie'));
@@ -46,7 +50,6 @@ class Server extends AbstractServer
             event(new ConfigureMiddleware($pipe, $path, $this));
 
             $pipe->pipe($path, $app->make('Flarum\Http\Middleware\DispatchRoute', ['routes' => $app->make('flarum.forum.routes')]));
-            $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $app->inDebugMode()));
         } else {
             $pipe->pipe($path, function () use ($errorDir) {
                 return new HtmlResponse(file_get_contents($errorDir.'/503.html', 503));
