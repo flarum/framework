@@ -20,7 +20,7 @@
         "docs": "http://flarum.org/docs"
     },
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=5.6.0",
         "dflydev/fig-cookies": "^1.0.2",
         "doctrine/dbal": "^2.5",
         "components/font-awesome": "^4.6",
