@@ -12,7 +12,7 @@
 namespace Flarum\Core\Listener;
 
 use Flarum\Event\ExtensionWillBeDisabled;
-use Flarum\Http\Exception\MethodNotAllowedException;
+use Flarum\Http\Exception\ForbiddenException;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ExtensionValidator
@@ -27,7 +27,7 @@ class ExtensionValidator
 
     /**
      * @param ExtensionWillBeDisabled $event
-     * @throws MethodNotAllowedException
+     * @throws ForbiddenException
      */
     public function whenExtensionWillBeDisabled(ExtensionWillBeDisabled $event)
     {
@@ -35,7 +35,7 @@ class ExtensionValidator
             $default_locale = $this->app->make('flarum.settings')->get('default_locale');
             $locale = array_get($event->extension->extra, 'flarum-locale.code');
             if ($locale === $default_locale) {
-                throw new MethodNotAllowedException('You cannot disable the default language pack!');
+                throw new ForbiddenException('You cannot disable the default language pack!');
             }
         }
     }
