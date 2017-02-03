@@ -42,6 +42,20 @@ class WebAppView
     protected $description;
 
     /**
+     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
+     *
+     * @var null|string
+     */
+    protected $language;
+
+    /**
+     * The text direction of the document, displayed as the value of the attribute `dir` in the <html> tag.
+     *
+     * @var null|string
+     */
+    protected $direction;
+
+    /**
      * The path to the client layout view to display.
      *
      * @var string
@@ -189,6 +203,36 @@ class WebAppView
     }
 
     /**
+     * The description of the document, displayed in a <meta> tag.
+     *
+     * @param null|string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
+     *
+     * @param null|string $language
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+    }
+
+    /**
+     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
+     *
+     * @param null|string $direction
+     */
+    public function setDirection($direction)
+    {
+        $this->direction = $direction;
+    }
+
+    /**
      * Set the SEO content of the page, to be displayed in <noscript> tags.
      *
      * @param null|string $content
@@ -283,7 +327,9 @@ class WebAppView
         $view = $this->view->file(__DIR__.'/../../../views/app.blade.php');
 
         $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
-        $view->description = $this->description;
+        $view->description = $this->description ?: array_get($forum, 'data.attributes.description');
+        $view->language = $this->language ?: $this->locales->getLocale();
+        $view->direction = $this->direction ?: 'ltr';
 
         $view->modules = $this->modules;
         $view->payload = $this->buildPayload($request, $forum);

@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html dir="{{ $direction }}" lang="{{ $language }}">
   <head>
     <meta charset="utf-8">
     <title>{{ $title }}</title>
