@@ -18,7 +18,7 @@ class ExtensionWillBeDisabled
     /**
      * @var string
      */
-    protected $extension;
+    public $extension;
 
     /**
      * @param Extension $extension
