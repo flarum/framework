@@ -134,7 +134,8 @@ class InstallCommand extends AbstractCommand
                     'host' => 'required',
                     'database' => 'required|string',
                     'username' => 'required|string',
-                    'prefix' => 'alpha_dash|max:10'
+                    'prefix' => 'alpha_dash|max:10',
+                    'port'   => 'required|integer|min:1|max:65535',
                 ]
             );
 
@@ -204,6 +205,7 @@ class InstallCommand extends AbstractCommand
                 'charset'   => 'utf8mb4',
                 'collation' => 'utf8mb4_unicode_ci',
                 'prefix'    => $dbConfig['prefix'],
+                'port'      => $dbConfig['port'],
                 'strict'    => false
             ],
             'url'   => $this->baseUrl,
