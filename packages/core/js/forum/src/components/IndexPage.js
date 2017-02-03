@@ -236,7 +236,13 @@ export default class IndexPage extends Page {
         title: app.translator.trans('core.forum.index.refresh_tooltip'),
         icon: 'refresh',
         className: 'Button Button--icon',
-        onclick: () => app.cache.discussionList.refresh()
+        onclick: () => {
+          app.cache.discussionList.refresh();
+          if (app.session.user) {
+            app.store.find('users', app.session.user.id());
+            m.redraw();
+          }
+        }
       })
     );
 
