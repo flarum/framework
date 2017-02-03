@@ -15,6 +15,7 @@ export default class EditUserModal extends Modal {
 
     this.username = m.prop(user.username() || '');
     this.email = m.prop(user.email() || '');
+    this.isActivated = m.prop(user.isActivated() || false);
     this.setPassword = m.prop(false);
     this.password = m.prop(user.password() || '');
     this.groups = {};
@@ -37,22 +38,32 @@ export default class EditUserModal extends Modal {
       <div className="Modal-body">
         <div className="Form">
           <div className="Form-group">
-            <label>Username</label>
+            <label>{app.translator.trans('core.forum.edit_user.username_heading')}</label>
             <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.username_label'))}
               bidi={this.username} />
           </div>
 
           {app.session.user !== this.props.user ? [
             <div className="Form-group">
-              <label>Email</label>
+              <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
               <div>
                 <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
                   bidi={this.email} />
               </div>
+              {!this.isActivated() ? (
+                <div>
+                  {Button.component({
+                    className: 'Button Button--block',
+                    children: app.translator.trans('core.forum.edit_user.activate_button'),
+                    loading: this.loading,
+                    onclick: this.activate.bind(this)
+                  })}
+                </div>
+              ) : ''}
             </div>,
 
             <div className="Form-group">
-              <label>Password</label>
+              <label>{app.translator.trans('core.forum.edit_user.password_heading')}</label>
               <div>
                 <label className="checkbox">
                   <input type="checkbox" checked={this.setPassword()} onchange={e => {
@@ -61,7 +72,7 @@ export default class EditUserModal extends Modal {
                     if (e.target.checked) this.$('[name=password]').select();
                     m.redraw.strategy('none');
                   }}/>
-                  Set new password
+                  {app.translator.trans('core.forum.edit_user.set_password_label')}
                 </label>
                 {this.setPassword() ? (
                   <input className="FormControl" type="password" name="password" placeholder={extractText(app.translator.trans('core.forum.edit_user.password_label'))}
@@ -72,7 +83,7 @@ export default class EditUserModal extends Modal {
           ] : ''}
 
           <div className="Form-group EditUserModal-groups">
-            <label>Groups</label>
+            <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
             <div>
               {Object.keys(this.groups)
                 .map(id => app.store.getById('groups', id))
@@ -98,6 +109,24 @@ export default class EditUserModal extends Modal {
         </div>
       </div>
     );
+  }
+
+  activate() {
+    this.loading = true;
+    const data = {
+      username: this.username(),
+      isActivated: true,
+    };
+    this.props.user.save(data, {errorHandler: this.onerror.bind(this)})
+      .then(() => {
+        this.isActivated(true);
+        this.loading = false;
+        m.redraw();
+      })
+      .catch(() => {
+        this.loading = false;
+        m.redraw();
+      });
   }
 
   data() {
