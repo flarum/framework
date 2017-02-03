@@ -116,7 +116,7 @@ class RegisterUserHandler
         // from the get-go.
         if (isset($token)) {
             foreach ($token->payload as $k => $v) {
-                if ($user->$k === '' || ! isset($user->$k)) {
+                if (in_array($user->$k, ['', null], true)) {
                     $user->$k = $v;
                 }
             }
