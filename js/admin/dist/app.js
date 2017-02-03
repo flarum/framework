@@ -17029,6 +17029,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
           this.title = '';
           this.titleCount = 0;
+
+          this.description = '';
         }
 
         /**
@@ -17079,6 +17081,21 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           key: 'updateTitle',
           value: function updateTitle() {
             document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+          }
+        }, {
+          key: 'setDescription',
+          value: function setDescription(description) {
+            this.description = description;
+            this.updateDescription();
+          }
+        }, {
+          key: 'updateDescription',
+          value: function updateDescription() {
+            var descriptionElement = document.querySelector('meta[name=description]');
+
+            if (descriptionElement && descriptionElement.attributes.content) {
+              descriptionElement.attributes.content.value = this.description;
+            }
           }
         }, {
           key: 'request',
@@ -17437,7 +17454,7 @@ System.register('flarum/components/AddExtensionModal', ['flarum/components/Modal
         }, {
           key: 'title',
           value: function title() {
-            return 'Add Extension';
+            return app.translator.trans('core.admin.add_extension.title');
           }
         }, {
           key: 'content',
@@ -22147,6 +22164,8 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
       babelHelpers.extends(Discussion.prototype, {
         title: Model.attribute('title'),
         slug: Model.attribute('slug'),
+
+        description: Model.attribute('description'),
 
         startTime: Model.attribute('startTime', Model.transformDate),
         startUser: Model.hasOne('startUser'),

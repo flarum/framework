@@ -189,6 +189,16 @@ class WebAppView
     }
 
     /**
+     * The description of the document, to be displayed in the <meta name="description"> tag.
+     *
+     * @param null|string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
      * Set the SEO content of the page, to be displayed in <noscript> tags.
      *
      * @param null|string $content
@@ -283,7 +293,7 @@ class WebAppView
         $view = $this->view->file(__DIR__.'/../../../views/app.blade.php');
 
         $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
-        $view->description = $this->description;
+        $view->description = $this->buildDescription(array_get($forum, 'data.attributes.description'));
 
         $view->modules = $this->modules;
         $view->payload = $this->buildPayload($request, $forum);
@@ -303,6 +313,15 @@ class WebAppView
     protected function buildTitle($forumTitle)
     {
         return ($this->title ? $this->title.' - ' : '').$forumTitle;
+    }
+
+    protected function buildDescription($forumDescription)
+    {
+        if ($this->description) {
+            return $this->description;
+        }
+
+        return $forumDescription;
     }
 
     protected function buildPayload(Request $request, $forum)

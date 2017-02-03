@@ -96,6 +96,8 @@ export default class IndexPage extends Page {
     app.setTitle('');
     app.setTitleCount(0);
 
+    app.setDescription('');
+
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
