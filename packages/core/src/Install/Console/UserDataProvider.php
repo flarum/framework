@@ -38,6 +38,7 @@ class UserDataProvider implements DataProviderInterface
         return [
             'driver'   => 'mysql',
             'host'     => $this->ask('Database host:'),
+            'port'     => $this->ask('Database port:'),
             'database' => $this->ask('Database name:'),
             'username' => $this->ask('Database user:'),
             'password' => $this->secret('Database password:'),
