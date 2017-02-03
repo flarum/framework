@@ -3,6 +3,7 @@ import ReplyComposer from 'flarum/components/ReplyComposer';
 import LogInModal from 'flarum/components/LogInModal';
 import Button from 'flarum/components/Button';
 import Separator from 'flarum/components/Separator';
+import DiscussionRenameModal from 'flarum/components/DiscussionRenameModal';
 import ItemList from 'flarum/utils/ItemList';
 import extractText from 'flarum/utils/extractText';
 
@@ -227,19 +228,9 @@ export default {
    * @return {Promise}
    */
   renameAction() {
-    const currentTitle = this.title();
-    const title = prompt(extractText(app.translator.trans('core.forum.discussion_controls.rename_text')), currentTitle);
-
-    // If the title is different to what it was before, then save it. After the
-    // save has completed, update the post stream as there will be a new post
-    // indicating that the discussion was renamed.
-    if (title && title !== currentTitle) {
-      return this.save({title}).then(() => {
-        if (app.viewingDiscussion(this)) {
-          app.current.stream.update();
-        }
-        m.redraw();
-      });
-    }
+    return app.modal.show(new DiscussionRenameModal({
+      currentTitle: this.title(),
+      discussion: this
+    }));
   }
 };
