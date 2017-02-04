@@ -71,7 +71,7 @@ class DiscussionLockedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * Build the content attribute.
      *
-     * @param bool $isLocked Whether or not the discussion is stickied.
+     * @param bool $isLocked Whether or not the discussion is locked.
      * @return array
      */
     public static function buildContent($isLocked)
