@@ -18057,7 +18057,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
 
             this.loading = false;
 
-            this.fields = ['forum_title', 'forum_description', 'default_locale', 'hide_language_selector', 'default_route', 'welcome_title', 'welcome_message'];
+            this.fields = ['forum_title', 'forum_description', 'default_locale', 'show_language_selector', 'default_route', 'welcome_title', 'welcome_message'];
             this.values = {};
 
             var settings = app.data.settings;
@@ -18070,6 +18070,8 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
             for (var i in locales) {
               this.localeOptions[i] = locales[i] + ' (' + i + ')';
             }
+
+            if (typeof this.values.show_language_selector() != "number") this.values.show_language_selector(1);
           }
         }, {
           key: 'view',
@@ -18105,9 +18107,9 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                     })]
                   }) : '',
                   Switch.component({
-                    state: this.values.hide_language_selector(),
-                    onchange: this.values.hide_language_selector,
-                    children: app.translator.trans('core.admin.basics.hide_language_selector_heading')
+                    state: this.values.show_language_selector() == undefined ? this.values.show_language_selector() : 1,
+                    onchange: this.values.show_language_selector,
+                    children: app.translator.trans('core.admin.basics.show_language_selector_heading')
                   }),
                   m('br', null),
                   FieldSet.component({
