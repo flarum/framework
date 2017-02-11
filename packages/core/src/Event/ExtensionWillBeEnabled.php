@@ -16,7 +16,7 @@ use Flarum\Extension\Extension;
 class ExtensionWillBeEnabled
 {
     /**
-     * @var string
+     * @var Extension
      */
     public $extension;
 
