@@ -67,8 +67,8 @@ class IndexController extends WebAppController
 
         $document = $this->getDocument($request->getAttribute('actor'), $params);
 
-        $view->setDocument($document);
-        $view->setContent(app('view')->make('flarum.forum::index', compact('document', 'page', 'forum')));
+        $view->document = $document;
+        $view->content = app('view')->make('flarum.forum::index', compact('document', 'page', 'forum'));
 
         return $view;
     }
