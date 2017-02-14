@@ -25,7 +25,7 @@ class EmbedWebApp extends WebApp
         $view->getCss()->addFile(__DIR__.'/../less/forum/extension.less');
 
         $view->loadModule('flarum/embed/main');
-        $view->setLayout(__DIR__.'/../views/embed.blade.php');
+        $view->layout = __DIR__.'/../views/embed.blade.php';
 
         return $view;
     }
