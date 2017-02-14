@@ -32,35 +32,35 @@ class WebAppView
      *
      * @var null|string
      */
-    protected $title;
+    public $title;
 
     /**
      * The description of the document, displayed in a <meta> tag.
      *
      * @var null|string
      */
-    protected $description;
+    public $description;
 
     /**
      * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
      *
      * @var null|string
      */
-    protected $language;
+    public $language;
 
     /**
      * The text direction of the document, displayed as the value of the attribute `dir` in the <html> tag.
      *
      * @var null|string
      */
-    protected $direction;
+    public $direction;
 
     /**
      * The path to the client layout view to display.
      *
      * @var string
      */
-    protected $layout;
+    public $layout;
 
     /**
      * The SEO content of the page, displayed within the layout in <noscript>
@@ -68,14 +68,16 @@ class WebAppView
      *
      * @var string
      */
-    protected $content;
+    public $content;
 
     /**
      * An API response to be preloaded into the page.
      *
+     * This should be a JSON-API document.
+     *
      * @var null|array|object
      */
-    protected $document;
+    public $document;
 
     /**
      * Other variables to preload into the page.
@@ -193,66 +195,6 @@ class WebAppView
     }
 
     /**
-     * The title of the document, to be displayed in the <title> tag.
-     *
-     * @param null|string $title
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * The description of the document, displayed in a <meta> tag.
-     *
-     * @param null|string $description
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-    }
-
-    /**
-     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
-     *
-     * @param null|string $language
-     */
-    public function setLanguage($language)
-    {
-        $this->language = $language;
-    }
-
-    /**
-     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
-     *
-     * @param null|string $direction
-     */
-    public function setDirection($direction)
-    {
-        $this->direction = $direction;
-    }
-
-    /**
-     * Set the SEO content of the page, to be displayed in <noscript> tags.
-     *
-     * @param null|string $content
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-    }
-
-    /**
-     * Set the name of the client layout view to display.
-     *
-     * @param string $layout
-     */
-    public function setLayout($layout)
-    {
-        $this->layout = $layout;
-    }
-
-    /**
      * Add a string to be appended to the page's <head>.
      *
      * @param string $string
@@ -275,17 +217,6 @@ class WebAppView
     public function addFootString($string)
     {
         $this->foot[] = $string;
-    }
-
-    /**
-     * Set an API response to be preloaded into the page. This should be a
-     * JSON-API document.
-     *
-     * @param null|array|object $document
-     */
-    public function setDocument($document)
-    {
-        $this->document = $document;
     }
 
     /**
