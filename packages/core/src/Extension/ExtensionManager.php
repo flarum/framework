@@ -199,7 +199,7 @@ class ExtensionManager
      */
     protected function unpublishAssets(Extension $extension)
     {
-        $this->filesystem->deleteDirectory($this->app->publicPath().'/assets/extensions/'.$extension);
+        $this->filesystem->deleteDirectory($this->app->publicPath().'/assets/extensions/'.$extension->getId());
     }
 
     /**
