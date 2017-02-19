@@ -225,9 +225,13 @@ core:
       delete_forever_button: => core.ref.delete_forever
       log_in_to_reply_button: Log In to Reply
       rename_button: Rename
-      rename_text: "Enter a new title for this discussion:"
       reply_button: => core.ref.reply
       restore_button: => core.ref.restore
+
+      # These translations are used by the rename discussion modal.
+      rename_modal:
+        title: "Enter a new title for this discussion"
+        submit_button: "Rename"
 
     # These translations are used in the discussion list.
     discussion_list:
