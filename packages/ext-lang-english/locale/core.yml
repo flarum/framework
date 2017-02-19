@@ -230,8 +230,8 @@ core:
 
       # These translations are used by the rename discussion modal.
       rename_modal:
-        title: "Enter a new title for this discussion"
-        submit_button: "Rename"
+        title: Enter a new title for this discussion
+        submit_button: Rename
 
     # These translations are used in the discussion list.
     discussion_list:
