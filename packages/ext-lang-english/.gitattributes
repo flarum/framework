@@ -24,3 +24,5 @@
 .gitattributes export-ignore
 .gitignore     export-ignore
 README.md      export-ignore
+
+js/*/dist/*.js -diff
