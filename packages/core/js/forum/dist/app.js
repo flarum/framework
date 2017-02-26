@@ -22162,108 +22162,6 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionRenameModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
-  "use strict";
-
-  var Modal, Button, DiscussionRenameModal;
-  return {
-    setters: [function (_flarumComponentsModal) {
-      Modal = _flarumComponentsModal.default;
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton.default;
-    }],
-    execute: function () {
-      DiscussionRenameModal = function (_Modal) {
-        babelHelpers.inherits(DiscussionRenameModal, _Modal);
-
-        function DiscussionRenameModal() {
-          babelHelpers.classCallCheck(this, DiscussionRenameModal);
-          return babelHelpers.possibleConstructorReturn(this, (DiscussionRenameModal.__proto__ || Object.getPrototypeOf(DiscussionRenameModal)).apply(this, arguments));
-        }
-
-        babelHelpers.createClass(DiscussionRenameModal, [{
-          key: 'init',
-          value: function init() {
-            babelHelpers.get(DiscussionRenameModal.prototype.__proto__ || Object.getPrototypeOf(DiscussionRenameModal.prototype), 'init', this).call(this);
-
-            this.discussion = this.props.discussion;
-            this.currentTitle = this.props.currentTitle;
-            this.newTitle = m.prop(this.currentTitle);
-          }
-        }, {
-          key: 'className',
-          value: function className() {
-            return 'DiscussionRenameModal Modal--small';
-          }
-        }, {
-          key: 'title',
-          value: function title() {
-            return app.translator.trans('core.forum.discussion_controls.rename_modal.title');
-          }
-        }, {
-          key: 'content',
-          value: function content() {
-            return m(
-              'div',
-              { className: 'Modal-body' },
-              m(
-                'div',
-                { className: 'Form' },
-                m(
-                  'div',
-                  { className: 'Form-group' },
-                  m('input', { className: 'FormControl title', placeholder: this.currentTitle, bidi: this.newTitle })
-                ),
-                m(
-                  'div',
-                  { className: 'Form-group' },
-                  Button.component({
-                    className: 'Button Button--primary',
-                    type: 'submit',
-                    loading: this.loading,
-                    children: app.translator.trans('core.forum.discussion_controls.rename_modal.submit_button')
-                  })
-                )
-              )
-            );
-          }
-        }, {
-          key: 'onsubmit',
-          value: function onsubmit(e) {
-            var _this2 = this;
-
-            e.preventDefault();
-
-            this.loading = true;
-
-            var title = this.newTitle;
-            var currentTitle = this.currentTitle;
-
-            // If the title is different to what it was before, then save it. After the
-            // save has completed, update the post stream as there will be a new post
-            // indicating that the discussion was renamed.
-            if (title && title !== currentTitle) {
-              return this.discussion.save({ title: title }).then(function () {
-                if (app.viewingDiscussion(_this2.discussion)) {
-                  app.current.stream.update();
-                }
-                m.redraw();
-                _this2.hide();
-              });
-            } else {
-              this.hide();
-            }
-          }
-        }]);
-        return DiscussionRenameModal;
-      }(Modal);
-
-      _export('default', DiscussionRenameModal);
-    }
-  };
-});;
-'use strict';
-
 System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/highlight', 'flarum/components/LinkButton'], function (_export, _context) {
   "use strict";
 
@@ -26914,6 +26812,108 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
 });;
 'use strict';
 
+System.register('flarum/components/RenameDiscussionModal', ['flarum/components/Modal', 'flarum/components/Button'], function (_export, _context) {
+  "use strict";
+
+  var Modal, Button, RenameDiscussionModal;
+  return {
+    setters: [function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal.default;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }],
+    execute: function () {
+      RenameDiscussionModal = function (_Modal) {
+        babelHelpers.inherits(RenameDiscussionModal, _Modal);
+
+        function RenameDiscussionModal() {
+          babelHelpers.classCallCheck(this, RenameDiscussionModal);
+          return babelHelpers.possibleConstructorReturn(this, (RenameDiscussionModal.__proto__ || Object.getPrototypeOf(RenameDiscussionModal)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(RenameDiscussionModal, [{
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(RenameDiscussionModal.prototype.__proto__ || Object.getPrototypeOf(RenameDiscussionModal.prototype), 'init', this).call(this);
+
+            this.discussion = this.props.discussion;
+            this.currentTitle = this.props.currentTitle;
+            this.newTitle = m.prop(this.currentTitle);
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return 'RenameDiscussionModal Modal--small';
+          }
+        }, {
+          key: 'title',
+          value: function title() {
+            return app.translator.trans('core.forum.discussion_controls.rename_modal.title');
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return m(
+              'div',
+              { className: 'Modal-body' },
+              m(
+                'div',
+                { className: 'Form' },
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  m('input', { className: 'FormControl title', placeholder: this.currentTitle, bidi: this.newTitle })
+                ),
+                m(
+                  'div',
+                  { className: 'Form-group' },
+                  Button.component({
+                    className: 'Button Button--primary',
+                    type: 'submit',
+                    loading: this.loading,
+                    children: app.translator.trans('core.forum.discussion_controls.rename_modal.submit_button')
+                  })
+                )
+              )
+            );
+          }
+        }, {
+          key: 'onsubmit',
+          value: function onsubmit(e) {
+            var _this2 = this;
+
+            e.preventDefault();
+
+            this.loading = true;
+
+            var title = this.newTitle;
+            var currentTitle = this.currentTitle;
+
+            // If the title is different to what it was before, then save it. After the
+            // save has completed, update the post stream as there will be a new post
+            // indicating that the discussion was renamed.
+            if (title && title !== currentTitle) {
+              return this.discussion.save({ title: title }).then(function () {
+                if (app.viewingDiscussion(_this2.discussion)) {
+                  app.current.stream.update();
+                }
+                m.redraw();
+                _this2.hide();
+              });
+            } else {
+              this.hide();
+            }
+          }
+        }]);
+        return RenameDiscussionModal;
+      }(Modal);
+
+      _export('default', RenameDiscussionModal);
+    }
+  };
+});;
+'use strict';
+
 System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerBody', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/utils/extractText'], function (_export, _context) {
   "use strict";
 
@@ -31280,10 +31280,10 @@ System.register('flarum/utils/computed', [], function (_export, _context) {
 });;
 'use strict';
 
-System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/components/DiscussionRenameModal', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export, _context) {
+System.register('flarum/utils/DiscussionControls', ['flarum/components/DiscussionPage', 'flarum/components/ReplyComposer', 'flarum/components/LogInModal', 'flarum/components/Button', 'flarum/components/Separator', 'flarum/components/RenameDiscussionModal', 'flarum/utils/ItemList', 'flarum/utils/extractText'], function (_export, _context) {
   "use strict";
 
-  var DiscussionPage, ReplyComposer, LogInModal, Button, Separator, DiscussionRenameModal, ItemList, extractText;
+  var DiscussionPage, ReplyComposer, LogInModal, Button, Separator, RenameDiscussionModal, ItemList, extractText;
   return {
     setters: [function (_flarumComponentsDiscussionPage) {
       DiscussionPage = _flarumComponentsDiscussionPage.default;
@@ -31295,8 +31295,8 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
       Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsSeparator) {
       Separator = _flarumComponentsSeparator.default;
-    }, function (_flarumComponentsDiscussionRenameModal) {
-      DiscussionRenameModal = _flarumComponentsDiscussionRenameModal.default;
+    }, function (_flarumComponentsRenameDiscussionModal) {
+      RenameDiscussionModal = _flarumComponentsRenameDiscussionModal.default;
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
     }, function (_flarumUtilsExtractText) {
@@ -31445,7 +31445,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           }
         },
         renameAction: function renameAction() {
-          return app.modal.show(new DiscussionRenameModal({
+          return app.modal.show(new RenameDiscussionModal({
             currentTitle: this.title(),
             discussion: this
           }));

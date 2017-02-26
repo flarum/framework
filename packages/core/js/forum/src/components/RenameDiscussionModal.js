@@ -2,9 +2,9 @@ import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 
 /**
- * The 'DiscussionRenameModal' displays a modal dialog with an input to rename a discussion
+ * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
  */
-export default class DiscussionRenameModal extends Modal {
+export default class RenameDiscussionModal extends Modal {
   init() {
     super.init();
 
@@ -14,7 +14,7 @@ export default class DiscussionRenameModal extends Modal {
   }
 
   className() {
-    return 'DiscussionRenameModal Modal--small';
+    return 'RenameDiscussionModal Modal--small';
   }
 
   title() {
