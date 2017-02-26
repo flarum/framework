@@ -18,7 +18,7 @@ export default class RenameDiscussionModal extends Modal {
   }
 
   title() {
-    return app.translator.trans('core.forum.discussion_controls.rename_modal.title');
+    return app.translator.trans('core.forum.discussion_controls.rename_discussion.title');
   }
 
   content() {
@@ -33,7 +33,7 @@ export default class RenameDiscussionModal extends Modal {
               className: 'Button Button--primary',
               type: 'submit',
               loading: this.loading,
-              children: app.translator.trans('core.forum.discussion_controls.rename_modal.submit_button')
+              children: app.translator.trans('core.forum.discussion_controls.rename_discussion.submit_button')
             })}
           </div>
         </div>
