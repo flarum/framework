@@ -229,7 +229,7 @@ core:
       restore_button: => core.ref.restore
 
       # These translations are used by the rename discussion modal.
-      rename_modal:
+      rename_discussion:
         title: Enter a new title for this discussion
         submit_button: Rename
 
