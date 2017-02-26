@@ -3,7 +3,7 @@ import ReplyComposer from 'flarum/components/ReplyComposer';
 import LogInModal from 'flarum/components/LogInModal';
 import Button from 'flarum/components/Button';
 import Separator from 'flarum/components/Separator';
-import DiscussionRenameModal from 'flarum/components/DiscussionRenameModal';
+import RenameDiscussionModal from 'flarum/components/RenameDiscussionModal';
 import ItemList from 'flarum/utils/ItemList';
 import extractText from 'flarum/utils/extractText';
 
@@ -228,7 +228,7 @@ export default {
    * @return {Promise}
    */
   renameAction() {
-    return app.modal.show(new DiscussionRenameModal({
+    return app.modal.show(new RenameDiscussionModal({
       currentTitle: this.title(),
       discussion: this
     }));
