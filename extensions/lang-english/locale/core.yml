@@ -228,11 +228,6 @@ core:
       reply_button: => core.ref.reply
       restore_button: => core.ref.restore
 
-      # These translations are used by the rename discussion modal.
-      rename_discussion:
-        title: Enter a new title for this discussion
-        submit_button: Rename
-
     # These translations are used in the discussion list.
     discussion_list:
       empty_text: It looks like there are no discussions here.
@@ -338,6 +333,11 @@ core:
       load_more_button: => core.ref.load_more
       reply_placeholder: => core.ref.write_a_reply
       time_lapsed_text: "{period} later"
+
+    # These translations are used by the rename discussion modal.
+    rename_discussion:
+      title: Enter a new title for this discussion
+      submit_button: Rename
 
     # These translations are used by the search results dropdown list.
     search:
