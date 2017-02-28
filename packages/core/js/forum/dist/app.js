@@ -26848,7 +26848,7 @@ System.register('flarum/components/RenameDiscussionModal', ['flarum/components/M
         }, {
           key: 'title',
           value: function title() {
-            return app.translator.trans('core.forum.discussion_controls.rename_discussion.title');
+            return app.translator.trans('core.forum.rename_discussion.title');
           }
         }, {
           key: 'content',
@@ -26871,7 +26871,7 @@ System.register('flarum/components/RenameDiscussionModal', ['flarum/components/M
                     className: 'Button Button--primary',
                     type: 'submit',
                     loading: this.loading,
-                    children: app.translator.trans('core.forum.discussion_controls.rename_discussion.submit_button')
+                    children: app.translator.trans('core.forum.rename_discussion.submit_button')
                   })
                 )
               )
