@@ -31146,29 +31146,42 @@ System.register('flarum/utils/abbreviateNumber', [], function (_export, _context
 System.register('flarum/utils/affixSidebar', [], function (_export, _context) {
   "use strict";
 
-  function affixSidebar(element, isInitialized) {
+  function affixSidebar(element, isInitialized, context) {
     var _this = this;
 
     if (isInitialized) return;
 
-    var $sidebar = $(element);
-    var $header = $('#header');
-    var $footer = $('#footer');
+    var onresize = function onresize() {
+      var $sidebar = $(element);
+      var $header = $('#header');
+      var $footer = $('#footer');
+      var $affixElement = $sidebar.find('> ul');
 
-    // Don't affix the sidebar if it is taller than the viewport (otherwise
-    // there would be no way to scroll through its content).
-    if ($sidebar.outerHeight(true) > $(window).height() - $header.outerHeight(true)) return;
+      $(window).off('.affix');
+      $affixElement.removeClass('affix affix-top affix-bottom').removeData('bs.affix');
 
-    $sidebar.find('> ul').affix({
-      offset: {
-        top: function top() {
-          return $sidebar.offset().top - $header.outerHeight(true) - parseInt($sidebar.css('margin-top'), 10);
-        },
-        bottom: function bottom() {
-          return _this.bottom = $footer.outerHeight(true);
+      // Don't affix the sidebar if it is taller than the viewport (otherwise
+      // there would be no way to scroll through its content).
+      if ($sidebar.outerHeight(true) > $(window).height() - $header.outerHeight(true)) return;
+
+      $affixElement.affix({
+        offset: {
+          top: function top() {
+            return $sidebar.offset().top - $header.outerHeight(true) - parseInt($sidebar.css('margin-top'), 10);
+          },
+          bottom: function bottom() {
+            return _this.bottom = $footer.outerHeight(true);
+          }
         }
-      }
-    });
+      });
+    };
+
+    // Register the affix plugin to execute on every window resize (and trigger)
+    $(window).on('resize', onresize).resize();
+
+    context.onunload = function () {
+      $(window).off('resize', onresize);
+    };
   }
 
   _export('default', affixSidebar);
