@@ -11,7 +11,7 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Core\User;
+use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\UserLoggedOut;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
@@ -24,6 +24,8 @@ use Zend\Diactoros\Response\RedirectResponse;
 
 class LogOutController implements ControllerInterface
 {
+    use AssertPermissionTrait;
+
     /**
      * @var Application
      */
@@ -67,24 +69,24 @@ class LogOutController implements ControllerInterface
     {
         $session = $request->getAttribute('session');
 
+        if (array_get($request->getQueryParams(), 'token') !== $session->get('csrf_token')) {
+            throw new TokenMismatchException;
+        }
+
+        $actor = $request->getAttribute('actor');
+
+        $this->assertRegistered($actor);
+
         $url = array_get($request->getQueryParams(), 'return', $this->app->url());
 
         $response = new RedirectResponse($url);
 
-        if ($user = User::find($session->get('user_id'))) {
-            if (array_get($request->getQueryParams(), 'token') !== $session->get('csrf_token')) {
-                throw new TokenMismatchException;
-            }
+        $this->authenticator->logOut($session);
 
-            $this->authenticator->logOut($session);
+        $actor->accessTokens()->delete();
 
-            $user->accessTokens()->delete();
+        $this->events->fire(new UserLoggedOut($actor));
 
-            $this->events->fire(new UserLoggedOut($user));
-
-            $response = $this->rememberer->forget($response);
-        }
-
-        return $response;
+        return $this->rememberer->forget($response);
     }
 }
