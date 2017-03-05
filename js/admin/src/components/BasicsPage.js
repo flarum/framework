@@ -73,7 +73,7 @@ export default class BasicsPage extends Page {
              {Switch.component({
                  state: this.values.show_language_selector() == undefined ? this.values.show_language_selector() : 1,
                  onchange: this.values.show_language_selector,
-                 children: app.translator.trans('core.admin.basics.show_language_selector_heading'),
+                 children: app.translator.trans('core.admin.basics.show_language_selector_label'),
              })}
 
             <br/>
