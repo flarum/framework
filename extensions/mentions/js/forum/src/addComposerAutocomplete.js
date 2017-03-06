@@ -98,6 +98,18 @@ export default function addComposerAutocomplete() {
           const buildSuggestions = () => {
             const suggestions = [];
 
+            // If the user has started to type a username, then suggest users
+            // matching that username.
+            if (typed) {
+              app.store.all('users').forEach(user => {
+                if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
+
+                suggestions.push(
+                  makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user')
+                );
+              });
+            }
+
             // If the user is replying to a discussion, or if they are editing a
             // post, then we can suggest other posts in the discussion to mention.
             // We will add the 5 most recent comments in the discussion which
@@ -122,18 +134,6 @@ export default function addComposerAutocomplete() {
                     ], 'MentionsDropdown-post')
                   );
                 });
-            }
-
-            // If the user has started to type a username, then suggest users
-            // matching that username.
-            if (typed) {
-              app.store.all('users').forEach(user => {
-                if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
-
-                suggestions.push(
-                  makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user')
-                );
-              });
             }
 
             if (suggestions.length) {
