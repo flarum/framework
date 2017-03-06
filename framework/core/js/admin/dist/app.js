@@ -18017,10 +18017,10 @@ System.register('flarum/components/Badge', ['flarum/Component', 'flarum/helpers/
 });;
 'use strict';
 
-System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList'], function (_export, _context) {
+System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flarum/components/FieldSet', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/Alert', 'flarum/utils/saveSettings', 'flarum/utils/ItemList', 'flarum/components/Switch'], function (_export, _context) {
   "use strict";
 
-  var Page, FieldSet, Select, Button, Alert, saveSettings, ItemList, BasicsPage;
+  var Page, FieldSet, Select, Button, Alert, saveSettings, ItemList, Switch, BasicsPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
@@ -18036,6 +18036,8 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
       saveSettings = _flarumUtilsSaveSettings.default;
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
+    }, function (_flarumComponentsSwitch) {
+      Switch = _flarumComponentsSwitch.default;
     }],
     execute: function () {
       BasicsPage = function (_Page) {
@@ -18055,12 +18057,12 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
 
             this.loading = false;
 
-            this.fields = ['forum_title', 'forum_description', 'default_locale', 'default_route', 'welcome_title', 'welcome_message'];
+            this.fields = ['forum_title', 'forum_description', 'default_locale', 'show_language_selector', 'default_route', 'welcome_title', 'welcome_message'];
             this.values = {};
 
             var settings = app.data.settings;
             this.fields.forEach(function (key) {
-              return _this2.values[key] = m.prop(settings[key]);
+              return _this2.values[key] = m.prop(settings[key] || false);
             });
 
             this.localeOptions = {};
@@ -18068,6 +18070,8 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
             for (var i in locales) {
               this.localeOptions[i] = locales[i] + ' (' + i + ')';
             }
+
+            if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
           }
         }, {
           key: 'view',
@@ -18102,6 +18106,12 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                       onchange: this.values.default_locale
                     })]
                   }) : '',
+                  Switch.component({
+                    state: this.values.show_language_selector(),
+                    onchange: this.values.show_language_selector,
+                    children: app.translator.trans('core.admin.basics.show_language_selector_label')
+                  }),
+                  m('br', null),
                   FieldSet.component({
                     label: app.translator.trans('core.admin.basics.home_page_heading'),
                     className: 'BasicsPage-homePage',
