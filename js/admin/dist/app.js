@@ -18071,7 +18071,9 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
               this.localeOptions[i] = locales[i] + ' (' + i + ')';
             }
 
-            if (typeof this.values.show_language_selector() != "number") this.values.show_language_selector(1);
+            if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
+
+            console.log(this.values.show_language_selector());
           }
         }, {
           key: 'view',
@@ -18107,7 +18109,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                     })]
                   }) : '',
                   Switch.component({
-                    state: this.values.show_language_selector() == undefined ? this.values.show_language_selector() : 1,
+                    state: this.values.show_language_selector(),
                     onchange: this.values.show_language_selector,
                     children: app.translator.trans('core.admin.basics.show_language_selector_label')
                   }),

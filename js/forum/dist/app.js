@@ -23185,7 +23185,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
 
             items.add('search', app.search.render(), 30);
 
-            if (app.forum.attribute("showLanguageSelector") != 0 && Object.keys(app.data.locales).length > 1) {
+            if (app.forum.attribute("showLanguageSelector") && Object.keys(app.data.locales).length > 1) {
               var locales = [];
 
               var _loop = function _loop(locale) {
