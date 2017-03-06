@@ -39,28 +39,28 @@ export default class HeaderSecondary extends Component {
 
     items.add('search', app.search.render(), 30);
 
-    if (Object.keys(app.data.locales).length > 1) {
+    if (app.forum.attribute("showLanguageSelector") && Object.keys(app.data.locales).length > 1) {
       const locales = [];
 
       for (const locale in app.data.locales) {
         locales.push(Button.component({
-          active: app.data.locale === locale,
-          children: app.data.locales[locale],
-          icon: app.data.locale === locale ? 'check' : true,
-          onclick: () => {
-            if (app.session.user) {
-              app.session.user.savePreferences({locale}).then(() => window.location.reload());
-            } else {
-              document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
-              window.location.reload();
+            active: app.data.locale === locale,
+            children: app.data.locales[locale],
+            icon: app.data.locale === locale ? 'check' : true,
+            onclick: () => {
+              if (app.session.user) {
+                app.session.user.savePreferences({locale}).then(() => window.location.reload());
+              } else {
+                document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
+                window.location.reload();
+              }
             }
-          }
         }));
       }
 
       items.add('locale', SelectDropdown.component({
-        children: locales,
-        buttonClassName: 'Button Button--link'
+          children: locales,
+          buttonClassName: 'Button Button--link'
       }), 20);
     }
 
