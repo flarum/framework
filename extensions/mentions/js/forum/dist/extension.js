@@ -197,111 +197,109 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
         dropdown.active = false;
 
         if (mentionStart) {
-          (function () {
-            typed = value.substring(mentionStart, cursor).toLowerCase();
+          typed = value.substring(mentionStart, cursor).toLowerCase();
 
-            var makeSuggestion = function makeSuggestion(user, replacement, content) {
-              var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+          var makeSuggestion = function makeSuggestion(user, replacement, content) {
+            var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 
-              var username = usernameHelper(user);
-              if (typed) {
-                username.children[0] = highlight(username.children[0], typed);
-              }
-
-              return m(
-                'button',
-                { className: 'PostPreview ' + className,
-                  onclick: function onclick() {
-                    return applySuggestion(replacement);
-                  },
-                  onmouseenter: function onmouseenter() {
-                    dropdown.setIndex($(this).parent().index());
-                  } },
-                m(
-                  'span',
-                  { className: 'PostPreview-content' },
-                  avatar(user),
-                  username,
-                  ' ',
-                  ' ',
-                  content
-                )
-              );
-            };
-
-            var buildSuggestions = function buildSuggestions() {
-              var suggestions = [];
-
-              // If the user is replying to a discussion, or if they are editing a
-              // post, then we can suggest other posts in the discussion to mention.
-              // We will add the 5 most recent comments in the discussion which
-              // match any username characters that have been typed.
-              var composerPost = composer.props.post;
-              var discussion = composerPost && composerPost.discussion() || composer.props.discussion;
-              if (discussion) {
-                discussion.posts().filter(function (post) {
-                  return post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number());
-                }).sort(function (a, b) {
-                  return b.time() - a.time();
-                }).filter(function (post) {
-                  var user = post.user();
-                  return user && user.username().toLowerCase().substr(0, typed.length) === typed;
-                }).splice(0, 5).forEach(function (post) {
-                  var user = post.user();
-                  suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
-                });
-              }
-
-              // If the user has started to type a username, then suggest users
-              // matching that username.
-              if (typed) {
-                app.store.all('users').forEach(function (user) {
-                  if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
-
-                  suggestions.push(makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user'));
-                });
-              }
-
-              if (suggestions.length) {
-                dropdown.props.items = suggestions;
-                m.render($container[0], dropdown.render());
-
-                dropdown.show();
-                var coordinates = getCaretCoordinates(_this, mentionStart);
-                var width = dropdown.$().outerWidth();
-                var height = dropdown.$().outerHeight();
-                var parent = dropdown.$().offsetParent();
-                var left = coordinates.left;
-                var top = coordinates.top + 15;
-                if (top + height > parent.height()) {
-                  top = coordinates.top - height - 15;
-                }
-                if (left + width > parent.width()) {
-                  left = parent.width() - width;
-                }
-                dropdown.show(left, top);
-              }
-            };
-
-            buildSuggestions();
-
-            dropdown.setIndex(0);
-            dropdown.$().scrollTop(0);
-            dropdown.active = true;
-
-            clearTimeout(searchTimeout);
+            var username = usernameHelper(user);
             if (typed) {
-              searchTimeout = setTimeout(function () {
-                var typedLower = typed.toLowerCase();
-                if (searched.indexOf(typedLower) === -1) {
-                  app.store.find('users', { q: typed, page: { limit: 5 } }).then(function () {
-                    if (dropdown.active) buildSuggestions();
-                  });
-                  searched.push(typedLower);
-                }
-              }, 250);
+              username.children[0] = highlight(username.children[0], typed);
             }
-          })();
+
+            return m(
+              'button',
+              { className: 'PostPreview ' + className,
+                onclick: function onclick() {
+                  return applySuggestion(replacement);
+                },
+                onmouseenter: function onmouseenter() {
+                  dropdown.setIndex($(this).parent().index());
+                } },
+              m(
+                'span',
+                { className: 'PostPreview-content' },
+                avatar(user),
+                username,
+                ' ',
+                ' ',
+                content
+              )
+            );
+          };
+
+          var buildSuggestions = function buildSuggestions() {
+            var suggestions = [];
+
+            // If the user has started to type a username, then suggest users
+            // matching that username.
+            if (typed) {
+              app.store.all('users').forEach(function (user) {
+                if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
+
+                suggestions.push(makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user'));
+              });
+            }
+
+            // If the user is replying to a discussion, or if they are editing a
+            // post, then we can suggest other posts in the discussion to mention.
+            // We will add the 5 most recent comments in the discussion which
+            // match any username characters that have been typed.
+            var composerPost = composer.props.post;
+            var discussion = composerPost && composerPost.discussion() || composer.props.discussion;
+            if (discussion) {
+              discussion.posts().filter(function (post) {
+                return post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number());
+              }).sort(function (a, b) {
+                return b.time() - a.time();
+              }).filter(function (post) {
+                var user = post.user();
+                return user && user.username().toLowerCase().substr(0, typed.length) === typed;
+              }).splice(0, 5).forEach(function (post) {
+                var user = post.user();
+                suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
+              });
+            }
+
+            if (suggestions.length) {
+              dropdown.props.items = suggestions;
+              m.render($container[0], dropdown.render());
+
+              dropdown.show();
+              var coordinates = getCaretCoordinates(_this, mentionStart);
+              var width = dropdown.$().outerWidth();
+              var height = dropdown.$().outerHeight();
+              var parent = dropdown.$().offsetParent();
+              var left = coordinates.left;
+              var top = coordinates.top + 15;
+              if (top + height > parent.height()) {
+                top = coordinates.top - height - 15;
+              }
+              if (left + width > parent.width()) {
+                left = parent.width() - width;
+              }
+              dropdown.show(left, top);
+            }
+          };
+
+          buildSuggestions();
+
+          dropdown.setIndex(0);
+          dropdown.$().scrollTop(0);
+          dropdown.active = true;
+
+          clearTimeout(searchTimeout);
+          if (typed) {
+            searchTimeout = setTimeout(function () {
+              var typedLower = typed.toLowerCase();
+              if (searched.indexOf(typedLower) === -1) {
+                app.store.find('users', { q: typed, page: { limit: 5 } }).then(function () {
+                  if (dropdown.active) buildSuggestions();
+                });
+                searched.push(typedLower);
+              }
+            }, 250);
+          }
         }
       });
     });
@@ -346,122 +344,116 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
       var replies = post.mentionedBy();
 
       if (replies && replies.length) {
-        var _ret = function () {
-          // If there is only one reply, and it's adjacent to this post, we don't
-          // really need to show the list.
-          if (replies.length === 1 && replies[0].number() === post.number() + 1) {
-            return {
-              v: void 0
-            };
-          }
+        // If there is only one reply, and it's adjacent to this post, we don't
+        // really need to show the list.
+        if (replies.length === 1 && replies[0].number() === post.number() + 1) {
+          return;
+        }
 
-          var hidePreview = function hidePreview() {
-            _this.$('.Post-mentionedBy-preview').removeClass('in').one('transitionend', function () {
-              $(this).hide();
-            });
-          };
+        var hidePreview = function hidePreview() {
+          _this.$('.Post-mentionedBy-preview').removeClass('in').one('transitionend', function () {
+            $(this).hide();
+          });
+        };
 
-          var config = function config(element, isInitialized) {
-            if (isInitialized) return;
+        var config = function config(element, isInitialized) {
+          if (isInitialized) return;
 
-            var $this = $(element);
-            var timeout = void 0;
+          var $this = $(element);
+          var timeout = void 0;
 
-            var $preview = $('<ul class="Dropdown-menu Post-mentionedBy-preview fade"/>');
-            $this.append($preview);
+          var $preview = $('<ul class="Dropdown-menu Post-mentionedBy-preview fade"/>');
+          $this.append($preview);
 
-            $this.children().hover(function () {
-              clearTimeout(timeout);
-              timeout = setTimeout(function () {
-                if (!$preview.hasClass('in') && $preview.is(':visible')) return;
+          $this.children().hover(function () {
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+              if (!$preview.hasClass('in') && $preview.is(':visible')) return;
 
-                // When the user hovers their mouse over the list of people who have
-                // replied to the post, render a list of reply previews into a
-                // popup.
-                m.render($preview[0], replies.map(function (reply) {
-                  return m(
-                    'li',
-                    { 'data-number': reply.number() },
-                    PostPreview.component({
-                      post: reply,
-                      onclick: hidePreview
-                    })
-                  );
-                }));
-                $preview.show();
-                setTimeout(function () {
-                  return $preview.off('transitionend').addClass('in');
-                });
-              }, 500);
-            }, function () {
-              clearTimeout(timeout);
-              timeout = setTimeout(hidePreview, 250);
-            });
-
-            // Whenever the user hovers their mouse over a particular name in the
-            // list of repliers, highlight the corresponding post in the preview
-            // popup.
-            $this.find('.Post-mentionedBy-summary a').hover(function () {
-              $preview.find('[data-number="' + $(this).data('number') + '"]').addClass('active');
-            }, function () {
-              $preview.find('[data-number]').removeClass('active');
-            });
-          };
-
-          var users = [];
-          var repliers = replies.sort(function (reply) {
-            return reply.user() === app.session.user ? -1 : 0;
-          }).filter(function (reply) {
-            var user = reply.user();
-            if (users.indexOf(user) === -1) {
-              users.push(user);
-              return true;
-            }
+              // When the user hovers their mouse over the list of people who have
+              // replied to the post, render a list of reply previews into a
+              // popup.
+              m.render($preview[0], replies.map(function (reply) {
+                return m(
+                  'li',
+                  { 'data-number': reply.number() },
+                  PostPreview.component({
+                    post: reply,
+                    onclick: hidePreview
+                  })
+                );
+              }));
+              $preview.show();
+              setTimeout(function () {
+                return $preview.off('transitionend').addClass('in');
+              });
+            }, 500);
+          }, function () {
+            clearTimeout(timeout);
+            timeout = setTimeout(hidePreview, 250);
           });
 
-          var limit = 4;
-          var overLimit = repliers.length > limit;
-
-          // Create a list of unique users who have replied. So even if a user has
-          // replied twice, they will only be in this array once.
-          var names = repliers.slice(0, overLimit ? limit - 1 : limit).map(function (reply) {
-            var user = reply.user();
-
-            return m(
-              'a',
-              { href: app.route.post(reply),
-                config: m.route,
-                onclick: hidePreview,
-                'data-number': reply.number() },
-              app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)
-            );
+          // Whenever the user hovers their mouse over a particular name in the
+          // list of repliers, highlight the corresponding post in the preview
+          // popup.
+          $this.find('.Post-mentionedBy-summary a').hover(function () {
+            $preview.find('[data-number="' + $(this).data('number') + '"]').addClass('active');
+          }, function () {
+            $preview.find('[data-number]').removeClass('active');
           });
+        };
 
-          // If there are more users that we've run out of room to display, add a "x
-          // others" name to the end of the list. Clicking on it will display a modal
-          // with a full list of names.
-          if (overLimit) {
-            var count = repliers.length - names.length;
-
-            names.push(app.translator.transChoice('flarum-mentions.forum.post.others_text', count, { count: count }));
+        var users = [];
+        var repliers = replies.sort(function (reply) {
+          return reply.user() === app.session.user ? -1 : 0;
+        }).filter(function (reply) {
+          var user = reply.user();
+          if (users.indexOf(user) === -1) {
+            users.push(user);
+            return true;
           }
+        });
 
-          items.add('replies', m(
-            'div',
-            { className: 'Post-mentionedBy', config: config },
-            m(
-              'span',
-              { className: 'Post-mentionedBy-summary' },
-              icon('reply'),
-              app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (replies[0].user() === app.session.user ? '_self' : '') + '_text', names.length, {
-                count: names.length,
-                users: punctuateSeries(names)
-              })
-            )
-          ));
-        }();
+        var limit = 4;
+        var overLimit = repliers.length > limit;
 
-        if ((typeof _ret === 'undefined' ? 'undefined' : babelHelpers.typeof(_ret)) === "object") return _ret.v;
+        // Create a list of unique users who have replied. So even if a user has
+        // replied twice, they will only be in this array once.
+        var names = repliers.slice(0, overLimit ? limit - 1 : limit).map(function (reply) {
+          var user = reply.user();
+
+          return m(
+            'a',
+            { href: app.route.post(reply),
+              config: m.route,
+              onclick: hidePreview,
+              'data-number': reply.number() },
+            app.session.user === user ? app.translator.trans('flarum-mentions.forum.post.you_text') : username(user)
+          );
+        });
+
+        // If there are more users that we've run out of room to display, add a "x
+        // others" name to the end of the list. Clicking on it will display a modal
+        // with a full list of names.
+        if (overLimit) {
+          var count = repliers.length - names.length;
+
+          names.push(app.translator.transChoice('flarum-mentions.forum.post.others_text', count, { count: count }));
+        }
+
+        items.add('replies', m(
+          'div',
+          { className: 'Post-mentionedBy', config: config },
+          m(
+            'span',
+            { className: 'Post-mentionedBy-summary' },
+            icon('reply'),
+            app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (replies[0].user() === app.session.user ? '_self' : '') + '_text', names.length, {
+              count: names.length,
+              users: punctuateSeries(names)
+            })
+          )
+        ));
       }
     });
   }
@@ -542,56 +534,54 @@ System.register('flarum/mentions/addPostMentionPreviews', ['flarum/extend', 'fla
           // Otherwise, we will show a popup preview of the post. If the post
           // hasn't yet been loaded, we will need to do that.
           if (!visible) {
-            (function () {
-              // Position the preview so that it appears above the mention.
-              // (The offsetParent should be .Post-body.)
-              var positionPreview = function positionPreview() {
-                var previewHeight = $preview.outerHeight(true);
-                var offset = 0;
+            // Position the preview so that it appears above the mention.
+            // (The offsetParent should be .Post-body.)
+            var positionPreview = function positionPreview() {
+              var previewHeight = $preview.outerHeight(true);
+              var offset = 0;
 
-                // If the preview goes off the top of the viewport, reposition it to
-                // be below the mention.
-                if ($this.offset().top - previewHeight < $(window).scrollTop() + $('#header').outerHeight()) {
-                  offset += $this.outerHeight(true);
-                } else {
-                  offset -= previewHeight;
-                }
-
-                $preview.show().css('top', $this.offset().top - $parentPost.offset().top + offset).css('left', $this.offsetParent().offset().left - $parentPost.offset().left).css('max-width', $this.offsetParent().width());
-              };
-
-              var showPost = function showPost(post) {
-                var discussion = post.discussion();
-
-                m.render($preview[0], [discussion !== parentPost.discussion() ? m(
-                  'li',
-                  null,
-                  m(
-                    'span',
-                    { className: 'PostMention-preview-discussion' },
-                    discussion.title()
-                  )
-                ) : '', m(
-                  'li',
-                  null,
-                  PostPreview.component({ post: post })
-                )]);
-                positionPreview();
-              };
-
-              var post = app.store.getById('posts', id);
-              if (post && post.discussion()) {
-                showPost(post);
+              // If the preview goes off the top of the viewport, reposition it to
+              // be below the mention.
+              if ($this.offset().top - previewHeight < $(window).scrollTop() + $('#header').outerHeight()) {
+                offset += $this.outerHeight(true);
               } else {
-                m.render($preview[0], LoadingIndicator.component());
-                app.store.find('posts', id).then(showPost);
-                positionPreview();
+                offset -= previewHeight;
               }
 
-              setTimeout(function () {
-                return $preview.off('transitionend').addClass('in');
-              });
-            })();
+              $preview.show().css('top', $this.offset().top - $parentPost.offset().top + offset).css('left', $this.offsetParent().offset().left - $parentPost.offset().left).css('max-width', $this.offsetParent().width());
+            };
+
+            var showPost = function showPost(post) {
+              var discussion = post.discussion();
+
+              m.render($preview[0], [discussion !== parentPost.discussion() ? m(
+                'li',
+                null,
+                m(
+                  'span',
+                  { className: 'PostMention-preview-discussion' },
+                  discussion.title()
+                )
+              ) : '', m(
+                'li',
+                null,
+                PostPreview.component({ post: post })
+              )]);
+              positionPreview();
+            };
+
+            var post = app.store.getById('posts', id);
+            if (post && post.discussion()) {
+              showPost(post);
+            } else {
+              m.render($preview[0], LoadingIndicator.component());
+              app.store.find('posts', id).then(showPost);
+              positionPreview();
+            }
+
+            setTimeout(function () {
+              return $preview.off('transitionend').addClass('in');
+            });
           }
         };
 
