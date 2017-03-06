@@ -34,8 +34,6 @@ export default class BasicsPage extends Page {
     }
 
     if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
-
-    console.log(this.values.show_language_selector());
   }
 
   view() {
