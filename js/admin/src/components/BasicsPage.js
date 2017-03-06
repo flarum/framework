@@ -5,6 +5,7 @@ import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
 import saveSettings from 'flarum/utils/saveSettings';
 import ItemList from 'flarum/utils/ItemList';
+import Switch from 'flarum/components/Switch';
 
 export default class BasicsPage extends Page {
   init() {
@@ -16,6 +17,7 @@ export default class BasicsPage extends Page {
       'forum_title',
       'forum_description',
       'default_locale',
+      'show_language_selector',
       'default_route',
       'welcome_title',
       'welcome_message'
@@ -23,13 +25,15 @@ export default class BasicsPage extends Page {
     this.values = {};
 
     const settings = app.data.settings;
-    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
+    this.fields.forEach(key => this.values[key] = m.prop(settings[key] || false));
 
     this.localeOptions = {};
     const locales = app.data.locales;
     for (const i in locales) {
       this.localeOptions[i] = `${locales[i]} (${i})`;
     }
+
+    if (typeof this.values.show_language_selector() !== "number") this.values.show_language_selector(1);
   }
 
   view() {
@@ -65,6 +69,14 @@ export default class BasicsPage extends Page {
                 ]
               })
               : ''}
+
+             {Switch.component({
+                 state: this.values.show_language_selector(),
+                 onchange: this.values.show_language_selector,
+                 children: app.translator.trans('core.admin.basics.show_language_selector_label'),
+             })}
+
+            <br/>
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.basics.home_page_heading'),
