@@ -70,11 +70,11 @@ export default class BasicsPage extends Page {
               })
               : ''}
 
-             {Switch.component({
-                 state: this.values.show_language_selector(),
-                 onchange: this.values.show_language_selector,
-                 children: app.translator.trans('core.admin.basics.show_language_selector_label'),
-             })}
+            {Switch.component({
+              state: this.values.show_language_selector(),
+              onchange: this.values.show_language_selector,
+              children: app.translator.trans('core.admin.basics.show_language_selector_label'),
+            })}
 
             <br/>
 
