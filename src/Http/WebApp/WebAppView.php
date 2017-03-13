@@ -108,6 +108,13 @@ class WebAppView
     protected $foot = [];
 
     /**
+     * A map of <link> tags to be generated.
+     *
+     * @var array
+     */
+    protected $links = [];
+
+    /**
      * @var CompilerInterface
      */
     protected $js;
@@ -220,6 +227,31 @@ class WebAppView
     }
 
     /**
+     * Configure a <link> tag.
+     *
+     * @param string $relation
+     * @param string $target
+     */
+    public function link($relation, $target)
+    {
+        $this->links[$relation] = $target;
+    }
+
+    /**
+     * Configure the canonical URL for this page.
+     *
+     * This will signal to search engines what URL should be used for this
+     * content, if it can be found under multiple addresses. This is an
+     * important tool to tackle duplicate content.
+     *
+     * @param string $url
+     */
+    public function setCanonicalUrl($url)
+    {
+        $this->link('canonical', $url);
+    }
+
+    /**
      * Set a variable to be preloaded into the app.
      *
      * @param string $name
@@ -271,7 +303,7 @@ class WebAppView
         $view->cssUrls = $this->buildCssUrls($baseUrl);
         $view->jsUrls = $this->buildJsUrls($baseUrl);
 
-        $view->head = implode("\n", $this->head);
+        $view->head = $this->buildHeadContent();
         $view->foot = implode("\n", $this->foot);
 
         return $view->render();
@@ -335,6 +367,17 @@ class WebAppView
         return array_map(function ($file) use ($baseUrl) {
             return $baseUrl.str_replace(public_path(), '', $file);
         }, array_filter($files));
+    }
+
+    protected function buildHeadContent()
+    {
+        $html = implode("\n", $this->head);
+
+        foreach ($this->links as $rel => $href) {
+            $html .= "\n<link rel=\"$rel\" href=\"$href\" />";
+        }
+
+        return $html;
     }
 
     /**
