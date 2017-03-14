@@ -45,8 +45,17 @@ class CookieFactory
         // Parse the forum's base URL so that we can determine the optimal cookie settings
         $url = parse_url(rtrim($this->app->url(), '/'));
 
-        return SetCookie::create($name, $value)
-            ->withMaxAge($maxAge)
+        $cookie = SetCookie::create($name, $value);
+
+        // Make sure we send both the MaxAge and Expires parameters (the former
+        // is not supported by all browser versions)
+        if ($maxAge) {
+            $cookie = $cookie
+                ->withMaxAge($maxAge)
+                ->withExpires(time() + $maxAge);
+        }
+
+        return $cookie
             ->withPath(array_get($url, 'path') ?: '/')
             ->withSecure(array_get($url, 'scheme') === 'https')
             ->withHttpOnly(true);
