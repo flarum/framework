@@ -45,15 +45,14 @@ export default class UserBio extends Component {
         }
       }
 
-      content = <div className="UserBio-content">{subContent}</div>;
+      content = <div className="UserBio-content" onclick={this.edit.bind(this)}>{subContent}</div>;
     }
 
     return (
       <div className={'UserBio ' + classList({
           editable: this.props.editable,
           editing: this.editing
-        })}
-        onclick={this.edit.bind(this)}>
+        })}>
         {content}
       </div>
     );

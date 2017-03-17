@@ -28539,7 +28539,7 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
 
               content = m(
                 'div',
-                { className: 'UserBio-content' },
+                { className: 'UserBio-content', onclick: this.edit.bind(this) },
                 subContent
               );
             }
@@ -28549,8 +28549,7 @@ System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/compon
               { className: 'UserBio ' + classList({
                   editable: this.props.editable,
                   editing: this.editing
-                }),
-                onclick: this.edit.bind(this) },
+                }) },
               content
             );
           }
