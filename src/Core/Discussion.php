@@ -445,6 +445,6 @@ class Discussion extends AbstractModel
     protected function setTitleAttribute($title)
     {
         $this->attributes['title'] = $title;
-        $this->slug = Str::slug($title);
+        $this->slug = Str::slugUtf8($title);
     }
 }
