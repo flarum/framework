@@ -420,7 +420,7 @@ class Str
     private function remove_accents( $string ) {
         if ( !preg_match('/[\x80-\xff]/', $string) )
             return $string;
-        if (seems_utf8($string)) {
+        if (self::seems_utf8($string)) {
             $chars = array(
                 // Decompositions for Latin-1 Supplement
                 'ª' => 'a', 'º' => 'o',
@@ -596,29 +596,7 @@ class Str
                 // grave accent
                 'Ǜ' => 'U', 'ǜ' => 'u',
             );
-            // Used for locale-specific rules
-            $locale = get_locale();
-            if ( 'de_DE' == $locale || 'de_DE_formal' == $locale || 'de_CH' == $locale || 'de_CH_informal' == $locale ) {
-                $chars[ 'Ä' ] = 'Ae';
-                $chars[ 'ä' ] = 'ae';
-                $chars[ 'Ö' ] = 'Oe';
-                $chars[ 'ö' ] = 'oe';
-                $chars[ 'Ü' ] = 'Ue';
-                $chars[ 'ü' ] = 'ue';
-                $chars[ 'ß' ] = 'ss';
-            } elseif ( 'da_DK' === $locale ) {
-                $chars[ 'Æ' ] = 'Ae';
-                $chars[ 'æ' ] = 'ae';
-                $chars[ 'Ø' ] = 'Oe';
-                $chars[ 'ø' ] = 'oe';
-                $chars[ 'Å' ] = 'Aa';
-                $chars[ 'å' ] = 'aa';
-            } elseif ( 'ca' === $locale ) {
-                $chars[ 'l·l' ] = 'll';
-            } elseif ( 'sr_RS' === $locale ) {
-                $chars[ 'Đ' ] = 'DJ';
-                $chars[ 'đ' ] = 'dj';
-            }
+
             $string = strtr($string, $chars);
         } else {
             $chars = array();
@@ -642,4 +620,64 @@ class Str
         }
         return $string;
     }
+
+    /**
+     * Checks to see if a string is utf8 encoded.
+     *
+     * NOTE: This function checks for 5-Byte sequences, UTF8
+     *       has Bytes Sequences with a maximum length of 4.
+     *
+     * @author bmorel at ssi dot fr (modified)
+     * @since 1.2.1
+     *
+     * @param string $str The string to be checked
+     * @return bool True if $str fits a UTF-8 model, false otherwise.
+     */
+    private function seems_utf8( $str ) {
+        self::mbstring_binary_safe_encoding();
+        $length = strlen($str);
+        self::reset_mbstring_encoding();
+        for ($i=0; $i < $length; $i++) {
+            $c = ord($str[$i]);
+            if ($c < 0x80) $n = 0; // 0bbbbbbb
+            elseif (($c & 0xE0) == 0xC0) $n=1; // 110bbbbb
+            elseif (($c & 0xF0) == 0xE0) $n=2; // 1110bbbb
+            elseif (($c & 0xF8) == 0xF0) $n=3; // 11110bbb
+            elseif (($c & 0xFC) == 0xF8) $n=4; // 111110bb
+            elseif (($c & 0xFE) == 0xFC) $n=5; // 1111110b
+            else return false; // Does not match any model
+            for ($j=0; $j<$n; $j++) { // n bytes matching 10bbbbbb follow ?
+                if ((++$i == $length) || ((ord($str[$i]) & 0xC0) != 0x80))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private function reset_mbstring_encoding() {
+        self::mbstring_binary_safe_encoding( true );
+    }
+
+    private function mbstring_binary_safe_encoding( $reset = false ) {
+        static $encodings = array();
+        static $overloaded = null;
+
+        if ( is_null( $overloaded ) )
+            $overloaded = function_exists( 'mb_internal_encoding' ) && ( ini_get( 'mbstring.func_overload' ) & 2 );
+
+        if ( false === $overloaded )
+            return;
+
+        if ( ! $reset ) {
+            $encoding = mb_internal_encoding();
+            array_push( $encodings, $encoding );
+            mb_internal_encoding( 'ISO-8859-1' );
+        }
+
+        if ( $reset && $encodings ) {
+            $encoding = array_pop( $encodings );
+            mb_internal_encoding( $encoding );
+        }
+    }
+
 }
