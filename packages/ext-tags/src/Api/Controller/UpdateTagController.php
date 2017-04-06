@@ -45,7 +45,7 @@ class UpdateTagController extends AbstractResourceController
     {
         $id = array_get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
-        $data = array_get($request->getParsedBody(), 'data');
+        $data = array_get($request->getParsedBody(), 'data', []);
 
         return $this->bus->dispatch(
             new EditTag($id, $actor, $data)
