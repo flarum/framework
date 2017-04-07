@@ -75,6 +75,7 @@ class DiscussionPolicy extends AbstractPolicy
         } elseif (! $actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('discussions.hide_time')
+                    ->where('discussions.is_private', false)
                     ->where('comments_count', '>', 0)
                     ->orWhere('start_user_id', $actor->id);
 

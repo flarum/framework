@@ -66,6 +66,9 @@ class PostPolicy extends AbstractPolicy
      */
     public function scopePostVisibility(ScopePostVisibility $event)
     {
+        // Hide private posts per default.
+        $event->query->where('posts.is_private', false);
+
         // When fetching a discussion's posts: if the user doesn't have permission
         // to moderate the discussion, then they can't see posts that have been
         // hidden by someone other than themself.
