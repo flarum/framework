@@ -49,7 +49,7 @@ use Flarum\Util\Str;
  * @property Post|null $lastPost
  * @property User|null $lastUser
  * @property \Illuminate\Database\Eloquent\Collection $readers
- * @property boolean $is_private
+ * @property bool $is_private
  */
 class Discussion extends AbstractModel
 {

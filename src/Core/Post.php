@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property User|null $editUser
  * @property User|null $hideUser
  * @property string $ip_address
- * @property boolean $is_private
+ * @property bool $is_private
  */
 class Post extends AbstractModel
 {
