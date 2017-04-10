@@ -9,19 +9,8 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
-            $table->boolean('is_private', false);
-        });
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->table('posts', function (Blueprint $table) {
-            $table->dropColumn('is_private');
-        });
-    }
-];
+return Migration::addColumns('posts', [
+    'is_private' => ['boolean', 'default' => false]
+]);

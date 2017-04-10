@@ -71,7 +71,7 @@ class DiscussionPolicy extends AbstractPolicy
     public function find(User $actor, Builder $query)
     {
         // Hide private discussions per default.
-        $query->where('discussions.is_private', 0);
+        $query->where('discussions.is_private', false);
 
         if ($actor->cannot('viewDiscussions')) {
             $query->whereRaw('FALSE');
