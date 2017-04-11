@@ -26,6 +26,11 @@ class CreateTagController extends AbstractCreateController
     public $serializer = TagSerializer::class;
 
     /**
+     * {@inheritdoc}
+     */
+    public $include = ['parent'];
+
+    /**
      * @var Dispatcher
      */
     protected $bus;
