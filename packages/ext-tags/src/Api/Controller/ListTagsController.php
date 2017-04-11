@@ -25,6 +25,20 @@ class ListTagsController extends AbstractCollectionController
     public $serializer = TagSerializer::class;
 
     /**
+     * {@inheritdoc}
+     */
+    public $include = [
+        'parent',
+    ];
+
+    /**
+     * {@inheritdoc}
+     */
+    public $optionalInclude = [
+        'lastDiscussion',
+    ];
+
+    /**
      * @var \Flarum\Tags\Tag
      */
     protected $tags;
