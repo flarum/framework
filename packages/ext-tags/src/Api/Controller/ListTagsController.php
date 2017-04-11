@@ -57,7 +57,10 @@ class ListTagsController extends AbstractCollectionController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
+        $include = $this->extractInclude($request);
 
-        return $this->tags->whereVisibleTo($actor)->withStateFor($actor)->get();
+        $tags = $this->tags->whereVisibleTo($actor)->withStateFor($actor)->get();
+
+        return $tags->load($include);
     }
 }
