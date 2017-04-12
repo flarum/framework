@@ -13,7 +13,6 @@ namespace Flarum\Install\Console;
 
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class FileDataProvider implements DataProviderInterface
 {
@@ -33,8 +32,8 @@ class FileDataProvider implements DataProviderInterface
 
         // Check if file exists before parsing content
         if (file_exists($configurationFile)) {
-            // Parse YAML
-            $configuration = Yaml::parse(file_get_contents($configurationFile));
+            // Parse JSON
+            $configuration = json_decode(file_get_contents($configurationFile), true);
 
             // Define configuration variables
             $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
