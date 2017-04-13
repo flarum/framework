@@ -12,8 +12,8 @@
 namespace Flarum\Lock\Access;
 
 use Flarum\Core\Access\AbstractPolicy;
-use Flarum\Core\User;
 use Flarum\Core\Post;
+use Flarum\Core\User;
 
 class PostPolicy extends AbstractPolicy
 {
