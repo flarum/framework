@@ -13,7 +13,9 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Forum\AuthenticationResponseFactory;
 use Flarum\Http\Controller\ControllerInterface;
+use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -75,7 +77,7 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
 
         $owner = $this->provider->getResourceOwner($this->token);
 
-        $identification = $this->getIdentification($owner);
+        $identification = $this->getIdentification($owner, $provider, $token);
         $suggestions = $this->getSuggestions($owner);
 
         return $this->authResponse->make($request, $identification, $suggestions);
@@ -83,7 +85,7 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
 
     /**
      * @param string $redirectUri
-     * @return \League\OAuth2\Client\Provider\AbstractProvider
+     * @return AbstractProvider
      */
     abstract protected function getProvider($redirectUri);
 
@@ -94,9 +96,11 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
 
     /**
      * @param ResourceOwnerInterface $resourceOwner
+     * @param AbstractProvider $provider
+     * @param AccessToken $token
      * @return array
      */
-    abstract protected function getIdentification(ResourceOwnerInterface $resourceOwner);
+    abstract protected function getIdentification(ResourceOwnerInterface $resourceOwner, AbstractProvider $provider, AccessToken $token);
 
     /**
      * @param ResourceOwnerInterface $resourceOwner
