@@ -101,7 +101,7 @@ class UploadAvatarHandler
             $manager = new ImageManager;
 
             // Explicitly tell Intervention to encode the image as JSON (instead of having to guess from the extension)
-            $encodedImage = $manager->make($tmpFile)->orientate()->fit(100, 100)->encode('jpg', 100);
+            $encodedImage = $manager->make($tmpFile)->orientate()->fit(100, 100)->encode('png', 100);
             file_put_contents($tmpFile, $encodedImage);
 
             $this->events->fire(
@@ -117,7 +117,7 @@ class UploadAvatarHandler
                 $mount->delete($file);
             }
 
-            $uploadName = Str::lower(Str::quickRandom()).'.jpg';
+            $uploadName = Str::lower(Str::quickRandom()).'.png';
 
             $user->changeAvatarPath($uploadName);
 
