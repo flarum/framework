@@ -200,7 +200,7 @@ class RevisionCompiler implements CompilerInterface
      */
     public function flush()
     {
-        if (!($this instanceof self)) {
+        if (is_subclass_of($this, self::class)) {
             $revision = $this->getRevision();
 
             $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
