@@ -147,6 +147,15 @@ class ListPostsController extends AbstractCollectionController
             $query->where('type', $type);
         }
 
+        if ($tagId = array_get($filter, 'tag')) {
+            $query->join(
+                'discussions_tags',
+                'discussions_tags.discussion_id',
+                '=',
+                'posts.discussion_id'
+            )->where('discussions_tags.tag_id', $tagId);
+        }
+
         event(new ConfigurePostsQuery($query, $filter));
     }
 }
