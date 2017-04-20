@@ -2,6 +2,7 @@ import UserPage from 'flarum/components/UserPage';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import Button from 'flarum/components/Button';
 import CommentPost from 'flarum/components/CommentPost';
+import Placeholder from 'flarum/components/Placeholder';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
@@ -43,6 +44,7 @@ export default class PostsUserPage extends UserPage {
   }
 
   content() {
+    let posts_remaining = (this.user.data.attributes.commentsCount - this.posts.length);
     let footer;
 
     if (this.loading) {
@@ -59,6 +61,15 @@ export default class PostsUserPage extends UserPage {
       );
     }
 
+    if (this.posts.length === 0 && !this.loading && posts_remaining == 0) {
+      const text = app.translator.trans('core.forum.user.posts_empty_text');
+      return (
+        <div className="PostsUserPage">
+          {Placeholder.component({text})}
+        </div>
+      );
+    }
+
     return (
       <div className="PostsUserPage">
         <ul className="PostsUserPage-list">
@@ -70,6 +81,35 @@ export default class PostsUserPage extends UserPage {
               {CommentPost.component({post})}
             </li>
           ))}
+          {(posts_remaining > 0 && ! this.moreResults && !this.loading) ? (
+          <li>
+            <div class="PostsUserPage-discussion"></div>
+              <article class="Post CommentPost">
+                <div>
+                  <header class="Post-header">
+                    <ul>
+                      <li class="item-user">
+                        <div class="PostUser">
+                          <h3>
+                            <span>
+                              <span class="Avatar PostUser-avatar" style="background: rgb(255, 214, 108);">?</span>
+                              <span class="username">{app.translator.transChoice('core.forum.user.posts_missing_head', posts_remaining, {count: posts_remaining})}!</span>
+                            </span>
+                          </h3>
+                        </div>
+                      </li>
+                    </ul>
+                  </header>
+                <div class="Post-body">
+                  <p>{app.translator.trans('core.forum.user.content_missing_text')}</p>
+                </div>
+                <footer class="Post-footer">
+                  <ul></ul>
+                </footer>
+              </div>
+            </article>
+          </li>
+          ) : ''}
         </ul>
         {footer}
       </div>
