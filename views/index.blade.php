@@ -2,7 +2,7 @@
 $url = app('Flarum\Forum\UrlGenerator');
 ?>
 <div class="container">
-    <h3>{{ $translator->trans('core.views.index.all_discussions_heading') }}</h3>
+    <h2>{{ $translator->trans('core.views.index.all_discussions_heading') }}</h2>
 
     <ul>
         @foreach ($document->data as $discussion)
