@@ -17101,13 +17101,11 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
             // and clients support, then we'll send it as a POST request with the
             // intended method specified in the X-HTTP-Method-Override header.
             if (options.method !== 'GET' && options.method !== 'POST') {
-              (function () {
-                var method = options.method;
-                extend(options, 'config', function (result, xhr) {
-                  return xhr.setRequestHeader('X-HTTP-Method-Override', method);
-                });
-                options.method = 'POST';
-              })();
+              var method = options.method;
+              extend(options, 'config', function (result, xhr) {
+                return xhr.setRequestHeader('X-HTTP-Method-Override', method);
+              });
+              options.method = 'POST';
             }
 
             // When we deserialize JSON data, if for some reason the server has provided
