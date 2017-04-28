@@ -100,7 +100,7 @@ class UploadAvatarHandler
 
             $manager = new ImageManager;
 
-            // Explicitly tell Intervention to encode the image as JSON (instead of having to guess from the extension)
+            // Explicitly tell Intervention to encode the image as PNG (instead of having to guess from the extension)
             $encodedImage = $manager->make($tmpFile)->fit(100, 100)->encode('png', 100);
             file_put_contents($tmpFile, $encodedImage);
 
