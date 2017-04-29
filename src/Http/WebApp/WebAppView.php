@@ -336,7 +336,7 @@ class WebAppView
 
     protected function buildLayout()
     {
-        $view = $this->view->file($this->layout);
+        $view = $this->view->make($this->layout);
 
         $view->content = $this->buildContent();
 
