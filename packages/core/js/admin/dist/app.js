@@ -18103,6 +18103,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                     label: app.translator.trans('core.admin.basics.default_language_heading'),
                     children: [Select.component({
                       options: this.localeOptions,
+                      value: this.values.default_locale(),
                       onchange: this.values.default_locale
                     })]
                   }) : '',
