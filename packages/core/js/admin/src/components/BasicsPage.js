@@ -64,6 +64,7 @@ export default class BasicsPage extends Page {
                 children: [
                   Select.component({
                     options: this.localeOptions,
+                    value: this.values.default_locale(),
                     onchange: this.values.default_locale
                   })
                 ]
