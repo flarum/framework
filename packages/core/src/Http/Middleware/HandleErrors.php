@@ -60,11 +60,11 @@ class HandleErrors
         try {
             return $out($request, $response);
         } catch (Exception $e) {
-            return $this->formatException($e);
+            return $this->formatException($e, $request, $response, $out);
         }
     }
 
-    protected function formatException(Exception $error)
+    protected function formatException(Exception $error, Request $request, Response $response, callable $out = null)
     {
         $status = 500;
         $errorCode = $error->getCode();
