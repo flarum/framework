@@ -3,7 +3,7 @@
  * the prototype of a parent object.
  *
  * @example
- * class MyClass extends mixin(ExtistingClass, evented, etc) {}
+ * class MyClass extends mixin(ExistingClass, evented, etc) {}
  *
  * @param {Class} Parent The class to extend the new class from.
  * @param {...Object} mixins The objects to mix in.
