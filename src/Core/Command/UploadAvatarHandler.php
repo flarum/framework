@@ -101,7 +101,13 @@ class UploadAvatarHandler
             $manager = new ImageManager;
 
             // Explicitly tell Intervention to encode the image as PNG (instead of having to guess from the extension)
-            $encodedImage = $manager->make($tmpFile)->fit(100, 100)->encode('png', 100);
+            // Read exif data to orientate avatar only if EXIF extension is enabled
+            if (extension_loaded('exif')) {
+                $encodedImage = $manager->make($tmpFile)->orientate()->fit(100, 100)->encode('png', 100);
+            }
+            else {
+                $encodedImage = $manager->make($tmpFile)->fit(100, 100)->encode('png', 100);
+            }
             file_put_contents($tmpFile, $encodedImage);
 
             $this->events->fire(
