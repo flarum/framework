@@ -173,7 +173,7 @@ class RegisterUserHandler
             'target' => $this->uploadDir,
         ]);
 
-        $uploadName = Str::lower(Str::quickRandom()).'.jpg';
+        $uploadName = Str::lower(Str::quickRandom()).'.png';
 
         $user->changeAvatarPath($uploadName);
 
