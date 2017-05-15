@@ -25,7 +25,8 @@ class Str
     public static function slug($title)
     {
         // Replace accents and create sanitized slug
-        $slug = (new self)->sanitize_slug_string((new self)->convert_accents($title));
+        $slug = (new self)->convert_accents($title);
+        $slug = (new self)->sanitize_slug_string($slug);
 
         $slug = urldecode($slug);
 
@@ -41,7 +42,7 @@ class Str
      * @param string $str The string to be sanitized for slug.
      * @return string The sanitized slug with unicode support.
      */
-    public function sanitize_slug_string($str)
+    public function sanitize_slug_string ($str)
     {
         $str = preg_replace('/%([a-fA-F0-9][a-fA-F0-9])/', '----$1----', $str);
         // Remove % char that are not part of URLencoded chars.
@@ -50,9 +51,7 @@ class Str
         $str = preg_replace('/----([a-fA-F0-9][a-fA-F0-9])----/', '%$1', $str);
 
         if ($this->seems_utf8($str)) {
-            if (function_exists('mb_strtolower')) {
-                $str = mb_strtolower($str, 'UTF-8');
-            }
+            $str = mb_strtolower($str, 'UTF-8');
             $str = $this->url_encode_unicode_chars($str);
         }
 
@@ -68,6 +67,7 @@ class Str
             '%cb%8a', '%cc%81', '%cd%81', '%cc%80', '%cc%84', '%cc%8c',
         ], '', $str);
 
+
         $str = strtolower($str);
 
         // Simple dot replacement
@@ -76,7 +76,7 @@ class Str
         // Keep only normalized chars (including URL encoded chars)
         $str = preg_replace('/[^%a-z0-9 _-]/', '', $str);
 
-        // Remove nultiple spaces
+        // Remove multiple spaces
         $str = preg_replace('/\s+/', '-', $str);
 
         // Remove multiple dashes
@@ -253,10 +253,6 @@ class Str
      */
     public function seems_utf8($str)
     {
-        if (mb_detect_encoding($str, 'UTF-8', true)) {
-            return true;
-        } else {
-            return false;
-        }
+        return mb_detect_encoding($str, 'UTF-8', true) !== false;
     }
 }
