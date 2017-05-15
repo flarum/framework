@@ -41,7 +41,7 @@ class Str
      * @param string $str The string to be sanitized for slug.
      * @return string The sanitized slug with unicode support.
      */
-    public function sanitize_slug_string ($str)
+    public function sanitize_slug_string($str)
     {
         $str = preg_replace('/%([a-fA-F0-9][a-fA-F0-9])/', '----$1----', $str);
         // Remove % char that are not part of URLencoded chars.
@@ -67,7 +67,6 @@ class Str
             '%e2%80%9f', '%c2%a9', '%c2%ae', '%c2%b0', '%e2%80%a6', '%e2%84%a2', '%c2%b4',
             '%cb%8a', '%cc%81', '%cd%81', '%cc%80', '%cc%84', '%cc%8c',
         ], '', $str);
-
 
         $str = strtolower($str);
 
