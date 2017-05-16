@@ -25,8 +25,8 @@ class Str
     public static function slug($title)
     {
         // Replace accents and create sanitized slug
-        $slug = (new self)->convert_accents($title);
-        $slug = (new self)->sanitize_slug_string($slug);
+        $slug = static::convert_accents($title);
+        $slug = static::sanitize_slug_string($slug);
 
         $slug = urldecode($slug);
 
@@ -42,7 +42,7 @@ class Str
      * @param string $str The string to be sanitized for slug.
      * @return string The sanitized slug with unicode support.
      */
-    public function sanitize_slug_string($str)
+    public static function sanitize_slug_string($str)
     {
         $str = preg_replace('/%([a-fA-F0-9][a-fA-F0-9])/', '----$1----', $str);
         // Remove % char that are not part of URLencoded chars.
@@ -50,9 +50,9 @@ class Str
         // Restore original URLencoded chars with %.
         $str = preg_replace('/----([a-fA-F0-9][a-fA-F0-9])----/', '%$1', $str);
 
-        if ($this->seems_utf8($str)) {
+        if (static::seems_utf8($str)) {
             $str = mb_strtolower($str, 'UTF-8');
-            $str = $this->url_encode_unicode_chars($str);
+            $str = static::url_encode_unicode_chars($str);
         }
 
         // Replace nbsp ( ), ndash (–) and mdash (—) with hyphens (-)
@@ -97,13 +97,13 @@ class Str
      * @param string $string Text where accents chars will be converted to ASCII.
      * @return string Parsed string with accents removed.
      */
-    public function convert_accents($string)
+    public static function convert_accents($string)
     {
         if (! preg_match('/[\x80-\xff]/', $string)) {
             return $string;
         }
 
-        if ($this->seems_utf8($string)) {
+        if (static::seems_utf8($string)) {
             $char_replacements = [
             // Replacements for Latin-1 Supplement (U+0080 - U+00FF)
             'ª' => 'a', 'º' => 'o', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A',
@@ -201,7 +201,7 @@ class Str
      * @param string $utf8_string
      * @return string String with unicode values properly encoded for URI.
      */
-    public function url_encode_unicode_chars($utf8_string)
+    public static function url_encode_unicode_chars($utf8_string)
     {
         $encoded_str = '';
         $values = [];
@@ -250,7 +250,7 @@ class Str
      * @param string $str String to be checked against UTF-8 models
      * @return bool True if string follows a UTF-8 model, false otherwise.
      */
-    public function seems_utf8($str)
+    public static function seems_utf8($str)
     {
         return mb_detect_encoding($str, 'UTF-8', true) !== false;
     }
