@@ -18,11 +18,11 @@ export default {
    * @return {ItemList}
    * @public
    */
-  controls(discussion, context) {
+  controls(user, context) {
     const items = new ItemList();
 
     ['user', 'moderation', 'destructive'].forEach(section => {
-      const controls = this[section + 'Controls'](discussion, context).toArray();
+      const controls = this[section + 'Controls'](user, context).toArray();
       if (controls.length) {
         controls.forEach(item => items.add(item.itemName, item));
         items.add(section + 'Separator', Separator.component());
