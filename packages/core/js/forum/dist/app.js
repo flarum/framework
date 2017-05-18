@@ -32918,13 +32918,13 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
     }],
     execute: function () {
       _export('default', {
-        controls: function controls(discussion, context) {
+        controls: function controls(user, context) {
           var _this = this;
 
           var items = new ItemList();
 
           ['user', 'moderation', 'destructive'].forEach(function (section) {
-            var controls = _this[section + 'Controls'](discussion, context).toArray();
+            var controls = _this[section + 'Controls'](user, context).toArray();
             if (controls.length) {
               controls.forEach(function (item) {
                 return items.add(item.itemName, item);
