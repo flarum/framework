@@ -107,7 +107,7 @@ class ListPostsController extends AbstractCollectionController
      */
     private function getPostIds(ServerRequestInterface $request)
     {
-        $filter = $this->extractFilter($request) ?: array();
+        $filter = $this->extractFilter($request) ?: [];
         $sort = $this->extractSort($request);
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
