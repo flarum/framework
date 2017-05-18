@@ -186,7 +186,7 @@ abstract class AbstractSerializeController implements ControllerInterface
      */
     protected function extractFilter(ServerRequestInterface $request)
     {
-        return $this->buildParameters($request)->getFilter();
+        return $this->buildParameters($request)->getFilter() ?: [];
     }
 
     /**
