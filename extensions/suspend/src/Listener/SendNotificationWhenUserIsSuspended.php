@@ -14,7 +14,6 @@ namespace Flarum\Suspend\Listener;
 use DateTime;
 use Flarum\Api\Serializer\UserBasicSerializer;
 use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\Post;
 use Flarum\Core\User;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Suspend\Event\UserWasSuspended;
