@@ -14,9 +14,9 @@ namespace Flarum\Suspend\Listener;
 use DateTime;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\UserWillBeSaved;
-use Flarum\Suspend\SuspendValidator;
 use Flarum\Suspend\Event\UserWasSuspended;
 use Flarum\Suspend\Event\UserWasUnsuspended;
+use Flarum\Suspend\SuspendValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveSuspensionToDatabase
