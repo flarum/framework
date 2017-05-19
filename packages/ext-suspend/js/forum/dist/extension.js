@@ -152,10 +152,115 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
 });;
 'use strict';
 
-System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal'], function (_export, _context) {
+System.register('flarum/suspend/components/UserSuspendedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/humanTime'], function (_export, _context) {
   "use strict";
 
-  var extend, app, UserControls, Button, Badge, Model, User, SuspendUserModal;
+  var Notification, username, humanTime, UserSuspendedNotification;
+  return {
+    setters: [function (_flarumComponentsNotification) {
+      Notification = _flarumComponentsNotification.default;
+    }, function (_flarumHelpersUsername) {
+      username = _flarumHelpersUsername.default;
+    }, function (_flarumHelpersHumanTime) {
+      humanTime = _flarumHelpersHumanTime.default;
+    }],
+    execute: function () {
+      UserSuspendedNotification = function (_Notification) {
+        babelHelpers.inherits(UserSuspendedNotification, _Notification);
+
+        function UserSuspendedNotification() {
+          babelHelpers.classCallCheck(this, UserSuspendedNotification);
+          return babelHelpers.possibleConstructorReturn(this, (UserSuspendedNotification.__proto__ || Object.getPrototypeOf(UserSuspendedNotification)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(UserSuspendedNotification, [{
+          key: 'icon',
+          value: function icon() {
+            return 'ban';
+          }
+        }, {
+          key: 'href',
+          value: function href() {
+            return app.route.user(this.props.notification.subject());
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            var notification = this.props.notification;
+            var actor = notification.sender();
+            var suspendUntil = notification.content();
+            var timeReadable = moment(suspendUntil.date).from(notification.time(), true);
+
+            return app.translator.transChoice('flarum-suspend.forum.notifications.user_suspended_text', {
+              actor: actor,
+              timeReadable: timeReadable
+            });
+          }
+        }]);
+        return UserSuspendedNotification;
+      }(Notification);
+
+      _export('default', UserSuspendedNotification);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/suspend/components/UserUnsuspendedNotification', ['flarum/components/Notification', 'flarum/helpers/username', 'flarum/helpers/humanTime'], function (_export, _context) {
+  "use strict";
+
+  var Notification, username, humanTime, UserUnsuspendedNotification;
+  return {
+    setters: [function (_flarumComponentsNotification) {
+      Notification = _flarumComponentsNotification.default;
+    }, function (_flarumHelpersUsername) {
+      username = _flarumHelpersUsername.default;
+    }, function (_flarumHelpersHumanTime) {
+      humanTime = _flarumHelpersHumanTime.default;
+    }],
+    execute: function () {
+      UserUnsuspendedNotification = function (_Notification) {
+        babelHelpers.inherits(UserUnsuspendedNotification, _Notification);
+
+        function UserUnsuspendedNotification() {
+          babelHelpers.classCallCheck(this, UserUnsuspendedNotification);
+          return babelHelpers.possibleConstructorReturn(this, (UserUnsuspendedNotification.__proto__ || Object.getPrototypeOf(UserUnsuspendedNotification)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(UserUnsuspendedNotification, [{
+          key: 'icon',
+          value: function icon() {
+            return 'ban';
+          }
+        }, {
+          key: 'href',
+          value: function href() {
+            return app.route.user(this.props.notification.subject());
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            var notification = this.props.notification;
+            var actor = notification.sender();
+
+            return app.translator.transChoice('flarum-suspend.forum.notifications.user_unsuspended_text', {
+              actor: actor
+            });
+          }
+        }]);
+        return UserUnsuspendedNotification;
+      }(Notification);
+
+      _export('default', UserUnsuspendedNotification);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/utils/UserControls', 'flarum/components/Button', 'flarum/components/Badge', 'flarum/Model', 'flarum/models/User', 'flarum/suspend/components/SuspendUserModal', 'flarum/suspend/components/UserSuspendedNotification', 'flarum/suspend/components/UserUnsuspendedNotification'], function (_export, _context) {
+  "use strict";
+
+  var extend, app, UserControls, Button, Badge, Model, User, SuspendUserModal, UserSuspendedNotification, UserUnsuspendedNotification;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -173,10 +278,17 @@ System.register('flarum/suspend/main', ['flarum/extend', 'flarum/app', 'flarum/u
       User = _flarumModelsUser.default;
     }, function (_flarumSuspendComponentsSuspendUserModal) {
       SuspendUserModal = _flarumSuspendComponentsSuspendUserModal.default;
+    }, function (_flarumSuspendComponentsUserSuspendedNotification) {
+      UserSuspendedNotification = _flarumSuspendComponentsUserSuspendedNotification.default;
+    }, function (_flarumSuspendComponentsUserUnsuspendedNotification) {
+      UserUnsuspendedNotification = _flarumSuspendComponentsUserUnsuspendedNotification.default;
     }],
     execute: function () {
 
       app.initializers.add('flarum-suspend', function () {
+        app.notificationComponents.userSuspended = UserSuspendedNotification;
+        app.notificationComponents.userUnsuspended = UserUnsuspendedNotification;
+
         User.prototype.canSuspend = Model.attribute('canSuspend');
         User.prototype.suspendUntil = Model.attribute('suspendUntil', Model.transformDate);
 

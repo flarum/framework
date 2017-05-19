@@ -15,6 +15,8 @@ use DateTime;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\UserWillBeSaved;
 use Flarum\Suspend\SuspendValidator;
+use Flarum\Suspend\Event\UserWasSuspended;
+use Flarum\Suspend\Event\UserWasUnsuspended;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveSuspensionToDatabase
@@ -60,6 +62,12 @@ class SaveSuspensionToDatabase
             $this->assertCan($actor, 'suspend', $user);
 
             $user->suspend_until = new DateTime($attributes['suspendUntil']);
+
+            if (isset($attributes['suspendUntil'])) {
+                $user->raise(new UserWasSuspended($user, $actor));
+            } else {
+                $user->raise(new UserWasUnsuspended($user, $actor));
+            }
         }
     }
 }
