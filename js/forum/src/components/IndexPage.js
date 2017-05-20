@@ -8,7 +8,7 @@ import WelcomeHero from 'flarum/components/WelcomeHero';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import LogInModal from 'flarum/components/LogInModal';
 import DiscussionPage from 'flarum/components/DiscussionPage';
-import Select from 'flarum/components/Select';
+import Dropdown from 'flarum/components/Dropdown';
 import Button from 'flarum/components/Button';
 import LinkButton from 'flarum/components/LinkButton';
 import SelectDropdown from 'flarum/components/SelectDropdown';
@@ -212,10 +212,21 @@ export default class IndexPage extends Page {
     }
 
     items.add('sort',
-      Select.component({
-        options: sortOptions,
-        value: this.params().sort || Object.keys(sortMap)[0],
-        onchange: this.changeSort.bind(this)
+      Dropdown.component({
+        buttonClassName: "Select-input FormControl",
+        label: sortOptions[this.params().sort] || Object.keys(sortMap).map(key => sortOptions[key])[0],
+        caretIcon: "sort",
+        children: Object.keys(sortOptions).map(value => {
+          const label = sortOptions[value];
+          const active = (this.params().sort || Object.keys(sortMap)[0]) === value;
+
+          return Button.component({
+            children: label,
+            icon: active ? 'check': true,
+            onclick: this.changeSort.bind(this, value),
+            active: active,
+          })
+        }),
       })
     );
 

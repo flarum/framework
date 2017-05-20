@@ -23281,10 +23281,10 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
 });;
 'use strict';
 
-System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/helpers/icon', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Select', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export, _context) {
+System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/components/Page', 'flarum/utils/ItemList', 'flarum/helpers/listItems', 'flarum/helpers/icon', 'flarum/components/DiscussionList', 'flarum/components/WelcomeHero', 'flarum/components/DiscussionComposer', 'flarum/components/LogInModal', 'flarum/components/DiscussionPage', 'flarum/components/Dropdown', 'flarum/components/Button', 'flarum/components/LinkButton', 'flarum/components/SelectDropdown'], function (_export, _context) {
   "use strict";
 
-  var extend, Page, ItemList, listItems, icon, DiscussionList, WelcomeHero, DiscussionComposer, LogInModal, DiscussionPage, Select, Button, LinkButton, SelectDropdown, IndexPage;
+  var extend, Page, ItemList, listItems, icon, DiscussionList, WelcomeHero, DiscussionComposer, LogInModal, DiscussionPage, Dropdown, Button, LinkButton, SelectDropdown, IndexPage;
   return {
     setters: [function (_flarumExtend) {
       extend = _flarumExtend.extend;
@@ -23306,8 +23306,8 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
       LogInModal = _flarumComponentsLogInModal.default;
     }, function (_flarumComponentsDiscussionPage) {
       DiscussionPage = _flarumComponentsDiscussionPage.default;
-    }, function (_flarumComponentsSelect) {
-      Select = _flarumComponentsSelect.default;
+    }, function (_flarumComponentsDropdown) {
+      Dropdown = _flarumComponentsDropdown.default;
     }, function (_flarumComponentsButton) {
       Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLinkButton) {
@@ -23510,6 +23510,8 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
         }, {
           key: 'viewItems',
           value: function viewItems() {
+            var _this2 = this;
+
             var items = new ItemList();
             var sortMap = app.cache.discussionList.sortMap();
 
@@ -23518,10 +23520,23 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               sortOptions[i] = app.translator.trans('core.forum.index_sort.' + i + '_button');
             }
 
-            items.add('sort', Select.component({
-              options: sortOptions,
-              value: this.params().sort || Object.keys(sortMap)[0],
-              onchange: this.changeSort.bind(this)
+            items.add('sort', Dropdown.component({
+              buttonClassName: "Select-input FormControl",
+              label: sortOptions[this.params().sort] || Object.keys(sortMap).map(function (key) {
+                return sortOptions[key];
+              })[0],
+              caretIcon: "sort",
+              children: Object.keys(sortOptions).map(function (value) {
+                var label = sortOptions[value];
+                var active = (_this2.params().sort || Object.keys(sortMap)[0]) === value;
+
+                return Button.component({
+                  children: label,
+                  icon: active ? 'check' : true,
+                  onclick: _this2.changeSort.bind(_this2, value),
+                  active: active
+                });
+              })
             }));
 
             return items;
