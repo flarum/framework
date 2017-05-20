@@ -2,5 +2,10 @@
 .gitignore export-ignore
 .gitmodules export-ignore
 .travis.yml export-ignore
+.editorconfig export-ignore
+.styleci.yml export-ignore
+
+phpunit.xml export-ignore
+tests export-ignore
 
 js/*/dist/*.js -diff
