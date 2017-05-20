@@ -91,6 +91,13 @@ export default class PermissionGrid extends Component {
       allowGuest: true
     }, 100);
 
+    items.add('viewUserList', {
+      icon: 'users',
+      label: app.translator.trans('core.admin.permissions.view_user_list_label'),
+      permission: 'viewUserList',
+      allowGuest: true
+    }, 100);
+
     items.add('signUp', {
       icon: 'user-plus',
       label: app.translator.trans('core.admin.permissions.sign_up_label'),
