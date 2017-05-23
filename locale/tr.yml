@@ -1,0 +1,111 @@
+core:
+  account: Hesap
+  activity: Aktivite
+  administration: Yönetim
+  alert: Alarm
+  all_discussions: Tüm Konular
+  before_log_in_link: Zaten üye misiniz?
+  before_sign_up_link: Üye değil misiniz?
+  bio_placeholder: Kendinizle ilgili birşeyler yazın
+  cannot_reply: Cevaplanamadı
+  cannot_reply_help: Bu konuya cevap vermek için yetkiniz yok.
+  change_email: E-mail adresini değiştir
+  change_password: Şifre değiştir
+  change_password_help: Aşağıdaki butona tıkladıktan sonra şifre değişikliği için gelecek mail mesajındaki onay bağlantısına tıklayınız.
+  close: Kapat
+  confirm_delete_discussion: Bu konuyu silmek istediğinizden emin misiniz?
+  confirm_discard_discussion: Konuyu henüz kaydetmediniz. Kaydetmeden devam etmek istiyor musunuz?
+  confirm_discard_edit: Değişiklikleri kaydetmediniz. Kaydetmeden devam etmek istiyor musunuz?
+  confirm_discard_reply: Cevabınızı henüz kaydetmediniz. Kaydetmeden devam etmek istiyor musunuz?
+  confirmation_email_sent: "E-mail adresinize ({email}) bir onay mesajı gönderdik. Eğer e-mail ulaşmadıysa spam/junk klasörünü kontrol ediniz."
+  controls: Kontroller
+  delete: Sil
+  delete_forever: Kalıcı olarak Sil
+  deleted: "[silindi]"
+  disclose_online: Sitede olduğumu diğer üyeler de görebilsin
+  discussion_renamed_post: "{old} olan başlık {username} tarafından {new} olarak değiştirildi."
+  discussion_renamed_notification: "{username} başlığı değiştirdi"
+  discussion_replied: "En son {ago} {username} tarafından cevaplandı"
+  discussion_started: "{ago} {username} tarafından başlatıldı"
+  discussion_title: Konu Başlığı
+  discussions: Konular
+  dismiss: Yoksay
+  edit: Düzelt
+  editing_post: "{discussion} konusu içindeki #{number} numaralı mesaj "
+  email: E-mail
+  email_confirmation_required: "Giriş yapmadan önce e-mail adresinize ({email}) gönderilen mesajın içindeki onay bağlantısına tıklayınız. Eğer e-mail ulaşmadıysa spam/junk klasörünü kontrol ediniz."
+  exit_full_screen: Tam Ekrandan Çık
+  forgot_password: Şifremi Unuttum
+  forgot_password_help: Şifrenizi sıfırlamanızı sağlayacak bağlantıyı gönderebilmemiz için sitemize üye olduğunuz e-mail adresinizi giriniz.
+  forgot_password_link: Şifrenizi mi unuttunuz?
+  full_screen: Tam Ekran
+  go_to: "Git: {location}"
+  group_admin: Yönetici
+  group_admins: Yöneticiler
+  group_guest: Misafir
+  group_guests: Misafirler
+  group_member: Üye
+  group_members: Üyeler
+  group_mod: Mod
+  group_mods: Modlar
+  invalid_login: Giriş bilgileriniz hatalı.
+  joined: "Katılma {ago}"
+  joined_the_forum: Foruma giriş yaptı
+  load_more: Daha fazla göster
+  log_in: Giriş
+  log_in_to_reply: Cevaplamak için Giriş yapınız
+  log_out: Çıkış
+  mark_all_as_read: Hepsini Okundu olarak işaretle
+  mark_as_read: Okundu olarak işaretle
+  minimize: Küçült
+  no_notifications: Bildirim yok.
+  notifications: Bildirimler
+  notify_discussion_renamed: Başlattığımı konuyu biri değiştirdi
+  now: Şimdi
+  online: Sitede
+  original_post: Orijinal Mesaj
+  password: Şifre
+  password_reset_email_sent: Şifrenizi değiştireceğiniz bağlantıyı içeren mesaj e-mail adresinize gönderildi. Eğer mail mesajı ulaşmazsa Spam klasörünüzü kontrol ediniz.
+  period_later: "{period} sonra"
+  post_discussion: Konuyu Gönder
+  post_edited: "{username} düzenledi {ago}"
+  post_number: "Mesaj #{number}"
+  post_reply: Cevabı Gönder
+  posted_a_reply: Cevap gönderildi
+  posts: Mesajlar
+  powered_by_flarum: Bu sitede Flarum Kullanılmaktadır.
+  privacy: Gizlilik
+  profile: Profil
+  prompt_rename_discussion: Konu için bir başlık giriniz :
+  recover_password: Şifre hatırlat
+  refresh: Tazele
+  remove: Sil
+  rename: Adını Değiştir
+  reply: Cevapla
+  reply_posted: Cevabınız gönderildi.
+  restore: Geri Yükle
+  save_changes: Kaydet
+  search_all_discussions: 'Tüm konularda ara "{query}"'
+  search_forum: Forumda Ara
+  send_password_reset_email: Şifre Sıfırlama E-Maili Yolla
+  settings: Ayarlar
+  sign_up: Üye Ol
+  sort_latest: Son Eklenen
+  sort_newest: En Yeni
+  sort_oldest: En Eski
+  sort_relevance: İlişki
+  sort_top: Popüler
+  start_a_discussion: Konu Başlat
+  started_a_discussion: Konu Başlatıldı
+  unread_posts: "{count} okunmamış"
+  upload: Yükle
+  username: Kullanıcı Adı
+  username_or_email: Kullanıcı adı veya E-mail
+  users: Kullanıcılar
+  view: Göster
+  viewing_posts:
+    one: "Gösterilen : {index} / Toplam : {count}"
+    other: "Gösterilen : {index} / Toplam : {count}"
+  welcome_user: "Hoşgeldiniz, {username}!"
+  write_a_post: Mesaj yaz...
+  write_a_reply: Cevap yaz...
