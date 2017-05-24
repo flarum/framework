@@ -12,6 +12,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\UrlGenerator;
+use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Search\SearchCriteria;
 use Flarum\Core\Search\User\UserSearcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -66,6 +67,11 @@ class ListUsersController extends AbstractCollectionController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
+
+        if ($actor->cannot('viewUserList')) {
+            throw new PermissionDeniedException;
+        }
+
         $query = array_get($this->extractFilter($request), 'q');
         $sort = $this->extractSort($request);
 
