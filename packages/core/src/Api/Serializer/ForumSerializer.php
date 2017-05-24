@@ -80,7 +80,8 @@ class ForumSerializer extends AbstractSerializer
             'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
             'defaultRoute'  => $this->settings->get('default_route'),
             'canViewDiscussions' => $this->actor->can('viewDiscussions'),
-            'canStartDiscussion' => $this->actor->can('startDiscussion')
+            'canStartDiscussion' => $this->actor->can('startDiscussion'),
+            'canViewUserList' => $this->actor->can('viewUserList')
         ];
 
         if ($this->actor->can('administrate')) {
