@@ -291,9 +291,10 @@ class InstallCommand extends AbstractCommand
             // Guests can view the forum
             [Group::GUEST_ID, 'viewDiscussions'],
 
-            // Members can create and reply to discussions
+            // Members can create and reply to discussions, and view the user list
             [Group::MEMBER_ID, 'startDiscussion'],
             [Group::MEMBER_ID, 'discussion.reply'],
+            [Group::MEMBER_ID, 'viewUserList'],
 
             // Moderators can edit + delete stuff
             [static::MOD_GROUP_ID, 'discussion.delete'],
