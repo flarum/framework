@@ -148,6 +148,7 @@ core:
       start_discussions_label: Start discussions
       view_discussions_label: View discussions
       view_post_ips_label: View post IP addresses
+      view_user_list_label: View User List
 
     # These translations are used in the dropdown menus on the Permissions page.
     permissions_controls:
