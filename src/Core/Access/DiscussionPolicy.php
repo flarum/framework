@@ -45,6 +45,7 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * @param SettingsRepositoryInterface $settings
      * @param Gate $gate
+     * @param Dispatcher $events
      */
     public function __construct(SettingsRepositoryInterface $settings, Gate $gate, Dispatcher $events)
     {
