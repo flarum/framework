@@ -35,7 +35,7 @@ class FileDataProvider implements DataProviderInterface
         if (file_exists($configurationFile)) {
             $configurationFileContents = file_get_contents($configurationFile);
             // Try parsing JSON
-            if (($json = json_decode($configurationFileContents)) !== null) {
+            if (($json = json_decode($configurationFileContents, true)) !== null) {
                 //Use JSON if Valid
                 $configuration = $json;
             } else {
