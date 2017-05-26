@@ -88,6 +88,21 @@ class Post extends AbstractModel
 
         static::deleted(function (Post $post) {
             $post->raise(new PostWasDeleted($post));
+
+            //Delete notifications about this post
+            $notifs = Notification::where('subject_id', $post->id)->orWhere('subject_id', $post->discussion_id)->get();
+
+            foreach ($notifs as $notif)
+            {
+                if (!$notif->subject) {
+                    $notif->delete();
+                }
+                else {
+                    if ($notif->type == $post->type) {
+                        $notif->delete();
+                    }
+                }
+            }
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
