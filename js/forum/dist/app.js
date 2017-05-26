@@ -23875,10 +23875,10 @@ System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/u
 });;
 'use strict';
 
-System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export, _context) {
+System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/components/Switch', 'flarum/utils/extractText'], function (_export, _context) {
   "use strict";
 
-  var Modal, ForgotPasswordModal, SignUpModal, Alert, Button, LogInButtons, extractText, LogInModal;
+  var Modal, ForgotPasswordModal, SignUpModal, Alert, Button, LogInButtons, Switch, extractText, LogInModal;
   return {
     setters: [function (_flarumComponentsModal) {
       Modal = _flarumComponentsModal.default;
@@ -23892,6 +23892,8 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
       Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLogInButtons) {
       LogInButtons = _flarumComponentsLogInButtons.default;
+    }, function (_flarumComponentsSwitch) {
+      Switch = _flarumComponentsSwitch.default;
     }, function (_flarumUtilsExtractText) {
       extractText = _flarumUtilsExtractText.default;
     }],
@@ -23965,10 +23967,14 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                     disabled: this.loading })
                 ),
                 m(
-                  'label',
-                  { className: 'checkbox' },
-                  m('input', { name: 'remember', type: 'checkbox', bidi: this.remember, disabled: this.loading }),
-                  app.translator.trans('core.forum.log_in.remember_me_label')
+                  'div',
+                  { className: 'Form-group' },
+                  Switch.component({
+                    children: app.translator.trans('core.forum.log_in.remember_me_label'),
+                    disabled: this.loading,
+                    onchange: this.remember,
+                    state: this.remember()
+                  })
                 ),
                 m(
                   'div',
@@ -32912,13 +32918,13 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
     }],
     execute: function () {
       _export('default', {
-        controls: function controls(discussion, context) {
+        controls: function controls(user, context) {
           var _this = this;
 
           var items = new ItemList();
 
           ['user', 'moderation', 'destructive'].forEach(function (section) {
-            var controls = _this[section + 'Controls'](discussion, context).toArray();
+            var controls = _this[section + 'Controls'](user, context).toArray();
             if (controls.length) {
               controls.forEach(function (item) {
                 return items.add(item.itemName, item);

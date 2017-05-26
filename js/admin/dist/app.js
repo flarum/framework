@@ -18103,6 +18103,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                     label: app.translator.trans('core.admin.basics.default_language_heading'),
                     children: [Select.component({
                       options: this.localeOptions,
+                      value: this.values.default_locale(),
                       onchange: this.values.default_locale
                     })]
                   }) : '',
@@ -20290,6 +20291,13 @@ System.register('flarum/components/PermissionGrid', ['flarum/Component', 'flarum
               icon: 'eye',
               label: app.translator.trans('core.admin.permissions.view_discussions_label'),
               permission: 'viewDiscussions',
+              allowGuest: true
+            }, 100);
+
+            items.add('viewUserList', {
+              icon: 'users',
+              label: app.translator.trans('core.admin.permissions.view_user_list_label'),
+              permission: 'viewUserList',
               allowGuest: true
             }, 100);
 
