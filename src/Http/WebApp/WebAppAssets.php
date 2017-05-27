@@ -13,6 +13,7 @@ namespace Flarum\Http\WebApp;
 
 use Flarum\Asset\JsCompiler;
 use Flarum\Asset\LessCompiler;
+use Flarum\Asset\RevisionCompiler;
 use Flarum\Foundation\Application;
 use Flarum\Locale\JsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
@@ -58,6 +59,12 @@ class WebAppAssets
     {
         $this->flushJs();
         $this->flushCss();
+        $this->flushManifest();
+    }
+
+    public function flushManifest()
+    {
+        $this->getRevision()->flush();
     }
 
     public function flushJs()
@@ -109,6 +116,18 @@ class WebAppAssets
             "$this->name.css",
             $this->shouldWatch(),
             $this->getLessStorage()
+        );
+    }
+
+    /**
+     * @return RevisionCompiler
+     */
+    public function getRevision()
+    {
+        return new RevisionCompiler(
+            $this->getDestination(),
+            '',
+            $this->shouldWatch()
         );
     }
 

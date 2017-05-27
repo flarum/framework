@@ -29,6 +29,16 @@ class RevisionCompiler implements CompilerInterface
     protected $watch;
 
     /**
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * @var string
+     */
+    protected $filename;
+
+    /**
      * @param string $path
      * @param string $filename
      * @param bool $watch
@@ -190,11 +200,15 @@ class RevisionCompiler implements CompilerInterface
      */
     public function flush()
     {
-        $revision = $this->getRevision();
+        if (is_subclass_of($this, self::class)) {
+            $revision = $this->getRevision();
 
-        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+            $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 
-        $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
+            $file = $this->path . '/' . substr_replace($this->filename, '-' . $revision, -strlen($ext) - 1, 0);
+        } else {
+            $file = $this->getRevisionFile();
+        }
 
         if (file_exists($file)) {
             unlink($file);
