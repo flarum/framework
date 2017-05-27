@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Flarum\Core\Discussion;
 use Flarum\Core\User;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
+use Flarum\Event\ScopePrivateDiscussionVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,6 +45,7 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * @param SettingsRepositoryInterface $settings
      * @param Gate $gate
+     * @param Dispatcher $events
      */
     public function __construct(SettingsRepositoryInterface $settings, Gate $gate, Dispatcher $events)
     {
@@ -70,6 +72,15 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
+        // Hide private discussions per default.
+        $query->where(function ($query) use ($actor) {
+            $query->where('discussions.is_private', false);
+
+            $this->events->fire(
+                new ScopePrivateDiscussionVisibility($query, $actor)
+            );
+        });
+
         if ($actor->cannot('viewDiscussions')) {
             $query->whereRaw('FALSE');
         } elseif (! $actor->hasPermission('discussion.hide')) {

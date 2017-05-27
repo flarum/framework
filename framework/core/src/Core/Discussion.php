@@ -49,6 +49,7 @@ use Flarum\Util\Str;
  * @property Post|null $lastPost
  * @property User|null $lastUser
  * @property \Illuminate\Database\Eloquent\Collection $readers
+ * @property bool $is_private
  */
 class Discussion extends AbstractModel
 {
@@ -71,6 +72,15 @@ class Discussion extends AbstractModel
      * {@inheritdoc}
      */
     protected $dates = ['start_time', 'last_time', 'hide_time'];
+
+    /**
+     * Casts properties to a specific type.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_private' => 'boolean'
+    ];
 
     /**
      * The user for which the state relationship should be loaded.
