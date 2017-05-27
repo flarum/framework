@@ -33,8 +33,15 @@ class FileDataProvider implements DataProviderInterface
 
         // Check if file exists before parsing content
         if (file_exists($configurationFile)) {
-            // Parse YAML
-            $configuration = Yaml::parse(file_get_contents($configurationFile));
+            $configurationFileContents = file_get_contents($configurationFile);
+            // Try parsing JSON
+            if (($json = json_decode($configurationFileContents, true)) !== null) {
+                //Use JSON if Valid
+                $configuration = $json;
+            } else {
+                //Else use YAML
+                $configuration = Yaml::parse($configurationFileContents);
+            }
 
             // Define configuration variables
             $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
