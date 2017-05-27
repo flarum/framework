@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Flarum\Core\Post;
 use Flarum\Core\User;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\Event\ScopePrivatePostVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -29,13 +30,18 @@ class PostPolicy extends AbstractPolicy
      * @var SettingsRepositoryInterface
      */
     protected $settings;
+    /**
+     * @var Dispatcher
+     */
+    protected $events;
 
     /**
      * @param SettingsRepositoryInterface $settings
      */
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $events)
     {
         $this->settings = $settings;
+        $this->events = $events;
     }
 
     /**
@@ -66,6 +72,15 @@ class PostPolicy extends AbstractPolicy
      */
     public function scopePostVisibility(ScopePostVisibility $event)
     {
+        // Hide private posts per default.
+        $event->query->where(function ($query) use ($event) {
+            $query->where('posts.is_private', false);
+
+            $this->events->fire(
+                new ScopePrivatePostVisibility($event->discussion, $query, $event->actor)
+            );
+        });
+
         // When fetching a discussion's posts: if the user doesn't have permission
         // to moderate the discussion, then they can't see posts that have been
         // hidden by someone other than themself.

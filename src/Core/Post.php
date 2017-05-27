@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property User|null $editUser
  * @property User|null $hideUser
  * @property string $ip_address
+ * @property bool $is_private
  */
 class Post extends AbstractModel
 {
@@ -50,6 +51,15 @@ class Post extends AbstractModel
      * {@inheritdoc}
      */
     protected $dates = ['time', 'edit_time', 'hide_time'];
+
+    /**
+     * Casts properties to a specific type.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_private' => 'boolean'
+    ];
 
     /**
      * A map of post types, as specified in the `type` column, to their
