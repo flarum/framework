@@ -6,6 +6,25 @@
   }
 }
 
+::-webkit-scrollbar {
+  width: 7px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  -webkit-border-radius: 10px;
+  background: fade(#000, 10%);
+	border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: fade(@primary-color, 80%); 
+
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background: fade(@primary-color, 40%);
+}
+
 body {
   background: @body-bg;
   color: @text-color;
