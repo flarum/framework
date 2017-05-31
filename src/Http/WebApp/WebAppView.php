@@ -302,11 +302,35 @@ class WebAppView
         $baseUrl = array_get($forum, 'data.attributes.baseUrl');
         $view->cssUrls = $this->buildCssUrls($baseUrl);
         $view->jsUrls = $this->buildJsUrls($baseUrl);
+        $this->addLinkHeaders();
 
         $view->head = $this->buildHeadContent();
         $view->foot = implode("\n", $this->foot);
 
         return $view->render();
+    }
+
+    protected function addLinkHeaders()
+    {
+        $css = [
+            str_replace(public_path(), '', $this->getCss()->getFile()),
+            str_replace(public_path(), '', $this->localeCss->getFile())
+        ];
+        $js = [
+            str_replace(public_path(), '', $this->getJs()->getFile()),
+            str_replace(public_path(), '', $this->localeJs->getFile())
+        ];
+        foreach ($css as $cssUrl) {
+            if ($cssUrl != null) {
+                header('Link: <'.$cssUrl.'>; rel=preload, as=style', false);
+            }
+        }
+
+        foreach ($js as $jsUrl) {
+            if ($jsUrl != null) {
+                header('Link: <'.$jsUrl.'>; rel=preload, as=script', false);
+            }
+        }
     }
 
     protected function buildTitle($forumTitle)
