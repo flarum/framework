@@ -12,6 +12,7 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
+use Flarum\Event\ExtensionsWereLoaded;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\ExtensionWasUninstalled;
@@ -86,9 +87,13 @@ class ExtensionManager
 
                 $extensions->put($extension->getId(), $extension);
             }
-            $this->extensions = $extensions->sortBy(function ($extension, $name) {
+            $extensions = $extensions->sortBy(function ($extension, $name) {
                 return $extension->composerJsonAttribute('extra.flarum-extension.title');
             });
+
+            $this->dispatcher->fire(new ExtensionsWereLoaded($extensions));
+
+            $this->extensions = $extensions;
         }
 
         return $this->extensions;
