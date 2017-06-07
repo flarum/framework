@@ -202,8 +202,8 @@ class InstallCommand extends AbstractCommand
                 'database'  => $dbConfig['database'],
                 'username'  => $dbConfig['username'],
                 'password'  => $dbConfig['password'],
-                'charset'   => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
+                'charset'   => 'utf8',
+                'collation' => 'utf8_unicode_ci',
                 'prefix'    => $dbConfig['prefix'],
                 'port'      => $dbConfig['port'],
                 'strict'    => false
@@ -321,7 +321,7 @@ class InstallCommand extends AbstractCommand
             throw new Exception('The password did not match its confirmation.');
         }
 
-        $this->info('Creating admin user '.$admin['username']);
+        $this->info('Creating admin user: '.$admin['username']);
 
         $user = User::register(
             $admin['username'],
