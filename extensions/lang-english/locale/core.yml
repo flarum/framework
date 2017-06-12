@@ -43,6 +43,7 @@ core:
       home_page_heading: Home Page
       home_page_text: "Choose the page which users will first see when they visit your forum. If entering a custom value, use the path relative to the forum root."
       saved_message: Your changes were saved.
+      show_language_selector_label: Show language selector
       submit_button: => core.ref.save_changes
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
