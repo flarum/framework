@@ -15,7 +15,6 @@ use Exception;
 use Flarum\Core\User;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
-use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Zend\Diactoros\ServerRequestFactory;
 
@@ -70,7 +69,6 @@ class Client
         try {
             return $controller->handle($request);
         } catch (Exception $e) {
-
             if ($this->app->inDebugMode()) {
                 throw $e;
             }
