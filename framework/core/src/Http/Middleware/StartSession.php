@@ -29,7 +29,7 @@ class StartSession implements MiddlewareInterface
 
     /**
      * Rememberer constructor.
-     * @param CookieFactoy $cookie
+     * @param CookieFactory $cookie
      */
     public function __construct(CookieFactory $cookie)
     {
