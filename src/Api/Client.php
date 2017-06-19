@@ -20,7 +20,6 @@ use Zend\Diactoros\ServerRequestFactory;
 
 class Client
 {
-
     /**
      * @var ErrorHandler
      */
