@@ -186,6 +186,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * @param mixed $model
+     * @param string $relation
      * @return mixed
      */
     protected function getRelationshipData($model, $relation)
