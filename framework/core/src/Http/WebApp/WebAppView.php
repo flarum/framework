@@ -415,6 +415,7 @@ class WebAppView
     /**
      * Get the result of an API request to show the forum.
      *
+     * @param Request $request
      * @return array
      */
     protected function getForumDocument(Request $request)
@@ -429,6 +430,7 @@ class WebAppView
     /**
      * Get the result of an API request to show the current user.
      *
+     * @param Request $request
      * @return array
      */
     protected function getUserDocument(Request $request)
@@ -447,6 +449,7 @@ class WebAppView
     /**
      * Get information about the current session.
      *
+     * @param Request $request
      * @return array
      */
     protected function buildSession(Request $request)
