@@ -61,19 +61,6 @@ class UpdateUserController extends AbstractResourceController
             }
         }
 
-        // Prevent an admin from removing their admin permission via the API
-        if (isset($data['relationships']['groups']['data']) && $actor->id == $id && $actor->isAdmin()) {
-            $adminInGroups = array_filter($data['relationships']['groups']['data'], function ($group) {
-                return $group['id'] == 1;
-            });
-
-            $keepsAdmin = count($adminInGroups) > 0;
-
-            if (! $keepsAdmin) {
-                throw new PermissionDeniedException;
-            }
-        }
-
         return $this->bus->dispatch(
             new EditUser($id, $actor, $data)
         );

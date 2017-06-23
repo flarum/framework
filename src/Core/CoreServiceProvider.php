@@ -104,6 +104,7 @@ class CoreServiceProvider extends AbstractServiceProvider
 
         $events = $this->app->make('events');
 
+        $events->subscribe('Flarum\Core\Listener\AdminGroupLockingPrevention');
         $events->subscribe('Flarum\Core\Listener\DiscussionMetadataUpdater');
         $events->subscribe('Flarum\Core\Listener\UserMetadataUpdater');
         $events->subscribe('Flarum\Core\Listener\ExtensionValidator');
