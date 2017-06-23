@@ -32,13 +32,15 @@ class AdminGroupLockingPrevention
      */
     public function whenUserGroupsWereChanged(UserGroupsWereChanged $event)
     {
-        if (!$event->actor) return;
+        if (! $event->actor) {
+            return;
+        }
 
         $actor = $event->actor;
         $user = $event->user;
 
         // Prevent an admin from removing their admin permission via the API
-        if ($actor->id === $user->id && $actor->isAdmin() && !$user->isAdmin()) {
+        if ($actor->id === $user->id && $actor->isAdmin() && ! $user->isAdmin()) {
             $userGroups = $user->groups()->get(['group_id'])->all();
 
             $newGroups = array_map(function ($group) {
