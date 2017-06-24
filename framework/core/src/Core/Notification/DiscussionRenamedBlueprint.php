@@ -11,12 +11,12 @@
 
 namespace Flarum\Core\Notification;
 
-use Flarum\Core\Post\DiscussionRenamedPost;
+use Flarum\Post\DiscussionRenamedPost;
 
 class DiscussionRenamedBlueprint implements BlueprintInterface
 {
     /**
-     * @var DiscussionRenamedPost
+     * @var \Flarum\Post\DiscussionRenamedPost
      */
     protected $post;
 

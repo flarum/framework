@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Exception;
+namespace Flarum\Post\Exception;
 
 use Exception;
 

@@ -13,7 +13,7 @@ namespace Flarum\Core\Search\Discussion;
 
 use Flarum\Core\Discussion;
 use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Repository\PostRepository;
+use Flarum\Post\PostRepository;
 use Flarum\Core\Search\ApplySearchParametersTrait;
 use Flarum\Core\Search\GambitManager;
 use Flarum\Core\Search\SearchCriteria;
