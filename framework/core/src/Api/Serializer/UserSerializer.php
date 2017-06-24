@@ -13,7 +13,7 @@ namespace Flarum\Api\Serializer;
 
 use Flarum\Core\Access\Gate;
 
-class UserSerializer extends UserBasicSerializer
+class UserSerializer extends BasicUserSerializer
 {
     /**
      * @var Gate

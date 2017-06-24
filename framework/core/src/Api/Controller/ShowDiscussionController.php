@@ -18,7 +18,7 @@ use Flarum\Core\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowDiscussionController extends AbstractResourceController
+class ShowDiscussionController extends AbstractShowController
 {
     /**
      * @var DiscussionRepository

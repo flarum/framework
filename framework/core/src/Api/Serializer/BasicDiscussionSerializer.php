@@ -14,7 +14,7 @@ namespace Flarum\Api\Serializer;
 use Flarum\Core\Discussion;
 use InvalidArgumentException;
 
-class DiscussionBasicSerializer extends AbstractSerializer
+class BasicDiscussionSerializer extends AbstractSerializer
 {
     /**
      * {@inheritdoc}

@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class UpdateDiscussionController extends AbstractResourceController
+class UpdateDiscussionController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

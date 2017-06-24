@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
+use Flarum\Http\Exception\RouteNotFoundException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class InvalidConfirmationTokenExceptionHandler implements ExceptionHandlerInterface
+class RouteNotFoundExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof InvalidConfirmationTokenException;
+        return $e instanceof RouteNotFoundException;
     }
 
     /**
@@ -31,10 +31,10 @@ class InvalidConfirmationTokenExceptionHandler implements ExceptionHandlerInterf
      */
     public function handle(Exception $e)
     {
-        $status = 403;
+        $status = 404;
         $error = [
             'status' => (string) $status,
-            'code' => 'invalid_confirmation_token'
+            'code' => 'route_not_found'
         ];
 
         return new ResponseBag($status, [$error]);

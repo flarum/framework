@@ -12,7 +12,7 @@
 namespace Tests\Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Api\Handler\IlluminateValidationExceptionHandler;
+use Flarum\Api\ExceptionHandler\IlluminateValidationExceptionHandler;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
 use Symfony\Component\Translation\Translator;

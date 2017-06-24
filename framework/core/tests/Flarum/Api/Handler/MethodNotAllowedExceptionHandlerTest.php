@@ -12,7 +12,7 @@
 namespace Tests\Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Api\Handler\MethodNotAllowedExceptionHandler;
+use Flarum\Api\ExceptionHandler\MethodNotAllowedExceptionHandler;
 use Flarum\Http\Exception\MethodNotAllowedException;
 use Tests\Test\TestCase;
 
