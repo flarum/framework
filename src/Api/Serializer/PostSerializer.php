@@ -14,7 +14,7 @@ namespace Flarum\Api\Serializer;
 use Flarum\Core\Access\Gate;
 use Flarum\Core\Post\CommentPost;
 
-class PostSerializer extends PostBasicSerializer
+class PostSerializer extends BasicPostSerializer
 {
     /**
      * @var \Flarum\Core\Access\Gate

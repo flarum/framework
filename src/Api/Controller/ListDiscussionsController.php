@@ -17,7 +17,7 @@ use Flarum\Core\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListDiscussionsController extends AbstractCollectionController
+class ListDiscussionsController extends AbstractListController
 {
     /**
      * {@inheritdoc}

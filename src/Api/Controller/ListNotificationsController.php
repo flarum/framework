@@ -17,7 +17,7 @@ use Flarum\Core\Repository\NotificationRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListNotificationsController extends AbstractCollectionController
+class ListNotificationsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
