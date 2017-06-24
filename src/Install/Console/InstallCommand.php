@@ -13,8 +13,8 @@ namespace Flarum\Install\Console;
 
 use Exception;
 use Flarum\Console\AbstractCommand;
-use Flarum\Core\Group;
-use Flarum\Core\Permission;
+use Flarum\Group\Group;
+use Flarum\Group\Permission;
 use Flarum\User\User;
 use Flarum\Database\AbstractModel;
 use Illuminate\Contracts\Foundation\Application;

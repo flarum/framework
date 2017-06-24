@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use InvalidArgumentException;
 use Symfony\Component\Translation\TranslatorInterface;
 

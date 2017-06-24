@@ -23,7 +23,7 @@ class GroupsChanged
     public $user;
 
     /**
-     * @var \Flarum\Core\Group[]
+     * @var \Flarum\Group\Group[]
      */
     public $oldGroups;
 
@@ -34,7 +34,7 @@ class GroupsChanged
 
     /**
      * @param User $user The user whose groups were changed.
-     * @param \Flarum\Core\Group[] $oldGroups
+     * @param \Flarum\Group\Group[] $oldGroups
      * @param User $actor
      */
     public function __construct(User $user, array $oldGroups, User $actor = null)

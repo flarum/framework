@@ -11,7 +11,7 @@
 
 namespace Flarum\User;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 
 class Guest extends User
 {
@@ -25,7 +25,7 @@ class Guest extends User
     /**
      * Get the guest's group, containing only the 'guests' group model.
      *
-     * @return Group
+     * @return \Flarum\Group\Group
      */
     public function getGroupsAttribute()
     {
