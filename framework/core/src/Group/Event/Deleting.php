@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Group\Event;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Flarum\User\User;
 
-class GroupWillBeDeleted
+class Deleting
 {
     /**
      * The group that will be deleted.

@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Repository;
+namespace Flarum\Group;
 
-use Flarum\Core\Group;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -33,7 +32,7 @@ class GroupRepository
      *
      * @param int $id
      * @param User $actor
-     * @return Group
+     * @return \Flarum\Group\Group
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */

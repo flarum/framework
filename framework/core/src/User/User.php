@@ -13,9 +13,9 @@ namespace Flarum\User;
 
 use DomainException;
 use Flarum\User\Gate;
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Flarum\Core\Notification;
-use Flarum\Core\Permission;
+use Flarum\Group\Permission;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
@@ -623,7 +623,7 @@ class User extends AbstractModel
      */
     public function groups()
     {
-        return $this->belongsToMany('Flarum\Core\Group', 'users_groups');
+        return $this->belongsToMany('Flarum\Group\Group', 'users_groups');
     }
 
     /**

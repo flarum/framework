@@ -114,7 +114,7 @@ class CoreServiceProvider extends AbstractServiceProvider
         $events->subscribe('Flarum\Discussion\DiscussionRenamedNotifier');
 
         $events->subscribe('Flarum\Discussion\DiscussionPolicy');
-        $events->subscribe('Flarum\Core\Access\GroupPolicy');
+        $events->subscribe('Flarum\Group\GroupPolicy');
         $events->subscribe('Flarum\Post\PostPolicy');
         $events->subscribe('Flarum\User\UserPolicy');
 

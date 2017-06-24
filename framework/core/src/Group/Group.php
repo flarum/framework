@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\Group;
 
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
-use Flarum\Event\GroupWasCreated;
-use Flarum\Event\GroupWasDeleted;
-use Flarum\Event\GroupWasRenamed;
+use Flarum\Group\Event\Created;
+use Flarum\Group\Event\Deleting;
+use Flarum\Group\Event\Renamed;
 
 /**
  * @property int $id
@@ -67,7 +67,7 @@ class Group extends AbstractModel
         parent::boot();
 
         static::deleted(function (Group $group) {
-            $group->raise(new GroupWasDeleted($group));
+            $group->raise(new Deleting($group));
 
             $group->permissions()->delete();
         });
@@ -91,7 +91,7 @@ class Group extends AbstractModel
         $group->color = $color;
         $group->icon = $icon;
 
-        $group->raise(new GroupWasCreated($group));
+        $group->raise(new Created($group));
 
         return $group;
     }
@@ -108,7 +108,7 @@ class Group extends AbstractModel
         $this->name_singular = $nameSingular;
         $this->name_plural = $namePlural;
 
-        $this->raise(new GroupWasRenamed($this));
+        $this->raise(new Renamed($this));
 
         return $this;
     }
@@ -130,6 +130,6 @@ class Group extends AbstractModel
      */
     public function permissions()
     {
-        return $this->hasMany('Flarum\Core\Permission');
+        return $this->hasMany('Flarum\Group\Permission');
     }
 }
