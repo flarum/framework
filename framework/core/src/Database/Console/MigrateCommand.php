@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Update\Console;
+namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
 use Illuminate\Contracts\Container\Container;

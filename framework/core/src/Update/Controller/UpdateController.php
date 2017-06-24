@@ -14,7 +14,7 @@ namespace Flarum\Update\Controller;
 use Exception;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
-use Flarum\Update\Console\MigrateCommand;
+use Flarum\Database\Console\MigrateCommand;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;

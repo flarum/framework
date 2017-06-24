@@ -12,7 +12,6 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use PDO;
@@ -46,14 +45,6 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->alias('Illuminate\Database\ConnectionResolverInterface', 'db');
-
-        $this->app->singleton('Flarum\Database\MigrationRepositoryInterface', function ($app) {
-            return new DatabaseMigrationRepository($app['db'], 'migrations');
-        });
-
-        $this->app->bind(MigrationCreator::class, function (Application $app) {
-            return new MigrationCreator($app->make('Illuminate\Filesystem\Filesystem'), $app->basePath());
-        });
     }
 
     /**
