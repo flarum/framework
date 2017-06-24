@@ -11,7 +11,7 @@
 
 namespace Flarum\Event;
 
-use Flarum\Core\Search\Discussion\DiscussionSearch;
+use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Core\Search\SearchCriteria;
 
 class ConfigureDiscussionSearch

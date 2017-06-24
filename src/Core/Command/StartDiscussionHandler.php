@@ -13,10 +13,10 @@ namespace Flarum\Core\Command;
 
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Core\Validator\DiscussionValidator;
-use Flarum\Event\DiscussionWillBeSaved;
+use Flarum\Discussion\DiscussionValidator;
+use Flarum\Discussion\Event\Saving;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 
@@ -31,14 +31,14 @@ class StartDiscussionHandler
     protected $bus;
 
     /**
-     * @var DiscussionValidator
+     * @var \Flarum\Discussion\DiscussionValidator
      */
     protected $validator;
 
     /**
      * @param EventDispatcher $events
      * @param BusDispatcher $bus
-     * @param DiscussionValidator $validator
+     * @param \Flarum\Discussion\DiscussionValidator $validator
      */
     public function __construct(EventDispatcher $events, BusDispatcher $bus, DiscussionValidator $validator)
     {
@@ -70,7 +70,7 @@ class StartDiscussionHandler
         );
 
         $this->events->fire(
-            new DiscussionWillBeSaved($discussion, $actor, $data)
+            new Saving($discussion, $actor, $data)
         );
 
         $this->validator->assertValid($discussion->getAttributes());

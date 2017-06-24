@@ -9,17 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\Discussion;
 
+use Flarum\Core\DiscussionState;
 use Flarum\Post\MergeableInterface;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
-use Flarum\Event\DiscussionWasDeleted;
-use Flarum\Event\DiscussionWasHidden;
-use Flarum\Event\DiscussionWasRenamed;
-use Flarum\Event\DiscussionWasRestored;
-use Flarum\Event\DiscussionWasStarted;
+use Flarum\Discussion\Event\Deleted;
+use Flarum\Discussion\Event\Hidden;
+use Flarum\Discussion\Event\Renamed;
+use Flarum\Discussion\Event\Restored;
+use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Deleted;
 use Flarum\Event\ScopePostVisibility;
 use Flarum\Post\Post;
@@ -102,7 +103,7 @@ class Discussion extends AbstractModel
         parent::boot();
 
         static::deleted(function ($discussion) {
-            $discussion->raise(new DiscussionWasDeleted($discussion));
+            $discussion->raise(new Deleted($discussion));
 
             // Delete all of the posts in the discussion. Before we delete them
             // in a big batch query, we will loop through them and raise a
@@ -138,7 +139,7 @@ class Discussion extends AbstractModel
 
         $discussion->setRelation('startUser', $user);
 
-        $discussion->raise(new DiscussionWasStarted($discussion));
+        $discussion->raise(new Started($discussion));
 
         return $discussion;
     }
@@ -155,7 +156,7 @@ class Discussion extends AbstractModel
             $oldTitle = $this->title;
             $this->title = $title;
 
-            $this->raise(new DiscussionWasRenamed($this, $oldTitle));
+            $this->raise(new Renamed($this, $oldTitle));
         }
 
         return $this;
@@ -173,7 +174,7 @@ class Discussion extends AbstractModel
             $this->hide_time = time();
             $this->hide_user_id = $actor ? $actor->id : null;
 
-            $this->raise(new DiscussionWasHidden($this));
+            $this->raise(new Hidden($this));
         }
 
         return $this;
@@ -190,7 +191,7 @@ class Discussion extends AbstractModel
             $this->hide_time = null;
             $this->hide_user_id = null;
 
-            $this->raise(new DiscussionWasRestored($this));
+            $this->raise(new Restored($this));
         }
 
         return $this;

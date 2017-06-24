@@ -56,7 +56,7 @@ class Notification extends AbstractModel
      * A map of notification types and the model classes to use for their
      * subjects. For example, the 'discussionRenamed' notification type, which
      * represents that a user's discussion was renamed, has the subject model
-     * class 'Flarum\Core\Discussion'.
+     * class 'Flarum\Discussion\Discussion'.
      *
      * @var array
      */

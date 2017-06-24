@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Discussion\Event;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 
-class DiscussionWasRestored
+class Renamed
 {
     /**
      * @var Discussion
@@ -22,17 +22,24 @@ class DiscussionWasRestored
     public $discussion;
 
     /**
+     * @var string
+     */
+    public $oldTitle;
+
+    /**
      * @var User
      */
     public $actor;
 
     /**
-     * @param Discussion $discussion
+     * @param \Flarum\Discussion\Discussion $discussion
      * @param User $actor
+     * @param string $oldTitle
      */
-    public function __construct(Discussion $discussion, User $actor = null)
+    public function __construct(Discussion $discussion, $oldTitle, User $actor = null)
     {
         $this->discussion = $discussion;
+        $this->oldTitle = $oldTitle;
         $this->actor = $actor;
     }
 }

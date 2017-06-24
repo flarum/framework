@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion;
+namespace Flarum\Discussion\Search;
 
 use Flarum\Core\Search\AbstractSearch;
 

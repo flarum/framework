@@ -12,9 +12,9 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Event\DiscussionStateWillBeSaved;
+use Flarum\Discussion\Event\UserDataSaving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadDiscussionHandler
@@ -54,7 +54,7 @@ class ReadDiscussionHandler
         $state->read($command->readNumber);
 
         $this->events->fire(
-            new DiscussionStateWillBeSaved($state)
+            new UserDataSaving($state)
         );
 
         $state->save();

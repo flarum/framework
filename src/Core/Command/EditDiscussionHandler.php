@@ -13,10 +13,10 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Core\Validator\DiscussionValidator;
-use Flarum\Event\DiscussionWillBeSaved;
+use Flarum\Discussion\DiscussionValidator;
+use Flarum\Discussion\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditDiscussionHandler
@@ -48,7 +48,7 @@ class EditDiscussionHandler
 
     /**
      * @param EditDiscussion $command
-     * @return \Flarum\Core\Discussion
+     * @return \Flarum\Discussion\Discussion
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditDiscussion $command)
@@ -76,7 +76,7 @@ class EditDiscussionHandler
         }
 
         $this->events->fire(
-            new DiscussionWillBeSaved($discussion, $actor, $data)
+            new Saving($discussion, $actor, $data)
         );
 
         $this->validator->assertValid($discussion->getDirty());

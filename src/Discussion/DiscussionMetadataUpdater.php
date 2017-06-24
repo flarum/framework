@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Listener;
+namespace Flarum\Discussion;
 
 use Flarum\Post\Post;
 use Flarum\Post\Event\Deleted;

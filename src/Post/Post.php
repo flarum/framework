@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int|null $edit_user_id
  * @property \Carbon\Carbon|null $hide_time
  * @property int|null $hide_user_id
- * @property \Flarum\Core\Discussion|null $discussion
+ * @property \Flarum\Discussion\Discussion|null $discussion
  * @property User|null $user
  * @property User|null $editUser
  * @property User|null $hideUser
@@ -129,7 +129,7 @@ class Post extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo('Flarum\Core\Discussion', 'discussion_id');
+        return $this->belongsTo('Flarum\Discussion\Discussion', 'discussion_id');
     }
 
     /**

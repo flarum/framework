@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Discussion\Event;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 
-class DiscussionWasStarted
+class Deleted
 {
     /**
-     * @var Discussion
+     * @var \Flarum\Discussion\Discussion
      */
     public $discussion;
 
@@ -27,7 +27,7 @@ class DiscussionWasStarted
     public $actor;
 
     /**
-     * @param Discussion $discussion
+     * @param \Flarum\Discussion\Discussion $discussion
      * @param User $actor
      */
     public function __construct(Discussion $discussion, User $actor = null)

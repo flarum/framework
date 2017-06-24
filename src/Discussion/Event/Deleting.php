@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Discussion\Event;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 
-class DiscussionWillBeSaved
+class Deleting
 {
     /**
-     * The discussion that will be saved.
+     * The discussion that is going to be deleted.
      *
      * @var Discussion
      */

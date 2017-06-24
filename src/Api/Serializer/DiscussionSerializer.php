@@ -12,7 +12,7 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\User\Gate;
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 
 class DiscussionSerializer extends BasicDiscussionSerializer
 {
