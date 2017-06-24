@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion\Fulltext;
+namespace Flarum\Discussion\Search\Fulltext;
 
 use Flarum\Core\Post;
 

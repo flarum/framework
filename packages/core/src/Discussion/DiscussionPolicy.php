@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Access;
+namespace Flarum\Discussion;
 
 use Carbon\Carbon;
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
 use Flarum\Event\ScopePrivateDiscussionVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -100,7 +100,7 @@ class DiscussionPolicy extends AbstractPolicy
 
     /**
      * @param User $actor
-     * @param Discussion $discussion
+     * @param \Flarum\Discussion\Discussion $discussion
      * @return bool|null
      */
     public function rename(User $actor, Discussion $discussion)
@@ -118,7 +118,7 @@ class DiscussionPolicy extends AbstractPolicy
 
     /**
      * @param User $actor
-     * @param Discussion $discussion
+     * @param \Flarum\Discussion\Discussion $discussion
      * @return bool|null
      */
     public function hide(User $actor, Discussion $discussion)

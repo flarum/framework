@@ -13,9 +13,9 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Event\DiscussionWillBeDeleted;
+use Flarum\Discussion\Event\Deleting;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteDiscussionHandler
@@ -24,7 +24,7 @@ class DeleteDiscussionHandler
     use AssertPermissionTrait;
 
     /**
-     * @var DiscussionRepository
+     * @var \Flarum\Discussion\DiscussionRepository
      */
     protected $discussions;
 
@@ -40,7 +40,7 @@ class DeleteDiscussionHandler
 
     /**
      * @param DeleteDiscussion $command
-     * @return \Flarum\Core\Discussion
+     * @return \Flarum\Discussion\Discussion
      * @throws PermissionDeniedException
      */
     public function handle(DeleteDiscussion $command)
@@ -52,7 +52,7 @@ class DeleteDiscussionHandler
         $this->assertCan($actor, 'delete', $discussion);
 
         $this->events->fire(
-            new DiscussionWillBeDeleted($discussion, $actor, $command->data)
+            new Deleting($discussion, $actor, $command->data)
         );
 
         $discussion->delete();

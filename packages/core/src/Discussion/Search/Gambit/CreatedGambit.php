@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion\Gambit;
+namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
-use Flarum\Core\Search\Discussion\DiscussionSearch;
+use Flarum\Discussion\Search\DiscussionSearch;
 use LogicException;
 
 class CreatedGambit extends AbstractRegexGambit

@@ -107,13 +107,13 @@ class CoreServiceProvider extends AbstractServiceProvider
         $events = $this->app->make('events');
 
         $events->subscribe('Flarum\Core\Listener\SelfDemotionGuard');
-        $events->subscribe('Flarum\Core\Listener\DiscussionMetadataUpdater');
+        $events->subscribe('Flarum\Discussion\DiscussionMetadataUpdater');
         $events->subscribe('Flarum\User\UserMetadataUpdater');
         $events->subscribe('Flarum\Core\Listener\ExtensionValidator');
         $events->subscribe('Flarum\User\EmailConfirmationMailer');
-        $events->subscribe('Flarum\Core\Listener\DiscussionRenamedNotifier');
+        $events->subscribe('Flarum\Discussion\DiscussionRenamedNotifier');
 
-        $events->subscribe('Flarum\Core\Access\DiscussionPolicy');
+        $events->subscribe('Flarum\Discussion\DiscussionPolicy');
         $events->subscribe('Flarum\Core\Access\GroupPolicy');
         $events->subscribe('Flarum\Post\PostPolicy');
         $events->subscribe('Flarum\User\UserPolicy');

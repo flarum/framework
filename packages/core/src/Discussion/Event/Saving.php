@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Discussion\Event;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 
-class DiscussionWillBeDeleted
+class Saving
 {
     /**
-     * The discussion that is going to be deleted.
+     * The discussion that will be saved.
      *
-     * @var Discussion
+     * @var \Flarum\Discussion\Discussion
      */
     public $discussion;
 
@@ -38,7 +38,7 @@ class DiscussionWillBeDeleted
     public $data;
 
     /**
-     * @param Discussion $discussion
+     * @param \Flarum\Discussion\Discussion $discussion
      * @param User $actor
      * @param array $data
      */

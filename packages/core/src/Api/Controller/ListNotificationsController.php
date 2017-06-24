@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\NotificationRepository;
 use Psr\Http\Message\ServerRequestInterface;
