@@ -56,82 +56,21 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $route = $this->app->make(RouteHandlerFactory::class);
+        $factory = $this->app->make(RouteHandlerFactory::class);
 
-        $routes->get(
-            '/all',
-            'index',
-            $toDefaultController = $route->toController(Controller\IndexController::class)
-        );
-
-        $routes->get(
-            '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
-            'discussion',
-            $route->toController(Controller\DiscussionController::class)
-        );
-
-        $routes->get(
-            '/u/{username}[/{filter:[^/]*}]',
-            'user',
-            $route->toController(Controller\FrontendController::class)
-        );
-
-        $routes->get(
-            '/settings',
-            'settings',
-            $route->toController(Controller\AuthorizedWebAppController::class)
-        );
-
-        $routes->get(
-            '/notifications',
-            'notifications',
-            $route->toController(Controller\AuthorizedWebAppController::class)
-        );
-
-        $routes->get(
-            '/logout',
-            'logout',
-            $route->toController(Controller\LogOutController::class)
-        );
-
-        $routes->post(
-            '/login',
-            'login',
-            $route->toController(Controller\LogInController::class)
-        );
-
-        $routes->post(
-            '/register',
-            'register',
-            $route->toController(Controller\RegisterController::class)
-        );
-
-        $routes->get(
-            '/confirm/{token}',
-            'confirmEmail',
-            $route->toController(Controller\ConfirmEmailController::class)
-        );
-
-        $routes->get(
-            '/reset/{token}',
-            'resetPassword',
-            $route->toController(Controller\ResetPasswordController::class)
-        );
-
-        $routes->post(
-            '/reset',
-            'savePassword',
-            $route->toController(Controller\SavePasswordController::class)
-        );
+        $callback = include __DIR__.'/routes.php';
+        $callback($routes, $factory);
 
         $this->app->make('events')->fire(
-            new ConfigureForumRoutes($routes, $route)
+            new ConfigureForumRoutes($routes, $factory)
         );
 
         $defaultRoute = $this->app->make('flarum.settings')->get('default_route');
 
         if (isset($routes->getRouteData()[0]['GET'][$defaultRoute])) {
             $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute];
+        } else {
+            $toDefaultController = $factory->toController(Controller\IndexController::class);
         }
 
         $routes->get(
