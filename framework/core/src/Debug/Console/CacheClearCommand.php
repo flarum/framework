@@ -12,7 +12,7 @@
 namespace Flarum\Debug\Console;
 
 use Flarum\Admin\Frontend as AdminWebApp;
-use Flarum\Console\Command\AbstractCommand;
+use Flarum\Console\AbstractCommand;
 use Flarum\Forum\WebApp as ForumWebApp;
 use Illuminate\Contracts\Cache\Store;
 
