@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Post;
+use Flarum\Post\Post;
 use Flarum\Post\CommentPost;
 use InvalidArgumentException;
 
@@ -25,7 +25,7 @@ class BasicPostSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param \Flarum\Core\Post $post
+     * @param \Flarum\Post\Post $post
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($post)

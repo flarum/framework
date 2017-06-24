@@ -40,7 +40,7 @@ class DeletePostHandler
 
     /**
      * @param DeletePost $command
-     * @return \Flarum\Core\Post
+     * @return \Flarum\Post\Post
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(DeletePost $command)
