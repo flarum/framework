@@ -9,31 +9,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Settings\Event;
 
-class SettingWasSet
+class Serializing
 {
     /**
-     * The setting key that was set.
+     * The settings key being saved.
      *
      * @var string
      */
     public $key;
 
     /**
-     * The setting value that was set.
+     * The settings value to save.
      *
      * @var string
      */
     public $value;
 
     /**
-     * @param string $key The setting key that was set.
-     * @param string $value The setting value that was set.
+     * @param string $key The settings key being saved.
+     * @param string $value The settings value to save.
      */
-    public function __construct($key, $value)
+    public function __construct($key, &$value)
     {
         $this->key = $key;
-        $this->value = $value;
+        $this->value = &$value;
     }
 }
