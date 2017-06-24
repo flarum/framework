@@ -173,7 +173,13 @@ class InstallCommand extends AbstractCommand
 
             $this->writeSettings();
 
-            $this->application->register('Flarum\Core\CoreServiceProvider');
+            $this->application->register('Flarum\Formatter\FormatterServiceProvider');
+            $this->application->register('Flarum\Discussion\DiscussionServiceProvider');
+            $this->application->register('Flarum\Group\GroupServiceProvider');
+            $this->application->register('Flarum\Notification\NotificationServiceProvider');
+            $this->application->register('Flarum\Search\SearchServiceProvider');
+            $this->application->register('Flarum\Post\PostServiceProvider');
+            $this->application->register('Flarum\User\UserServiceProvider');
 
             $this->seedGroups();
             $this->seedPermissions();

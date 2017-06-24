@@ -30,4 +30,14 @@ class ExtensionServiceProvider extends AbstractServiceProvider
             $this->app->call($bootstrapper);
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot()
+    {
+        $events = $this->app->make('events');
+
+        $events->subscribe('Flarum\Extension\DefaultLanguagePackGuard');
+    }
 }

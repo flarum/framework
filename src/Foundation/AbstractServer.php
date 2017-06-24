@@ -190,7 +190,16 @@ abstract class AbstractServer
             $config->set('mail.username', $settings->get('mail_username'));
             $config->set('mail.password', $settings->get('mail_password'));
 
-            $app->register('Flarum\Core\CoreServiceProvider');
+            $app->register('Flarum\BusServiceProvider');
+
+            $app->register('Flarum\Discussion\DiscussionServiceProvider');
+            $app->register('Flarum\Formatter\FormatterServiceProvider');
+            $app->register('Flarum\Group\GroupServiceProvider');
+            $app->register('Flarum\Notification\NotificationServiceProvider');
+            $app->register('Flarum\Post\PostServiceProvider');
+            $app->register('Flarum\Search\SearchServiceProvider');
+            $app->register('Flarum\User\UserServiceProvider');
+
             $app->register('Flarum\Api\ApiServiceProvider');
             $app->register('Flarum\Forum\ForumServiceProvider');
             $app->register('Flarum\Admin\AdminServiceProvider');
