@@ -21,7 +21,7 @@ use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
-use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Event\ScopePostVisibility;
 use Flarum\Post\Post;
 use Flarum\User\Guest;
@@ -111,7 +111,7 @@ class Discussion extends AbstractModel
             $posts = $discussion->posts()->allTypes();
 
             foreach ($posts->get() as $post) {
-                $discussion->raise(new Deleted($post));
+                $discussion->raise(new PostDeleted($post));
             }
 
             $posts->delete();

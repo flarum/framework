@@ -12,7 +12,6 @@
 namespace Flarum\User;
 
 use DomainException;
-use Flarum\User\Gate;
 use Flarum\Group\Group;
 use Flarum\Core\Notification;
 use Flarum\Group\Permission;
@@ -21,7 +20,7 @@ use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\BioChanged;
@@ -136,7 +135,7 @@ class User extends AbstractModel
             $posts = $user->posts()->allTypes();
 
             foreach ($posts->get() as $post) {
-                $user->raise(new Deleted($post));
+                $user->raise(new PostDeleted($post));
             }
 
             $posts->delete();

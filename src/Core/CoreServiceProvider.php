@@ -124,8 +124,8 @@ class CoreServiceProvider extends AbstractServiceProvider
     public function registerPostTypes()
     {
         $models = [
-            'Flarum\Post\Post\CommentPost',
-            'Flarum\Post\Post\DiscussionRenamedPost'
+            'Flarum\Post\CommentPost',
+            'Flarum\Post\DiscussionRenamedPost'
         ];
 
         $this->app->make('events')->fire(

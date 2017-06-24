@@ -11,7 +11,7 @@
 
 namespace Flarum\Discussion\Search\Fulltext;
 
-use Flarum\Core\Post;
+use Flarum\Post\Post;
 
 class MySqlFulltextDriver implements DriverInterface
 {

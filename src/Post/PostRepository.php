@@ -34,7 +34,7 @@ class PostRepository
      *
      * @param int $id
      * @param \Flarum\User\User $actor
-     * @return \Flarum\Core\Post
+     * @return \Flarum\Post\Post
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
