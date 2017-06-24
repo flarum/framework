@@ -26,8 +26,8 @@ class SearchServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->bind(
-            'Flarum\Core\Search\Discussion\Fulltext\DriverInterface',
-            'Flarum\Core\Search\Discussion\Fulltext\MySqlFulltextDriver'
+            'Flarum\Discussion\Search\Fulltext\DriverInterface',
+            'Flarum\Discussion\Search\Fulltext\MySqlFulltextDriver'
         );
 
         $this->registerDiscussionGambits();
@@ -56,16 +56,16 @@ class SearchServiceProvider extends AbstractServiceProvider
 
     public function registerDiscussionGambits()
     {
-        $this->app->when('Flarum\Core\Search\Discussion\DiscussionSearcher')
+        $this->app->when('Flarum\Discussion\Search\DiscussionSearcher')
             ->needs('Flarum\Core\Search\GambitManager')
             ->give(function (Container $app) {
                 $gambits = new GambitManager($app);
 
-                $gambits->setFulltextGambit('Flarum\Core\Search\Discussion\Gambit\FulltextGambit');
-                $gambits->add('Flarum\Core\Search\Discussion\Gambit\AuthorGambit');
-                $gambits->add('Flarum\Core\Search\Discussion\Gambit\CreatedGambit');
-                $gambits->add('Flarum\Core\Search\Discussion\Gambit\HiddenGambit');
-                $gambits->add('Flarum\Core\Search\Discussion\Gambit\UnreadGambit');
+                $gambits->setFulltextGambit('Flarum\Discussion\Search\Gambit\FulltextGambit');
+                $gambits->add('Flarum\Discussion\Search\Gambit\AuthorGambit');
+                $gambits->add('Flarum\Discussion\Search\Gambit\CreatedGambit');
+                $gambits->add('Flarum\Discussion\Search\Gambit\HiddenGambit');
+                $gambits->add('Flarum\Discussion\Search\Gambit\UnreadGambit');
 
                 $app->make('events')->fire(
                     new ConfigureDiscussionGambits($gambits)

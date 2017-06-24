@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Discussion\Event;
 
 use Flarum\Core\DiscussionState;
 
-class DiscussionWasRead
+class UserRead
 {
     /**
      * @var DiscussionState

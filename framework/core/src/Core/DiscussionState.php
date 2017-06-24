@@ -11,9 +11,10 @@
 
 namespace Flarum\Core;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\AbstractModel;
-use Flarum\Event\DiscussionWasRead;
+use Flarum\Discussion\Event\UserRead;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -57,7 +58,7 @@ class DiscussionState extends AbstractModel
             $this->read_number = $number;
             $this->read_time = time();
 
-            $this->raise(new DiscussionWasRead($this));
+            $this->raise(new UserRead($this));
         }
 
         return $this;
@@ -70,7 +71,7 @@ class DiscussionState extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo('Flarum\Core\Discussion', 'discussion_id');
+        return $this->belongsTo('Flarum\Discussion\Discussion', 'discussion_id');
     }
 
     /**

@@ -11,10 +11,10 @@
 
 namespace Flarum\User;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use Flarum\Core\Post;
-use Flarum\Event\DiscussionWasDeleted;
-use Flarum\Event\DiscussionWasStarted;
+use Flarum\Discussion\Event\Deleted;
+use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
@@ -32,8 +32,8 @@ class UserMetadataUpdater
         $events->listen(Deleted::class, [$this, 'whenPostWasDeleted']);
         $events->listen(Hidden::class, [$this, 'whenPostWasHidden']);
         $events->listen(Restored::class, [$this, 'whenPostWasRestored']);
-        $events->listen(DiscussionWasStarted::class, [$this, 'whenDiscussionWasStarted']);
-        $events->listen(DiscussionWasDeleted::class, [$this, 'whenDiscussionWasDeleted']);
+        $events->listen(Started::class, [$this, 'whenDiscussionWasStarted']);
+        $events->listen(Deleted::class, [$this, 'whenDiscussionWasDeleted']);
     }
 
     /**
@@ -69,17 +69,17 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param \Flarum\Event\DiscussionWasStarted $event
+     * @param \Flarum\Discussion\Event\Started $event
      */
-    public function whenDiscussionWasStarted(DiscussionWasStarted $event)
+    public function whenDiscussionWasStarted(Started $event)
     {
         $this->updateDiscussionsCount($event->discussion, 1);
     }
 
     /**
-     * @param \Flarum\Event\DiscussionWasDeleted $event
+     * @param \Flarum\Discussion\Event\Deleted $event
      */
-    public function whenDiscussionWasDeleted(DiscussionWasDeleted $event)
+    public function whenDiscussionWasDeleted(Deleted $event)
     {
         $this->updateDiscussionsCount($event->discussion, -1);
     }
@@ -99,7 +99,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param Discussion $discussion
+     * @param \Flarum\Discussion\Discussion $discussion
      * @param int $amount
      */
     protected function updateDiscussionsCount(Discussion $discussion, $amount)

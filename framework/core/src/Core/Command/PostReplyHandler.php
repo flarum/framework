@@ -15,7 +15,7 @@ use DateTime;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Post\CommentPost;
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Post\PostValidator;
 use Flarum\Post\Event\Saving;
