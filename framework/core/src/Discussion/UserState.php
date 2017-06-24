@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\Discussion;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property Discussion $discussion
  * @property \Flarum\User\User $user
  */
-class DiscussionState extends AbstractModel
+class UserState extends AbstractModel
 {
     use EventGeneratorTrait;
 
