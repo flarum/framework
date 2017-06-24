@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use DateTime;
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Post\CommentPost;
 use Flarum\Discussion\DiscussionRepository;
@@ -23,7 +23,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class PostReplyHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

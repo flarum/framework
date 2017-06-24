@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Settings\Event\Serializing;
 use Flarum\Settings\Event\Saved;
 use Flarum\Http\Controller\ControllerInterface;

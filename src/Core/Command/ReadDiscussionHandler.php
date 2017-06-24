@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Discussion\Event\UserDataSaving;
@@ -19,7 +19,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadDiscussionHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**
