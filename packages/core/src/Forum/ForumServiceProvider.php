@@ -16,7 +16,7 @@ use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Settings\Event\Saved;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Handler\RouteHandlerFactory;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 class ForumServiceProvider extends AbstractServiceProvider

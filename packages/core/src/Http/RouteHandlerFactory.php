@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\Handler;
+namespace Flarum\Http;
 
 use Illuminate\Contracts\Container\Container;
 

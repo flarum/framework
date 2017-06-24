@@ -10,7 +10,7 @@
  */
 
 use Flarum\Forum\Controller;
-use Flarum\Http\Handler\RouteHandlerFactory;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 return function (RouteCollection $map, RouteHandlerFactory $route) {
