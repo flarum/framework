@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Frontend\Event;
 
 use Flarum\Admin\Controller\FrontendController as AdminWebAppController;
 use Flarum\Forum\Controller\FrontendController as ForumWebAppController;
@@ -17,7 +17,7 @@ use Flarum\Frontend\AbstractFrontendController;
 use Flarum\Frontend\FrontendView;
 use Psr\Http\Message\ServerRequestInterface;
 
-class ConfigureWebApp
+class Rendering
 {
     /**
      * @var AbstractFrontendController
