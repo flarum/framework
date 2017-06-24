@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\EditDiscussion;
-use Flarum\Core\Command\ReadDiscussion;
+use Flarum\Discussion\Command\EditDiscussion;
+use Flarum\Discussion\Command\ReadDiscussion;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ServerRequestInterface;

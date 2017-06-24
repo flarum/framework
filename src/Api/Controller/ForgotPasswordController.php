@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\RequestPasswordReset;
+use Flarum\User\Command\RequestPasswordReset;
 use Flarum\User\UserRepository;
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
