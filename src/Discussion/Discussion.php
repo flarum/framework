@@ -11,7 +11,7 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Core\DiscussionState;
+use Flarum\Discussion\UserState;
 use Flarum\Post\MergeableInterface;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
@@ -44,7 +44,7 @@ use Flarum\Util\Str;
  * @property int|null $last_post_number
  * @property \Carbon\Carbon|null $hide_time
  * @property int|null $hide_user_id
- * @property DiscussionState|null $state
+ * @property UserState|null $state
  * @property \Illuminate\Database\Eloquent\Collection $posts
  * @property \Illuminate\Database\Eloquent\Collection $comments
  * @property \Illuminate\Database\Eloquent\Collection $participants
@@ -416,7 +416,7 @@ class Discussion extends AbstractModel
     {
         $user = $user ?: static::$stateUser;
 
-        return $this->hasOne('Flarum\Core\DiscussionState')->where('user_id', $user ? $user->id : null);
+        return $this->hasOne('Flarum\Discussion\UserState')->where('user_id', $user ? $user->id : null);
     }
 
     /**
@@ -424,14 +424,14 @@ class Discussion extends AbstractModel
      * exist.
      *
      * @param User $user
-     * @return \Flarum\Core\DiscussionState
+     * @return \Flarum\Discussion\UserState
      */
     public function stateFor(User $user)
     {
         $state = $this->state($user)->first();
 
         if (! $state) {
-            $state = new DiscussionState;
+            $state = new UserState;
             $state->discussion_id = $this->id;
             $state->user_id = $user->id;
         }

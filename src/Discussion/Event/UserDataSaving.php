@@ -11,19 +11,19 @@
 
 namespace Flarum\Discussion\Event;
 
-use Flarum\Core\DiscussionState;
+use Flarum\Discussion\UserState;
 
 class UserDataSaving
 {
     /**
-     * @var DiscussionState
+     * @var \Flarum\Discussion\UserState
      */
     public $state;
 
     /**
-     * @param DiscussionState $state
+     * @param \Flarum\Discussion\UserState $state
      */
-    public function __construct(DiscussionState $state)
+    public function __construct(UserState $state)
     {
         $this->state = $state;
     }

@@ -11,19 +11,19 @@
 
 namespace Flarum\Discussion\Event;
 
-use Flarum\Core\DiscussionState;
+use Flarum\Discussion\UserState;
 
 class UserRead
 {
     /**
-     * @var DiscussionState
+     * @var UserState
      */
     public $state;
 
     /**
-     * @param DiscussionState $state
+     * @param UserState $state
      */
-    public function __construct(DiscussionState $state)
+    public function __construct(UserState $state)
     {
         $this->state = $state;
     }
