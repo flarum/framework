@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Notification;
+namespace Flarum\Notification;
 
 interface MailableInterface
 {

@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Repository;
+namespace Flarum\Notification;
 
-use Flarum\Core\Notification;
 use Flarum\User\User;
 
 class NotificationRepository
