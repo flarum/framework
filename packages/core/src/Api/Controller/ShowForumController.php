@@ -15,7 +15,7 @@ use Flarum\Core\Group;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowForumController extends AbstractResourceController
+class ShowForumController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

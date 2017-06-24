@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Http\Exception\TokenMismatchException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class RouteNotFoundExceptionHandler implements ExceptionHandlerInterface
+class TokenMismatchExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof RouteNotFoundException;
+        return $e instanceof TokenMismatchException;
     }
 
     /**
@@ -31,10 +31,10 @@ class RouteNotFoundExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 404;
+        $status = 400;
         $error = [
             'status' => (string) $status,
-            'code' => 'route_not_found'
+            'code' => 'csrf_token_mismatch'
         ];
 
         return new ResponseBag($status, [$error]);

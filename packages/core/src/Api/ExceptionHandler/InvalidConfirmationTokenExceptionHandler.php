@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
+class InvalidConfirmationTokenExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof PermissionDeniedException;
+        return $e instanceof InvalidConfirmationTokenException;
     }
 
     /**
@@ -31,10 +31,10 @@ class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 401;
+        $status = 403;
         $error = [
             'status' => (string) $status,
-            'code' => 'permission_denied'
+            'code' => 'invalid_confirmation_token'
         ];
 
         return new ResponseBag($status, [$error]);

@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Http\Exception\MethodNotAllowedException;
+use Flarum\Core\Exception\PermissionDeniedException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class MethodNotAllowedExceptionHandler implements ExceptionHandlerInterface
+class PermissionDeniedExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof MethodNotAllowedException;
+        return $e instanceof PermissionDeniedException;
     }
 
     /**
@@ -31,10 +31,10 @@ class MethodNotAllowedExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 405;
+        $status = 401;
         $error = [
             'status' => (string) $status,
-            'code' => 'method_not_allowed'
+            'code' => 'permission_denied'
         ];
 
         return new ResponseBag($status, [$error]);

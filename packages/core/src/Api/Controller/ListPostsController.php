@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
-class ListPostsController extends AbstractCollectionController
+class ListPostsController extends AbstractListController
 {
     /**
      * {@inheritdoc}

@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Http\Exception\TokenMismatchException;
+use Flarum\Http\Exception\MethodNotAllowedException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class TokenMismatchExceptionHandler implements ExceptionHandlerInterface
+class MethodNotAllowedExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof TokenMismatchException;
+        return $e instanceof MethodNotAllowedException;
     }
 
     /**
@@ -31,10 +31,10 @@ class TokenMismatchExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 400;
+        $status = 405;
         $error = [
             'status' => (string) $status,
-            'code' => 'csrf_token_mismatch'
+            'code' => 'method_not_allowed'
         ];
 
         return new ResponseBag($status, [$error]);
