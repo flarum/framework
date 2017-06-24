@@ -168,6 +168,7 @@ abstract class AbstractServer
         $this->registerCache($app);
 
         $app->register('Flarum\Database\DatabaseServiceProvider');
+        $app->register('Flarum\Database\MigrationServiceProvider');
         $app->register('Flarum\Settings\SettingsServiceProvider');
         $app->register('Flarum\Locale\LocaleServiceProvider');
         $app->register('Illuminate\Bus\BusServiceProvider');
