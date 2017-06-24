@@ -17,7 +17,7 @@ use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Handler\RouteHandlerFactory;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 use Tobscure\JsonApi\ErrorHandler;
 use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;

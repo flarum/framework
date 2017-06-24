@@ -12,7 +12,7 @@
 namespace Flarum\Update;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Handler\RouteHandlerFactory;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 
 class UpdateServiceProvider extends AbstractServiceProvider

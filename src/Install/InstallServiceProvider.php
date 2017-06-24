@@ -12,7 +12,7 @@
 namespace Flarum\Install;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Handler\RouteHandlerFactory;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
 use Flarum\Install\Prerequisite\Composite;
 use Flarum\Install\Prerequisite\PhpExtensions;
