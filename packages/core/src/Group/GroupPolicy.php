@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Access;
+namespace Flarum\Group;
 
-use Flarum\Core\Group;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 

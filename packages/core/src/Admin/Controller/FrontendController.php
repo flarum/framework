@@ -12,7 +12,7 @@
 namespace Flarum\Admin\Controller;
 
 use Flarum\Admin\Frontend;
-use Flarum\Core\Permission;
+use Flarum\Group\Permission;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Frontend\AbstractFrontendController;

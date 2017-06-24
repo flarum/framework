@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\Group;
 
 use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,7 +31,7 @@ class Permission extends AbstractModel
      */
     public function group()
     {
-        return $this->belongsTo('Flarum\Core\Group', 'group_id');
+        return $this->belongsTo('Flarum\Group\Group', 'group_id');
     }
 
     /**
