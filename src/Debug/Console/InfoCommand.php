@@ -11,7 +11,7 @@
 
 namespace Flarum\Debug\Console;
 
-use Flarum\Console\Command\AbstractCommand;
+use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 

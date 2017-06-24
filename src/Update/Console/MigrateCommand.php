@@ -11,7 +11,7 @@
 
 namespace Flarum\Update\Console;
 
-use Flarum\Console\Command\AbstractCommand;
+use Flarum\Console\AbstractCommand;
 use Illuminate\Contracts\Container\Container;
 
 class MigrateCommand extends AbstractCommand

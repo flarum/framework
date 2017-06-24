@@ -9,8 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Console\Command;
+namespace Flarum\Database\Console;
 
+use Flarum\Console\AbstractCommand;
 use Flarum\Database\MigrationCreator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
