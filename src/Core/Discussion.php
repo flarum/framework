@@ -55,7 +55,7 @@ use Flarum\Util\Str;
  */
 class Discussion extends AbstractModel
 {
-    use Flarum\Foundation\EventGeneratorTrait;
+    use EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
     /**

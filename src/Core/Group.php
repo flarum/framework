@@ -29,7 +29,7 @@ use Flarum\Event\GroupWasRenamed;
  */
 class Group extends AbstractModel
 {
-    use Flarum\Foundation\EventGeneratorTrait;
+    use EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
     /**

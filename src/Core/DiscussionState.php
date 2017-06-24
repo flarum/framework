@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class DiscussionState extends AbstractModel
 {
-    use Flarum\Foundation\EventGeneratorTrait;
+    use EventGeneratorTrait;
 
     /**
      * {@inheritdoc}
