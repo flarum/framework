@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\User\Search\Gambit;
+namespace Flarum\User\Search\Gambit;
 
-use Flarum\User\UserRepository;
 use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
+use Flarum\User\UserRepository;
 
 class FulltextGambit implements GambitInterface
 {
