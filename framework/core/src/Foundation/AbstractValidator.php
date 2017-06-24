@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Validator;
+namespace Flarum\Foundation;
 
-use Flarum\Event\ConfigureValidator;
+use Flarum\Foundation\Event\Validating;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
@@ -94,7 +94,7 @@ abstract class AbstractValidator
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
         $this->events->fire(
-            new ConfigureValidator($this, $validator)
+            new Validating($this, $validator)
         );
 
         return $validator;

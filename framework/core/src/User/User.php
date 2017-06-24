@@ -16,7 +16,7 @@ use Flarum\User\Gate;
 use Flarum\Core\Group;
 use Flarum\Core\Notification;
 use Flarum\Core\Permission;
-use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\CheckUserPassword;
@@ -56,7 +56,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class User extends AbstractModel
 {
-    use EventGeneratorTrait;
+    use Flarum\Foundation\EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
     /**

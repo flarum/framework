@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Support;
+namespace Flarum\Foundation;
 
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
