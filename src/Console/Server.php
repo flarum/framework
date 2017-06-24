@@ -16,7 +16,7 @@ use Flarum\Debug\Console\CacheClearCommand;
 use Flarum\Debug\Console\InfoCommand;
 use Flarum\Foundation\AbstractServer;
 use Flarum\Install\Console\InstallCommand;
-use Flarum\Update\Console\MigrateCommand;
+use Flarum\Database\Console\MigrateCommand;
 use Symfony\Component\Console\Application;
 
 class Server extends AbstractServer
