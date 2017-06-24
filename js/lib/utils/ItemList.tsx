@@ -20,6 +20,33 @@ export default class ItemList {
     this.items = {};
   }
 
+  after(key) {
+    const priority = this.items[key].priority + 1;
+
+    return this.withPriority(priority);
+  }
+
+  before(key) {
+    const priority = this.items[key].priority - 1;
+
+    return this.withPriority(priority);
+  }
+
+  withPriority(priority) {
+    const items = this;
+
+    return {
+      add(key, content) {
+        items.add(key, content, priority);
+        return this;
+      },
+      replace(key, content) {
+        items.replace(key, content, priority);
+        return this;
+      }
+    };
+  }
+
   /**
    * Check whether an item is present in the list.
    *
@@ -52,6 +79,8 @@ export default class ItemList {
    */
   add(key, content, priority = 0) {
     this.items[key] = new Item(content, priority);
+
+    return this;
   }
 
   /**
@@ -72,6 +101,8 @@ export default class ItemList {
         this.items[key].priority = priority;
       }
     }
+
+    return this;
   }
 
   /**
@@ -82,6 +113,8 @@ export default class ItemList {
    */
   remove(key) {
     delete this.items[key];
+
+    return this;
   }
 
   /**
@@ -96,6 +129,8 @@ export default class ItemList {
         this.items[i] = items.items[i];
       }
     }
+
+    return this;
   }
 
   /**

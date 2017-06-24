@@ -5,3 +5,5 @@ Thumbs.db
 tests/_output/*
 .vagrant
 .idea/*
+node_modules
+bower_components

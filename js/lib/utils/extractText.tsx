@@ -5,8 +5,8 @@
  * @return {String}
  */
 export default function extractText(vdom) {
-  if (vdom instanceof Array) {
-    return vdom.map(element => extractText(element)).join('');
+  if (Array.isArray(vdom)) {
+    return vdom.map(extractText).join('');
   } else if (typeof vdom === 'object') {
     return extractText(vdom.children);
   } else {

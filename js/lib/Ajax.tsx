@@ -1,3 +1,4 @@
+import { app } from 'flarum';
 import ItemList from 'flarum/utils/ItemList';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
@@ -9,156 +10,7 @@ import patchMithril from 'flarum/utils/patchMithril';
 import RequestError from 'flarum/utils/RequestError';
 import { extend } from 'flarum/extend';
 
-/**
- * The `App` class provides a container for an application, as well as various
- * utilities for the rest of the app to use.
- */
-export default class App {
-  constructor() {
-    patchMithril(window);
-
-    /**
-     * The forum model for this application.
-     *
-     * @type {Forum}
-     * @public
-     */
-    this.forum = null;
-
-    /**
-     * A map of routes, keyed by a unique route name. Each route is an object
-     * containing the following properties:
-     *
-     * - `path` The path that the route is accessed at.
-     * - `component` The Mithril component to render when this route is active.
-     *
-     * @example
-     * app.routes.discussion = {path: '/d/:id', component: DiscussionPage.component()};
-     *
-     * @type {Object}
-     * @public
-     */
-    this.routes = {};
-
-    /**
-     * An ordered list of initializers to bootstrap the application.
-     *
-     * @type {ItemList}
-     * @public
-     */
-    this.initializers = new ItemList();
-
-    /**
-     * The app's session.
-     *
-     * @type {Session}
-     * @public
-     */
-    this.session = null;
-
-    /**
-     * The app's translator.
-     *
-     * @type {Translator}
-     * @public
-     */
-    this.translator = new Translator();
-
-    /**
-     * The app's data store.
-     *
-     * @type {Store}
-     * @public
-     */
-    this.store = null;
-
-    /**
-     * A local cache that can be used to store data at the application level, so
-     * that is persists between different routes.
-     *
-     * @type {Object}
-     * @public
-     */
-    this.cache = {};
-
-    /**
-     * Whether or not the app has been booted.
-     *
-     * @type {Boolean}
-     * @public
-     */
-    this.booted = false;
-
-    /**
-     * An Alert that was shown as a result of an AJAX request error. If present,
-     * it will be dismissed on the next successful request.
-     *
-     * @type {null|Alert}
-     * @private
-     */
-    this.requestError = null;
-
-    this.title = '';
-    this.titleCount = 0;
-  }
-
-  /**
-   * Boot the application by running all of the registered initializers.
-   *
-   * @public
-   */
-  boot(data) {
-    this.data = data;
-
-    this.translator.locale = data.locale;
-
-    this.initializers.toArray().forEach(initializer => initializer(this));
-  }
-
-  /**
-   * Get the API response document that has been preloaded into the application.
-   *
-   * @return {Object|null}
-   * @public
-   */
-  preloadedDocument() {
-    if (this.data.document) {
-      const results = this.store.pushPayload(this.data.document);
-      this.data.document = null;
-
-      return results;
-    }
-
-    return null;
-  }
-
-  /**
-   * Set the <title> of the page.
-   *
-   * @param {String} title
-   * @public
-   */
-  setTitle(title) {
-    this.title = title;
-    this.updateTitle();
-  }
-
-  /**
-   * Set a number to display in the <title> of the page.
-   *
-   * @param {Integer} count
-   */
-  setTitleCount(count) {
-    this.titleCount = count;
-    this.updateTitle();
-  }
-
-  updateTitle() {
-    document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
-      (this.title ? this.title + ' - ' : '') +
-      this.forum.attribute('title');
-  }
-
+export default class Ajax {
   /**
    * Make an AJAX request, handling any low-level errors that may occur.
    *
@@ -292,21 +144,5 @@ export default class App {
     this.alerts.dismiss(this.requestErrorAlert);
 
     this.modal.show(new RequestErrorModal({error}));
-  }
-
-  /**
-   * Construct a URL to the route with the given name.
-   *
-   * @param {String} name
-   * @param {Object} params
-   * @return {String}
-   * @public
-   */
-  route(name, params = {}) {
-    const url = this.routes[name].path.replace(/:([^\/]+)/g, (m, key) => extract(params, key));
-    const queryString = m.route.buildQueryString(params);
-    const prefix = m.route.mode === 'pathname' ? app.forum.attribute('basePath') : '';
-
-    return prefix + url + (queryString ? '?' + queryString : '');
   }
 }

@@ -1,57 +1,46 @@
-import History from 'flarum/utils/History';
-import App from 'flarum/App';
-import Search from 'flarum/components/Search';
-import Composer from 'flarum/components/Composer';
-import ReplyComposer from 'flarum/components/ReplyComposer';
-import DiscussionPage from 'flarum/components/DiscussionPage';
-import SignUpModal from 'flarum/components/SignUpModal';
+import * as m from 'mithril';
+import Application from './lib/Application';
+import routes from './routes';
+import Nav from './components/Nav';
 
-export default class ForumApp extends App {
-  constructor(...args) {
-    super(...args);
+export default class ForumApplication extends Application {
+  /**
+   * A map of notification types to their components.
+   *
+   * @type {Object}
+   */
+  notificationComponents = {};
 
-    /**
-     * The app's history stack, which keeps track of which routes the user visits
-     * so that they can easily navigate back to the previous route.
-     *
-     * @type {History}
-     */
-    this.history = new History();
+  /**
+   * A map of post types to their components.
+   *
+   * @type {Object}
+   */
+  postComponents = {};
 
-    /**
-     * An object which controls the state of the page's side pane.
-     *
-     * @type {Pane}
-     */
-    this.pane = null;
+  /**
+   * The page's search component instance.
+   *
+   * @type {SearchBox}
+   */
+  search = new Search();
 
-    /**
-     * The page's search component instance.
-     *
-     * @type {SearchBox}
-     */
-    this.search = new Search();
+  /**
+   * @inheritdoc
+   */
+  mount() {
+    m.route.prefix('#');
 
-    /**
-     * An object which controls the state of the page's drawer.
-     *
-     * @type {Drawer}
-     */
-    this.drawer = null;
+    super.mount();
 
-    /**
-     * A map of post types to their components.
-     *
-     * @type {Object}
-     */
-    this.postComponents = {};
+    m.mount(document.getElementById('nav'), <Nav/>);
+  }
 
-    /**
-     * A map of notification types to their components.
-     *
-     * @type {Object}
-     */
-    this.notificationComponents = {};
+  /**
+   * @inheritdoc
+   */
+  registerDefaultRoutes(router) {
+    routes(router);
   }
 
   /**
