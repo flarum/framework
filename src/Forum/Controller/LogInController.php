@@ -13,8 +13,8 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\TokenController;
-use Flarum\Core\Repository\UserRepository;
-use Flarum\Event\UserLoggedIn;
+use Flarum\User\UserRepository;
+use Flarum\User\Event\LoggedIn;
 use Flarum\Http\AccessToken;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
@@ -26,7 +26,7 @@ use Zend\Diactoros\Response\JsonResponse;
 class LogInController implements ControllerInterface
 {
     /**
-     * @var \Flarum\Core\Repository\UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 
@@ -46,7 +46,7 @@ class LogInController implements ControllerInterface
     protected $rememberer;
 
     /**
-     * @param \Flarum\Core\Repository\UserRepository $users
+     * @param \Flarum\User\UserRepository $users
      * @param Client $apiClient
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
@@ -79,7 +79,7 @@ class LogInController implements ControllerInterface
 
             $token = AccessToken::find($data->token);
 
-            event(new UserLoggedIn($this->users->findOrFail($data->userId), $token));
+            event(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
             $response = $this->rememberer->remember($response, $token, ! array_get($body, 'remember'));
         }

@@ -12,9 +12,9 @@
 namespace Flarum\Api;
 
 use Exception;
-use Flarum\Core\User;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\User\User;
 use InvalidArgumentException;
 use Zend\Diactoros\ServerRequestFactory;
 

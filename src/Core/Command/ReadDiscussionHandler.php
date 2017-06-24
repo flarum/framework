@@ -40,7 +40,7 @@ class ReadDiscussionHandler
     /**
      * @param ReadDiscussion $command
      * @return \Flarum\Core\DiscussionState
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(ReadDiscussion $command)
     {

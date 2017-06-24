@@ -12,7 +12,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Core\Command\ConfirmEmail;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
+use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;

@@ -11,12 +11,13 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Access\Gate;
 use Flarum\Core\Post\CommentPost;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\User\Gate;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
@@ -34,7 +35,7 @@ class CoreServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->alias('flarum.gate', 'Illuminate\Contracts\Auth\Access\Gate');
-        $this->app->alias('flarum.gate', 'Flarum\Core\Access\Gate');
+        $this->app->alias('flarum.gate', 'Flarum\User\Gate');
 
         $this->registerAvatarsFilesystem();
 
@@ -106,15 +107,15 @@ class CoreServiceProvider extends AbstractServiceProvider
 
         $events->subscribe('Flarum\Core\Listener\SelfDemotionGuard');
         $events->subscribe('Flarum\Core\Listener\DiscussionMetadataUpdater');
-        $events->subscribe('Flarum\Core\Listener\UserMetadataUpdater');
+        $events->subscribe('Flarum\User\UserMetadataUpdater');
         $events->subscribe('Flarum\Core\Listener\ExtensionValidator');
-        $events->subscribe('Flarum\Core\Listener\EmailConfirmationMailer');
+        $events->subscribe('Flarum\User\EmailConfirmationMailer');
         $events->subscribe('Flarum\Core\Listener\DiscussionRenamedNotifier');
 
         $events->subscribe('Flarum\Core\Access\DiscussionPolicy');
         $events->subscribe('Flarum\Core\Access\GroupPolicy');
         $events->subscribe('Flarum\Core\Access\PostPolicy');
-        $events->subscribe('Flarum\Core\Access\UserPolicy');
+        $events->subscribe('Flarum\User\UserPolicy');
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
     }

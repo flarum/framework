@@ -12,7 +12,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client as ApiClient;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Flarum\Forum\Frontend;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;

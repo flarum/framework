@@ -12,10 +12,10 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Event\UserWillBeDeleted;
+use Flarum\User\Event\Deleting;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteUserHandler
@@ -40,7 +40,7 @@ class DeleteUserHandler
 
     /**
      * @param DeleteUser $command
-     * @return \Flarum\Core\User
+     * @return \Flarum\User\User
      * @throws PermissionDeniedException
      */
     public function handle(DeleteUser $command)
@@ -51,7 +51,7 @@ class DeleteUserHandler
         $this->assertCan($actor, 'delete', $user);
 
         $this->events->fire(
-            new UserWillBeDeleted($user, $actor, $command->data)
+            new Deleting($user, $actor, $command->data)
         );
 
         $user->delete();

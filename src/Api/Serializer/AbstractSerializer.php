@@ -13,9 +13,9 @@ namespace Flarum\Api\Serializer;
 
 use Closure;
 use DateTime;
-use Flarum\Core\User;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\PrepareApiAttributes;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use InvalidArgumentException;

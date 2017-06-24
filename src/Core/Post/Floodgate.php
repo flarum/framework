@@ -14,7 +14,7 @@ namespace Flarum\Core\Post;
 use DateTime;
 use Flarum\Core\Exception\FloodingException;
 use Flarum\Core\Post;
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class Floodgate
 {

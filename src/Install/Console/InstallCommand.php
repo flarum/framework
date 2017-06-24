@@ -15,7 +15,7 @@ use Exception;
 use Flarum\Console\AbstractCommand;
 use Flarum\Core\Group;
 use Flarum\Core\Permission;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Flarum\Database\AbstractModel;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;

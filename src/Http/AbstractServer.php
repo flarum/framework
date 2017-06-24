@@ -11,9 +11,9 @@
 
 namespace Flarum\Http;
 
-use Flarum\Core\AuthToken;
-use Flarum\Core\EmailToken;
-use Flarum\Core\PasswordToken;
+use Flarum\User\AuthToken;
+use Flarum\User\EmailToken;
+use Flarum\User\PasswordToken;
 use Flarum\Foundation\AbstractServer as BaseAbstractServer;
 use Flarum\Foundation\Application;
 use Psr\Http\Message\ResponseInterface;

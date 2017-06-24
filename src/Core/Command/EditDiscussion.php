@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class EditDiscussion
 {
@@ -25,7 +25,7 @@ class EditDiscussion
     /**
      * The user performing the action.
      *
-     * @var \Flarum\Core\User
+     * @var \Flarum\User\User
      */
     public $actor;
 
@@ -38,7 +38,7 @@ class EditDiscussion
 
     /**
      * @param int $discussionId The ID of the discussion to edit.
-     * @param \Flarum\Core\User $actor The user performing the action.
+     * @param \Flarum\User\User $actor The user performing the action.
      * @param array $data The attributes to update on the discussion.
      */
     public function __construct($discussionId, User $actor, array $data)
