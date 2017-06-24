@@ -13,13 +13,13 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Event\DiscussionStateWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadDiscussionHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**
