@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\Post;
 
-use Flarum\Core\Post\RegisteredTypesScope;
+use Flarum\Core\User;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
-use Flarum\Event\PostWasDeleted;
+use Flarum\Post\Event\Deleted;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -97,7 +97,7 @@ class Post extends AbstractModel
         });
 
         static::deleted(function (Post $post) {
-            $post->raise(new PostWasDeleted($post));
+            $post->raise(new Deleted($post));
         });
 
         static::addGlobalScope(new RegisteredTypesScope);

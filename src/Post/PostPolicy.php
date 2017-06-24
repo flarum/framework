@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Access;
+namespace Flarum\Post;
 
 use Carbon\Carbon;
-use Flarum\Core\Post;
 use Flarum\Event\ScopePostVisibility;
 use Flarum\Event\ScopePrivatePostVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -58,7 +57,7 @@ class PostPolicy extends AbstractPolicy
     /**
      * @param User $actor
      * @param string $ability
-     * @param Post $post
+     * @param \Flarum\Post\Post $post
      * @return bool|null
      */
     public function after(User $actor, $ability, Post $post)

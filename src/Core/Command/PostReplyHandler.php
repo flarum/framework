@@ -14,11 +14,11 @@ namespace Flarum\Core\Command;
 use DateTime;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\Post\CommentPost;
+use Flarum\Post\CommentPost;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Core\Validator\PostValidator;
-use Flarum\Event\PostWillBeSaved;
+use Flarum\Post\PostValidator;
+use Flarum\Post\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class PostReplyHandler
@@ -37,7 +37,7 @@ class PostReplyHandler
     protected $notifications;
 
     /**
-     * @var PostValidator
+     * @var \Flarum\Post\PostValidator
      */
     protected $validator;
 
@@ -96,7 +96,7 @@ class PostReplyHandler
         }
 
         $this->events->fire(
-            new PostWillBeSaved($post, $actor, $command->data)
+            new Saving($post, $actor, $command->data)
         );
 
         $this->validator->assertValid($post->getAttributes());
