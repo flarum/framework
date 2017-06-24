@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\UserRepository;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -21,7 +21,7 @@ use League\Flysystem\FilesystemInterface;
 
 class DeleteAvatarHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

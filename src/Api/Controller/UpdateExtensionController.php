@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Http\Controller\ControllerInterface;
 use Psr\Http\Message\ServerRequestInterface;

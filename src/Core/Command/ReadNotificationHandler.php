@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Core\Notification;
 
 class ReadNotificationHandler

@@ -11,7 +11,7 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Event\LoggedOut;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;

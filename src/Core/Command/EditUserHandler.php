@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\User\UserRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
@@ -22,7 +22,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class EditUserHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

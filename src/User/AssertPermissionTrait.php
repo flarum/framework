@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Access;
+namespace Flarum\User;
 
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\User\User;
 
 trait AssertPermissionTrait
 {
