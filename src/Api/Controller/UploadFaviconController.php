@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\AssertPermissionTrait;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use League\Flysystem\Adapter\Local;

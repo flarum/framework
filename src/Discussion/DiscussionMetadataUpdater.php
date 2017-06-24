@@ -11,11 +11,11 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Post\Post;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionMetadataUpdater

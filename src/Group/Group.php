@@ -11,9 +11,9 @@
 
 namespace Flarum\Group;
 
-use Flarum\Foundation\EventGeneratorTrait;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Event\Created;
 use Flarum\Group\Event\Deleting;
 use Flarum\Group\Event\Renamed;

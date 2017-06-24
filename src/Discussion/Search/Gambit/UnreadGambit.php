@@ -12,9 +12,9 @@
 namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
-use Flarum\Discussion\Search\DiscussionSearch;
 use LogicException;
 
 class UnreadGambit extends AbstractRegexGambit

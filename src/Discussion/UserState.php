@@ -11,10 +11,9 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Discussion\Discussion;
-use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Event\UserRead;
+use Flarum\Foundation\EventGeneratorTrait;
 use Illuminate\Database\Eloquent\Builder;
 
 /**

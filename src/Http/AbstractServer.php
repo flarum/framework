@@ -11,11 +11,11 @@
 
 namespace Flarum\Http;
 
+use Flarum\Foundation\AbstractServer as BaseAbstractServer;
+use Flarum\Foundation\Application;
 use Flarum\User\AuthToken;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
-use Flarum\Foundation\AbstractServer as BaseAbstractServer;
-use Flarum\Foundation\Application;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Server;

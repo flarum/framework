@@ -11,9 +11,9 @@
 
 namespace Flarum\Discussion\Search\Gambit;
 
-use Flarum\Search\AbstractSearch;
 use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Discussion\Search\Fulltext\DriverInterface;
+use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
 use LogicException;
 

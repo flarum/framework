@@ -11,10 +11,10 @@
 
 namespace Flarum\Discussion;
 
+use Flarum\Discussion\Event\Renamed;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\DiscussionRenamedPost;
-use Flarum\Discussion\Event\Renamed;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionRenamedLogger
