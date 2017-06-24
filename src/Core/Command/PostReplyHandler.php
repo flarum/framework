@@ -16,14 +16,14 @@ use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Core\Post\CommentPost;
 use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Core\Validator\PostValidator;
 use Flarum\Event\PostWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class PostReplyHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

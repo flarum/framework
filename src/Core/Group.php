@@ -11,7 +11,7 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\GroupWasCreated;
@@ -29,7 +29,7 @@ use Flarum\Event\GroupWasRenamed;
  */
 class Group extends AbstractModel
 {
-    use EventGeneratorTrait;
+    use Flarum\Foundation\EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
     /**

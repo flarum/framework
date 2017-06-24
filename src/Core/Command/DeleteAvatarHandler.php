@@ -14,14 +14,14 @@ namespace Flarum\Core\Command;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\UserRepository;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 use League\Flysystem\FilesystemInterface;
 
 class DeleteAvatarHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

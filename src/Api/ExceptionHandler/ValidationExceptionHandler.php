@@ -12,7 +12,7 @@
 namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Core\Exception\ValidationException;
+use Flarum\Foundation\ValidationException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 

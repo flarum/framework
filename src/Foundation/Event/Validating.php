@@ -9,20 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Foundation\Event;
 
-use Flarum\Core\Validator\AbstractValidator;
+use Flarum\Foundation\AbstractValidator;
 use Illuminate\Validation\Validator;
 
 /**
- * The `ConfigureModelValidator` event is called when a validator instance for a
+ * The `Validating` event is called when a validator instance for a
  * model is being built. This event can be used to add custom rules/extensions
  * to the validator for when validation takes place.
  */
-class ConfigureValidator
+class Validating
 {
     /**
-     * @var AbstractValidator
+     * @var \Flarum\Foundation\AbstractValidator
      */
     public $type;
 

@@ -11,6 +11,8 @@
 
 namespace Flarum\Core\Validator;
 
+use Flarum\Foundation\AbstractValidator;
+
 class GroupValidator extends AbstractValidator
 {
     protected $rules = [

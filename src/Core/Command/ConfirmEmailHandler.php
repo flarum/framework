@@ -13,12 +13,12 @@ namespace Flarum\Core\Command;
 
 use Flarum\User\EmailToken;
 use Flarum\User\UserRepository;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ConfirmEmailHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
 
     /**
      * @var \Flarum\User\UserRepository
