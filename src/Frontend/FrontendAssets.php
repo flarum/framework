@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\WebApp;
+namespace Flarum\Frontend;
 
-use Flarum\Asset\JsCompiler;
-use Flarum\Asset\LessCompiler;
+use Flarum\Frontend\Asset\JsCompiler;
+use Flarum\Frontend\Asset\LessCompiler;
 use Flarum\Foundation\Application;
-use Flarum\Locale\JsCompiler as LocaleJsCompiler;
+use Flarum\Frontend\Asset\LocaleJsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Cache\Repository;
 
-class WebAppAssets
+class FrontendAssets
 {
     /**
      * @var string
