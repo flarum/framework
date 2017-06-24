@@ -13,7 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Discussion\Discussion;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\NotificationRepository;
+use Flarum\Notification\NotificationRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -39,12 +39,12 @@ class ListNotificationsController extends AbstractListController
     public $limit = 10;
 
     /**
-     * @var \Flarum\Core\Repository\NotificationRepository
+     * @var \Flarum\Notification\NotificationRepository
      */
     protected $notifications;
 
     /**
-     * @param \Flarum\Core\Repository\NotificationRepository $notifications
+     * @param \Flarum\Notification\NotificationRepository $notifications
      */
     public function __construct(NotificationRepository $notifications)
     {
@@ -80,7 +80,7 @@ class ListNotificationsController extends AbstractListController
     }
 
     /**
-     * @param \Flarum\Core\Notification[] $notifications
+     * @param \Flarum\Notification\Notification[] $notifications
      */
     private function loadSubjectDiscussions(array $notifications)
     {

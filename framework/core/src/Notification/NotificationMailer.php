@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Notification;
+namespace Flarum\Notification;
 
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
