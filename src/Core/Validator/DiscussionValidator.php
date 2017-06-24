@@ -11,6 +11,8 @@
 
 namespace Flarum\Core\Validator;
 
+use Flarum\Foundation\AbstractValidator;
+
 class DiscussionValidator extends AbstractValidator
 {
     protected $rules = [

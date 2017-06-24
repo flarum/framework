@@ -11,7 +11,7 @@
 
 namespace Flarum\User;
 
-use Flarum\Core\Validator\AbstractValidator;
+use Flarum\Foundation\AbstractValidator;
 
 class AvatarValidator extends AbstractValidator
 {

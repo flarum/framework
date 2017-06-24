@@ -11,7 +11,7 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\DiscussionWasRead;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class DiscussionState extends AbstractModel
 {
-    use EventGeneratorTrait;
+    use Flarum\Foundation\EventGeneratorTrait;
 
     /**
      * {@inheritdoc}

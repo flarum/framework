@@ -12,7 +12,7 @@
 namespace Flarum\Core;
 
 use Flarum\Core\Post\MergeableInterface;
-use Flarum\Core\Support\EventGeneratorTrait;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\DiscussionWasDeleted;
@@ -55,7 +55,7 @@ use Flarum\Util\Str;
  */
 class Discussion extends AbstractModel
 {
-    use EventGeneratorTrait;
+    use Flarum\Foundation\EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
     /**

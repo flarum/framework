@@ -15,14 +15,14 @@ use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Core\Group;
 use Flarum\Core\Repository\GroupRepository;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Core\Validator\GroupValidator;
 use Flarum\Event\GroupWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditGroupHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

@@ -15,7 +15,7 @@ use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\AuthToken;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
 use Flarum\User\UserValidator;
 use Flarum\User\Event\Saving;
@@ -33,7 +33,7 @@ use League\Flysystem\MountManager;
 
 class RegisterUserHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

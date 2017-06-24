@@ -14,7 +14,7 @@ namespace Flarum\Core\Command;
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\Discussion;
-use Flarum\Core\Support\DispatchEventsTrait;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Core\Validator\DiscussionValidator;
 use Flarum\Event\DiscussionWillBeSaved;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
@@ -22,7 +22,7 @@ use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 
 class StartDiscussionHandler
 {
-    use DispatchEventsTrait;
+    use Flarum\Foundation\DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

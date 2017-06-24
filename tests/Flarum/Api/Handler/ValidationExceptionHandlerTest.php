@@ -13,7 +13,7 @@ namespace Tests\Flarum\Api\Handler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\ValidationExceptionHandler;
-use Flarum\Core\Exception\ValidationException;
+use Flarum\Foundation\ValidationException;
 use Tests\Test\TestCase;
 
 class ValidationExceptionHandlerTest extends TestCase
