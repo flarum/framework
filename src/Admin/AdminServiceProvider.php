@@ -55,13 +55,10 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $route = $this->app->make(RouteHandlerFactory::class);
+        $factory = $this->app->make(RouteHandlerFactory::class);
 
-        $routes->get(
-            '/',
-            'index',
-            $route->toController(Controller\WebAppController::class)
-        );
+        $callback = include __DIR__.'/routes.php';
+        $callback($routes, $factory);
     }
 
     protected function flushWebAppAssetsWhenThemeChanged()
@@ -91,6 +88,6 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     protected function getWebAppAssets()
     {
-        return $this->app->make(WebApp::class)->getAssets();
+        return $this->app->make(Frontend::class)->getAssets();
     }
 }
