@@ -37,14 +37,14 @@ class SearchServiceProvider extends AbstractServiceProvider
 
     public function registerUserGambits()
     {
-        $this->app->when('Flarum\Core\User\Search\UserSearcher')
+        $this->app->when('Flarum\User\Search\UserSearcher')
             ->needs('Flarum\Search\GambitManager')
             ->give(function (Container $app) {
                 $gambits = new GambitManager($app);
 
-                $gambits->setFulltextGambit('Flarum\Core\User\Search\Gambit\FulltextGambit');
-                $gambits->add('Flarum\Core\User\Search\Gambit\EmailGambit');
-                $gambits->add('Flarum\Core\User\Search\Gambit\GroupGambit');
+                $gambits->setFulltextGambit('Flarum\User\Search\Gambit\FulltextGambit');
+                $gambits->add('Flarum\User\Search\Gambit\EmailGambit');
+                $gambits->add('Flarum\User\Search\Gambit\GroupGambit');
 
                 $app->make('events')->fire(
                     new ConfigureUserGambits($gambits)
