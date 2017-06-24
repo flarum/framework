@@ -11,9 +11,11 @@
 
 namespace Flarum\Event;
 
+use Flarum\Frontend\Event\Rendering;
+
 /**
  * @deprecated
  */
-class ConfigureClientView extends ConfigureWebApp
+class ConfigureClientView extends Rendering
 {
 }

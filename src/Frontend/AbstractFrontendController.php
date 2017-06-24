@@ -12,7 +12,7 @@
 namespace Flarum\Frontend;
 
 use Flarum\Event\ConfigureClientView;
-use Flarum\Event\ConfigureWebApp;
+use Flarum\Frontend\Event\Rendering;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -40,7 +40,7 @@ abstract class AbstractFrontendController extends AbstractHtmlController
             new ConfigureClientView($this, $view, $request)
         );
         $this->events->fire(
-            new ConfigureWebApp($this, $view, $request)
+            new Rendering($this, $view, $request)
         );
 
         return $view->render($request);
