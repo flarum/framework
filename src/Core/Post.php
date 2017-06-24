@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class Post extends AbstractModel
 {
-    use Flarum\Foundation\EventGeneratorTrait;
+    use EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
     /**
