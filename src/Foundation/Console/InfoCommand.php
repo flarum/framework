@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Debug\Console;
+namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Debug\Console;
+namespace Flarum\Foundation\Console;
 
 use Flarum\Admin\Frontend as AdminWebApp;
 use Flarum\Console\AbstractCommand;
