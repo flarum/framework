@@ -24,6 +24,6 @@ class DiscussionServiceProvider extends AbstractServiceProvider
 
         $events->subscribe('Flarum\Discussion\DiscussionMetadataUpdater');
         $events->subscribe('Flarum\Discussion\DiscussionPolicy');
-        $events->subscribe('Flarum\Discussion\DiscussionRenamedNotifier');
+        $events->subscribe('Flarum\Discussion\DiscussionRenamedLogger');
     }
 }

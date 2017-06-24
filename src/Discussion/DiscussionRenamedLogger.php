@@ -17,7 +17,7 @@ use Flarum\Post\DiscussionRenamedPost;
 use Flarum\Discussion\Event\Renamed;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class DiscussionRenamedNotifier
+class DiscussionRenamedLogger
 {
     /**
      * @var NotificationSyncer
