@@ -9,20 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\User;
 
-use Flarum\Post\CommentPost;
-use Flarum\Event\ConfigurePostTypes;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Post\Post;
-use Flarum\User\Gate;
-use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use RuntimeException;
 
-class CoreServiceProvider extends AbstractServiceProvider
+class UserServiceProvider extends AbstractServiceProvider
 {
     /**
      * {@inheritdoc}
@@ -39,10 +33,6 @@ class CoreServiceProvider extends AbstractServiceProvider
         $this->app->alias('flarum.gate', 'Flarum\User\Gate');
 
         $this->registerAvatarsFilesystem();
-
-        $this->app->register('Flarum\Notification\Notification\NotificationServiceProvider');
-        $this->app->register('Flarum\Search\SearchServiceProvider');
-        $this->app->register('Flarum\Formatter\FormatterServiceProvider');
     }
 
     protected function registerAvatarsFilesystem()
@@ -69,12 +59,6 @@ class CoreServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
-
-        $this->app->make('Illuminate\Contracts\Bus\Dispatcher')->mapUsing(function ($command) {
-            return get_class($command).'Handler@handle';
-        });
-
         $this->app->make('flarum.gate')->before(function (User $actor, $ability, $model = null) {
             // Fire an event so that core and extension policies can hook into
             // this permission query and explicitly grant or deny the
@@ -97,44 +81,17 @@ class CoreServiceProvider extends AbstractServiceProvider
             return false;
         });
 
-        $this->registerPostTypes();
-
-        CommentPost::setFormatter($this->app->make('flarum.formatter'));
-
         User::setHasher($this->app->make('hash'));
         User::setGate($this->app->make('flarum.gate'));
 
         $events = $this->app->make('events');
 
         $events->subscribe('Flarum\Core\Listener\SelfDemotionGuard');
-        $events->subscribe('Flarum\Discussion\DiscussionMetadataUpdater');
-        $events->subscribe('Flarum\User\UserMetadataUpdater');
-        $events->subscribe('Flarum\Extension\DefaultLanguagePackGuard');
         $events->subscribe('Flarum\User\EmailConfirmationMailer');
-        $events->subscribe('Flarum\Discussion\DiscussionRenamedNotifier');
-
-        $events->subscribe('Flarum\Discussion\DiscussionPolicy');
-        $events->subscribe('Flarum\Group\GroupPolicy');
-        $events->subscribe('Flarum\Post\PostPolicy');
+        $events->subscribe('Flarum\User\UserMetadataUpdater');
         $events->subscribe('Flarum\User\UserPolicy');
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
-    }
-
-    public function registerPostTypes()
-    {
-        $models = [
-            'Flarum\Post\CommentPost',
-            'Flarum\Post\DiscussionRenamedPost'
-        ];
-
-        $this->app->make('events')->fire(
-            new ConfigurePostTypes($models)
-        );
-
-        foreach ($models as $model) {
-            Post::setModel($model::$type, $model);
-        }
     }
 
     /**
