@@ -13,7 +13,7 @@ namespace Flarum\Admin\Controller;
 
 use Flarum\Admin\Frontend;
 use Flarum\Core\Permission;
-use Flarum\Event\PrepareUnserializedSettings;
+use Flarum\Settings\Event\Deserializing;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Frontend\AbstractFrontendController;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -56,7 +56,7 @@ class FrontendController extends AbstractFrontendController
         $settings = $this->settings->all();
 
         $this->events->fire(
-            new PrepareUnserializedSettings($settings)
+            new Deserializing($settings)
         );
 
         $view->setVariable('settings', $settings);

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Settings\Event;
 
 /**
  * Prepare settings for display in the client.
@@ -17,7 +17,7 @@ namespace Flarum\Event;
  * This event is fired when settings have been retrieved from the database and
  * are being unserialized for display in the client.
  */
-class PrepareUnserializedSettings
+class Deserializing
 {
     /**
      * The settings array to be unserialized.

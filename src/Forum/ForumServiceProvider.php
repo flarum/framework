@@ -14,7 +14,7 @@ namespace Flarum\Forum;
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Event\SettingWasSet;
+use Flarum\Settings\Event\Saved;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
@@ -82,7 +82,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
     protected function flushWebAppAssetsWhenThemeChanged()
     {
-        $this->app->make('events')->listen(SettingWasSet::class, function (SettingWasSet $event) {
+        $this->app->make('events')->listen(Saved::class, function (Saved $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
                 $this->getWebAppAssets()->flushCss();
             }
