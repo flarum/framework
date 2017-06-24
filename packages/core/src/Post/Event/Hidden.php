@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Post\Event;
 
-use Flarum\Core\Post\CommentPost;
+use Flarum\Post\CommentPost;
 use Flarum\User\User;
 
-class PostWasHidden
+class Hidden
 {
     /**
      * @var CommentPost

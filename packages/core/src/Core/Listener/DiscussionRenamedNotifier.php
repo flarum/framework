@@ -13,7 +13,7 @@ namespace Flarum\Core\Listener;
 
 use Flarum\Core\Notification\DiscussionRenamedBlueprint;
 use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\Post\DiscussionRenamedPost;
+use Flarum\Post\DiscussionRenamedPost;
 use Flarum\Event\DiscussionWasRenamed;
 use Illuminate\Contracts\Events\Dispatcher;
 

@@ -21,7 +21,7 @@ use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\PostWasDeleted;
+use Flarum\Post\Event\Deleted;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\BioChanged;
@@ -136,7 +136,7 @@ class User extends AbstractModel
             $posts = $user->posts()->allTypes();
 
             foreach ($posts->get() as $post) {
-                $user->raise(new PostWasDeleted($post));
+                $user->raise(new Deleted($post));
             }
 
             $posts->delete();
@@ -603,7 +603,7 @@ class User extends AbstractModel
      */
     public function posts()
     {
-        return $this->hasMany('Flarum\Core\Post');
+        return $this->hasMany('Flarum\Post\Post');
     }
 
     /**

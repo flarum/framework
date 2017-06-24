@@ -11,11 +11,12 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Post\CommentPost;
+use Flarum\Post\CommentPost;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Post\Post;
 use Flarum\User\Gate;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
@@ -114,7 +115,7 @@ class CoreServiceProvider extends AbstractServiceProvider
 
         $events->subscribe('Flarum\Core\Access\DiscussionPolicy');
         $events->subscribe('Flarum\Core\Access\GroupPolicy');
-        $events->subscribe('Flarum\Core\Access\PostPolicy');
+        $events->subscribe('Flarum\Post\PostPolicy');
         $events->subscribe('Flarum\User\UserPolicy');
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
@@ -123,8 +124,8 @@ class CoreServiceProvider extends AbstractServiceProvider
     public function registerPostTypes()
     {
         $models = [
-            'Flarum\Core\Post\CommentPost',
-            'Flarum\Core\Post\DiscussionRenamedPost'
+            'Flarum\Post\Post\CommentPost',
+            'Flarum\Post\Post\DiscussionRenamedPost'
         ];
 
         $this->app->make('events')->fire(

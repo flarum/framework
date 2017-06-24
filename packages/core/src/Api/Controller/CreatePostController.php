@@ -13,7 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Core\Command\PostReply;
 use Flarum\Core\Command\ReadDiscussion;
-use Flarum\Core\Post\Floodgate;
+use Flarum\Post\Floodgate;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -41,13 +41,13 @@ class CreatePostController extends AbstractCreateController
     protected $bus;
 
     /**
-     * @var Floodgate
+     * @var \Flarum\Post\Floodgate
      */
     protected $floodgate;
 
     /**
      * @param Dispatcher $bus
-     * @param Floodgate $floodgate
+     * @param \Flarum\Post\Floodgate $floodgate
      */
     public function __construct(Dispatcher $bus, Floodgate $floodgate)
     {

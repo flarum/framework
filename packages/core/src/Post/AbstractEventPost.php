@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Post;
-
-use Flarum\Core\Post;
+namespace Flarum\Post;
 
 abstract class AbstractEventPost extends Post
 {

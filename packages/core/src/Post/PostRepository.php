@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Repository;
+namespace Flarum\Post;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\Post;
 use Flarum\Event\ScopePostVisibility;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
