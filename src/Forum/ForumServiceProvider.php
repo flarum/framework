@@ -12,8 +12,8 @@
 namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
-use Flarum\Event\ExtensionWasDisabled;
-use Flarum\Event\ExtensionWasEnabled;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Settings\Event\Saved;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteHandlerFactory;
@@ -93,8 +93,8 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $events = $this->app->make('events');
 
-        $events->listen(ExtensionWasEnabled::class, [$this, 'flushWebAppAssets']);
-        $events->listen(ExtensionWasDisabled::class, [$this, 'flushWebAppAssets']);
+        $events->listen(Enabled::class, [$this, 'flushWebAppAssets']);
+        $events->listen(Disabled::class, [$this, 'flushWebAppAssets']);
     }
 
     public function flushWebAppAssets()
