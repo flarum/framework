@@ -12,7 +12,7 @@
 namespace Flarum\Core;
 
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\GroupWasCreated;
 use Flarum\Event\GroupWasDeleted;
