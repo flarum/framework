@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\WebApp;
+namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Asset\CompilerInterface;
+use Flarum\Frontend\Asset\CompilerInterface;
 use Flarum\Foundation\Application;
-use Flarum\Locale\JsCompiler;
+use Flarum\Frontend\Asset\LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Illuminate\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -25,7 +25,7 @@ use Tobscure\JsonApi\Resource;
 /**
  * This class represents a view which boots up Flarum's client.
  */
-class WebAppView
+class FrontendView
 {
     /**
      * The title of the document, displayed in the <title> tag.
@@ -135,7 +135,7 @@ class WebAppView
     protected $localeCss;
 
     /**
-     * @var WebAppAssets
+     * @var FrontendAssets
      */
     protected $assets;
 
@@ -166,14 +166,14 @@ class WebAppView
 
     /**
      * @param string $layout
-     * @param WebAppAssets $assets
+     * @param FrontendAssets $assets
      * @param Client $api
      * @param Factory $view
      * @param LocaleManager $locales
      * @param AbstractSerializer $userSerializer
      * @param Application $app
      */
-    public function __construct($layout, WebAppAssets $assets, Client $api, Factory $view, LocaleManager $locales, AbstractSerializer $userSerializer, Application $app)
+    public function __construct($layout, FrontendAssets $assets, Client $api, Factory $view, LocaleManager $locales, AbstractSerializer $userSerializer, Application $app)
     {
         $this->layout = $layout;
         $this->api = $api;
@@ -397,7 +397,7 @@ class WebAppView
     }
 
     /**
-     * @return JsCompiler
+     * @return LocaleJsCompiler
      */
     public function getLocaleJs()
     {

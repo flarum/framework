@@ -13,11 +13,11 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client as ApiClient;
 use Flarum\Core\User;
-use Flarum\Forum\WebApp;
+use Flarum\Forum\Frontend;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class IndexController extends WebAppController
+class IndexController extends FrontendController
 {
     /**
      * @var ApiClient
@@ -39,7 +39,7 @@ class IndexController extends WebAppController
     /**
      * {@inheritdoc}
      */
-    public function __construct(WebApp $webApp, Dispatcher $events, ApiClient $api)
+    public function __construct(Frontend $webApp, Dispatcher $events, ApiClient $api)
     {
         parent::__construct($webApp, $events);
 
