@@ -13,7 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\UrlGenerator;
 use Flarum\Discussion\Search\DiscussionSearcher;
-use Flarum\Core\Search\SearchCriteria;
+use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

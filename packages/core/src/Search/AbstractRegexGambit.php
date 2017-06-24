@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search;
+namespace Flarum\Search;
 
 abstract class AbstractRegexGambit implements GambitInterface
 {

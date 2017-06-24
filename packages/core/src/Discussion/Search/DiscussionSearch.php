@@ -11,7 +11,7 @@
 
 namespace Flarum\Discussion\Search;
 
-use Flarum\Core\Search\AbstractSearch;
+use Flarum\Search\AbstractSearch;
 
 /**
  * An object which represents the internal state of a search for discussions:
