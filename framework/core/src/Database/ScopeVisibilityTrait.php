@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Support;
+namespace Flarum\Database;
 
 use Flarum\Core\User;
 use Flarum\Event\ScopeModelVisibility;
