@@ -11,7 +11,7 @@
 
 namespace Flarum\Event;
 
-use Flarum\Admin\Controller\WebAppController as AdminWebAppController;
+use Flarum\Admin\Controller\FrontendController as AdminWebAppController;
 use Flarum\Forum\Controller\WebAppController as ForumWebAppController;
 use Flarum\Http\Controller\AbstractWebAppController;
 use Flarum\Http\WebApp\WebAppView;

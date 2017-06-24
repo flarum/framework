@@ -11,7 +11,7 @@
 
 namespace Flarum\Admin\Controller;
 
-use Flarum\Admin\WebApp;
+use Flarum\Admin\Frontend;
 use Flarum\Core\Permission;
 use Flarum\Event\PrepareUnserializedSettings;
 use Flarum\Extension\ExtensionManager;
@@ -20,7 +20,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
-class WebAppController extends AbstractWebAppController
+class FrontendController extends AbstractWebAppController
 {
     /**
      * @var SettingsRepositoryInterface
@@ -33,12 +33,12 @@ class WebAppController extends AbstractWebAppController
     protected $extensions;
 
     /**
-     * @param WebApp $webApp
+     * @param Frontend $webApp
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
      */
-    public function __construct(WebApp $webApp, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions)
+    public function __construct(Frontend $webApp, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions)
     {
         $this->webApp = $webApp;
         $this->events = $events;

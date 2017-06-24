@@ -13,7 +13,7 @@ namespace Flarum\Admin;
 
 use Flarum\Http\WebApp\AbstractWebApp;
 
-class WebApp extends AbstractWebApp
+class Frontend extends AbstractWebApp
 {
     /**
      * {@inheritdoc}
