@@ -84,7 +84,7 @@ class AdminServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * @return \Flarum\Http\WebApp\WebAppAssets
+     * @return \Flarum\Frontend\FrontendAssets
      */
     protected function getWebAppAssets()
     {

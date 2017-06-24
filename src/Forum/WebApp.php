@@ -12,13 +12,13 @@
 namespace Flarum\Forum;
 
 use Flarum\Formatter\Formatter;
-use Flarum\Http\WebApp\AbstractWebApp;
-use Flarum\Http\WebApp\WebAppAssetsFactory;
-use Flarum\Http\WebApp\WebAppViewFactory;
+use Flarum\Frontend\AbstractFrontend;
+use Flarum\Frontend\FrontendAssetsFactory;
+use Flarum\Frontend\FrontendViewFactory;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 
-class WebApp extends AbstractWebApp
+class Frontend extends AbstractFrontend
 {
     /**
      * @var Formatter
@@ -29,8 +29,8 @@ class WebApp extends AbstractWebApp
      * {@inheritdoc}
      */
     public function __construct(
-        WebAppAssetsFactory $assets,
-        WebAppViewFactory $view,
+        FrontendAssetsFactory $assets,
+        FrontendViewFactory $view,
         SettingsRepositoryInterface $settings,
         LocaleManager $locales,
         Formatter $formatter

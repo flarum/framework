@@ -14,12 +14,12 @@ namespace Flarum\Forum\Controller;
 use Flarum\Api\Client;
 use Flarum\Core\User;
 use Flarum\Forum\UrlGenerator;
-use Flarum\Forum\WebApp;
+use Flarum\Forum\Frontend;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class DiscussionController extends WebAppController
+class DiscussionController extends FrontendController
 {
     /**
      * @var ApiClient
@@ -34,7 +34,7 @@ class DiscussionController extends WebAppController
     /**
      * {@inheritdoc}
      */
-    public function __construct(WebApp $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
+    public function __construct(Frontend $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
     {
         parent::__construct($webApp, $events);
 

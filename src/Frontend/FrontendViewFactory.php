@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\WebApp;
+namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\CurrentUserSerializer;
@@ -17,7 +17,7 @@ use Flarum\Foundation\Application;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\View\Factory;
 
-class WebAppViewFactory
+class FrontendViewFactory
 {
     /**
      * @var Client
@@ -62,11 +62,11 @@ class WebAppViewFactory
 
     /**
      * @param string $layout
-     * @param WebAppAssets $assets
-     * @return WebAppView
+     * @param FrontendAssets $assets
+     * @return FrontendView
      */
-    public function make($layout, WebAppAssets $assets)
+    public function make($layout, FrontendAssets $assets)
     {
-        return new WebAppView($layout, $assets, $this->api, $this->view, $this->locales, $this->userSerializer, $this->app);
+        return new FrontendView($layout, $assets, $this->api, $this->view, $this->locales, $this->userSerializer, $this->app);
     }
 }

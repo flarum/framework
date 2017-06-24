@@ -13,7 +13,7 @@ namespace Flarum\Foundation\Console;
 
 use Flarum\Admin\Frontend as AdminWebApp;
 use Flarum\Console\AbstractCommand;
-use Flarum\Forum\WebApp as ForumWebApp;
+use Flarum\Forum\Frontend as ForumWebApp;
 use Illuminate\Contracts\Cache\Store;
 
 class CacheClearCommand extends AbstractCommand
@@ -24,7 +24,7 @@ class CacheClearCommand extends AbstractCommand
     protected $cache;
 
     /**
-     * @var \Flarum\Forum\WebApp
+     * @var \Flarum\Forum\Frontend
      */
     protected $forum;
 

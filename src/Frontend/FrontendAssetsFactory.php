@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\WebApp;
+namespace Flarum\Frontend;
 
 use Flarum\Foundation\Application;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Cache\Repository;
 
-class WebAppAssetsFactory
+class FrontendAssetsFactory
 {
     /**
      * @var Application
@@ -46,10 +46,10 @@ class WebAppAssetsFactory
 
     /**
      * @param string $name
-     * @return WebAppAssets
+     * @return FrontendAssets
      */
     public function make($name)
     {
-        return new WebAppAssets($name, $this->app, $this->cache, $this->locales);
+        return new FrontendAssets($name, $this->app, $this->cache, $this->locales);
     }
 }

@@ -15,12 +15,12 @@ use Flarum\Admin\Frontend;
 use Flarum\Core\Permission;
 use Flarum\Event\PrepareUnserializedSettings;
 use Flarum\Extension\ExtensionManager;
-use Flarum\Http\Controller\AbstractWebAppController;
+use Flarum\Frontend\AbstractFrontendController;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 
-class FrontendController extends AbstractWebAppController
+class FrontendController extends AbstractFrontendController
 {
     /**
      * @var SettingsRepositoryInterface

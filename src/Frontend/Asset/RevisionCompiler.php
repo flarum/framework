@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Asset;
+namespace Flarum\Frontend\Asset;
 
 class RevisionCompiler implements CompilerInterface
 {

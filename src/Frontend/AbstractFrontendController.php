@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\Controller;
+namespace Flarum\Frontend;
 
 use Flarum\Event\ConfigureClientView;
 use Flarum\Event\ConfigureWebApp;
-use Flarum\Http\WebApp\AbstractWebApp;
+use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-abstract class AbstractWebAppController extends AbstractHtmlController
+abstract class AbstractFrontendController extends AbstractHtmlController
 {
     /**
-     * @var AbstractWebApp
+     * @var AbstractFrontend
      */
     protected $webApp;
 
@@ -48,7 +48,7 @@ abstract class AbstractWebAppController extends AbstractHtmlController
 
     /**
      * @param Request $request
-     * @return \Flarum\Http\WebApp\WebAppView
+     * @return \Flarum\Frontend\FrontendView
      */
     protected function getView(Request $request)
     {

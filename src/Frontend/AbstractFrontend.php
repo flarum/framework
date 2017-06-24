@@ -9,20 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Http\WebApp;
+namespace Flarum\Frontend;
 
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 
-abstract class AbstractWebApp
+abstract class AbstractFrontend
 {
     /**
-     * @var WebAppAssetsFactory
+     * @var FrontendAssetsFactory
      */
     protected $assets;
 
     /**
-     * @var WebAppViewFactory
+     * @var FrontendViewFactory
      */
     protected $view;
 
@@ -37,12 +37,12 @@ abstract class AbstractWebApp
     protected $locales;
 
     /**
-     * @param WebAppAssetsFactory $assets
-     * @param WebAppViewFactory $view
+     * @param FrontendAssetsFactory $assets
+     * @param FrontendViewFactory $view
      * @param SettingsRepositoryInterface $settings
      * @param LocaleManager $locales
      */
-    public function __construct(WebAppAssetsFactory $assets, WebAppViewFactory $view, SettingsRepositoryInterface $settings, LocaleManager $locales)
+    public function __construct(FrontendAssetsFactory $assets, FrontendViewFactory $view, SettingsRepositoryInterface $settings, LocaleManager $locales)
     {
         $this->assets = $assets;
         $this->view = $view;
@@ -51,7 +51,7 @@ abstract class AbstractWebApp
     }
 
     /**
-     * @return WebAppView
+     * @return FrontendView
      */
     public function getView()
     {
@@ -65,7 +65,7 @@ abstract class AbstractWebApp
     }
 
     /**
-     * @return WebAppAssets
+     * @return FrontendAssets
      */
     public function getAssets()
     {
@@ -100,9 +100,9 @@ abstract class AbstractWebApp
     }
 
     /**
-     * @param WebAppView $view
+     * @param FrontendView $view
      */
-    private function addDefaultAssets(WebAppView $view)
+    private function addDefaultAssets(FrontendView $view)
     {
         $root = __DIR__.'/../../..';
         $name = $this->getName();
@@ -112,9 +112,9 @@ abstract class AbstractWebApp
     }
 
     /**
-     * @param WebAppView $view
+     * @param FrontendView $view
      */
-    private function addCustomLess(WebAppView $view)
+    private function addCustomLess(FrontendView $view)
     {
         $css = $view->getCss();
         $localeCss = $view->getLocaleCss();
@@ -154,9 +154,9 @@ abstract class AbstractWebApp
     }
 
     /**
-     * @param WebAppView $view
+     * @param FrontendView $view
      */
-    private function addTranslations(WebAppView $view)
+    private function addTranslations(FrontendView $view)
     {
         $translations = array_get($this->locales->getTranslator()->getMessages(), 'messages', []);
 

@@ -12,20 +12,20 @@
 namespace Flarum\Event;
 
 use Flarum\Admin\Controller\FrontendController as AdminWebAppController;
-use Flarum\Forum\Controller\WebAppController as ForumWebAppController;
-use Flarum\Http\Controller\AbstractWebAppController;
-use Flarum\Http\WebApp\WebAppView;
+use Flarum\Forum\Controller\FrontendController as ForumWebAppController;
+use Flarum\Frontend\AbstractFrontendController;
+use Flarum\Frontend\FrontendView;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ConfigureWebApp
 {
     /**
-     * @var AbstractWebAppController
+     * @var AbstractFrontendController
      */
     public $controller;
 
     /**
-     * @var WebAppView
+     * @var FrontendView
      */
     public $view;
 
@@ -35,11 +35,11 @@ class ConfigureWebApp
     public $request;
 
     /**
-     * @param AbstractWebAppController $controller
-     * @param WebAppView $view
+     * @param AbstractFrontendController $controller
+     * @param FrontendView $view
      * @param ServerRequestInterface $request
      */
-    public function __construct(AbstractWebAppController $controller, WebAppView $view, ServerRequestInterface $request)
+    public function __construct(AbstractFrontendController $controller, FrontendView $view, ServerRequestInterface $request)
     {
         $this->controller = $controller;
         $this->view = $view;

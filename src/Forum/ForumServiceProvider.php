@@ -73,7 +73,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $routes->get(
             '/u/{username}[/{filter:[^/]*}]',
             'user',
-            $route->toController(Controller\WebAppController::class)
+            $route->toController(Controller\FrontendController::class)
         );
 
         $routes->get(
@@ -164,10 +164,10 @@ class ForumServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * @return \Flarum\Http\WebApp\WebAppAssets
+     * @return \Flarum\Frontend\FrontendAssets
      */
     protected function getWebAppAssets()
     {
-        return $this->app->make(WebApp::class)->getAssets();
+        return $this->app->make(Frontend::class)->getAssets();
     }
 }
