@@ -32,7 +32,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
     public function registerNotificationTypes()
     {
         $blueprints = [
-            'Flarum\Notification\Notification\DiscussionRenamedBlueprint' => ['alert']
+            'Flarum\Notification\Blueprint\DiscussionRenamedBlueprint' => ['alert']
         ];
 
         $this->app->make('events')->fire(
@@ -51,7 +51,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
                 in_array('alert', $enabled)
             );
 
-            if ((new ReflectionClass($blueprint))->implementsInterface('Flarum\Notification\Notification\MailableInterface')) {
+            if ((new ReflectionClass($blueprint))->implementsInterface('Flarum\Notification\MailableInterface')) {
                 User::addPreference(
                     User::getNotificationPreferenceKey($type, 'email'),
                     'boolval',
