@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Notification;
+namespace Flarum\Notification\Blueprint;
 
 /**
  * A notification BlueprintInterface, when instantiated, represents a notification about

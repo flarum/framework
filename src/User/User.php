@@ -13,7 +13,7 @@ namespace Flarum\User;
 
 use DomainException;
 use Flarum\Group\Group;
-use Flarum\Core\Notification;
+use Flarum\Notification\Notification;
 use Flarum\Group\Permission;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
@@ -632,7 +632,7 @@ class User extends AbstractModel
      */
     public function notifications()
     {
-        return $this->hasMany('Flarum\Core\Notification');
+        return $this->hasMany('Flarum\Notification\Notification');
     }
 
     /**

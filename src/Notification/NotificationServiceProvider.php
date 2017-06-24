@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Notification;
+namespace Flarum\Notification;
 
-use Flarum\Core\Notification;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\User\User;
@@ -33,7 +32,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
     public function registerNotificationTypes()
     {
         $blueprints = [
-            'Flarum\Core\Notification\DiscussionRenamedBlueprint' => ['alert']
+            'Flarum\Notification\Notification\DiscussionRenamedBlueprint' => ['alert']
         ];
 
         $this->app->make('events')->fire(
@@ -52,7 +51,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
                 in_array('alert', $enabled)
             );
 
-            if ((new ReflectionClass($blueprint))->implementsInterface('Flarum\Core\Notification\MailableInterface')) {
+            if ((new ReflectionClass($blueprint))->implementsInterface('Flarum\Notification\Notification\MailableInterface')) {
                 User::addPreference(
                     User::getNotificationPreferenceKey($type, 'email'),
                     'boolval',

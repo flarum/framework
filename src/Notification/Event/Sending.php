@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Notification\Event;
 
-use Flarum\Core\Notification\BlueprintInterface;
+use Flarum\Notification\Blueprint\BlueprintInterface;
 
-class NotificationWillBeSent
+class Sending
 {
     /**
      * The blueprint for the notification.
@@ -30,7 +30,7 @@ class NotificationWillBeSent
     public $users;
 
     /**
-     * @param BlueprintInterface $blueprint
+     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
      * @param \Flarum\User\User[] $users
      */
     public function __construct(BlueprintInterface $blueprint, array &$users)

@@ -11,8 +11,8 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Core\Notification\DiscussionRenamedBlueprint;
-use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\DiscussionRenamedPost;
 use Flarum\Discussion\Event\Renamed;
 use Illuminate\Contracts\Events\Dispatcher;

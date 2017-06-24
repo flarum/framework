@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Flarum\User\AssertPermissionTrait;
-use Flarum\Core\Notification;
+use Flarum\Notification\Notification;
 
 class ReadNotificationHandler
 {
@@ -20,7 +20,7 @@ class ReadNotificationHandler
 
     /**
      * @param ReadNotification $command
-     * @return \Flarum\Core\Notification
+     * @return \Flarum\Notification\Notification
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(ReadNotification $command)

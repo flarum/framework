@@ -9,12 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Notification;
+namespace Flarum\Notification;
 
 use Carbon\Carbon;
-use Flarum\Core\Notification;
-use Flarum\Core\Repository\NotificationRepository;
-use Flarum\Event\NotificationWillBeSent;
+use Flarum\Notification\Event\Sending;
+use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\User\User;
 
 /**
@@ -66,11 +65,11 @@ class NotificationSyncer
      * visible to anyone else. If it is being made visible for the first time,
      * attempt to send the user an email.
      *
-     * @param BlueprintInterface $blueprint
+     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
      * @param User[] $users
      * @return void
      */
-    public function sync(BlueprintInterface $blueprint, array $users)
+    public function sync(Blueprint\BlueprintInterface $blueprint, array $users)
     {
         $attributes = $this->getAttributes($blueprint);
 
@@ -125,7 +124,7 @@ class NotificationSyncer
     /**
      * Delete a notification for all users.
      *
-     * @param BlueprintInterface $blueprint
+     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
      * @return void
      */
     public function delete(BlueprintInterface $blueprint)
@@ -165,14 +164,14 @@ class NotificationSyncer
      * Create a notification record and send an email (depending on user
      * preference) from a blueprint to a list of recipients.
      *
-     * @param BlueprintInterface $blueprint
+     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
      * @param User[] $recipients
      */
-    protected function sendNotifications(BlueprintInterface $blueprint, array $recipients)
+    protected function sendNotifications(Blueprint\BlueprintInterface $blueprint, array $recipients)
     {
         $now = Carbon::now('utc')->toDateTimeString();
 
-        event(new NotificationWillBeSent($blueprint, $recipients));
+        event(new Sending($blueprint, $recipients));
 
         $attributes = $this->getAttributes($blueprint);
 
@@ -220,10 +219,10 @@ class NotificationSyncer
      * Construct an array of attributes to be stored in a notification record in
      * the database, given a notification blueprint.
      *
-     * @param BlueprintInterface $blueprint
+     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
      * @return array
      */
-    protected function getAttributes(BlueprintInterface $blueprint)
+    protected function getAttributes(Blueprint\BlueprintInterface $blueprint)
     {
         return [
             'type'       => $blueprint::getType(),
