@@ -13,10 +13,10 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Core\Validator\GroupValidator;
-use Flarum\Event\GroupWillBeSaved;
+use Flarum\Group\GroupValidator;
+use Flarum\Group\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class CreateGroupHandler
@@ -25,13 +25,13 @@ class CreateGroupHandler
     use AssertPermissionTrait;
 
     /**
-     * @var GroupValidator
+     * @var \Flarum\Group\GroupValidator
      */
     protected $validator;
 
     /**
      * @param Dispatcher $events
-     * @param GroupValidator $validator
+     * @param \Flarum\Group\GroupValidator $validator
      */
     public function __construct(Dispatcher $events, GroupValidator $validator)
     {
@@ -41,7 +41,7 @@ class CreateGroupHandler
 
     /**
      * @param CreateGroup $command
-     * @return Group
+     * @return \Flarum\Group\Group
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(CreateGroup $command)
@@ -59,7 +59,7 @@ class CreateGroupHandler
         );
 
         $this->events->fire(
-            new GroupWillBeSaved($group, $actor, $data)
+            new Saving($group, $actor, $data)
         );
 
         $this->validator->assertValid($group->getAttributes());

@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\User\Search\Gambit;
 
-use Flarum\Core\Repository\GroupRepository;
+use Flarum\Group\GroupRepository;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
 use Flarum\Core\User\Search\UserSearch;
@@ -30,7 +30,7 @@ class GroupGambit extends AbstractRegexGambit
     protected $groups;
 
     /**
-     * @param \Flarum\Core\Repository\GroupRepository $groups
+     * @param \Flarum\Group\GroupRepository $groups
      */
     public function __construct(GroupRepository $groups)
     {

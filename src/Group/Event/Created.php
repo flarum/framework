@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Group\Event;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Flarum\User\User;
 
-class GroupWasDeleted
+class Created
 {
     /**
-     * @var Group
+     * @var \Flarum\Group\Group
      */
     public $group;
 

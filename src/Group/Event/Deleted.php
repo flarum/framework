@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Group\Event;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Flarum\User\User;
 
-class GroupWasCreated
+class Deleted
 {
     /**
-     * @var Group
+     * @var \Flarum\Group\Group
      */
     public $group;
 
@@ -27,7 +27,7 @@ class GroupWasCreated
     public $actor;
 
     /**
-     * @param Group $group
+     * @param \Flarum\Group\Group $group
      * @param User $actor
      */
     public function __construct(Group $group, User $actor = null)
