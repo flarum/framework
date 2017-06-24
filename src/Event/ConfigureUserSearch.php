@@ -11,7 +11,7 @@
 
 namespace Flarum\Event;
 
-use Flarum\Core\Search\SearchCriteria;
+use Flarum\Search\SearchCriteria;
 use Flarum\Core\User\Search\UserSearch;
 
 class ConfigureUserSearch
