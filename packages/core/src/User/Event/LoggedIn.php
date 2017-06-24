@@ -11,8 +11,8 @@
 
 namespace Flarum\User\Event;
 
-use Flarum\User\User;
 use Flarum\Http\AccessToken;
+use Flarum\User\User;
 
 class LoggedIn
 {

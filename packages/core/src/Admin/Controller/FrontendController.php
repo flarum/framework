@@ -12,10 +12,10 @@
 namespace Flarum\Admin\Controller;
 
 use Flarum\Admin\Frontend;
-use Flarum\Group\Permission;
-use Flarum\Settings\Event\Deserializing;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Frontend\AbstractFrontendController;
+use Flarum\Group\Permission;
+use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;

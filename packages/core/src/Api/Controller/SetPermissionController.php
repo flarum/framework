@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\AssertPermissionTrait;
 use Flarum\Group\Permission;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 

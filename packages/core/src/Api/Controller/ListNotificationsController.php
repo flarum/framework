@@ -12,8 +12,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Discussion\Discussion;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Notification\NotificationRepository;
+use Flarum\User\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

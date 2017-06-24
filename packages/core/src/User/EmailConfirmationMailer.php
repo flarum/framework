@@ -11,10 +11,10 @@
 
 namespace Flarum\User;
 
-use Flarum\User\Event\EmailChangeRequested;
-use Flarum\User\Event\Registered;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Event\EmailChangeRequested;
+use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;

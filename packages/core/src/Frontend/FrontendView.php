@@ -13,8 +13,8 @@ namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Frontend\Asset\CompilerInterface;
 use Flarum\Foundation\Application;
+use Flarum\Frontend\Asset\CompilerInterface;
 use Flarum\Frontend\Asset\LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Illuminate\View\Factory;

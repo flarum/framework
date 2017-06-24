@@ -11,7 +11,6 @@
 
 namespace Flarum\User;
 
-use Flarum\User\AbstractPolicy;
 use Illuminate\Database\Eloquent\Builder;
 
 class UserPolicy extends AbstractPolicy

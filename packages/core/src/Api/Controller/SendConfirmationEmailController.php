@@ -11,12 +11,12 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\AssertPermissionTrait;
-use Flarum\User\EmailToken;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AssertPermissionTrait;
+use Flarum\User\EmailToken;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Psr\Http\Message\ServerRequestInterface;

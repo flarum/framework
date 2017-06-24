@@ -11,11 +11,11 @@
 
 namespace Flarum\Post;
 
+use Flarum\Formatter\Formatter;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
-use Flarum\Formatter\Formatter;
 use Flarum\User\User;
 
 /**

@@ -11,9 +11,9 @@
 
 namespace Flarum\Post;
 
-use Flarum\Foundation\EventGeneratorTrait;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;

@@ -12,26 +12,26 @@
 namespace Flarum\User;
 
 use DomainException;
-use Flarum\Group\Group;
-use Flarum\Notification\Notification;
-use Flarum\Group\Permission;
-use Flarum\Foundation\EventGeneratorTrait;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Event\PrepareUserGroups;
+use Flarum\Foundation\Application;
+use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Group\Group;
+use Flarum\Group\Permission;
+use Flarum\Notification\Notification;
+use Flarum\Post\Event\Deleted as PostDeleted;
+use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\BioChanged;
-use Flarum\User\Event\EmailChangeRequested;
-use Flarum\User\Event\EmailChanged;
-use Flarum\User\Event\PasswordChanged;
-use Flarum\User\Event\Activated;
 use Flarum\User\Event\Deleted;
+use Flarum\User\Event\EmailChanged;
+use Flarum\User\Event\EmailChangeRequested;
+use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
-use Flarum\Foundation\Application;
 use Illuminate\Contracts\Hashing\Hasher;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
