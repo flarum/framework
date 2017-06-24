@@ -9,13 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Post;
+namespace Flarum\Post;
 
-use Flarum\Core\Post;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRestored;
-use Flarum\Event\PostWasRevised;
+use Flarum\Post\Event\Hidden;
+use Flarum\Post\Event\Posted;
+use Flarum\Post\Event\Restored;
+use Flarum\Post\Event\Revised;
 use Flarum\Formatter\Formatter;
 use Flarum\User\User;
 
@@ -61,7 +60,7 @@ class CommentPost extends Post
         // Set content last, as the parsing may rely on other post attributes.
         $post->content = $content;
 
-        $post->raise(new PostWasPosted($post));
+        $post->raise(new Posted($post));
 
         return $post;
     }
@@ -81,7 +80,7 @@ class CommentPost extends Post
             $this->edit_time = time();
             $this->edit_user_id = $actor->id;
 
-            $this->raise(new PostWasRevised($this));
+            $this->raise(new Revised($this));
         }
 
         return $this;
@@ -99,7 +98,7 @@ class CommentPost extends Post
             $this->hide_time = time();
             $this->hide_user_id = $actor ? $actor->id : null;
 
-            $this->raise(new PostWasHidden($this));
+            $this->raise(new Hidden($this));
         }
 
         return $this;
@@ -116,7 +115,7 @@ class CommentPost extends Post
             $this->hide_time = null;
             $this->hide_user_id = null;
 
-            $this->raise(new PostWasRestored($this));
+            $this->raise(new Restored($this));
         }
 
         return $this;

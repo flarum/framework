@@ -13,9 +13,9 @@ namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\PostRepository;
+use Flarum\Post\PostRepository;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Event\PostWillBeDeleted;
+use Flarum\Post\Event\Deleting;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeletePostHandler
@@ -24,13 +24,13 @@ class DeletePostHandler
     use AssertPermissionTrait;
 
     /**
-     * @var PostRepository
+     * @var \Flarum\Post\PostRepository
      */
     protected $posts;
 
     /**
      * @param Dispatcher $events
-     * @param PostRepository $posts
+     * @param \Flarum\Post\PostRepository $posts
      */
     public function __construct(Dispatcher $events, PostRepository $posts)
     {
@@ -52,7 +52,7 @@ class DeletePostHandler
         $this->assertCan($actor, 'delete', $post);
 
         $this->events->fire(
-            new PostWillBeDeleted($post, $actor, $command->data)
+            new Deleting($post, $actor, $command->data)
         );
 
         $post->delete();

@@ -9,18 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Post;
+namespace Flarum\Post;
 
 use DateTime;
-use Flarum\Core\Exception\FloodingException;
-use Flarum\Core\Post;
+use Flarum\Post\Exception\FloodingException;
 use Flarum\User\User;
 
 class Floodgate
 {
     /**
      * @param User $actor
-     * @throws FloodingException
+     * @throws \Flarum\Post\Exception\FloodingException
      */
     public function assertNotFlooding(User $actor)
     {

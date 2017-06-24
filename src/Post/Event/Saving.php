@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Post\Event;
 
-use Flarum\Core\Post;
+use Flarum\Post\Post;
 use Flarum\User\User;
 
-class PostWillBeSaved
+class Saving
 {
     /**
      * The post that will be saved.
      *
-     * @var \Flarum\Core\Post
+     * @var \Flarum\Post\Post
      */
     public $post;
 
@@ -38,7 +38,7 @@ class PostWillBeSaved
     public $data;
 
     /**
-     * @param \Flarum\Core\Post $post
+     * @param \Flarum\Post\Post $post
      * @param User $actor
      * @param array $data
      */

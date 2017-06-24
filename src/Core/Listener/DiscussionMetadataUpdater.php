@@ -11,11 +11,11 @@
 
 namespace Flarum\Core\Listener;
 
-use Flarum\Core\Post;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRestored;
+use Flarum\Post\Post;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Hidden;
+use Flarum\Post\Event\Posted;
+use Flarum\Post\Event\Restored;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionMetadataUpdater
@@ -25,16 +25,16 @@ class DiscussionMetadataUpdater
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
-        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
-        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
-        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
+        $events->listen(Posted::class, [$this, 'whenPostWasPosted']);
+        $events->listen(Deleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(Hidden::class, [$this, 'whenPostWasHidden']);
+        $events->listen(Restored::class, [$this, 'whenPostWasRestored']);
     }
 
     /**
-     * @param PostWasPosted $event
+     * @param Posted $event
      */
-    public function whenPostWasPosted(PostWasPosted $event)
+    public function whenPostWasPosted(Posted $event)
     {
         $discussion = $event->post->discussion;
 
@@ -47,9 +47,9 @@ class DiscussionMetadataUpdater
     }
 
     /**
-     * @param \Flarum\Event\PostWasDeleted $event
+     * @param \Flarum\Post\Event\Deleted $event
      */
-    public function whenPostWasDeleted(PostWasDeleted $event)
+    public function whenPostWasDeleted(Deleted $event)
     {
         $this->removePost($event->post);
 
@@ -61,17 +61,17 @@ class DiscussionMetadataUpdater
     }
 
     /**
-     * @param PostWasHidden $event
+     * @param \Flarum\Post\Event\Hidden $event
      */
-    public function whenPostWasHidden(PostWasHidden $event)
+    public function whenPostWasHidden(Hidden $event)
     {
         $this->removePost($event->post);
     }
 
     /**
-     * @param PostWasRestored $event
+     * @param Restored $event
      */
-    public function whenPostWasRestored(PostWasRestored $event)
+    public function whenPostWasRestored(Restored $event)
     {
         $discussion = $event->post->discussion;
 

@@ -12,7 +12,7 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Core\Post;
-use Flarum\Core\Post\CommentPost;
+use Flarum\Post\CommentPost;
 use InvalidArgumentException;
 
 class BasicPostSerializer extends AbstractSerializer

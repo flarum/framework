@@ -12,7 +12,7 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\User\Gate;
-use Flarum\Core\Post\CommentPost;
+use Flarum\Post\CommentPost;
 
 class PostSerializer extends BasicPostSerializer
 {

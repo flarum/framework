@@ -11,7 +11,7 @@
 
 namespace Flarum\Core;
 
-use Flarum\Core\Post\MergeableInterface;
+use Flarum\Post\MergeableInterface;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
@@ -20,8 +20,9 @@ use Flarum\Event\DiscussionWasHidden;
 use Flarum\Event\DiscussionWasRenamed;
 use Flarum\Event\DiscussionWasRestored;
 use Flarum\Event\DiscussionWasStarted;
-use Flarum\Event\PostWasDeleted;
+use Flarum\Post\Event\Deleted;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\Post\Post;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Flarum\Util\Str;
@@ -109,7 +110,7 @@ class Discussion extends AbstractModel
             $posts = $discussion->posts()->allTypes();
 
             foreach ($posts->get() as $post) {
-                $discussion->raise(new PostWasDeleted($post));
+                $discussion->raise(new Deleted($post));
             }
 
             $posts->delete();
@@ -272,7 +273,7 @@ class Discussion extends AbstractModel
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @param MergeableInterface $post The post to save.
+     * @param \Flarum\Post\MergeableInterface $post The post to save.
      * @return Post The resulting post. It may or may not be the same post as
      *     was originally intended to be saved. It also may not exist, if the
      *     merge logic resulted in deletion.
@@ -303,7 +304,7 @@ class Discussion extends AbstractModel
      */
     public function posts()
     {
-        return $this->hasMany('Flarum\Core\Post');
+        return $this->hasMany('Flarum\Post\Post');
     }
 
     /**
@@ -355,7 +356,7 @@ class Discussion extends AbstractModel
      */
     public function startPost()
     {
-        return $this->belongsTo('Flarum\Core\Post', 'start_post_id');
+        return $this->belongsTo('Flarum\Post\Post', 'start_post_id');
     }
 
     /**
@@ -375,7 +376,7 @@ class Discussion extends AbstractModel
      */
     public function lastPost()
     {
-        return $this->belongsTo('Flarum\Core\Post', 'last_post_id');
+        return $this->belongsTo('Flarum\Post\Post', 'last_post_id');
     }
 
     /**

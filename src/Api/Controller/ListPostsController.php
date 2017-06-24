@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Repository\PostRepository;
+use Flarum\Post\PostRepository;
 use Flarum\Event\ConfigurePostsQuery;
 use Illuminate\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,12 +42,12 @@ class ListPostsController extends AbstractListController
     public $sortFields = ['time'];
 
     /**
-     * @var \Flarum\Core\Repository\PostRepository
+     * @var \Flarum\Post\PostRepository
      */
     protected $posts;
 
     /**
-     * @param \Flarum\Core\Repository\PostRepository $posts
+     * @param \Flarum\Post\PostRepository $posts
      */
     public function __construct(PostRepository $posts)
     {

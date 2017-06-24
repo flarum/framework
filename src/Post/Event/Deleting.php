@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Post\Event;
 
-use Flarum\Core\Post;
+use Flarum\Post\Post;
 use Flarum\User\User;
 
-class PostWillBeDeleted
+class Deleting
 {
     /**
      * The post that is going to be deleted.
      *
-     * @var \Flarum\Core\Post
+     * @var \Flarum\Post\Post
      */
     public $post;
 
@@ -38,7 +38,7 @@ class PostWillBeDeleted
     public $data;
 
     /**
-     * @param \Flarum\Core\Post $post
+     * @param \Flarum\Post\Post $post
      * @param User $actor
      * @param array $data
      */

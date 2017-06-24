@@ -15,10 +15,10 @@ use Flarum\Core\Discussion;
 use Flarum\Core\Post;
 use Flarum\Event\DiscussionWasDeleted;
 use Flarum\Event\DiscussionWasStarted;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRestored;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Hidden;
+use Flarum\Post\Event\Posted;
+use Flarum\Post\Event\Restored;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserMetadataUpdater
@@ -28,42 +28,42 @@ class UserMetadataUpdater
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
-        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
-        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
-        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
+        $events->listen(Posted::class, [$this, 'whenPostWasPosted']);
+        $events->listen(Deleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(Hidden::class, [$this, 'whenPostWasHidden']);
+        $events->listen(Restored::class, [$this, 'whenPostWasRestored']);
         $events->listen(DiscussionWasStarted::class, [$this, 'whenDiscussionWasStarted']);
         $events->listen(DiscussionWasDeleted::class, [$this, 'whenDiscussionWasDeleted']);
     }
 
     /**
-     * @param PostWasPosted $event
+     * @param \Flarum\Post\Event\Posted $event
      */
-    public function whenPostWasPosted(PostWasPosted $event)
+    public function whenPostWasPosted(Posted $event)
     {
         $this->updateCommentsCount($event->post, 1);
     }
 
     /**
-     * @param \Flarum\Event\PostWasDeleted $event
+     * @param \Flarum\Post\Event\Deleted $event
      */
-    public function whenPostWasDeleted(PostWasDeleted $event)
+    public function whenPostWasDeleted(Deleted $event)
     {
         $this->updateCommentsCount($event->post, -1);
     }
 
     /**
-     * @param PostWasHidden $event
+     * @param \Flarum\Post\Event\Hidden $event
      */
-    public function whenPostWasHidden(PostWasHidden $event)
+    public function whenPostWasHidden(Hidden $event)
     {
         $this->updateCommentsCount($event->post, -1);
     }
 
     /**
-     * @param \Flarum\Event\PostWasRestored $event
+     * @param \Flarum\Post\Event\Restored $event
      */
-    public function whenPostWasRestored(PostWasRestored $event)
+    public function whenPostWasRestored(Restored $event)
     {
         $this->updateCommentsCount($event->post, 1);
     }

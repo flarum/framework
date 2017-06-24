@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Post\Event;
 
-use Flarum\Core\Post;
+use Flarum\Post\CommentPost;
 use Flarum\User\User;
 
-class PostWasPosted
+class Restored
 {
     /**
-     * @var \Flarum\Core\Post
+     * @var \Flarum\Post\CommentPost
      */
     public $post;
 
@@ -27,9 +27,9 @@ class PostWasPosted
     public $actor;
 
     /**
-     * @param \Flarum\Core\Post $post
+     * @param \Flarum\Post\CommentPost $post
      */
-    public function __construct(Post $post, User $actor = null)
+    public function __construct(CommentPost $post, User $actor = null)
     {
         $this->post = $post;
         $this->actor = $actor;

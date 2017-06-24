@@ -13,7 +13,7 @@ namespace Tests\Flarum\Api\Handler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\FloodingExceptionHandler;
-use Flarum\Core\Exception\FloodingException;
+use Flarum\Post\Exception\FloodingException;
 use Tests\Test\TestCase;
 
 class FloodingExceptionHandlerTest extends TestCase

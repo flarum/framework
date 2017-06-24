@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Post;
-
-use Flarum\Core\Post;
+namespace Flarum\Post;
 
 /**
  * A post that has the ability to be merged into an adjacent post.
@@ -26,7 +24,7 @@ interface MergeableInterface
      * Save the model, given that it is going to appear immediately after the
      * passed model.
      *
-     * @param Post|null $previous
+     * @param \Flarum\Post\Post|null $previous
      * @return Post The model resulting after the merge. If the merge is
      *     unsuccessful, this should be the current model instance. Otherwise,
      *     it should be the model that was merged into.
