@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Formatter\Event;
 
 use s9e\TextFormatter\Configurator;
 
-class ConfigureFormatter
+class Configuring
 {
     /**
      * @var Configurator

@@ -11,9 +11,9 @@
 
 namespace Flarum\Formatter;
 
-use Flarum\Event\ConfigureFormatter;
-use Flarum\Event\ConfigureFormatterParser;
-use Flarum\Event\ConfigureFormatterRenderer;
+use Flarum\Formatter\Event\Configuring;
+use Flarum\Formatter\Event\Parsing;
+use Flarum\Formatter\Event\Rendering;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use s9e\TextFormatter\Configurator;
@@ -59,7 +59,7 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
-        $this->events->fire(new ConfigureFormatterParser($parser, $context, $text));
+        $this->events->fire(new Parsing($parser, $context, $text));
 
         return $parser->parse($text);
     }
@@ -75,7 +75,7 @@ class Formatter
     {
         $renderer = $this->getRenderer($context);
 
-        $this->events->fire(new ConfigureFormatterRenderer($renderer, $context, $xml));
+        $this->events->fire(new Rendering($renderer, $context, $xml));
 
         return $renderer->render($xml);
     }
@@ -117,7 +117,7 @@ class Formatter
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
 
-        $this->events->fire(new ConfigureFormatter($configurator));
+        $this->events->fire(new Configuring($configurator));
 
         $this->configureExternalLinks($configurator);
 
