@@ -12,8 +12,8 @@
 namespace Flarum\User;
 
 use DateTime;
-use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\Database\AbstractModel;
+use Flarum\User\Exception\InvalidConfirmationTokenException;
 
 /**
  * @todo document database columns with @property

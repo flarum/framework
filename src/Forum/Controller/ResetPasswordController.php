@@ -12,9 +12,9 @@
 namespace Flarum\Forum\Controller;
 
 use DateTime;
+use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
-use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\Translation\TranslatorInterface;

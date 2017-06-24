@@ -12,8 +12,8 @@
 namespace Flarum\Notification;
 
 use Carbon\Carbon;
-use Flarum\Notification\Event\Sending;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Event\Sending;
 use Flarum\User\User;
 
 /**

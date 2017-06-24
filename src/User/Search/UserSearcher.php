@@ -11,12 +11,12 @@
 
 namespace Flarum\User\Search;
 
-use Flarum\User\UserRepository;
+use Flarum\Event\ConfigureUserSearch;
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchResults;
-use Flarum\Event\ConfigureUserSearch;
+use Flarum\User\UserRepository;
 
 /**
  * Takes a UserSearchCriteria object, performs a search using gambits,

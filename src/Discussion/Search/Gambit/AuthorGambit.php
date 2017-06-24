@@ -11,10 +11,10 @@
 
 namespace Flarum\Discussion\Search\Gambit;
 
-use Flarum\User\UserRepository;
+use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
-use Flarum\Discussion\Search\DiscussionSearch;
+use Flarum\User\UserRepository;
 use LogicException;
 
 class AuthorGambit extends AbstractRegexGambit

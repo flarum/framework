@@ -11,18 +11,17 @@
 
 namespace Flarum\Discussion;
 
-use Flarum\Discussion\UserState;
-use Flarum\Post\MergeableInterface;
-use Flarum\Foundation\EventGeneratorTrait;
-use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Event\Deleted;
 use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
-use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Post\Event\Deleted as PostDeleted;
+use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\User\Guest;
 use Flarum\User\User;

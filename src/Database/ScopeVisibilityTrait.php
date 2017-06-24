@@ -11,8 +11,8 @@
 
 namespace Flarum\Database;
 
-use Flarum\User\User;
 use Flarum\Event\ScopeModelVisibility;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 trait ScopeVisibilityTrait

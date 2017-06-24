@@ -11,11 +11,11 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\AssertPermissionTrait;
-use Flarum\Settings\Event\Serializing;
-use Flarum\Settings\Event\Saved;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Settings\Event\Saved;
+use Flarum\Settings\Event\Serializing;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;

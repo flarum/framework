@@ -12,8 +12,8 @@
 namespace Flarum\Api;
 
 use Exception;
-use Flarum\User\User;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Zend\Diactoros\ServerRequestFactory;

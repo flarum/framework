@@ -12,7 +12,6 @@
 namespace Flarum\Discussion;
 
 use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
 use Flarum\Event\ScopePrivateDiscussionVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;

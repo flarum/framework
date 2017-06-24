@@ -13,10 +13,10 @@ namespace Flarum\Admin;
 
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
-use Flarum\Settings\Event\Saved;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
+use Flarum\Http\RouteHandlerFactory;
+use Flarum\Settings\Event\Saved;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {

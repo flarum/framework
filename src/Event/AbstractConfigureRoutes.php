@@ -11,8 +11,8 @@
 
 namespace Flarum\Event;
 
-use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
+use Flarum\Http\RouteHandlerFactory;
 
 abstract class AbstractConfigureRoutes
 {

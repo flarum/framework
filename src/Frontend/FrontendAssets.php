@@ -11,9 +11,9 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Foundation\Application;
 use Flarum\Frontend\Asset\JsCompiler;
 use Flarum\Frontend\Asset\LessCompiler;
-use Flarum\Foundation\Application;
 use Flarum\Frontend\Asset\LocaleJsCompiler as LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Cache\Repository;

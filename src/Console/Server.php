@@ -12,11 +12,11 @@
 namespace Flarum\Console;
 
 use Flarum\Database\Console\GenerateMigrationCommand;
+use Flarum\Database\Console\MigrateCommand;
+use Flarum\Foundation\AbstractServer;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Foundation\AbstractServer;
 use Flarum\Install\Console\InstallCommand;
-use Flarum\Database\Console\MigrateCommand;
 use Symfony\Component\Console\Application;
 
 class Server extends AbstractServer

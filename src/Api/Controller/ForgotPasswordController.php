@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\Controller\ControllerInterface;
 use Flarum\User\Command\RequestPasswordReset;
 use Flarum\User\UserRepository;
-use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;
