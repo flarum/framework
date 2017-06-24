@@ -86,7 +86,7 @@ abstract class AbstractFrontend
      */
     protected function getLayout()
     {
-        return __DIR__.'/../../../views/'.$this->getName().'.blade.php';
+        return __DIR__.'/../../views/'.$this->getName().'.blade.php';
     }
 
     /**
@@ -104,7 +104,7 @@ abstract class AbstractFrontend
      */
     private function addDefaultAssets(FrontendView $view)
     {
-        $root = __DIR__.'/../../..';
+        $root = __DIR__.'/../..';
         $name = $this->getName();
 
         $view->getJs()->addFile("$root/js/$name/dist/app.js");

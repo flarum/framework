@@ -287,7 +287,7 @@ class FrontendView
         $this->view->share('forum', array_get($forum, 'data'));
         $this->view->share('debug', $this->app->inDebugMode());
 
-        $view = $this->view->file(__DIR__.'/../../../views/app.blade.php');
+        $view = $this->view->file(__DIR__.'/../../views/app.blade.php');
 
         $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
         $view->description = $this->description ?: array_get($forum, 'data.attributes.description');
@@ -345,7 +345,7 @@ class FrontendView
 
     protected function buildContent()
     {
-        $view = $this->view->file(__DIR__.'/../../../views/content.blade.php');
+        $view = $this->view->file(__DIR__.'/../../views/content.blade.php');
 
         $view->content = $this->content;
 
