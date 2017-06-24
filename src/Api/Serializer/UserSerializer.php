@@ -11,12 +11,12 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Access\Gate;
+use Flarum\User\Gate;
 
 class UserSerializer extends BasicUserSerializer
 {
     /**
-     * @var Gate
+     * @var \Flarum\User\Gate
      */
     protected $gate;
 

@@ -14,7 +14,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Core\Discussion;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Repository\PostRepository;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

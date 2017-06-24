@@ -12,7 +12,7 @@
 namespace Flarum\Api;
 
 use Exception;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;

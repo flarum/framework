@@ -12,8 +12,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\EmailToken;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\EmailToken;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Settings\SettingsRepositoryInterface;

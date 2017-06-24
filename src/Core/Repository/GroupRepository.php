@@ -12,7 +12,7 @@
 namespace Flarum\Core\Repository;
 
 use Flarum\Core\Group;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class GroupRepository

@@ -12,7 +12,7 @@
 namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
+use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 

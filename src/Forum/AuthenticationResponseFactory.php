@@ -11,10 +11,10 @@
 
 namespace Flarum\Forum;
 
-use Flarum\Core\AuthToken;
-use Flarum\Core\User;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\User\AuthToken;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 

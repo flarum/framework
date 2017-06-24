@@ -14,8 +14,8 @@ namespace Flarum\Core\Notification;
 use Carbon\Carbon;
 use Flarum\Core\Notification;
 use Flarum\Core\Repository\NotificationRepository;
-use Flarum\Core\User;
 use Flarum\Event\NotificationWillBeSent;
+use Flarum\User\User;
 
 /**
  * The Notification Syncer commits notification blueprints to the database, and

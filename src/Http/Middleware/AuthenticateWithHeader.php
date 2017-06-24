@@ -12,7 +12,7 @@
 namespace Flarum\Http\Middleware;
 
 use Flarum\Api\ApiKey;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Flarum\Http\AccessToken;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;

@@ -12,9 +12,9 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\UrlGenerator;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\User\UserSearcher;
+use Flarum\Core\User\Search\UserSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

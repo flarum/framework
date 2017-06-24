@@ -12,8 +12,8 @@
 namespace Flarum\Forum\Controller;
 
 use DateTime;
-use Flarum\Core\Exception\InvalidConfirmationTokenException;
-use Flarum\Core\PasswordToken;
+use Flarum\User\Exception\InvalidConfirmationTokenException;
+use Flarum\User\PasswordToken;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -43,7 +43,7 @@ class ResetPasswordController extends AbstractHtmlController
     /**
      * @param Request $request
      * @return \Illuminate\Contracts\View\View
-     * @throws InvalidConfirmationTokenException
+     * @throws \Flarum\User\Exception\InvalidConfirmationTokenException
      */
     public function render(Request $request)
     {

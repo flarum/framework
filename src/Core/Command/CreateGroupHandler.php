@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Core\Group;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\GroupValidator;
@@ -42,7 +42,7 @@ class CreateGroupHandler
     /**
      * @param CreateGroup $command
      * @return Group
-     * @throws PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(CreateGroup $command)
     {

@@ -49,7 +49,7 @@ class EditPostHandler
     /**
      * @param EditPost $command
      * @return \Flarum\Core\Post
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditPost $command)
     {

@@ -12,8 +12,8 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core;
-use Flarum\Core\PasswordToken;
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\PasswordToken;
+use Flarum\User\UserRepository;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Mail\Mailer;
@@ -56,7 +56,7 @@ class RequestPasswordResetHandler
     protected $validatorFactory;
 
     /**
-     * @param UserRepository $users
+     * @param \Flarum\User\UserRepository $users
      * @param SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
@@ -81,7 +81,7 @@ class RequestPasswordResetHandler
 
     /**
      * @param RequestPasswordReset $command
-     * @return \Flarum\Core\User
+     * @return \Flarum\User\User
      * @throws ModelNotFoundException
      */
     public function handle(RequestPasswordReset $command)

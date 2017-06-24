@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Support;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 trait DispatchEventsTrait

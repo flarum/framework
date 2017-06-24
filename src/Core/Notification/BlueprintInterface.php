@@ -21,7 +21,7 @@ interface BlueprintInterface
     /**
      * Get the user that sent the notification.
      *
-     * @return \Flarum\Core\User|null
+     * @return \Flarum\User\User|null
      */
     public function getSender();
 

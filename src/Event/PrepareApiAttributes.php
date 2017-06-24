@@ -44,7 +44,7 @@ class PrepareApiAttributes
     public $attributes;
 
     /**
-     * @var \Flarum\Core\User
+     * @var \Flarum\User\User
      */
     public $actor;
 

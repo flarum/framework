@@ -13,10 +13,12 @@ namespace Flarum\Core\Access;
 
 use Carbon\Carbon;
 use Flarum\Core\Discussion;
-use Flarum\Core\User;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
 use Flarum\Event\ScopePrivateDiscussionVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AbstractPolicy;
+use Flarum\User\Gate;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 

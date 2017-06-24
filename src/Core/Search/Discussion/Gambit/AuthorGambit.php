@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Search\Discussion\Gambit;
 
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\UserRepository;
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\Discussion\DiscussionSearch;
@@ -25,12 +25,12 @@ class AuthorGambit extends AbstractRegexGambit
     protected $pattern = 'author:(.+)';
 
     /**
-     * @var UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 
     /**
-     * @param \Flarum\Core\Repository\UserRepository $users
+     * @param \Flarum\User\UserRepository $users
      */
     public function __construct(UserRepository $users)
     {

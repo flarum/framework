@@ -12,7 +12,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Core\Command\EditUser;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;

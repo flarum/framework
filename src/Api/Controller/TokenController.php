@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\UserRepository;
 use Flarum\Http\AccessToken;
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
@@ -23,7 +23,7 @@ use Zend\Diactoros\Response\JsonResponse;
 class TokenController implements ControllerInterface
 {
     /**
-     * @var UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 

@@ -12,9 +12,9 @@
 namespace Flarum\Core\Notification;
 
 use Flarum\Core\Notification;
-use Flarum\Core\User;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\User\User;
 use ReflectionClass;
 
 class NotificationServiceProvider extends AbstractServiceProvider

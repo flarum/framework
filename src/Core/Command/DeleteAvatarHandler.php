@@ -12,8 +12,8 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -48,8 +48,8 @@ class DeleteAvatarHandler
 
     /**
      * @param DeleteAvatar $command
-     * @return \Flarum\Core\User
-     * @throws PermissionDeniedException
+     * @return \Flarum\User\User
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(DeleteAvatar $command)
     {

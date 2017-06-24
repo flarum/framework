@@ -36,8 +36,8 @@ use Flarum\Database\AbstractModel;
  * @property \Carbon\Carbon $time
  * @property bool $is_read
  * @property bool $is_deleted
- * @property \Flarum\Core\User|null $user
- * @property \Flarum\Core\User|null $sender
+ * @property \Flarum\User\User|null $user
+ * @property \Flarum\User\User|null $sender
  * @property \Flarum\Database\AbstractModel|null $subject
  */
 class Notification extends AbstractModel
@@ -113,7 +113,7 @@ class Notification extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\User', 'user_id');
+        return $this->belongsTo('Flarum\User\User', 'user_id');
     }
 
     /**
@@ -123,7 +123,7 @@ class Notification extends AbstractModel
      */
     public function sender()
     {
-        return $this->belongsTo('Flarum\Core\User', 'sender_id');
+        return $this->belongsTo('Flarum\User\User', 'sender_id');
     }
 
     /**

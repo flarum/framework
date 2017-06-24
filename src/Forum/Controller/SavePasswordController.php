@@ -11,8 +11,8 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Core\PasswordToken;
-use Flarum\Core\Validator\UserValidator;
+use Flarum\User\PasswordToken;
+use Flarum\User\UserValidator;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
@@ -29,7 +29,7 @@ class SavePasswordController implements ControllerInterface
     protected $url;
 
     /**
-     * @var UserValidator
+     * @var \Flarum\User\UserValidator
      */
     protected $validator;
 

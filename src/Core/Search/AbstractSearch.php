@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Search;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
 /**

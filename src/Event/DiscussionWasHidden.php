@@ -12,7 +12,7 @@
 namespace Flarum\Event;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class DiscussionWasHidden
 {

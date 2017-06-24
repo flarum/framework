@@ -12,12 +12,12 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\User;
-use Flarum\Core\Validator\UserValidator;
-use Flarum\Event\UserGroupsWereChanged;
-use Flarum\Event\UserWillBeSaved;
+use Flarum\User\User;
+use Flarum\User\UserValidator;
+use Flarum\User\Event\GroupsChanged;
+use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EditUserHandler
@@ -26,7 +26,7 @@ class EditUserHandler
     use AssertPermissionTrait;
 
     /**
-     * @var UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 
@@ -37,7 +37,7 @@ class EditUserHandler
 
     /**
      * @param Dispatcher $events
-     * @param UserRepository $users
+     * @param \Flarum\User\UserRepository $users
      * @param UserValidator $validator
      */
     public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
@@ -50,7 +50,7 @@ class EditUserHandler
     /**
      * @param EditUser $command
      * @return User
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditUser $command)
     {
@@ -127,7 +127,7 @@ class EditUserHandler
             }
 
             $user->raise(
-                new UserGroupsWereChanged($user, $user->groups()->get()->all())
+                new GroupsChanged($user, $user->groups()->get()->all())
             );
 
             $user->afterSave(function (User $user) use ($newGroupIds) {
@@ -136,7 +136,7 @@ class EditUserHandler
         }
 
         $this->events->fire(
-            new UserWillBeSaved($user, $actor, $data)
+            new Saving($user, $actor, $data)
         );
 
         $this->validator->setUser($user);

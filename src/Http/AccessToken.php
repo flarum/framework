@@ -18,7 +18,7 @@ use Flarum\Database\AbstractModel;
  * @property int $user_id
  * @property int $last_activity
  * @property int $lifetime
- * @property \Flarum\Core\User|null $user
+ * @property \Flarum\User\User|null $user
  */
 class AccessToken extends AbstractModel
 {
@@ -67,6 +67,6 @@ class AccessToken extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\User');
+        return $this->belongsTo('Flarum\User\User');
     }
 }

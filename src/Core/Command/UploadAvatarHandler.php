@@ -13,9 +13,9 @@ namespace Flarum\Core\Command;
 
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Repository\UserRepository;
+use Flarum\User\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\Validator\AvatarValidator;
+use Flarum\User\AvatarValidator;
 use Flarum\Event\AvatarWillBeSaved;
 use Flarum\Foundation\Application;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -33,7 +33,7 @@ class UploadAvatarHandler
     use AssertPermissionTrait;
 
     /**
-     * @var UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 
@@ -48,7 +48,7 @@ class UploadAvatarHandler
     protected $app;
 
     /**
-     * @var AvatarValidator
+     * @var \Flarum\User\AvatarValidator
      */
     protected $validator;
 
@@ -57,7 +57,7 @@ class UploadAvatarHandler
      * @param UserRepository $users
      * @param FilesystemInterface $uploadDir
      * @param Application $app
-     * @param AvatarValidator $validator
+     * @param \Flarum\User\AvatarValidator $validator
      */
     public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir, Application $app, AvatarValidator $validator)
     {
@@ -70,8 +70,8 @@ class UploadAvatarHandler
 
     /**
      * @param UploadAvatar $command
-     * @return \Flarum\Core\User
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @return \Flarum\User\User
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(UploadAvatar $command)
     {

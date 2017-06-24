@@ -33,7 +33,7 @@ class ReadAllNotificationsHandler
 
     /**
      * @param ReadAllNotifications $command
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(ReadAllNotifications $command)
     {

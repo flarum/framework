@@ -13,7 +13,7 @@ namespace Tests\Flarum\Api\Handler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\PermissionDeniedExceptionHandler;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Tests\Test\TestCase;
 
 class PermissionDeniedExceptionHandlerTest extends TestCase
