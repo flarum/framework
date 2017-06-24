@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Extension\Event;
 
 use Flarum\Extension\Extension;
 
-class ExtensionWillBeDisabled
+class Enabled
 {
     /**
      * @var Extension
