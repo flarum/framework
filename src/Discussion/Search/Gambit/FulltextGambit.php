@@ -11,10 +11,10 @@
 
 namespace Flarum\Discussion\Search\Gambit;
 
-use Flarum\Core\Search\AbstractSearch;
+use Flarum\Search\AbstractSearch;
 use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Discussion\Search\Fulltext\DriverInterface;
-use Flarum\Core\Search\GambitInterface;
+use Flarum\Search\GambitInterface;
 use LogicException;
 
 class FulltextGambit implements GambitInterface

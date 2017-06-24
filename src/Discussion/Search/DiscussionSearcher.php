@@ -15,10 +15,10 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Post\PostRepository;
-use Flarum\Core\Search\ApplySearchParametersTrait;
-use Flarum\Core\Search\GambitManager;
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\SearchResults;
+use Flarum\Search\ApplySearchParametersTrait;
+use Flarum\Search\GambitManager;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchResults;
 use Flarum\Event\ConfigureDiscussionSearch;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -31,7 +31,7 @@ class DiscussionSearcher
     use ApplySearchParametersTrait;
 
     /**
-     * @var GambitManager
+     * @var \Flarum\Search\GambitManager
      */
     protected $gambits;
 
@@ -46,7 +46,7 @@ class DiscussionSearcher
     protected $posts;
 
     /**
-     * @param GambitManager $gambits
+     * @param \Flarum\Search\GambitManager $gambits
      * @param DiscussionRepository $discussions
      * @param PostRepository $posts
      */
@@ -61,13 +61,13 @@ class DiscussionSearcher
     }
 
     /**
-     * @param SearchCriteria $criteria
+     * @param \Flarum\Search\SearchCriteria $criteria
      * @param int|null $limit
      * @param int $offset
      * @param array $load An array of relationships to load on the results.
-     * @return SearchResults
+     * @return \Flarum\Search\SearchResults
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
+    public function search(\Flarum\Search\SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
     {
         $actor = $criteria->actor;
 
@@ -110,7 +110,7 @@ class DiscussionSearcher
         Discussion::setStateUser($actor);
         $discussions->load($load);
 
-        return new SearchResults($discussions, $areMoreResults);
+        return new \Flarum\Search\SearchResults($discussions, $areMoreResults);
     }
 
     /**

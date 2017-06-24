@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\User\Search;
 
-use Flarum\Core\Search\AbstractSearch;
+use Flarum\Search\AbstractSearch;
 
 class UserSearch extends AbstractSearch
 {

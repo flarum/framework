@@ -12,8 +12,8 @@
 namespace Flarum\Core\User\Search\Gambit;
 
 use Flarum\User\UserRepository;
-use Flarum\Core\Search\AbstractSearch;
-use Flarum\Core\Search\GambitInterface;
+use Flarum\Search\AbstractSearch;
+use Flarum\Search\GambitInterface;
 
 class FulltextGambit implements GambitInterface
 {

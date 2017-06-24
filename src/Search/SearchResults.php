@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search;
+namespace Flarum\Search;
 
 use Illuminate\Database\Eloquent\Collection;
 

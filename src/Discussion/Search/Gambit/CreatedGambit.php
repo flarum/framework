@@ -11,8 +11,8 @@
 
 namespace Flarum\Discussion\Search\Gambit;
 
-use Flarum\Core\Search\AbstractRegexGambit;
-use Flarum\Core\Search\AbstractSearch;
+use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractSearch;
 use Flarum\Discussion\Search\DiscussionSearch;
 use LogicException;
 

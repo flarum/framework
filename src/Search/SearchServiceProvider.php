@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search;
+namespace Flarum\Search;
 
 use Flarum\Event\ConfigureDiscussionGambits;
 use Flarum\Event\ConfigureUserGambits;
@@ -38,7 +38,7 @@ class SearchServiceProvider extends AbstractServiceProvider
     public function registerUserGambits()
     {
         $this->app->when('Flarum\Core\User\Search\UserSearcher')
-            ->needs('Flarum\Core\Search\GambitManager')
+            ->needs('Flarum\Search\GambitManager')
             ->give(function (Container $app) {
                 $gambits = new GambitManager($app);
 
@@ -57,7 +57,7 @@ class SearchServiceProvider extends AbstractServiceProvider
     public function registerDiscussionGambits()
     {
         $this->app->when('Flarum\Discussion\Search\DiscussionSearcher')
-            ->needs('Flarum\Core\Search\GambitManager')
+            ->needs('Flarum\Search\GambitManager')
             ->give(function (Container $app) {
                 $gambits = new GambitManager($app);
 

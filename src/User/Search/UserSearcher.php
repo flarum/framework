@@ -13,10 +13,10 @@ namespace Flarum\Core\User\Search;
 
 use Flarum\Core\User\Search\UserSearch;
 use Flarum\User\UserRepository;
-use Flarum\Core\Search\ApplySearchParametersTrait;
-use Flarum\Core\Search\GambitManager;
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\SearchResults;
+use Flarum\Search\ApplySearchParametersTrait;
+use Flarum\Search\GambitManager;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchResults;
 use Flarum\Event\ConfigureUserSearch;
 
 /**
@@ -28,7 +28,7 @@ class UserSearcher
     use ApplySearchParametersTrait;
 
     /**
-     * @var GambitManager
+     * @var \Flarum\Search\GambitManager
      */
     protected $gambits;
 
@@ -38,10 +38,10 @@ class UserSearcher
     protected $users;
 
     /**
-     * @param GambitManager $gambits
+     * @param \Flarum\Search\GambitManager $gambits
      * @param \Flarum\User\UserRepository $users
      */
-    public function __construct(GambitManager $gambits, UserRepository $users)
+    public function __construct(\Flarum\Search\GambitManager $gambits, UserRepository $users)
     {
         $this->gambits = $gambits;
         $this->users = $users;
@@ -52,9 +52,9 @@ class UserSearcher
      * @param int|null $limit
      * @param int $offset
      * @param array $load An array of relationships to load on the results.
-     * @return SearchResults
+     * @return \Flarum\Search\SearchResults
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
+    public function search(\Flarum\Search\SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
     {
         $actor = $criteria->actor;
 
@@ -83,6 +83,6 @@ class UserSearcher
 
         $users->load($load);
 
-        return new SearchResults($users, $areMoreResults);
+        return new \Flarum\Search\SearchResults($users, $areMoreResults);
     }
 }
