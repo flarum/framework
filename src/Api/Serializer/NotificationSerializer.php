@@ -57,7 +57,7 @@ class NotificationSerializer extends AbstractSerializer
      */
     protected function user($notification)
     {
-        return $this->hasOne($notification, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($notification, 'Flarum\Api\Serializer\BasicUserSerializer');
     }
 
     /**
@@ -65,7 +65,7 @@ class NotificationSerializer extends AbstractSerializer
      */
     protected function sender($notification)
     {
-        return $this->hasOne($notification, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($notification, 'Flarum\Api\Serializer\BasicUserSerializer');
     }
 
     /**
