@@ -12,7 +12,7 @@
 namespace Tests\Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Api\Handler\InvalidConfirmationTokenExceptionHandler;
+use Flarum\Api\ExceptionHandler\InvalidConfirmationTokenExceptionHandler;
 use Flarum\Core\Exception\InvalidConfirmationTokenException;
 use Tests\Test\TestCase;
 

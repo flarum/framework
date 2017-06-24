@@ -12,7 +12,7 @@
 namespace Tests\Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Api\Handler\TokenMismatchExceptionHandler;
+use Flarum\Api\ExceptionHandler\TokenMismatchExceptionHandler;
 use Flarum\Http\Exception\TokenMismatchException;
 use Tests\Test\TestCase;
 

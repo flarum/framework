@@ -14,7 +14,7 @@ namespace Flarum\Api\Serializer;
 use Flarum\Core\User;
 use InvalidArgumentException;
 
-class UserBasicSerializer extends AbstractSerializer
+class BasicUserSerializer extends AbstractSerializer
 {
     /**
      * {@inheritdoc}

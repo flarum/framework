@@ -15,7 +15,7 @@ use Flarum\Core\Group;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListGroupsController extends AbstractCollectionController
+class ListGroupsController extends AbstractListController
 {
     /**
      * {@inheritdoc}

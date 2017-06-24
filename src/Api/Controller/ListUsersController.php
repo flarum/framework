@@ -18,7 +18,7 @@ use Flarum\Core\Search\User\UserSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListUsersController extends AbstractCollectionController
+class ListUsersController extends AbstractListController
 {
     /**
      * {@inheritdoc}

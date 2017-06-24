@@ -14,7 +14,7 @@ namespace Flarum\Api\Serializer;
 use Flarum\Core\Access\Gate;
 use Flarum\Core\Discussion;
 
-class DiscussionSerializer extends DiscussionBasicSerializer
+class DiscussionSerializer extends BasicDiscussionSerializer
 {
     /**
      * @var Gate

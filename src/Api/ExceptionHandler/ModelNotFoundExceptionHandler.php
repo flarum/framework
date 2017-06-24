@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

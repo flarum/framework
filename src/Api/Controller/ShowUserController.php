@@ -15,7 +15,7 @@ use Flarum\Core\Repository\UserRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowUserController extends AbstractResourceController
+class ShowUserController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

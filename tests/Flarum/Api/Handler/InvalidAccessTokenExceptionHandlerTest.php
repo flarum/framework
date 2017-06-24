@@ -13,7 +13,7 @@ namespace Tests\Flarum\Api\Handler;
 
 use Exception;
 use Flarum\Api\Exception\InvalidAccessTokenException;
-use Flarum\Api\Handler\InvalidAccessTokenExceptionHandler;
+use Flarum\Api\ExceptionHandler\InvalidAccessTokenExceptionHandler;
 use Tests\Test\TestCase;
 
 class InvalidAccessTokenExceptionHandlerTest extends TestCase

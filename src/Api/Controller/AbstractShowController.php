@@ -14,7 +14,7 @@ namespace Flarum\Api\Controller;
 use Tobscure\JsonApi\Resource;
 use Tobscure\JsonApi\SerializerInterface;
 
-abstract class AbstractResourceController extends AbstractSerializeController
+abstract class AbstractShowController extends AbstractSerializeController
 {
     /**
      * {@inheritdoc}

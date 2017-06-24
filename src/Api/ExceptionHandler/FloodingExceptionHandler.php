@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Api\Exception\InvalidAccessTokenException;
+use Flarum\Core\Exception\FloodingException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class InvalidAccessTokenExceptionHandler implements ExceptionHandlerInterface
+class FloodingExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function manages(Exception $e)
     {
-        return $e instanceof InvalidAccessTokenException;
+        return $e instanceof FloodingException;
     }
 
     /**
@@ -31,10 +31,10 @@ class InvalidAccessTokenExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $status = 401;
+        $status = 429;
         $error = [
             'status' => (string) $status,
-            'code' => 'invalid_access_token'
+            'code' => 'too_many_requests'
         ];
 
         return new ResponseBag($status, [$error]);

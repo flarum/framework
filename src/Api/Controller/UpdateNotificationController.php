@@ -16,7 +16,7 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class UpdateNotificationController extends AbstractResourceController
+class UpdateNotificationController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

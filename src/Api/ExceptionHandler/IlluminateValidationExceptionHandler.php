@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Handler;
+namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Core\Exception\ValidationException;
+use Illuminate\Contracts\Validation\ValidationException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
-class ValidationExceptionHandler implements ExceptionHandlerInterface
+class IlluminateValidationExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -31,23 +31,27 @@ class ValidationExceptionHandler implements ExceptionHandlerInterface
      */
     public function handle(Exception $e)
     {
-        $errors = array_merge(
-            $this->buildErrors($e->getAttributes(), '/data/attributes'),
-            $this->buildErrors($e->getRelationships(), '/data/relationships')
-        );
+        $status = 422;
+        $errors = $this->formatErrors($e->errors()->toArray());
 
-        return new ResponseBag(422, $errors);
+        return new ResponseBag($status, $errors);
     }
 
-    private function buildErrors(array $messages, $pointer)
+    /**
+     * @param array $errors
+     * @return array
+     */
+    protected function formatErrors(array $errors)
     {
-        return array_map(function ($path, $detail) use ($pointer) {
+        $errors = array_map(function ($field, $messages) {
             return [
                 'status' => '422',
                 'code' => 'validation_error',
-                'detail' => $detail,
-                'source' => ['pointer' => $pointer.'/'.$path]
+                'detail' => implode("\n", $messages),
+                'source' => ['pointer' => "/data/attributes/$field"]
             ];
-        }, array_keys($messages), $messages);
+        }, array_keys($errors), $errors);
+
+        return $errors;
     }
 }
