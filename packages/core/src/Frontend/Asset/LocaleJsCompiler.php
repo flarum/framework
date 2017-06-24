@@ -9,11 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Locale;
+namespace Flarum\Frontend\Asset;
 
-use Flarum\Asset\JsCompiler as BaseJsCompiler;
-
-class JsCompiler extends BaseJsCompiler
+class LocaleJsCompiler extends JsCompiler
 {
     protected $translations = [];
 
