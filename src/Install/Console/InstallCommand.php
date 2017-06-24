@@ -12,7 +12,7 @@
 namespace Flarum\Install\Console;
 
 use Exception;
-use Flarum\Console\Command\AbstractCommand;
+use Flarum\Console\AbstractCommand;
 use Flarum\Core\Group;
 use Flarum\Core\Permission;
 use Flarum\Core\User;
