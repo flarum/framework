@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\Discussion;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +21,7 @@ use Tobscure\JsonApi\Document;
 class ShowDiscussionController extends AbstractShowController
 {
     /**
-     * @var DiscussionRepository
+     * @var \Flarum\Discussion\DiscussionRepository
      */
     protected $discussions;
 
@@ -58,7 +58,7 @@ class ShowDiscussionController extends AbstractShowController
     ];
 
     /**
-     * @param \Flarum\Core\Repository\DiscussionRepository $discussions
+     * @param \Flarum\Discussion\DiscussionRepository $discussions
      * @param \Flarum\Post\PostRepository $posts
      */
     public function __construct(DiscussionRepository $discussions, PostRepository $posts)

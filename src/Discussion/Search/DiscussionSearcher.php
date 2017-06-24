@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion;
+namespace Flarum\Discussion\Search;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\Discussion;
+use Flarum\Discussion\DiscussionRepository;
+use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Post\PostRepository;
 use Flarum\Core\Search\ApplySearchParametersTrait;
 use Flarum\Core\Search\GambitManager;

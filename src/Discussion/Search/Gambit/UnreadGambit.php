@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion\Gambit;
+namespace Flarum\Discussion\Search\Gambit;
 
-use Flarum\Core\Repository\DiscussionRepository;
+use Flarum\Discussion\DiscussionRepository;
 use Flarum\Core\Search\AbstractRegexGambit;
 use Flarum\Core\Search\AbstractSearch;
-use Flarum\Core\Search\Discussion\DiscussionSearch;
+use Flarum\Discussion\Search\DiscussionSearch;
 use LogicException;
 
 class UnreadGambit extends AbstractRegexGambit
@@ -25,12 +25,12 @@ class UnreadGambit extends AbstractRegexGambit
     protected $pattern = 'is:unread';
 
     /**
-     * @var \Flarum\Core\Repository\DiscussionRepository
+     * @var \Flarum\Discussion\DiscussionRepository
      */
     protected $discussions;
 
     /**
-     * @param DiscussionRepository $discussions
+     * @param \Flarum\Discussion\DiscussionRepository $discussions
      */
     public function __construct(DiscussionRepository $discussions)
     {

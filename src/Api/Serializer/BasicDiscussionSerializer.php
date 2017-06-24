@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
 use InvalidArgumentException;
 
 class BasicDiscussionSerializer extends AbstractSerializer

@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Repository;
+namespace Flarum\Discussion;
 
-use Flarum\Core\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
@@ -34,7 +33,7 @@ class DiscussionRepository
      *
      * @param int $id
      * @param User $user
-     * @return \Flarum\Core\Discussion
+     * @return \Flarum\Discussion\Discussion
      */
     public function findOrFail($id, User $user = null)
     {

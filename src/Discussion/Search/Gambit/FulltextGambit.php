@@ -9,23 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion\Gambit;
+namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Core\Search\AbstractSearch;
-use Flarum\Core\Search\Discussion\DiscussionSearch;
-use Flarum\Core\Search\Discussion\Fulltext\DriverInterface;
+use Flarum\Discussion\Search\DiscussionSearch;
+use Flarum\Discussion\Search\Fulltext\DriverInterface;
 use Flarum\Core\Search\GambitInterface;
 use LogicException;
 
 class FulltextGambit implements GambitInterface
 {
     /**
-     * @var DriverInterface
+     * @var \Flarum\Discussion\Search\Fulltext\DriverInterface
      */
     protected $fulltext;
 
     /**
-     * @param DriverInterface $fulltext
+     * @param \Flarum\Discussion\Search\Fulltext\DriverInterface $fulltext
      */
     public function __construct(DriverInterface $fulltext)
     {

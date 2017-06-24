@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Validator;
+namespace Flarum\Discussion;
 
 use Flarum\Foundation\AbstractValidator;
 

@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Listener;
+namespace Flarum\Discussion;
 
 use Flarum\Core\Notification\DiscussionRenamedBlueprint;
 use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Post\DiscussionRenamedPost;
-use Flarum\Event\DiscussionWasRenamed;
+use Flarum\Discussion\Event\Renamed;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionRenamedNotifier
@@ -37,13 +37,13 @@ class DiscussionRenamedNotifier
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(DiscussionWasRenamed::class, [$this, 'whenDiscussionWasRenamed']);
+        $events->listen(Renamed::class, [$this, 'whenDiscussionWasRenamed']);
     }
 
     /**
-     * @param \Flarum\Event\DiscussionWasRenamed $event
+     * @param \Flarum\Discussion\Event\Renamed $event
      */
-    public function whenDiscussionWasRenamed(DiscussionWasRenamed $event)
+    public function whenDiscussionWasRenamed(Renamed $event)
     {
         $post = DiscussionRenamedPost::reply(
             $event->discussion->id,

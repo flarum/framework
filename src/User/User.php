@@ -613,7 +613,7 @@ class User extends AbstractModel
      */
     public function read()
     {
-        return $this->belongsToMany('Flarum\Core\Discussion', 'users_discussions');
+        return $this->belongsToMany('Flarum\Discussion\Discussion', 'users_discussions');
     }
 
     /**
