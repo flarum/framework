@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Exception;
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Discussion\DiscussionValidator;
@@ -22,7 +22,7 @@ use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 
 class StartDiscussionHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

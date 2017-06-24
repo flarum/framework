@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Group\GroupRepository;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -20,7 +20,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteGroupHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

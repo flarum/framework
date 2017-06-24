@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Exception;
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\User\UserRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AvatarValidator;
@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadAvatarHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**

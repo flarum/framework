@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Exception;
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AuthToken;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -33,7 +33,7 @@ use League\Flysystem\MountManager;
 
 class RegisterUserHandler
 {
-    use Flarum\Foundation\DispatchEventsTrait;
+    use DispatchEventsTrait;
     use AssertPermissionTrait;
 
     /**
