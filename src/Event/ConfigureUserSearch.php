@@ -12,12 +12,12 @@
 namespace Flarum\Event;
 
 use Flarum\Search\SearchCriteria;
-use Flarum\Core\User\Search\UserSearch;
+use Flarum\User\Search\UserSearch;
 
 class ConfigureUserSearch
 {
     /**
-     * @var \Flarum\Core\User\Search\UserSearch
+     * @var \Flarum\User\Search\UserSearch
      */
     public $search;
 

@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\User\Search\Gambit;
+namespace Flarum\User\Search\Gambit;
 
 use Flarum\Group\GroupRepository;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
-use Flarum\Core\User\Search\UserSearch;
+use Flarum\User\Search\UserSearch;
 use LogicException;
 
 class GroupGambit extends AbstractRegexGambit
