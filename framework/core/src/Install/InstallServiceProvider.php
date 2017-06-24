@@ -12,8 +12,8 @@
 namespace Flarum\Install;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Install\Prerequisite\Composite;
 use Flarum\Install\Prerequisite\PhpExtensions;
 use Flarum\Install\Prerequisite\PhpVersion;

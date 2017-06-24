@@ -13,10 +13,10 @@ namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
 use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
-use Flarum\Extension\Event\Uninstalled;
 use Flarum\Extension\Event\Disabling;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
+use Flarum\Extension\Event\Uninstalled;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;

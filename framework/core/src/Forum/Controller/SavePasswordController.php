@@ -11,11 +11,11 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\User\PasswordToken;
-use Flarum\User\UserValidator;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\User\PasswordToken;
+use Flarum\User\UserValidator;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
 use Psr\Http\Message\ServerRequestInterface as Request;

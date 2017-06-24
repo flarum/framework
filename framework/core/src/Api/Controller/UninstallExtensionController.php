@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\AssertPermissionTrait;
 use Flarum\Extension\ExtensionManager;
+use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 
 class UninstallExtensionController extends AbstractDeleteController

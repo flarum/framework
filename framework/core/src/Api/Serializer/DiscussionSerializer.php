@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\User\Gate;
 use Flarum\Discussion\Discussion;
+use Flarum\User\Gate;
 
 class DiscussionSerializer extends BasicDiscussionSerializer
 {
