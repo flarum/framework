@@ -12,12 +12,12 @@
 namespace Flarum\Core\Post;
 
 use Flarum\Core\Post;
-use Flarum\Core\User;
 use Flarum\Event\PostWasHidden;
 use Flarum\Event\PostWasPosted;
 use Flarum\Event\PostWasRestored;
 use Flarum\Event\PostWasRevised;
 use Flarum\Formatter\Formatter;
+use Flarum\User\User;
 
 /**
  * A standard comment in a discussion.

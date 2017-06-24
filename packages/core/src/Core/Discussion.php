@@ -22,6 +22,8 @@ use Flarum\Event\DiscussionWasRestored;
 use Flarum\Event\DiscussionWasStarted;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\User\Guest;
+use Flarum\User\User;
 use Flarum\Util\Str;
 
 /**
@@ -363,7 +365,7 @@ class Discussion extends AbstractModel
      */
     public function startUser()
     {
-        return $this->belongsTo('Flarum\Core\User', 'start_user_id');
+        return $this->belongsTo('Flarum\User\User', 'start_user_id');
     }
 
     /**
@@ -383,7 +385,7 @@ class Discussion extends AbstractModel
      */
     public function lastUser()
     {
-        return $this->belongsTo('Flarum\Core\User', 'last_user_id');
+        return $this->belongsTo('Flarum\User\User', 'last_user_id');
     }
 
     /**
@@ -393,7 +395,7 @@ class Discussion extends AbstractModel
      */
     public function readers()
     {
-        return $this->belongsToMany('Flarum\Core\User', 'users_discussions');
+        return $this->belongsToMany('Flarum\User\User', 'users_discussions');
     }
 
     /**

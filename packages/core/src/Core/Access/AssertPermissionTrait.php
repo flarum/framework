@@ -11,8 +11,8 @@
 
 namespace Flarum\Core\Access;
 
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\User;
+use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\User;
 
 trait AssertPermissionTrait
 {
@@ -40,7 +40,7 @@ trait AssertPermissionTrait
 
     /**
      * @param User $actor
-     * @throws PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     protected function assertGuest(User $actor)
     {

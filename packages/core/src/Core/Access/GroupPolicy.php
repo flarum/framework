@@ -12,7 +12,8 @@
 namespace Flarum\Core\Access;
 
 use Flarum\Core\Group;
-use Flarum\Core\User;
+use Flarum\User\AbstractPolicy;
+use Flarum\User\User;
 
 class GroupPolicy extends AbstractPolicy
 {

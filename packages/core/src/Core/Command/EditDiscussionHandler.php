@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\DiscussionRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\Validator\DiscussionValidator;
@@ -49,7 +49,7 @@ class EditDiscussionHandler
     /**
      * @param EditDiscussion $command
      * @return \Flarum\Core\Discussion
-     * @throws PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditDiscussion $command)
     {

@@ -139,7 +139,7 @@ class Post extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\User', 'user_id');
+        return $this->belongsTo('Flarum\User\User', 'user_id');
     }
 
     /**
@@ -149,7 +149,7 @@ class Post extends AbstractModel
      */
     public function editUser()
     {
-        return $this->belongsTo('Flarum\Core\User', 'edit_user_id');
+        return $this->belongsTo('Flarum\User\User', 'edit_user_id');
     }
 
     /**
@@ -159,7 +159,7 @@ class Post extends AbstractModel
      */
     public function hideUser()
     {
-        return $this->belongsTo('Flarum\Core\User', 'hide_user_id');
+        return $this->belongsTo('Flarum\User\User', 'hide_user_id');
     }
 
     /**

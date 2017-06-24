@@ -38,7 +38,7 @@ class PrepareApiData
     public $document;
 
     /**
-     * @var \Flarum\Core\User
+     * @var \Flarum\User\User
      */
     public $actor;
 

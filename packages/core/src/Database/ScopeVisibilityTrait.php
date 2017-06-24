@@ -11,7 +11,7 @@
 
 namespace Flarum\Database;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 use Flarum\Event\ScopeModelVisibility;
 use Illuminate\Database\Eloquent\Builder;
 

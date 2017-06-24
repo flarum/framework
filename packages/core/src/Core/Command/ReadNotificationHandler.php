@@ -21,7 +21,7 @@ class ReadNotificationHandler
     /**
      * @param ReadNotification $command
      * @return \Flarum\Core\Notification
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(ReadNotification $command)
     {

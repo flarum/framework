@@ -13,10 +13,11 @@ namespace Flarum\Core\Access;
 
 use Carbon\Carbon;
 use Flarum\Core\Post;
-use Flarum\Core\User;
 use Flarum\Event\ScopePostVisibility;
 use Flarum\Event\ScopePrivatePostVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AbstractPolicy;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class PostPolicy extends AbstractPolicy
