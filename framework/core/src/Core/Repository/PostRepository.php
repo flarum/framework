@@ -13,8 +13,8 @@ namespace Flarum\Core\Repository;
 
 use Flarum\Core\Discussion;
 use Flarum\Core\Post;
-use Flarum\Core\User;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PostRepository
@@ -34,7 +34,7 @@ class PostRepository
      * user, or throw an exception.
      *
      * @param int $id
-     * @param \Flarum\Core\User $actor
+     * @param \Flarum\User\User $actor
      * @return \Flarum\Core\Post
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
@@ -55,7 +55,7 @@ class PostRepository
      * are visible to a certain user, and/or using other criteria.
      *
      * @param array $where
-     * @param \Flarum\Core\User|null $actor
+     * @param \Flarum\User\User|null $actor
      * @param array $sort
      * @param int $count
      * @param int $start
@@ -81,7 +81,7 @@ class PostRepository
      * certain user.
      *
      * @param array $ids
-     * @param \Flarum\Core\User|null $actor
+     * @param \Flarum\User\User|null $actor
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function findByIds(array $ids, User $actor = null)
@@ -122,7 +122,7 @@ class PostRepository
      *
      * @param int $discussionId
      * @param int $number
-     * @param \Flarum\Core\User|null $actor
+     * @param \Flarum\User\User|null $actor
      * @return int
      */
     public function getIndexForNumber($discussionId, $number, User $actor = null)

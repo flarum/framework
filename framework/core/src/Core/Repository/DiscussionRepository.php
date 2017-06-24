@@ -12,7 +12,7 @@
 namespace Flarum\Core\Repository;
 
 use Flarum\Core\Discussion;
-use Flarum\Core\User;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
 

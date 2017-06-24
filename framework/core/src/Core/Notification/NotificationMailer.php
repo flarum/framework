@@ -11,7 +11,7 @@
 
 namespace Flarum\Core\Notification;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 

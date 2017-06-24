@@ -12,10 +12,10 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Core\User;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Forum\Frontend;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 

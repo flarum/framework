@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property \Carbon\Carbon|null $read_time
  * @property int|null $read_number
  * @property Discussion $discussion
- * @property \Flarum\Core\User $user
+ * @property \Flarum\User\User $user
  */
 class DiscussionState extends AbstractModel
 {
@@ -80,7 +80,7 @@ class DiscussionState extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\User', 'user_id');
+        return $this->belongsTo('Flarum\User\User', 'user_id');
     }
 
     /**

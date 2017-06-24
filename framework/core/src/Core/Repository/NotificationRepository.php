@@ -12,7 +12,7 @@
 namespace Flarum\Core\Repository;
 
 use Flarum\Core\Notification;
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class NotificationRepository
 {

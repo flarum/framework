@@ -13,12 +13,12 @@ namespace Flarum\Core\Command;
 
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\AuthToken;
-use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\User\AuthToken;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Core\Support\DispatchEventsTrait;
-use Flarum\Core\User;
-use Flarum\Core\Validator\UserValidator;
-use Flarum\Event\UserWillBeSaved;
+use Flarum\User\User;
+use Flarum\User\UserValidator;
+use Flarum\User\Event\Saving;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -83,7 +83,7 @@ class RegisterUserHandler
      * @param RegisterUser $command
      * @throws PermissionDeniedException if signup is closed and the actor is
      *     not an administrator.
-     * @throws \Flarum\Core\Exception\InvalidConfirmationTokenException if an
+     * @throws \Flarum\User\Exception\InvalidConfirmationTokenException if an
      *     email confirmation token is provided but is invalid.
      * @return User
      */
@@ -131,7 +131,7 @@ class RegisterUserHandler
         }
 
         $this->events->fire(
-            new UserWillBeSaved($user, $actor, $data)
+            new Saving($user, $actor, $data)
         );
 
         $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
