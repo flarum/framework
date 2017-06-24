@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\Notification;
 
 use Flarum\Database\AbstractModel;
 

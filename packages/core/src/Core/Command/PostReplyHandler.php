@@ -13,7 +13,7 @@ namespace Flarum\Core\Command;
 
 use DateTime;
 use Flarum\User\AssertPermissionTrait;
-use Flarum\Core\Notification\NotificationSyncer;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\CommentPost;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -32,7 +32,7 @@ class PostReplyHandler
     protected $discussions;
 
     /**
-     * @var NotificationSyncer
+     * @var \Flarum\Notification\NotificationSyncer
      */
     protected $notifications;
 
@@ -44,7 +44,7 @@ class PostReplyHandler
     /**
      * @param Dispatcher $events
      * @param DiscussionRepository $discussions
-     * @param NotificationSyncer $notifications
+     * @param \Flarum\Notification\NotificationSyncer $notifications
      * @param PostValidator $validator
      */
     public function __construct(

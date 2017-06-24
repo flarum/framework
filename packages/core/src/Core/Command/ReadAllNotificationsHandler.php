@@ -12,7 +12,7 @@
 namespace Flarum\Core\Command;
 
 use Flarum\User\AssertPermissionTrait;
-use Flarum\Core\Repository\NotificationRepository;
+use Flarum\Notification\NotificationRepository;
 
 class ReadAllNotificationsHandler
 {
