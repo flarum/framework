@@ -64,7 +64,7 @@ class EmailToken extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\Core\User');
+        return $this->belongsTo('Flarum\User');
     }
 
     /**
