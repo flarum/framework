@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Formatter\Event;
 
-use s9e\TextFormatter\Parser;
+use s9e\TextFormatter\Renderer;
 
-class ConfigureFormatterParser
+class Rendering
 {
     /**
-     * @var Parser
+     * @var Renderer
      */
-    public $parser;
+    public $renderer;
 
     /**
      * @var mixed
@@ -28,17 +28,17 @@ class ConfigureFormatterParser
     /**
      * @var string
      */
-    public $text;
+    public $xml;
 
     /**
-     * @param Parser $parser
+     * @param Renderer $renderer
      * @param mixed $context
-     * @param string $text
+     * @param string $xml
      */
-    public function __construct(Parser $parser, $context, &$text)
+    public function __construct(Renderer $renderer, $context, &$xml)
     {
-        $this->parser = $parser;
+        $this->renderer = $renderer;
         $this->context = $context;
-        $this->text = &$text;
+        $this->xml = &$xml;
     }
 }
