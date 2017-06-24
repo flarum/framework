@@ -12,7 +12,7 @@
 namespace Flarum\Event;
 
 use Flarum\Discussion\Search\DiscussionSearch;
-use Flarum\Core\Search\SearchCriteria;
+use Flarum\Search\SearchCriteria;
 
 class ConfigureDiscussionSearch
 {
@@ -22,13 +22,13 @@ class ConfigureDiscussionSearch
     public $search;
 
     /**
-     * @var SearchCriteria
+     * @var \Flarum\Search\SearchCriteria
      */
     public $criteria;
 
     /**
      * @param DiscussionSearch $search
-     * @param SearchCriteria $criteria
+     * @param \Flarum\Search\SearchCriteria $criteria
      */
     public function __construct(DiscussionSearch $search, SearchCriteria $criteria)
     {

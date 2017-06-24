@@ -13,7 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\UrlGenerator;
 use Flarum\User\Exception\PermissionDeniedException;
-use Flarum\Core\Search\SearchCriteria;
+use Flarum\Search\SearchCriteria;
 use Flarum\Core\User\Search\UserSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
