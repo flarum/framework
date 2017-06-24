@@ -13,7 +13,7 @@ namespace Flarum\Core;
 
 use Flarum\Core\Post\MergeableInterface;
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\DiscussionWasDeleted;
 use Flarum\Event\DiscussionWasHidden;

@@ -14,7 +14,7 @@ namespace Flarum\Core;
 use DomainException;
 use Flarum\Core\Access\Gate;
 use Flarum\Core\Support\EventGeneratorTrait;
-use Flarum\Core\Support\ScopeVisibilityTrait;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
