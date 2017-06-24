@@ -108,7 +108,7 @@ class CoreServiceProvider extends AbstractServiceProvider
 
         $events->subscribe('Flarum\Discussion\DiscussionMetadataUpdater');
         $events->subscribe('Flarum\User\UserMetadataUpdater');
-        $events->subscribe('Flarum\Core\Listener\ExtensionValidator');
+        $events->subscribe('Flarum\Extension\DefaultLanguagePackGuard');
         $events->subscribe('Flarum\User\EmailConfirmationMailer');
         $events->subscribe('Flarum\Discussion\DiscussionRenamedNotifier');
 

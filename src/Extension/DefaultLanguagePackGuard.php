@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Listener;
+namespace Flarum\Extension;
 
 use Flarum\Event\ExtensionWillBeDisabled;
 use Flarum\Http\Exception\ForbiddenException;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class ExtensionValidator
+class DefaultLanguagePackGuard
 {
     /**
      * @param Dispatcher $events
