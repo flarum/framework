@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\PostReply;
-use Flarum\Core\Command\ReadDiscussion;
+use Flarum\Discussion\Command\ReadDiscussion;
+use Flarum\Post\Command\PostReply;
 use Flarum\Post\Floodgate;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
