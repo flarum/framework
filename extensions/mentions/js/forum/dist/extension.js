@@ -448,7 +448,7 @@ System.register('flarum/mentions/addMentionedByList', ['flarum/extend', 'flarum/
             'span',
             { className: 'Post-mentionedBy-summary' },
             icon('reply'),
-            app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (replies[0].user() === app.session.user ? '_self' : '') + '_text', names.length, {
+            app.translator.transChoice('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', names.length, {
               count: names.length,
               users: punctuateSeries(names)
             })
