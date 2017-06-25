@@ -9,28 +9,28 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\User\Event;
 
-use Flarum\Discussion\Search\DiscussionSearch;
 use Flarum\Search\SearchCriteria;
+use Flarum\User\Search\UserSearch;
 
-class ConfigureDiscussionSearch
+class Searching
 {
     /**
-     * @var DiscussionSearch
+     * @var \Flarum\User\Search\UserSearch
      */
     public $search;
 
     /**
-     * @var \Flarum\Search\SearchCriteria
+     * @var SearchCriteria
      */
     public $criteria;
 
     /**
-     * @param DiscussionSearch $search
-     * @param \Flarum\Search\SearchCriteria $criteria
+     * @param UserSearch $search
+     * @param SearchCriteria $criteria
      */
-    public function __construct(DiscussionSearch $search, SearchCriteria $criteria)
+    public function __construct(UserSearch $search, SearchCriteria $criteria)
     {
         $this->search = $search;
         $this->criteria = $criteria;
