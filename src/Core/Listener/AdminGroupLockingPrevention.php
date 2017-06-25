@@ -12,6 +12,7 @@
 namespace Flarum\Core\Listener;
 
 use Flarum\Core\Exception\PermissionDeniedException;
+use Flarum\Core\Group;
 use Flarum\Event\UserWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -38,7 +39,7 @@ class AdminGroupLockingPrevention
         // Prevent an admin from removing their admin permission via the API
         if ($groups && $actor->id === $user->id && $actor->isAdmin()) {
             $adminInGroups = array_filter($groups, function ($group) {
-                return $group['id'] == 1;
+                return $group['id'] == Group::ADMINISTRATOR_ID;
             });
             $keepsAdmin = count($adminInGroups) > 0;
 
