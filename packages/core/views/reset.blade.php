@@ -15,7 +15,7 @@
       <p style="color:red">{{ $error }}</p>
     @endif
 
-    <form class="form-horizontal" role="form" method="POST" action="{{ app('Flarum\Forum\UrlGenerator')->toRoute('savePassword') }}">
+    <form class="form-horizontal" role="form" method="POST" action="{{ app('Flarum\Http\UrlGenerator')->to('forum')->route('savePassword') }}">
       <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
       <input type="hidden" name="passwordToken" value="{{ $passwordToken }}">
 

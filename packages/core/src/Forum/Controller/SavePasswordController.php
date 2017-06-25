@@ -11,9 +11,9 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\Http\UrlGenerator;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Validation\Factory;
@@ -81,7 +81,7 @@ class SavePasswordController implements ControllerInterface
         } catch (ValidationException $e) {
             $request->getAttribute('session')->set('error', $e->errors()->first());
 
-            return new RedirectResponse($this->url->toRoute('resetPassword', ['token' => $token->id]));
+            return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->id]));
         }
 
         $token->user->changePassword($password);
@@ -92,6 +92,6 @@ class SavePasswordController implements ControllerInterface
         $session = $request->getAttribute('session');
         $this->authenticator->logIn($session, $token->user->id);
 
-        return new RedirectResponse($this->url->toBase());
+        return new RedirectResponse($this->url->to('forum')->base());
     }
 }

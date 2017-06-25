@@ -325,9 +325,9 @@ class User extends AbstractModel
      */
     public function getAvatarUrlAttribute()
     {
-        $urlGenerator = app('Flarum\Forum\UrlGenerator');
+        $urlGenerator = app('Flarum\Http\UrlGenerator');
 
-        return $this->avatar_path ? $urlGenerator->toPath('assets/avatars/'.$this->avatar_path) : null;
+        return $this->avatar_path ? $urlGenerator->to('forum')->path('assets/avatars/'.$this->avatar_path) : null;
     }
 
     /**

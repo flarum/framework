@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\EmailToken;
@@ -80,7 +80,7 @@ class SendConfirmationEmailController implements ControllerInterface
 
         $data = [
             '{username}' => $actor->username,
-            '{url}' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
+            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->id]),
             '{forum}' => $this->settings->get('forum_title')
         ];
 
