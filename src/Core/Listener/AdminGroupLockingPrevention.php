@@ -36,15 +36,15 @@ class AdminGroupLockingPrevention
         $groups = array_get($event->data, 'relationships.groups.data');
 
         // Prevent an admin from removing their admin permission via the API
-        if ($actor->id === $user->id && $actor->isAdmin() && ! $user->isAdmin()) {
-            $userGroups = $user->groups()->get(['group_id'])->all();
+        if ($groups && $actor->id === $user->id && $actor->isAdmin()) {
+            $adminInGroups = array_filter($groups, function ($group) {
+                return $group['id'] == 1;
+            });
+            $keepsAdmin = count($adminInGroups) > 0;
 
-            $newGroups = array_map(function ($group) {
-                return $group->group_id;
-            }, $userGroups);
-            $newGroups[] = Group::ADMINISTRATOR_ID;
-
-            $user->groups()->sync($newGroups);
+            if (! $keepsAdmin) {
+                throw new PermissionDeniedException;
+            }
         }
     }
 }
