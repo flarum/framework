@@ -11,7 +11,7 @@
 
 namespace Flarum\User\Search;
 
-use Flarum\Event\ConfigureUserSearch;
+use Flarum\User\Event\Searching;
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
@@ -69,7 +69,7 @@ class UserSearcher
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
 
-        event(new ConfigureUserSearch($search, $criteria));
+        event(new Searching($search, $criteria));
 
         // Execute the search query and retrieve the results. We get one more
         // results than the user asked for, so that we can say if there are more
