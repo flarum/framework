@@ -11,7 +11,7 @@
 
 namespace Flarum\User;
 
-use Flarum\Forum\UrlGenerator;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
@@ -128,7 +128,7 @@ class EmailConfirmationMailer
 
         return [
             '{username}' => $user->username,
-            '{url}' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
+            '{url}' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->id]),
             '{forum}' => $this->settings->get('forum_title')
         ];
     }

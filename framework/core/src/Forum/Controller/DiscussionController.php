@@ -13,8 +13,8 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
 use Flarum\Forum\Frontend;
-use Flarum\Forum\UrlGenerator;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -73,7 +73,7 @@ class DiscussionController extends FrontendController
             $newQueryParams = array_merge($queryParams, $newQueryParams);
             $queryString = http_build_query($newQueryParams);
 
-            return $this->url->toRoute('discussion', ['id' => $document->data->id]).
+            return $this->url->to('forum')->route('discussion', ['id' => $document->data->id]).
             ($queryString ? '?'.$queryString : '');
         };
 
