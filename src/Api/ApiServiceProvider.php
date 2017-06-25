@@ -19,6 +19,7 @@ use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\UrlGenerator;
 use Tobscure\JsonApi\ErrorHandler;
 use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
 use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
@@ -30,8 +31,8 @@ class ApiServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(UrlGenerator::class, function () {
-            return new UrlGenerator($this->app, $this->app->make('flarum.api.routes'));
+        $this->app->extend(UrlGenerator::class, function (UrlGenerator $url) {
+            return $url->addCollection('api', $this->app->make('flarum.api.routes'), 'api');
         });
 
         $this->app->singleton('flarum.api.routes', function () {

@@ -17,6 +17,7 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\Event\Saved;
 
 class ForumServiceProvider extends AbstractServiceProvider
@@ -26,8 +27,8 @@ class ForumServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(UrlGenerator::class, function () {
-            return new UrlGenerator($this->app, $this->app->make('flarum.forum.routes'));
+        $this->app->extend(UrlGenerator::class, function (UrlGenerator $url) {
+            return $url->addCollection('forum', $this->app->make('flarum.forum.routes'));
         });
 
         $this->app->singleton('flarum.forum.routes', function () {

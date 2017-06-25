@@ -11,7 +11,7 @@
 
 namespace Flarum\User\Command;
 
-use Flarum\Forum\UrlGenerator;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserRepository;
@@ -107,7 +107,7 @@ class RequestPasswordResetHandler
 
         $data = [
             '{username}' => $user->username,
-            '{url}' => $this->url->toRoute('resetPassword', ['token' => $token->id]),
+            '{url}' => $this->url->to('forum')->route('resetPassword', ['token' => $token->id]),
             '{forum}' => $this->settings->get('forum_title'),
         ];
 

@@ -16,6 +16,7 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\Event\Saved;
 
 class AdminServiceProvider extends AbstractServiceProvider
@@ -25,8 +26,8 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(UrlGenerator::class, function () {
-            return new UrlGenerator($this->app, $this->app->make('flarum.admin.routes'));
+        $this->app->extend(UrlGenerator::class, function (UrlGenerator $url) {
+            return $url->addCollection('admin', $this->app->make('flarum.admin.routes'), 'admin');
         });
 
         $this->app->singleton('flarum.admin.routes', function () {

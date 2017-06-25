@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Forum\UrlGenerator;
 use Flarum\Foundation\Application;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class ForumSerializer extends AbstractSerializer
@@ -107,7 +107,7 @@ class ForumSerializer extends AbstractSerializer
     {
         $logoPath = $this->settings->get('logo_path');
 
-        return $logoPath ? $this->url->toPath('assets/'.$logoPath) : null;
+        return $logoPath ? $this->url->to('forum')->path('assets/'.$logoPath) : null;
     }
 
     /**
@@ -117,6 +117,6 @@ class ForumSerializer extends AbstractSerializer
     {
         $faviconPath = $this->settings->get('favicon_path');
 
-        return $faviconPath ? $this->url->toPath('assets/'.$faviconPath) : null;
+        return $faviconPath ? $this->url->to('forum')->path('assets/'.$faviconPath) : null;
     }
 }
