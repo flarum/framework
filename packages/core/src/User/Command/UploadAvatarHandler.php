@@ -12,7 +12,7 @@
 namespace Flarum\User\Command;
 
 use Exception;
-use Flarum\Event\AvatarWillBeSaved;
+use Flarum\User\Event\AvatarSaving;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
@@ -110,7 +110,7 @@ class UploadAvatarHandler
             file_put_contents($tmpFile, $encodedImage);
 
             $this->events->fire(
-                new AvatarWillBeSaved($user, $actor, $tmpFile)
+                new AvatarSaving($user, $actor, $tmpFile)
             );
 
             $mount = new MountManager([

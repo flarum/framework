@@ -11,7 +11,7 @@
 
 namespace Flarum\User\Command;
 
-use Flarum\Event\AvatarWillBeDeleted;
+use Flarum\User\Event\AvatarDeleting;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\UserRepository;
@@ -64,7 +64,7 @@ class DeleteAvatarHandler
         $user->changeAvatarPath(null);
 
         $this->events->fire(
-            new AvatarWillBeDeleted($user, $actor)
+            new AvatarDeleting($user, $actor)
         );
 
         $user->save();

@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\User\Event;
 
 use Flarum\User\User;
 
-class AvatarWillBeSaved
+class AvatarDeleting
 {
     /**
-     * The user whose avatar will be saved.
+     * The user whose avatar will be deleted.
      *
      * @var User
      */
@@ -30,21 +30,12 @@ class AvatarWillBeSaved
     public $actor;
 
     /**
-     * The path to the avatar that will be saved.
-     *
-     * @var string
-     */
-    public $path;
-
-    /**
-     * @param User $user The user whose avatar will be saved.
+     * @param User $user The user whose avatar will be deleted.
      * @param User $actor The user performing the action.
-     * @param string $path The path to the avatar that will be saved.
      */
-    public function __construct(User $user, User $actor, $path)
+    public function __construct(User $user, User $actor)
     {
         $this->user = $user;
         $this->actor = $actor;
-        $this->path = $path;
     }
 }
