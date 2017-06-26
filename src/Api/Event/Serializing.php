@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Api\Event;
 
 use DateTime;
 use Flarum\Api\Serializer\AbstractSerializer;
@@ -17,10 +17,10 @@ use Flarum\Api\Serializer\AbstractSerializer;
 /**
  * Prepare API attributes.
  *
- * This event is fired when a serialize is constructing an array of resource
+ * This event is fired when a serializer is constructing an array of resource
  * attributes for API output.
  */
-class PrepareApiAttributes
+class Serializing
 {
     /**
      * The class doing the serializing.
