@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Event\WillGetData;
+use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\JsonApiResponse;
-use Flarum\Event\ConfigureApiController;
-use Flarum\Event\PrepareApiData;
 use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -91,13 +91,13 @@ abstract class AbstractSerializeController implements ControllerInterface
         $document = new Document;
 
         static::$events->fire(
-            new ConfigureApiController($this)
+            new WillGetData($this)
         );
 
         $data = $this->data($request, $document);
 
         static::$events->fire(
-            new PrepareApiData($this, $data, $request, $document)
+            new WillSerializeData($this, $data, $request, $document)
         );
 
         $serializer = static::$container->make($this->serializer);
