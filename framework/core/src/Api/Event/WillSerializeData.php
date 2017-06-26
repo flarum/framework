@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Api\Event;
 
 use Flarum\Api\Controller\AbstractSerializeController;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class PrepareApiData
+class WillSerializeData
 {
     /**
      * @var AbstractSerializeController
