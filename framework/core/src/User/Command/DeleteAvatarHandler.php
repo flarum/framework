@@ -11,9 +11,9 @@
 
 namespace Flarum\User\Command;
 
-use Flarum\User\Event\AvatarDeleting;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
+use Flarum\User\Event\AvatarDeleting;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use League\Flysystem\FilesystemInterface;
