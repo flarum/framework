@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\User\Event;
 
 use Flarum\User\User;
 
-class CheckUserPassword
+class CheckingPassword
 {
     /**
      * @var User

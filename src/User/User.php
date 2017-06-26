@@ -14,7 +14,6 @@ namespace Flarum\User;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
-use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Foundation\Application;
@@ -26,6 +25,7 @@ use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\BioChanged;
+use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\EmailChangeRequested;
@@ -350,7 +350,7 @@ class User extends AbstractModel
      */
     public function checkPassword($password)
     {
-        $valid = static::$dispatcher->until(new CheckUserPassword($this, $password));
+        $valid = static::$dispatcher->until(new CheckingPassword($this, $password));
 
         if ($valid !== null) {
             return $valid;
