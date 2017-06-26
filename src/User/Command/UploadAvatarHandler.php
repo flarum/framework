@@ -12,11 +12,11 @@
 namespace Flarum\User\Command;
 
 use Exception;
-use Flarum\User\Event\AvatarSaving;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AvatarValidator;
+use Flarum\User\Event\AvatarSaving;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Str;
