@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Api\Event;
 
 use Flarum\Api\Controller\AbstractSerializeController;
 
-class ConfigureApiController
+class WillGetData
 {
     /**
      * @var AbstractSerializeController
