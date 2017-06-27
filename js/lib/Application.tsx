@@ -1,3 +1,4 @@
+import * as m from 'mithril';
 import ItemList from 'flarum/utils/ItemList';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
@@ -19,6 +20,7 @@ export default class Application {
   constructor() {
     /**
      * [data description]
+     *
      * @type {[type]}
      */
     this.data = null;
@@ -33,6 +35,7 @@ export default class Application {
 
     /**
      * [router description]
+     *
      * @type {Router}
      */
     this.router = new Router();
@@ -72,12 +75,14 @@ export default class Application {
 
     /**
      * [title description]
+     *
      * @type {DocumentTitle}
      */
     this.title = new DocumentTitle();
 
     /**
      * [ajax description]
+     *
      * @type {Ajax}
      */
     this.ajax = new Ajax();
@@ -91,6 +96,7 @@ export default class Application {
 
   /**
    * [loadModules description]
+   *
    * @param {[type]} modules [description]
    * @return {[type]}
    */
@@ -98,11 +104,11 @@ export default class Application {
 
   }
 
-  *
+  /**
    * Boot the application by running all of the registered initializers.
    *
    * @public
-
+   */
   boot(data) {
     this.data = data;
 
