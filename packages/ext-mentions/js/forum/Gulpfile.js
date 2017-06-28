@@ -5,6 +5,6 @@ gulp({
     'flarum/mentions': 'src/**/*.js'
   },
   files: [
-    'bower_components/textarea-caret-position/index.js'
+    'node_modules/textarea-caret/index.js'
   ]
 });
