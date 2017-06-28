@@ -1,6 +1,0 @@
-{
-  "name": "flarum-mentions",
-  "devDependencies": {
-    "textarea-caret-position": "~3.0.0"
-  }
-}
