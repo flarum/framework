@@ -1218,9 +1218,9 @@ System.register('flarum/mentions/utils/reply', ['flarum/utils/DiscussionControls
     execute: function () {}
   };
 });;
-"use strict";
+'use strict';
 
-System.register("flarum/mentions/utils/selectedText", [], function (_export, _context) {
+System.register('flarum/mentions/utils/selectedText', [], function (_export, _context) {
   "use strict";
 
   function selectedText(body) {
@@ -1230,16 +1230,29 @@ System.register("flarum/mentions/utils/selectedText", [], function (_export, _co
       var parent = range.commonAncestorContainer;
       if (body[0] === parent || $.contains(body[0], parent)) {
         var clone = $("<div>").append(range.cloneContents());
+
+        // Replace emoji images with their shortcode (found in alt attribute)
         clone.find('img.emoji').replaceWith(function () {
           return this.alt;
         });
+
+        // Replace all other images with a Markdown image
+        clone.find('img').replaceWith(function () {
+          return '![](' + this.src + ')';
+        });
+
+        // Replace all links with a Markdown link
+        clone.find('a').replaceWith(function () {
+          return '[' + this.innerText + '](' + this.href + ')';
+        });
+
         return clone.text();
       }
     }
     return "";
   }
 
-  _export("default", selectedText);
+  _export('default', selectedText);
 
   return {
     setters: [],
