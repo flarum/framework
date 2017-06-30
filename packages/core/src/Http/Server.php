@@ -74,9 +74,9 @@ class Server extends AbstractServer
 
         if (! $app->isInstalled()) {
             return $this->getInstallerMiddleware($pipe, $app);
-        } else if ($app->isDownForMaintenance()) {
+        } elseif ($app->isDownForMaintenance()) {
             return $this->getMaintenanceMiddleware($pipe);
-        } else if (! $app->isUpToDate()) {
+        } elseif (! $app->isUpToDate()) {
             return $this->getUpdaterMiddleware($pipe, $app);
         }
 
@@ -86,7 +86,7 @@ class Server extends AbstractServer
 
         if ($this->pathStartsWith($requestPath, $api)) {
             $pipe->pipe($api, $app->make('flarum.api.middleware'));
-        } else if ($this->pathStartsWith($requestPath, $admin)) {
+        } elseif ($this->pathStartsWith($requestPath, $admin)) {
             $pipe->pipe($admin, $app->make('flarum.admin.middleware'));
         } else {
             $pipe->pipe($forum, $app->make('flarum.forum.middleware'));
