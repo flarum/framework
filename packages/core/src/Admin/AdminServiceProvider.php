@@ -11,13 +11,23 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Admin\Middleware\RequireAdministrateAbility;
+use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Http\Middleware\AuthenticateWithSession;
+use Flarum\Http\Middleware\DispatchRoute;
+use Flarum\Http\Middleware\HandleErrors;
+use Flarum\Http\Middleware\ParseJsonBody;
+use Flarum\Http\Middleware\RememberFromCookie;
+use Flarum\Http\Middleware\SetLocale;
+use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\Event\Saved;
+use Zend\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
@@ -32,6 +42,29 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.admin.routes', function () {
             return new RouteCollection;
+        });
+
+        $this->app->singleton('flarum.admin.middleware', function ($app) {
+            $pipe = new MiddlewarePipe;
+            $pipe->raiseThrowables();
+
+            // All requests should first be piped through our global error handler
+            $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
+            $errorDir = __DIR__.'/../../error';
+            $pipe->pipe(new HandleErrors($errorDir, $app->make('log'), $debugMode));
+
+            $pipe->pipe($app->make(ParseJsonBody::class));
+            $pipe->pipe($app->make(StartSession::class));
+            $pipe->pipe($app->make(RememberFromCookie::class));
+            $pipe->pipe($app->make(AuthenticateWithSession::class));
+            $pipe->pipe($app->make(SetLocale::class));
+            $pipe->pipe($app->make(RequireAdministrateAbility::class));
+
+            event(new ConfigureMiddleware($pipe, 'admin'));
+
+            $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.admin.routes')]));
+
+            return $pipe;
         });
     }
 
