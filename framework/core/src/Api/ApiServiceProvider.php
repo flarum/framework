@@ -12,17 +12,28 @@
 namespace Flarum\Api;
 
 use Flarum\Api\Controller\AbstractSerializeController;
+use Flarum\Api\Middleware\FakeHttpMethods;
+use Flarum\Api\Middleware\HandleErrors;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Event\ConfigureApiRoutes;
+use Flarum\Event\ConfigureMiddleware;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Http\Middleware\AuthenticateWithHeader;
+use Flarum\Http\Middleware\AuthenticateWithSession;
+use Flarum\Http\Middleware\DispatchRoute;
+use Flarum\Http\Middleware\ParseJsonBody;
+use Flarum\Http\Middleware\RememberFromCookie;
+use Flarum\Http\Middleware\SetLocale;
+use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Tobscure\JsonApi\ErrorHandler;
 use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
 use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
+use Zend\Stratigility\MiddlewarePipe;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
@@ -37,6 +48,27 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.api.routes', function () {
             return new RouteCollection;
+        });
+
+        $this->app->singleton('flarum.api.middleware', function ($app) {
+            $pipe = new MiddlewarePipe;
+            $pipe->raiseThrowables();
+
+            $pipe->pipe($app->make(HandleErrors::class));
+
+            $pipe->pipe($app->make(ParseJsonBody::class));
+            $pipe->pipe($app->make(FakeHttpMethods::class));
+            $pipe->pipe($app->make(StartSession::class));
+            $pipe->pipe($app->make(RememberFromCookie::class));
+            $pipe->pipe($app->make(AuthenticateWithSession::class));
+            $pipe->pipe($app->make(AuthenticateWithHeader::class));
+            $pipe->pipe($app->make(SetLocale::class));
+
+            event(new ConfigureMiddleware($pipe, 'api'));
+
+            $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.api.routes')]));
+
+            return $pipe;
         });
 
         $this->app->singleton(ErrorHandler::class, function () {
