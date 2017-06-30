@@ -11,10 +11,6 @@
 
 namespace Flarum\Event;
 
-use Flarum\Admin\Server as AdminServer;
-use Flarum\Api\Server as ApiServer;
-use Flarum\Forum\Server as ForumServer;
-use Flarum\Foundation\AbstractServer;
 use Zend\Stratigility\MiddlewarePipe;
 
 class ConfigureMiddleware
@@ -27,42 +23,35 @@ class ConfigureMiddleware
     /**
      * @var string
      */
-    public $path;
-
-    /**
-     * @var AbstractServer
-     */
-    public $server;
+    public $stackName;
 
     /**
      * @param MiddlewarePipe $pipe
-     * @param string $path
-     * @param AbstractServer $server
+     * @param string $stackName
      */
-    public function __construct(MiddlewarePipe $pipe, $path, AbstractServer $server)
+    public function __construct(MiddlewarePipe $pipe, $stackName)
     {
         $this->pipe = $pipe;
-        $this->path = $path;
-        $this->server = $server;
+        $this->stackName = $stackName;
     }
 
     public function pipe(callable $middleware)
     {
-        $this->pipe->pipe($this->path, $middleware);
+        $this->pipe->pipe($middleware);
     }
 
     public function isForum()
     {
-        return $this->server instanceof ForumServer;
+        return $this->stackName === 'forum';
     }
 
     public function isAdmin()
     {
-        return $this->server instanceof AdminServer;
+        return $this->stackName === 'admin';
     }
 
     public function isApi()
     {
-        return $this->server instanceof ApiServer;
+        return $this->stackName === 'api';
     }
 }
