@@ -38,7 +38,7 @@ class SelfDemotionGuard
 
         // Prevent an admin from removing their admin permission via the API
         if (isset($groups) && $actor->id === $user->id && $actor->isAdmin()) {
-            $hasGroupWithAdminID = sizeof($groups) > 0 ? !empty(array_filter($groups, function ($group) {
+            $hasGroupWithAdminID = count($groups) > 0 ? ! empty(array_filter($groups, function ($group) {
                 return $group['id'] == Group::ADMINISTRATOR_ID;
             })) : false;
 
