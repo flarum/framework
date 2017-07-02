@@ -11,6 +11,7 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Events\EventServiceProvider;
@@ -125,7 +126,7 @@ class Application extends Container implements ApplicationContract
 
     public function isUpToDate()
     {
-        $settings = $this->make('Flarum\Settings\SettingsRepositoryInterface');
+        $settings = $this->make(SettingsRepositoryInterface::class);
 
         try {
             $version = $settings->get('version');

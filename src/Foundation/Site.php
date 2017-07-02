@@ -11,12 +11,35 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Admin\AdminServiceProvider;
+use Flarum\Api\ApiServiceProvider;
+use Flarum\Database\DatabaseServiceProvider;
+use Flarum\Database\MigrationServiceProvider;
+use Flarum\Discussion\DiscussionServiceProvider;
+use Flarum\Extension\ExtensionServiceProvider;
+use Flarum\Formatter\FormatterServiceProvider;
+use Flarum\Forum\ForumServiceProvider;
+use Flarum\Group\GroupServiceProvider;
+use Flarum\Locale\LocaleServiceProvider;
+use Flarum\Notification\NotificationServiceProvider;
+use Flarum\Post\PostServiceProvider;
+use Flarum\Search\SearchServiceProvider;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Settings\SettingsServiceProvider;
+use Flarum\User\UserServiceProvider;
+use Illuminate\Bus\BusServiceProvider;
 use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Filesystem\FilesystemServiceProvider;
+use Illuminate\Hashing\HashServiceProvider;
+use Illuminate\Mail\MailServiceProvider;
+use Illuminate\Validation\ValidationServiceProvider;
+use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
-abstract class AbstractServer
+// TODO: This should be an interface maybe?
+class Site
 {
     /**
      * @var Application
@@ -43,27 +66,12 @@ abstract class AbstractServer
      */
     protected $config;
 
-    /**
-     * @var callable[]
-     */
-    protected $extendCallbacks = [];
+    protected $extenders = [];
 
-    /**
-     * @param null $basePath
-     * @param null $publicPath
-     */
-    public function __construct($basePath = null, $publicPath = null)
+    public function __construct()
     {
-        if ($basePath === null) {
-            $basePath = getcwd();
-        }
-
-        if ($publicPath === null) {
-            $publicPath = $basePath;
-        }
-
-        $this->basePath = $basePath;
-        $this->publicPath = $publicPath;
+        $this->basePath = getcwd();
+        $this->publicPath = $this->basePath;
 
         if (file_exists($file = $this->basePath.'/config.php')) {
             $this->config = include $file;
@@ -71,81 +79,61 @@ abstract class AbstractServer
     }
 
     /**
-     * @return string
+     * @return Application
      */
-    public function getBasePath()
+    public function boot()
     {
-        return $this->basePath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPublicPath()
-    {
-        return $this->publicPath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStoragePath()
-    {
-        return $this->storagePath;
+        return $this->getApp();
     }
 
     /**
      * @param $basePath
+     * @return static
      */
     public function setBasePath($basePath)
     {
         $this->basePath = $basePath;
+
+        return $this;
     }
 
     /**
      * @param $publicPath
+     * @return static
      */
     public function setPublicPath($publicPath)
     {
         $this->publicPath = $publicPath;
+
+        return $this;
     }
 
     /**
      * @param $storagePath
+     * @return static
      */
     public function setStoragePath($storagePath)
     {
         $this->storagePath = $storagePath;
-    }
 
-    /**
-     * @return array
-     */
-    public function getConfig()
-    {
-        return $this->config;
+        return $this;
     }
 
     /**
      * @param array $config
+     * @return static
      */
     public function setConfig(array $config)
     {
         $this->config = $config;
-    }
 
-    /**
-     * @param callable $callback
-     */
-    public function extend(callable $callback)
-    {
-        $this->extendCallbacks[] = $callback;
+        return $this;
     }
 
     /**
      * @return Application
      */
-    public function getApp()
+    protected function getApp()
     {
         if ($this->app !== null) {
             return $this->app;
@@ -167,19 +155,19 @@ abstract class AbstractServer
 
         $this->registerCache($app);
 
-        $app->register('Flarum\Database\DatabaseServiceProvider');
-        $app->register('Flarum\Database\MigrationServiceProvider');
-        $app->register('Flarum\Settings\SettingsServiceProvider');
-        $app->register('Flarum\Locale\LocaleServiceProvider');
-        $app->register('Illuminate\Bus\BusServiceProvider');
-        $app->register('Illuminate\Filesystem\FilesystemServiceProvider');
-        $app->register('Illuminate\Hashing\HashServiceProvider');
-        $app->register('Illuminate\Mail\MailServiceProvider');
-        $app->register('Illuminate\View\ViewServiceProvider');
-        $app->register('Illuminate\Validation\ValidationServiceProvider');
+        $app->register(DatabaseServiceProvider::class);
+        $app->register(MigrationServiceProvider::class);
+        $app->register(SettingsServiceProvider::class);
+        $app->register(LocaleServiceProvider::class);
+        $app->register(BusServiceProvider::class);
+        $app->register(FilesystemServiceProvider::class);
+        $app->register(HashServiceProvider::class);
+        $app->register(MailServiceProvider::class);
+        $app->register(ViewServiceProvider::class);
+        $app->register(ValidationServiceProvider::class);
 
         if ($app->isInstalled() && $app->isUpToDate()) {
-            $settings = $app->make('Flarum\Settings\SettingsRepositoryInterface');
+            $settings = $app->make(SettingsRepositoryInterface::class);
 
             $config->set('mail.driver', $settings->get('mail_driver'));
             $config->set('mail.host', $settings->get('mail_host'));
@@ -190,25 +178,26 @@ abstract class AbstractServer
             $config->set('mail.username', $settings->get('mail_username'));
             $config->set('mail.password', $settings->get('mail_password'));
 
-            $app->register('Flarum\BusServiceProvider');
+            $app->register(\Flarum\BusServiceProvider::class);
 
-            $app->register('Flarum\Discussion\DiscussionServiceProvider');
-            $app->register('Flarum\Formatter\FormatterServiceProvider');
-            $app->register('Flarum\Group\GroupServiceProvider');
-            $app->register('Flarum\Notification\NotificationServiceProvider');
-            $app->register('Flarum\Post\PostServiceProvider');
-            $app->register('Flarum\Search\SearchServiceProvider');
-            $app->register('Flarum\User\UserServiceProvider');
+            $app->register(DiscussionServiceProvider::class);
+            $app->register(FormatterServiceProvider::class);
+            $app->register(GroupServiceProvider::class);
+            $app->register(NotificationServiceProvider::class);
+            $app->register(PostServiceProvider::class);
+            $app->register(SearchServiceProvider::class);
+            $app->register(UserServiceProvider::class);
 
-            $app->register('Flarum\Api\ApiServiceProvider');
-            $app->register('Flarum\Forum\ForumServiceProvider');
-            $app->register('Flarum\Admin\AdminServiceProvider');
+            $app->register(ApiServiceProvider::class);
+            $app->register(ForumServiceProvider::class);
+            $app->register(AdminServiceProvider::class);
 
-            foreach ($this->extendCallbacks as $callback) {
-                $app->call($callback);
+            foreach ($this->extenders as $extender) {
+                // TODO: Create extenders architecture
+                // $extender->apply($app);
             }
 
-            $app->register('Flarum\Extension\ExtensionServiceProvider');
+            $app->register(ExtensionServiceProvider::class);
         }
 
         $app->boot();

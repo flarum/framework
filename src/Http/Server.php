@@ -11,8 +11,8 @@
 
 namespace Flarum\Http;
 
-use Flarum\Foundation\AbstractServer;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Site;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
@@ -29,8 +29,22 @@ use Zend\Stratigility\MiddlewareInterface;
 use Zend\Stratigility\MiddlewarePipe;
 use Zend\Stratigility\NoopFinalHandler;
 
-class Server extends AbstractServer
+class Server
 {
+    /**
+     * @param Site $site
+     * @return Server
+     */
+    public static function fromSite(Site $site)
+    {
+        return new static($site->boot());
+    }
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+    }
+
     public function listen()
     {
         DiactorosServer::createServer(
@@ -53,43 +67,44 @@ class Server extends AbstractServer
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out)
     {
-        $app = $this->getApp();
+        $this->collectGarbage();
 
-        $this->collectGarbage($app);
-
-        $middleware = $this->getMiddleware($app, $request->getUri()->getPath());
+        $middleware = $this->getMiddleware($request->getUri()->getPath());
 
         return $middleware($request, $response, $out);
     }
 
     /**
-     * @param Application $app
      * @param string $requestPath
      * @return MiddlewareInterface
      */
-    protected function getMiddleware(Application $app, $requestPath)
+    protected function getMiddleware($requestPath)
     {
         $pipe = new MiddlewarePipe;
         $pipe->raiseThrowables();
 
-        if (! $app->isInstalled()) {
-            return $this->getInstallerMiddleware($pipe, $app);
-        } elseif ($app->isDownForMaintenance()) {
-            return $this->getMaintenanceMiddleware($pipe);
-        } elseif (! $app->isUpToDate()) {
-            return $this->getUpdaterMiddleware($pipe, $app);
+        if (! $this->app->isInstalled()) {
+            return $this->getInstallerMiddleware($pipe);
         }
 
-        $forum = parse_url($app->url(''), PHP_URL_PATH) ?: '/';
-        $admin = parse_url($app->url('admin'), PHP_URL_PATH);
-        $api = parse_url($app->url('api'), PHP_URL_PATH);
+        if ($this->app->isDownForMaintenance()) {
+            return $this->getMaintenanceMiddleware($pipe);
+        }
+
+        if (! $this->app->isUpToDate()) {
+            return $this->getUpdaterMiddleware($pipe);
+        }
+
+        $api = parse_url($this->app->url('api'), PHP_URL_PATH);
+        $admin = parse_url($this->app->url('admin'), PHP_URL_PATH);
+        $forum = parse_url($this->app->url(''), PHP_URL_PATH) ?: '/';
 
         if ($this->pathStartsWith($requestPath, $api)) {
-            $pipe->pipe($api, $app->make('flarum.api.middleware'));
+            $pipe->pipe($api, $this->app->make('flarum.api.middleware'));
         } elseif ($this->pathStartsWith($requestPath, $admin)) {
-            $pipe->pipe($admin, $app->make('flarum.admin.middleware'));
+            $pipe->pipe($admin, $this->app->make('flarum.admin.middleware'));
         } else {
-            $pipe->pipe($forum, $app->make('flarum.forum.middleware'));
+            $pipe->pipe($forum, $this->app->make('flarum.forum.middleware'));
         }
 
         return $pipe;
@@ -100,14 +115,14 @@ class Server extends AbstractServer
         return $path === $prefix || starts_with($path, "$prefix/");
     }
 
-    protected function getInstallerMiddleware(MiddlewarePipe $pipe, Application $app)
+    protected function getInstallerMiddleware(MiddlewarePipe $pipe)
     {
-        $app->register(InstallServiceProvider::class);
+        $this->app->register(InstallServiceProvider::class);
 
-        $pipe->pipe(new HandleErrors($this->getErrorDir(), $app->make('log'), true));
+        $pipe->pipe(new HandleErrors($this->getErrorDir(), $this->app->make('log'), true));
 
-        $pipe->pipe($app->make(StartSession::class));
-        $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.install.routes')]));
+        $pipe->pipe($this->app->make(StartSession::class));
+        $pipe->pipe($this->app->make(DispatchRoute::class, ['routes' => $this->app->make('flarum.install.routes')]));
 
         return $pipe;
     }
@@ -123,11 +138,11 @@ class Server extends AbstractServer
         return $pipe;
     }
 
-    protected function getUpdaterMiddleware(MiddlewarePipe $pipe, Application $app)
+    protected function getUpdaterMiddleware(MiddlewarePipe $pipe)
     {
-        $app->register(UpdateServiceProvider::class);
+        $this->app->register(UpdateServiceProvider::class);
 
-        $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.update.routes')]));
+        $pipe->pipe($this->app->make(DispatchRoute::class, ['routes' => $this->app->make('flarum.update.routes')]));
 
         // TODO: FOR API render JSON-API error document for HTTP 503
 
@@ -147,13 +162,13 @@ class Server extends AbstractServer
         }
     }
 
-    private function getErrorDir()
-    {
-        return __DIR__.'/../../error';
-    }
-
     private function hitsLottery()
     {
         return mt_rand(1, 100) <= 2;
+    }
+
+    private function getErrorDir()
+    {
+        return __DIR__.'/../../error';
     }
 }
