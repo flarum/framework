@@ -11,7 +11,7 @@
 
 namespace Flarum\Extension;
 
-use Flarum\Event\ExtensionWillBeDisabled;
+use Flarum\Extension\Event\Disabling;
 use Flarum\Http\Exception\ForbiddenException;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -22,14 +22,14 @@ class DefaultLanguagePackGuard
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ExtensionWillBeDisabled::class, [$this, 'whenExtensionWillBeDisabled']);
+        $events->listen(Disabling::class, [$this, 'whenExtensionWillBeDisabled']);
     }
 
     /**
-     * @param ExtensionWillBeDisabled $event
+     * @param Disabling $event
      * @throws ForbiddenException
      */
-    public function whenExtensionWillBeDisabled(ExtensionWillBeDisabled $event)
+    public function whenExtensionWillBeDisabled(Disabling $event)
     {
         if (in_array('flarum-locale', $event->extension->extra)) {
             $default_locale = $this->app->make('flarum.settings')->get('default_locale');

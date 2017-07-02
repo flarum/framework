@@ -15,8 +15,9 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Event\Created;
-use Flarum\Group\Event\Deleting;
+use Flarum\Group\Event\Deleted;
 use Flarum\Group\Event\Renamed;
+use Flarum\User\User;
 
 /**
  * @property int $id
@@ -67,7 +68,7 @@ class Group extends AbstractModel
         parent::boot();
 
         static::deleted(function (Group $group) {
-            $group->raise(new Deleting($group));
+            $group->raise(new Deleted($group));
 
             $group->permissions()->delete();
         });
@@ -120,7 +121,7 @@ class Group extends AbstractModel
      */
     public function users()
     {
-        return $this->belongsToMany('Flarum\User\User', 'users_groups');
+        return $this->belongsToMany(User::class, 'users_groups');
     }
 
     /**
@@ -130,6 +131,6 @@ class Group extends AbstractModel
      */
     public function permissions()
     {
-        return $this->hasMany('Flarum\Group\Permission');
+        return $this->hasMany(Permission::class);
     }
 }

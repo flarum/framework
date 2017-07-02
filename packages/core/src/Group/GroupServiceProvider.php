@@ -21,6 +21,6 @@ class GroupServiceProvider extends AbstractServiceProvider
     public function boot()
     {
         $events = $this->app->make('events');
-        $events->subscribe('Flarum\Group\GroupPolicy');
+        $events->subscribe(GroupPolicy::class);
     }
 }
