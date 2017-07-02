@@ -17,6 +17,8 @@ use Flarum\Discussion\Event\Searching;
 use Flarum\Post\PostRepository;
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\GambitManager;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchResults;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -58,13 +60,13 @@ class DiscussionSearcher
     }
 
     /**
-     * @param \Flarum\Search\SearchCriteria $criteria
+     * @param SearchCriteria $criteria
      * @param int|null $limit
      * @param int $offset
      * @param array $load An array of relationships to load on the results.
-     * @return \Flarum\Search\SearchResults
+     * @return SearchResults
      */
-    public function search(\Flarum\Search\SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
+    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
     {
         $actor = $criteria->actor;
 
@@ -107,7 +109,7 @@ class DiscussionSearcher
         Discussion::setStateUser($actor);
         $discussions->load($load);
 
-        return new \Flarum\Search\SearchResults($discussions, $areMoreResults);
+        return new SearchResults($discussions, $areMoreResults);
     }
 
     /**

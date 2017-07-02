@@ -22,8 +22,8 @@ class DiscussionServiceProvider extends AbstractServiceProvider
     {
         $events = $this->app->make('events');
 
-        $events->subscribe('Flarum\Discussion\DiscussionMetadataUpdater');
-        $events->subscribe('Flarum\Discussion\DiscussionPolicy');
-        $events->subscribe('Flarum\Discussion\DiscussionRenamedLogger');
+        $events->subscribe(DiscussionMetadataUpdater::class);
+        $events->subscribe(DiscussionPolicy::class);
+        $events->subscribe(DiscussionRenamedLogger::class);
     }
 }

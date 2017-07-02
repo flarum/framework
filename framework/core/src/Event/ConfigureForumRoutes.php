@@ -11,6 +11,8 @@
 
 namespace Flarum\Event;
 
+use Flarum\Forum\Controller\FrontendController;
+
 /**
  * Configure forum routes.
  *
@@ -21,7 +23,7 @@ class ConfigureForumRoutes extends AbstractConfigureRoutes
     /**
      * {@inheritdoc}
      */
-    public function get($url, $name, $handler = 'Flarum\Forum\Controller\WebAppController')
+    public function get($url, $name, $handler = FrontendController::class)
     {
         parent::get($url, $name, $handler);
     }
