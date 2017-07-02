@@ -14,14 +14,29 @@ namespace Flarum\Install\Console;
 use Exception;
 use Flarum\Console\AbstractCommand;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\Migrator;
+use Flarum\Discussion\DiscussionServiceProvider;
+use Flarum\Extension\ExtensionManager;
+use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Group\Group;
+use Flarum\Group\GroupServiceProvider;
 use Flarum\Group\Permission;
+use Flarum\Install\Prerequisite\PrerequisiteInterface;
+use Flarum\Notification\NotificationServiceProvider;
+use Flarum\Post\PostServiceProvider;
+use Flarum\Search\SearchServiceProvider;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Flarum\User\UserServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\Factory;
 use PDO;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class InstallCommand extends AbstractCommand
 {
@@ -165,7 +180,7 @@ class InstallCommand extends AbstractCommand
 
             $this->storeConfiguration();
 
-            $resolver = $this->application->make('Illuminate\Database\ConnectionResolverInterface');
+            $resolver = $this->application->make(ConnectionResolverInterface::class);
             AbstractModel::setConnectionResolver($resolver);
             AbstractModel::setEventDispatcher($this->application->make('events'));
 
@@ -173,13 +188,13 @@ class InstallCommand extends AbstractCommand
 
             $this->writeSettings();
 
-            $this->application->register('Flarum\Formatter\FormatterServiceProvider');
-            $this->application->register('Flarum\Discussion\DiscussionServiceProvider');
-            $this->application->register('Flarum\Group\GroupServiceProvider');
-            $this->application->register('Flarum\Notification\NotificationServiceProvider');
-            $this->application->register('Flarum\Search\SearchServiceProvider');
-            $this->application->register('Flarum\Post\PostServiceProvider');
-            $this->application->register('Flarum\User\UserServiceProvider');
+            $this->application->register(FormatterServiceProvider::class);
+            $this->application->register(DiscussionServiceProvider::class);
+            $this->application->register(GroupServiceProvider::class);
+            $this->application->register(NotificationServiceProvider::class);
+            $this->application->register(SearchServiceProvider::class);
+            $this->application->register(PostServiceProvider::class);
+            $this->application->register(UserServiceProvider::class);
 
             $this->seedGroups();
             $this->seedPermissions();
@@ -242,11 +257,11 @@ class InstallCommand extends AbstractCommand
 
     protected function runMigrations()
     {
-        $this->application->bind('Illuminate\Database\Schema\Builder', function ($container) {
-            return $container->make('Illuminate\Database\ConnectionInterface')->getSchemaBuilder();
+        $this->application->bind(Builder::class, function ($container) {
+            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
-        $migrator = $this->application->make('Flarum\Database\Migrator');
+        $migrator = $this->application->make(Migrator::class);
         $migrator->getRepository()->createRepository();
 
         $migrator->run(__DIR__.'/../../../migrations');
@@ -258,7 +273,7 @@ class InstallCommand extends AbstractCommand
 
     protected function writeSettings()
     {
-        $settings = $this->application->make('Flarum\Settings\SettingsRepositoryInterface');
+        $settings = $this->application->make(SettingsRepositoryInterface::class);
 
         $this->info('Writing default settings');
 
@@ -343,7 +358,7 @@ class InstallCommand extends AbstractCommand
 
     protected function enableBundledExtensions()
     {
-        $extensions = $this->application->make('Flarum\Extension\ExtensionManager');
+        $extensions = $this->application->make(ExtensionManager::class);
 
         $migrator = $extensions->getMigrator();
 
@@ -388,7 +403,7 @@ class InstallCommand extends AbstractCommand
      */
     protected function getPrerequisites()
     {
-        return $this->application->make('Flarum\Install\Prerequisite\PrerequisiteInterface');
+        return $this->application->make(PrerequisiteInterface::class);
     }
 
     /**
@@ -396,7 +411,7 @@ class InstallCommand extends AbstractCommand
      */
     protected function getValidator()
     {
-        return new Factory($this->application->make('Symfony\Component\Translation\TranslatorInterface'));
+        return new Factory($this->application->make(TranslatorInterface::class));
     }
 
     protected function showErrors($errors)

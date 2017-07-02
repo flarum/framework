@@ -12,6 +12,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
+use Flarum\Api\Controller\CreateUserController;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
@@ -53,7 +54,7 @@ class RegisterController implements ControllerInterface
      */
     public function handle(Request $request)
     {
-        $controller = 'Flarum\Api\Controller\CreateUserController';
+        $controller = CreateUserController::class;
         $actor = $request->getAttribute('actor');
         $body = ['data' => ['attributes' => $request->getParsedBody()]];
 

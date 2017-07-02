@@ -13,6 +13,7 @@ namespace Flarum\Notification;
 
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
 use Flarum\User\User;
 use ReflectionClass;
 
@@ -32,7 +33,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
     public function registerNotificationTypes()
     {
         $blueprints = [
-            'Flarum\Notification\Blueprint\DiscussionRenamedBlueprint' => ['alert']
+            DiscussionRenamedBlueprint::class => ['alert']
         ];
 
         $this->app->make('events')->fire(
@@ -51,7 +52,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
                 in_array('alert', $enabled)
             );
 
-            if ((new ReflectionClass($blueprint))->implementsInterface('Flarum\Notification\MailableInterface')) {
+            if ((new ReflectionClass($blueprint))->implementsInterface(MailableInterface::class)) {
                 User::addPreference(
                     User::getNotificationPreferenceKey($type, 'email'),
                     'boolval',

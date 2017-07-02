@@ -37,10 +37,8 @@ class ApiKey extends AbstractModel
      */
     public static function generate()
     {
-        $key = new static;
-
-        $key->id = str_random(40);
-
-        return $key;
+        return new static([
+            'id' => str_random(40)
+        ]);
     }
 }

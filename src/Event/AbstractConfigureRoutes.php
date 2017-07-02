@@ -84,15 +84,6 @@ abstract class AbstractConfigureRoutes
      */
     protected function route($method, $url, $name, $controller)
     {
-        $this->routes->$method($url, $name, $this->toController($controller));
-    }
-
-    /**
-     * @param string $controller
-     * @return callable
-     */
-    protected function toController($controller)
-    {
-        return $this->route->toController($controller);
+        $this->routes->$method($url, $name, $this->route->toController($controller));
     }
 }

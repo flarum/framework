@@ -41,7 +41,7 @@ class FormatterServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->alias('flarum.formatter', 'Flarum\Formatter\Formatter');
+        $this->app->alias('flarum.formatter', Formatter::class);
     }
 
     public function flushFormatter()

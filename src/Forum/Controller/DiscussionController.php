@@ -22,7 +22,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DiscussionController extends FrontendController
 {
     /**
-     * @var ApiClient
+     * @var Client
      */
     protected $api;
 

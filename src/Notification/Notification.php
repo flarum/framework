@@ -12,6 +12,7 @@
 namespace Flarum\Notification;
 
 use Flarum\Database\AbstractModel;
+use Flarum\User\User;
 
 /**
  * Models a notification record in the database.
@@ -113,7 +114,7 @@ class Notification extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\User\User', 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -123,7 +124,7 @@ class Notification extends AbstractModel
      */
     public function sender()
     {
-        return $this->belongsTo('Flarum\User\User', 'sender_id');
+        return $this->belongsTo(User::class, 'sender_id');
     }
 
     /**

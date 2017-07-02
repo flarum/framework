@@ -299,7 +299,7 @@ class Migrator
     /**
      * Get the migration repository instance.
      *
-     * @return \Illuminate\Database\Migrations\MigrationRepositoryInterface
+     * @return MigrationRepositoryInterface
      */
     public function getRepository()
     {

@@ -11,6 +11,7 @@
 
 namespace Flarum\Notification\Blueprint;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Post\DiscussionRenamedPost;
 
 class DiscussionRenamedBlueprint implements BlueprintInterface
@@ -65,6 +66,6 @@ class DiscussionRenamedBlueprint implements BlueprintInterface
      */
     public static function getSubjectModel()
     {
-        return 'Flarum\Discussion\Discussion';
+        return Discussion::class;
     }
 }

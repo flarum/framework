@@ -11,8 +11,8 @@
 
 namespace Flarum\Frontend\Event;
 
-use Flarum\Admin\Controller\FrontendController as AdminWebAppController;
-use Flarum\Forum\Controller\FrontendController as ForumWebAppController;
+use Flarum\Admin\Controller\FrontendController as AdminFrontendController;
+use Flarum\Forum\Controller\FrontendController as ForumFrontendController;
 use Flarum\Frontend\AbstractFrontendController;
 use Flarum\Frontend\FrontendView;
 use Psr\Http\Message\ServerRequestInterface;
@@ -48,12 +48,12 @@ class Rendering
 
     public function isForum()
     {
-        return $this->controller instanceof ForumWebAppController;
+        return $this->controller instanceof ForumFrontendController;
     }
 
     public function isAdmin()
     {
-        return $this->controller instanceof AdminWebAppController;
+        return $this->controller instanceof AdminFrontendController;
     }
 
     public function addAssets($files)

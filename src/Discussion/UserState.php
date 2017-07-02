@@ -14,6 +14,7 @@ namespace Flarum\Discussion;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Event\UserRead;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -70,7 +71,7 @@ class UserState extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo('Flarum\Discussion\Discussion', 'discussion_id');
+        return $this->belongsTo(Discussion::class, 'discussion_id');
     }
 
     /**
@@ -80,7 +81,7 @@ class UserState extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\User\User', 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
