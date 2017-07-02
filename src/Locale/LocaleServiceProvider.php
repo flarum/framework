@@ -15,6 +15,8 @@ use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Translation\MessageSelector;
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
@@ -35,8 +37,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Locale\LocaleManager');
-        $this->app->alias('Flarum\Locale\LocaleManager', 'flarum.localeManager');
+        $this->app->singleton(LocaleManager::class);
+        $this->app->alias(LocaleManager::class, 'flarum.localeManager');
 
         $this->app->singleton('translator', function () {
             $defaultLocale = $this->getDefaultLocale();
@@ -47,8 +49,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
             return $translator;
         });
-        $this->app->alias('translator', 'Symfony\Component\Translation\Translator');
-        $this->app->alias('translator', 'Symfony\Component\Translation\TranslatorInterface');
+        $this->app->alias('translator', Translator::class);
+        $this->app->alias('translator', TranslatorInterface::class);
     }
 
     private function getDefaultLocale()
