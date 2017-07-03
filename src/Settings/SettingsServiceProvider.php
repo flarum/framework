@@ -20,7 +20,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Flarum\Settings\SettingsRepositoryInterface', function () {
+        $this->app->singleton(SettingsRepositoryInterface::class, function () {
             return new MemoryCacheSettingsRepository(
                 new DatabaseSettingsRepository(
                     $this->app->make('Illuminate\Database\ConnectionInterface')
@@ -28,6 +28,6 @@ class SettingsServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->alias('Flarum\Settings\SettingsRepositoryInterface', 'flarum.settings');
+        $this->app->alias(SettingsRepositoryInterface::class, 'flarum.settings');
     }
 }
