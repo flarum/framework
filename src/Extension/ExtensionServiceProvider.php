@@ -20,7 +20,7 @@ class ExtensionServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->bind('flarum.extensions', 'Flarum\Extension\ExtensionManager');
+        $this->app->bind('flarum.extensions', ExtensionManager::class);
 
         $bootstrappers = $this->app->make('flarum.extensions')->getEnabledBootstrappers();
 
@@ -38,6 +38,6 @@ class ExtensionServiceProvider extends AbstractServiceProvider
     {
         $events = $this->app->make('events');
 
-        $events->subscribe('Flarum\Extension\DefaultLanguagePackGuard');
+        $events->subscribe(DefaultLanguagePackGuard::class);
     }
 }
