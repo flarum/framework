@@ -27,7 +27,7 @@ class SelfDemotionGuard
     }
 
     /**
-     * Prevent an admin from removing their admin permission via the API
+     * Prevent an admin from removing their admin permission via the API.
      * @param UserWillBeSaved $event
      * @throws PermissionDeniedException
      */
