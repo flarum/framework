@@ -11,8 +11,8 @@
 
 namespace Flarum\Core\Search\Discussion\Driver;
 
-use Flarum\Core\Post;
 use Flarum\Core\Discussion;
+use Flarum\Core\Post;
 
 class MySqlDiscussionDriver implements DriverInterface
 {
