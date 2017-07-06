@@ -14,22 +14,23 @@ namespace Flarum\Core\Search\Discussion\Gambit;
 use Flarum\Core\Search\AbstractSearch;
 use Flarum\Core\Search\Discussion\DiscussionSearch;
 use Flarum\Core\Search\Discussion\Driver\DriverInterface;
+use Flarum\Core\Search\Discussion\Driver\MySqlDiscussionTitleDriver;
 use Flarum\Core\Search\GambitInterface;
 use LogicException;
 
-class FulltextGambit implements GambitInterface
+class TitleGambit implements GambitInterface
 {
     /**
-     * @var DriverInterface
+     * @var MySqlDiscussionTitleDriver
      */
-    protected $fulltext;
+    protected $title;
 
     /**
-     * @param DriverInterface $fulltext
+     * @param MySqlDiscussionTitleDriver $title
      */
-    public function __construct(DriverInterface $fulltext)
+    public function __construct(MySqlDiscussionTitleDriver $title)
     {
-        $this->fulltext = $fulltext;
+        $this->title = $title;
     }
 
     /**
@@ -41,9 +42,17 @@ class FulltextGambit implements GambitInterface
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
-        $relevantPostIds = $this->fulltext->match($bit);
+        $relevantPostIds = $this->title->match($bit);
 
         $discussionIds = array_keys($relevantPostIds);
+
+        $old_relevantPostIds = $search->getRelevantPostIds();
+
+        error_log("Old relevant posts: " + sizeof($old_relevantPostIds));
+
+        $relevantPostIds = array_merge($relevantPostIds, $old_relevantPostIds);
+
+        error_log("New relevant posts: " + sizeof($relevantPostIds));
 
         $search->setRelevantPostIds($relevantPostIds);
 

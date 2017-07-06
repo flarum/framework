@@ -30,6 +30,11 @@ class GambitManager
     protected $fulltextGambit;
 
     /**
+     * @var string
+     */
+    protected $titleGambit;
+
+    /**
      * @var Container
      */
     protected $container;
@@ -64,6 +69,7 @@ class GambitManager
 
         if ($query) {
             $this->applyFulltext($search, $query);
+            $this->applyTitle($search, $query); // TODO: Continue
         }
     }
 
@@ -75,6 +81,16 @@ class GambitManager
     public function setFulltextGambit($gambit)
     {
         $this->fulltextGambit = $gambit;
+    }
+
+    /**
+     * Set the gambit to handle title searching.
+     *
+     * @param string $gambit
+     */
+    public function setTitleGambit($gambit)
+    {
+        $this->titleGambit = $gambit;
     }
 
     /**
@@ -133,6 +149,22 @@ class GambitManager
         }
 
         $gambit = $this->container->make($this->fulltextGambit);
+
+        $search->addActiveGambit($gambit);
+        $gambit->apply($search, $query);
+    }
+
+    /**
+     * @param AbstractSearch $search
+     * @param string $query
+     */
+    protected function applyTitle(AbstractSearch $search, $query)
+    {
+        if (! $this->titleGambit) {
+            return;
+        }
+
+        $gambit = $this->container->make($this->titleGambit);
 
         $search->addActiveGambit($gambit);
         $gambit->apply($search, $query);
