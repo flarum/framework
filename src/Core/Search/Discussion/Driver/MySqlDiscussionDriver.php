@@ -11,16 +11,21 @@
 
 namespace Flarum\Core\Search\Discussion\Driver;
 
+use Flarum\Core\Post;
 use Flarum\Core\Discussion;
 
-class MySqlDiscussionTitleDriver implements DriverInterface
+class MySqlDiscussionDriver implements DriverInterface
 {
     /**
      * {@inheritdoc}
      */
     public function match($string)
     {
-        $discussionIds = Discussion::where('is_approved', 1)
+        $contentDiscussionIds = Post::where('type', 'comment')
+            ->whereRaw('MATCH (`content`) AGAINST (? IN BOOLEAN MODE)', [$string])
+            ->orderByRaw('MATCH (`content`) AGAINST (?) DESC', [$string])
+            ->lists('discussion_id', 'id');
+        $titleDiscussionIds = Discussion::where('is_approved', 1)
             ->where('title', 'like', "%$string%")
             ->orderBy('id', 'desc')
             ->limit(50)
@@ -28,7 +33,11 @@ class MySqlDiscussionTitleDriver implements DriverInterface
 
         $relevantPostIds = [];
 
-        foreach ($discussionIds as $postId => $discussionId) {
+        foreach ($contentDiscussionIds as $postId => $discussionId) {
+            $relevantPostIds[$discussionId][] = $postId;
+        }
+
+        foreach ($titleDiscussionIds as $postId => $discussionId) {
             $relevantPostIds[$discussionId][] = $postId;
         }
 

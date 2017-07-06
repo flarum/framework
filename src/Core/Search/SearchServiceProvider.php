@@ -27,12 +27,8 @@ class SearchServiceProvider extends AbstractServiceProvider
     {
         $this->app->bind(
             'Flarum\Core\Search\Discussion\Driver\DriverInterface',
-            'Flarum\Core\Search\Discussion\Driver\MySqlFulltextDriver'
+            'Flarum\Core\Search\Discussion\Driver\MySqlDiscussionDriver'
         );
-//        $this->app->bind(
-//            'Flarum\Core\Search\Discussion\Driver\DriverInterface',
-//            'Flarum\Core\Search\Discussion\Driver\MySqlDiscussionTitleDriver'
-//        );
 
         $this->registerDiscussionGambits();
 
@@ -66,7 +62,6 @@ class SearchServiceProvider extends AbstractServiceProvider
                 $gambits = new GambitManager($app);
 
                 $gambits->setFulltextGambit('Flarum\Core\Search\Discussion\Gambit\FulltextGambit');
-                $gambits->setTitleGambit('Flarum\Core\Search\Discussion\Gambit\TitleGambit');
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\AuthorGambit');
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\CreatedGambit');
                 $gambits->add('Flarum\Core\Search\Discussion\Gambit\HiddenGambit');
