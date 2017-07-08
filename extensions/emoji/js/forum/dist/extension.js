@@ -201,116 +201,114 @@ System.register('flarum/emoji/addComposerAutocomplete', ['flarum/extend', 'flaru
         dropdown.active = false;
 
         if (emojiStart) {
-          (function () {
-            typed = value.substring(emojiStart, cursor).toLowerCase();
+          typed = value.substring(emojiStart, cursor).toLowerCase();
 
-            var makeSuggestion = function makeSuggestion(key) {
-              var code = ':' + key + ':';
-              var imageName = emojiMap[key];
-              return m(
-                'button',
-                {
-                  key: key,
-                  onclick: function onclick() {
-                    return applySuggestion(code);
-                  },
-                  onmouseenter: function onmouseenter() {
-                    dropdown.setIndex($(this).parent().index());
-                  } },
-                m('img', { alt: code, 'class': 'emoji', draggable: 'false', src: '//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png' }),
-                key
-              );
+          var makeSuggestion = function makeSuggestion(key) {
+            var code = ':' + key + ':';
+            var imageName = emojiMap[key];
+            return m(
+              'button',
+              {
+                key: key,
+                onclick: function onclick() {
+                  return applySuggestion(code);
+                },
+                onmouseenter: function onmouseenter() {
+                  dropdown.setIndex($(this).parent().index());
+                } },
+              m('img', { alt: code, 'class': 'emoji', draggable: 'false', src: '//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png' }),
+              key
+            );
+          };
+
+          var buildSuggestions = function buildSuggestions() {
+            var suggestions = [];
+            var similarEmoji = [];
+
+            // Build a regular expression to do a fuzzy match of the given input string
+            var fuzzyRegexp = function fuzzyRegexp(str) {
+              var reEscape = new RegExp('\\(([' + '+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1') + '])\\)', 'g');
+              return new RegExp('(.*)' + str.toLowerCase().replace(/(.)/g, '($1)(.*?)').replace(reEscape, '(\\$1)') + '$', 'i');
+            };
+            var regTyped = fuzzyRegexp(typed);
+
+            var maxSuggestions = 7;
+
+            var findMatchingEmojis = function findMatchingEmojis(matcher) {
+              for (var _i = 0; _i < emojiKeys.length && maxSuggestions > 0; _i++) {
+                var curEmoji = emojiKeys[_i];
+                if (matcher(curEmoji) && similarEmoji.indexOf(curEmoji) === -1) {
+                  --maxSuggestions;
+                  similarEmoji.push(emojiKeys[_i]);
+                }
+              }
             };
 
-            var buildSuggestions = function buildSuggestions() {
-              var suggestions = [];
-              var similarEmoji = [];
+            // First, try to find all emojis starting with the given string
+            findMatchingEmojis(function (emoji) {
+              return emoji.indexOf(typed) === 0;
+            });
 
-              // Build a regular expression to do a fuzzy match of the given input string
-              var fuzzyRegexp = function fuzzyRegexp(str) {
-                var reEscape = new RegExp('\\(([' + '+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1') + '])\\)', 'g');
-                return new RegExp('(.*)' + str.toLowerCase().replace(/(.)/g, '($1)(.*?)').replace(reEscape, '(\\$1)') + '$', 'i');
-              };
-              var regTyped = fuzzyRegexp(typed);
+            // If there are still suggestions left, try for some fuzzy matches
+            findMatchingEmojis(function (emoji) {
+              return regTyped.test(emoji);
+            });
 
-              var maxSuggestions = 7;
+            similarEmoji = similarEmoji.sort(function (a, b) {
+              return a.length - b.length;
+            });
 
-              var findMatchingEmojis = function findMatchingEmojis(matcher) {
-                for (var _i = 0; _i < emojiKeys.length && maxSuggestions > 0; _i++) {
-                  var curEmoji = emojiKeys[_i];
-                  if (matcher(curEmoji) && similarEmoji.indexOf(curEmoji) === -1) {
-                    --maxSuggestions;
-                    similarEmoji.push(emojiKeys[_i]);
-                  }
-                }
-              };
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
 
-              // First, try to find all emojis starting with the given string
-              findMatchingEmojis(function (emoji) {
-                return emoji.indexOf(typed) === 0;
-              });
+            try {
+              for (var _iterator = similarEmoji[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var key = _step.value;
 
-              // If there are still suggestions left, try for some fuzzy matches
-              findMatchingEmojis(function (emoji) {
-                return regTyped.test(emoji);
-              });
-
-              similarEmoji = similarEmoji.sort(function (a, b) {
-                return a.length - b.length;
-              });
-
-              var _iteratorNormalCompletion = true;
-              var _didIteratorError = false;
-              var _iteratorError = undefined;
-
+                suggestions.push(makeSuggestion(key));
+              }
+            } catch (err) {
+              _didIteratorError = true;
+              _iteratorError = err;
+            } finally {
               try {
-                for (var _iterator = similarEmoji[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                  var key = _step.value;
-
-                  suggestions.push(makeSuggestion(key));
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                  _iterator.return();
                 }
-              } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
               } finally {
-                try {
-                  if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
-                  }
-                } finally {
-                  if (_didIteratorError) {
-                    throw _iteratorError;
-                  }
+                if (_didIteratorError) {
+                  throw _iteratorError;
                 }
               }
+            }
 
-              if (suggestions.length) {
-                dropdown.props.items = suggestions;
-                m.render($container[0], dropdown.render());
+            if (suggestions.length) {
+              dropdown.props.items = suggestions;
+              m.render($container[0], dropdown.render());
 
-                dropdown.show();
-                var coordinates = getCaretCoordinates(_this, emojiStart);
-                var width = dropdown.$().outerWidth();
-                var height = dropdown.$().outerHeight();
-                var parent = dropdown.$().offsetParent();
-                var left = coordinates.left;
-                var top = coordinates.top + 15;
-                if (top + height > parent.height()) {
-                  top = coordinates.top - height - 15;
-                }
-                if (left + width > parent.width()) {
-                  left = parent.width() - width;
-                }
-                dropdown.show(left, top);
+              dropdown.show();
+              var coordinates = getCaretCoordinates(_this, emojiStart);
+              var width = dropdown.$().outerWidth();
+              var height = dropdown.$().outerHeight();
+              var parent = dropdown.$().offsetParent();
+              var left = coordinates.left;
+              var top = coordinates.top + 15;
+              if (top + height > parent.height()) {
+                top = coordinates.top - height - 15;
               }
-            };
+              if (left + width > parent.width()) {
+                left = parent.width() - width;
+              }
+              dropdown.show(left, top);
+            }
+          };
 
-            buildSuggestions();
+          buildSuggestions();
 
-            dropdown.setIndex(0);
-            dropdown.$().scrollTop(0);
-            dropdown.active = true;
-          })();
+          dropdown.setIndex(0);
+          dropdown.$().scrollTop(0);
+          dropdown.active = true;
         }
       });
     });
