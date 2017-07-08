@@ -10,13 +10,11 @@ System.register('flarum/tags/addTagComposer', ['flarum/extend', 'flarum/componen
       var tag = app.store.getBy('tags', 'slug', this.params().tags);
 
       if (tag) {
-        (function () {
-          var parent = tag.parent();
-          var tags = parent ? [parent, tag] : [tag];
-          promise.then(function (component) {
-            return component.tags = tags;
-          });
-        })();
+        var parent = tag.parent();
+        var tags = parent ? [parent, tag] : [tag];
+        promise.then(function (component) {
+          return component.tags = tags;
+        });
       }
     });
 
