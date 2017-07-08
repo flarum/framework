@@ -4,7 +4,6 @@ import SignUpModal from 'flarum/components/SignUpModal';
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 import LogInButtons from 'flarum/components/LogInButtons';
-import Switch from 'flarum/components/Switch';
 import extractText from 'flarum/utils/extractText';
 
 /**
@@ -38,7 +37,7 @@ export default class LogInModal extends Modal {
      *
      * @type {Function}
      */
-    this.remember = m.prop(this.props.remember && true);
+    this.remember = m.prop(!!this.props.remember);
   }
 
   className() {
@@ -66,14 +65,14 @@ export default class LogInModal extends Modal {
               bidi={this.password}
               disabled={this.loading} />
           </div>
-      
+
           <div className="Form-group">
-            {Switch.component({
-             children: app.translator.trans('core.forum.log_in.remember_me_label'),
-             disabled: this.loading,
-             onchange: this.remember,
-             state: this.remember()
-            })}
+            <div>
+              <label className="checkbox">
+                <input type="checkbox" bidi={this.remember} disabled={this.loading} />
+                {app.translator.trans('core.forum.log_in.remember_me_label')}
+              </label>
+            </div>
           </div>
 
           <div className="Form-group">
