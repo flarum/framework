@@ -133,21 +133,19 @@ System.register('flarum/pusher/main', ['flarum/extend', 'flarum/app', 'flarum/co
               var id = String(data.discussionId);
 
               if (_this3.discussion && _this3.discussion.id() === id && _this3.stream) {
-                (function () {
-                  var oldCount = _this3.discussion.commentsCount();
+                var oldCount = _this3.discussion.commentsCount();
 
-                  app.store.find('discussions', _this3.discussion.id()).then(function () {
-                    _this3.stream.update();
+                app.store.find('discussions', _this3.discussion.id()).then(function () {
+                  _this3.stream.update();
 
-                    if (!document.hasFocus()) {
-                      app.setTitleCount(Math.max(0, _this3.discussion.commentsCount() - oldCount));
+                  if (!document.hasFocus()) {
+                    app.setTitleCount(Math.max(0, _this3.discussion.commentsCount() - oldCount));
 
-                      $(window).one('focus', function () {
-                        return app.setTitleCount(0);
-                      });
-                    }
-                  });
-                })();
+                    $(window).one('focus', function () {
+                      return app.setTitleCount(0);
+                    });
+                  }
+                });
               }
             });
 
