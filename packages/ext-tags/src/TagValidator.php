@@ -21,7 +21,7 @@ class TagValidator extends AbstractValidator
     protected $rules = [
         'name' => ['required'],
         'slug' => ['required', 'unique:tags'],
-        'isHidden' => ['bool'],
+        'is_hidden' => ['bool'],
         'description' => ['string', 'max:700'],
         'color' => ['regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'],
     ];
