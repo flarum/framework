@@ -19279,13 +19279,11 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
             // and clients support, then we'll send it as a POST request with the
             // intended method specified in the X-HTTP-Method-Override header.
             if (options.method !== 'GET' && options.method !== 'POST') {
-              (function () {
-                var method = options.method;
-                extend(options, 'config', function (result, xhr) {
-                  return xhr.setRequestHeader('X-HTTP-Method-Override', method);
-                });
-                options.method = 'POST';
-              })();
+              var method = options.method;
+              extend(options, 'config', function (result, xhr) {
+                return xhr.setRequestHeader('X-HTTP-Method-Override', method);
+              });
+              options.method = 'POST';
             }
 
             // When we deserialize JSON data, if for some reason the server has provided
@@ -21696,21 +21694,17 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
         }, {
           key: 'config',
           value: function config(isInitialized) {
-            var _this4 = this;
-
             if (isInitialized) return;
 
             // If we're on a touch device, set up the discussion row to be slidable.
             // This allows the user to drag the row to either side of the screen to
             // reveal controls.
             if ('ontouchstart' in window) {
-              (function () {
-                var slidableInstance = slidable(_this4.$().addClass('Slidable'));
+              var slidableInstance = slidable(this.$().addClass('Slidable'));
 
-                _this4.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', function () {
-                  return slidableInstance.reset();
-                });
-              })();
+              this.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', function () {
+                return slidableInstance.reset();
+              });
             }
           }
         }, {
@@ -24756,33 +24750,31 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
             var groups = [];
 
             if (app.cache.notifications) {
-              (function () {
-                var discussions = {};
+              var discussions = {};
 
-                // Build an array of discussions which the notifications are related to,
-                // and add the notifications as children.
-                app.cache.notifications.forEach(function (notification) {
-                  var subject = notification.subject();
+              // Build an array of discussions which the notifications are related to,
+              // and add the notifications as children.
+              app.cache.notifications.forEach(function (notification) {
+                var subject = notification.subject();
 
-                  if (typeof subject === 'undefined') return;
+                if (typeof subject === 'undefined') return;
 
-                  // Get the discussion that this notification is related to. If it's not
-                  // directly related to a discussion, it may be related to a post or
-                  // other entity which is related to a discussion.
-                  var discussion = false;
-                  if (subject instanceof Discussion) discussion = subject;else if (subject && subject.discussion) discussion = subject.discussion();
+                // Get the discussion that this notification is related to. If it's not
+                // directly related to a discussion, it may be related to a post or
+                // other entity which is related to a discussion.
+                var discussion = false;
+                if (subject instanceof Discussion) discussion = subject;else if (subject && subject.discussion) discussion = subject.discussion();
 
-                  // If the notification is not related to a discussion directly or
-                  // indirectly, then we will assign it to a neutral group.
-                  var key = discussion ? discussion.id() : 0;
-                  discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
-                  discussions[key].notifications.push(notification);
+                // If the notification is not related to a discussion directly or
+                // indirectly, then we will assign it to a neutral group.
+                var key = discussion ? discussion.id() : 0;
+                discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
+                discussions[key].notifications.push(notification);
 
-                  if (groups.indexOf(discussions[key]) === -1) {
-                    groups.push(discussions[key]);
-                  }
-                });
-              })();
+                if (groups.indexOf(discussions[key]) === -1) {
+                  groups.push(discussions[key]);
+                }
+              });
             }
 
             return m(
@@ -27027,25 +27019,23 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
               if (app.viewingDiscussion(discussion)) {
                 app.current.stream.update();
               } else {
-                (function () {
-                  // Otherwise, we'll create an alert message to inform the user that
-                  // their reply has been posted, containing a button which will
-                  // transition to their new post when clicked.
-                  var alert = void 0;
-                  var viewButton = Button.component({
-                    className: 'Button Button--link',
-                    children: app.translator.trans('core.forum.composer_reply.view_button'),
-                    onclick: function onclick() {
-                      m.route(app.route.post(post));
-                      app.alerts.dismiss(alert);
-                    }
-                  });
-                  app.alerts.show(alert = new Alert({
-                    type: 'success',
-                    message: app.translator.trans('core.forum.composer_reply.posted_message'),
-                    controls: [viewButton]
-                  }));
-                })();
+                // Otherwise, we'll create an alert message to inform the user that
+                // their reply has been posted, containing a button which will
+                // transition to their new post when clicked.
+                var alert = void 0;
+                var viewButton = Button.component({
+                  className: 'Button Button--link',
+                  children: app.translator.trans('core.forum.composer_reply.view_button'),
+                  onclick: function onclick() {
+                    m.route(app.route.post(post));
+                    app.alerts.dismiss(alert);
+                  }
+                });
+                app.alerts.show(alert = new Alert({
+                  type: 'success',
+                  message: app.translator.trans('core.forum.composer_reply.posted_message'),
+                  controls: [viewButton]
+                }));
               }
 
               app.composer.hide();
