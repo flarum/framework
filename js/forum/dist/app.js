@@ -23869,10 +23869,10 @@ System.register('flarum/components/LogInButtons', ['flarum/Component', 'flarum/u
 });;
 'use strict';
 
-System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/components/Switch', 'flarum/utils/extractText'], function (_export, _context) {
+System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'flarum/components/ForgotPasswordModal', 'flarum/components/SignUpModal', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/LogInButtons', 'flarum/utils/extractText'], function (_export, _context) {
   "use strict";
 
-  var Modal, ForgotPasswordModal, SignUpModal, Alert, Button, LogInButtons, Switch, extractText, LogInModal;
+  var Modal, ForgotPasswordModal, SignUpModal, Alert, Button, LogInButtons, extractText, LogInModal;
   return {
     setters: [function (_flarumComponentsModal) {
       Modal = _flarumComponentsModal.default;
@@ -23886,8 +23886,6 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
       Button = _flarumComponentsButton.default;
     }, function (_flarumComponentsLogInButtons) {
       LogInButtons = _flarumComponentsLogInButtons.default;
-    }, function (_flarumComponentsSwitch) {
-      Switch = _flarumComponentsSwitch.default;
     }, function (_flarumUtilsExtractText) {
       extractText = _flarumUtilsExtractText.default;
     }],
@@ -23924,7 +23922,7 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
              *
              * @type {Function}
              */
-            this.remember = m.prop(this.props.remember && true);
+            this.remember = m.prop(!!this.props.remember);
           }
         }, {
           key: 'className',
@@ -23963,12 +23961,16 @@ System.register('flarum/components/LogInModal', ['flarum/components/Modal', 'fla
                 m(
                   'div',
                   { className: 'Form-group' },
-                  Switch.component({
-                    children: app.translator.trans('core.forum.log_in.remember_me_label'),
-                    disabled: this.loading,
-                    onchange: this.remember,
-                    state: this.remember()
-                  })
+                  m(
+                    'div',
+                    null,
+                    m(
+                      'label',
+                      { className: 'checkbox' },
+                      m('input', { type: 'checkbox', bidi: this.remember, disabled: this.loading }),
+                      app.translator.trans('core.forum.log_in.remember_me_label')
+                    )
+                  )
                 ),
                 m(
                   'div',
