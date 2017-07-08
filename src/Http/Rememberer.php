@@ -37,9 +37,7 @@ class Rememberer
         $lifetime = null;
 
         if (! $session) {
-            $lifetime = 60 * 60 * 24 * 14;
-
-            $token->lifetime = $lifetime;
+            $token->lifetime = $lifetime = 2628000; // 5 years
             $token->save();
         }
 
