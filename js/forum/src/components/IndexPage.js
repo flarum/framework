@@ -222,7 +222,7 @@ export default class IndexPage extends Page {
 
           return Button.component({
             children: label,
-            icon: active ? 'check': true,
+            icon: active ? 'check' : true,
             onclick: this.changeSort.bind(this, value),
             active: active,
           })
