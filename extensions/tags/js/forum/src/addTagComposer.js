@@ -43,10 +43,15 @@ export default function() {
   });
 
   override(DiscussionComposer.prototype, 'onsubmit', function(original) {
-    if (!this.tags.length) {
+    const chosenTags = this.tags;
+    const chosenPrimaryTags = chosenTags.filter(tag => tag.position() !== null && !tag.isChild());
+    const chosenSecondaryTags = chosenTags.filter(tag => tag.position() === null);
+    if (!chosenTags.length
+      || (chosenPrimaryTags.length < app.forum.attribute('minPrimaryTags'))
+      || (chosenSecondaryTags.length < app.forum.attribute('minSecondaryTags'))) {
       app.modal.show(
         new TagDiscussionModal({
-          selectedTags: [],
+          selectedTags: chosenTags,
           onsubmit: tags => {
             this.tags = tags;
             original();

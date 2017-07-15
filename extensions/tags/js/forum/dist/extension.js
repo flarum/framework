@@ -49,9 +49,16 @@ System.register('flarum/tags/addTagComposer', ['flarum/extend', 'flarum/componen
     override(DiscussionComposer.prototype, 'onsubmit', function (original) {
       var _this2 = this;
 
-      if (!this.tags.length) {
+      var chosenTags = this.tags;
+      var chosenPrimaryTags = chosenTags.filter(function (tag) {
+        return tag.position() !== null && !tag.isChild();
+      });
+      var chosenSecondaryTags = chosenTags.filter(function (tag) {
+        return tag.position() === null;
+      });
+      if (!chosenTags.length || chosenPrimaryTags.length < app.forum.attribute('minPrimaryTags') || chosenSecondaryTags.length < app.forum.attribute('minSecondaryTags')) {
         app.modal.show(new TagDiscussionModal({
-          selectedTags: [],
+          selectedTags: chosenTags,
           onsubmit: function onsubmit(tags) {
             _this2.tags = tags;
             original();

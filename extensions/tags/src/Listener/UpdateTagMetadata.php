@@ -11,7 +11,6 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Core\Post;
 use Flarum\Event\DiscussionWasDeleted;
 use Flarum\Event\DiscussionWasStarted;
 use Flarum\Event\PostWasDeleted;
