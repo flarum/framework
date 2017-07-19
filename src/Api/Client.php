@@ -13,30 +13,29 @@ namespace Flarum\Api;
 
 use Exception;
 use Flarum\Core\User;
+use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
-use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Zend\Diactoros\ServerRequestFactory;
 
 class Client
 {
     /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
      * @var ErrorHandler
      */
     protected $errorHandler;
+    /**
+     * @var Application
+     */
+    private $app;
 
     /**
-     * @param Container $container
+     * @param Application $app
      * @param ErrorHandler $errorHandler
      */
-    public function __construct(Container $container, ErrorHandler $errorHandler)
+    public function __construct(Application $app, ErrorHandler $errorHandler)
     {
-        $this->container = $container;
+        $this->app = $app;
         $this->errorHandler = $errorHandler;
     }
 
@@ -48,6 +47,7 @@ class Client
      * @param array $queryParams
      * @param array $body
      * @return \Psr\Http\Message\ResponseInterface
+     * @throws Exception
      */
     public function send($controller, $actor, array $queryParams = [], array $body = [])
     {
@@ -56,7 +56,7 @@ class Client
         $request = $request->withAttribute('actor', $actor);
 
         if (is_string($controller)) {
-            $controller = $this->container->make($controller);
+            $controller = $this->app->make($controller);
         }
 
         if (! ($controller instanceof ControllerInterface)) {
@@ -68,6 +68,10 @@ class Client
         try {
             return $controller->handle($request);
         } catch (Exception $e) {
+            if ($this->app->inDebugMode()) {
+                throw $e;
+            }
+
             return $this->errorHandler->handle($e);
         }
     }
