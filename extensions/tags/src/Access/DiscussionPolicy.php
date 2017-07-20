@@ -62,20 +62,19 @@ class DiscussionPolicy extends AbstractPolicy
     {
         // Wrap all discussion permission checks with some logic pertaining to
         // the discussion's tags. If the discussion has a tag that has been
-        // restricted, the user must have the permission for that tag. If all of
-        // the discussion's tags are restricted, then ignore global permissions.
+        // restricted, the user must have the permission for that tag.
         $tags = $discussion->tags;
 
         if (count($tags)) {
-            $restricted = true;
+            $restricted = false;
 
             foreach ($tags as $tag) {
                 if ($tag->is_restricted) {
                     if (! $actor->hasPermission('tag'.$tag->id.'.discussion.'.$ability)) {
                         return false;
                     }
-                } else {
-                    $restricted = false;
+
+                    $restricted = true;
                 }
             }
 
