@@ -213,9 +213,8 @@ export default class IndexPage extends Page {
 
     items.add('sort',
       Dropdown.component({
-        buttonClassName: "Select-input FormControl",
+        buttonClassName: 'Button',
         label: sortOptions[this.params().sort] || Object.keys(sortMap).map(key => sortOptions[key])[0],
-        caretIcon: "sort",
         children: Object.keys(sortOptions).map(value => {
           const label = sortOptions[value];
           const active = (this.params().sort || Object.keys(sortMap)[0]) === value;
