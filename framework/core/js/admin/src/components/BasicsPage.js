@@ -58,7 +58,7 @@ export default class BasicsPage extends Page {
               ]
             })}
 
-            {Object.keys(this.localeOptions).length > 0
+            {Object.keys(this.localeOptions).length > 1
               ? FieldSet.component({
                 label: app.translator.trans('core.admin.basics.default_language_heading'),
                 children: [
