@@ -24,13 +24,13 @@ export default class RenameDiscussionModal extends Modal {
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">
+        <div className="Form Form--centered">
           <div className="Form-group">
-            <input className="FormControl title" placeholder={this.currentTitle} bidi={this.newTitle} />
+            <input className="FormControl" bidi={this.newTitle} type="text" />
           </div>
           <div className="Form-group">
             {Button.component({
-              className: 'Button Button--primary',
+              className: 'Button Button--primary Button--block',
               type: 'submit',
               loading: this.loading,
               children: app.translator.trans('core.forum.rename_discussion.submit_button')
@@ -59,6 +59,9 @@ export default class RenameDiscussionModal extends Modal {
         }
         m.redraw();
         this.hide();
+      }).catch(() => {
+        this.loading = false;
+        m.redraw();
       });
     } else {
       this.hide();
