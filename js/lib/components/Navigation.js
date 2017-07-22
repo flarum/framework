@@ -50,10 +50,10 @@ export default class Navigation extends Component {
     const previous = history.getPrevious() || {};
 
     return LinkButton.component({
-      className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
+      className: 'Button Navigation-back Button--icon',
       href: history.backUrl(),
       icon: 'chevron-left',
-      children: previous.title,
+      title: previous.title,
       config: () => {},
       onclick: e => {
         if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;

@@ -26,8 +26,6 @@ export default class UserPage extends Page {
      */
     this.user = null;
 
-    app.history.push('user');
-
     this.bodyClass = 'App--user';
   }
 
@@ -74,7 +72,6 @@ export default class UserPage extends Page {
   show(user) {
     this.user = user;
 
-    app.history.push('user', user.username());
     app.setTitle(user.username());
 
     m.redraw();
