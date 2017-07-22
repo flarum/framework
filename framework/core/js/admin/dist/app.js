@@ -18097,20 +18097,18 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                       app.translator.trans('core.admin.basics.forum_description_text')
                     ), m('textarea', { className: 'FormControl', value: this.values.forum_description(), oninput: m.withAttr('value', this.values.forum_description) })]
                   }),
-                  Object.keys(this.localeOptions).length > 1 ? FieldSet.component({
+                  Object.keys(this.localeOptions).length > 0 ? FieldSet.component({
                     label: app.translator.trans('core.admin.basics.default_language_heading'),
                     children: [Select.component({
                       options: this.localeOptions,
                       value: this.values.default_locale(),
                       onchange: this.values.default_locale
+                    }), Switch.component({
+                      state: this.values.show_language_selector(),
+                      onchange: this.values.show_language_selector,
+                      children: app.translator.trans('core.admin.basics.show_language_selector_label')
                     })]
                   }) : '',
-                  Switch.component({
-                    state: this.values.show_language_selector(),
-                    onchange: this.values.show_language_selector,
-                    children: app.translator.trans('core.admin.basics.show_language_selector_label')
-                  }),
-                  m('br', null),
                   FieldSet.component({
                     label: app.translator.trans('core.admin.basics.home_page_heading'),
                     className: 'BasicsPage-homePage',
@@ -19850,11 +19848,10 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var previous = history.getPrevious() || {};
 
             return LinkButton.component({
-              className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
+              className: 'Button Navigation-back Button--icon',
               href: history.backUrl(),
               icon: 'chevron-left',
-              children: previous.title,
-              config: function config() {},
+              title: previous.title,
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
                 e.preventDefault();
@@ -21496,7 +21493,7 @@ System.register('flarum/helpers/icon', [], function (_export, _context) {
   function icon(name) {
     var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
+    attrs.className = 'icon fa fa-' + name + ' ' + (attrs.className || '');
 
     return m('i', attrs);
   }
