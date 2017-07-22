@@ -18097,7 +18097,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
                       app.translator.trans('core.admin.basics.forum_description_text')
                     ), m('textarea', { className: 'FormControl', value: this.values.forum_description(), oninput: m.withAttr('value', this.values.forum_description) })]
                   }),
-                  Object.keys(this.localeOptions).length > 0 ? FieldSet.component({
+                  Object.keys(this.localeOptions).length > 1 ? FieldSet.component({
                     label: app.translator.trans('core.admin.basics.default_language_heading'),
                     children: [Select.component({
                       options: this.localeOptions,
@@ -19852,6 +19852,7 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
               href: history.backUrl(),
               icon: 'chevron-left',
               title: previous.title,
+              config: function config() {},
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
                 e.preventDefault();
