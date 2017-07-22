@@ -15,7 +15,7 @@
         "source": "https://github.com/flarum/flarum-ext-tags"
     },
     "require": {
-        "flarum/core": "^0.1.0-beta.6"
+        "flarum/core": "^0.1.0-beta.7"
     },
     "autoload": {
         "psr-4": {
