@@ -26756,7 +26756,6 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
             return m(
               'div',
               { className: 'PostUser' },
-              userOnline(user),
               m(
                 'h3',
                 null,
@@ -26764,7 +26763,7 @@ System.register('flarum/components/PostUser', ['flarum/Component', 'flarum/compo
                   'a',
                   { href: app.route.user(user), config: m.route },
                   avatar(user, { className: 'PostUser-avatar' }),
-                  ' ',
+                  userOnline(user),
                   username(user)
                 )
               ),
