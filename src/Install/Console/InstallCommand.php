@@ -25,8 +25,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class InstallCommand extends AbstractCommand
 {
-    const MOD_GROUP_ID = 4;
-
     /**
      * @var DataProviderInterface
      */
@@ -271,7 +269,7 @@ class InstallCommand extends AbstractCommand
             [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'wrench'],
             [Group::GUEST_ID, 'Guest', 'Guests', null, null],
             [Group::MEMBER_ID, 'Member', 'Members', null, null],
-            [static::MOD_GROUP_ID, 'Mod', 'Mods', '#80349E', 'bolt']
+            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'bolt']
         ];
 
         foreach ($groups as $group) {
@@ -297,10 +295,10 @@ class InstallCommand extends AbstractCommand
             [Group::MEMBER_ID, 'viewUserList'],
 
             // Moderators can edit + delete stuff
-            [static::MOD_GROUP_ID, 'discussion.delete'],
-            [static::MOD_GROUP_ID, 'discussion.deletePosts'],
-            [static::MOD_GROUP_ID, 'discussion.editPosts'],
-            [static::MOD_GROUP_ID, 'discussion.rename'],
+            [Group::MODERATOR_ID, 'discussion.hide'],
+            [Group::MODERATOR_ID, 'discussion.editPosts'],
+            [Group::MODERATOR_ID, 'discussion.rename'],
+            [Group::MODERATOR_ID, 'discussion.viewIpsPosts'],
         ];
 
         foreach ($permissions as &$permission) {
