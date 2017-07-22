@@ -58,7 +58,7 @@ export default class BasicsPage extends Page {
               ]
             })}
 
-            {Object.keys(this.localeOptions).length > 1
+            {Object.keys(this.localeOptions).length > 0
               ? FieldSet.component({
                 label: app.translator.trans('core.admin.basics.default_language_heading'),
                 children: [
@@ -66,18 +66,15 @@ export default class BasicsPage extends Page {
                     options: this.localeOptions,
                     value: this.values.default_locale(),
                     onchange: this.values.default_locale
+                  }),
+                  Switch.component({
+                    state: this.values.show_language_selector(),
+                    onchange: this.values.show_language_selector,
+                    children: app.translator.trans('core.admin.basics.show_language_selector_label'),
                   })
                 ]
               })
               : ''}
-
-            {Switch.component({
-              state: this.values.show_language_selector(),
-              onchange: this.values.show_language_selector,
-              children: app.translator.trans('core.admin.basics.show_language_selector_label'),
-            })}
-
-            <br/>
 
             {FieldSet.component({
               label: app.translator.trans('core.admin.basics.home_page_heading'),
