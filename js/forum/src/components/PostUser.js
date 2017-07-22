@@ -46,10 +46,11 @@ export default class PostUser extends Component {
 
     return (
       <div className="PostUser">
-        {userOnline(user)}
         <h3>
           <a href={app.route.user(user)} config={m.route}>
-            {avatar(user, {className: 'PostUser-avatar'})}{' '}{username(user)}
+            {avatar(user, {className: 'PostUser-avatar'})}
+            {userOnline(user)}
+            {username(user)}
           </a>
         </h3>
         <ul className="PostUser-badges badges">
