@@ -55,7 +55,7 @@ export default class IndexPage extends Page {
       app.cache.discussionList = new DiscussionList({params});
     }
 
-    app.history.push('index', icon('bars'));
+    app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
     this.bodyClass = 'App--index';
   }
