@@ -31,7 +31,7 @@ export default function boot(app) {
   }
 
   app.routes[defaultAction].path = '/';
-  app.history.push(defaultAction, icon('bars'), '/');
+  app.history.push(defaultAction, app.translator.trans('core.forum.header.back_to_index_tooltip'), '/');
 
   m.startComputation();
 
