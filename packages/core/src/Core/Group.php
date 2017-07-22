@@ -53,6 +53,11 @@ class Group extends AbstractModel
     const MEMBER_ID = 3;
 
     /**
+     * The ID of the mod group.
+     */
+    const MODERATOR_ID = 4;
+
+    /**
      * Boot the model.
      *
      * @return void
