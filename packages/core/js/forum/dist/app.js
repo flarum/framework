@@ -29662,10 +29662,10 @@ System.register('flarum/initializers/alertEmailConfirmation', ['flarum/component
 });;
 'use strict';
 
-System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/helpers/icon', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export, _context) {
+System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'flarum/utils/Pane', 'flarum/utils/Drawer', 'flarum/utils/mapRoutes', 'flarum/components/Navigation', 'flarum/components/HeaderPrimary', 'flarum/components/HeaderSecondary', 'flarum/components/Composer', 'flarum/components/ModalManager', 'flarum/components/AlertManager'], function (_export, _context) {
   "use strict";
 
-  var ScrollListener, Pane, Drawer, mapRoutes, icon, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
+  var ScrollListener, Pane, Drawer, mapRoutes, Navigation, HeaderPrimary, HeaderSecondary, Composer, ModalManager, AlertManager;
   function boot(app) {
     // Get the configured default route and update that route's path to be '/'.
     // Push the homepage as the first route, so that the user will always be
@@ -29743,8 +29743,6 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
       Drawer = _flarumUtilsDrawer.default;
     }, function (_flarumUtilsMapRoutes) {
       mapRoutes = _flarumUtilsMapRoutes.default;
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsNavigation) {
       Navigation = _flarumComponentsNavigation.default;
     }, function (_flarumComponentsHeaderPrimary) {
