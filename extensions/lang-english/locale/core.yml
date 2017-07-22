@@ -338,7 +338,7 @@ core:
 
     # These translations are used by the rename discussion modal.
     rename_discussion:
-      title: Enter a new title for this discussion
+      title: Rename Discussion
       submit_button: => core.ref.rename
 
     # These translations are used by the search results dropdown list.
