@@ -219,6 +219,7 @@ class ExtensionManager
      *
      * @param Extension $extension
      * @param bool|true $up
+     * @return array Notes from the migrator.
      */
     public function migrate(Extension $extension, $up = true)
     {
@@ -234,7 +235,11 @@ class ExtensionManager
             } else {
                 $this->migrator->reset($migrationDir, $extension);
             }
+
+            return $this->migrator->getNotes();
         }
+
+        return [];
     }
 
     /**
