@@ -36,11 +36,10 @@ class UserDataProvider implements DataProviderInterface
     public function getDatabaseConfiguration()
     {
         $host = $this->ask('Database host:');
+        $port = '3306';
 
         if (str_contains($host, ':')) {
             list($host, $port) = explode(':', $host, 2);
-        } else {
-            $port = $this->ask('Database port:');
         }
 
         return [
