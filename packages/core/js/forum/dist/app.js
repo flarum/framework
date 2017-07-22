@@ -23357,7 +23357,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
               app.cache.discussionList = new DiscussionList({ params: params });
             }
 
-            app.history.push('index', icon('bars'));
+            app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
 
             this.bodyClass = 'App--index';
           }
@@ -23515,11 +23515,10 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
             }
 
             items.add('sort', Dropdown.component({
-              buttonClassName: "Select-input FormControl",
+              buttonClassName: 'Button',
               label: sortOptions[this.params().sort] || Object.keys(sortMap).map(function (key) {
                 return sortOptions[key];
               })[0],
-              caretIcon: "sort",
               children: Object.keys(sortOptions).map(function (value) {
                 var label = sortOptions[value];
                 var active = (_this2.params().sort || Object.keys(sortMap)[0]) === value;
@@ -24373,10 +24372,10 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             var previous = history.getPrevious() || {};
 
             return LinkButton.component({
-              className: 'Button Navigation-back ' + (previous.title ? '' : 'Button--icon'),
+              className: 'Button Navigation-back Button--icon',
               href: history.backUrl(),
               icon: 'chevron-left',
-              children: previous.title,
+              title: previous.title,
               config: function config() {},
               onclick: function onclick(e) {
                 if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
@@ -26873,17 +26872,17 @@ System.register('flarum/components/RenameDiscussionModal', ['flarum/components/M
               { className: 'Modal-body' },
               m(
                 'div',
-                { className: 'Form' },
+                { className: 'Form Form--centered' },
                 m(
                   'div',
                   { className: 'Form-group' },
-                  m('input', { className: 'FormControl title', placeholder: this.currentTitle, bidi: this.newTitle })
+                  m('input', { className: 'FormControl', bidi: this.newTitle, type: 'text' })
                 ),
                 m(
                   'div',
                   { className: 'Form-group' },
                   Button.component({
-                    className: 'Button Button--primary',
+                    className: 'Button Button--primary Button--block',
                     type: 'submit',
                     loading: this.loading,
                     children: app.translator.trans('core.forum.rename_discussion.submit_button')
@@ -26914,6 +26913,9 @@ System.register('flarum/components/RenameDiscussionModal', ['flarum/components/M
                 }
                 m.redraw();
                 _this2.hide();
+              }).catch(function () {
+                _this2.loading = false;
+                m.redraw();
               });
             } else {
               this.hide();
@@ -28788,8 +28790,6 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
              */
             this.user = null;
 
-            app.history.push('user');
-
             this.bodyClass = 'App--user';
           }
         }, {
@@ -28831,7 +28831,6 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
           value: function show(user) {
             this.user = user;
 
-            app.history.push('user', user.username());
             app.setTitle(user.username());
 
             m.redraw();
@@ -29418,7 +29417,7 @@ System.register('flarum/helpers/icon', [], function (_export, _context) {
   function icon(name) {
     var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    attrs.className = 'icon fa fa-fw fa-' + name + ' ' + (attrs.className || '');
+    attrs.className = 'icon fa fa-' + name + ' ' + (attrs.className || '');
 
     return m('i', attrs);
   }
