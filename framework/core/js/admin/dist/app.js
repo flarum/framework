@@ -18060,7 +18060,7 @@ System.register('flarum/components/BasicsPage', ['flarum/components/Page', 'flar
 
             var settings = app.data.settings;
             this.fields.forEach(function (key) {
-              return _this2.values[key] = m.prop(settings[key] || false);
+              return _this2.values[key] = m.prop(settings[key]);
             });
 
             this.localeOptions = {};
