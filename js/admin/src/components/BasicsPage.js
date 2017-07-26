@@ -25,7 +25,7 @@ export default class BasicsPage extends Page {
     this.values = {};
 
     const settings = app.data.settings;
-    this.fields.forEach(key => this.values[key] = m.prop(settings[key] || false));
+    this.fields.forEach(key => this.values[key] = m.prop(settings[key]));
 
     this.localeOptions = {};
     const locales = app.data.locales;
