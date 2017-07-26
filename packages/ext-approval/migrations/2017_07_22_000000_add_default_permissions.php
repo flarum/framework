@@ -9,8 +9,11 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Core\Group;
 use Flarum\Database\Migration;
 
-return Migration::addColumns('discussions', [
-    'is_approved' => ['boolean', 'default' => 1]
+return Migration::addPermissions([
+    'discussion.startWithoutApproval' => Group::MEMBER_ID,
+    'discussion.replyWithoutApproval' => Group::MEMBER_ID,
+    'discussion.approvePosts' => Group::MODERATOR_ID
 ]);
