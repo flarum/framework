@@ -334,15 +334,13 @@ System.register('flarum/tags/addTagList', ['flarum/extend', 'flarum/components/I
 });;
 'use strict';
 
-System.register('flarum/tags/components/DiscussionTaggedPost', ['flarum/components/EventPost', 'flarum/helpers/punctuateSeries', 'flarum/tags/helpers/tagsLabel'], function (_export, _context) {
+System.register('flarum/tags/components/DiscussionTaggedPost', ['flarum/components/EventPost', 'flarum/tags/helpers/tagsLabel'], function (_export, _context) {
   "use strict";
 
-  var EventPost, punctuateSeries, tagsLabel, DiscussionTaggedPost;
+  var EventPost, tagsLabel, DiscussionTaggedPost;
   return {
     setters: [function (_flarumComponentsEventPost) {
       EventPost = _flarumComponentsEventPost.default;
-    }, function (_flarumHelpersPunctuateSeries) {
-      punctuateSeries = _flarumHelpersPunctuateSeries.default;
     }, function (_flarumTagsHelpersTagsLabel) {
       tagsLabel = _flarumTagsHelpersTagsLabel.default;
     }],

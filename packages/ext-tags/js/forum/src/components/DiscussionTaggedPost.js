@@ -1,5 +1,4 @@
 import EventPost from 'flarum/components/EventPost';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import tagsLabel from 'flarum/tags/helpers/tagsLabel';
 
 export default class DiscussionTaggedPost extends EventPost {
