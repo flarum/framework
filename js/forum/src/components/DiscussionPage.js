@@ -1,6 +1,6 @@
 import Page from 'flarum/components/Page';
 import ItemList from 'flarum/utils/ItemList';
-import DiscussionHero from 'flarum/components/DiscussionHero';
+import DiscussionHeader from 'flarum/components/DiscussionHeader';
 import PostStream from 'flarum/components/PostStream';
 import PostStreamScrubber from 'flarum/components/PostStreamScrubber';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
@@ -98,18 +98,17 @@ export default class DiscussionPage extends Page {
 
         <div className="DiscussionPage-discussion">
           {discussion
-            ? [
-              DiscussionHero.component({discussion}),
+            ? (
               <div className="container">
                 <nav className="DiscussionPage-nav">
                   <ul>{listItems(this.sidebarItems().toArray())}</ul>
                 </nav>
                 <div className="DiscussionPage-stream">
+                  {DiscussionHeader.component({discussion})}
                   {this.stream.render()}
                 </div>
               </div>
-            ]
-            : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
+            ) : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
         </div>
       </div>
     );
