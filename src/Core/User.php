@@ -21,7 +21,6 @@ use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Event\UserAvatarWasChanged;
-use Flarum\Event\UserBioWasChanged;
 use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Event\UserEmailWasChanged;
 use Flarum\Event\UserPasswordWasChanged;
@@ -40,7 +39,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * @property bool $is_activated
  * @property string $password
  * @property string $locale
- * @property string $bio
  * @property string|null $avatar_path
  * @property string $avatar_url
  * @property array $preferences
@@ -259,21 +257,6 @@ class User extends AbstractModel
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = $value ? static::$hasher->make($value) : '';
-    }
-
-    /**
-     * Change the user's bio.
-     *
-     * @param string $bio
-     * @return $this
-     */
-    public function changeBio($bio)
-    {
-        $this->bio = $bio;
-
-        $this->raise(new UserBioWasChanged($this));
-
-        return $this;
     }
 
     /**

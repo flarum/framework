@@ -95,14 +95,6 @@ class EditUserHandler
             $validate['password'] = $attributes['password'];
         }
 
-        if (isset($attributes['bio'])) {
-            if (! $isSelf) {
-                $this->assertPermission($canEdit);
-            }
-
-            $user->changeBio($attributes['bio']);
-        }
-
         if (! empty($attributes['readTime'])) {
             $this->assertPermission($isSelf);
             $user->markAllAsRead();
