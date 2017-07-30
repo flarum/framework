@@ -9,25 +9,35 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion\Fulltext;
+namespace Flarum\Core\Search\Discussion\Driver;
 
+use Flarum\Core\Discussion;
 use Flarum\Core\Post;
 
-class MySqlFulltextDriver implements DriverInterface
+class MySqlDiscussionDriver implements DriverInterface
 {
     /**
      * {@inheritdoc}
      */
     public function match($string)
     {
-        $discussionIds = Post::where('type', 'comment')
+        $contentDiscussionIds = Post::where('type', 'comment')
             ->whereRaw('MATCH (`content`) AGAINST (? IN BOOLEAN MODE)', [$string])
             ->orderByRaw('MATCH (`content`) AGAINST (?) DESC', [$string])
             ->lists('discussion_id', 'id');
+        $titleDiscussionIds = Discussion::where('is_approved', 1)
+            ->where('title', 'like', "%$string%")
+            ->orderBy('id', 'desc')
+            ->limit(50)
+            ->lists('id', 'start_post_id');
 
         $relevantPostIds = [];
 
-        foreach ($discussionIds as $postId => $discussionId) {
+        foreach ($contentDiscussionIds as $postId => $discussionId) {
+            $relevantPostIds[$discussionId][] = $postId;
+        }
+
+        foreach ($titleDiscussionIds as $postId => $discussionId) {
             $relevantPostIds[$discussionId][] = $postId;
         }
 

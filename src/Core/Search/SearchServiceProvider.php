@@ -26,8 +26,8 @@ class SearchServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->bind(
-            'Flarum\Core\Search\Discussion\Fulltext\DriverInterface',
-            'Flarum\Core\Search\Discussion\Fulltext\MySqlFulltextDriver'
+            'Flarum\Core\Search\Discussion\Driver\DriverInterface',
+            'Flarum\Core\Search\Discussion\Driver\MySqlDiscussionDriver'
         );
 
         $this->registerDiscussionGambits();

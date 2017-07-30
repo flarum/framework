@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Search\Discussion\Fulltext;
+namespace Flarum\Core\Search\Discussion\Driver;
 
 interface DriverInterface
 {
