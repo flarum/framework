@@ -27,9 +27,10 @@ export default class ItemList {
    * @public
    */
   isEmpty() {
-    for(var prop in this.items) {
-      if(this.items.hasOwnProperty(prop))
+    for (const i in this.items) {
+      if(this.items.hasOwnProperty(i)) {
         return false;
+      }
     }
 
     return true;
