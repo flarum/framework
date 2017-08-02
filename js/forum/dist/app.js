@@ -31839,14 +31839,25 @@ System.register("flarum/utils/ItemList", [], function (_export, _context) {
         }
 
         /**
-         * Check whether an item is present in the list.
+         * Check whether the list is empty.
          *
-         * @param key
          * @returns {boolean}
+         * @public
          */
 
 
         babelHelpers.createClass(ItemList, [{
+          key: "isEmpty",
+          value: function isEmpty() {
+            for (var i in this.items) {
+              if (this.items.hasOwnProperty(i)) {
+                return false;
+              }
+            }
+
+            return true;
+          }
+        }, {
           key: "has",
           value: function has(key) {
             return !!this.items[key];
