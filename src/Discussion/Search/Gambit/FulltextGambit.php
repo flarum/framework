@@ -12,7 +12,7 @@
 namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Discussion\Search\DiscussionSearch;
-use Flarum\Discussion\Search\Fulltext\DriverInterface;
+use Flarum\Discussion\Search\Driver\DriverInterface;
 use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
 use LogicException;
@@ -20,12 +20,12 @@ use LogicException;
 class FulltextGambit implements GambitInterface
 {
     /**
-     * @var \Flarum\Discussion\Search\Fulltext\DriverInterface
+     * @var \Flarum\Discussion\Search\Driver\DriverInterface
      */
     protected $fulltext;
 
     /**
-     * @param \Flarum\Discussion\Search\Fulltext\DriverInterface $fulltext
+     * @param \Flarum\Discussion\Search\Driver\DriverInterface $fulltext
      */
     public function __construct(DriverInterface $fulltext)
     {
