@@ -27783,13 +27783,11 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
               href: app.route('settings')
             }), 50);
 
-            if (user.groups().some(function (group) {
-              return group.id() === Group.ADMINISTRATOR_ID;
-            })) {
+            if (app.forum.attribute('adminUrl')) {
               items.add('administration', LinkButton.component({
                 icon: 'wrench',
                 children: app.translator.trans('core.forum.header.admin_button'),
-                href: app.forum.attribute('baseUrl') + '/admin',
+                href: app.forum.attribute('adminUrl'),
                 target: '_blank',
                 config: function config() {}
               }), 0);
