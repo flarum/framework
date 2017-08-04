@@ -62,12 +62,12 @@ export default class SessionDropdown extends Dropdown {
       50
     );
 
-    if (user.groups().some(group => group.id() === Group.ADMINISTRATOR_ID)) {
+    if (app.forum.attribute('adminUrl')) {
       items.add('administration',
         LinkButton.component({
           icon: 'wrench',
           children: app.translator.trans('core.forum.header.admin_button'),
-          href: app.forum.attribute('baseUrl') + '/admin',
+          href: app.forum.attribute('adminUrl'),
           target: '_blank',
           config: () => {}
         }),
