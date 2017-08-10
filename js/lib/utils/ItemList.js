@@ -21,6 +21,22 @@ export default class ItemList {
   }
 
   /**
+   * Check whether the list is empty.
+   *
+   * @returns {boolean}
+   * @public
+   */
+  isEmpty() {
+    for (const i in this.items) {
+      if(this.items.hasOwnProperty(i)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Check whether an item is present in the list.
    *
    * @param key
