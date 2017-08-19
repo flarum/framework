@@ -11,20 +11,22 @@
 
 namespace Flarum\Core\Listener;
 
-use Flarum\Core;
 use Flarum\Core\EmailToken;
+use Flarum\Core\Jobs\MailJob;
+use Flarum\Core\Support\DispatchJobsTrait;
 use Flarum\Core\User;
 use Flarum\Event\UserEmailChangeWasRequested;
 use Flarum\Event\UserWasRegistered;
 use Flarum\Forum\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Bus\Dispatcher as JobDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Mail\Message;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class EmailConfirmationMailer
 {
+    use DispatchJobsTrait;
     /**
      * @var SettingsRepositoryInterface
      */
@@ -50,13 +52,15 @@ class EmailConfirmationMailer
      * @param Mailer $mailer
      * @param UrlGenerator $url
      * @param TranslatorInterface $translator
+     * @param JobDispatcher $queue
      */
-    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator, JobDispatcher $queue)
     {
         $this->settings = $settings;
         $this->mailer = $mailer;
         $this->url = $url;
         $this->translator = $translator;
+        $this->queue = $queue;
     }
 
     /**
@@ -83,10 +87,11 @@ class EmailConfirmationMailer
 
         $body = $this->translator->trans('core.email.activate_account.body', $data);
 
-        $this->mailer->raw($body, function (Message $message) use ($user, $data) {
-            $message->to($user->email);
-            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject'));
-        });
+        $this->dispatch(new MailJob(
+            '['.$data['{forum}'].'] '.$this->translator->trans('core.email.activate_account.subject'),
+            $body,
+            $user->email
+        ));
     }
 
     /**
@@ -99,10 +104,11 @@ class EmailConfirmationMailer
 
         $body = $this->translator->trans('core.email.confirm_email.body', $data);
 
-        $this->mailer->raw($body, function (Message $message) use ($email, $data) {
-            $message->to($email);
-            $message->subject('['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject'));
-        });
+        $this->dispatch(new MailJob(
+            '['.$data['{forum}'].'] '.$this->translator->trans('core.email.confirm_email.subject'),
+            $body,
+            $email
+        ));
     }
 
     /**

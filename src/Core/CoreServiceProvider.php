@@ -41,6 +41,7 @@ class CoreServiceProvider extends AbstractServiceProvider
         $this->app->register('Flarum\Core\Notification\NotificationServiceProvider');
         $this->app->register('Flarum\Core\Search\SearchServiceProvider');
         $this->app->register('Flarum\Formatter\FormatterServiceProvider');
+        $this->app->register('Flarum\Core\Queue\QueueServiceProvider');
     }
 
     protected function registerAvatarsFilesystem()
