@@ -66,7 +66,7 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
 
             return new RedirectResponse($authUrl.'&display=popup');
         } elseif (! $state || $state !== $session->get('oauth2state')) {
-            $session->forget('oauth2state');
+            $session->remove('oauth2state');
             echo 'Invalid state. Please close the window and try again.';
             exit;
         }
