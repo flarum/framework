@@ -11,7 +11,7 @@
 
 namespace Flarum\Tags;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class TagRepository

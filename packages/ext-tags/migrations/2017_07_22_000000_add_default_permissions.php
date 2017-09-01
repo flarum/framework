@@ -9,8 +9,8 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Core\Group;
 use Flarum\Database\Migration;
+use Flarum\Group\Group;
 
 return Migration::addPermissions([
     'discussion.tag' => Group::MODERATOR_ID

@@ -11,9 +11,9 @@
 
 namespace Flarum\Tags\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagValidator;
+use Flarum\User\AssertPermissionTrait;
 
 class CreateTagHandler
 {

@@ -11,9 +11,9 @@
 
 namespace Flarum\Tags\Access;
 
-use Flarum\Core\Access\AbstractPolicy;
-use Flarum\Core\User;
 use Flarum\Tags\Tag;
+use Flarum\User\AbstractPolicy;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class TagPolicy extends AbstractPolicy

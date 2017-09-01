@@ -11,7 +11,7 @@
 
 namespace Flarum\Tags\Command;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class CreateTag
 {

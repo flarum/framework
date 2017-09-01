@@ -11,7 +11,7 @@
 
 namespace Flarum\Tags;
 
-use Flarum\Core\Validator\AbstractValidator;
+use Flarum\Foundation\AbstractValidator;
 
 class TagValidator extends AbstractValidator
 {

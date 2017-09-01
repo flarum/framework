@@ -11,11 +11,11 @@
 
 namespace Flarum\Tags;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Permission;
-use Flarum\Core\Support\ScopeVisibilityTrait;
-use Flarum\Core\User;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Discussion\Discussion;
+use Flarum\Group\Permission;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class Tag extends AbstractModel
@@ -82,7 +82,7 @@ class Tag extends AbstractModel
      */
     public function lastDiscussion()
     {
-        return $this->belongsTo('Flarum\Core\Discussion', 'last_discussion_id');
+        return $this->belongsTo(Discussion::class, 'last_discussion_id');
     }
 
     /**
@@ -90,7 +90,7 @@ class Tag extends AbstractModel
      */
     public function discussions()
     {
-        return $this->belongsToMany('Flarum\Core\Discussion', 'discussions_tags');
+        return $this->belongsToMany(Discussion::class, 'discussions_tags');
     }
 
     /**

@@ -11,9 +11,9 @@
 
 namespace Flarum\Tags\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Tags\Tag;
+use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 

@@ -11,10 +11,10 @@
 
 namespace Flarum\Tags\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\Event\TagWillBeSaved;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
+use Flarum\User\AssertPermissionTrait;
 
 class EditTagHandler
 {
@@ -43,7 +43,7 @@ class EditTagHandler
     /**
      * @param EditTag $command
      * @return \Flarum\Tags\Tag
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditTag $command)
     {

@@ -13,11 +13,11 @@ namespace Flarum\Tags\Listener;
 
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Core\Discussion;
-use Flarum\Event\ConfigureApiController;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
-use Flarum\Event\PrepareApiAttributes;
+use Flarum\Event\Serializing;
+use Flarum\Event\WillGetData;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -30,8 +30,8 @@ class AddDiscussionTagsRelationship
     {
         $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
-        $events->listen(ConfigureApiController::class, [$this, 'includeTagsRelationship']);
-        $events->listen(PrepareApiAttributes::class, [$this, 'prepareApiAttributes']);
+        $events->listen(WillGetData::class, [$this, 'includeTagsRelationship']);
+        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
     }
 
     /**
@@ -57,9 +57,9 @@ class AddDiscussionTagsRelationship
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function includeTagsRelationship(ConfigureApiController $event)
+    public function includeTagsRelationship(WillGetData $event)
     {
         if ($event->isController(Controller\ListDiscussionsController::class)
             || $event->isController(Controller\ShowDiscussionController::class)
@@ -69,9 +69,9 @@ class AddDiscussionTagsRelationship
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function prepareApiAttributes(PrepareApiAttributes $event)
+    public function prepareApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(DiscussionSerializer::class)) {
             $event->attributes['canTag'] = $event->actor->can('tag', $event->model);

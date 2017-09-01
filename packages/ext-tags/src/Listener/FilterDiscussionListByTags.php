@@ -11,8 +11,8 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureDiscussionSearch;
+use Flarum\Discussion\Event\ConfigureDiscussionGambits;
+use Flarum\Discussion\Event\Searching;
 use Flarum\Tags\Gambit\TagGambit;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -26,7 +26,7 @@ class FilterDiscussionListByTags
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureDiscussionGambits::class, [$this, 'addTagGambit']);
-        $events->listen(ConfigureDiscussionSearch::class, [$this, 'hideTagsFromDiscussionList']);
+        $events->listen(Searching::class, [$this, 'hideTagsFromDiscussionList']);
     }
 
     /**
@@ -38,9 +38,9 @@ class FilterDiscussionListByTags
     }
 
     /**
-     * @param ConfigureDiscussionSearch $event
+     * @param Searching $event
      */
-    public function hideTagsFromDiscussionList(ConfigureDiscussionSearch $event)
+    public function hideTagsFromDiscussionList(Searching $event)
     {
         $query = $event->search->getQuery();
 

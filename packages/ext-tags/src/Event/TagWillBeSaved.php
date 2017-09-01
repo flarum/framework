@@ -11,8 +11,8 @@
 
 namespace Flarum\Tags\Event;
 
-use Flarum\Core\User;
 use Flarum\Tags\Tag;
+use Flarum\User\User;
 
 class TagWillBeSaved
 {
