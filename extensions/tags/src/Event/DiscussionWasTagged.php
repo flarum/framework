@@ -11,8 +11,8 @@
 
 namespace Flarum\Tags\Event;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
+use Flarum\User\User;
 
 class DiscussionWasTagged
 {

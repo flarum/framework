@@ -11,10 +11,10 @@
 
 namespace Flarum\Tags\Access;
 
-use Flarum\Core\Access\AbstractPolicy;
-use Flarum\Core\User;
 use Flarum\Flags\Flag;
 use Flarum\Tags\Tag;
+use Flarum\User\AbstractPolicy;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
 

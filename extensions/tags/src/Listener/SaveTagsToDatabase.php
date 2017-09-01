@@ -11,12 +11,12 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Exception\ValidationException;
-use Flarum\Event\DiscussionWillBeSaved;
+use Flarum\Discussion\Event\Saving;
+use Flarum\Foundation\ValidationException;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -55,15 +55,15 @@ class SaveTagsToDatabase
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
+        $events->listen(Saving::class, [$this, 'whenDiscussionIsSaving']);
     }
 
     /**
-     * @param DiscussionWillBeSaved $event
+     * @param Saving $event
      * @throws PermissionDeniedException
      * @throws ValidationException
      */
-    public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
+    public function whenDiscussionIsSaving(Saving $event)
     {
         $discussion = $event->discussion;
         $actor = $event->actor;

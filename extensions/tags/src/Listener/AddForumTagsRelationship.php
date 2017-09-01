@@ -13,10 +13,10 @@ namespace Flarum\Tags\Listener;
 
 use Flarum\Api\Controller\ShowForumController;
 use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Event\ConfigureApiController;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\PrepareApiAttributes;
-use Flarum\Event\PrepareApiData;
+use Flarum\Event\Serializing;
+use Flarum\Event\WillGetData;
+use Flarum\Event\WillSerializeData;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -42,9 +42,9 @@ class AddForumTagsRelationship
     public function subscribe(Dispatcher $events)
     {
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
-        $events->listen(PrepareApiData::class, [$this, 'loadTagsRelationship']);
-        $events->listen(ConfigureApiController::class, [$this, 'includeTagsRelationship']);
-        $events->listen(PrepareApiAttributes::class, [$this, 'prepareApiAttributes']);
+        $events->listen(WillSerializeData::class, [$this, 'loadTagsRelationship']);
+        $events->listen(WillGetData::class, [$this, 'includeTagsRelationship']);
+        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
     }
 
     /**
@@ -59,9 +59,9 @@ class AddForumTagsRelationship
     }
 
     /**
-     * @param PrepareApiData $event
+     * @param WillSerializeData $event
      */
-    public function loadTagsRelationship(PrepareApiData $event)
+    public function loadTagsRelationship(WillSerializeData $event)
     {
         // Expose the complete tag list to clients by adding it as a
         // relationship to the /api/forum endpoint. Since the Forum model
@@ -73,9 +73,9 @@ class AddForumTagsRelationship
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function includeTagsRelationship(ConfigureApiController $event)
+    public function includeTagsRelationship(WillGetData $event)
     {
         if ($event->isController(ShowForumController::class)) {
             $event->addInclude(['tags', 'tags.lastDiscussion', 'tags.parent']);
@@ -83,9 +83,9 @@ class AddForumTagsRelationship
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function prepareApiAttributes(PrepareApiAttributes $event)
+    public function prepareApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['minPrimaryTags'] = $this->settings->get('flarum-tags.min_primary_tags');

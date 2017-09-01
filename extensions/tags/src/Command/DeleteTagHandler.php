@@ -11,8 +11,8 @@
 
 namespace Flarum\Tags\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\TagRepository;
+use Flarum\User\AssertPermissionTrait;
 
 class DeleteTagHandler
 {
@@ -34,7 +34,7 @@ class DeleteTagHandler
     /**
      * @param DeleteTag $command
      * @return \Flarum\Tags\Tag
-     * @throws \Flarum\Core\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(DeleteTag $command)
     {
