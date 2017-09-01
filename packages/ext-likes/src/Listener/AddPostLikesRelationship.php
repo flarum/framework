@@ -12,14 +12,14 @@
 namespace Flarum\Likes\Listener;
 
 use Flarum\Api\Controller;
+use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Api\Serializer\UserBasicSerializer;
-use Flarum\Core\Post;
-use Flarum\Core\User;
-use Flarum\Event\ConfigureApiController;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
-use Flarum\Event\PrepareApiAttributes;
+use Flarum\Event\Serializing;
+use Flarum\Event\WillGetData;
+use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostLikesRelationship
@@ -31,8 +31,8 @@ class AddPostLikesRelationship
     {
         $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiAttributes']);
-        $events->listen(PrepareApiAttributes::class, [$this, 'prepareApiAttributes']);
-        $events->listen(ConfigureApiController::class, [$this, 'includeLikes']);
+        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
+        $events->listen(WillGetData::class, [$this, 'includeLikes']);
     }
 
     /**
@@ -53,14 +53,14 @@ class AddPostLikesRelationship
     public function getApiAttributes(GetApiRelationship $event)
     {
         if ($event->isRelationship(PostSerializer::class, 'likes')) {
-            return $event->serializer->hasMany($event->model, UserBasicSerializer::class, 'likes');
+            return $event->serializer->hasMany($event->model, BasicUserSerializer::class, 'likes');
         }
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function prepareApiAttributes(PrepareApiAttributes $event)
+    public function prepareApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(PostSerializer::class)) {
             $event->attributes['canLike'] = (bool) $event->actor->can('like', $event->model);
@@ -68,9 +68,9 @@ class AddPostLikesRelationship
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function includeLikes(ConfigureApiController $event)
+    public function includeLikes(WillGetData $event)
     {
         if ($event->isController(Controller\ShowDiscussionController::class)) {
             $event->addInclude('posts.likes');
