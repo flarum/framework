@@ -11,11 +11,11 @@
 
 namespace Flarum\Likes\Listener;
 
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PostWillBeSaved;
+use Flarum\Event\Deleted;
+use Flarum\Event\Saving;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveLikesToDatabase
@@ -27,14 +27,14 @@ class SaveLikesToDatabase
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWillBeSaved::class, [$this, 'whenPostWillBeSaved']);
-        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(Saving::class, [$this, 'whenPostIsSaving']);
+        $events->listen(Deleted::class, [$this, 'whenPostIsDeleted']);
     }
 
     /**
-     * @param PostWillBeSaved $event
+     * @param Saving $event
      */
-    public function whenPostWillBeSaved(PostWillBeSaved $event)
+    public function whenPostIsSaving(Saving $event)
     {
         $post = $event->post;
         $data = $event->data;
@@ -60,9 +60,9 @@ class SaveLikesToDatabase
     }
 
     /**
-     * @param PostWasDeleted $event
+     * @param Deleted $event
      */
-    public function whenPostWasDeleted(PostWasDeleted $event)
+    public function whenPostIsDeleted(Deleted $event)
     {
         $event->post->likes()->detach();
     }
