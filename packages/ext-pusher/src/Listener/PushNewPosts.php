@@ -11,10 +11,10 @@
 
 namespace Flarum\Pusher\Listener;
 
-use Flarum\Core\Guest;
-use Flarum\Event\NotificationWillBeSent;
-use Flarum\Event\PostWasPosted;
+use Flarum\Notification\Event\Sending;
+use Flarum\Post\Event\Posted;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Guest;
 use Illuminate\Contracts\Events\Dispatcher;
 use Pusher;
 
@@ -38,14 +38,14 @@ class PushNewPosts
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWasPosted::class, [$this, 'pushNewPost']);
-        $events->listen(NotificationWillBeSent::class, [$this, 'pushNotification']);
+        $events->listen(Posted::class, [$this, 'pushNewPost']);
+        $events->listen(Sending::class, [$this, 'pushNotification']);
     }
 
     /**
-     * @param PostWasPosted $event
+     * @param Posted $event
      */
-    public function pushNewPost(PostWasPosted $event)
+    public function pushNewPost(Posted $event)
     {
         if ($event->post->isVisibleTo(new Guest)) {
             $pusher = $this->getPusher();
@@ -59,9 +59,9 @@ class PushNewPosts
     }
 
     /**
-     * @param NotificationWillBeSent $event
+     * @param Sending $event
      */
-    public function pushNotification(NotificationWillBeSent $event)
+    public function pushNotification(Sending $event)
     {
         $pusher = $this->getPusher();
         $blueprint = $event->blueprint;
