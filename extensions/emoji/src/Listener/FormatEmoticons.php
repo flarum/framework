@@ -11,7 +11,7 @@
 
 namespace Flarum\Emoji\Listener;
 
-use Flarum\Event\ConfigureFormatter;
+use Flarum\Formatter\Event\Configuring;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatEmoticons
@@ -21,13 +21,13 @@ class FormatEmoticons
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureFormatter::class, [$this, 'addEmoticons']);
+        $events->listen(Configuring::class, [$this, 'addEmoticons']);
     }
 
     /**
-     * @param ConfigureFormatter $event
+     * @param Configuring $event
      */
-    public function addEmoticons(ConfigureFormatter $event)
+    public function addEmoticons(Configuring $event)
     {
         $event->configurator->Emoji->useEmojiOne();
         $event->configurator->Emoji->omitImageSize();
