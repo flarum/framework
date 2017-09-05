@@ -11,9 +11,9 @@
 
 namespace Flarum\Pusher\Listener;
 
+use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Event\ConfigureApiRoutes;
-use Flarum\Event\PrepareApiAttributes;
 use Flarum\Pusher\Api\Controller\AuthController;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -38,14 +38,14 @@ class AddPusherApi
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PrepareApiAttributes::class, [$this, 'addAttributes']);
+        $events->listen(Serializing::class, [$this, 'addAttributes']);
         $events->listen(ConfigureApiRoutes::class, [$this, 'addRoutes']);
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function addAttributes(PrepareApiAttributes $event)
+    public function addAttributes(Serializing $event)
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['pusherKey'] = $this->settings->get('flarum-pusher.app_key');
