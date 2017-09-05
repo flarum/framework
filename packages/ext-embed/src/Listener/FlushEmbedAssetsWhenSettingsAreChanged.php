@@ -12,9 +12,9 @@ namespace Flarum\Embed\Listener;
 
 use Flarum\Embed\DiscussionController;
 use Flarum\Embed\EmbedWebApp;
-use Flarum\Event\ExtensionWasDisabled;
-use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Event\SettingWasSet;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
+use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FlushEmbedAssetsWhenSettingsAreChanged
@@ -37,15 +37,15 @@ class FlushEmbedAssetsWhenSettingsAreChanged
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(SettingWasSet::class, [$this, 'flushCss']);
-        $events->listen(ExtensionWasEnabled::class, [$this, 'flushAssets']);
-        $events->listen(ExtensionWasDisabled::class, [$this, 'flushAssets']);
+        $events->listen(Saved::class, [$this, 'flushCss']);
+        $events->listen(Enabled::class, [$this, 'flushAssets']);
+        $events->listen(Disabled::class, [$this, 'flushAssets']);
     }
 
     /**
-     * @param SettingWasSet $event
+     * @param Saved $event
      */
-    public function flushCss(SettingWasSet $event)
+    public function flushCss(Saved $event)
     {
         if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
             $this->webApp->getAssets()->flushCss();
