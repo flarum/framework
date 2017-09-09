@@ -183,7 +183,7 @@ class Extension implements Arrayable
                 if (file_exists($file)) {
                     $mimetype = pathinfo($file, PATHINFO_EXTENSION) === 'svg'
                         ? 'image/svg+xml'
-                        : finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+                        : image_type_to_mime_type(exif_imagetype($file));
                     $data = file_get_contents($file);
 
                     $icon['backgroundImage'] = 'url(\'data:'.$mimetype.';base64,'.base64_encode($data).'\')';
