@@ -11,10 +11,9 @@
 
 namespace Flarum\Approval\Listener;
 
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\BasicPostSerializer;
-use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Api\Event\Serializing;
+use Flarum\Api\Serializer\BasicDiscussionSerializer;
+use Flarum\Api\Serializer\PostSerializer;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostApprovalAttributes
