@@ -9,8 +9,8 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Flarum\Group\Group;
+use Flarum\Database\Migration;
 
 return Migration::addPermissions([
     'discussion.startWithoutApproval' => Group::MEMBER_ID,
