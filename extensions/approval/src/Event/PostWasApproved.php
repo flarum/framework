@@ -11,8 +11,8 @@
 
 namespace Flarum\Approval\Event;
 
-use Flarum\Post\Post;
-use Flarum\User\User;
+use Flarum\Core\Post;
+use Flarum\Core\User;
 
 class PostWasApproved
 {
