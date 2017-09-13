@@ -11,7 +11,7 @@
 
 namespace Flarum\Approval\Listener;
 
-use Flarum\Discussion\Discussion;
+use Flarum\Core\Discussion;
 use Flarum\Event\ScopeHiddenDiscussionVisibility;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Event\ScopePostVisibility;
