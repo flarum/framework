@@ -11,7 +11,7 @@
 
 namespace Flarum\Akismet\Listener;
 
-use Flarum\Event\ConfigureWebApp;
+use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets
@@ -21,13 +21,11 @@ class AddClientAssets
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureWebApp::class, [$this, 'addAssets']);
+        $events->listen(Rendering::class, [$this, 'addAssets']);
+    
     }
 
-    /**
-     * @param ConfigureClientView $event
-     */
-    public function addAssets(ConfigureWebApp $event)
+    public function addAssets(Rendering $event)
     {
         if ($event->isForum()) {
             $event->addAssets([
