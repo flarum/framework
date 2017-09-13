@@ -11,8 +11,8 @@
 
 namespace Flarum\Approval\Access;
 
-use Flarum\Core\Access\AbstractPolicy;
-use Flarum\Core\User;
+use Flarum\User\AbstractPolicy;
+use Flarum\User\User;
 use Flarum\Tags\Tag;
 
 class TagPolicy extends AbstractPolicy
