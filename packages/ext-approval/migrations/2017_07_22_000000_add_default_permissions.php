@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Flarum\Database\Migration;
 
 return Migration::addPermissions([
