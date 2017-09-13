@@ -11,10 +11,10 @@
 
 namespace Flarum\Approval\Listener;
 
-use Flarum\Post\Post;
 use Flarum\Event\ConfigureModelDefaultAttributes;
-use Flarum\Post\Event\Saving;
 use Flarum\Flags\Flag;
+use Flarum\Post\Event\Saving;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UnapproveNewContent
