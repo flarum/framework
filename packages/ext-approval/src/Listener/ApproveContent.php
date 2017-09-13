@@ -12,8 +12,8 @@
 namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\Post\Event\Saving;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
