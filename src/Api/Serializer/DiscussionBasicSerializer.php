@@ -54,7 +54,7 @@ class DiscussionBasicSerializer extends AbstractSerializer
      */
     protected function startPost($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\PostBasicSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\PostSerializer');
     }
 
     /**
@@ -70,7 +70,7 @@ class DiscussionBasicSerializer extends AbstractSerializer
      */
     protected function lastPost($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\PostBasicSerializer');
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\PostSerializer');
     }
 
     /**
@@ -86,6 +86,6 @@ class DiscussionBasicSerializer extends AbstractSerializer
      */
     protected function relevantPosts($discussion)
     {
-        return $this->hasMany($discussion, 'Flarum\Api\Serializer\PostBasicSerializer');
+        return $this->hasMany($discussion, 'Flarum\Api\Serializer\PostSerializer');
     }
 }
