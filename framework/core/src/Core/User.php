@@ -29,6 +29,7 @@ use Flarum\Event\UserWasActivated;
 use Flarum\Event\UserWasDeleted;
 use Flarum\Event\UserWasRegistered;
 use Flarum\Event\UserWasRenamed;
+use Flarum\Forum\UrlGenerator;
 use Flarum\Foundation\Application;
 use Illuminate\Contracts\Hashing\Hasher;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -328,7 +329,7 @@ class User extends AbstractModel
                 return $this->avatar_path;
             }
 
-            return app('Flarum\Forum\UrlGenerator')->toPath('assets/avatars/'.$this->avatar_path);
+            return app(UrlGenerator::class)->toPath('assets/avatars/'.$this->avatar_path);
         }
     }
 
