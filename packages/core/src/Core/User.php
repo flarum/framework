@@ -332,9 +332,6 @@ class User extends AbstractModel
         }
     }
 
-        return $this->avatar_path ? $urlGenerator->toPath('assets/avatars/'.$this->avatar_path) : null;
-    }
-
     /**
      * Get the user's locale, falling back to the forum's default if they
      * haven't set one.
