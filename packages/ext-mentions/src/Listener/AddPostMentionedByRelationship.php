@@ -11,12 +11,10 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Api\Controller\CreatePostController;
-use Flarum\Api\Controller\ListPostsController;
-use Flarum\Api\Controller\ShowDiscussionController;
-use Flarum\Api\Controller\ShowPostController;
+use Flarum\Api\Controller;
 use Flarum\Api\Serializer\PostBasicSerializer;
 use Flarum\Core\Post;
+use Flarum\Core\Post\CommentPost;
 use Flarum\Core\Repository\PostRepository;
 use Flarum\Core\User;
 use Flarum\Event\ConfigureApiController;
@@ -24,6 +22,7 @@ use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
 use Flarum\Event\PrepareApiData;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Collection;
 
 class AddPostMentionedByRelationship
 {
@@ -94,7 +93,7 @@ class AddPostMentionedByRelationship
      */
     public function includeRelationships(ConfigureApiController $event)
     {
-        if ($event->isController(ShowDiscussionController::class)) {
+        if ($event->isController(Controller\ShowDiscussionController::class)) {
             $event->addInclude([
                 'posts.mentionedBy',
                 'posts.mentionedBy.user',
@@ -102,8 +101,8 @@ class AddPostMentionedByRelationship
             ]);
         }
 
-        if ($event->isController(ShowPostController::class)
-            || $event->isController(ListPostsController::class)) {
+        if ($event->isController(Controller\ShowPostController::class)
+            || $event->isController(Controller\ListPostsController::class)) {
             $event->addInclude([
                 'mentionedBy',
                 'mentionedBy.user',
@@ -111,7 +110,7 @@ class AddPostMentionedByRelationship
             ]);
         }
 
-        if ($event->isController(CreatePostController::class)) {
+        if ($event->isController(Controller\CreatePostController::class)) {
             $event->addInclude([
                 'mentionsPosts',
                 'mentionsPosts.mentionedBy'
@@ -133,22 +132,33 @@ class AddPostMentionedByRelationship
     {
         // Firstly we gather a list of posts contained within the API document.
         // This will vary according to the API endpoint that is being accessed.
-        if ($event->isController(ShowDiscussionController::class)) {
+        if ($event->isController(Controller\ShowDiscussionController::class)) {
             $posts = $event->data->posts;
-        } elseif ($event->isController(ShowPostController::class)) {
+        } elseif ($event->isController(Controller\ShowPostController::class)
+            || $event->isController(Controller\CreatePostController::class)
+            || $event->isController(Controller\UpdatePostController::class)) {
             $posts = [$event->data];
-        } elseif ($event->isController(ListPostsController::class)) {
+        } elseif ($event->isController(Controller\ListPostsController::class)) {
             $posts = $event->data;
         }
 
         if (isset($posts)) {
-            $posts = array_filter((array) $posts, 'is_object');
+            $posts = new Collection($posts);
+
+            $posts = $posts->filter(function ($post) {
+                return $post instanceof CommentPost;
+            });
+
+            // Load all of the users that these posts mention. This way the data
+            // will be ready to go when we need to sub in current usernames
+            // during the rendering process.
+            $posts->load(['mentionsUsers', 'mentionsPosts.user']);
+
+            // Construct a list of the IDs of all of the posts that these posts
+            // have been mentioned in. We can then filter this list of IDs to
+            // weed out all of the ones which the user is not meant to see.
             $ids = [];
 
-            // Once we have the posts, construct a list of the IDs of all of
-            // the posts that they have been mentioned in. We can then filter
-            // this list of IDs to weed out all of the ones which the user is
-            // not meant to see.
             foreach ($posts as $post) {
                 $ids = array_merge($ids, $post->mentionedBy->pluck('id')->all());
             }
