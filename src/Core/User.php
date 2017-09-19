@@ -326,9 +326,9 @@ class User extends AbstractModel
         if ($this->avatar_path) {
             if (strpos($this->avatar_path, '://') !== false) {
                 return $this->avatar_path;
-            } else {
-                return app('Flarum\Forum\UrlGenerator')->toPath('assets/avatars/'.$this->avatar_path);
             }
+
+            return app('Flarum\Forum\UrlGenerator')->toPath('assets/avatars/'.$this->avatar_path);
         }
     }
 
