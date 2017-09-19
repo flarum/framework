@@ -28942,7 +28942,9 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
             query = query.toLowerCase();
 
             var results = app.store.all('users').filter(function (user) {
-              return user.username().toLowerCase().substr(0, query.length) === query;
+              return [user.username(), user.displayName()].some(function (value) {
+                return value.toLowerCase().substr(0, query.length) === query;
+              });
             });
 
             if (!results.length) return '';
@@ -29534,7 +29536,7 @@ System.register("flarum/helpers/username", [], function (_export, _context) {
   "use strict";
 
   function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
+    var name = user && user.displayName() || app.translator.trans('core.lib.username.deleted_text');
 
     return m(
       "span",
@@ -30533,6 +30535,7 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
 
       babelHelpers.extends(User.prototype, {
         username: Model.attribute('username'),
+        displayName: Model.attribute('displayName'),
         email: Model.attribute('email'),
         isActivated: Model.attribute('isActivated'),
         password: Model.attribute('password'),

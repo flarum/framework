@@ -20,7 +20,7 @@ export default class UsersSearchResults {
     query = query.toLowerCase();
 
     const results = app.store.all('users')
-      .filter(user => user.username().toLowerCase().substr(0, query.length) === query);
+      .filter(user => [user.username(), user.displayName()].some(value => value.toLowerCase().substr(0, query.length) === query));
 
     if (!results.length) return '';
 
