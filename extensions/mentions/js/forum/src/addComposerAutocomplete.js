@@ -154,14 +154,18 @@ export default function addComposerAutocomplete() {
                 left = parent.width() - width;
               }
               dropdown.show(left, top);
+            } else {
+              dropdown.active = false;
+              dropdown.hide();
             }
           };
+
+          dropdown.active = true;
 
           buildSuggestions();
 
           dropdown.setIndex(0);
           dropdown.$().scrollTop(0);
-          dropdown.active = true;
 
           clearTimeout(searchTimeout);
           if (typed) {
