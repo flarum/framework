@@ -11,32 +11,25 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Core\Repository\UserRepository;
+use Flarum\Core\User;
 use Flarum\Event\ConfigureFormatter;
-use Flarum\Event\ConfigureFormatterParser;
 use Flarum\Event\ConfigureFormatterRenderer;
 use Flarum\Forum\UrlGenerator;
 use Illuminate\Contracts\Events\Dispatcher;
+use s9e\TextFormatter\Utils;
 
 class FormatUserMentions
 {
-    /**
-     * @var UserRepository
-     */
-    protected $users;
-
     /**
      * @var UrlGenerator
      */
     protected $url;
 
     /**
-     * @param UserRepository $users
      * @param UrlGenerator $url
      */
-    public function __construct(UserRepository $users, UrlGenerator $url)
+    public function __construct(UrlGenerator $url)
     {
-        $this->users = $users;
         $this->url = $url;
     }
 
@@ -46,7 +39,6 @@ class FormatUserMentions
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureFormatter::class, [$this, 'configure']);
-        $events->listen(ConfigureFormatterParser::class, [$this, 'parse']);
         $events->listen(ConfigureFormatterRenderer::class, [$this, 'render']);
     }
 
@@ -57,27 +49,21 @@ class FormatUserMentions
     {
         $configurator = $event->configurator;
 
+        $configurator->rendering->parameters['PROFILE_URL'] = $this->url->toRoute('user', ['username' => '']);
+
         $tagName = 'USERMENTION';
 
         $tag = $configurator->tags->add($tagName);
         $tag->attributes->add('username');
+        $tag->attributes->add('displayname');
         $tag->attributes->add('id')->filterChain->append('#uint');
-        $tag->attributes['id']->required = false;
 
-        $tag->template = '<a href="{$PROFILE_URL}{@username}" class="UserMention">@<xsl:value-of select="@username"/></a>';
+        $tag->template = '<a href="{$PROFILE_URL}{@username}" class="UserMention">@<xsl:value-of select="@displayname"/></a>';
         $tag->filterChain->prepend([static::class, 'addId'])
             ->addParameterByName('userRepository')
-            ->setJS('function() { return true; }');
+            ->setJS('function(tag) { return System.get("flarum/mentions/utils/textFormatter").filterUserMentions(tag); }');
 
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
-    }
-
-    /**
-     * @param ConfigureFormatterParser $event
-     */
-    public function parse(ConfigureFormatterParser $event)
-    {
-        $event->parser->registeredVars['userRepository'] = $this->users;
     }
 
     /**
@@ -85,7 +71,15 @@ class FormatUserMentions
      */
     public function render(ConfigureFormatterRenderer $event)
     {
-        $event->renderer->setParameter('PROFILE_URL', $this->url->toRoute('user', ['username' => '']));
+        $post = $event->context;
+
+        $event->xml = Utils::replaceAttributes($event->xml, 'USERMENTION', function ($attributes) use ($post) {
+            $user = $post->mentionsUsers->find($attributes['id']);
+            if ($user) {
+                $attributes['displayname'] = $user->display_name;
+            }
+            return $attributes;
+        });
     }
 
     /**
@@ -93,10 +87,11 @@ class FormatUserMentions
      * @param UserRepository $users
      * @return bool
      */
-    public static function addId($tag, UserRepository $users)
+    public static function addId($tag)
     {
-        if ($id = $users->getIdForUsername($tag->getAttribute('username'))) {
-            $tag->setAttribute('id', $id);
+        if ($user = User::where('username', 'like', $tag->getAttribute('username'))->first()) {
+            $tag->setAttribute('id', $user->id);
+            $tag->setAttribute('displayname', $user->display_name);
 
             return true;
         }
