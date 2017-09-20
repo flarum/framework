@@ -10,6 +10,7 @@ export default class User extends Model {}
 
 Object.assign(User.prototype, {
   username: Model.attribute('username'),
+  displayName: Model.attribute('displayName'),
   email: Model.attribute('email'),
   isActivated: Model.attribute('isActivated'),
   password: Model.attribute('password'),
