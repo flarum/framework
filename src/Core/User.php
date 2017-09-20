@@ -18,6 +18,7 @@ use Flarum\Core\Support\ScopeVisibilityTrait;
 use Flarum\Database\AbstractModel;
 use Flarum\Event\CheckUserPassword;
 use Flarum\Event\ConfigureUserPreferences;
+use Flarum\Event\GetDisplayName;
 use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Event\UserAvatarWasChanged;
@@ -331,6 +332,16 @@ class User extends AbstractModel
 
             return app(UrlGenerator::class)->toPath('assets/avatars/'.$this->avatar_path);
         }
+    }
+
+    /**
+     * Get the user's display name.
+     *
+     * @return string
+     */
+    public function getDisplayNameAttribute()
+    {
+        return static::$dispatcher->until(new GetDisplayName($this)) ?: $this->username;
     }
 
     /**

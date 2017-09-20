@@ -130,7 +130,7 @@ class EmailConfirmationMailer
         $token = $this->generateToken($user, $email);
 
         return [
-            '{username}' => $user->username,
+            '{username}' => $user->display_name,
             '{url}' => $this->url->toRoute('confirmEmail', ['token' => $token->id]),
             '{forum}' => $this->settings->get('forum_title')
         ];
