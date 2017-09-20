@@ -107,7 +107,7 @@ class RequestPasswordResetHandler
         $token->save();
 
         $data = [
-            '{username}' => $user->username,
+            '{username}' => $user->display_name,
             '{url}' => $this->url->toRoute('resetPassword', ['token' => $token->id]),
             '{forum}' => $this->settings->get('forum_title'),
         ];
