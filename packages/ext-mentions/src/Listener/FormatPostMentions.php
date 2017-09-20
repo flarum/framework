@@ -82,6 +82,7 @@ class FormatPostMentions
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;
             }
+
             return $attributes;
         });
     }

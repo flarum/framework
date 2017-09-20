@@ -78,6 +78,7 @@ class FormatUserMentions
             if ($user) {
                 $attributes['displayname'] = $user->display_name;
             }
+
             return $attributes;
         });
     }
