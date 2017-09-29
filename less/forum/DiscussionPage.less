@@ -30,10 +30,12 @@
       width: 150px;
     }
     > ul {
-      position: fixed;
       margin-top: 30px;
-      z-index: 1;
 
+      &.affix {
+        top: @header-height;
+        z-index: 1;
+      }
       > li {
         margin-bottom: 10px;
       }
@@ -50,9 +52,6 @@
       }
     }
   }
-}
-
-@media @tablet-up {
   .DiscussionPage-stream {
     margin-right: 225px;
   }

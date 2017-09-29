@@ -20953,10 +20953,10 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHeader', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export, _context) {
+System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHeader', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls', 'flarum/utils/affixSidebar'], function (_export, _context) {
   "use strict";
 
-  var Page, ItemList, DiscussionHeader, PostStream, PostStreamScrubber, LoadingIndicator, SplitDropdown, listItems, DiscussionControls, DiscussionPage;
+  var Page, ItemList, DiscussionHeader, PostStream, PostStreamScrubber, LoadingIndicator, SplitDropdown, listItems, DiscussionControls, affixSidebar, DiscussionPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
@@ -20976,6 +20976,8 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
       listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsDiscussionControls) {
       DiscussionControls = _flarumUtilsDiscussionControls.default;
+    }, function (_flarumUtilsAffixSidebar) {
+      affixSidebar = _flarumUtilsAffixSidebar.default;
     }],
     execute: function () {
       DiscussionPage = function (_Page) {
@@ -21081,7 +21083,7 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
                   { className: 'container' },
                   m(
                     'nav',
-                    { className: 'DiscussionPage-nav' },
+                    { className: 'DiscussionPage-nav', config: affixSidebar },
                     m(
                       'ul',
                       null,
