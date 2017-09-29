@@ -1,4 +1,3 @@
-import { extend, notificationType } from 'flarum/extend';
 import app from 'flarum/app';
 import Model from 'flarum/Model';
 import Discussion from 'flarum/models/Discussion';
