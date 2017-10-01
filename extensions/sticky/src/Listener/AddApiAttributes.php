@@ -12,9 +12,9 @@
 namespace Flarum\Sticky\Listener;
 
 use Flarum\Api\Controller\ListDiscussionsController;
+use Flarum\Api\Event\Serializing;
+use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Event\ConfigureApiController;
-use Flarum\Event\PrepareApiAttributes;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddApiAttributes
@@ -24,14 +24,14 @@ class AddApiAttributes
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PrepareApiAttributes::class, [$this, 'prepareApiAttributes']);
-        $events->listen(ConfigureApiController::class, [$this, 'includeStartPost']);
+        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
+        $events->listen(WillGetData::class, [$this, 'includeStartPost']);
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function prepareApiAttributes(PrepareApiAttributes $event)
+    public function prepareApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(DiscussionSerializer::class)) {
             $event->attributes['isSticky'] = (bool) $event->model->is_sticky;
@@ -40,9 +40,9 @@ class AddApiAttributes
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function includeStartPost(ConfigureApiController $event)
+    public function includeStartPost(WillGetData $event)
     {
         if ($event->isController(ListDiscussionsController::class)) {
             $event->addInclude('startPost');

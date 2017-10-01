@@ -11,12 +11,12 @@
 
 namespace Flarum\Sticky\Listener;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
 use Flarum\Sticky\Post\DiscussionStickiedPost;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class CreatePostWhenDiscussionIsStickied
