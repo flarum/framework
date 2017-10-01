@@ -15,14 +15,14 @@ use Flarum\Api\Controller\CreatePostController;
 use Flarum\Api\Controller\ListPostsController;
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Api\Controller\ShowPostController;
-use Flarum\Api\Serializer\PostBasicSerializer;
-use Flarum\Core\Post;
-use Flarum\Core\Repository\PostRepository;
-use Flarum\Core\User;
-use Flarum\Event\ConfigureApiController;
+use Flarum\Api\Event\WillGetData;
+use Flarum\Api\Event\WillSerializeData;
+use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
-use Flarum\Event\PrepareApiData;
+use Flarum\Post\Post;
+use Flarum\Post\PostRepository;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddPostMentionedByRelationship
@@ -47,8 +47,8 @@ class AddPostMentionedByRelationship
     {
         $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
-        $events->listen(ConfigureApiController::class, [$this, 'includeRelationships']);
-        $events->listen(PrepareApiData::class, [$this, 'filterVisiblePosts']);
+        $events->listen(WillGetData::class, [$this, 'includeRelationships']);
+        $events->listen(WillSerializeData::class, [$this, 'filterVisiblePosts']);
     }
 
     /**
@@ -76,23 +76,23 @@ class AddPostMentionedByRelationship
      */
     public function getApiRelationship(GetApiRelationship $event)
     {
-        if ($event->isRelationship(PostBasicSerializer::class, 'mentionedBy')) {
-            return $event->serializer->hasMany($event->model, PostBasicSerializer::class, 'mentionedBy');
+        if ($event->isRelationship(BasicPostSerializer::class, 'mentionedBy')) {
+            return $event->serializer->hasMany($event->model, BasicPostSerializer::class, 'mentionedBy');
         }
 
-        if ($event->isRelationship(PostBasicSerializer::class, 'mentionsPosts')) {
-            return $event->serializer->hasMany($event->model, PostBasicSerializer::class, 'mentionsPosts');
+        if ($event->isRelationship(BasicPostSerializer::class, 'mentionsPosts')) {
+            return $event->serializer->hasMany($event->model, BasicPostSerializer::class, 'mentionsPosts');
         }
 
-        if ($event->isRelationship(PostBasicSerializer::class, 'mentionsUsers')) {
-            return $event->serializer->hasMany($event->model, PostBasicSerializer::class, 'mentionsUsers');
+        if ($event->isRelationship(BasicPostSerializer::class, 'mentionsUsers')) {
+            return $event->serializer->hasMany($event->model, BasicPostSerializer::class, 'mentionsUsers');
         }
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function includeRelationships(ConfigureApiController $event)
+    public function includeRelationships(WillGetData $event)
     {
         if ($event->isController(ShowDiscussionController::class)) {
             $event->addInclude([
@@ -127,9 +127,9 @@ class AddPostMentionedByRelationship
      * additional posts so that the user can't see any posts which they don't
      * have access to.
      *
-     * @param PrepareApiData $event
+     * @param WillSerializeData $event
      */
-    public function filterVisiblePosts(PrepareApiData $event)
+    public function filterVisiblePosts(WillSerializeData $event)
     {
         // Firstly we gather a list of posts contained within the API document.
         // This will vary according to the API endpoint that is being accessed.

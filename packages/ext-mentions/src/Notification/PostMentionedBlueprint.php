@@ -11,9 +11,9 @@
 
 namespace Flarum\Mentions\Notification;
 
-use Flarum\Core\Notification\BlueprintInterface;
 use Flarum\Core\Notification\MailableInterface;
-use Flarum\Core\Post;
+use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Post\Post;
 
 class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
 {

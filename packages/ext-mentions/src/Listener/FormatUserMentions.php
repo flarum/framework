@@ -11,11 +11,11 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Core\Repository\UserRepository;
-use Flarum\Event\ConfigureFormatter;
-use Flarum\Event\ConfigureFormatterParser;
-use Flarum\Event\ConfigureFormatterRenderer;
+use Flarum\Formatter\Event\Configuring;
+use Flarum\Formatter\Event\ConfiguringParser;
+use Flarum\Formatter\Event\ConfiguringRenderer;
 use Flarum\Forum\UrlGenerator;
+use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatUserMentions
@@ -45,15 +45,15 @@ class FormatUserMentions
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureFormatter::class, [$this, 'configure']);
-        $events->listen(ConfigureFormatterParser::class, [$this, 'parse']);
-        $events->listen(ConfigureFormatterRenderer::class, [$this, 'render']);
+        $events->listen(Configuring::class, [$this, 'configure']);
+        $events->listen(ConfiguringParser::class, [$this, 'parse']);
+        $events->listen(ConfiguringRenderer::class, [$this, 'render']);
     }
 
     /**
-     * @param ConfigureFormatter $event
+     * @param Configuring $event
      */
-    public function configure(ConfigureFormatter $event)
+    public function configure(Configuring $event)
     {
         $configurator = $event->configurator;
 
@@ -73,17 +73,17 @@ class FormatUserMentions
     }
 
     /**
-     * @param ConfigureFormatterParser $event
+     * @param ConfiguringParser $event
      */
-    public function parse(ConfigureFormatterParser $event)
+    public function parse(ConfiguringParser $event)
     {
         $event->parser->registeredVars['userRepository'] = $this->users;
     }
 
     /**
-     * @param ConfigureFormatterRenderer $event
+     * @param ConfiguringRenderer $event
      */
-    public function render(ConfigureFormatterRenderer $event)
+    public function render(ConfiguringRenderer $event)
     {
         $event->renderer->setParameter('PROFILE_URL', $this->url->toRoute('user', ['username' => '']));
     }
