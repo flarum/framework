@@ -11,9 +11,9 @@
 
 namespace Flarum\Lock\Notification;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Notification\BlueprintInterface;
+use Flarum\Discussion\Discussion;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Notification\Blueprint\BlueprintInterface;
 
 class DiscussionLockedBlueprint implements BlueprintInterface
 {

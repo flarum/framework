@@ -11,16 +11,16 @@
 
 namespace Flarum\Lock\Listener;
 
-use Flarum\Api\Serializer\DiscussionBasicSerializer;
-use Flarum\Core\Discussion;
+use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Event\ConfigurePostTypes;
 use Flarum\Lock\Event\DiscussionWasLocked;
 use Flarum\Lock\Event\DiscussionWasUnlocked;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class CreatePostWhenDiscussionIsLocked
@@ -62,7 +62,7 @@ class CreatePostWhenDiscussionIsLocked
      */
     public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(DiscussionLockedBlueprint::class, DiscussionBasicSerializer::class, ['alert']);
+        $event->add(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']);
     }
 
     /**

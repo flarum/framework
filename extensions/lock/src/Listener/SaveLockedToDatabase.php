@@ -11,10 +11,10 @@
 
 namespace Flarum\Lock\Listener;
 
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Event\DiscussionWillBeSaved;
+use Flarum\Discussion\Event\Saving;
 use Flarum\Lock\Event\DiscussionWasLocked;
 use Flarum\Lock\Event\DiscussionWasUnlocked;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveLockedToDatabase
@@ -26,13 +26,13 @@ class SaveLockedToDatabase
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(DiscussionWillBeSaved::class, [$this, 'whenDiscussionWillBeSaved']);
+        $events->listen(Saving::class, [$this, 'whenSaving']);
     }
 
     /**
-     * @param DiscussionWillBeSaved $event
+     * @param Saving $event
      */
-    public function whenDiscussionWillBeSaved(DiscussionWillBeSaved $event)
+    public function whenSaving(Saving $event)
     {
         if (isset($event->data['attributes']['isLocked'])) {
             $isLocked = (bool) $event->data['attributes']['isLocked'];
