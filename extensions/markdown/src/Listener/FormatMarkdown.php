@@ -11,7 +11,7 @@
 
 namespace Flarum\Markdown\Listener;
 
-use Flarum\Event\ConfigureFormatter;
+use Flarum\Formatter\Event\Configuring;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatMarkdown
@@ -21,13 +21,13 @@ class FormatMarkdown
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureFormatter::class, [$this, 'addMarkdownFormatter']);
+        $events->listen(Configuring::class, [$this, 'addMarkdownFormatter']);
     }
 
     /**
-     * @param ConfigureFormatter $event
+     * @param Configuring $event
      */
-    public function addMarkdownFormatter(ConfigureFormatter $event)
+    public function addMarkdownFormatter(Configuring $event)
     {
         $event->configurator->Litedown;
     }
