@@ -11,9 +11,9 @@
 
 namespace Flarum\Subscriptions\Listener;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\ConfigureUserPreferences;
-use Flarum\Event\PostWasPosted;
+use Flarum\Post\Event\Posted;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FollowAfterReply
@@ -26,7 +26,7 @@ class FollowAfterReply
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureUserPreferences::class, [$this, 'addUserPreference']);
-        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
+        $events->listen(Posted::class, [$this, 'whenPosted']);
     }
 
     /**
@@ -38,9 +38,9 @@ class FollowAfterReply
     }
 
     /**
-     * @param PostWasPosted $event
+     * @param Posted $event
      */
-    public function whenPostWasPosted(PostWasPosted $event)
+    public function whenPosted(Posted $event)
     {
         $actor = $event->actor;
 

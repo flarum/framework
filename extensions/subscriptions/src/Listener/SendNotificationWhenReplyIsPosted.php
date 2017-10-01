@@ -11,14 +11,14 @@
 
 namespace Flarum\Subscriptions\Listener;
 
-use Flarum\Api\Serializer\DiscussionBasicSerializer;
+use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\Post;
 use Flarum\Event\ConfigureNotificationTypes;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRestored;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Hidden;
+use Flarum\Post\Event\Posted;
+use Flarum\Post\Event\Restored;
+use Flarum\Post\Post;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -47,10 +47,10 @@ class SendNotificationWhenReplyIsPosted
         // Register with '1' as priority so this runs before discussion metadata
         // is updated, as we need to compare the user's last read number to that
         // of the previous post.
-        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted'], 1);
-        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
-        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
-        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(Posted::class, [$this, 'whenPosted'], 1);
+        $events->listen(Hidden::class, [$this, 'whenHidden']);
+        $events->listen(Restored::class, [$this, 'whenRestored']);
+        $events->listen(Deleted::class, [$this, 'whenDeleted']);
     }
 
     /**
@@ -58,13 +58,13 @@ class SendNotificationWhenReplyIsPosted
      */
     public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(NewPostBlueprint::class, DiscussionBasicSerializer::class, ['alert', 'email']);
+        $event->add(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']);
     }
 
     /**
-     * @param PostWasPosted $event
+     * @param Posted $event
      */
-    public function whenPostWasPosted(PostWasPosted $event)
+    public function whenPosted(Posted $event)
     {
         $post = $event->post;
         $discussion = $post->discussion;
@@ -82,25 +82,25 @@ class SendNotificationWhenReplyIsPosted
     }
 
     /**
-     * @param PostWasHidden $event
+     * @param Hidden $event
      */
-    public function whenPostWasHidden(PostWasHidden $event)
+    public function whenHidden(Hidden $event)
     {
         $this->notifications->delete($this->getNotification($event->post));
     }
 
     /**
-     * @param PostWasRestored $event
+     * @param Restored $event
      */
-    public function whenPostWasRestored(PostWasRestored $event)
+    public function whenRestored(Restored $event)
     {
         $this->notifications->restore($this->getNotification($event->post));
     }
 
     /**
-     * @param PostWasDeleted $event
+     * @param Deleted $event
      */
-    public function whenPostWasDeleted(PostWasDeleted $event)
+    public function whenDeleted(Deleted $event)
     {
         $this->notifications->delete($this->getNotification($event->post));
     }
