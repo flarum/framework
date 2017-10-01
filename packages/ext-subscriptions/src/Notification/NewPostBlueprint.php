@@ -11,10 +11,10 @@
 
 namespace Flarum\Subscriptions\Notification;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Notification\BlueprintInterface;
 use Flarum\Core\Notification\MailableInterface;
-use Flarum\Core\Post;
+use Flarum\Discussion\Discussion;
+use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Post\Post;
 
 class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {

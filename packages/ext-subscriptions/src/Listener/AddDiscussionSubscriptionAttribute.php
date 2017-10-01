@@ -11,8 +11,8 @@
 
 namespace Flarum\Subscriptions\Listener;
 
+use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Event\PrepareApiAttributes;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddDiscussionSubscriptionAttribute
@@ -22,13 +22,13 @@ class AddDiscussionSubscriptionAttribute
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PrepareApiAttributes::class, [$this, 'addAttributes']);
+        $events->listen(Serializing::class, [$this, 'addAttributes']);
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function addAttributes(PrepareApiAttributes $event)
+    public function addAttributes(Serializing $event)
     {
         if ($event->isSerializer(DiscussionSerializer::class)
             && ($state = $event->model->state)) {
