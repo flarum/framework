@@ -11,16 +11,16 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Api\Serializer\PostBasicSerializer;
-use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\Post;
+use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Event\ConfigureNotificationTypes;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PostWasHidden;
-use Flarum\Event\PostWasPosted;
-use Flarum\Event\PostWasRestored;
-use Flarum\Event\PostWasRevised;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
+use Flarum\Notification\NotificationSyncer;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Hidden;
+use Flarum\Post\Event\Posted;
+use Flarum\Post\Event\Restored;
+use Flarum\Post\Event\Revised;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 use s9e\TextFormatter\Utils;
 
@@ -45,11 +45,11 @@ class UpdatePostMentionsMetadata
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureNotificationTypes::class, [$this, 'addNotificationType']);
-        $events->listen(PostWasPosted::class, [$this, 'whenPostWasPosted']);
-        $events->listen(PostWasRevised::class, [$this, 'whenPostWasRevised']);
-        $events->listen(PostWasHidden::class, [$this, 'whenPostWasHidden']);
-        $events->listen(PostWasRestored::class, [$this, 'whenPostWasRestored']);
-        $events->listen(PostWasDeleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(Posted::class, [$this, 'whenPosted']);
+        $events->listen(Revised::class, [$this, 'whenRevised']);
+        $events->listen(Hidden::class, [$this, 'whenHidden']);
+        $events->listen(Restored::class, [$this, 'whenRestored']);
+        $events->listen(Deleted::class, [$this, 'whenDeleted']);
     }
 
     /**
@@ -57,45 +57,45 @@ class UpdatePostMentionsMetadata
      */
     public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(PostMentionedBlueprint::class, PostBasicSerializer::class, ['alert']);
+        $event->add(PostMentionedBlueprint::class, BasicPostSerializer::class, ['alert']);
     }
 
     /**
-     * @param PostWasPosted $event
+     * @param Posted $event
      */
-    public function whenPostWasPosted(PostWasPosted $event)
+    public function whenPosted(Posted $event)
     {
         $this->replyBecameVisible($event->post);
     }
 
     /**
-     * @param PostWasRevised $event
+     * @param Revised $event
      */
-    public function whenPostWasRevised(PostWasRevised $event)
+    public function whenRevised(Revised $event)
     {
         $this->replyBecameVisible($event->post);
     }
 
     /**
-     * @param PostWasHidden $event
+     * @param Hidden $event
      */
-    public function whenPostWasHidden(PostWasHidden $event)
+    public function whenHidden(Hidden $event)
     {
         $this->replyBecameInvisible($event->post);
     }
 
     /**
-     * @param PostWasRestored $event
+     * @param Restored $event
      */
-    public function whenPostWasRestored(PostWasRestored $event)
+    public function whenRestored(Restored $event)
     {
         $this->replyBecameVisible($event->post);
     }
 
     /**
-     * @param PostWasDeleted $event
+     * @param Deleted $event
      */
-    public function whenPostWasDeleted(PostWasDeleted $event)
+    public function whenDeleted(Deleted $event)
     {
         $this->replyBecameInvisible($event->post);
     }

@@ -11,10 +11,10 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Core\Post\CommentPost;
-use Flarum\Event\ConfigureFormatter;
-use Flarum\Event\ConfigureFormatterRenderer;
+use Flarum\Formatter\Event\Configuring;
+use Flarum\Formatter\Event\ConfiguringRenderer;
 use Flarum\Forum\UrlGenerator;
+use Flarum\Post\Post\CommentPost;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatPostMentions
@@ -37,14 +37,14 @@ class FormatPostMentions
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureFormatter::class, [$this, 'configure']);
-        $events->listen(ConfigureFormatterRenderer::class, [$this, 'render']);
+        $events->listen(Configuring::class, [$this, 'configure']);
+        $events->listen(ConfiguringRenderer::class, [$this, 'render']);
     }
 
     /**
-     * @param ConfigureFormatter $event
+     * @param Configuring $event
      */
-    public function configure(ConfigureFormatter $event)
+    public function configure(Configuring $event)
     {
         $configurator = $event->configurator;
 
@@ -69,9 +69,9 @@ class FormatPostMentions
     }
 
     /**
-     * @param ConfigureFormatterRenderer $event
+     * @param ConfiguringRenderer $event
      */
-    public function render(ConfigureFormatterRenderer $event)
+    public function render(ConfiguringRenderer $event)
     {
         $event->renderer->setParameter('DISCUSSION_URL', $this->url->toRoute('discussion', ['id' => '']));
     }
