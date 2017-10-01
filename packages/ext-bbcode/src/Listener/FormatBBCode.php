@@ -11,7 +11,7 @@
 
 namespace Flarum\BBCode\Listener;
 
-use Flarum\Event\ConfigureFormatter;
+use Flarum\Formatter\Event\Configuring;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatBBCode
@@ -21,13 +21,13 @@ class FormatBBCode
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureFormatter::class, [$this, 'addBBCodeFormatter']);
+        $events->listen(Configuring::class, [$this, 'addBBCodeFormatter']);
     }
 
     /**
-     * @param ConfigureFormatter $event
+     * @param Configuring $event
      */
-    public function addBBCodeFormatter(ConfigureFormatter $event)
+    public function addBBCodeFormatter(Configuring $event)
     {
         $event->configurator->BBCodes->addFromRepository('B');
         $event->configurator->BBCodes->addFromRepository('I');
