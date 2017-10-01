@@ -11,10 +11,10 @@
 
 namespace Flarum\Flags\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Repository\PostRepository;
 use Flarum\Flags\Event\FlagsWillBeDeleted;
 use Flarum\Flags\Flag;
+use Flarum\Post\PostRepository;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteFlagsHandler

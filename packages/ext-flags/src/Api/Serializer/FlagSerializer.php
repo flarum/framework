@@ -12,8 +12,8 @@
 namespace Flarum\Flags\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
+use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Api\Serializer\UserBasicSerializer;
 
 class FlagSerializer extends AbstractSerializer
 {
@@ -48,6 +48,6 @@ class FlagSerializer extends AbstractSerializer
      */
     protected function user($flag)
     {
-        return $this->hasOne($flag, UserBasicSerializer::class);
+        return $this->hasOne($flag, BasicUserSerializer::class);
     }
 }
