@@ -11,8 +11,8 @@
 
 namespace Flarum\Sticky\Listener;
 
+use Flarum\Discussion\Event\Searching;
 use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureDiscussionSearch;
 use Flarum\Sticky\Gambit\StickyGambit;
 use Flarum\Tags\Gambit\TagGambit;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -25,7 +25,7 @@ class PinStickiedDiscussionsToTop
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureDiscussionGambits::class, [$this, 'addStickyGambit']);
-        $events->listen(ConfigureDiscussionSearch::class, [$this, 'reorderSearch']);
+        $events->listen(Searching::class, [$this, 'reorderSearch']);
     }
 
     /**
@@ -37,9 +37,9 @@ class PinStickiedDiscussionsToTop
     }
 
     /**
-     * @param ConfigureDiscussionSearch $event
+     * @param Searching $event
      */
-    public function reorderSearch(ConfigureDiscussionSearch $event)
+    public function reorderSearch(Searching $event)
     {
         if ($event->criteria->sort === null) {
             $search = $event->search;

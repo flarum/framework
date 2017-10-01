@@ -11,9 +11,9 @@
 
 namespace Flarum\Sticky\Post;
 
-use Flarum\Core\Post;
-use Flarum\Core\Post\AbstractEventPost;
-use Flarum\Core\Post\MergeableInterface;
+use Flarum\Post\Post;
+use Flarum\Post\Post\AbstractEventPost;
+use Flarum\Post\Post\MergeableInterface;
 
 class DiscussionStickiedPost extends AbstractEventPost implements MergeableInterface
 {
