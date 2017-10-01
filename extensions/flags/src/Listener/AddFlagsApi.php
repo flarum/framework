@@ -11,16 +11,16 @@
 
 namespace Flarum\Flags\Listener;
 
+use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Core\User;
 use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureModelDates;
-use Flarum\Event\PrepareApiAttributes;
 use Flarum\Flags\Api\Controller;
 use Flarum\Flags\Flag;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddFlagsApi
@@ -44,7 +44,7 @@ class AddFlagsApi
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureModelDates::class, [$this, 'configureModelDates']);
-        $events->listen(PrepareApiAttributes::class, [$this, 'prepareApiAttributes']);
+        $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
         $events->listen(ConfigureApiRoutes::class, [$this, 'configureApiRoutes']);
     }
 
@@ -59,9 +59,9 @@ class AddFlagsApi
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function prepareApiAttributes(PrepareApiAttributes $event)
+    public function prepareApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canViewFlags'] = $event->actor->hasPermissionLike('discussion.viewFlags');

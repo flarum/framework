@@ -11,8 +11,8 @@
 
 namespace Flarum\Flags\Event;
 
-use Flarum\Core\Post;
-use Flarum\Core\User;
+use Flarum\Post\Post;
+use Flarum\User\User;
 
 class FlagsWillBeDeleted
 {

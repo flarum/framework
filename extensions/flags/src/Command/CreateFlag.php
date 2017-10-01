@@ -11,7 +11,7 @@
 
 namespace Flarum\Flags\Command;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class CreateFlag
 {

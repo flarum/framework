@@ -12,16 +12,16 @@
 namespace Flarum\Flags\Listener;
 
 use Flarum\Api\Controller;
+use Flarum\Api\Event\WillGetData;
+use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Core\Post;
-use Flarum\Event\ConfigureApiController;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
-use Flarum\Event\PostWasDeleted;
-use Flarum\Event\PrepareApiData;
 use Flarum\Flags\Api\Controller\CreateFlagController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -33,10 +33,10 @@ class AddPostFlagsRelationship
     public function subscribe(Dispatcher $events)
     {
         $events->listen(GetModelRelationship::class, [$this, 'getModelRelationship']);
-        $events->listen(PostWasDeleted::class, [$this, 'postWasDeleted']);
+        $events->listen(Deleted::class, [$this, 'postWasDeleted']);
         $events->listen(GetApiRelationship::class, [$this, 'getApiRelationship']);
-        $events->listen(ConfigureApiController::class, [$this, 'includeFlagsRelationship']);
-        $events->listen(PrepareApiData::class, [$this, 'prepareApiData']);
+        $events->listen(WillGetData::class, [$this, 'includeFlagsRelationship']);
+        $events->listen(WillSerializeData::class, [$this, 'prepareApiData']);
     }
 
     /**
@@ -51,9 +51,9 @@ class AddPostFlagsRelationship
     }
 
     /**
-     * @param PostWasDeleted $event
+     * @param Deleted $event
      */
-    public function postWasDeleted(PostWasDeleted $event)
+    public function postWasDeleted(Deleted $event)
     {
         $event->post->flags()->delete();
     }
@@ -70,9 +70,9 @@ class AddPostFlagsRelationship
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function includeFlagsRelationship(ConfigureApiController $event)
+    public function includeFlagsRelationship(WillGetData $event)
     {
         if ($event->isController(Controller\ShowDiscussionController::class)) {
             $event->addInclude([
@@ -91,9 +91,9 @@ class AddPostFlagsRelationship
     }
 
     /**
-     * @param PrepareApiData $event
+     * @param WillSerializeData $event
      */
-    public function prepareApiData(PrepareApiData $event)
+    public function prepareApiData(WillSerializeData $event)
     {
         // For any API action that allows the 'flags' relationship to be
         // included, we need to preload this relationship onto the data (Post

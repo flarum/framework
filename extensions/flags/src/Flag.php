@@ -11,10 +11,10 @@
 
 namespace Flarum\Flags;
 
-use Flarum\Core\Post;
-use Flarum\Core\Support\ScopeVisibilityTrait;
-use Flarum\Core\User;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Post\Post;
+use Flarum\User\User;
 
 class Flag extends AbstractModel
 {

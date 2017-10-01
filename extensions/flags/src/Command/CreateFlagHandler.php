@@ -11,10 +11,10 @@
 
 namespace Flarum\Flags\Command;
 
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\Post\CommentPost;
-use Flarum\Core\Repository\PostRepository;
 use Flarum\Flags\Flag;
+use Flarum\Post\Post\CommentPost;
+use Flarum\Post\PostRepository;
+use Flarum\User\AssertPermissionTrait;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class CreateFlagHandler
