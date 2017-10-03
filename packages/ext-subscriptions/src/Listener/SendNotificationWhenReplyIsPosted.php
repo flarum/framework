@@ -12,8 +12,8 @@
 namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
