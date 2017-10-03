@@ -186,13 +186,13 @@ class InstallCommand extends AbstractCommand
 
             $this->writeSettings();
 
+            $this->application->register(UserServiceProvider::class);
             $this->application->register(FormatterServiceProvider::class);
             $this->application->register(DiscussionServiceProvider::class);
             $this->application->register(GroupServiceProvider::class);
             $this->application->register(NotificationServiceProvider::class);
             $this->application->register(SearchServiceProvider::class);
             $this->application->register(PostServiceProvider::class);
-            $this->application->register(UserServiceProvider::class);
 
             $this->seedGroups();
             $this->seedPermissions();
