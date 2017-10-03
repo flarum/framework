@@ -11,10 +11,10 @@
 
 namespace Flarum\Likes\Listener;
 
-use Flarum\Event\Deleted;
-use Flarum\Event\Saving;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Saving;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
