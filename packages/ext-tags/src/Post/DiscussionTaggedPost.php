@@ -11,9 +11,9 @@
 
 namespace Flarum\Tags\Post;
 
+use Flarum\Post\AbstractEventPost;
+use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
-use Flarum\Post\Post\AbstractEventPost;
-use Flarum\Post\Post\MergeableInterface;
 
 class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterface
 {
