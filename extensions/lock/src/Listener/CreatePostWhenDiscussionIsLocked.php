@@ -12,7 +12,6 @@
 namespace Flarum\Lock\Listener;
 
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Core\Notification\NotificationSyncer;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Event\ConfigurePostTypes;
@@ -20,6 +19,7 @@ use Flarum\Lock\Event\DiscussionWasLocked;
 use Flarum\Lock\Event\DiscussionWasUnlocked;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
