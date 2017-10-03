@@ -11,9 +11,9 @@
 
 namespace Flarum\Subscriptions\Notification;
 
-use Flarum\Core\Notification\MailableInterface;
 use Flarum\Discussion\Discussion;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
 
 class NewPostBlueprint implements BlueprintInterface, MailableInterface
