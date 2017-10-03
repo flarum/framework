@@ -12,7 +12,7 @@
 namespace Flarum\Flags\Command;
 
 use Flarum\Flags\Flag;
-use Flarum\Post\Post\CommentPost;
+use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Flarum\User\AssertPermissionTrait;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
