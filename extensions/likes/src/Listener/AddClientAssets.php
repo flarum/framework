@@ -11,7 +11,7 @@
 
 namespace Flarum\Likes\Listener;
 
-use Flarum\Event\Rendering;
+use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets
@@ -25,7 +25,7 @@ class AddClientAssets
     }
 
     /**
-     * @param ConfigureClientView $event
+     * @param Rendering $event
      */
     public function addAssets(Rendering $event)
     {
