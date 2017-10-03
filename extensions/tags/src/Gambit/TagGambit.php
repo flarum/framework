@@ -11,8 +11,8 @@
 
 namespace Flarum\Tags\Gambit;
 
-use Flarum\Core\Search\AbstractRegexGambit;
-use Flarum\Core\Search\AbstractSearch;
+use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractSearch;
 use Flarum\Tags\TagRepository;
 use Illuminate\Database\Query\Expression;
 
