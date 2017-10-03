@@ -14,9 +14,7 @@ namespace Flarum\Event;
 use Flarum\Forum\Controller\FrontendController;
 
 /**
- * Configure forum routes.
- *
- * This event is fired when routes for the forum client are being registered.
+ * @deprecated
  */
 class ConfigureForumRoutes extends AbstractConfigureRoutes
 {

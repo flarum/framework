@@ -14,6 +14,9 @@ namespace Flarum\Event;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 
+/**
+ * @deprecated
+ */
 abstract class AbstractConfigureRoutes
 {
     /**
