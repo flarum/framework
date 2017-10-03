@@ -12,6 +12,7 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
+use Flarum\Extend\Compat;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
@@ -273,21 +274,30 @@ class ExtensionManager
     }
 
     /**
-     * Loads all bootstrap.php files of the enabled extensions.
+     * Retrieve all extender instances of all enabled extensions.
      *
      * @return Collection
      */
-    public function getEnabledBootstrappers()
+    public function getActiveExtenders()
     {
-        $bootstrappers = new Collection;
+        return $this->getEnabledExtensions()
+            ->flatMap(function (Extension $extension) {
+                $bootstrapper = $extension->getBootstrapperPath();
+                if ($this->filesystem->exists($bootstrapper)) {
+                    $extenders = require $bootstrapper;
 
-        foreach ($this->getEnabledExtensions() as $extension) {
-            if ($this->filesystem->exists($file = $extension->getPath().'/bootstrap.php')) {
-                $bootstrappers->push($file);
-            }
-        }
+                    if (is_array($extenders)) {
+                        return $extenders;
+                    }
 
-        return $bootstrappers;
+                    // Assume that the extension has not yet switched to the new
+                    // bootstrap.php format, and wrap the callback in a Compat
+                    // extender.
+                    return [new Compat($extenders)];
+                } else {
+                    return [];
+                }
+            });
     }
 
     /**

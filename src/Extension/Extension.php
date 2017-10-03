@@ -231,6 +231,11 @@ class Extension implements Arrayable
         return $this->path;
     }
 
+    public function getBootstrapperPath()
+    {
+        return "{$this->path}/bootstrap.php";
+    }
+
     /**
      * Tests whether the extension has assets.
      *
