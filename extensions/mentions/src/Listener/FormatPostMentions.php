@@ -12,9 +12,9 @@
 namespace Flarum\Mentions\Listener;
 
 use Flarum\Formatter\Event\Configuring;
-use Flarum\Formatter\Event\ConfiguringRenderer;
-use Flarum\Forum\UrlGenerator;
-use Flarum\Post\Post\CommentPost;
+use Flarum\Formatter\Event\Rendering;
+use Flarum\Http\UrlGenerator;
+use Flarum\Post\CommentPost;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatPostMentions
@@ -38,7 +38,7 @@ class FormatPostMentions
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Configuring::class, [$this, 'configure']);
-        $events->listen(ConfiguringRenderer::class, [$this, 'render']);
+        $events->listen(Rendering::class, [$this, 'render']);
     }
 
     /**
@@ -69,11 +69,11 @@ class FormatPostMentions
     }
 
     /**
-     * @param ConfiguringRenderer $event
+     * @param Rendering $event
      */
-    public function render(ConfiguringRenderer $event)
+    public function render(Rendering $event)
     {
-        $event->renderer->setParameter('DISCUSSION_URL', $this->url->toRoute('discussion', ['id' => '']));
+        $event->renderer->setParameter('DISCUSSION_URL', $this->url->to('forum')->route('discussion', ['id' => '']));
     }
 
     /**
