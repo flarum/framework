@@ -13,6 +13,9 @@ namespace Flarum\Event;
 
 use Zend\Stratigility\MiddlewarePipe;
 
+/**
+ * @deprecated
+ */
 class ConfigureMiddleware
 {
     /**
