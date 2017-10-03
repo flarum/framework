@@ -15,6 +15,9 @@ use DirectoryIterator;
 use Flarum\Locale\LocaleManager;
 use RuntimeException;
 
+/**
+ * @deprecated
+ */
 class ConfigureLocales
 {
     /**
