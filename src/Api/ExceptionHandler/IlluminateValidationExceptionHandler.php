@@ -12,7 +12,7 @@
 namespace Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Illuminate\Contracts\Validation\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Tobscure\JsonApi\Exception\Handler\ExceptionHandlerInterface;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
@@ -32,7 +32,8 @@ class IlluminateValidationExceptionHandler implements ExceptionHandlerInterface
     public function handle(Exception $e)
     {
         $status = 422;
-        $errors = $this->formatErrors($e->errors()->toArray());
+        
+        $errors = $this->formatErrors($e->errors());
 
         return new ResponseBag($status, $errors);
     }
