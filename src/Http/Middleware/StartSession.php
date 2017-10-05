@@ -22,13 +22,14 @@ use Zend\Stratigility\MiddlewareInterface;
 
 class StartSession implements MiddlewareInterface
 {
+    const COOKIE_NAME = 'session';
+
     /**
      * @var CookieFactory
      */
     protected $cookie;
 
     /**
-     * Rememberer constructor.
      * @param CookieFactory $cookie
      */
     public function __construct(CookieFactory $cookie)
@@ -56,7 +57,7 @@ class StartSession implements MiddlewareInterface
     {
         $session = new Session;
 
-        $session->setName('flarum_session');
+        $session->setName($this->cookie->getName(self::COOKIE_NAME));
         $session->start();
 
         if (! $session->has('csrf_token')) {
@@ -79,7 +80,7 @@ class StartSession implements MiddlewareInterface
     {
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make($session->getName(), $session->getId())
+            $this->cookie->make(self::COOKIE_NAME, $session->getId())
         );
     }
 }
