@@ -32,7 +32,7 @@ class IlluminateValidationExceptionHandler implements ExceptionHandlerInterface
     public function handle(Exception $e)
     {
         $status = 422;
-        
+
         $errors = $this->formatErrors($e->errors());
 
         return new ResponseBag($status, $errors);
