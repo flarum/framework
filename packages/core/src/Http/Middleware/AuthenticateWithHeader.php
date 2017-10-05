@@ -35,9 +35,10 @@ class AuthenticateWithHeader implements MiddlewareInterface
             $id = substr($parts[0], strlen(self::TOKEN_PREFIX));
 
             if (isset($parts[1])) {
-                if (ApiKey::find($id)) {
+                if ($key = ApiKey::find($id)) {
                     $actor = $this->getUser($parts[1]);
 
+                    $request = $request->withAttribute('apiKey', $key);
                     $request = $request->withAttribute('bypassFloodgate', true);
                 }
             } elseif ($token = AccessToken::find($id)) {
