@@ -58,7 +58,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
         return $this->table()
                 ->where('extension', $extension)
                 ->orderBy('migration', 'asc')
-                ->lists('migration');
+                ->pluck('migration');
     }
 
     /**

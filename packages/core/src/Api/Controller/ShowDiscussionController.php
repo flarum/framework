@@ -117,7 +117,7 @@ class ShowDiscussionController extends AbstractShowController
      */
     private function loadPostIds(Discussion $discussion, User $actor)
     {
-        return $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id')->all();
+        return $discussion->postsVisibleTo($actor)->orderBy('time')->pluck('id')->all();
     }
 
     /**
