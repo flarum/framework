@@ -49,7 +49,7 @@
             if (module.default) module.default(app);
           }
 
-          app.boot({!! json_encode($payload) !!});
+          app.boot({!! json_encode($payload, JSON_HEX_TAG) !!});
         @if (! $debug)
         } catch (e) {
           window.location += (window.location.search ? '&' : '?') + 'nojs=1';
