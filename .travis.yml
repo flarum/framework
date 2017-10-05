@@ -6,9 +6,6 @@ php:
   - 7.2
   - hhvm
 
-services:
-  - mysql
-
 matrix:
   allow_failures:
     - php: hhvm
