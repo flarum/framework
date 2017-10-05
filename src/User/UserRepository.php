@@ -94,7 +94,7 @@ class UserRepository
             ->orderByRaw('username = ? desc', [$string])
             ->orderByRaw('username like ? desc', [$string.'%']);
 
-        return $this->scopeVisibleTo($query, $actor)->lists('id');
+        return $this->scopeVisibleTo($query, $actor)->pluck('id')->all();
     }
 
     /**

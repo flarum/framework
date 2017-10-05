@@ -122,7 +122,7 @@ class ListPostsController extends AbstractListController
             $query->orderBy($field, $order);
         }
 
-        return $query->lists('id')->all();
+        return $query->pluck('id')->all();
     }
 
     /**

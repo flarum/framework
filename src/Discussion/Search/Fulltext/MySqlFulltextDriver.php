@@ -23,7 +23,7 @@ class MySqlFulltextDriver implements DriverInterface
         $discussionIds = Post::where('type', 'comment')
             ->whereRaw('MATCH (`content`) AGAINST (? IN BOOLEAN MODE)', [$string])
             ->orderByRaw('MATCH (`content`) AGAINST (?) DESC', [$string])
-            ->lists('discussion_id', 'id');
+            ->pluck('discussion_id', 'id');
 
         $relevantPostIds = [];
 
