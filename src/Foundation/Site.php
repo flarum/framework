@@ -178,8 +178,6 @@ class Site
             $config->set('mail.username', $settings->get('mail_username'));
             $config->set('mail.password', $settings->get('mail_password'));
 
-            $app->register(\Flarum\BusServiceProvider::class);
-
             $app->register(DiscussionServiceProvider::class);
             $app->register(FormatterServiceProvider::class);
             $app->register(GroupServiceProvider::class);

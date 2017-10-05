@@ -353,4 +353,51 @@ class Gate implements GateContract
     {
         return call_user_func($this->userResolver);
     }
+
+    /**
+     * Register a callback to run after all Gate checks.
+     *
+     * @param  callable $callback
+     * @return GateContract
+     */
+    public function after(callable $callback)
+    {
+        // TODO: Implement after() method.
+    }
+
+    /**
+     * Determine if any one of the given abilities should be granted for the current user.
+     *
+     * @param  iterable|string $abilities
+     * @param  array|mixed $arguments
+     * @return bool
+     */
+    public function any($abilities, $arguments = [])
+    {
+        // TODO: Implement any() method.
+    }
+
+    /**
+     * Determine if the given ability should be granted for the current user.
+     *
+     * @param  string $ability
+     * @param  array|mixed $arguments
+     * @return \Illuminate\Auth\Access\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function authorize($ability, $arguments = [])
+    {
+        // TODO: Implement authorize() method.
+    }
+
+    /**
+     * Get all of the defined abilities.
+     *
+     * @return array
+     */
+    public function abilities()
+    {
+        // TODO: Implement abilities() method.
+    }
 }
