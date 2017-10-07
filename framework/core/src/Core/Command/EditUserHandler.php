@@ -168,6 +168,8 @@ class EditUserHandler
             } catch (Exception $e) {
                 //
             }
+        } elseif (array_key_exists('avatarUrl', $attributes)) {
+            $this->avatarUploader->remove($user);
         }
 
         $this->events->fire(
