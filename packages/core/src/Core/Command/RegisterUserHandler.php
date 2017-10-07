@@ -14,22 +14,17 @@ namespace Flarum\Core\Command;
 use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\AuthToken;
+use Flarum\Core\AvatarUploader;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\User;
 use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserWillBeSaved;
-use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
-use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
-use League\Flysystem\MountManager;
 
 class RegisterUserHandler
 {
@@ -47,14 +42,9 @@ class RegisterUserHandler
     protected $validator;
 
     /**
-     * @var Application
+     * @var AvatarUploader
      */
-    protected $app;
-
-    /**
-     * @var FilesystemInterface
-     */
-    protected $uploadDir;
+    protected $avatarUploader;
 
     /**
      * @var Factory
@@ -65,17 +55,15 @@ class RegisterUserHandler
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param UserValidator $validator
-     * @param Application $app
-     * @param FilesystemInterface $uploadDir
+     * @param AvatarUploader $avatarUploader
      * @param Factory $validatorFactory
      */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, Application $app, FilesystemInterface $uploadDir, Factory $validatorFactory)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, AvatarUploader $avatarUploader, Factory $validatorFactory)
     {
         $this->events = $events;
         $this->settings = $settings;
         $this->validator = $validator;
-        $this->app = $app;
-        $this->uploadDir = $uploadDir;
+        $this->avatarUploader = $avatarUploader;
         $this->validatorFactory = $validatorFactory;
     }
 
@@ -130,12 +118,6 @@ class RegisterUserHandler
             $user->activate();
         }
 
-        $this->events->fire(
-            new UserWillBeSaved($user, $actor, $data)
-        );
-
-        $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
-
         if ($avatarUrl = array_get($data, 'attributes.avatarUrl')) {
             $validation = $this->validatorFactory->make(compact('avatarUrl'), ['avatarUrl' => 'url']);
 
@@ -144,11 +126,19 @@ class RegisterUserHandler
             }
 
             try {
-                $this->saveAvatarFromUrl($user, $avatarUrl);
+                $image = (new ImageManager)->make($avatarUrl);
+
+                $this->avatarUploader->upload($user, $avatarUrl);
             } catch (Exception $e) {
                 //
             }
         }
+
+        $this->events->fire(
+            new UserWillBeSaved($user, $actor, $data)
+        );
+
+        $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
 
         $user->save();
 
@@ -159,24 +149,5 @@ class RegisterUserHandler
         $this->dispatchEventsFor($user, $actor);
 
         return $user;
-    }
-
-    private function saveAvatarFromUrl(User $user, $url)
-    {
-        $tmpFile = tempnam($this->app->storagePath().'/tmp', 'avatar');
-
-        $manager = new ImageManager;
-        $manager->make($url)->fit(100, 100)->save($tmpFile);
-
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
-            'target' => $this->uploadDir,
-        ]);
-
-        $uploadName = Str::lower(Str::quickRandom()).'.png';
-
-        $user->changeAvatarPath($uploadName);
-
-        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
     }
 }
