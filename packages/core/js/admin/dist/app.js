@@ -21364,7 +21364,7 @@ System.register('flarum/helpers/avatar', [], function (_export, _context) {
     // uploaded image, or the first letter of their username if they haven't
     // uploaded one.
     if (user) {
-      var username = user.username() || '?';
+      var username = user.displayName() || '?';
       var avatarUrl = user.avatarUrl();
 
       if (hasTitle) attrs.title = attrs.title || username;
@@ -21614,7 +21614,7 @@ System.register("flarum/helpers/username", [], function (_export, _context) {
   "use strict";
 
   function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
+    var name = user && user.displayName() || app.translator.trans('core.lib.username.deleted_text');
 
     return m(
       "span",
@@ -22445,6 +22445,7 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
 
       babelHelpers.extends(User.prototype, {
         username: Model.attribute('username'),
+        displayName: Model.attribute('displayName'),
         email: Model.attribute('email'),
         isActivated: Model.attribute('isActivated'),
         password: Model.attribute('password'),
