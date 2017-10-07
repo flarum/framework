@@ -18,7 +18,6 @@ use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
-use League\Flysystem\FilesystemInterface;
 
 class DeleteAvatarHandler
 {
