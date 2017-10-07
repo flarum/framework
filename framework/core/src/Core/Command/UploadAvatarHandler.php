@@ -11,7 +11,6 @@
 
 namespace Flarum\Core\Command;
 
-use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Core\AvatarUploader;
 use Flarum\Core\Repository\UserRepository;

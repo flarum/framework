@@ -11,9 +11,9 @@
 
 namespace Flarum\Core;
 
+use Illuminate\Support\Str;
 use Intervention\Image\Image;
 use League\Flysystem\FilesystemInterface;
-use Illuminate\Support\Str;
 
 class AvatarUploader
 {
