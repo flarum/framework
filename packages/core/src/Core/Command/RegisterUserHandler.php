@@ -128,7 +128,7 @@ class RegisterUserHandler
             try {
                 $image = (new ImageManager)->make($avatarUrl);
 
-                $this->avatarUploader->upload($user, $avatarUrl);
+                $this->avatarUploader->upload($user, $image);
             } catch (Exception $e) {
                 //
             }
