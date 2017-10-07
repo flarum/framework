@@ -5,7 +5,7 @@ export default function patchMithril(global) {
 
   const m = function(comp, ...args) {
     if (comp.prototype && comp.prototype instanceof Component) {
-      return comp.component(...args);
+      return comp.component(args[0], args.slice(1));
     }
 
     const node = mo.apply(this, arguments);
