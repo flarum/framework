@@ -28828,7 +28828,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
           value: function show(user) {
             this.user = user;
 
-            app.setTitle(user.username());
+            app.setTitle(user.displayName());
 
             m.redraw();
           }
@@ -29286,7 +29286,7 @@ System.register('flarum/helpers/avatar', [], function (_export, _context) {
     // uploaded image, or the first letter of their username if they haven't
     // uploaded one.
     if (user) {
-      var username = user.username() || '?';
+      var username = user.displayName() || '?';
       var avatarUrl = user.avatarUrl();
 
       if (hasTitle) attrs.title = attrs.title || username;
