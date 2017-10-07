@@ -12,6 +12,7 @@
 namespace Flarum\Event;
 
 use Flarum\Core\User;
+use Intervention\Image\Image;
 
 class AvatarWillBeSaved
 {
@@ -30,21 +31,21 @@ class AvatarWillBeSaved
     public $actor;
 
     /**
-     * The path to the avatar that will be saved.
+     * The image that will be saved.
      *
-     * @var string
+     * @var Image
      */
-    public $path;
+    public $image;
 
     /**
      * @param User $user The user whose avatar will be saved.
      * @param User $actor The user performing the action.
-     * @param string $path The path to the avatar that will be saved.
+     * @param Image $image The image that will be saved.
      */
-    public function __construct(User $user, User $actor, $path)
+    public function __construct(User $user, User $actor, Image $image)
     {
         $this->user = $user;
         $this->actor = $actor;
-        $this->path = $path;
+        $this->image = $image;
     }
 }

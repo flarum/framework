@@ -11,7 +11,9 @@
 
 namespace Flarum\Core\Command;
 
+use Exception;
 use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Core\AvatarUploader;
 use Flarum\Core\Repository\UserRepository;
 use Flarum\Core\Support\DispatchEventsTrait;
 use Flarum\Core\User;
@@ -19,6 +21,9 @@ use Flarum\Core\Validator\UserValidator;
 use Flarum\Event\UserGroupsWereChanged;
 use Flarum\Event\UserWillBeSaved;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Validation\ValidationException;
+use Intervention\Image\ImageManager;
 
 class EditUserHandler
 {
@@ -36,15 +41,29 @@ class EditUserHandler
     protected $validator;
 
     /**
+     * @var AvatarUploader
+     */
+    protected $avatarUploader;
+
+    /**
+     * @var Factory
+     */
+    private $validatorFactory;
+
+    /**
      * @param Dispatcher $events
      * @param UserRepository $users
      * @param UserValidator $validator
+     * @param AvatarUploader $avatarUploader
+     * @param Factory $validatorFactory
      */
-    public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
+    public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator, AvatarUploader $avatarUploader, Factory $validatorFactory)
     {
         $this->events = $events;
         $this->users = $users;
         $this->validator = $validator;
+        $this->avatarUploader = $avatarUploader;
+        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -133,6 +152,22 @@ class EditUserHandler
             $user->afterSave(function (User $user) use ($newGroupIds) {
                 $user->groups()->sync($newGroupIds);
             });
+        }
+
+        if ($avatarUrl = array_get($attributes, 'avatarUrl')) {
+            $validation = $this->validatorFactory->make(compact('avatarUrl'), ['avatarUrl' => 'url']);
+
+            if ($validation->fails()) {
+                throw new ValidationException($validation);
+            }
+
+            try {
+                $image = (new ImageManager)->make($avatarUrl);
+
+                $this->avatarUploader->upload($user, $image);
+            } catch (Exception $e) {
+                //
+            }
         }
 
         $this->events->fire(

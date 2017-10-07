@@ -49,15 +49,7 @@ class CoreServiceProvider extends AbstractServiceProvider
             return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
         };
 
-        $this->app->when('Flarum\Core\Command\UploadAvatarHandler')
-            ->needs('League\Flysystem\FilesystemInterface')
-            ->give($avatarsFilesystem);
-
-        $this->app->when('Flarum\Core\Command\DeleteAvatarHandler')
-            ->needs('League\Flysystem\FilesystemInterface')
-            ->give($avatarsFilesystem);
-
-        $this->app->when('Flarum\Core\Command\RegisterUserHandler')
+        $this->app->when('Flarum\Core\AvatarUploader')
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarsFilesystem);
     }
