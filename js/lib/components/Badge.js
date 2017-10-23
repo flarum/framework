@@ -25,9 +25,12 @@ export default class Badge extends Component {
     attrs.title = extract(attrs, 'label') || '';
 
     return (
-      <span {...attrs}>
-        {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
-      </span>
+        <div>
+          <span {...attrs}>
+            {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
+          </span>
+          <span className="Badge-label">{' ' + this.props.label + ' '}</span>
+        </div>
     );
   }
 
