@@ -29,7 +29,7 @@ export default class Badge extends Component {
           <span {...attrs}>
             {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
           </span>
-          <span className="Badge-label">{' ' + this.props.label + ' '}</span>
+          <span className="Badge-label">{this.props.label}</span>
         </div>
     );
   }
