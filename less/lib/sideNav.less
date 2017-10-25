@@ -9,7 +9,7 @@
 // control; the new discussion button is the primary-control. On anything
 // larger than a phone, however, we need to affix the sidebar and expand the
 // .dropdown-select into a plain list.
-@media @tablet-up {
+@media @expand-side-nav {
   .sideNav {
     // Expand the dropdown-select component into a normal nav list.
     & .Dropdown--select {
@@ -48,45 +48,50 @@
   }
 }
 
-.sideNav--horizontal {
-  padding: 15px 0;
-  white-space: nowrap;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+.sideNav--horizontal {}
 
-  &:after {
-    content: " ";
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-top: 15px;
-    border-bottom: 1px solid @control-bg;
-  }
+@media @expand-side-nav {
+  .sideNav--horizontal {
+    padding: 15px 0;
+    white-space: nowrap;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 
-  > ul > li, .Dropdown-menu > li {
-    display: inline-block;
-    margin: 0 20px 0 0;
-    vertical-align: top;
-  }
-  .Dropdown-separator {
-    display: none;
-  }
+    &:after {
+      content: " ";
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin-top: 15px;
+      border-bottom: 1px solid @control-bg;
+    }
 
-  .Dropdown--select .Dropdown-menu > li > a {
-    padding-left: 25px;
+    > ul > li, .Dropdown-menu > li {
+      display: inline-block;
+      margin: 0 20px 0 0;
+      vertical-align: top;
+    }
+    .Dropdown-separator {
+      display: none;
+    }
 
-    .icon {
-      margin-left: -25px;
+    .Dropdown--select .Dropdown-menu > li > a {
+      padding-left: 25px;
+
+      .icon {
+        margin-left: -25px;
+      }
+    }
+
+    .affix {
+      position: static;
     }
   }
 
-  .affix {
-    position: static;
-  }
-}
-@media @tablet {
-  .sideNav {
-    .sideNav--horizontal();
+  @media @tablet {
+    .sideNav {
+      .sideNav--horizontal();
+    }
   }
 }
 
