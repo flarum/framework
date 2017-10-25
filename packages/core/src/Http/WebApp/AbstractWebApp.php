@@ -131,10 +131,6 @@ abstract class AbstractWebApp
 
         $css->addString($lessVariables);
         $localeCss->addString($lessVariables);
-
-        $css->addString(function () {
-            return $this->settings->get('custom_less');
-        });
     }
 
     /**
