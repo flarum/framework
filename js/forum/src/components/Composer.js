@@ -3,7 +3,7 @@ import ItemList from 'flarum/utils/ItemList';
 import ComposerButton from 'flarum/components/ComposerButton';
 import listItems from 'flarum/helpers/listItems';
 import classList from 'flarum/utils/classList';
-import computed from 'flarum/utils/computed';
+import ComposerHeight from 'flarum/utils/ComposerHeight';
 
 /**
  * The `Composer` component displays the composer. It can be loaded with a
@@ -20,12 +20,9 @@ class Composer extends Component {
     this.position = Composer.PositionEnum.HIDDEN;
 
     /**
-     * The composer's intended height, which can be modified by the user
-     * (by dragging the composer handle).
-     *
-     * @type {Integer}
+     * Composer height manager
      */
-    this.height = null;
+    this.height = new ComposerHeight();
 
     /**
      * Whether or not the composer currently has focus.
@@ -41,20 +38,9 @@ class Composer extends Component {
      *
      * @return {Integer}
      */
-    this.computedHeight = computed('height', 'position', (height, position) => {
-      // If the composer is minimized, then we don't want to set a height; we'll
-      // let the CSS decide how high it is. If it's fullscreen, then we need to
-      // make it as high as the window.
-      if (position === Composer.PositionEnum.MINIMIZED) {
-        return '';
-      } else if (position === Composer.PositionEnum.FULLSCREEN) {
-        return $(window).height();
-      }
-
-      // Otherwise, if it's normal or hidden, then we use the intended height.
-      // We don't let the composer get too small or too big, though.
-      return Math.max(200, Math.min(height, $(window).height() - $('#header').outerHeight()));
-    });
+    this.computedHeight = () => {
+      return this.height.computedHeight(this.position);
+    };
   }
 
   view() {
@@ -85,23 +71,14 @@ class Composer extends Component {
   }
 
   config(isInitialized, context) {
-    let defaultHeight;
-
-    if (!isInitialized) {
-      defaultHeight = this.$().height();
-    }
-
     if (isInitialized) return;
 
     // Since this component is a part of the global UI that persists between
     // routes, we will flag the DOM to be retained across route changes.
     context.retain = true;
 
-    // Initialize the composer's intended height based on what the user has set
-    // it at previously, or otherwise the composer's default height. After that,
-    // we'll hide the composer.
-    this.height = localStorage.getItem('composerHeight') || defaultHeight;
-    this.$().hide().css('bottom', -this.height);
+    this.height.init();
+    this.$().hide().css('bottom', -this.computedHeight());
 
     // Whenever any of the inputs inside the composer are have focus, we want to
     // add a class to the composer to draw attention to it.
@@ -172,7 +149,7 @@ class Composer extends Component {
     // height so that it fills the height of the composer, and update the
     // body's padding.
     const deltaPixels = this.mouseStart - e.clientY;
-    this.height = this.heightStart + deltaPixels;
+    this.height.setHeight(this.heightStart + deltaPixels);
     this.updateHeight();
 
     // Update the body's padding-bottom so that no content on the page will ever
@@ -182,8 +159,6 @@ class Composer extends Component {
     const scrollTop = $(window).scrollTop();
     const anchorToBottom = scrollTop > 0 && scrollTop + $(window).height() >= $(document).height();
     this.updateBodyPadding(anchorToBottom);
-
-    localStorage.setItem('composerHeight', this.height);
   }
 
   /**
