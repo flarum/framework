@@ -11,13 +11,17 @@
 
 namespace Flarum\Forum;
 
+use Flarum\Core\Exception\ValidationException;
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
+use Flarum\Event\PrepareSerializedSetting;
 use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
+use Less_Exception_Parser;
+use Less_Parser;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
@@ -43,6 +47,8 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
+
+        $this->checkCustomLessFormatBeforeSaving();
 
         $this->flushWebAppAssetsWhenThemeChanged();
 
@@ -139,6 +145,25 @@ class ForumServiceProvider extends AbstractServiceProvider
             'default',
             $toDefaultController
         );
+    }
+
+    protected function checkCustomLessFormatBeforeSaving()
+    {
+        $this->app->make('events')->listen(PrepareSerializedSetting::class, function (PrepareSerializedSetting $event) {
+            if ($event->key === 'custom_less') {
+                $parser = new Less_Parser();
+
+                try {
+                    // Check the custom less format before saving
+                    // variables names are not checked, we would have to set them and call getCss() to check them
+                    $parser->parse($event->value);
+                } catch(Less_Exception_Parser $e) {
+                    throw new ValidationException([
+                        'custom_less' => $e->getMessage(),
+                    ]);
+                }
+            }
+        });
     }
 
     protected function flushWebAppAssetsWhenThemeChanged()
