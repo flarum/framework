@@ -46,7 +46,7 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
-        $this->loadViewsFrom(__DIR__ . '/../../views', 'flarum.forum');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
         $this->checkCustomLessFormatBeforeSaving();
 
