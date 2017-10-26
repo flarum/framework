@@ -46,7 +46,7 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
+        $this->loadViewsFrom(__DIR__ . '/../../views', 'flarum.forum');
 
         $this->checkCustomLessFormatBeforeSaving();
 
@@ -157,7 +157,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                     // Check the custom less format before saving
                     // variables names are not checked, we would have to set them and call getCss() to check them
                     $parser->parse($event->value);
-                } catch(Less_Exception_Parser $e) {
+                } catch (Less_Exception_Parser $e) {
                     throw new ValidationException([
                         'custom_less' => $e->getMessage(),
                     ]);
