@@ -27,6 +27,21 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
         $locales->addLocale($this->getDefaultLocale(), 'Default');
 
+        // If the app isn't installed the flarum-ext-english extension is loaded manually
+        if (! $this->app->isInstalled()) {
+            $path = $this->app->basePath().'/vendor/flarum/flarum-ext-english/bootstrap.php';
+
+            // If the extension exists we'll use it otherwise the fallback translator is used
+            if (realpath($path)) {
+                $bootstrapper = require $path;
+                $this->app->call($bootstrapper);
+            } else {
+                $this->app->singleton('translator', function () {
+                    return new FallbackTranslator();
+                });
+            }
+        }
+
         $events->fire(new ConfigureLocales($locales));
     }
 
