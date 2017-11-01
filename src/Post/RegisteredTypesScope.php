@@ -13,9 +13,9 @@ namespace Flarum\Post;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ScopeInterface;
+use Illuminate\Database\Eloquent\Scope;
 
-class RegisteredTypesScope implements ScopeInterface
+class RegisteredTypesScope implements Scope
 {
     /**
      * The index at which we added a where clause.
