@@ -17,16 +17,46 @@ use Flarum\Foundation\Application;
 class CookieFactory
 {
     /**
-     * @var Application
+     * The prefix for the cookie names.
+     *
+     * @var string
      */
-    protected $app;
+    protected $prefix;
+
+    /**
+     * A path scope for the cookies.
+     *
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * A domain scope for the cookies.
+     *
+     * @var string
+     */
+    protected $domain;
+
+    /**
+     * Whether the cookie(s) can be requested only over HTTPS.
+     *
+     * @var bool
+     */
+    protected $secure;
 
     /**
      * @param Application $app
      */
     public function __construct(Application $app)
     {
-        $this->app = $app;
+        // Parse the forum's base URL so that we can determine the optimal cookie settings
+        $url = parse_url(rtrim($app->url(), '/'));
+
+        // Get the cookie settings from the config or use the default values
+        $this->prefix = $app->config('cookie.name', 'flarum');
+        $this->path = $app->config('cookie.path', array_get($url, 'path') ?: '/');
+        $this->domain = $app->config('cookie.domain');
+        $this->secure = $app->config('cookie.secure', array_get($url, 'scheme') === 'https');
     }
 
     /**
@@ -42,9 +72,6 @@ class CookieFactory
      */
     public function make($name, $value = null, $maxAge = null)
     {
-        // Parse the forum's base URL so that we can determine the optimal cookie settings
-        $url = parse_url(rtrim($this->app->url(), '/'));
-
         $cookie = SetCookie::create($this->getName($name), $value);
 
         // Make sure we send both the MaxAge and Expires parameters (the former
@@ -55,16 +82,13 @@ class CookieFactory
                 ->withExpires(time() + $maxAge);
         }
 
-        if ($domain = $this->app->config('cookie.domain')) {
-            $cookie = $cookie->withDomain($domain);
+        if ($this->domain != null) {
+            $cookie = $cookie->withDomain($this->domain);
         }
 
-        $path = $this->app->config('cookie.path', array_get($url, 'path') ?: '/');
-        $secure = $this->app->config('cookie.secure', array_get($url, 'scheme') === 'https');
-
         return $cookie
-            ->withPath($path)
-            ->withSecure($secure)
+            ->withPath($this->path)
+            ->withSecure($this->secure)
             ->withHttpOnly(true);
     }
 
@@ -87,6 +111,6 @@ class CookieFactory
      */
     public function getName($name)
     {
-        return $this->app->config('cookie.name', 'flarum').'_'.$name;
+        return $this->prefix.'_'.$name;
     }
 }
