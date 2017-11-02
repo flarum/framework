@@ -22451,10 +22451,6 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
         password: Model.attribute('password'),
 
         avatarUrl: Model.attribute('avatarUrl'),
-        bio: Model.attribute('bio'),
-        bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({ rel: 'nofollow' }) + '</p>' : '';
-        }),
         preferences: Model.attribute('preferences'),
         groups: Model.hasMany('groups'),
 
