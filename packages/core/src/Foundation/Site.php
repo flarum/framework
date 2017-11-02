@@ -13,6 +13,7 @@ namespace Flarum\Foundation;
 
 use Flarum\Admin\AdminServiceProvider;
 use Flarum\Api\ApiServiceProvider;
+use Flarum\Bus\BusServiceProvider as BusProvider;
 use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Database\MigrationServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
@@ -165,6 +166,8 @@ class Site
         $app->register(MailServiceProvider::class);
         $app->register(ViewServiceProvider::class);
         $app->register(ValidationServiceProvider::class);
+
+        $app->register(BusProvider::class);
 
         if ($app->isInstalled() && $app->isUpToDate()) {
             $settings = $app->make(SettingsRepositoryInterface::class);
