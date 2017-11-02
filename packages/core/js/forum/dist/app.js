@@ -28478,143 +28478,10 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 });;
 'use strict';
 
-System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export, _context) {
+System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export, _context) {
   "use strict";
 
-  var Component, LoadingIndicator, classList, extractText, UserBio;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent.default;
-    }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
-    }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList.default;
-    }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText.default;
-    }],
-    execute: function () {
-      UserBio = function (_Component) {
-        babelHelpers.inherits(UserBio, _Component);
-
-        function UserBio() {
-          babelHelpers.classCallCheck(this, UserBio);
-          return babelHelpers.possibleConstructorReturn(this, (UserBio.__proto__ || Object.getPrototypeOf(UserBio)).apply(this, arguments));
-        }
-
-        babelHelpers.createClass(UserBio, [{
-          key: 'init',
-          value: function init() {
-            /**
-             * Whether or not the bio is currently being edited.
-             *
-             * @type {Boolean}
-             */
-            this.editing = false;
-
-            /**
-             * Whether or not the bio is currently being saved.
-             *
-             * @type {Boolean}
-             */
-            this.loading = false;
-          }
-        }, {
-          key: 'view',
-          value: function view() {
-            var user = this.props.user;
-            var content = void 0;
-
-            if (this.editing) {
-              content = m('textarea', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.user.bio_placeholder')), rows: '3', value: user.bio() });
-            } else {
-              var subContent = void 0;
-
-              if (this.loading) {
-                subContent = m(
-                  'p',
-                  { className: 'UserBio-placeholder' },
-                  LoadingIndicator.component({ size: 'tiny' })
-                );
-              } else {
-                var bioHtml = user.bioHtml();
-
-                if (bioHtml) {
-                  subContent = m.trust(bioHtml);
-                } else if (this.props.editable) {
-                  subContent = m(
-                    'p',
-                    { className: 'UserBio-placeholder' },
-                    app.translator.trans('core.forum.user.bio_placeholder')
-                  );
-                }
-              }
-
-              content = m(
-                'div',
-                { className: 'UserBio-content', onclick: this.edit.bind(this) },
-                subContent
-              );
-            }
-
-            return m(
-              'div',
-              { className: 'UserBio ' + classList({
-                  editable: this.props.editable,
-                  editing: this.editing
-                }) },
-              content
-            );
-          }
-        }, {
-          key: 'edit',
-          value: function edit() {
-            if (!this.props.editable) return;
-
-            this.editing = true;
-            m.redraw();
-
-            var bio = this;
-            var save = function save(e) {
-              if (e.shiftKey) return;
-              e.preventDefault();
-              bio.save($(this).val());
-            };
-
-            this.$('textarea').focus().bind('blur', save).bind('keydown', 'return', save);
-          }
-        }, {
-          key: 'save',
-          value: function save(value) {
-            var _this2 = this;
-
-            var user = this.props.user;
-
-            if (user.bio() !== value) {
-              this.loading = true;
-
-              user.save({ bio: value }).catch(function () {}).then(function () {
-                _this2.loading = false;
-                m.redraw();
-              });
-            }
-
-            this.editing = false;
-            m.redraw();
-          }
-        }]);
-        return UserBio;
-      }(Component);
-
-      _export('default', UserBio);
-    }
-  };
-});;
-'use strict';
-
-System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export, _context) {
-  "use strict";
-
-  var Component, humanTime, ItemList, UserControls, avatar, username, icon, Dropdown, UserBio, AvatarEditor, listItems, UserCard;
+  var Component, humanTime, ItemList, UserControls, avatar, username, icon, Dropdown, AvatarEditor, listItems, UserCard;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -28632,8 +28499,6 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
       icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsDropdown) {
       Dropdown = _flarumComponentsDropdown.default;
-    }, function (_flarumComponentsUserBio) {
-      UserBio = _flarumComponentsUserBio.default;
     }, function (_flarumComponentsAvatarEditor) {
       AvatarEditor = _flarumComponentsAvatarEditor.default;
     }, function (_flarumHelpersListItems) {
@@ -28712,11 +28577,6 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
             var items = new ItemList();
             var user = this.props.user;
             var lastSeenTime = user.lastSeenTime();
-
-            items.add('bio', UserBio.component({
-              user: user,
-              editable: this.props.editable
-            }));
 
             if (lastSeenTime) {
               var online = user.isOnline();
@@ -30541,10 +30401,6 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
         password: Model.attribute('password'),
 
         avatarUrl: Model.attribute('avatarUrl'),
-        bio: Model.attribute('bio'),
-        bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({ rel: 'nofollow' }) + '</p>' : '';
-        }),
         preferences: Model.attribute('preferences'),
         groups: Model.hasMany('groups'),
 

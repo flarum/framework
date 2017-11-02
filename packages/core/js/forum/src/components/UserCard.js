@@ -6,7 +6,6 @@ import avatar from 'flarum/helpers/avatar';
 import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 import Dropdown from 'flarum/components/Dropdown';
-import UserBio from 'flarum/components/UserBio';
 import AvatarEditor from 'flarum/components/AvatarEditor';
 import listItems from 'flarum/helpers/listItems';
 
@@ -81,13 +80,6 @@ export default class UserCard extends Component {
     const items = new ItemList();
     const user = this.props.user;
     const lastSeenTime = user.lastSeenTime();
-
-    items.add('bio',
-      UserBio.component({
-        user,
-        editable: this.props.editable
-      })
-    );
 
     if (lastSeenTime) {
       const online = user.isOnline();
