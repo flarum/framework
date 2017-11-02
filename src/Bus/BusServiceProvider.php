@@ -17,7 +17,7 @@ use Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 
 class BusServiceProvider extends AbstractServiceProvider
 {
-    public function boot()
+    public function register()
     {
         $this->app->bind(BusContract::class, function ($app) {
             return new Dispatcher($app, function ($connection = null) use ($app) {
