@@ -377,7 +377,6 @@ core:
       avatar_remove_button: Remove
       avatar_upload_button: Upload
       avatar_upload_tooltip: Upload a new avatar
-      bio_placeholder: Write something about yourself
       discussions_link: => core.ref.discussions
       in_discussion_text: "In {discussion}"
       joined_date_text: "Joined {ago}"
