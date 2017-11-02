@@ -40,7 +40,6 @@ class UserSerializer extends UserBasicSerializer
         $canEdit = $gate->allows('edit', $user);
 
         $attributes += [
-            'bio'              => $user->bio,
             'joinTime'         => $this->formatDate($user->join_time),
             'discussionsCount' => (int) $user->discussions_count,
             'commentsCount'    => (int) $user->comments_count,
