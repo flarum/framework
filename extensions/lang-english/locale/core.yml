@@ -41,7 +41,7 @@ core:
       forum_description_text: Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
       forum_title_heading: Forum Title
       home_page_heading: Home Page
-      home_page_text: "Choose the page which users will first see when they visit your forum."
+      home_page_text: Choose the page which users will first see when they visit your forum.
       saved_message: Your changes were saved.
       show_language_selector_label: Show language selector
       submit_button: => core.ref.save_changes
