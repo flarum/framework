@@ -20413,10 +20413,10 @@ System.register('flarum/components/DiscussionComposer', ['flarum/components/Comp
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionHeader', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
+System.register('flarum/components/DiscussionHero', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/listItems'], function (_export, _context) {
   "use strict";
 
-  var Component, ItemList, listItems, DiscussionHeader;
+  var Component, ItemList, listItems, DiscussionHero;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -20426,24 +20426,28 @@ System.register('flarum/components/DiscussionHeader', ['flarum/Component', 'flar
       listItems = _flarumHelpersListItems.default;
     }],
     execute: function () {
-      DiscussionHeader = function (_Component) {
-        babelHelpers.inherits(DiscussionHeader, _Component);
+      DiscussionHero = function (_Component) {
+        babelHelpers.inherits(DiscussionHero, _Component);
 
-        function DiscussionHeader() {
-          babelHelpers.classCallCheck(this, DiscussionHeader);
-          return babelHelpers.possibleConstructorReturn(this, (DiscussionHeader.__proto__ || Object.getPrototypeOf(DiscussionHeader)).apply(this, arguments));
+        function DiscussionHero() {
+          babelHelpers.classCallCheck(this, DiscussionHero);
+          return babelHelpers.possibleConstructorReturn(this, (DiscussionHero.__proto__ || Object.getPrototypeOf(DiscussionHero)).apply(this, arguments));
         }
 
-        babelHelpers.createClass(DiscussionHeader, [{
+        babelHelpers.createClass(DiscussionHero, [{
           key: 'view',
           value: function view() {
             return m(
               'header',
-              { className: 'DiscussionHeader' },
+              { className: 'Hero DiscussionHero' },
               m(
-                'ul',
-                { className: 'DiscussionHeader-items' },
-                listItems(this.items().toArray())
+                'div',
+                { className: 'container' },
+                m(
+                  'ul',
+                  { className: 'DiscussionHero-items' },
+                  listItems(this.items().toArray())
+                )
               )
             );
           }
@@ -20457,24 +20461,24 @@ System.register('flarum/components/DiscussionHeader', ['flarum/Component', 'flar
             if (badges.length) {
               items.add('badges', m(
                 'ul',
-                { className: 'DiscussionHeader-badges badges' },
+                { className: 'DiscussionHero-badges badges' },
                 listItems(badges)
               ), 10);
             }
 
             items.add('title', m(
               'h2',
-              { className: 'DiscussionHeader-title' },
+              { className: 'DiscussionHero-title' },
               discussion.title()
             ));
 
             return items;
           }
         }]);
-        return DiscussionHeader;
+        return DiscussionHero;
       }(Component);
 
-      _export('default', DiscussionHeader);
+      _export('default', DiscussionHero);
     }
   };
 });;
@@ -20910,17 +20914,17 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
 });;
 'use strict';
 
-System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHeader', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls', 'flarum/utils/affixSidebar'], function (_export, _context) {
+System.register('flarum/components/DiscussionPage', ['flarum/components/Page', 'flarum/utils/ItemList', 'flarum/components/DiscussionHero', 'flarum/components/PostStream', 'flarum/components/PostStreamScrubber', 'flarum/components/LoadingIndicator', 'flarum/components/SplitDropdown', 'flarum/helpers/listItems', 'flarum/utils/DiscussionControls'], function (_export, _context) {
   "use strict";
 
-  var Page, ItemList, DiscussionHeader, PostStream, PostStreamScrubber, LoadingIndicator, SplitDropdown, listItems, DiscussionControls, affixSidebar, DiscussionPage;
+  var Page, ItemList, DiscussionHero, PostStream, PostStreamScrubber, LoadingIndicator, SplitDropdown, listItems, DiscussionControls, DiscussionPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
-    }, function (_flarumComponentsDiscussionHeader) {
-      DiscussionHeader = _flarumComponentsDiscussionHeader.default;
+    }, function (_flarumComponentsDiscussionHero) {
+      DiscussionHero = _flarumComponentsDiscussionHero.default;
     }, function (_flarumComponentsPostStream) {
       PostStream = _flarumComponentsPostStream.default;
     }, function (_flarumComponentsPostStreamScrubber) {
@@ -20933,8 +20937,6 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
       listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsDiscussionControls) {
       DiscussionControls = _flarumUtilsDiscussionControls.default;
-    }, function (_flarumUtilsAffixSidebar) {
-      affixSidebar = _flarumUtilsAffixSidebar.default;
     }],
     execute: function () {
       DiscussionPage = function (_Page) {
@@ -21035,12 +21037,12 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
               m(
                 'div',
                 { className: 'DiscussionPage-discussion' },
-                discussion ? m(
+                discussion ? [DiscussionHero.component({ discussion: discussion }), m(
                   'div',
                   { className: 'container' },
                   m(
                     'nav',
-                    { className: 'DiscussionPage-nav', config: affixSidebar },
+                    { className: 'DiscussionPage-nav' },
                     m(
                       'ul',
                       null,
@@ -21050,10 +21052,9 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
                   m(
                     'div',
                     { className: 'DiscussionPage-stream' },
-                    DiscussionHeader.component({ discussion: discussion }),
                     this.stream.render()
                   )
-                ) : LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                )] : LoadingIndicator.component({ className: 'LoadingIndicator--block' })
               )
             );
           }
