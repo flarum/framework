@@ -22359,6 +22359,10 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
 
+              if ($menu.offset().top < 0) {
+                $menu.removeClass('Dropdown-menu--top');
+              }
+
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
             });
 
@@ -25654,7 +25658,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             this.visibleEnd = this.count();
 
-            this.loadRange(this.visibleStart, this.visibleEnd).then(function () {
+            return this.loadRange(this.visibleStart, this.visibleEnd).then(function () {
               return m.redraw();
             });
           }
@@ -27033,9 +27037,11 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
 
             app.store.createRecord('posts').save(data).then(function (post) {
               // If we're currently viewing the discussion which this reply was made
-              // in, then we can update the post stream.
+              // in, then we can update the post stream and scroll to the post.
               if (app.viewingDiscussion(discussion)) {
-                app.current.stream.update();
+                app.current.stream.update().then(function () {
+                  return app.current.stream.goToNumber(post.number());
+                });
               } else {
                 // Otherwise, we'll create an alert message to inform the user that
                 // their reply has been posted, containing a button which will
@@ -28413,7 +28419,8 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
               items.add('preview', Button.component({
                 icon: 'eye',
                 className: 'Button Button--icon',
-                onclick: this.props.preview
+                onclick: this.props.preview,
+                title: app.translator.trans('core.forum.composer.preview_tooltip')
               }));
             }
 
@@ -31279,7 +31286,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
               }
               app.composer.show();
 
-              if (goToLast && app.viewingDiscussion(this)) {
+              if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
                 app.current.stream.goToNumber('reply');
               }
 
@@ -31489,7 +31496,7 @@ System.register('flarum/utils/extractText', [], function (_export, _context) {
       return vdom.map(function (element) {
         return extractText(element);
       }).join('');
-    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object') {
+    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object' && vdom !== null) {
       return extractText(vdom.children);
     } else {
       return vdom;
@@ -32107,7 +32114,12 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
       }
 
       if (comp.prototype && comp.prototype instanceof Component) {
-        return comp.component.apply(comp, args);
+        var children = args.slice(1);
+        if (children.length === 1 && Array.isArray(children[0])) {
+          children = children[0];
+        }
+
+        return comp.component(args[0], children);
       }
 
       var node = mo.apply(this, arguments);
