@@ -82,7 +82,8 @@ export default class TextEditor extends Component {
         Button.component({
           icon: 'eye',
           className: 'Button Button--icon',
-          onclick: this.props.preview
+          onclick: this.props.preview,
+          title: app.translator.trans('core.forum.composer.preview_tooltip')
         })
       );
     }
