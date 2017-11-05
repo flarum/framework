@@ -78,11 +78,7 @@ export default function boot(app) {
       .toggleClass('scrolled', top > offset);
   }).start();
 
-  // Initialize FastClick, which makes links and buttons much more responsive on
-  // touch devices.
   $(() => {
-    FastClick.attach(document.body);
-
     $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
   });
 
