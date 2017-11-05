@@ -81,6 +81,10 @@ class RevisionCompiler implements CompilerInterface
                 $cacheDifferentiator[] = [$source, filemtime($source)];
             }
 
+            foreach ($this->strings as $callback) {
+                $cacheDifferentiator[] = $callback();
+            }
+
             $current = hash('crc32b', serialize($cacheDifferentiator));
         }
 
