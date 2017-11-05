@@ -17536,11 +17536,13 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
         babelHelpers.createClass(AdminNav, [{
           key: 'view',
           value: function view() {
-            return m(SelectDropdown, {
-              className: 'AdminNav App-titleControl',
-              buttonClassName: 'Button',
-              children: this.items().toArray()
-            });
+            return m(
+              SelectDropdown,
+              {
+                className: 'AdminNav App-titleControl',
+                buttonClassName: 'Button' },
+              this.items().toArray()
+            );
           }
         }, {
           key: 'items',
@@ -17832,8 +17834,8 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
                     m(
                       'div',
                       { className: 'AppearancePage-colors-input' },
-                      m('input', { className: 'FormControl', type: 'color', placeholder: '#aaaaaa', value: this.primaryColor(), onchange: m.withAttr('value', this.primaryColor) }),
-                      m('input', { className: 'FormControl', type: 'color', placeholder: '#aaaaaa', value: this.secondaryColor(), onchange: m.withAttr('value', this.secondaryColor) })
+                      m('input', { className: 'FormControl', type: 'text', placeholder: '#aaaaaa', value: this.primaryColor(), onchange: m.withAttr('value', this.primaryColor) }),
+                      m('input', { className: 'FormControl', type: 'text', placeholder: '#aaaaaa', value: this.secondaryColor(), onchange: m.withAttr('value', this.secondaryColor) })
                     ),
                     Switch.component({
                       state: this.darkMode(),
@@ -18508,6 +18510,10 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
               $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+
+              if ($menu.offset().top < 0) {
+                $menu.removeClass('Dropdown-menu--top');
+              }
 
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
             });
@@ -23313,7 +23319,7 @@ System.register('flarum/utils/extractText', [], function (_export, _context) {
       return vdom.map(function (element) {
         return extractText(element);
       }).join('');
-    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object') {
+    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object' && vdom !== null) {
       return extractText(vdom.children);
     } else {
       return vdom;
@@ -23599,7 +23605,12 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
       }
 
       if (comp.prototype && comp.prototype instanceof Component) {
-        return comp.component.apply(comp, args);
+        var children = args.slice(1);
+        if (children.length === 1 && Array.isArray(children[0])) {
+          children = children[0];
+        }
+
+        return comp.component(args[0], children);
       }
 
       var node = mo.apply(this, arguments);
