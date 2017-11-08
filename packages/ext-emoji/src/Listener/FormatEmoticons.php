@@ -40,7 +40,6 @@ class FormatEmoticons
         $event->configurator->Emoji->addAlias(';)', '😉');
         $event->configurator->Emoji->addAlias(':\'(', '😢');
         $event->configurator->Emoji->addAlias(':O', '😮');
-        $event->configurator->Emoji->addAlias('B)', '😎');
         $event->configurator->Emoji->addAlias('>:(', '😡');
     }
 }
