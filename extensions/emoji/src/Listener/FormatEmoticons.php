@@ -30,6 +30,7 @@ class FormatEmoticons
     public function addEmoticons(ConfigureFormatter $event)
     {
         $event->configurator->Emoji->useEmojiOne();
+        $event->configurator->Emoji->omitImageSize();
         $event->configurator->Emoji->useSVG();
 
         $event->configurator->Emoji->addAlias(':)', '🙂');
