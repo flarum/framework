@@ -1011,18 +1011,26 @@ System.register('flarum/mentions/components/PostQuoteButton', ['flarum/component
             $(document).on('mousedown', this.hide.bind(this));
           }
         }, {
+          key: 'show',
+          value: function show(left, top) {
+            var $this = this.$().show();
+            var parentOffset = $this.offsetParent().offset();
+
+            $this.css('left', left - parentOffset.left).css('top', top - parentOffset.top);
+          }
+        }, {
           key: 'showStart',
           value: function showStart(left, top) {
             var $this = this.$();
 
-            $this.show().css('left', left).css('top', $(window).scrollTop() + top - $this.outerHeight() - 5);
+            this.show(left, $(window).scrollTop() + top - $this.outerHeight() - 5);
           }
         }, {
           key: 'showEnd',
           value: function showEnd(right, bottom) {
             var $this = this.$();
 
-            $this.show().css('left', right - $this.outerWidth()).css('top', $(window).scrollTop() + bottom + 5);
+            this.show(right - $this.outerWidth(), $(window).scrollTop() + bottom + 5);
           }
         }, {
           key: 'hide',
