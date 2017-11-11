@@ -12,7 +12,7 @@
 namespace Flarum\Tags\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Api\Serializer\DiscussionBasicSerializer;
 
 class TagSerializer extends AbstractSerializer
 {
@@ -64,6 +64,6 @@ class TagSerializer extends AbstractSerializer
      */
     protected function lastDiscussion($tag)
     {
-        return $this->hasOne($tag, DiscussionSerializer::class);
+        return $this->hasOne($tag, DiscussionBasicSerializer::class);
     }
 }
