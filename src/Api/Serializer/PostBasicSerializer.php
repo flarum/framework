@@ -12,6 +12,7 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Core\Post;
+use Flarum\Core\Post\CommentPost;
 use InvalidArgumentException;
 
 class PostBasicSerializer extends AbstractSerializer
@@ -41,6 +42,12 @@ class PostBasicSerializer extends AbstractSerializer
             'time'        => $this->formatDate($post->time),
             'contentType' => $post->type
         ];
+
+        if ($post instanceof CommentPost) {
+            $attributes['contentHtml'] = $post->content_html;
+        } else {
+            $attributes['content'] = $post->content;
+        }
 
         return $attributes;
     }
