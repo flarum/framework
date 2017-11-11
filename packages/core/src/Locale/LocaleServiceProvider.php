@@ -41,7 +41,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
         $this->app->singleton('translator', function () {
             $defaultLocale = $this->getDefaultLocale();
 
-            $translator = new Translator($defaultLocale, new MessageSelector());
+            $translator = new Translator($defaultLocale, null, $this->app->storagePath().'/locale', $this->app->inDebugMode());
             $translator->setFallbackLocales([$defaultLocale, 'en']);
             $translator->addLoader('prefixed_yaml', new PrefixedYamlFileLoader());
 
