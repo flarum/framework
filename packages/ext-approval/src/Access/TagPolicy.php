@@ -29,7 +29,11 @@ class TagPolicy extends AbstractPolicy
      */
     public function addToDiscussion(User $actor, Tag $tag)
     {
-        $disallowedTags = Tag::getIdsWhereCannot($actor, 'discussion.startWithoutApproval');
+        static $disallowedTags;
+
+        if (! $disallowedTags) {
+            $disallowedTags = Tag::getIdsWhereCannot($actor, 'discussion.startWithoutApproval');
+        }
 
         if (in_array($tag->id, $disallowedTags)) {
             return false;
