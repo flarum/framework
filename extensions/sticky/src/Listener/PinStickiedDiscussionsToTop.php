@@ -69,7 +69,7 @@ class PinStickiedDiscussionsToTop
             if (empty($gambits)) {
                 $sticky = clone $query;
                 $sticky->where('is_sticky', true);
-                $sticky->limit = $sticky->offset = $sticky->orders = null;
+                $sticky->orders = null;
 
                 $query->union($sticky);
 
@@ -89,6 +89,9 @@ class PinStickiedDiscussionsToTop
                 $query->unionOrders = array_merge($query->unionOrders, $query->orders);
                 $query->unionLimit = $query->limit;
                 $query->unionOffset = $query->offset;
+
+                $query->limit = $sticky->limit = $query->offset + $query->limit;
+                $query->offset = $sticky->offset = null;
             }
         }
     }
