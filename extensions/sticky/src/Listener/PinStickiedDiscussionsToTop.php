@@ -45,16 +45,16 @@ class PinStickiedDiscussionsToTop
             $search = $event->search;
             $query = $search->getQuery();
 
-            if (! is_array($query->orders)) {
-                $query->orders = [];
-            }
-
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
             $gambits = $search->getActiveGambits();
 
             foreach ($gambits as $gambit) {
                 if ($gambit instanceof TagGambit) {
+                    if (! is_array($query->orders)) {
+                        $query->orders = [];
+                    }
+
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
 
                     return;
