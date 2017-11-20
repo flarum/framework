@@ -18948,6 +18948,13 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
              * @type {Boolean}
              */
             this.loading = false;
+
+            /**
+             * Whether or not an image has been dragged over the dropzone.
+             *
+             * @type {Boolean}
+             */
+            this.isDraggedOver = false;
           }
         }, {
           key: 'view',
@@ -18956,14 +18963,19 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
 
             return m(
               'div',
-              { className: 'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') },
+              { className: 'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') + (this.isDraggedOver ? ' dragover' : '') },
               avatar(user),
               m(
                 'a',
                 { className: user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar",
                   title: app.translator.trans('core.forum.user.avatar_upload_tooltip'),
                   'data-toggle': 'dropdown',
-                  onclick: this.quickUpload.bind(this) },
+                  onclick: this.quickUpload.bind(this),
+                  ondragover: this.enableDragover.bind(this),
+                  ondragenter: this.enableDragover.bind(this),
+                  ondragleave: this.disableDragover.bind(this),
+                  ondragend: this.disableDragover.bind(this),
+                  ondrop: this.dropUpload.bind(this) },
                 this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('pencil') : icon('plus-circle')
               ),
               m(
@@ -18981,7 +18993,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             items.add('upload', Button.component({
               icon: 'upload',
               children: app.translator.trans('core.forum.user.avatar_upload_button'),
-              onclick: this.upload.bind(this)
+              onclick: this.openPicker.bind(this)
             }));
 
             items.add('remove', Button.component({
@@ -18993,17 +19005,39 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             return items;
           }
         }, {
+          key: 'enableDragover',
+          value: function enableDragover(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isDraggedOver = true;
+          }
+        }, {
+          key: 'disableDragover',
+          value: function disableDragover(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isDraggedOver = false;
+          }
+        }, {
+          key: 'dropUpload',
+          value: function dropUpload(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isDraggedOver = false;
+            this.upload(e.dataTransfer.files[0]);
+          }
+        }, {
           key: 'quickUpload',
           value: function quickUpload(e) {
             if (!this.props.user.avatarUrl()) {
               e.preventDefault();
               e.stopPropagation();
-              this.upload();
+              this.openPicker();
             }
           }
         }, {
-          key: 'upload',
-          value: function upload() {
+          key: 'openPicker',
+          value: function openPicker() {
             var _this2 = this;
 
             if (this.loading) return;
@@ -19014,21 +19048,29 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             var $input = $('<input type="file">');
 
             $input.appendTo('body').hide().click().on('change', function (e) {
-              var data = new FormData();
-              data.append('avatar', $(e.target)[0].files[0]);
-
-              _this2.loading = true;
-              m.redraw();
-
-              app.request({
-                method: 'POST',
-                url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
-                serialize: function serialize(raw) {
-                  return raw;
-                },
-                data: data
-              }).then(_this2.success.bind(_this2), _this2.failure.bind(_this2));
+              _this2.upload($(e.target)[0].files[0]);
             });
+          }
+        }, {
+          key: 'upload',
+          value: function upload(file) {
+            if (this.loading) return;
+
+            var user = this.props.user;
+            var data = new FormData();
+            data.append('avatar', file);
+
+            this.loading = true;
+            m.redraw();
+
+            app.request({
+              method: 'POST',
+              url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
+              serialize: function serialize(raw) {
+                return raw;
+              },
+              data: data
+            }).then(this.success.bind(this), this.failure.bind(this));
           }
         }, {
           key: 'remove',
@@ -27955,14 +27997,21 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
       UsersSearchResults = function () {
         function UsersSearchResults() {
           babelHelpers.classCallCheck(this, UsersSearchResults);
+
+          this.results = {};
         }
 
         babelHelpers.createClass(UsersSearchResults, [{
           key: 'search',
           value: function search(query) {
+            var _this = this;
+
             return app.store.find('users', {
               filter: { q: query },
               page: { limit: 5 }
+            }).then(function (results) {
+              _this.results[query] = results;
+              m.redraw();
             });
           }
         }, {
@@ -27970,10 +28019,14 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
           value: function view(query) {
             query = query.toLowerCase();
 
-            var results = app.store.all('users').filter(function (user) {
+            var results = (this.results[query] || []).concat(app.store.all('users').filter(function (user) {
               return [user.username(), user.displayName()].some(function (value) {
                 return value.toLowerCase().substr(0, query.length) === query;
               });
+            })).filter(function (e, i, arr) {
+              return arr.lastIndexOf(e) === i;
+            }).sort(function (a, b) {
+              return a.displayName().localeCompare(b.displayName());
             });
 
             if (!results.length) return '';
