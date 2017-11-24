@@ -11,7 +11,6 @@
 
 namespace Flarum\Forum;
 
-use Flarum\Core\Listener\CheckCustomLessFormat;
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
@@ -44,8 +43,6 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
-
-        $this->checkCustomLessFormat();
 
         $this->flushWebAppAssetsWhenThemeChanged();
 
@@ -142,13 +139,6 @@ class ForumServiceProvider extends AbstractServiceProvider
             'default',
             $toDefaultController
         );
-    }
-
-    protected function checkCustomLessFormat()
-    {
-        $events = $this->app->make('events');
-
-        $events->subscribe(CheckCustomLessFormat::class);
     }
 
     protected function flushWebAppAssetsWhenThemeChanged()

@@ -11,6 +11,7 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Core\Listener\CheckCustomLessFormat;
 use Flarum\Event\ExtensionWasDisabled;
 use Flarum\Event\ExtensionWasEnabled;
 use Flarum\Event\SettingWasSet;
@@ -46,6 +47,8 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->flushWebAppAssetsWhenThemeChanged();
 
         $this->flushWebAppAssetsWhenExtensionsChanged();
+
+        $this->checkCustomLessFormat();
     }
 
     /**
@@ -92,5 +95,12 @@ class AdminServiceProvider extends AbstractServiceProvider
     protected function getWebAppAssets()
     {
         return $this->app->make(WebApp::class)->getAssets();
+    }
+
+    protected function checkCustomLessFormat()
+    {
+        $events = $this->app->make('events');
+
+        $events->subscribe(CheckCustomLessFormat::class);
     }
 }
