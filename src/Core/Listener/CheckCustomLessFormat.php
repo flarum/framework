@@ -21,10 +21,10 @@ class CheckCustomLessFormat
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PrepareSerializedSetting::class, [$this, 'checkCustomLessFormatBeforeSaving']);
+        $events->listen(PrepareSerializedSetting::class, [$this, 'check']);
     }
 
-    public function checkCustomLessFormatBeforeSaving(PrepareSerializedSetting $event)
+    public function check(PrepareSerializedSetting $event)
     {
         if ($event->key === 'custom_less') {
             $parser = new Less_Parser();
