@@ -86,7 +86,7 @@ abstract class AbstractWebApp
      */
     protected function getLayout()
     {
-        return __DIR__.'/../../../views/'.$this->getName().'.blade.php';
+        return sprintf('flarum.%s::%s', $this->getName(), $this->getName());
     }
 
     /**
