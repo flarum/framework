@@ -22,6 +22,8 @@ class LocaleManager
 
     protected $locales = [];
 
+    protected $loadedLocales = 0;
+
     protected $js = [];
 
     protected $css = [];
@@ -49,6 +51,12 @@ class LocaleManager
         $this->locales[$locale] = $name;
     }
 
+    public function addLoadedLocale($locale, $name)
+    {
+        $this->addLocale($locale, $name);
+        $this->loadedLocales++;
+    }
+
     public function getLocales()
     {
         return $this->locales;
@@ -57,6 +65,16 @@ class LocaleManager
     public function hasLocale($locale)
     {
         return isset($this->locales[$locale]);
+    }
+
+    /**
+     * Returns the number of locales loaded as Flarum extensions.
+     *
+     * @return int
+     */
+    public function getLoadedLocales()
+    {
+        return $this->loadedLocales;
     }
 
     public function addTranslations($locale, $file, $module = null)

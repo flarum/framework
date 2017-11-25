@@ -197,9 +197,9 @@ abstract class AbstractServer
             foreach ($this->extendCallbacks as $callback) {
                 $app->call($callback);
             }
-
-            $app->register('Flarum\Extension\ExtensionServiceProvider');
         }
+
+        $app->register('Flarum\Extension\ExtensionServiceProvider');
 
         $app->boot();
 
