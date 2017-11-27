@@ -14,11 +14,10 @@ namespace Flarum\Locale;
 use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Translation\Translator;
-use Illuminate\Translation\FileLoader;
-//use Symfony\Component\Translation\MessageSelector;
-//use Symfony\Component\Translation\Translator;
-//use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator as TranslatorContract;
+use Symfony\Component\Translation\MessageSelector;
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
@@ -53,6 +52,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
         });
         $this->app->alias('translator', Translator::class);
         $this->app->alias('translator', TranslatorInterface::class);
+        $this->app->alias('translator', TranslatorContract::class);
     }
 
     private function getDefaultLocale()
