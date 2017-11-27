@@ -16,7 +16,6 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use Symfony\Component\Translation\MessageSelector;
-use Symfony\Component\Translation\TranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
@@ -48,7 +47,6 @@ class LocaleServiceProvider extends AbstractServiceProvider
             return $translator;
         });
         $this->app->alias('translator', Translator::class);
-        $this->app->alias('translator', TranslatorInterface::class);
         $this->app->alias('translator', TranslatorContract::class);
     }
 

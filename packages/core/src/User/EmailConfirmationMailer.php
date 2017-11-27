@@ -18,7 +18,7 @@ use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator;
 
 class EmailConfirmationMailer
 {
@@ -38,7 +38,7 @@ class EmailConfirmationMailer
     protected $url;
 
     /**
-     * @var TranslatorInterface
+     * @var Translator
      */
     protected $translator;
 
@@ -46,9 +46,9 @@ class EmailConfirmationMailer
      * @param \Flarum\Settings\SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
+     * @param Translator $translator
      */
-    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, Translator $translator)
     {
         $this->settings = $settings;
         $this->mailer = $mailer;

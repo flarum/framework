@@ -20,7 +20,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator;
 use Zend\Diactoros\Response\EmptyResponse;
 
 class SendConfirmationEmailController implements ControllerInterface
@@ -43,7 +43,7 @@ class SendConfirmationEmailController implements ControllerInterface
     protected $url;
 
     /**
-     * @var TranslatorInterface
+     * @var Translator
      */
     protected $translator;
 
@@ -51,9 +51,9 @@ class SendConfirmationEmailController implements ControllerInterface
      * @param \Flarum\Settings\SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
+     * @param Translator $translator
      */
-    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, TranslatorInterface $translator)
+    public function __construct(SettingsRepositoryInterface $settings, Mailer $mailer, UrlGenerator $url, Translator $translator)
     {
         $this->settings = $settings;
         $this->mailer = $mailer;
