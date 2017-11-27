@@ -29,6 +29,7 @@ class Translator extends BaseTranslator implements TranslatorContract
         } else {
             $this->assertValidLocale($locale);
         }
+        
         $parse = ! isset($this->catalogues[$locale]);
 
         $catalogue = parent::getCatalogue($locale);
