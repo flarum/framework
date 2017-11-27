@@ -11,7 +11,6 @@
 
 namespace Flarum\Locale;
 
-
 use Illuminate\Contracts\Translation\Translator;
 
 class LocaleManager

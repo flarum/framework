@@ -13,9 +13,9 @@ namespace Flarum\Foundation;
 
 use Flarum\Foundation\Event\Validating;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
-use Illuminate\Contracts\Translation\Translator;
 
 abstract class AbstractValidator
 {

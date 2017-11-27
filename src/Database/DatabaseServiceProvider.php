@@ -14,7 +14,6 @@ namespace Flarum\Database;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\Connectors\ConnectionFactory;
-use PDO;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
