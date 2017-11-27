@@ -36,7 +36,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\Factory;
 use PDO;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator;
 
 class InstallCommand extends AbstractCommand
 {
@@ -409,7 +409,7 @@ class InstallCommand extends AbstractCommand
      */
     protected function getValidator()
     {
-        return new Factory($this->application->make(TranslatorInterface::class));
+        return new Factory($this->application->make(Translator::class));
     }
 
     protected function showErrors($errors)

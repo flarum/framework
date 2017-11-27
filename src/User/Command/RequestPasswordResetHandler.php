@@ -20,7 +20,7 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Message;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator;
 
 class RequestPasswordResetHandler
 {
@@ -45,7 +45,7 @@ class RequestPasswordResetHandler
     protected $url;
 
     /**
-     * @var TranslatorInterface
+     * @var Translator
      */
     protected $translator;
 
@@ -59,7 +59,7 @@ class RequestPasswordResetHandler
      * @param SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
+     * @param Translator $translator
      * @param Factory $validatorFactory
      */
     public function __construct(
@@ -67,7 +67,7 @@ class RequestPasswordResetHandler
         SettingsRepositoryInterface $settings,
         Mailer $mailer,
         UrlGenerator $url,
-        TranslatorInterface $translator,
+        Translator $translator,
         Factory $validatorFactory
     ) {
         $this->users = $users;

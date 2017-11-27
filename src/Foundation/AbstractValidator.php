@@ -15,7 +15,7 @@ use Flarum\Foundation\Event\Validating;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator;
 
 abstract class AbstractValidator
 {
@@ -35,16 +35,16 @@ abstract class AbstractValidator
     protected $events;
 
     /**
-     * @var TranslatorInterface
+     * @var Translator
      */
     protected $translator;
 
     /**
      * @param Factory $validator
      * @param Dispatcher $events
-     * @param TranslatorInterface $translator
+     * @param Translator $translator
      */
-    public function __construct(Factory $validator, Dispatcher $events, TranslatorInterface $translator)
+    public function __construct(Factory $validator, Dispatcher $events, Translator $translator)
     {
         $this->validator = $validator;
         $this->events = $events;
