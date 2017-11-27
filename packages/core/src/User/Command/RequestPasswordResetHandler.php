@@ -16,11 +16,11 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Message;
-use Illuminate\Contracts\Translation\Translator;
 
 class RequestPasswordResetHandler
 {
