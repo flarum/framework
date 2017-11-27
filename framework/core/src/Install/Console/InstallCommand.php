@@ -29,6 +29,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Flarum\User\UserServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Schema\Builder;
@@ -36,7 +37,6 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\Factory;
 use PDO;
 use Symfony\Component\Console\Input\InputOption;
-use Illuminate\Contracts\Translation\Translator;
 
 class InstallCommand extends AbstractCommand
 {

@@ -15,9 +15,9 @@ use DateTime;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Illuminate\Contracts\Translation\Translator;
 
 class ResetPasswordController extends AbstractHtmlController
 {

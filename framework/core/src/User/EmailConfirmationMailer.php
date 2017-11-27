@@ -17,8 +17,8 @@ use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Mail\Message;
 use Illuminate\Contracts\Translation\Translator;
+use Illuminate\Mail\Message;
 
 class EmailConfirmationMailer
 {

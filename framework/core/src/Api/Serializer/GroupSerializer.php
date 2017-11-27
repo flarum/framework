@@ -12,8 +12,8 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Group\Group;
-use InvalidArgumentException;
 use Illuminate\Contracts\Translation\Translator;
+use InvalidArgumentException;
 
 class GroupSerializer extends AbstractSerializer
 {
