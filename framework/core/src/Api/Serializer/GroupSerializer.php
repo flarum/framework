@@ -13,7 +13,7 @@ namespace Flarum\Api\Serializer;
 
 use Flarum\Group\Group;
 use InvalidArgumentException;
-use Symfony\Component\Translation\TranslatorInterface;
+use Illuminate\Contracts\Translation\Translator;
 
 class GroupSerializer extends AbstractSerializer
 {
@@ -23,14 +23,14 @@ class GroupSerializer extends AbstractSerializer
     protected $type = 'groups';
 
     /**
-     * @var TranslatorInterface
+     * @var Translator
      */
     private $translator;
 
     /**
-     * @param TranslatorInterface $translator
+     * @param Translator $translator
      */
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(Translator $translator)
     {
         $this->translator = $translator;
     }
