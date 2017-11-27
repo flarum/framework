@@ -2,12 +2,17 @@
 <html>
 <head lang="en">
   <meta charset="UTF-8">
-  <title></title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>404 Not Found</title>
 </head>
 <body>
 
-<h1>404 Not Found</h1>
-<p>Looks like this page could not be found.</p>
+<h1>Error 404</h1>
+<p>We are looking for your requested page: <code id="uri"></code> but it seems that it doesn’t exist or it has been moved. Sorry!</p>
 
+<script>
+	document.getElementById("uri").innerHTML = "/" + (location.pathname+location.search).substr(1);
+</script>
 </body>
 </html>
