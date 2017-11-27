@@ -11,12 +11,13 @@
 
 namespace Flarum\Locale;
 
-use Symfony\Component\Translation\Translator as SymfonyTranslator;
+
+use Illuminate\Contracts\Translation\Translator;
 
 class LocaleManager
 {
     /**
-     * @var SymfonyTranslator
+     * @var Translator
      */
     protected $translator;
 
@@ -27,9 +28,9 @@ class LocaleManager
     protected $css = [];
 
     /**
-     * @param SymfonyTranslator $translator
+     * @param Translator $translator
      */
-    public function __construct(SymfonyTranslator $translator)
+    public function __construct(Translator $translator)
     {
         $this->translator = $translator;
     }
