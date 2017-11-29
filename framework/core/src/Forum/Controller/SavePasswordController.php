@@ -75,11 +75,12 @@ class SavePasswordController implements ControllerInterface
             $this->validator->assertValid(compact('password'));
 
             $validator = $this->validatorFactory->make($input, ['password' => 'required|confirmed']);
+
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
         } catch (ValidationException $e) {
-            $request->getAttribute('session')->set('error', $e->errors()->first());
+            $request->getAttribute('session')->set('errors', $e->errors());
 
             return new RedirectResponse($this->url->toRoute('resetPassword', ['token' => $token->id]));
         }
