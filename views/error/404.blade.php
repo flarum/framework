@@ -2,7 +2,7 @@
 
 @section('content')
   <p>
-    {{ $translator->trans('core.views.error.404_message') }}
+    {{ $message }}
   </p>
   <p>
     <a href="{{ $app->url() }}">
