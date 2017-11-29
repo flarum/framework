@@ -13,6 +13,7 @@ namespace Flarum\Http\Middleware;
 
 use Exception;
 use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
@@ -21,9 +22,9 @@ use Zend\Diactoros\Response\HtmlResponse;
 class HandleErrors
 {
     /**
-     * @var string
+     * @var ViewFactory
      */
-    protected $templateDir;
+    protected $view;
 
     /**
      * @var LoggerInterface
@@ -36,13 +37,13 @@ class HandleErrors
     protected $debug;
 
     /**
-     * @param string $templateDir
+     * @param ViewFactory $view
      * @param LoggerInterface $logger
      * @param bool $debug
      */
-    public function __construct($templateDir, LoggerInterface $logger, $debug = false)
+    public function __construct(ViewFactory $view, LoggerInterface $logger, $debug = false)
     {
-        $this->templateDir = $templateDir;
+        $this->view = $view;
         $this->logger = $logger;
         $this->debug = $debug;
     }
@@ -75,7 +76,7 @@ class HandleErrors
             $status = $errorCode;
         }
 
-        if ($this->debug && ! in_array($errorCode, [403, 404])) {
+        if ($this->debug) {
             $whoops = new WhoopsMiddleware;
 
             return $whoops($error, $request, $response, $out);
@@ -84,21 +85,8 @@ class HandleErrors
         // Log the exception (with trace)
         $this->logger->debug($error);
 
-        $errorPage = $this->getErrorPage($status);
+        $view = $this->view->make('flarum::error')->with('error', $error);
 
-        return new HtmlResponse($errorPage, $status);
-    }
-
-    /**
-     * @param string $status
-     * @return string
-     */
-    protected function getErrorPage($status)
-    {
-        if (! file_exists($errorPage = $this->templateDir."/$status.html")) {
-            $errorPage = $this->templateDir.'/500.html';
-        }
-
-        return file_get_contents($errorPage);
+        return new HtmlResponse($view->render(), $status);
     }
 }
