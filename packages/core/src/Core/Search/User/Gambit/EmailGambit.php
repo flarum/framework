@@ -42,7 +42,7 @@ class EmailGambit extends AbstractRegexGambit
      */
     public function apply(AbstractSearch $search, $bit)
     {
-        if (! $search->getActor()->isAdmin()) {
+        if (! $search->getActor()->hasPermission('user.edit')) {
             return false;
         }
 
