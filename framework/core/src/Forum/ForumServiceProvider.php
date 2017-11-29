@@ -114,19 +114,19 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
 
         $routes->get(
-            '/confirm/{token}',
+            '/confirm-email/{token}',
             'confirmEmail',
             $route->toController(Controller\ConfirmEmailController::class)
         );
 
         $routes->get(
-            '/reset/{token}',
+            '/reset-password/{token}',
             'resetPassword',
             $route->toController(Controller\ResetPasswordController::class)
         );
 
         $routes->post(
-            '/reset',
+            '/reset-password',
             'savePassword',
             $route->toController(Controller\SavePasswordController::class)
         );
