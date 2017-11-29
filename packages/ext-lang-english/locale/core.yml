@@ -50,14 +50,7 @@ core:
 
     # These translations are used in the Dashboard page.
     dashboard:
-      beta_warning_text: "This <strong>beta software</strong> is provided primarily so that you can help us test it and make it better; it should not be used in production."
-      contributing_text: "Want to look for bugs and contribute? Read the <a>Contributing docs</a>."
-      extension_text: "Interested in developing extensions? Read the <a>Extension docs</a>."
-      features_text: "Got an idea to improve a feature? Tell us about it under the <a>Features tag</a>."
-      support_text: "Found a bug? Please report it in our forum, under the <a>Support tag</a>."
-      troubleshooting_text: "Having problems? Follow the instructions in the <a>Troubleshooting docs</a>."
-      version_text: "Thanks for trying out Flarum! You are running version {version}."
-      welcome_text: "Welcome to Flarum Beta!"
+      help_link: Get Help
 
     # These translations are used in the Edit Custom CSS modal dialog.
     edit_css:
@@ -165,6 +158,16 @@ core:
     # These translations are used in the Settings modal dialog.
     settings:
       submit_button: => core.ref.save_changes
+
+    # These translations are used in the Statistics dashboard widget.
+    statistics:
+      discussions_heading: Discussions
+      last_28_days_label: Last 28 days
+      last_7_days_label: Last 7 days
+      posts_heading: Posts
+      today_label: Today
+      total_label: Total
+      users_heading: Users
 
     # These translations are used in image upload buttons.
     upload_image:
