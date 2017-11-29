@@ -448,10 +448,10 @@ core:
       next_page_button: => core.ref.next_page
 
     # Translations in this namespace are displayed by the Reset Password interface.
-    reset:
-      confirm_password_label: => core.ref.confirm_password
-      password_label: => core.ref.password
-      submit_button: Reset Password
+    reset_password:
+      confirm_password_label: Confirm New Password
+      new_password_label: New Password
+      submit_button: => core.ref.save_changes
       title: => core.ref.reset_your_password
 
   # Translations in this namespace are used in messages output by the API.
