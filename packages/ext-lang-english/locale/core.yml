@@ -442,10 +442,23 @@ core:
       next_page_button: => core.ref.next_page
       previous_page_button: Previous Page
 
+    # Translations in this namespace are displayed when Flarum encounters an error.
+    error:
+      403_message: You do not have permission to access this page.
+      404_message: The page you requested could not be found.
+      500_message: An error occurred while trying to load this page.
+      503_message: "{forum} is undergoing maintenance. Thanks for your patience!"
+
     # Translations in this namespace are displayed by the basic HTML discussion index.
     index:
       all_discussions_heading: => core.ref.all_discussions
       next_page_button: => core.ref.next_page
+
+    # Translations in this namespace are displayed by the Log Out confirmation interface.
+    log_out:
+      log_out_button: => core.ref.log_out
+      log_out_confirmation: "Are you sure you want to log out of {forum}?"
+      title: => core.ref.log_out
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
