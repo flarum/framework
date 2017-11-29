@@ -18358,15 +18358,19 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
     }
   };
 });;
-"use strict";
+'use strict';
 
-System.register("flarum/components/DashboardPage", ["flarum/components/Page"], function (_export, _context) {
+System.register('flarum/components/DashboardPage', ['flarum/components/Page', 'flarum/components/StatusWidget', 'flarum/components/StatisticsWidget'], function (_export, _context) {
   "use strict";
 
-  var Page, DashboardPage;
+  var Page, StatusWidget, StatisticsWidget, DashboardPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
+    }, function (_flarumComponentsStatusWidget) {
+      StatusWidget = _flarumComponentsStatusWidget.default;
+    }, function (_flarumComponentsStatisticsWidget) {
+      StatisticsWidget = _flarumComponentsStatisticsWidget.default;
     }],
     execute: function () {
       DashboardPage = function (_Page) {
@@ -18378,62 +18382,16 @@ System.register("flarum/components/DashboardPage", ["flarum/components/Page"], f
         }
 
         babelHelpers.createClass(DashboardPage, [{
-          key: "view",
+          key: 'view',
           value: function view() {
             return m(
-              "div",
-              { className: "DashboardPage" },
+              'div',
+              { className: 'DashboardPage' },
               m(
-                "div",
-                { className: "container" },
-                m(
-                  "h2",
-                  null,
-                  app.translator.trans('core.admin.dashboard.welcome_text')
-                ),
-                m(
-                  "p",
-                  null,
-                  app.translator.trans('core.admin.dashboard.version_text', { version: m(
-                      "strong",
-                      null,
-                      app.forum.attribute('version')
-                    ) })
-                ),
-                m(
-                  "p",
-                  null,
-                  app.translator.trans('core.admin.dashboard.beta_warning_text', { strong: m("strong", null) })
-                ),
-                m(
-                  "ul",
-                  null,
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.contributing_text', { a: m("a", { href: "http://flarum.org/docs/contributing", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.troubleshooting_text', { a: m("a", { href: "http://flarum.org/docs/troubleshooting", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.support_text', { a: m("a", { href: "http://discuss.flarum.org/t/support", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.features_text', { a: m("a", { href: "http://discuss.flarum.org/t/features", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.extension_text', { a: m("a", { href: "http://flarum.org/docs/extend", target: "_blank" }) })
-                  )
-                )
+                'div',
+                { className: 'container' },
+                m(StatusWidget, null),
+                m(StatisticsWidget, null)
               )
             );
           }
@@ -18441,7 +18399,53 @@ System.register("flarum/components/DashboardPage", ["flarum/components/Page"], f
         return DashboardPage;
       }(Page);
 
-      _export("default", DashboardPage);
+      _export('default', DashboardPage);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/DashboardWidget', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
+  var Component, Widget;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent.default;
+    }],
+    execute: function () {
+      Widget = function (_Component) {
+        babelHelpers.inherits(Widget, _Component);
+
+        function Widget() {
+          babelHelpers.classCallCheck(this, Widget);
+          return babelHelpers.possibleConstructorReturn(this, (Widget.__proto__ || Object.getPrototypeOf(Widget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(Widget, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: "Widget " + this.className() },
+              this.content()
+            );
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return '';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return [];
+          }
+        }]);
+        return Widget;
+      }(Component);
+
+      _export('default', Widget);
     }
   };
 });;
@@ -21108,6 +21112,254 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
 });;
 'use strict';
 
+System.register('flarum/components/StatisticsWidget', ['flarum/components/DashboardWidget', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
+  var DashboardWidget, icon, listItems, ItemList, StatisticsWidget;
+  return {
+    setters: [function (_flarumComponentsDashboardWidget) {
+      DashboardWidget = _flarumComponentsDashboardWidget.default;
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon.default;
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems.default;
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList.default;
+    }],
+    execute: function () {
+      StatisticsWidget = function (_DashboardWidget) {
+        babelHelpers.inherits(StatisticsWidget, _DashboardWidget);
+
+        function StatisticsWidget() {
+          babelHelpers.classCallCheck(this, StatisticsWidget);
+          return babelHelpers.possibleConstructorReturn(this, (StatisticsWidget.__proto__ || Object.getPrototypeOf(StatisticsWidget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(StatisticsWidget, [{
+          key: 'className',
+          value: function className() {
+            return 'StatisticsWidget';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return m(
+              'table',
+              null,
+              m(
+                'thead',
+                null,
+                m(
+                  'tr',
+                  null,
+                  m('th', null),
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.users_heading')
+                  ),
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.discussions_heading')
+                  ),
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.posts_heading')
+                  )
+                )
+              ),
+              m(
+                'tbody',
+                null,
+                m(
+                  'tr',
+                  { className: 'StatisticsWidget-total' },
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.total_label')
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.total.users
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.total.discussions
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.total.posts
+                  )
+                ),
+                m(
+                  'tr',
+                  null,
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.last_28_days_label')
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.month.users
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.month.discussions
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.month.posts
+                  )
+                ),
+                m(
+                  'tr',
+                  null,
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.last_7_days_label')
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.week.users
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.week.discussions
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.week.posts
+                  )
+                ),
+                m(
+                  'tr',
+                  null,
+                  m(
+                    'th',
+                    null,
+                    app.translator.trans('core.admin.statistics.today_label')
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.today.users
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.today.discussions
+                  ),
+                  m(
+                    'td',
+                    null,
+                    app.data.statistics.today.posts
+                  )
+                )
+              )
+            );
+          }
+        }]);
+        return StatisticsWidget;
+      }(DashboardWidget);
+
+      _export('default', StatisticsWidget);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/StatusWidget', ['flarum/components/DashboardWidget', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
+  var DashboardWidget, icon, listItems, ItemList, StatusWidget;
+  return {
+    setters: [function (_flarumComponentsDashboardWidget) {
+      DashboardWidget = _flarumComponentsDashboardWidget.default;
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon.default;
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems.default;
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList.default;
+    }],
+    execute: function () {
+      StatusWidget = function (_DashboardWidget) {
+        babelHelpers.inherits(StatusWidget, _DashboardWidget);
+
+        function StatusWidget() {
+          babelHelpers.classCallCheck(this, StatusWidget);
+          return babelHelpers.possibleConstructorReturn(this, (StatusWidget.__proto__ || Object.getPrototypeOf(StatusWidget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(StatusWidget, [{
+          key: 'className',
+          value: function className() {
+            return 'StatusWidget';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return m(
+              'ul',
+              null,
+              listItems(this.items().toArray())
+            );
+          }
+        }, {
+          key: 'items',
+          value: function items() {
+            var items = new ItemList();
+
+            items.add('help', m(
+              'a',
+              { href: 'http://flarum.org/docs/troubleshooting', target: '_blank' },
+              icon('question-circle'),
+              ' ',
+              app.translator.trans('core.admin.dashboard.help_link')
+            ));
+
+            items.add('version-flarum', [m(
+              'strong',
+              null,
+              'Flarum'
+            ), m('br', null), app.forum.attribute('version')]);
+            items.add('version-php', [m(
+              'strong',
+              null,
+              'PHP'
+            ), m('br', null), app.data.phpVersion]);
+            items.add('version-mysql', [m(
+              'strong',
+              null,
+              'MySQL'
+            ), m('br', null), app.data.mysqlVersion]);
+
+            return items;
+          }
+        }]);
+        return StatusWidget;
+      }(DashboardWidget);
+
+      _export('default', StatusWidget);
+    }
+  };
+});;
+'use strict';
+
 System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export, _context) {
   "use strict";
 
@@ -21258,6 +21510,52 @@ System.register('flarum/components/UploadImageButton', ['flarum/components/Butto
       }(Button);
 
       _export('default', UploadImageButton);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/Widget', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
+  var Component, DashboardWidget;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent.default;
+    }],
+    execute: function () {
+      DashboardWidget = function (_Component) {
+        babelHelpers.inherits(DashboardWidget, _Component);
+
+        function DashboardWidget() {
+          babelHelpers.classCallCheck(this, DashboardWidget);
+          return babelHelpers.possibleConstructorReturn(this, (DashboardWidget.__proto__ || Object.getPrototypeOf(DashboardWidget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(DashboardWidget, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: "DashboardWidget " + this.className() },
+              this.content()
+            );
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return '';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return [];
+          }
+        }]);
+        return DashboardWidget;
+      }(Component);
+
+      _export('default', DashboardWidget);
     }
   };
 });;
