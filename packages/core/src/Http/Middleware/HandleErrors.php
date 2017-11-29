@@ -12,11 +12,13 @@
 namespace Flarum\Http\Middleware;
 
 use Exception;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
 class HandleErrors
@@ -32,6 +34,16 @@ class HandleErrors
     protected $logger;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
      * @var bool
      */
     protected $debug;
@@ -41,10 +53,12 @@ class HandleErrors
      * @param LoggerInterface $logger
      * @param bool $debug
      */
-    public function __construct(ViewFactory $view, LoggerInterface $logger, $debug = false)
+    public function __construct(ViewFactory $view, LoggerInterface $logger, TranslatorInterface $translator, SettingsRepositoryInterface $settings, $debug = false)
     {
         $this->view = $view;
         $this->logger = $logger;
+        $this->translator = $translator;
+        $this->settings = $settings;
         $this->debug = $debug;
     }
 
@@ -89,8 +103,29 @@ class HandleErrors
             $name = 'flarum::error.default';
         }
 
-        $view = $this->view->make($name)->with('error', $error);
+        $view = $this->view->make($name)
+            ->with('error', $error)
+            ->with('message', $this->getMessage($status));
 
         return new HtmlResponse($view->render(), $status);
+    }
+
+    private function getMessage($status)
+    {
+        if (! $translation = $this->getTranslationIfExists($status)) {
+            if (! $translation = $this->getTranslationIfExists(500)) {
+                $translation = 'An error occurred while trying to load this page.';
+            }
+        }
+
+        return $translation;
+    }
+
+    private function getTranslationIfExists($status)
+    {
+        $key = 'core.views.error.'.$status.'_message';
+        $translation = $this->translator->trans($key, ['{forum}' => $this->settings->get('forum_title')]);
+
+        return $translation === $key ? false : $translation;
     }
 }
