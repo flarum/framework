@@ -18,6 +18,8 @@ use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Handler\RouteHandlerFactory;
 use Flarum\Http\RouteCollection;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
@@ -43,6 +45,11 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
+
+        $this->app->make('view')->share([
+            'translator' => $this->app->make(TranslatorInterface::class),
+            'settings' => $this->app->make(SettingsRepositoryInterface::class)
+        ]);
 
         $this->flushWebAppAssetsWhenThemeChanged();
 
