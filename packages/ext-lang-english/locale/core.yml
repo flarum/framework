@@ -164,7 +164,7 @@ core:
       discussions_heading: Discussions
       last_28_days_label: Last 28 days
       last_7_days_label: Last 7 days
-      posts_heading: Posts
+      posts_heading: => core.ref.posts
       today_label: Today
       total_label: Total
       users_heading: Users
@@ -386,7 +386,7 @@ core:
       joined_date_text: "Joined {ago}"
       online_text: Online
       posts_load_more_button: => core.ref.load_more
-      posts_link: Posts
+      posts_link: => core.ref.posts
       settings_link: => core.ref.settings
 
     # These translations are found on the user profile page (admin function).
@@ -541,6 +541,7 @@ core:
     notifications: Notifications
     okay: OK                                     # Referenced by flarum-tags.yml
     password: Password
+    posts: Posts
     rename: Rename
     reply: Reply                                 # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
