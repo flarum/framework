@@ -13,6 +13,7 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Event\UserLoggedOut;
+use Flarum\Forum\UrlGenerator;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Exception\TokenMismatchException;
@@ -55,9 +56,9 @@ class LogOutController implements ControllerInterface
     protected $view;
 
     /**
-     * @var SettingsRepositoryInterface
+     * @var UrlGenerator
      */
-    protected $settings;
+    protected $url;
 
     /**
      * @param Application $app
@@ -65,7 +66,6 @@ class LogOutController implements ControllerInterface
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
      * @param Factory $view
-     * @param SettingsRepositoryInterface $settings
      */
     public function __construct(
         Application $app,
@@ -73,14 +73,14 @@ class LogOutController implements ControllerInterface
         SessionAuthenticator $authenticator,
         Rememberer $rememberer,
         Factory $view,
-        SettingsRepositoryInterface $settings
+        UrlGenerator $url
     ) {
         $this->app = $app;
         $this->events = $events;
         $this->authenticator = $authenticator;
         $this->rememberer = $rememberer;
         $this->view = $view;
-        $this->settings = $settings;
+        $this->url = $url;
     }
 
     /**
@@ -106,9 +106,7 @@ class LogOutController implements ControllerInterface
 
         if (array_get($request->getQueryParams(), 'token') !== $csrfToken) {
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('csrfToken', $csrfToken)
-                ->with('forumTitle', $this->settings->get('forum_title'))
-                ->with('return', array_get($request->getQueryParams(), 'return'));
+                ->with('url', $this->url->toRoute('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }
