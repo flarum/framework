@@ -87,7 +87,7 @@ class DiscussionController extends WebAppController
 
         $view->title = $document->data->attributes->title;
         $view->document = $document;
-        $view->content = app('view')->make('flarum.forum::discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
+        $view->content = app('view')->make('flarum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
 
         return $view;
     }
