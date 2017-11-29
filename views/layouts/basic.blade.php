@@ -34,6 +34,7 @@
         cursor: pointer;
         color: {{ $primaryColor }};
         text-decoration: none;
+        font-weight: bold;
       }
       a:hover {
         text-decoration: underline;
