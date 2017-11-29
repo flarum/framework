@@ -105,6 +105,8 @@ class LogOutController implements ControllerInterface
         $csrfToken = $session->get('csrf_token');
 
         if (array_get($request->getQueryParams(), 'token') !== $csrfToken) {
+            $return = array_get($request->getQueryParams(), 'return');
+
             $view = $this->view->make('flarum.forum::log-out')
                 ->with('url', $this->url->toRoute('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
 
