@@ -85,7 +85,11 @@ class HandleErrors
         // Log the exception (with trace)
         $this->logger->debug($error);
 
-        $view = $this->view->make('flarum::error')->with('error', $error);
+        if (! $this->view->exists($name = 'flarum::error.'.$status)) {
+            $name = 'flarum::error.default';
+        }
+
+        $view = $this->view->make($name)->with('error', $error);
 
         return new HtmlResponse($view->render(), $status);
     }
