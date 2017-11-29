@@ -29,11 +29,8 @@ class Server extends AbstractServer
 
         if ($app->isInstalled()) {
             $path = parse_url($app->url('admin'), PHP_URL_PATH);
-            $errorDir = __DIR__.'/../../error';
 
-            // All requests should first be piped through our global error handler
-            $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
-            $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $debugMode));
+            $pipe->pipe($path, $app->make('Flarum\Http\Middleware\HandleErrors', ['debug' => $app->inDebugMode() || ! $app->isUpToDate()]));
 
             if ($app->isUpToDate()) {
                 $pipe->pipe($path, $app->make('Flarum\Http\Middleware\ParseJsonBody'));
