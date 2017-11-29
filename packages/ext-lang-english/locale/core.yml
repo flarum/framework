@@ -446,6 +446,7 @@ core:
     error:
       403_message: You do not have permission to access this page.
       404_message: The page you requested could not be found.
+      404_return_link: "Return to {forum}"
       500_message: An error occurred while trying to load this page.
       503_message: "{forum} is undergoing maintenance. Thanks for your patience!"
 
