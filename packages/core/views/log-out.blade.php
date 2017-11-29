@@ -7,7 +7,7 @@
   <p>{{ $translator->trans('core.views.log_out.log_out_confirmation', ['{forum}' => $forumTitle]) }}</p>
 
   <p>
-    <a href="{{ $url->toRoute('logout') }}?token={{ $csrfToken }}" class="button">
+    <a href="{{ $url->toRoute('logout') }}?token={{ $csrfToken }}@if ($return)&return={{ urlencode($return) }}@endif" class="button">
       {{ $translator->trans('core.views.log_out.log_out_button') }}
     </a>
   </p>
