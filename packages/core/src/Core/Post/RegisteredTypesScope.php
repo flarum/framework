@@ -49,7 +49,7 @@ class RegisteredTypesScope implements ScopeInterface
     {
         $query = $builder->getQuery();
 
-        $this->whereIndex = count($query->wheres);
+        $this->whereIndex = count($query->wheres ?: []);
         $this->bindingIndex = count($query->getRawBindings()['where']);
 
         $types = array_keys($post::getModels());
