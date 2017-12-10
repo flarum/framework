@@ -2,10 +2,10 @@ var Chart=function(){"use strict";function t(t,e){return"string"==typeof t?(e||d
 ;
 'use strict';
 
-System.register('flarum/statistics/components/StatisticsWidget', ['flarum/components/DashboardWidget', 'flarum/components/SelectDropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
+System.register('flarum/statistics/components/StatisticsWidget', ['flarum/components/DashboardWidget', 'flarum/components/SelectDropdown', 'flarum/components/Button', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList', 'flarum/utils/abbreviateNumber'], function (_export, _context) {
   "use strict";
 
-  var DashboardWidget, SelectDropdown, Button, icon, listItems, ItemList, StatisticsWidget;
+  var DashboardWidget, SelectDropdown, Button, icon, listItems, ItemList, abbreviateNumber, StatisticsWidget;
   return {
     setters: [function (_flarumComponentsDashboardWidget) {
       DashboardWidget = _flarumComponentsDashboardWidget.default;
@@ -19,6 +19,8 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
       listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
+    }, function (_flarumUtilsAbbreviateNumber) {
+      abbreviateNumber = _flarumUtilsAbbreviateNumber.default;
     }],
     execute: function () {
       StatisticsWidget = function (_DashboardWidget) {
@@ -44,7 +46,7 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
             };
 
             this.selectedEntity = 'users';
-            this.selectedPeriod = 'last_12_months';
+            this.selectedPeriod = 'last_7_days';
           }
         }, {
           key: 'className',
@@ -86,6 +88,7 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
                 )
               ),
               this.entities.map(function (entity) {
+                var totalCount = _this2.getTotalCount(entity);
                 var thisPeriodCount = _this2.getPeriodCount(entity, thisPeriod);
                 var lastPeriodCount = _this2.getPeriodCount(entity, _this2.getLastPeriod(thisPeriod));
                 var periodChange = lastPeriodCount > 0 && (thisPeriodCount - lastPeriodCount) / lastPeriodCount * 100;
@@ -100,13 +103,13 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
                   ),
                   m(
                     'div',
-                    { className: 'StatisticsWidget-total' },
-                    _this2.getTotalCount(entity)
+                    { className: 'StatisticsWidget-total', title: totalCount },
+                    abbreviateNumber(totalCount)
                   ),
                   m(
                     'div',
-                    { className: 'StatisticsWidget-period' },
-                    thisPeriodCount,
+                    { className: 'StatisticsWidget-period', title: thisPeriodCount },
+                    abbreviateNumber(thisPeriodCount),
                     ' ',
                     periodChange ? m(
                       'span',

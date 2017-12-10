@@ -29,7 +29,7 @@ export default class StatisticsWidget extends DashboardWidget {
     };
 
     this.selectedEntity = 'users';
-    this.selectedPeriod = 'last_12_months';
+    this.selectedPeriod = 'last_7_days';
   }
 
   className() {
