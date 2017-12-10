@@ -36,13 +36,14 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
           value: function init() {
             babelHelpers.get(StatisticsWidget.prototype.__proto__ || Object.getPrototypeOf(StatisticsWidget.prototype), 'init', this).call(this);
 
-            var now = new Date();
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
 
             this.entities = ['users', 'discussions', 'posts'];
             this.periods = {
-              last_7_days: { start: now - 86400000 * 7, end: now, step: 86400000 },
-              last_28_days: { start: now - 86400000 * 28, end: now, step: 86400000 },
-              last_12_months: { start: now - 86400000 * 365, end: now, step: 86400000 * 7 }
+              last_7_days: { start: today - 86400000 * 6, end: today, step: 86400000 },
+              last_28_days: { start: today - 86400000 * 27, end: today, step: 86400000 },
+              last_12_months: { start: today - 86400000 * 364, end: today, step: 86400000 * 7 }
             };
 
             this.selectedEntity = 'users';
@@ -129,16 +130,15 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
           value: function drawChart(elm, isInitialized, context) {
             var entity = this.selectedEntity;
             var period = this.periods[this.selectedPeriod];
-            var daily = app.data.statistics[this.selectedEntity].daily;
             var labels = [];
             var thisPeriod = [];
             var lastPeriod = [];
 
-            for (var i = period.start; i < period.end; i += period.step) {
-              var date = new Date(i);
-              date.setHours(0, 0, 0, 0);
-              labels.push(moment(date).format('D MMM'));
+            for (var i = period.start; i <= period.end; i += period.step) {
+              labels.push(moment(i).format('D MMM'));
+
               thisPeriod.push(this.getPeriodCount(entity, { start: i, end: i + period.step }));
+
               var periodLength = period.end - period.start;
               lastPeriod.push(this.getPeriodCount(entity, { start: i - periodLength, end: i - periodLength + period.step }));
             }
@@ -151,11 +151,11 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
                 data: { labels: labels, datasets: datasets },
                 type: 'line',
                 height: 200,
-                x_axis_mode: 'tick', // for short label ticks
-                y_axis_mode: 'span', // for long horizontal lines, or 'tick'
+                x_axis_mode: 'tick',
+                y_axis_mode: 'span',
                 is_series: 1,
                 show_dots: 0,
-                colors: ['rgba(0,0,0,0.2)', app.forum.attribute('themePrimaryColor')],
+                colors: ['rgba(0,0,0,0.1)', app.forum.attribute('themePrimaryColor')],
                 format_tooltip_x: function format_tooltip_x(d) {
                   return d;
                 },
