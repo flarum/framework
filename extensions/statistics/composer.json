@@ -1,0 +1,33 @@
+{
+    "name": "flarum/flarum-ext-statistics",
+    "description": "Add a basic statistics widget on the Dashboard.",
+    "type": "flarum-extension",
+    "keywords": ["administration"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Toby Zerner",
+            "email": "toby.zerner@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/flarum/core/issues",
+        "source": "https://github.com/flarum/flarum-ext-statistics"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Statistics\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Statistics"
+        }
+    }
+}
