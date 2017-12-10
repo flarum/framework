@@ -13,6 +13,7 @@ import Button from 'flarum/components/Button';
 import icon from 'flarum/helpers/icon';
 import listItems from 'flarum/helpers/listItems';
 import ItemList from 'flarum/utils/ItemList';
+import abbreviateNumber from 'flarum/utils/abbreviateNumber';
 
 export default class StatisticsWidget extends DashboardWidget {
   init() {
@@ -54,6 +55,7 @@ export default class StatisticsWidget extends DashboardWidget {
         </div>
 
         {this.entities.map(entity => {
+          const totalCount = this.getTotalCount(entity);
           const thisPeriodCount = this.getPeriodCount(entity, thisPeriod);
           const lastPeriodCount = this.getPeriodCount(entity, this.getLastPeriod(thisPeriod));
           const periodChange = lastPeriodCount > 0 && (thisPeriodCount - lastPeriodCount) / lastPeriodCount * 100;
@@ -61,9 +63,9 @@ export default class StatisticsWidget extends DashboardWidget {
           return (
             <a className={'StatisticsWidget-entity'+(this.selectedEntity === entity ? ' active' : '')} onclick={this.changeEntity.bind(this, entity)}>
               <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.'+entity+'_heading')}</h3>
-              <div className="StatisticsWidget-total">{this.getTotalCount(entity)}</div>
-              <div className="StatisticsWidget-period">
-                {thisPeriodCount}{' '}
+              <div className="StatisticsWidget-total" title={totalCount}>{abbreviateNumber(totalCount)}</div>
+              <div className="StatisticsWidget-period" title={thisPeriodCount}>
+                {abbreviateNumber(thisPeriodCount)}{' '}
                 {periodChange ? (
                   <span className={'StatisticsWidget-change StatisticsWidget-change--'+(periodChange > 0 ? 'up' : 'down')}>
                     {icon('arrow-'+(periodChange > 0 ? 'up' : 'down'))}
