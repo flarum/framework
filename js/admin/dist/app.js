@@ -18360,17 +18360,15 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
 });;
 'use strict';
 
-System.register('flarum/components/DashboardPage', ['flarum/components/Page', 'flarum/components/StatusWidget', 'flarum/components/StatisticsWidget'], function (_export, _context) {
+System.register('flarum/components/DashboardPage', ['flarum/components/Page', 'flarum/components/StatusWidget'], function (_export, _context) {
   "use strict";
 
-  var Page, StatusWidget, StatisticsWidget, DashboardPage;
+  var Page, StatusWidget, DashboardPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
     }, function (_flarumComponentsStatusWidget) {
       StatusWidget = _flarumComponentsStatusWidget.default;
-    }, function (_flarumComponentsStatisticsWidget) {
-      StatisticsWidget = _flarumComponentsStatisticsWidget.default;
     }],
     execute: function () {
       DashboardPage = function (_Page) {
@@ -18390,10 +18388,14 @@ System.register('flarum/components/DashboardPage', ['flarum/components/Page', 'f
               m(
                 'div',
                 { className: 'container' },
-                m(StatusWidget, null),
-                m(StatisticsWidget, null)
+                this.availableWidgets()
               )
             );
+          }
+        }, {
+          key: 'availableWidgets',
+          value: function availableWidgets() {
+            return [m(StatusWidget, null)];
           }
         }]);
         return DashboardPage;
@@ -21107,176 +21109,6 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
       }(Dropdown);
 
       _export('default', SplitDropdown);
-    }
-  };
-});;
-'use strict';
-
-System.register('flarum/components/StatisticsWidget', ['flarum/components/DashboardWidget', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
-  "use strict";
-
-  var DashboardWidget, icon, listItems, ItemList, StatisticsWidget;
-  return {
-    setters: [function (_flarumComponentsDashboardWidget) {
-      DashboardWidget = _flarumComponentsDashboardWidget.default;
-    }, function (_flarumHelpersIcon) {
-      icon = _flarumHelpersIcon.default;
-    }, function (_flarumHelpersListItems) {
-      listItems = _flarumHelpersListItems.default;
-    }, function (_flarumUtilsItemList) {
-      ItemList = _flarumUtilsItemList.default;
-    }],
-    execute: function () {
-      StatisticsWidget = function (_DashboardWidget) {
-        babelHelpers.inherits(StatisticsWidget, _DashboardWidget);
-
-        function StatisticsWidget() {
-          babelHelpers.classCallCheck(this, StatisticsWidget);
-          return babelHelpers.possibleConstructorReturn(this, (StatisticsWidget.__proto__ || Object.getPrototypeOf(StatisticsWidget)).apply(this, arguments));
-        }
-
-        babelHelpers.createClass(StatisticsWidget, [{
-          key: 'className',
-          value: function className() {
-            return 'StatisticsWidget';
-          }
-        }, {
-          key: 'content',
-          value: function content() {
-            return m(
-              'table',
-              null,
-              m(
-                'thead',
-                null,
-                m(
-                  'tr',
-                  null,
-                  m('th', null),
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.users_heading')
-                  ),
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.discussions_heading')
-                  ),
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.posts_heading')
-                  )
-                )
-              ),
-              m(
-                'tbody',
-                null,
-                m(
-                  'tr',
-                  { className: 'StatisticsWidget-total' },
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.total_label')
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.total.users
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.total.discussions
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.total.posts
-                  )
-                ),
-                m(
-                  'tr',
-                  null,
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.last_28_days_label')
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.month.users
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.month.discussions
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.month.posts
-                  )
-                ),
-                m(
-                  'tr',
-                  null,
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.last_7_days_label')
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.week.users
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.week.discussions
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.week.posts
-                  )
-                ),
-                m(
-                  'tr',
-                  null,
-                  m(
-                    'th',
-                    null,
-                    app.translator.trans('core.admin.statistics.today_label')
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.today.users
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.today.discussions
-                  ),
-                  m(
-                    'td',
-                    null,
-                    app.data.statistics.today.posts
-                  )
-                )
-              )
-            );
-          }
-        }]);
-        return StatisticsWidget;
-      }(DashboardWidget);
-
-      _export('default', StatisticsWidget);
     }
   };
 });;
