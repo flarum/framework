@@ -159,16 +159,6 @@ core:
     settings:
       submit_button: => core.ref.save_changes
 
-    # These translations are used in the Statistics dashboard widget.
-    statistics:
-      discussions_heading: => core.ref.discussions
-      last_28_days_label: Last 28 days
-      last_7_days_label: Last 7 days
-      posts_heading: => core.ref.posts
-      today_label: Today
-      total_label: Total
-      users_heading: Users
-
     # These translations are used in image upload buttons.
     upload_image:
       remove_button: Remove
@@ -530,7 +520,7 @@ core:
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
     delete: Delete
     delete_forever: Delete Forever
-    discussions: Discussions
+    discussions: Discussions                     # Referenced by flarum-statistics.yml
     edit: Edit
     email: Email
     load_more: Load More
@@ -541,7 +531,7 @@ core:
     notifications: Notifications
     okay: OK                                     # Referenced by flarum-tags.yml
     password: Password
-    posts: Posts
+    posts: Posts                                 # Referenced by flarum-statistics.yml
     rename: Rename
     reply: Reply                                 # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
