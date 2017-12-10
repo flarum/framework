@@ -110,11 +110,11 @@ export default class StatisticsWidget extends DashboardWidget {
         data: {labels, datasets},
         type: 'line',
         height: 200,
-        x_axis_mode: 'tick',  // for short label ticks
-        y_axis_mode: 'span',  // for long horizontal lines, or 'tick'
+        x_axis_mode: 'tick',
+        y_axis_mode: 'span',
         is_series: 1,
         show_dots: 0,
-        colors: ['rgba(0,0,0,0.2)', app.forum.attribute('themePrimaryColor')],
+        colors: ['rgba(0,0,0,0.1)', app.forum.attribute('themePrimaryColor')],
         format_tooltip_x: d => d,
         format_tooltip_y: d => d
       });
