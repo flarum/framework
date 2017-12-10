@@ -1,0 +1,66 @@
+.StatisticsWidget-table {
+  margin-top: -20px;
+}
+.StatisticsWidget-labels {
+  float: left;
+  min-width: 130px;
+  padding-right: 10px;
+  padding-top: 45px;
+  font-size: 12px;
+  font-weight: bold;
+  color: @muted-color;
+}
+.StatisticsWidget-label {
+  padding-top: 8px;
+}
+.StatisticsWidget-entity {
+  float: left;
+  min-width: 100px;
+  padding: 15px 20px;
+  color: @text-color;
+  font-size: 20px;
+
+  &:hover {
+    background: mix(@control-bg, @body-bg, 50%);
+    text-decoration: none;
+  }
+  &.active {
+    border-top: 4px solid @primary-color;
+    padding-top: 15 - 4px;
+  }
+}
+.StatisticsWidget-change {
+  font-size: 11px;
+}
+.StatisticsWidget-change--up {
+  color: #00a502;
+}
+.StatisticsWidget-change--down {
+  color: #d0011b;
+}
+.StatisticsWidget-heading {
+  height: 30px;
+  padding-top: 5px;
+  margin: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: @muted-color;
+
+  .active & {
+    color: @primary-color;
+  }
+}
+.StatisticsWidget-total,
+.StatisticsWidget-period,
+.StatisticsWidget-label {
+  height: 35px;
+}
+.StatisticsWidget-total {
+  font-weight: bold;
+}
+.StatisticsWidget-chart {
+  clear: left;
+  max-width: 600px;
+  margin: -20px -10px;
+}
