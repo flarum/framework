@@ -19,13 +19,14 @@ export default class StatisticsWidget extends DashboardWidget {
   init() {
     super.init();
 
-    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     this.entities = ['users', 'discussions', 'posts'];
     this.periods = {
-      last_7_days: {start: now - 86400000 * 7, end: now, step: 86400000},
-      last_28_days: {start: now - 86400000 * 28, end: now, step: 86400000},
-      last_12_months: {start: now - 86400000 * 365, end: now, step: 86400000 * 7}
+      last_7_days: {start: today - 86400000 * 6, end: today, step: 86400000},
+      last_28_days: {start: today - 86400000 * 27, end: today, step: 86400000},
+      last_12_months: {start: today - 86400000 * 364, end: today, step: 86400000 * 7}
     };
 
     this.selectedEntity = 'users';
@@ -85,16 +86,15 @@ export default class StatisticsWidget extends DashboardWidget {
   drawChart(elm, isInitialized, context) {
     const entity = this.selectedEntity;
     const period = this.periods[this.selectedPeriod];
-    const daily = app.data.statistics[this.selectedEntity].daily;
     const labels = [];
     const thisPeriod = [];
     const lastPeriod = [];
 
-    for (let i = period.start; i < period.end; i += period.step) {
-      const date = new Date(i);
-      date.setHours(0, 0, 0, 0);
-      labels.push(moment(date).format('D MMM'));
+    for (let i = period.start; i <= period.end; i += period.step) {
+      labels.push(moment(i).format('D MMM'));
+
       thisPeriod.push(this.getPeriodCount(entity, {start: i, end: i + period.step}));
+
       const periodLength = period.end - period.start;
       lastPeriod.push(this.getPeriodCount(entity, {start: i - periodLength, end: i - periodLength + period.step}));
     }
