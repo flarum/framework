@@ -36,7 +36,15 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
           value: function init() {
             babelHelpers.get(StatisticsWidget.prototype.__proto__ || Object.getPrototypeOf(StatisticsWidget.prototype), 'init', this).call(this);
 
-            var today = new Date().setHours(0, 0, 0, 0) / 1000;
+            // Create a Date object which represents the start of the day in the
+            // configured timezone. To do this we convert a UTC time into that timezone,
+            // reset to the first hour of the day, and then convert back into UTC time.
+            // We'll be working with seconds rather than milliseconds throughout too.
+            var today = new Date();
+            today.setTime(today.getTime() + app.data.statistics.utcOffset * 1000);
+            today.setUTCHours(0, 0, 0, 0);
+            today.setTime(today.getTime() - app.data.statistics.utcOffset * 1000);
+            today = today / 1000;
 
             this.entities = ['users', 'discussions', 'posts'];
             this.periods = {
@@ -135,6 +143,7 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
               return;
             }
 
+            var offset = app.data.statistics.utcOffset;
             var period = this.periods[this.selectedPeriod];
             var periodLength = period.end - period.start;
             var labels = [];
@@ -145,12 +154,12 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
               var label = void 0;
 
               if (period.step < 86400) {
-                label = moment.unix(i).format('h A');
+                label = moment.unix(i + offset).utc().format('h A');
               } else {
-                label = moment.unix(i).format('D MMM');
+                label = moment.unix(i + offset).utc().format('D MMM');
 
                 if (period.step > 86400) {
-                  label += ' - ' + moment.unix(i + period.step - 1).format('D MMM');
+                  label += ' - ' + moment.unix(i + offset + period.step - 1).utc().format('D MMM');
                 }
               }
 
@@ -173,7 +182,7 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
                 y_axis_mode: 'span',
                 is_series: 1,
                 show_dots: 0,
-                colors: ['rgba(0, 0, 0, 0.1)', app.forum.attribute('themePrimaryColor')]
+                colors: ['rgba(127, 127, 127, 0.2)', app.forum.attribute('themePrimaryColor')]
               });
             } else {
               context.chart.update_values(datasets, labels);
@@ -200,12 +209,12 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
         }, {
           key: 'getPeriodCount',
           value: function getPeriodCount(entity, period) {
-            var daily = app.data.statistics[entity].daily;
+            var timed = app.data.statistics[entity].timed;
             var count = 0;
 
-            for (var day in daily) {
-              if (day >= period.start && day < period.end) {
-                count += daily[day];
+            for (var time in timed) {
+              if (time >= period.start && time < period.end) {
+                count += timed[time];
               }
             }
 
