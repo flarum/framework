@@ -19,14 +19,14 @@ export default class StatisticsWidget extends DashboardWidget {
   init() {
     super.init();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date().setHours(0, 0, 0, 0) / 1000;
 
     this.entities = ['users', 'discussions', 'posts'];
     this.periods = {
-      last_7_days: {start: today - 86400000 * 6, end: today, step: 86400000},
-      last_28_days: {start: today - 86400000 * 27, end: today, step: 86400000},
-      last_12_months: {start: today - 86400000 * 364, end: today, step: 86400000 * 7}
+      today: {start: today, end: today + 86400, step: 3600},
+      last_7_days: {start: today - 86400 * 7, end: today, step: 86400},
+      last_28_days: {start: today - 86400 * 28, end: today, step: 86400},
+      last_12_months: {start: today - 86400 * 364, end: today, step: 86400 * 7}
     };
 
     this.selectedEntity = 'users';
@@ -91,19 +91,30 @@ export default class StatisticsWidget extends DashboardWidget {
       return;
     }
 
-    const entity = this.selectedEntity;
     const period = this.periods[this.selectedPeriod];
+    const periodLength = period.end - period.start;
     const labels = [];
     const thisPeriod = [];
     const lastPeriod = [];
 
-    for (let i = period.start; i <= period.end; i += period.step) {
-      labels.push(moment(i).format('D MMM'));
+    for (let i = period.start; i < period.end; i += period.step) {
+      let label;
 
-      thisPeriod.push(this.getPeriodCount(entity, {start: i, end: i + period.step}));
+      if (period.step < 86400) {
+        label = moment.unix(i).format('h A');
+      } else {
+        label = moment.unix(i).format('D MMM');
 
-      const periodLength = period.end - period.start;
-      lastPeriod.push(this.getPeriodCount(entity, {start: i - periodLength, end: i - periodLength + period.step}));
+        if (period.step > 86400) {
+          label += ' - ' + moment.unix(i + period.step - 1).format('D MMM');
+        }
+      }
+
+      labels.push(label);
+
+      thisPeriod.push(this.getPeriodCount(this.selectedEntity, {start: i, end: i + period.step}));
+
+      lastPeriod.push(this.getPeriodCount(this.selectedEntity, {start: i - periodLength, end: i - periodLength + period.step}));
     }
 
     const datasets = [
@@ -148,9 +159,7 @@ export default class StatisticsWidget extends DashboardWidget {
     let count = 0;
 
     for (const day in daily) {
-      const date = new Date(day);
-
-      if (date > period.start && date < period.end) {
+      if (day >= period.start && day < period.end) {
         count += daily[day];
       }
     }
