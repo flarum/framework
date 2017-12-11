@@ -19,7 +19,15 @@ export default class StatisticsWidget extends DashboardWidget {
   init() {
     super.init();
 
-    const today = new Date().setHours(0, 0, 0, 0) / 1000;
+    // Create a Date object which represents the start of the day in the
+    // configured timezone. To do this we convert a UTC time into that timezone,
+    // reset to the first hour of the day, and then convert back into UTC time.
+    // We'll be working with seconds rather than milliseconds throughout too.
+    let today = new Date();
+    today.setTime(today.getTime() + app.data.statistics.utcOffset * 1000);
+    today.setUTCHours(0, 0, 0, 0);
+    today.setTime(today.getTime() - app.data.statistics.utcOffset * 1000);
+    today = today / 1000;
 
     this.entities = ['users', 'discussions', 'posts'];
     this.periods = {
@@ -91,6 +99,7 @@ export default class StatisticsWidget extends DashboardWidget {
       return;
     }
 
+    const offset = app.data.statistics.utcOffset;
     const period = this.periods[this.selectedPeriod];
     const periodLength = period.end - period.start;
     const labels = [];
@@ -101,12 +110,12 @@ export default class StatisticsWidget extends DashboardWidget {
       let label;
 
       if (period.step < 86400) {
-        label = moment.unix(i).format('h A');
+        label = moment.unix(i + offset).utc().format('h A');
       } else {
-        label = moment.unix(i).format('D MMM');
+        label = moment.unix(i + offset).utc().format('D MMM');
 
         if (period.step > 86400) {
-          label += ' - ' + moment.unix(i + period.step - 1).format('D MMM');
+          label += ' - ' + moment.unix(i + offset + period.step - 1).utc().format('D MMM');
         }
       }
 
@@ -132,7 +141,7 @@ export default class StatisticsWidget extends DashboardWidget {
         y_axis_mode: 'span',
         is_series: 1,
         show_dots: 0,
-        colors: ['rgba(0, 0, 0, 0.1)', app.forum.attribute('themePrimaryColor')]
+        colors: ['rgba(127, 127, 127, 0.2)', app.forum.attribute('themePrimaryColor')]
       });
     } else {
       context.chart.update_values(datasets, labels);
@@ -155,12 +164,12 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   getPeriodCount(entity, period) {
-    const daily = app.data.statistics[entity].daily;
+    const timed = app.data.statistics[entity].timed;
     let count = 0;
 
-    for (const day in daily) {
-      if (day >= period.start && day < period.end) {
-        count += daily[day];
+    for (const time in timed) {
+      if (time >= period.start && time < period.end) {
+        count += timed[time];
       }
     }
 

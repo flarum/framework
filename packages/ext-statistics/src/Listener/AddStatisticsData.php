@@ -49,7 +49,10 @@ class AddStatisticsData
      */
     public function addStatisticsData(ConfigureWebApp $event)
     {
-        $event->view->setVariable('statistics', $this->getStatistics());
+        $event->view->setVariable('statistics', array_merge(
+            $this->getStatistics(),
+            ['utcOffset' => $this->getUTCOffset()]
+        ));
     }
 
     private function getStatistics()
@@ -63,40 +66,62 @@ class AddStatisticsData
         return array_map(function ($entity) {
             return [
                 'total' => $entity[0]->count(),
-                'daily' => $this->getDailyCounts($entity[0], $entity[1])
+                'timed' => $this->getTimedCounts($entity[0], $entity[1])
             ];
         }, $entities);
     }
 
-    private function getDailyCounts(Builder $query, $column)
+    private function getTimedCounts(Builder $query, $column)
     {
         // Calculate the offset between the server timezone (which is used for
         // dates stored in the database) and the user's timezone (set via the
-        // settings table). We will use this to adjust dates before aggregating
-        // daily/hourly statistics.
+        // settings table). We will use this to make sure we aggregate the
+        // daily/hourly statistics according to the user's timezone.
         $offset = $this->getTimezoneOffset();
 
-        return $query
+        $results = $query
             ->selectRaw(
-                'UNIX_TIMESTAMP(
-                    DATE_FORMAT(
-                        @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- correct for timezone
-                        IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 48 hours, group by hour
-                    )
-                ) as period',
+                'DATE_FORMAT(
+                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- correct for timezone
+                    IF(@date > ?, \'%Y-%m-%dT%H:00:00\', \'%Y-%m-%dT00:00:00\') -- if within the last 48 hours, group by hour
+                ) as time_group',
                 [$offset, new DateTime('-48 hours')]
             )
             ->selectRaw('COUNT(id) as count')
             ->where($column, '>', new DateTime('-24 months'))
-            ->groupBy('period')
-            ->lists('count', 'period');
+            ->groupBy('time_group')
+            ->lists('count', 'time_group');
+
+        // Now that we have the aggregated statistics, convert each point in
+        // time into a UNIX timestamp .
+        $displayTimezone = $this->getDisplayTimezone();
+        $timed = [];
+
+        $results->each(function ($count, $time) use (&$timed, $displayTimezone) {
+            $time = new DateTime($time, $displayTimezone);
+            $timed[$time->getTimestamp()] = $count;
+        });
+
+        return $timed;
     }
 
     private function getTimezoneOffset()
     {
         $dataTimezone = new DateTimeZone(date_default_timezone_get());
-        $displayTimezone = new DateTimeZone($this->settings->get('flarum-statistics.timezone', date_default_timezone_get()));
 
-        return $displayTimezone->getOffset(new DateTime('now', $dataTimezone));
+        return $this->getDisplayTimezone()->getOffset(new DateTime('now', $dataTimezone));
     }
+
+    private function getUTCOffset()
+    {
+        $utcTimezone = new DateTimeZone('UTC');
+
+        return $this->getDisplayTimezone()->getOffset(new DateTime('now', $utcTimezone));
+    }
+
+    private function getDisplayTimezone()
+    {
+        return new DateTimeZone($this->settings->get('flarum-statistics.timezone', date_default_timezone_get()));
+    }
+
 }
