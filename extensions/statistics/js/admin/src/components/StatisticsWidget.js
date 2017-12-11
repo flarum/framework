@@ -87,6 +87,10 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   drawChart(elm, isInitialized, context) {
+    if (context.chart && context.entity === this.selectedEntity && context.period === this.selectedPeriod) {
+      return;
+    }
+
     const entity = this.selectedEntity;
     const period = this.periods[this.selectedPeriod];
     const labels = [];
@@ -121,12 +125,12 @@ export default class StatisticsWidget extends DashboardWidget {
         format_tooltip_x: d => d,
         format_tooltip_y: d => d
       });
+    } else {
+      context.chart.update_values(datasets, labels);
     }
 
-    context.chart.update_values(
-      datasets,
-      labels
-    );
+    context.entity = this.selectedEntity;
+    context.period = this.selectedPeriod;
   }
 
   changeEntity(entity) {
