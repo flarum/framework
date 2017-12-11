@@ -63,4 +63,9 @@
   clear: left;
   max-width: 600px;
   margin: -20px -10px;
+
+  // Hide the "last period" data from the tooltip
+  .chart-container .graph-svg-tip ul.data-point-list > li:first-child {
+    display: none;
+  }
 }
