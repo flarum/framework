@@ -47,7 +47,10 @@ export default class StatisticsWidget extends DashboardWidget {
           <div className="StatisticsWidget-label">
             <SelectDropdown buttonClassName="Button Button--text" caretIcon="caret-down">
               {Object.keys(this.periods).map(period => (
-                <Button active={period === this.selectedPeriod} onclick={this.changePeriod.bind(this, period)}>
+                <Button
+                  active={period === this.selectedPeriod}
+                  onclick={this.changePeriod.bind(this, period)}
+                  icon={period === this.selectedPeriod ? 'check' : true}>
                   {app.translator.trans('flarum-statistics.admin.statistics.'+period+'_label')}
                 </Button>
               ))}
