@@ -107,8 +107,8 @@ export default class StatisticsWidget extends DashboardWidget {
     }
 
     const datasets = [
-      {values: lastPeriod, title: 'Last period ➡'},
-      {values: thisPeriod, title: 'This period'}
+      {values: lastPeriod},
+      {values: thisPeriod}
     ];
 
     if (!context.chart) {
@@ -121,9 +121,7 @@ export default class StatisticsWidget extends DashboardWidget {
         y_axis_mode: 'span',
         is_series: 1,
         show_dots: 0,
-        colors: ['rgba(0,0,0,0.1)', app.forum.attribute('themePrimaryColor')],
-        format_tooltip_x: d => d,
-        format_tooltip_y: d => d
+        colors: ['rgba(0, 0, 0, 0.1)', app.forum.attribute('themePrimaryColor')]
       });
     } else {
       context.chart.update_values(datasets, labels);
