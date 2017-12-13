@@ -10,14 +10,14 @@
 
 namespace Flarum\Http\Middleware;
 
-use Illuminate\Support\ViewErrorBag;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Support\ViewErrorBag;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Stratigility\MiddlewareInterface;
 
 /**
- * Inspired by Illuminate\View\Middleware\ShareErrorsFromSession
+ * Inspired by Illuminate\View\Middleware\ShareErrorsFromSession.
  *
  * @author Taylor Otwell
  */

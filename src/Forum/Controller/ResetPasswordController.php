@@ -17,7 +17,6 @@ use Flarum\Core\PasswordToken;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Component\Translation\TranslatorInterface;
 
 class ResetPasswordController extends AbstractHtmlController
 {
