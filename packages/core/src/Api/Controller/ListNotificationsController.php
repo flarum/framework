@@ -76,6 +76,10 @@ class ListNotificationsController extends AbstractCollectionController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
+        if (! in_array('subject', $include)) {
+            $include[] = 'subject';
+        }
+
         $notifications = $this->notifications->findByUser($actor, $limit + 1, $offset)
             ->load(array_diff($include, ['subject.discussion']))
             ->all();
@@ -94,6 +98,10 @@ class ListNotificationsController extends AbstractCollectionController
             $limit,
             $areMoreResults ? null : 0
         );
+
+        $notifications = array_filter($notifications, function ($notification) {
+            return ! $notification->subjectModel || $notification->subject;
+        });
 
         if (in_array('subject.discussion', $include)) {
             $this->loadSubjectDiscussions($notifications);
