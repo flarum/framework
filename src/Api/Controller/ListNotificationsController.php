@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\UrlGenerator;
 use Flarum\Core\Discussion;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Flarum\Core\Repository\NotificationRepository;
@@ -39,16 +40,23 @@ class ListNotificationsController extends AbstractCollectionController
     public $limit = 10;
 
     /**
-     * @var \Flarum\Core\Repository\NotificationRepository
+     * @var NotificationRepository
      */
     protected $notifications;
 
     /**
-     * @param \Flarum\Core\Repository\NotificationRepository $notifications
+     * @var UrlGenerator
      */
-    public function __construct(NotificationRepository $notifications)
+    protected $url;
+
+    /**
+     * @param NotificationRepository $notifications
+     * @param UrlGenerator $url
+     */
+    public function __construct(NotificationRepository $notifications, UrlGenerator $url)
     {
         $this->notifications = $notifications;
+        $this->url = $url;
     }
 
     /**
@@ -68,9 +76,24 @@ class ListNotificationsController extends AbstractCollectionController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $notifications = $this->notifications->findByUser($actor, $limit, $offset)
+        $notifications = $this->notifications->findByUser($actor, $limit + 1, $offset)
             ->load(array_diff($include, ['subject.discussion']))
             ->all();
+
+        $areMoreResults = false;
+
+        if (count($notifications) > $limit) {
+            array_pop($notifications);
+            $areMoreResults = true;
+        }
+
+        $document->addPaginationLinks(
+            $this->url->toRoute('notifications.index'),
+            $request->getQueryParams(),
+            $offset,
+            $limit,
+            $areMoreResults ? null : 0
+        );
 
         if (in_array('subject.discussion', $include)) {
             $this->loadSubjectDiscussions($notifications);

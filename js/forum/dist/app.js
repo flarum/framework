@@ -23964,39 +23964,18 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
              * @type {Boolean}
              */
             this.loading = false;
+
+            /**
+             * Whether or not there are more results that can be loaded.
+             *
+             * @type {Boolean}
+             */
+            this.moreResults = false;
           }
         }, {
           key: 'view',
           value: function view() {
-            var groups = [];
-
-            if (app.cache.notifications) {
-              var discussions = {};
-
-              // Build an array of discussions which the notifications are related to,
-              // and add the notifications as children.
-              app.cache.notifications.forEach(function (notification) {
-                var subject = notification.subject();
-
-                if (typeof subject === 'undefined') return;
-
-                // Get the discussion that this notification is related to. If it's not
-                // directly related to a discussion, it may be related to a post or
-                // other entity which is related to a discussion.
-                var discussion = false;
-                if (subject instanceof Discussion) discussion = subject;else if (subject && subject.discussion) discussion = subject.discussion();
-
-                // If the notification is not related to a discussion directly or
-                // indirectly, then we will assign it to a neutral group.
-                var key = discussion ? discussion.id() : 0;
-                discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
-                discussions[key].notifications.push(notification);
-
-                if (groups.indexOf(discussions[key]) === -1) {
-                  groups.push(discussions[key]);
-                }
-              });
-            }
+            var pages = app.cache.notifications || [];
 
             return m(
               'div',
@@ -24023,70 +24002,143 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
               m(
                 'div',
                 { className: 'NotificationList-content' },
-                groups.length ? groups.map(function (group) {
-                  var badges = group.discussion && group.discussion.badges().toArray();
+                pages.length ? pages.map(function (notifications) {
+                  var groups = [];
+                  var discussions = {};
 
-                  return m(
-                    'div',
-                    { className: 'NotificationGroup' },
-                    group.discussion ? m(
-                      'a',
-                      { className: 'NotificationGroup-header',
-                        href: app.route.discussion(group.discussion),
-                        config: m.route },
-                      badges && badges.length ? m(
-                        'ul',
-                        { className: 'NotificationGroup-badges badges' },
-                        listItems(badges)
-                      ) : '',
-                      group.discussion.title()
-                    ) : m(
+                  notifications.forEach(function (notification) {
+                    var subject = notification.subject();
+
+                    if (typeof subject === 'undefined') return;
+
+                    // Get the discussion that this notification is related to. If it's not
+                    // directly related to a discussion, it may be related to a post or
+                    // other entity which is related to a discussion.
+                    var discussion = false;
+                    if (subject instanceof Discussion) discussion = subject;else if (subject && subject.discussion) discussion = subject.discussion();
+
+                    // If the notification is not related to a discussion directly or
+                    // indirectly, then we will assign it to a neutral group.
+                    var key = discussion ? discussion.id() : 0;
+                    discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
+                    discussions[key].notifications.push(notification);
+
+                    if (groups.indexOf(discussions[key]) === -1) {
+                      groups.push(discussions[key]);
+                    }
+                  });
+
+                  return groups.map(function (group) {
+                    var badges = group.discussion && group.discussion.badges().toArray();
+
+                    return m(
                       'div',
-                      { className: 'NotificationGroup-header' },
-                      app.forum.attribute('title')
-                    ),
-                    m(
-                      'ul',
-                      { className: 'NotificationGroup-content' },
-                      group.notifications.map(function (notification) {
-                        var NotificationComponent = app.notificationComponents[notification.contentType()];
-                        return NotificationComponent ? m(
-                          'li',
-                          null,
-                          NotificationComponent.component({ notification: notification })
-                        ) : '';
-                      })
-                    )
-                  );
-                }) : !this.loading ? m(
+                      { className: 'NotificationGroup' },
+                      group.discussion ? m(
+                        'a',
+                        { className: 'NotificationGroup-header',
+                          href: app.route.discussion(group.discussion),
+                          config: m.route },
+                        badges && badges.length ? m(
+                          'ul',
+                          { className: 'NotificationGroup-badges badges' },
+                          listItems(badges)
+                        ) : '',
+                        group.discussion.title()
+                      ) : m(
+                        'div',
+                        { className: 'NotificationGroup-header' },
+                        app.forum.attribute('title')
+                      ),
+                      m(
+                        'ul',
+                        { className: 'NotificationGroup-content' },
+                        group.notifications.map(function (notification) {
+                          var NotificationComponent = app.notificationComponents[notification.contentType()];
+                          return NotificationComponent ? m(
+                            'li',
+                            null,
+                            NotificationComponent.component({ notification: notification })
+                          ) : '';
+                        })
+                      )
+                    );
+                  });
+                }) : '',
+                this.loading ? m(LoadingIndicator, { className: 'LoadingIndicator--block' }) : pages.length ? '' : m(
                   'div',
                   { className: 'NotificationList-empty' },
                   app.translator.trans('core.forum.notifications.empty_text')
-                ) : LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                )
               )
             );
           }
         }, {
-          key: 'load',
-          value: function load() {
+          key: 'config',
+          value: function config(isInitialized, context) {
             var _this2 = this;
 
-            if (app.cache.notifications && !app.session.user.newNotificationsCount()) {
+            if (isInitialized) return;
+
+            var $notifications = this.$('.NotificationList-content');
+            var $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+
+            var scrollHandler = function scrollHandler() {
+              var scrollTop = $scrollParent.scrollTop();
+              var viewportHeight = $scrollParent.height();
+              var contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
+              var contentHeight = $notifications[0].scrollHeight;
+
+              if (_this2.moreResults && !_this2.loading && scrollTop + viewportHeight >= contentTop + contentHeight) {
+                _this2.loadMore();
+              }
+            };
+
+            $scrollParent.on('scroll', scrollHandler);
+
+            context.onunload = function () {
+              $scrollParent.off('scroll', scrollHandler);
+            };
+          }
+        }, {
+          key: 'load',
+          value: function load() {
+            if (app.session.user.newNotificationsCount()) {
+              delete app.cache.notifications;
+            }
+
+            if (app.cache.notifications) {
               return;
             }
+
+            app.session.user.pushAttributes({ newNotificationsCount: 0 });
+
+            this.loadMore();
+          }
+        }, {
+          key: 'loadMore',
+          value: function loadMore() {
+            var _this3 = this;
 
             this.loading = true;
             m.redraw();
 
-            app.store.find('notifications').then(function (notifications) {
-              app.session.user.pushAttributes({ newNotificationsCount: 0 });
-              app.cache.notifications = notifications.sort(function (a, b) {
-                return b.time() - a.time();
-              });
-            }).catch(function () {}).then(function () {
-              _this2.loading = false;
+            var params = app.cache.notifications ? { page: { offset: app.cache.notifications.length * 10 } } : null;
+
+            return app.store.find('notifications', params).then(this.parseResults.bind(this)).catch(function () {}).then(function () {
+              _this3.loading = false;
               m.redraw();
             });
+          }
+        }, {
+          key: 'parseResults',
+          value: function parseResults(results) {
+            app.cache.notifications = app.cache.notifications || [];
+            app.cache.notifications.push(results);
+
+            this.moreResults = !!results.payload.links.next;
+
+            return results;
           }
         }, {
           key: 'markAllAsRead',
@@ -24095,8 +24147,10 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
 
             app.session.user.pushAttributes({ unreadNotificationsCount: 0 });
 
-            app.cache.notifications.forEach(function (notification) {
-              return notification.pushAttributes({ isRead: true });
+            app.cache.notifications.forEach(function (notifications) {
+              notifications.forEach(function (notification) {
+                return notification.pushAttributes({ isRead: true });
+              });
             });
 
             app.request({
