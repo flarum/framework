@@ -14,7 +14,6 @@ namespace Flarum\Locale;
 use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Component\Translation\MessageSelector;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
