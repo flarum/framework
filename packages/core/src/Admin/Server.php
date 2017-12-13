@@ -14,7 +14,6 @@ namespace Flarum\Admin;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Foundation\Application;
 use Flarum\Http\AbstractServer;
-use Flarum\Http\Middleware\HandleErrors;
 use Zend\Stratigility\MiddlewarePipe;
 
 class Server extends AbstractServer
