@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Flarum.
  *
@@ -59,4 +60,3 @@ class ShareErrorsFromSession implements MiddlewareInterface
         return $out ? $out($request, $response) : $response;
     }
 }
-
