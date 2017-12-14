@@ -18,6 +18,7 @@ use Flarum\Group\Permission;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendController extends AbstractFrontendController
@@ -33,17 +34,24 @@ class FrontendController extends AbstractFrontendController
     protected $extensions;
 
     /**
+     * @var ConnectionInterface
+     */
+    protected $db;
+
+    /**
      * @param Frontend $webApp
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
+     * @param ConnectionInterface $db
      */
-    public function __construct(Frontend $webApp, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions)
+    public function __construct(Frontend $webApp, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions, ConnectionInterface $db)
     {
         $this->webApp = $webApp;
         $this->events = $events;
         $this->settings = $settings;
         $this->extensions = $extensions;
+        $this->db = $db;
     }
 
     /**
@@ -62,6 +70,9 @@ class FrontendController extends AbstractFrontendController
         $view->setVariable('settings', $settings);
         $view->setVariable('permissions', Permission::map());
         $view->setVariable('extensions', $this->extensions->getExtensions()->toArray());
+
+        $view->setVariable('phpVersion', PHP_VERSION);
+        $view->setVariable('mysqlVersion', $this->db->selectOne('select version() as version')->version);
 
         return $view;
     }

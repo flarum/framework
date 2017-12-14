@@ -86,7 +86,7 @@ abstract class AbstractFrontend
      */
     protected function getLayout()
     {
-        return __DIR__.'/../../views/'.$this->getName().'.blade.php';
+        return 'flarum.forum::'.$this->getName();
     }
 
     /**
@@ -131,10 +131,6 @@ abstract class AbstractFrontend
 
         $css->addString($lessVariables);
         $localeCss->addString($lessVariables);
-
-        $css->addString(function () {
-            return $this->settings->get('custom_less');
-        });
     }
 
     /**

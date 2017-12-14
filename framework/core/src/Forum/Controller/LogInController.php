@@ -81,7 +81,9 @@ class LogInController implements ControllerInterface
 
             event(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
-            $response = $this->rememberer->remember($response, $token, ! array_get($body, 'remember'));
+            if (array_get($body, 'remember')) {
+                $response = $this->rememberer->remember($response, $token);
+            }
         }
 
         return $response;

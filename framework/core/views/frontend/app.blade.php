@@ -50,6 +50,7 @@
           }
 
           app.boot(@json($payload));
+
         @if (! $debug)
         } catch (e) {
           window.location += (window.location.search ? '&' : '?') + 'nojs=1';

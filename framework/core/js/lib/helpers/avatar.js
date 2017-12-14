@@ -19,7 +19,7 @@ export default function avatar(user, attrs = {}) {
   // uploaded image, or the first letter of their username if they haven't
   // uploaded one.
   if (user) {
-    const username = user.username() || '?';
+    const username = user.displayName() || '?';
     const avatarUrl = user.avatarUrl();
 
     if (hasTitle) attrs.title = attrs.title || username;

@@ -153,6 +153,16 @@ class CommentPost extends Post
     }
 
     /**
+     * Set the parsed/raw content.
+     *
+     * @param string $value
+     */
+    public function setParsedContentAttribute($value)
+    {
+        $this->attributes['content'] = $value;
+    }
+
+    /**
      * Get the content rendered as HTML.
      *
      * @param string $value

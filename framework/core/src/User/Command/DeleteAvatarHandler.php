@@ -15,8 +15,9 @@ use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Event\AvatarDeleting;
 use Flarum\User\UserRepository;
+use Flarum\Core\AvatarUploader;
+use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
-use League\Flysystem\FilesystemInterface;
 
 class DeleteAvatarHandler
 {
@@ -29,20 +30,20 @@ class DeleteAvatarHandler
     protected $users;
 
     /**
-     * @var FilesystemInterface
+     * @var AvatarUploader
      */
-    protected $uploadDir;
+    protected $uploader;
 
     /**
      * @param Dispatcher $events
      * @param UserRepository $users
-     * @param FilesystemInterface $uploadDir
+     * @param AvatarUploader $uploader
      */
-    public function __construct(Dispatcher $events, UserRepository $users, FilesystemInterface $uploadDir)
+    public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader)
     {
         $this->events = $events;
         $this->users = $users;
-        $this->uploadDir = $uploadDir;
+        $this->uploader = $uploader;
     }
 
     /**
@@ -60,18 +61,13 @@ class DeleteAvatarHandler
             $this->assertCan($actor, 'edit', $user);
         }
 
-        $avatarPath = $user->avatar_path;
-        $user->changeAvatarPath(null);
+        $this->uploader->remove($user);
 
         $this->events->fire(
             new AvatarDeleting($user, $actor)
         );
 
         $user->save();
-
-        if ($this->uploadDir->has($avatarPath)) {
-            $this->uploadDir->delete($avatarPath);
-        }
 
         $this->dispatchEventsFor($user, $actor);
 

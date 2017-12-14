@@ -17536,11 +17536,13 @@ System.register('flarum/components/AdminNav', ['flarum/Component', 'flarum/compo
         babelHelpers.createClass(AdminNav, [{
           key: 'view',
           value: function view() {
-            return m(SelectDropdown, {
-              className: 'AdminNav App-titleControl',
-              buttonClassName: 'Button',
-              children: this.items().toArray()
-            });
+            return m(
+              SelectDropdown,
+              {
+                className: 'AdminNav App-titleControl',
+                buttonClassName: 'Button' },
+              this.items().toArray()
+            );
           }
         }, {
           key: 'items',
@@ -17832,8 +17834,8 @@ System.register('flarum/components/AppearancePage', ['flarum/components/Page', '
                     m(
                       'div',
                       { className: 'AppearancePage-colors-input' },
-                      m('input', { className: 'FormControl', type: 'color', placeholder: '#aaaaaa', value: this.primaryColor(), onchange: m.withAttr('value', this.primaryColor) }),
-                      m('input', { className: 'FormControl', type: 'color', placeholder: '#aaaaaa', value: this.secondaryColor(), onchange: m.withAttr('value', this.secondaryColor) })
+                      m('input', { className: 'FormControl', type: 'text', placeholder: '#aaaaaa', value: this.primaryColor(), onchange: m.withAttr('value', this.primaryColor) }),
+                      m('input', { className: 'FormControl', type: 'text', placeholder: '#aaaaaa', value: this.secondaryColor(), onchange: m.withAttr('value', this.secondaryColor) })
                     ),
                     Switch.component({
                       state: this.darkMode(),
@@ -18356,15 +18358,17 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
     }
   };
 });;
-"use strict";
+'use strict';
 
-System.register("flarum/components/DashboardPage", ["flarum/components/Page"], function (_export, _context) {
+System.register('flarum/components/DashboardPage', ['flarum/components/Page', 'flarum/components/StatusWidget'], function (_export, _context) {
   "use strict";
 
-  var Page, DashboardPage;
+  var Page, StatusWidget, DashboardPage;
   return {
     setters: [function (_flarumComponentsPage) {
       Page = _flarumComponentsPage.default;
+    }, function (_flarumComponentsStatusWidget) {
+      StatusWidget = _flarumComponentsStatusWidget.default;
     }],
     execute: function () {
       DashboardPage = function (_Page) {
@@ -18376,70 +18380,74 @@ System.register("flarum/components/DashboardPage", ["flarum/components/Page"], f
         }
 
         babelHelpers.createClass(DashboardPage, [{
-          key: "view",
+          key: 'view',
           value: function view() {
             return m(
-              "div",
-              { className: "DashboardPage" },
+              'div',
+              { className: 'DashboardPage' },
               m(
-                "div",
-                { className: "container" },
-                m(
-                  "h2",
-                  null,
-                  app.translator.trans('core.admin.dashboard.welcome_text')
-                ),
-                m(
-                  "p",
-                  null,
-                  app.translator.trans('core.admin.dashboard.version_text', { version: m(
-                      "strong",
-                      null,
-                      app.forum.attribute('version')
-                    ) })
-                ),
-                m(
-                  "p",
-                  null,
-                  app.translator.trans('core.admin.dashboard.beta_warning_text', { strong: m("strong", null) })
-                ),
-                m(
-                  "ul",
-                  null,
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.contributing_text', { a: m("a", { href: "http://flarum.org/docs/contributing", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.troubleshooting_text', { a: m("a", { href: "http://flarum.org/docs/troubleshooting", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.support_text', { a: m("a", { href: "http://discuss.flarum.org/t/support", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.features_text', { a: m("a", { href: "http://discuss.flarum.org/t/features", target: "_blank" }) })
-                  ),
-                  m(
-                    "li",
-                    null,
-                    app.translator.trans('core.admin.dashboard.extension_text', { a: m("a", { href: "http://flarum.org/docs/extend", target: "_blank" }) })
-                  )
-                )
+                'div',
+                { className: 'container' },
+                this.availableWidgets()
               )
             );
+          }
+        }, {
+          key: 'availableWidgets',
+          value: function availableWidgets() {
+            return [m(StatusWidget, null)];
           }
         }]);
         return DashboardPage;
       }(Page);
 
-      _export("default", DashboardPage);
+      _export('default', DashboardPage);
+    }
+  };
+});;
+'use strict';
+
+System.register('flarum/components/DashboardWidget', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
+  var Component, Widget;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent.default;
+    }],
+    execute: function () {
+      Widget = function (_Component) {
+        babelHelpers.inherits(Widget, _Component);
+
+        function Widget() {
+          babelHelpers.classCallCheck(this, Widget);
+          return babelHelpers.possibleConstructorReturn(this, (Widget.__proto__ || Object.getPrototypeOf(Widget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(Widget, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: "Widget " + this.className() },
+              this.content()
+            );
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return '';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return [];
+          }
+        }]);
+        return Widget;
+      }(Component);
+
+      _export('default', Widget);
     }
   };
 });;
@@ -18508,6 +18516,10 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
               $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+
+              if ($menu.offset().top < 0) {
+                $menu.removeClass('Dropdown-menu--top');
+              }
 
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
             });
@@ -21102,6 +21114,84 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
 });;
 'use strict';
 
+System.register('flarum/components/StatusWidget', ['flarum/components/DashboardWidget', 'flarum/helpers/icon', 'flarum/helpers/listItems', 'flarum/utils/ItemList'], function (_export, _context) {
+  "use strict";
+
+  var DashboardWidget, icon, listItems, ItemList, StatusWidget;
+  return {
+    setters: [function (_flarumComponentsDashboardWidget) {
+      DashboardWidget = _flarumComponentsDashboardWidget.default;
+    }, function (_flarumHelpersIcon) {
+      icon = _flarumHelpersIcon.default;
+    }, function (_flarumHelpersListItems) {
+      listItems = _flarumHelpersListItems.default;
+    }, function (_flarumUtilsItemList) {
+      ItemList = _flarumUtilsItemList.default;
+    }],
+    execute: function () {
+      StatusWidget = function (_DashboardWidget) {
+        babelHelpers.inherits(StatusWidget, _DashboardWidget);
+
+        function StatusWidget() {
+          babelHelpers.classCallCheck(this, StatusWidget);
+          return babelHelpers.possibleConstructorReturn(this, (StatusWidget.__proto__ || Object.getPrototypeOf(StatusWidget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(StatusWidget, [{
+          key: 'className',
+          value: function className() {
+            return 'StatusWidget';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return m(
+              'ul',
+              null,
+              listItems(this.items().toArray())
+            );
+          }
+        }, {
+          key: 'items',
+          value: function items() {
+            var items = new ItemList();
+
+            items.add('help', m(
+              'a',
+              { href: 'http://flarum.org/docs/troubleshooting', target: '_blank' },
+              icon('question-circle'),
+              ' ',
+              app.translator.trans('core.admin.dashboard.help_link')
+            ));
+
+            items.add('version-flarum', [m(
+              'strong',
+              null,
+              'Flarum'
+            ), m('br', null), app.forum.attribute('version')]);
+            items.add('version-php', [m(
+              'strong',
+              null,
+              'PHP'
+            ), m('br', null), app.data.phpVersion]);
+            items.add('version-mysql', [m(
+              'strong',
+              null,
+              'MySQL'
+            ), m('br', null), app.data.mysqlVersion]);
+
+            return items;
+          }
+        }]);
+        return StatusWidget;
+      }(DashboardWidget);
+
+      _export('default', StatusWidget);
+    }
+  };
+});;
+'use strict';
+
 System.register('flarum/components/Switch', ['flarum/components/Checkbox'], function (_export, _context) {
   "use strict";
 
@@ -21255,6 +21345,52 @@ System.register('flarum/components/UploadImageButton', ['flarum/components/Butto
     }
   };
 });;
+'use strict';
+
+System.register('flarum/components/Widget', ['flarum/Component'], function (_export, _context) {
+  "use strict";
+
+  var Component, DashboardWidget;
+  return {
+    setters: [function (_flarumComponent) {
+      Component = _flarumComponent.default;
+    }],
+    execute: function () {
+      DashboardWidget = function (_Component) {
+        babelHelpers.inherits(DashboardWidget, _Component);
+
+        function DashboardWidget() {
+          babelHelpers.classCallCheck(this, DashboardWidget);
+          return babelHelpers.possibleConstructorReturn(this, (DashboardWidget.__proto__ || Object.getPrototypeOf(DashboardWidget)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(DashboardWidget, [{
+          key: 'view',
+          value: function view() {
+            return m(
+              'div',
+              { className: "DashboardWidget " + this.className() },
+              this.content()
+            );
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return '';
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            return [];
+          }
+        }]);
+        return DashboardWidget;
+      }(Component);
+
+      _export('default', DashboardWidget);
+    }
+  };
+});;
 "use strict";
 
 System.register("flarum/extend", [], function (_export, _context) {
@@ -21364,7 +21500,7 @@ System.register('flarum/helpers/avatar', [], function (_export, _context) {
     // uploaded image, or the first letter of their username if they haven't
     // uploaded one.
     if (user) {
-      var username = user.username() || '?';
+      var username = user.displayName() || '?';
       var avatarUrl = user.avatarUrl();
 
       if (hasTitle) attrs.title = attrs.title || username;
@@ -21614,7 +21750,7 @@ System.register("flarum/helpers/username", [], function (_export, _context) {
   "use strict";
 
   function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
+    var name = user && user.displayName() || app.translator.trans('core.lib.username.deleted_text');
 
     return m(
       "span",
@@ -22445,15 +22581,12 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
 
       babelHelpers.extends(User.prototype, {
         username: Model.attribute('username'),
+        displayName: Model.attribute('displayName'),
         email: Model.attribute('email'),
         isActivated: Model.attribute('isActivated'),
         password: Model.attribute('password'),
 
         avatarUrl: Model.attribute('avatarUrl'),
-        bio: Model.attribute('bio'),
-        bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({ rel: 'nofollow' }) + '</p>' : '';
-        }),
         preferences: Model.attribute('preferences'),
         groups: Model.hasMany('groups'),
 
@@ -23316,7 +23449,7 @@ System.register('flarum/utils/extractText', [], function (_export, _context) {
       return vdom.map(function (element) {
         return extractText(element);
       }).join('');
-    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object') {
+    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object' && vdom !== null) {
       return extractText(vdom.children);
     } else {
       return vdom;
@@ -23602,7 +23735,12 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
       }
 
       if (comp.prototype && comp.prototype instanceof Component) {
-        return comp.component.apply(comp, args);
+        var children = args.slice(1);
+        if (children.length === 1 && Array.isArray(children[0])) {
+          children = children[0];
+        }
+
+        return comp.component(args[0], children);
       }
 
       var node = mo.apply(this, arguments);

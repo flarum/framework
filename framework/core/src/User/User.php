@@ -15,16 +15,26 @@ use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
+use Flarum\Event\GetDisplayName;
+use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PrepareUserGroups;
+use Flarum\Event\UserAvatarWasChanged;
+use Flarum\Event\UserEmailChangeWasRequested;
+use Flarum\Event\UserEmailWasChanged;
+use Flarum\Event\UserPasswordWasChanged;
+use Flarum\Event\UserWasActivated;
+use Flarum\Event\UserWasDeleted;
+use Flarum\Event\UserWasRegistered;
+use Flarum\Event\UserWasRenamed;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
+use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
-use Flarum\User\Event\BioChanged;
 use Flarum\User\Event\CheckingPassword;
 use Flarum\User\Event\Deleted;
 use Flarum\User\Event\EmailChanged;
@@ -42,7 +52,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * @property bool $is_activated
  * @property string $password
  * @property string $locale
- * @property string $bio
  * @property string|null $avatar_path
  * @property string $avatar_url
  * @property array $preferences
@@ -264,21 +273,6 @@ class User extends AbstractModel
     }
 
     /**
-     * Change the user's bio.
-     *
-     * @param string $bio
-     * @return $this
-     */
-    public function changeBio($bio)
-    {
-        $this->bio = $bio;
-
-        $this->raise(new BioChanged($this));
-
-        return $this;
-    }
-
-    /**
      * Mark all discussions as read.
      *
      * @return $this
@@ -325,9 +319,23 @@ class User extends AbstractModel
      */
     public function getAvatarUrlAttribute()
     {
-        $urlGenerator = app('Flarum\Http\UrlGenerator');
+        if ($this->avatar_path) {
+            if (strpos($this->avatar_path, '://') !== false) {
+                return $this->avatar_path;
+            }
 
-        return $this->avatar_path ? $urlGenerator->to('forum')->path('assets/avatars/'.$this->avatar_path) : null;
+            return app(UrlGenerator::class)->toPath('assets/avatars/'.$this->avatar_path);
+        }
+    }
+
+    /**
+     * Get the user's display name.
+     *
+     * @return string
+     */
+    public function getDisplayNameAttribute()
+    {
+        return static::$dispatcher->until(new GetDisplayName($this)) ?: $this->username;
     }
 
     /**
