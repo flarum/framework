@@ -26,8 +26,9 @@ use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
-use Flarum\Settings\Event\Saved;
 use Zend\Stratigility\MiddlewarePipe;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
@@ -50,8 +51,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
             // All requests should first be piped through our global error handler
             $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
-            $errorDir = __DIR__.'/../../error';
-            $pipe->pipe(new HandleErrors($errorDir, $app->make('log'), $debugMode));
+            $pipe->pipe($app->make(HandleErrors::class, ['debug' => $debugMode]));
 
             $pipe->pipe($app->make(ParseJsonBody::class));
             $pipe->pipe($app->make(StartSession::class));
@@ -74,7 +74,12 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
-        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
+        $this->loadViewsFrom(__DIR__.'/../../views/frontend', 'flarum.forum');
+
+        $this->app->make('view')->share([
+            'translator' => $this->app->make(TranslatorInterface::class),
+            'settings' => $this->app->make(SettingsRepositoryInterface::class)
+        ]);
 
         $this->flushWebAppAssetsWhenThemeChanged();
 

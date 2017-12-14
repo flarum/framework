@@ -88,4 +88,12 @@ class BasicDiscussionSerializer extends AbstractSerializer
     {
         return $this->hasMany($discussion, 'Flarum\Api\Serializer\BasicPostSerializer');
     }
+
+    /**
+     * @return \Tobscure\JsonApi\Relationship
+     */
+    protected function hideUser($discussion)
+    {
+        return $this->hasOne($discussion, 'Flarum\Api\Serializer\UserBasicSerializer');
+    }
 }

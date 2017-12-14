@@ -12,18 +12,21 @@
 namespace Flarum\Http\Middleware;
 
 use Exception;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
 class HandleErrors
 {
     /**
-     * @var string
+     * @var ViewFactory
      */
-    protected $templateDir;
+    protected $view;
 
     /**
      * @var LoggerInterface
@@ -31,19 +34,33 @@ class HandleErrors
     protected $logger;
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
      * @var bool
      */
     protected $debug;
 
     /**
-     * @param string $templateDir
+     * @param ViewFactory $view
      * @param LoggerInterface $logger
+     * @param TranslatorInterface $translator
+     * @param SettingsRepositoryInterface $settings
      * @param bool $debug
      */
-    public function __construct($templateDir, LoggerInterface $logger, $debug = false)
+    public function __construct(ViewFactory $view, LoggerInterface $logger, TranslatorInterface $translator, SettingsRepositoryInterface $settings, $debug = false)
     {
-        $this->templateDir = $templateDir;
+        $this->view = $view;
         $this->logger = $logger;
+        $this->translator = $translator;
+        $this->settings = $settings;
         $this->debug = $debug;
     }
 
@@ -75,7 +92,7 @@ class HandleErrors
             $status = $errorCode;
         }
 
-        if ($this->debug && ! in_array($errorCode, [403, 404])) {
+        if ($this->debug) {
             $whoops = new WhoopsMiddleware;
 
             return $whoops($error, $request, $response, $out);
@@ -84,21 +101,33 @@ class HandleErrors
         // Log the exception (with trace)
         $this->logger->debug($error);
 
-        $errorPage = $this->getErrorPage($status);
-
-        return new HtmlResponse($errorPage, $status);
-    }
-
-    /**
-     * @param string $status
-     * @return string
-     */
-    protected function getErrorPage($status)
-    {
-        if (! file_exists($errorPage = $this->templateDir."/$status.html")) {
-            $errorPage = $this->templateDir.'/500.html';
+        if (! $this->view->exists($name = 'flarum.forum::error.'.$status)) {
+            $name = 'flarum.forum::error.default';
         }
 
-        return file_get_contents($errorPage);
+        $view = $this->view->make($name)
+            ->with('error', $error)
+            ->with('message', $this->getMessage($status));
+
+        return new HtmlResponse($view->render(), $status);
+    }
+
+    private function getMessage($status)
+    {
+        if (! $translation = $this->getTranslationIfExists($status)) {
+            if (! $translation = $this->getTranslationIfExists(500)) {
+                $translation = 'An error occurred while trying to load this page.';
+            }
+        }
+
+        return $translation;
+    }
+
+    private function getTranslationIfExists($status)
+    {
+        $key = 'core.views.error.'.$status.'_message';
+        $translation = $this->translator->trans($key, ['{forum}' => $this->settings->get('forum_title')]);
+
+        return $translation === $key ? false : $translation;
     }
 }

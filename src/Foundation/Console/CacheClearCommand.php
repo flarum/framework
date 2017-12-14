@@ -14,35 +14,51 @@ namespace Flarum\Foundation\Console;
 use Flarum\Admin\Frontend as AdminWebApp;
 use Flarum\Console\AbstractCommand;
 use Flarum\Forum\Frontend as ForumWebApp;
+use Flarum\Foundation\Application;
 use Illuminate\Contracts\Cache\Store;
 
 class CacheClearCommand extends AbstractCommand
 {
     /**
-     * @var \Illuminate\Contracts\Cache\Store
+     * @var Store
      */
     protected $cache;
 
     /**
+<<<<<<< HEAD:src/Foundation/Console/CacheClearCommand.php
      * @var \Flarum\Forum\Frontend
+=======
+     * @var ForumWebApp
+>>>>>>> master:src/Debug/Console/CacheClearCommand.php
      */
     protected $forum;
 
     /**
+<<<<<<< HEAD:src/Foundation/Console/CacheClearCommand.php
      * @var \Flarum\Admin\Frontend
+=======
+     * @var AdminWebApp
+>>>>>>> master:src/Debug/Console/CacheClearCommand.php
      */
     protected $admin;
+
+    /**
+     * @var Application
+     */
+    protected $app;
 
     /**
      * @param Store $cache
      * @param ForumWebApp $forum
      * @param AdminWebApp $admin
+     * @param Application $app
      */
-    public function __construct(Store $cache, ForumWebApp $forum, AdminWebApp $admin)
+    public function __construct(Store $cache, ForumWebApp $forum, AdminWebApp $admin, Application $app)
     {
         $this->cache = $cache;
         $this->forum = $forum;
         $this->admin = $admin;
+        $this->app = $app;
 
         parent::__construct();
     }
@@ -68,5 +84,9 @@ class CacheClearCommand extends AbstractCommand
         $this->admin->getAssets()->flush();
 
         $this->cache->flush();
+
+        $storagePath = $this->app->storagePath();
+        array_map('unlink', glob($storagePath.'/formatter/*'));
+        array_map('unlink', glob($storagePath.'/locale/*'));
     }
 }

@@ -17,16 +17,46 @@ use Flarum\Foundation\Application;
 class CookieFactory
 {
     /**
-     * @var Application
+     * The prefix for the cookie names.
+     *
+     * @var string
      */
-    protected $app;
+    protected $prefix;
+
+    /**
+     * A path scope for the cookies.
+     *
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * A domain scope for the cookies.
+     *
+     * @var string
+     */
+    protected $domain;
+
+    /**
+     * Whether the cookie(s) can be requested only over HTTPS.
+     *
+     * @var bool
+     */
+    protected $secure;
 
     /**
      * @param Application $app
      */
     public function __construct(Application $app)
     {
-        $this->app = $app;
+        // Parse the forum's base URL so that we can determine the optimal cookie settings
+        $url = parse_url(rtrim($app->url(), '/'));
+
+        // Get the cookie settings from the config or use the default values
+        $this->prefix = $app->config('cookie.name', 'flarum');
+        $this->path = $app->config('cookie.path', array_get($url, 'path') ?: '/');
+        $this->domain = $app->config('cookie.domain');
+        $this->secure = $app->config('cookie.secure', array_get($url, 'scheme') === 'https');
     }
 
     /**
@@ -42,10 +72,7 @@ class CookieFactory
      */
     public function make($name, $value = null, $maxAge = null)
     {
-        // Parse the forum's base URL so that we can determine the optimal cookie settings
-        $url = parse_url(rtrim($this->app->url(), '/'));
-
-        $cookie = SetCookie::create($name, $value);
+        $cookie = SetCookie::create($this->getName($name), $value);
 
         // Make sure we send both the MaxAge and Expires parameters (the former
         // is not supported by all browser versions)
@@ -55,9 +82,35 @@ class CookieFactory
                 ->withExpires(time() + $maxAge);
         }
 
+        if ($this->domain != null) {
+            $cookie = $cookie->withDomain($this->domain);
+        }
+
         return $cookie
-            ->withPath(array_get($url, 'path') ?: '/')
-            ->withSecure(array_get($url, 'scheme') === 'https')
+            ->withPath($this->path)
+            ->withSecure($this->secure)
             ->withHttpOnly(true);
+    }
+
+    /**
+     * Make an expired cookie instance.
+     *
+     * @param string $name
+     * @return \Dflydev\FigCookies\SetCookie
+     */
+    public function expire($name)
+    {
+        return $this->make($name)->expire();
+    }
+
+    /**
+     * Get a cookie name.
+     *
+     * @param string $name
+     * @return string
+     */
+    public function getName($name)
+    {
+        return $this->prefix.'_'.$name;
     }
 }

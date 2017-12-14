@@ -15,6 +15,10 @@ use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
+use Flarum\Core\Listener\CheckCustomLessFormat;
+use Flarum\Event\ExtensionWasDisabled;
+use Flarum\Event\ExtensionWasEnabled;
+use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\Middleware\DispatchRoute;
@@ -80,6 +84,8 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->flushWebAppAssetsWhenThemeChanged();
 
         $this->flushWebAppAssetsWhenExtensionsChanged();
+
+        $this->checkCustomLessFormat();
     }
 
     /**
@@ -123,5 +129,12 @@ class AdminServiceProvider extends AbstractServiceProvider
     protected function getWebAppAssets()
     {
         return $this->app->make(Frontend::class)->getAssets();
+    }
+
+    protected function checkCustomLessFormat()
+    {
+        $events = $this->app->make('events');
+
+        $events->subscribe(CheckCustomLessFormat::class);
     }
 }

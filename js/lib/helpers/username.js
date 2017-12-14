@@ -6,7 +6,7 @@
  * @return {Object}
  */
 export default function username(user) {
-  const name = (user && user.username()) || app.translator.trans('core.lib.username.deleted_text');
+  const name = (user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text');
 
   return <span className="username">{name}</span>;
 }

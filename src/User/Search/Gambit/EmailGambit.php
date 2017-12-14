@@ -42,7 +42,7 @@ class EmailGambit extends AbstractRegexGambit
      */
     public function apply(AbstractSearch $search, $bit)
     {
-        if (! $search->getActor()->isAdmin()) {
+        if (! $search->getActor()->hasPermission('user.edit')) {
             return false;
         }
 
@@ -60,8 +60,6 @@ class EmailGambit extends AbstractRegexGambit
 
         $email = trim($matches[1], '"');
 
-        $user = $this->users->findByEmail($email);
-
-        $search->getQuery()->where('id', $negate ? '!=' : '=', $user->id);
+        $search->getQuery()->where('email', $negate ? '!=' : '=', $email);
     }
 }

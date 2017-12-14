@@ -10,13 +10,12 @@ export default class User extends Model {}
 
 Object.assign(User.prototype, {
   username: Model.attribute('username'),
+  displayName: Model.attribute('displayName'),
   email: Model.attribute('email'),
   isActivated: Model.attribute('isActivated'),
   password: Model.attribute('password'),
 
   avatarUrl: Model.attribute('avatarUrl'),
-  bio: Model.attribute('bio'),
-  bioHtml: computed('bio', bio => bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({rel: 'nofollow'}) + '</p>' : ''),
   preferences: Model.attribute('preferences'),
   groups: Model.hasMany('groups'),
 

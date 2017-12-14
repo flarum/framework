@@ -36,8 +36,9 @@ class BasicUserSerializer extends AbstractSerializer
         }
 
         return [
-            'username'  => $user->username,
-            'avatarUrl' => $user->avatar_url
+            'username'    => $user->username,
+            'displayName' => $user->display_name,
+            'avatarUrl'   => $user->avatar_url
         ];
     }
 

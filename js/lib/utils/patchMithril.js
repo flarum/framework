@@ -5,7 +5,12 @@ export default function patchMithril(global) {
 
   const m = function(comp, ...args) {
     if (comp.prototype && comp.prototype instanceof Component) {
-      return comp.component(...args);
+      let children = args.slice(1);
+      if (children.length === 1 && Array.isArray(children[0])) {
+        children = children[0]
+      }
+
+      return comp.component(args[0], children);
     }
 
     const node = mo.apply(this, arguments);

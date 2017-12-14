@@ -107,7 +107,7 @@ class MigrationCreator
      */
     protected function getMigrationPath($extension)
     {
-        $parent = $extension ? public_path().'/extensions/'.$extension : __DIR__.'/../..';
+        $parent = $extension ? public_path('extensions/'.$extension) : __DIR__.'/../..';
 
         return $parent.'/migrations';
     }

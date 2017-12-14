@@ -16000,9 +16000,6 @@ var MMCQ = (function() {
     }
 }).call(this);
 ;
-(function(){var h=[].slice;String.prototype.autoLink=function(){var b,f,d,a,e,g;a=1<=arguments.length?h.call(arguments,0):[];e=/(^|[\s\n]|<[A-Za-z]*\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;if(!(0<a.length))return this.replace(e,"$1<a href='$2'>$2</a>");d=a[0];f=function(){var c;c=[];for(b in d)g=d[b],"callback"!==b&&c.push(" "+b+"='"+g+"'");return c}().join("");return this.replace(e,function(c,b,a){c=("function"===typeof d.callback?d.callback(a):
-void 0)||"<a href='"+a+"'"+f+">"+a+"</a>";return""+b+c})}}).call(this);
-;
 /* ========================================================================
  * Bootstrap: affix.js v3.3.7
  * http://getbootstrap.com/javascript/#affix
@@ -17672,848 +17669,6 @@ $('#el').spin('flower', 'red');
 
 }));
 ;
-;(function () {
-	'use strict';
-
-	/**
-	 * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
-	 *
-	 * @codingstandard ftlabs-jsv2
-	 * @copyright The Financial Times Limited [All Rights Reserved]
-	 * @license MIT License (see LICENSE.txt)
-	 */
-
-	/*jslint browser:true, node:true*/
-	/*global define, Event, Node*/
-
-
-	/**
-	 * Instantiate fast-clicking listeners on the specified layer.
-	 *
-	 * @constructor
-	 * @param {Element} layer The layer to listen on
-	 * @param {Object} [options={}] The options to override the defaults
-	 */
-	function FastClick(layer, options) {
-		var oldOnClick;
-
-		options = options || {};
-
-		/**
-		 * Whether a click is currently being tracked.
-		 *
-		 * @type boolean
-		 */
-		this.trackingClick = false;
-
-
-		/**
-		 * Timestamp for when click tracking started.
-		 *
-		 * @type number
-		 */
-		this.trackingClickStart = 0;
-
-
-		/**
-		 * The element being tracked for a click.
-		 *
-		 * @type EventTarget
-		 */
-		this.targetElement = null;
-
-
-		/**
-		 * X-coordinate of touch start event.
-		 *
-		 * @type number
-		 */
-		this.touchStartX = 0;
-
-
-		/**
-		 * Y-coordinate of touch start event.
-		 *
-		 * @type number
-		 */
-		this.touchStartY = 0;
-
-
-		/**
-		 * ID of the last touch, retrieved from Touch.identifier.
-		 *
-		 * @type number
-		 */
-		this.lastTouchIdentifier = 0;
-
-
-		/**
-		 * Touchmove boundary, beyond which a click will be cancelled.
-		 *
-		 * @type number
-		 */
-		this.touchBoundary = options.touchBoundary || 10;
-
-
-		/**
-		 * The FastClick layer.
-		 *
-		 * @type Element
-		 */
-		this.layer = layer;
-
-		/**
-		 * The minimum time between tap(touchstart and touchend) events
-		 *
-		 * @type number
-		 */
-		this.tapDelay = options.tapDelay || 200;
-
-		/**
-		 * The maximum time for a tap
-		 *
-		 * @type number
-		 */
-		this.tapTimeout = options.tapTimeout || 700;
-
-		if (FastClick.notNeeded(layer)) {
-			return;
-		}
-
-		// Some old versions of Android don't have Function.prototype.bind
-		function bind(method, context) {
-			return function() { return method.apply(context, arguments); };
-		}
-
-
-		var methods = ['onMouse', 'onClick', 'onTouchStart', 'onTouchMove', 'onTouchEnd', 'onTouchCancel'];
-		var context = this;
-		for (var i = 0, l = methods.length; i < l; i++) {
-			context[methods[i]] = bind(context[methods[i]], context);
-		}
-
-		// Set up event handlers as required
-		if (deviceIsAndroid) {
-			layer.addEventListener('mouseover', this.onMouse, true);
-			layer.addEventListener('mousedown', this.onMouse, true);
-			layer.addEventListener('mouseup', this.onMouse, true);
-		}
-
-		layer.addEventListener('click', this.onClick, true);
-		layer.addEventListener('touchstart', this.onTouchStart, false);
-		layer.addEventListener('touchmove', this.onTouchMove, false);
-		layer.addEventListener('touchend', this.onTouchEnd, false);
-		layer.addEventListener('touchcancel', this.onTouchCancel, false);
-
-		// Hack is required for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
-		// which is how FastClick normally stops click events bubbling to callbacks registered on the FastClick
-		// layer when they are cancelled.
-		if (!Event.prototype.stopImmediatePropagation) {
-			layer.removeEventListener = function(type, callback, capture) {
-				var rmv = Node.prototype.removeEventListener;
-				if (type === 'click') {
-					rmv.call(layer, type, callback.hijacked || callback, capture);
-				} else {
-					rmv.call(layer, type, callback, capture);
-				}
-			};
-
-			layer.addEventListener = function(type, callback, capture) {
-				var adv = Node.prototype.addEventListener;
-				if (type === 'click') {
-					adv.call(layer, type, callback.hijacked || (callback.hijacked = function(event) {
-						if (!event.propagationStopped) {
-							callback(event);
-						}
-					}), capture);
-				} else {
-					adv.call(layer, type, callback, capture);
-				}
-			};
-		}
-
-		// If a handler is already declared in the element's onclick attribute, it will be fired before
-		// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
-		// adding it as listener.
-		if (typeof layer.onclick === 'function') {
-
-			// Android browser on at least 3.2 requires a new reference to the function in layer.onclick
-			// - the old one won't work if passed to addEventListener directly.
-			oldOnClick = layer.onclick;
-			layer.addEventListener('click', function(event) {
-				oldOnClick(event);
-			}, false);
-			layer.onclick = null;
-		}
-	}
-
-	/**
-	* Windows Phone 8.1 fakes user agent string to look like Android and iPhone.
-	*
-	* @type boolean
-	*/
-	var deviceIsWindowsPhone = navigator.userAgent.indexOf("Windows Phone") >= 0;
-
-	/**
-	 * Android requires exceptions.
-	 *
-	 * @type boolean
-	 */
-	var deviceIsAndroid = navigator.userAgent.indexOf('Android') > 0 && !deviceIsWindowsPhone;
-
-
-	/**
-	 * iOS requires exceptions.
-	 *
-	 * @type boolean
-	 */
-	var deviceIsIOS = /iP(ad|hone|od)/.test(navigator.userAgent) && !deviceIsWindowsPhone;
-
-
-	/**
-	 * iOS 4 requires an exception for select elements.
-	 *
-	 * @type boolean
-	 */
-	var deviceIsIOS4 = deviceIsIOS && (/OS 4_\d(_\d)?/).test(navigator.userAgent);
-
-
-	/**
-	 * iOS 6.0-7.* requires the target element to be manually derived
-	 *
-	 * @type boolean
-	 */
-	var deviceIsIOSWithBadTarget = deviceIsIOS && (/OS [6-7]_\d/).test(navigator.userAgent);
-
-	/**
-	 * BlackBerry requires exceptions.
-	 *
-	 * @type boolean
-	 */
-	var deviceIsBlackBerry10 = navigator.userAgent.indexOf('BB10') > 0;
-
-	/**
-	 * Determine whether a given element requires a native click.
-	 *
-	 * @param {EventTarget|Element} target Target DOM element
-	 * @returns {boolean} Returns true if the element needs a native click
-	 */
-	FastClick.prototype.needsClick = function(target) {
-		switch (target.nodeName.toLowerCase()) {
-
-		// Don't send a synthetic click to disabled inputs (issue #62)
-		case 'button':
-		case 'select':
-		case 'textarea':
-			if (target.disabled) {
-				return true;
-			}
-
-			break;
-		case 'input':
-
-			// File inputs need real clicks on iOS 6 due to a browser bug (issue #68)
-			if ((deviceIsIOS && target.type === 'file') || target.disabled) {
-				return true;
-			}
-
-			break;
-		case 'label':
-		case 'iframe': // iOS8 homescreen apps can prevent events bubbling into frames
-		case 'video':
-			return true;
-		}
-
-		return (/\bneedsclick\b/).test(target.className);
-	};
-
-
-	/**
-	 * Determine whether a given element requires a call to focus to simulate click into element.
-	 *
-	 * @param {EventTarget|Element} target Target DOM element
-	 * @returns {boolean} Returns true if the element requires a call to focus to simulate native click.
-	 */
-	FastClick.prototype.needsFocus = function(target) {
-		switch (target.nodeName.toLowerCase()) {
-		case 'textarea':
-			return true;
-		case 'select':
-			return !deviceIsAndroid;
-		case 'input':
-			switch (target.type) {
-			case 'button':
-			case 'checkbox':
-			case 'file':
-			case 'image':
-			case 'radio':
-			case 'submit':
-				return false;
-			}
-
-			// No point in attempting to focus disabled inputs
-			return !target.disabled && !target.readOnly;
-		default:
-			return (/\bneedsfocus\b/).test(target.className);
-		}
-	};
-
-
-	/**
-	 * Send a click event to the specified element.
-	 *
-	 * @param {EventTarget|Element} targetElement
-	 * @param {Event} event
-	 */
-	FastClick.prototype.sendClick = function(targetElement, event) {
-		var clickEvent, touch;
-
-		// On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect (#24)
-		if (document.activeElement && document.activeElement !== targetElement) {
-			document.activeElement.blur();
-		}
-
-		touch = event.changedTouches[0];
-
-		// Synthesise a click event, with an extra attribute so it can be tracked
-		clickEvent = document.createEvent('MouseEvents');
-		clickEvent.initMouseEvent(this.determineEventType(targetElement), true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
-		clickEvent.forwardedTouchEvent = true;
-		targetElement.dispatchEvent(clickEvent);
-	};
-
-	FastClick.prototype.determineEventType = function(targetElement) {
-
-		//Issue #159: Android Chrome Select Box does not open with a synthetic click event
-		if (deviceIsAndroid && targetElement.tagName.toLowerCase() === 'select') {
-			return 'mousedown';
-		}
-
-		return 'click';
-	};
-
-
-	/**
-	 * @param {EventTarget|Element} targetElement
-	 */
-	FastClick.prototype.focus = function(targetElement) {
-		var length;
-
-		// Issue #160: on iOS 7, some input elements (e.g. date datetime month) throw a vague TypeError on setSelectionRange. These elements don't have an integer value for the selectionStart and selectionEnd properties, but unfortunately that can't be used for detection because accessing the properties also throws a TypeError. Just check the type instead. Filed as Apple bug #15122724.
-		if (deviceIsIOS && targetElement.setSelectionRange && targetElement.type.indexOf('date') !== 0 && targetElement.type !== 'time' && targetElement.type !== 'month') {
-			length = targetElement.value.length;
-			targetElement.setSelectionRange(length, length);
-		} else {
-			targetElement.focus();
-		}
-	};
-
-
-	/**
-	 * Check whether the given target element is a child of a scrollable layer and if so, set a flag on it.
-	 *
-	 * @param {EventTarget|Element} targetElement
-	 */
-	FastClick.prototype.updateScrollParent = function(targetElement) {
-		var scrollParent, parentElement;
-
-		scrollParent = targetElement.fastClickScrollParent;
-
-		// Attempt to discover whether the target element is contained within a scrollable layer. Re-check if the
-		// target element was moved to another parent.
-		if (!scrollParent || !scrollParent.contains(targetElement)) {
-			parentElement = targetElement;
-			do {
-				if (parentElement.scrollHeight > parentElement.offsetHeight) {
-					scrollParent = parentElement;
-					targetElement.fastClickScrollParent = parentElement;
-					break;
-				}
-
-				parentElement = parentElement.parentElement;
-			} while (parentElement);
-		}
-
-		// Always update the scroll top tracker if possible.
-		if (scrollParent) {
-			scrollParent.fastClickLastScrollTop = scrollParent.scrollTop;
-		}
-	};
-
-
-	/**
-	 * @param {EventTarget} targetElement
-	 * @returns {Element|EventTarget}
-	 */
-	FastClick.prototype.getTargetElementFromEventTarget = function(eventTarget) {
-
-		// On some older browsers (notably Safari on iOS 4.1 - see issue #56) the event target may be a text node.
-		if (eventTarget.nodeType === Node.TEXT_NODE) {
-			return eventTarget.parentNode;
-		}
-
-		return eventTarget;
-	};
-
-
-	/**
-	 * On touch start, record the position and scroll offset.
-	 *
-	 * @param {Event} event
-	 * @returns {boolean}
-	 */
-	FastClick.prototype.onTouchStart = function(event) {
-		var targetElement, touch, selection;
-
-		// Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
-		if (event.targetTouches.length > 1) {
-			return true;
-		}
-
-		targetElement = this.getTargetElementFromEventTarget(event.target);
-		touch = event.targetTouches[0];
-
-		if (deviceIsIOS) {
-
-			// Only trusted events will deselect text on iOS (issue #49)
-			selection = window.getSelection();
-			if (selection.rangeCount && !selection.isCollapsed) {
-				return true;
-			}
-
-			if (!deviceIsIOS4) {
-
-				// Weird things happen on iOS when an alert or confirm dialog is opened from a click event callback (issue #23):
-				// when the user next taps anywhere else on the page, new touchstart and touchend events are dispatched
-				// with the same identifier as the touch event that previously triggered the click that triggered the alert.
-				// Sadly, there is an issue on iOS 4 that causes some normal touch events to have the same identifier as an
-				// immediately preceeding touch event (issue #52), so this fix is unavailable on that platform.
-				// Issue 120: touch.identifier is 0 when Chrome dev tools 'Emulate touch events' is set with an iOS device UA string,
-				// which causes all touch events to be ignored. As this block only applies to iOS, and iOS identifiers are always long,
-				// random integers, it's safe to to continue if the identifier is 0 here.
-				if (touch.identifier && touch.identifier === this.lastTouchIdentifier) {
-					event.preventDefault();
-					return false;
-				}
-
-				this.lastTouchIdentifier = touch.identifier;
-
-				// If the target element is a child of a scrollable layer (using -webkit-overflow-scrolling: touch) and:
-				// 1) the user does a fling scroll on the scrollable layer
-				// 2) the user stops the fling scroll with another tap
-				// then the event.target of the last 'touchend' event will be the element that was under the user's finger
-				// when the fling scroll was started, causing FastClick to send a click event to that layer - unless a check
-				// is made to ensure that a parent layer was not scrolled before sending a synthetic click (issue #42).
-				this.updateScrollParent(targetElement);
-			}
-		}
-
-		this.trackingClick = true;
-		this.trackingClickStart = event.timeStamp;
-		this.targetElement = targetElement;
-
-		this.touchStartX = touch.pageX;
-		this.touchStartY = touch.pageY;
-
-		// Prevent phantom clicks on fast double-tap (issue #36)
-		if ((event.timeStamp - this.lastClickTime) < this.tapDelay) {
-			event.preventDefault();
-		}
-
-		return true;
-	};
-
-
-	/**
-	 * Based on a touchmove event object, check whether the touch has moved past a boundary since it started.
-	 *
-	 * @param {Event} event
-	 * @returns {boolean}
-	 */
-	FastClick.prototype.touchHasMoved = function(event) {
-		var touch = event.changedTouches[0], boundary = this.touchBoundary;
-
-		if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
-			return true;
-		}
-
-		return false;
-	};
-
-
-	/**
-	 * Update the last position.
-	 *
-	 * @param {Event} event
-	 * @returns {boolean}
-	 */
-	FastClick.prototype.onTouchMove = function(event) {
-		if (!this.trackingClick) {
-			return true;
-		}
-
-		// If the touch has moved, cancel the click tracking
-		if (this.targetElement !== this.getTargetElementFromEventTarget(event.target) || this.touchHasMoved(event)) {
-			this.trackingClick = false;
-			this.targetElement = null;
-		}
-
-		return true;
-	};
-
-
-	/**
-	 * Attempt to find the labelled control for the given label element.
-	 *
-	 * @param {EventTarget|HTMLLabelElement} labelElement
-	 * @returns {Element|null}
-	 */
-	FastClick.prototype.findControl = function(labelElement) {
-
-		// Fast path for newer browsers supporting the HTML5 control attribute
-		if (labelElement.control !== undefined) {
-			return labelElement.control;
-		}
-
-		// All browsers under test that support touch events also support the HTML5 htmlFor attribute
-		if (labelElement.htmlFor) {
-			return document.getElementById(labelElement.htmlFor);
-		}
-
-		// If no for attribute exists, attempt to retrieve the first labellable descendant element
-		// the list of which is defined here: http://www.w3.org/TR/html5/forms.html#category-label
-		return labelElement.querySelector('button, input:not([type=hidden]), keygen, meter, output, progress, select, textarea');
-	};
-
-
-	/**
-	 * On touch end, determine whether to send a click event at once.
-	 *
-	 * @param {Event} event
-	 * @returns {boolean}
-	 */
-	FastClick.prototype.onTouchEnd = function(event) {
-		var forElement, trackingClickStart, targetTagName, scrollParent, touch, targetElement = this.targetElement;
-
-		if (!this.trackingClick) {
-			return true;
-		}
-
-		// Prevent phantom clicks on fast double-tap (issue #36)
-		if ((event.timeStamp - this.lastClickTime) < this.tapDelay) {
-			this.cancelNextClick = true;
-			return true;
-		}
-
-		if ((event.timeStamp - this.trackingClickStart) > this.tapTimeout) {
-			return true;
-		}
-
-		// Reset to prevent wrong click cancel on input (issue #156).
-		this.cancelNextClick = false;
-
-		this.lastClickTime = event.timeStamp;
-
-		trackingClickStart = this.trackingClickStart;
-		this.trackingClick = false;
-		this.trackingClickStart = 0;
-
-		// On some iOS devices, the targetElement supplied with the event is invalid if the layer
-		// is performing a transition or scroll, and has to be re-detected manually. Note that
-		// for this to function correctly, it must be called *after* the event target is checked!
-		// See issue #57; also filed as rdar://13048589 .
-		if (deviceIsIOSWithBadTarget) {
-			touch = event.changedTouches[0];
-
-			// In certain cases arguments of elementFromPoint can be negative, so prevent setting targetElement to null
-			targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset) || targetElement;
-			targetElement.fastClickScrollParent = this.targetElement.fastClickScrollParent;
-		}
-
-		targetTagName = targetElement.tagName.toLowerCase();
-		if (targetTagName === 'label') {
-			forElement = this.findControl(targetElement);
-			if (forElement) {
-				this.focus(targetElement);
-				if (deviceIsAndroid) {
-					return false;
-				}
-
-				targetElement = forElement;
-			}
-		} else if (this.needsFocus(targetElement)) {
-
-			// Case 1: If the touch started a while ago (best guess is 100ms based on tests for issue #36) then focus will be triggered anyway. Return early and unset the target element reference so that the subsequent click will be allowed through.
-			// Case 2: Without this exception for input elements tapped when the document is contained in an iframe, then any inputted text won't be visible even though the value attribute is updated as the user types (issue #37).
-			if ((event.timeStamp - trackingClickStart) > 100 || (deviceIsIOS && window.top !== window && targetTagName === 'input')) {
-				this.targetElement = null;
-				return false;
-			}
-
-			this.focus(targetElement);
-			this.sendClick(targetElement, event);
-
-			// Select elements need the event to go through on iOS 4, otherwise the selector menu won't open.
-			// Also this breaks opening selects when VoiceOver is active on iOS6, iOS7 (and possibly others)
-			if (!deviceIsIOS || targetTagName !== 'select') {
-				this.targetElement = null;
-				event.preventDefault();
-			}
-
-			return false;
-		}
-
-		if (deviceIsIOS && !deviceIsIOS4) {
-
-			// Don't send a synthetic click event if the target element is contained within a parent layer that was scrolled
-			// and this tap is being used to stop the scrolling (usually initiated by a fling - issue #42).
-			scrollParent = targetElement.fastClickScrollParent;
-			if (scrollParent && scrollParent.fastClickLastScrollTop !== scrollParent.scrollTop) {
-				return true;
-			}
-		}
-
-		// Prevent the actual click from going though - unless the target node is marked as requiring
-		// real clicks or if it is in the whitelist in which case only non-programmatic clicks are permitted.
-		if (!this.needsClick(targetElement)) {
-			event.preventDefault();
-			this.sendClick(targetElement, event);
-		}
-
-		return false;
-	};
-
-
-	/**
-	 * On touch cancel, stop tracking the click.
-	 *
-	 * @returns {void}
-	 */
-	FastClick.prototype.onTouchCancel = function() {
-		this.trackingClick = false;
-		this.targetElement = null;
-	};
-
-
-	/**
-	 * Determine mouse events which should be permitted.
-	 *
-	 * @param {Event} event
-	 * @returns {boolean}
-	 */
-	FastClick.prototype.onMouse = function(event) {
-
-		// If a target element was never set (because a touch event was never fired) allow the event
-		if (!this.targetElement) {
-			return true;
-		}
-
-		if (event.forwardedTouchEvent) {
-			return true;
-		}
-
-		// Programmatically generated events targeting a specific element should be permitted
-		if (!event.cancelable) {
-			return true;
-		}
-
-		// Derive and check the target element to see whether the mouse event needs to be permitted;
-		// unless explicitly enabled, prevent non-touch click events from triggering actions,
-		// to prevent ghost/doubleclicks.
-		if (!this.needsClick(this.targetElement) || this.cancelNextClick) {
-
-			// Prevent any user-added listeners declared on FastClick element from being fired.
-			if (event.stopImmediatePropagation) {
-				event.stopImmediatePropagation();
-			} else {
-
-				// Part of the hack for browsers that don't support Event#stopImmediatePropagation (e.g. Android 2)
-				event.propagationStopped = true;
-			}
-
-			// Cancel the event
-			event.stopPropagation();
-			event.preventDefault();
-
-			return false;
-		}
-
-		// If the mouse event is permitted, return true for the action to go through.
-		return true;
-	};
-
-
-	/**
-	 * On actual clicks, determine whether this is a touch-generated click, a click action occurring
-	 * naturally after a delay after a touch (which needs to be cancelled to avoid duplication), or
-	 * an actual click which should be permitted.
-	 *
-	 * @param {Event} event
-	 * @returns {boolean}
-	 */
-	FastClick.prototype.onClick = function(event) {
-		var permitted;
-
-		// It's possible for another FastClick-like library delivered with third-party code to fire a click event before FastClick does (issue #44). In that case, set the click-tracking flag back to false and return early. This will cause onTouchEnd to return early.
-		if (this.trackingClick) {
-			this.targetElement = null;
-			this.trackingClick = false;
-			return true;
-		}
-
-		// Very odd behaviour on iOS (issue #18): if a submit element is present inside a form and the user hits enter in the iOS simulator or clicks the Go button on the pop-up OS keyboard the a kind of 'fake' click event will be triggered with the submit-type input element as the target.
-		if (event.target.type === 'submit' && event.detail === 0) {
-			return true;
-		}
-
-		permitted = this.onMouse(event);
-
-		// Only unset targetElement if the click is not permitted. This will ensure that the check for !targetElement in onMouse fails and the browser's click doesn't go through.
-		if (!permitted) {
-			this.targetElement = null;
-		}
-
-		// If clicks are permitted, return true for the action to go through.
-		return permitted;
-	};
-
-
-	/**
-	 * Remove all FastClick's event listeners.
-	 *
-	 * @returns {void}
-	 */
-	FastClick.prototype.destroy = function() {
-		var layer = this.layer;
-
-		if (deviceIsAndroid) {
-			layer.removeEventListener('mouseover', this.onMouse, true);
-			layer.removeEventListener('mousedown', this.onMouse, true);
-			layer.removeEventListener('mouseup', this.onMouse, true);
-		}
-
-		layer.removeEventListener('click', this.onClick, true);
-		layer.removeEventListener('touchstart', this.onTouchStart, false);
-		layer.removeEventListener('touchmove', this.onTouchMove, false);
-		layer.removeEventListener('touchend', this.onTouchEnd, false);
-		layer.removeEventListener('touchcancel', this.onTouchCancel, false);
-	};
-
-
-	/**
-	 * Check whether FastClick is needed.
-	 *
-	 * @param {Element} layer The layer to listen on
-	 */
-	FastClick.notNeeded = function(layer) {
-		var metaViewport;
-		var chromeVersion;
-		var blackberryVersion;
-		var firefoxVersion;
-
-		// Devices that don't support touch don't need FastClick
-		if (typeof window.ontouchstart === 'undefined') {
-			return true;
-		}
-
-		// Chrome version - zero for other browsers
-		chromeVersion = +(/Chrome\/([0-9]+)/.exec(navigator.userAgent) || [,0])[1];
-
-		if (chromeVersion) {
-
-			if (deviceIsAndroid) {
-				metaViewport = document.querySelector('meta[name=viewport]');
-
-				if (metaViewport) {
-					// Chrome on Android with user-scalable="no" doesn't need FastClick (issue #89)
-					if (metaViewport.content.indexOf('user-scalable=no') !== -1) {
-						return true;
-					}
-					// Chrome 32 and above with width=device-width or less don't need FastClick
-					if (chromeVersion > 31 && document.documentElement.scrollWidth <= window.outerWidth) {
-						return true;
-					}
-				}
-
-			// Chrome desktop doesn't need FastClick (issue #15)
-			} else {
-				return true;
-			}
-		}
-
-		if (deviceIsBlackBerry10) {
-			blackberryVersion = navigator.userAgent.match(/Version\/([0-9]*)\.([0-9]*)/);
-
-			// BlackBerry 10.3+ does not require Fastclick library.
-			// https://github.com/ftlabs/fastclick/issues/251
-			if (blackberryVersion[1] >= 10 && blackberryVersion[2] >= 3) {
-				metaViewport = document.querySelector('meta[name=viewport]');
-
-				if (metaViewport) {
-					// user-scalable=no eliminates click delay.
-					if (metaViewport.content.indexOf('user-scalable=no') !== -1) {
-						return true;
-					}
-					// width=device-width (or less than device-width) eliminates click delay.
-					if (document.documentElement.scrollWidth <= window.outerWidth) {
-						return true;
-					}
-				}
-			}
-		}
-
-		// IE10 with -ms-touch-action: none or manipulation, which disables double-tap-to-zoom (issue #97)
-		if (layer.style.msTouchAction === 'none' || layer.style.touchAction === 'manipulation') {
-			return true;
-		}
-
-		// Firefox version - zero for other browsers
-		firefoxVersion = +(/Firefox\/([0-9]+)/.exec(navigator.userAgent) || [,0])[1];
-
-		if (firefoxVersion >= 27) {
-			// Firefox 27+ does not have tap delay if the content is not zoomable - https://bugzilla.mozilla.org/show_bug.cgi?id=922896
-
-			metaViewport = document.querySelector('meta[name=viewport]');
-			if (metaViewport && (metaViewport.content.indexOf('user-scalable=no') !== -1 || document.documentElement.scrollWidth <= window.outerWidth)) {
-				return true;
-			}
-		}
-
-		// IE11: prefixed -ms-touch-action is no longer supported and it's recomended to use non-prefixed version
-		// http://msdn.microsoft.com/en-us/library/windows/apps/Hh767313.aspx
-		if (layer.style.touchAction === 'none' || layer.style.touchAction === 'manipulation') {
-			return true;
-		}
-
-		return false;
-	};
-
-
-	/**
-	 * Factory method for creating a FastClick object
-	 *
-	 * @param {Element} layer The layer to listen on
-	 * @param {Object} [options={}] The options to override the defaults
-	 */
-	FastClick.attach = function(layer, options) {
-		return new FastClick(layer, options);
-	};
-
-
-	if (typeof define === 'function' && typeof define.amd === 'object' && define.amd) {
-
-		// AMD. Register as an anonymous module.
-		define(function() {
-			return FastClick;
-		});
-	} else if (typeof module !== 'undefined' && module.exports) {
-		module.exports = FastClick.attach;
-		module.exports.FastClick = FastClick;
-	} else {
-		window.FastClick = FastClick;
-	}
-}());
-;
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
 
@@ -19790,6 +18945,13 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
              * @type {Boolean}
              */
             this.loading = false;
+
+            /**
+             * Whether or not an image has been dragged over the dropzone.
+             *
+             * @type {Boolean}
+             */
+            this.isDraggedOver = false;
           }
         }, {
           key: 'view',
@@ -19798,14 +18960,19 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
 
             return m(
               'div',
-              { className: 'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') },
+              { className: 'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') + (this.isDraggedOver ? ' dragover' : '') },
               avatar(user),
               m(
                 'a',
                 { className: user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar",
                   title: app.translator.trans('core.forum.user.avatar_upload_tooltip'),
                   'data-toggle': 'dropdown',
-                  onclick: this.quickUpload.bind(this) },
+                  onclick: this.quickUpload.bind(this),
+                  ondragover: this.enableDragover.bind(this),
+                  ondragenter: this.enableDragover.bind(this),
+                  ondragleave: this.disableDragover.bind(this),
+                  ondragend: this.disableDragover.bind(this),
+                  ondrop: this.dropUpload.bind(this) },
                 this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('pencil') : icon('plus-circle')
               ),
               m(
@@ -19823,7 +18990,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             items.add('upload', Button.component({
               icon: 'upload',
               children: app.translator.trans('core.forum.user.avatar_upload_button'),
-              onclick: this.upload.bind(this)
+              onclick: this.openPicker.bind(this)
             }));
 
             items.add('remove', Button.component({
@@ -19835,17 +19002,39 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             return items;
           }
         }, {
+          key: 'enableDragover',
+          value: function enableDragover(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isDraggedOver = true;
+          }
+        }, {
+          key: 'disableDragover',
+          value: function disableDragover(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isDraggedOver = false;
+          }
+        }, {
+          key: 'dropUpload',
+          value: function dropUpload(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isDraggedOver = false;
+            this.upload(e.dataTransfer.files[0]);
+          }
+        }, {
           key: 'quickUpload',
           value: function quickUpload(e) {
             if (!this.props.user.avatarUrl()) {
               e.preventDefault();
               e.stopPropagation();
-              this.upload();
+              this.openPicker();
             }
           }
         }, {
-          key: 'upload',
-          value: function upload() {
+          key: 'openPicker',
+          value: function openPicker() {
             var _this2 = this;
 
             if (this.loading) return;
@@ -19856,21 +19045,29 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             var $input = $('<input type="file">');
 
             $input.appendTo('body').hide().click().on('change', function (e) {
-              var data = new FormData();
-              data.append('avatar', $(e.target)[0].files[0]);
-
-              _this2.loading = true;
-              m.redraw();
-
-              app.request({
-                method: 'POST',
-                url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
-                serialize: function serialize(raw) {
-                  return raw;
-                },
-                data: data
-              }).then(_this2.success.bind(_this2), _this2.failure.bind(_this2));
+              _this2.upload($(e.target)[0].files[0]);
             });
+          }
+        }, {
+          key: 'upload',
+          value: function upload(file) {
+            if (this.loading) return;
+
+            var user = this.props.user;
+            var data = new FormData();
+            data.append('avatar', file);
+
+            this.loading = true;
+            m.redraw();
+
+            app.request({
+              method: 'POST',
+              url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
+              serialize: function serialize(raw) {
+                return raw;
+              },
+              data: data
+            }).then(this.success.bind(this), this.failure.bind(this));
           }
         }, {
           key: 'remove',
@@ -20661,6 +19858,10 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             if (!isInitialized) {
               defaultHeight = this.$().height();
             }
+
+            // Set the height of the Composer element and its contents on each redraw,
+            // so that they do not lose it if their DOM elements are recreated.
+            this.updateHeight();
 
             if (isInitialized) return;
 
@@ -22358,6 +21559,10 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
               $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
               $menu.toggleClass('Dropdown-menu--top', $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height());
+
+              if ($menu.offset().top < 0) {
+                $menu.removeClass('Dropdown-menu--top');
+              }
 
               $menu.toggleClass('Dropdown-menu--right', isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width());
             });
@@ -24759,39 +23964,18 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
              * @type {Boolean}
              */
             this.loading = false;
+
+            /**
+             * Whether or not there are more results that can be loaded.
+             *
+             * @type {Boolean}
+             */
+            this.moreResults = false;
           }
         }, {
           key: 'view',
           value: function view() {
-            var groups = [];
-
-            if (app.cache.notifications) {
-              var discussions = {};
-
-              // Build an array of discussions which the notifications are related to,
-              // and add the notifications as children.
-              app.cache.notifications.forEach(function (notification) {
-                var subject = notification.subject();
-
-                if (typeof subject === 'undefined') return;
-
-                // Get the discussion that this notification is related to. If it's not
-                // directly related to a discussion, it may be related to a post or
-                // other entity which is related to a discussion.
-                var discussion = false;
-                if (subject instanceof Discussion) discussion = subject;else if (subject && subject.discussion) discussion = subject.discussion();
-
-                // If the notification is not related to a discussion directly or
-                // indirectly, then we will assign it to a neutral group.
-                var key = discussion ? discussion.id() : 0;
-                discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
-                discussions[key].notifications.push(notification);
-
-                if (groups.indexOf(discussions[key]) === -1) {
-                  groups.push(discussions[key]);
-                }
-              });
-            }
+            var pages = app.cache.notifications || [];
 
             return m(
               'div',
@@ -24818,70 +24002,143 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
               m(
                 'div',
                 { className: 'NotificationList-content' },
-                groups.length ? groups.map(function (group) {
-                  var badges = group.discussion && group.discussion.badges().toArray();
+                pages.length ? pages.map(function (notifications) {
+                  var groups = [];
+                  var discussions = {};
 
-                  return m(
-                    'div',
-                    { className: 'NotificationGroup' },
-                    group.discussion ? m(
-                      'a',
-                      { className: 'NotificationGroup-header',
-                        href: app.route.discussion(group.discussion),
-                        config: m.route },
-                      badges && badges.length ? m(
-                        'ul',
-                        { className: 'NotificationGroup-badges badges' },
-                        listItems(badges)
-                      ) : '',
-                      group.discussion.title()
-                    ) : m(
+                  notifications.forEach(function (notification) {
+                    var subject = notification.subject();
+
+                    if (typeof subject === 'undefined') return;
+
+                    // Get the discussion that this notification is related to. If it's not
+                    // directly related to a discussion, it may be related to a post or
+                    // other entity which is related to a discussion.
+                    var discussion = false;
+                    if (subject instanceof Discussion) discussion = subject;else if (subject && subject.discussion) discussion = subject.discussion();
+
+                    // If the notification is not related to a discussion directly or
+                    // indirectly, then we will assign it to a neutral group.
+                    var key = discussion ? discussion.id() : 0;
+                    discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
+                    discussions[key].notifications.push(notification);
+
+                    if (groups.indexOf(discussions[key]) === -1) {
+                      groups.push(discussions[key]);
+                    }
+                  });
+
+                  return groups.map(function (group) {
+                    var badges = group.discussion && group.discussion.badges().toArray();
+
+                    return m(
                       'div',
-                      { className: 'NotificationGroup-header' },
-                      app.forum.attribute('title')
-                    ),
-                    m(
-                      'ul',
-                      { className: 'NotificationGroup-content' },
-                      group.notifications.map(function (notification) {
-                        var NotificationComponent = app.notificationComponents[notification.contentType()];
-                        return NotificationComponent ? m(
-                          'li',
-                          null,
-                          NotificationComponent.component({ notification: notification })
-                        ) : '';
-                      })
-                    )
-                  );
-                }) : !this.loading ? m(
+                      { className: 'NotificationGroup' },
+                      group.discussion ? m(
+                        'a',
+                        { className: 'NotificationGroup-header',
+                          href: app.route.discussion(group.discussion),
+                          config: m.route },
+                        badges && badges.length ? m(
+                          'ul',
+                          { className: 'NotificationGroup-badges badges' },
+                          listItems(badges)
+                        ) : '',
+                        group.discussion.title()
+                      ) : m(
+                        'div',
+                        { className: 'NotificationGroup-header' },
+                        app.forum.attribute('title')
+                      ),
+                      m(
+                        'ul',
+                        { className: 'NotificationGroup-content' },
+                        group.notifications.map(function (notification) {
+                          var NotificationComponent = app.notificationComponents[notification.contentType()];
+                          return NotificationComponent ? m(
+                            'li',
+                            null,
+                            NotificationComponent.component({ notification: notification })
+                          ) : '';
+                        })
+                      )
+                    );
+                  });
+                }) : '',
+                this.loading ? m(LoadingIndicator, { className: 'LoadingIndicator--block' }) : pages.length ? '' : m(
                   'div',
                   { className: 'NotificationList-empty' },
                   app.translator.trans('core.forum.notifications.empty_text')
-                ) : LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                )
               )
             );
           }
         }, {
-          key: 'load',
-          value: function load() {
+          key: 'config',
+          value: function config(isInitialized, context) {
             var _this2 = this;
 
-            if (app.cache.notifications && !app.session.user.newNotificationsCount()) {
+            if (isInitialized) return;
+
+            var $notifications = this.$('.NotificationList-content');
+            var $scrollParent = $notifications.css('overflow') === 'auto' ? $notifications : $(window);
+
+            var scrollHandler = function scrollHandler() {
+              var scrollTop = $scrollParent.scrollTop();
+              var viewportHeight = $scrollParent.height();
+              var contentTop = $scrollParent === $notifications ? 0 : $notifications.offset().top;
+              var contentHeight = $notifications[0].scrollHeight;
+
+              if (_this2.moreResults && !_this2.loading && scrollTop + viewportHeight >= contentTop + contentHeight) {
+                _this2.loadMore();
+              }
+            };
+
+            $scrollParent.on('scroll', scrollHandler);
+
+            context.onunload = function () {
+              $scrollParent.off('scroll', scrollHandler);
+            };
+          }
+        }, {
+          key: 'load',
+          value: function load() {
+            if (app.session.user.newNotificationsCount()) {
+              delete app.cache.notifications;
+            }
+
+            if (app.cache.notifications) {
               return;
             }
+
+            app.session.user.pushAttributes({ newNotificationsCount: 0 });
+
+            this.loadMore();
+          }
+        }, {
+          key: 'loadMore',
+          value: function loadMore() {
+            var _this3 = this;
 
             this.loading = true;
             m.redraw();
 
-            app.store.find('notifications').then(function (notifications) {
-              app.session.user.pushAttributes({ newNotificationsCount: 0 });
-              app.cache.notifications = notifications.sort(function (a, b) {
-                return b.time() - a.time();
-              });
-            }).catch(function () {}).then(function () {
-              _this2.loading = false;
+            var params = app.cache.notifications ? { page: { offset: app.cache.notifications.length * 10 } } : null;
+
+            return app.store.find('notifications', params).then(this.parseResults.bind(this)).catch(function () {}).then(function () {
+              _this3.loading = false;
               m.redraw();
             });
+          }
+        }, {
+          key: 'parseResults',
+          value: function parseResults(results) {
+            app.cache.notifications = app.cache.notifications || [];
+            app.cache.notifications.push(results);
+
+            this.moreResults = !!results.payload.links.next;
+
+            return results;
           }
         }, {
           key: 'markAllAsRead',
@@ -24890,8 +24147,10 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
 
             app.session.user.pushAttributes({ unreadNotificationsCount: 0 });
 
-            app.cache.notifications.forEach(function (notification) {
-              return notification.pushAttributes({ isRead: true });
+            app.cache.notifications.forEach(function (notifications) {
+              notifications.forEach(function (notification) {
+                return notification.pushAttributes({ isRead: true });
+              });
             });
 
             app.request({
@@ -25654,7 +24913,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
 
             this.visibleEnd = this.count();
 
-            this.loadRange(this.visibleStart, this.visibleEnd).then(function () {
+            return this.loadRange(this.visibleStart, this.visibleEnd).then(function () {
               return m.redraw();
             });
           }
@@ -27033,9 +26292,11 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
 
             app.store.createRecord('posts').save(data).then(function (post) {
               // If we're currently viewing the discussion which this reply was made
-              // in, then we can update the post stream.
+              // in, then we can update the post stream and scroll to the post.
               if (app.viewingDiscussion(discussion)) {
-                app.current.stream.update();
+                app.current.stream.update().then(function () {
+                  return app.current.stream.goToNumber(post.number());
+                });
               } else {
                 // Otherwise, we'll create an alert message to inform the user that
                 // their reply has been posted, containing a button which will
@@ -28413,7 +27674,8 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
               items.add('preview', Button.component({
                 icon: 'eye',
                 className: 'Button Button--icon',
-                onclick: this.props.preview
+                onclick: this.props.preview,
+                title: app.translator.trans('core.forum.composer.preview_tooltip')
               }));
             }
 
@@ -28478,143 +27740,10 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 });;
 'use strict';
 
-System.register('flarum/components/UserBio', ['flarum/Component', 'flarum/components/LoadingIndicator', 'flarum/utils/classList', 'flarum/utils/extractText'], function (_export, _context) {
+System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export, _context) {
   "use strict";
 
-  var Component, LoadingIndicator, classList, extractText, UserBio;
-  return {
-    setters: [function (_flarumComponent) {
-      Component = _flarumComponent.default;
-    }, function (_flarumComponentsLoadingIndicator) {
-      LoadingIndicator = _flarumComponentsLoadingIndicator.default;
-    }, function (_flarumUtilsClassList) {
-      classList = _flarumUtilsClassList.default;
-    }, function (_flarumUtilsExtractText) {
-      extractText = _flarumUtilsExtractText.default;
-    }],
-    execute: function () {
-      UserBio = function (_Component) {
-        babelHelpers.inherits(UserBio, _Component);
-
-        function UserBio() {
-          babelHelpers.classCallCheck(this, UserBio);
-          return babelHelpers.possibleConstructorReturn(this, (UserBio.__proto__ || Object.getPrototypeOf(UserBio)).apply(this, arguments));
-        }
-
-        babelHelpers.createClass(UserBio, [{
-          key: 'init',
-          value: function init() {
-            /**
-             * Whether or not the bio is currently being edited.
-             *
-             * @type {Boolean}
-             */
-            this.editing = false;
-
-            /**
-             * Whether or not the bio is currently being saved.
-             *
-             * @type {Boolean}
-             */
-            this.loading = false;
-          }
-        }, {
-          key: 'view',
-          value: function view() {
-            var user = this.props.user;
-            var content = void 0;
-
-            if (this.editing) {
-              content = m('textarea', { className: 'FormControl', placeholder: extractText(app.translator.trans('core.forum.user.bio_placeholder')), rows: '3', value: user.bio() });
-            } else {
-              var subContent = void 0;
-
-              if (this.loading) {
-                subContent = m(
-                  'p',
-                  { className: 'UserBio-placeholder' },
-                  LoadingIndicator.component({ size: 'tiny' })
-                );
-              } else {
-                var bioHtml = user.bioHtml();
-
-                if (bioHtml) {
-                  subContent = m.trust(bioHtml);
-                } else if (this.props.editable) {
-                  subContent = m(
-                    'p',
-                    { className: 'UserBio-placeholder' },
-                    app.translator.trans('core.forum.user.bio_placeholder')
-                  );
-                }
-              }
-
-              content = m(
-                'div',
-                { className: 'UserBio-content', onclick: this.edit.bind(this) },
-                subContent
-              );
-            }
-
-            return m(
-              'div',
-              { className: 'UserBio ' + classList({
-                  editable: this.props.editable,
-                  editing: this.editing
-                }) },
-              content
-            );
-          }
-        }, {
-          key: 'edit',
-          value: function edit() {
-            if (!this.props.editable) return;
-
-            this.editing = true;
-            m.redraw();
-
-            var bio = this;
-            var save = function save(e) {
-              if (e.shiftKey) return;
-              e.preventDefault();
-              bio.save($(this).val());
-            };
-
-            this.$('textarea').focus().bind('blur', save).bind('keydown', 'return', save);
-          }
-        }, {
-          key: 'save',
-          value: function save(value) {
-            var _this2 = this;
-
-            var user = this.props.user;
-
-            if (user.bio() !== value) {
-              this.loading = true;
-
-              user.save({ bio: value }).catch(function () {}).then(function () {
-                _this2.loading = false;
-                m.redraw();
-              });
-            }
-
-            this.editing = false;
-            m.redraw();
-          }
-        }]);
-        return UserBio;
-      }(Component);
-
-      _export('default', UserBio);
-    }
-  };
-});;
-'use strict';
-
-System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils/humanTime', 'flarum/utils/ItemList', 'flarum/utils/UserControls', 'flarum/helpers/avatar', 'flarum/helpers/username', 'flarum/helpers/icon', 'flarum/components/Dropdown', 'flarum/components/UserBio', 'flarum/components/AvatarEditor', 'flarum/helpers/listItems'], function (_export, _context) {
-  "use strict";
-
-  var Component, humanTime, ItemList, UserControls, avatar, username, icon, Dropdown, UserBio, AvatarEditor, listItems, UserCard;
+  var Component, humanTime, ItemList, UserControls, avatar, username, icon, Dropdown, AvatarEditor, listItems, UserCard;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -28632,8 +27761,6 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
       icon = _flarumHelpersIcon.default;
     }, function (_flarumComponentsDropdown) {
       Dropdown = _flarumComponentsDropdown.default;
-    }, function (_flarumComponentsUserBio) {
-      UserBio = _flarumComponentsUserBio.default;
     }, function (_flarumComponentsAvatarEditor) {
       AvatarEditor = _flarumComponentsAvatarEditor.default;
     }, function (_flarumHelpersListItems) {
@@ -28712,11 +27839,6 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
             var items = new ItemList();
             var user = this.props.user;
             var lastSeenTime = user.lastSeenTime();
-
-            items.add('bio', UserBio.component({
-              user: user,
-              editable: this.props.editable
-            }));
 
             if (lastSeenTime) {
               var online = user.isOnline();
@@ -28828,7 +27950,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
           value: function show(user) {
             this.user = user;
 
-            app.setTitle(user.username());
+            app.setTitle(user.displayName());
 
             m.redraw();
           }
@@ -28926,14 +28048,21 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
       UsersSearchResults = function () {
         function UsersSearchResults() {
           babelHelpers.classCallCheck(this, UsersSearchResults);
+
+          this.results = {};
         }
 
         babelHelpers.createClass(UsersSearchResults, [{
           key: 'search',
           value: function search(query) {
+            var _this = this;
+
             return app.store.find('users', {
               filter: { q: query },
               page: { limit: 5 }
+            }).then(function (results) {
+              _this.results[query] = results;
+              m.redraw();
             });
           }
         }, {
@@ -28941,8 +28070,14 @@ System.register('flarum/components/UsersSearchSource', ['flarum/helpers/highligh
           value: function view(query) {
             query = query.toLowerCase();
 
-            var results = app.store.all('users').filter(function (user) {
-              return user.username().toLowerCase().substr(0, query.length) === query;
+            var results = (this.results[query] || []).concat(app.store.all('users').filter(function (user) {
+              return [user.username(), user.displayName()].some(function (value) {
+                return value.toLowerCase().substr(0, query.length) === query;
+              });
+            })).filter(function (e, i, arr) {
+              return arr.lastIndexOf(e) === i;
+            }).sort(function (a, b) {
+              return a.displayName().localeCompare(b.displayName());
             });
 
             if (!results.length) return '';
@@ -29284,7 +28419,7 @@ System.register('flarum/helpers/avatar', [], function (_export, _context) {
     // uploaded image, or the first letter of their username if they haven't
     // uploaded one.
     if (user) {
-      var username = user.username() || '?';
+      var username = user.displayName() || '?';
       var avatarUrl = user.avatarUrl();
 
       if (hasTitle) attrs.title = attrs.title || username;
@@ -29534,7 +28669,7 @@ System.register("flarum/helpers/username", [], function (_export, _context) {
   "use strict";
 
   function username(user) {
-    var name = user && user.username() || app.translator.trans('core.lib.username.deleted_text');
+    var name = user && user.displayName() || app.translator.trans('core.lib.username.deleted_text');
 
     return m(
       "span",
@@ -29718,11 +28853,7 @@ System.register('flarum/initializers/boot', ['flarum/utils/ScrollListener', 'fla
       $app.toggleClass('affix', top >= offset).toggleClass('scrolled', top > offset);
     }).start();
 
-    // Initialize FastClick, which makes links and buttons much more responsive on
-    // touch devices.
     $(function () {
-      FastClick.attach(document.body);
-
       $('body').addClass('ontouchstart' in window ? 'touch' : 'no-touch');
     });
 
@@ -30533,15 +29664,12 @@ System.register('flarum/models/User', ['flarum/Model', 'flarum/utils/stringToCol
 
       babelHelpers.extends(User.prototype, {
         username: Model.attribute('username'),
+        displayName: Model.attribute('displayName'),
         email: Model.attribute('email'),
         isActivated: Model.attribute('isActivated'),
         password: Model.attribute('password'),
 
         avatarUrl: Model.attribute('avatarUrl'),
-        bio: Model.attribute('bio'),
-        bioHtml: computed('bio', function (bio) {
-          return bio ? '<p>' + $('<div/>').text(bio).html().replace(/\n/g, '<br>').autoLink({ rel: 'nofollow' }) + '</p>' : '';
-        }),
         preferences: Model.attribute('preferences'),
         groups: Model.hasMany('groups'),
 
@@ -31420,7 +30548,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
               }
               app.composer.show();
 
-              if (goToLast && app.viewingDiscussion(this)) {
+              if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
                 app.current.stream.goToNumber('reply');
               }
 
@@ -31630,7 +30758,7 @@ System.register('flarum/utils/extractText', [], function (_export, _context) {
       return vdom.map(function (element) {
         return extractText(element);
       }).join('');
-    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object') {
+    } else if ((typeof vdom === 'undefined' ? 'undefined' : babelHelpers.typeof(vdom)) === 'object' && vdom !== null) {
       return extractText(vdom.children);
     } else {
       return vdom;
@@ -32248,7 +31376,12 @@ System.register('flarum/utils/patchMithril', ['../Component'], function (_export
       }
 
       if (comp.prototype && comp.prototype instanceof Component) {
-        return comp.component.apply(comp, args);
+        var children = args.slice(1);
+        if (children.length === 1 && Array.isArray(children[0])) {
+          children = children[0];
+        }
+
+        return comp.component(args[0], children);
       }
 
       var node = mo.apply(this, arguments);
