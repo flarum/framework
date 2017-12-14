@@ -144,7 +144,7 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return array_get($this->make('flarum.config'), $key, $default);
+        return $this->isInstalled() ? array_get($this->make('flarum.config'), $key, $default) : $default;
     }
 
     /**

@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class Rememberer
 {
-    protected $cookieName = 'flarum_remember';
+    const COOKIE_NAME = 'remember';
 
     /**
      * @var CookieFactory
@@ -24,7 +24,6 @@ class Rememberer
     protected $cookie;
 
     /**
-     * Rememberer constructor.
      * @param CookieFactory $cookie
      */
     public function __construct(CookieFactory $cookie)
@@ -32,18 +31,16 @@ class Rememberer
         $this->cookie = $cookie;
     }
 
-    public function remember(ResponseInterface $response, AccessToken $token, $session = false)
+    public function remember(ResponseInterface $response, AccessToken $token)
     {
         $lifetime = null;
 
-        if (! $session) {
-            $token->lifetime = $lifetime = 5 * 365 * 24 * 60 * 60; // 5 years
-            $token->save();
-        }
+        $token->lifetime = 5 * 365 * 24 * 60 * 60; // 5 years
+        $token->save();
 
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make($this->cookieName, $token->id, $lifetime)
+            $this->cookie->make(self::COOKIE_NAME, $token->id, $token->lifetime)
         );
     }
 
@@ -56,6 +53,9 @@ class Rememberer
 
     public function forget(ResponseInterface $response)
     {
-        return FigResponseCookies::expire($response, $this->cookieName);
+        return FigResponseCookies::set(
+            $response,
+            $this->cookie->expire(self::COOKIE_NAME)
+        );
     }
 }

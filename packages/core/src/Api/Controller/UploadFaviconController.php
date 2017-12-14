@@ -80,7 +80,7 @@ class UploadFaviconController extends ShowForumController
             $mount->delete($file);
         }
 
-        $uploadName = 'favicon-'.Str::lower(Str::quickRandom(8)).'.'.$extension;
+        $uploadName = 'favicon-'.Str::lower(Str::random(8)).'.'.$extension;
 
         $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
 

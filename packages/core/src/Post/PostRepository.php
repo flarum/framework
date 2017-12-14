@@ -152,7 +152,7 @@ class PostRepository
     {
         $discussions = $this->getDiscussionsForPosts($ids, $actor);
 
-        return Post::whereIn('id', $ids)
+        $posts = Post::whereIn('id', $ids)
             ->where(function ($query) use ($discussions, $actor) {
                 foreach ($discussions as $discussion) {
                     $query->orWhere(function ($query) use ($discussion, $actor) {
@@ -164,6 +164,12 @@ class PostRepository
 
                 $query->orWhereRaw('FALSE');
             });
+
+        foreach ($posts as $post) {
+            $post->discussion = $discussions->find($post->discussion_id);
+        }
+
+        return $posts;
     }
 
     /**

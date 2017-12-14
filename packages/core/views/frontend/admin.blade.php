@@ -1,5 +1,3 @@
-{!! array_get($forum, 'attributes.headerHtml') !!}
-
 <div id="app" class="App">
 
   <div id="app-navigation" class="App-navigation"></div>

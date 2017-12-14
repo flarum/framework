@@ -173,6 +173,12 @@ class ShowDiscussionController extends AbstractShowController
 
         $query->orderBy('time')->skip($offset)->take($limit)->with($include);
 
-        return $query->get()->all();
+        $posts = $query->get()->all();
+
+        foreach ($posts as $post) {
+            $post->discussion = $discussion;
+        }
+
+        return $posts;
     }
 }

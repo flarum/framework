@@ -51,6 +51,10 @@ class Frontend extends AbstractFrontend
             return $this->formatter->getJs();
         });
 
+        $view->getCss()->addString(function () {
+            return $this->settings->get('custom_less');
+        });
+
         return $view;
     }
 

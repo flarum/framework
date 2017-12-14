@@ -93,6 +93,18 @@ class ListDiscussionsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
-        return $results->getResults();
+        $results = $results->getResults();
+
+        if ($relations = array_intersect($load, ['startPost', 'lastPost'])) {
+            foreach ($results as $discussion) {
+                foreach ($relations as $relation) {
+                    if ($discussion->$relation) {
+                        $discussion->$relation->discussion = $discussion;
+                    }
+                }
+            }
+        }
+
+        return $results;
     }
 }

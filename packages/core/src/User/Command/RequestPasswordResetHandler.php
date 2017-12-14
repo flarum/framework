@@ -18,9 +18,9 @@ use Flarum\User\UserRepository;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Message;
+use Illuminate\Validation\ValidationException;
 
 class RequestPasswordResetHandler
 {
@@ -55,7 +55,7 @@ class RequestPasswordResetHandler
     protected $validatorFactory;
 
     /**
-     * @param \Flarum\User\UserRepository $users
+     * @param UserRepository $users
      * @param SettingsRepositoryInterface $settings
      * @param Mailer $mailer
      * @param UrlGenerator $url
@@ -106,7 +106,7 @@ class RequestPasswordResetHandler
         $token->save();
 
         $data = [
-            '{username}' => $user->username,
+            '{username}' => $user->display_name,
             '{url}' => $this->url->to('forum')->route('resetPassword', ['token' => $token->id]),
             '{forum}' => $this->settings->get('forum_title'),
         ];

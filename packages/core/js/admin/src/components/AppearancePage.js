@@ -28,8 +28,8 @@ export default class AppearancePage extends Page {
               </div>
 
               <div className="AppearancePage-colors-input">
-                <input className="FormControl" type="color" placeholder="#aaaaaa" value={this.primaryColor()} onchange={m.withAttr('value', this.primaryColor)}/>
-                <input className="FormControl" type="color" placeholder="#aaaaaa" value={this.secondaryColor()} onchange={m.withAttr('value', this.secondaryColor)}/>
+                <input className="FormControl" type="text" placeholder="#aaaaaa" value={this.primaryColor()} onchange={m.withAttr('value', this.primaryColor)}/>
+                <input className="FormControl" type="text" placeholder="#aaaaaa" value={this.secondaryColor()} onchange={m.withAttr('value', this.secondaryColor)}/>
               </div>
 
               {Switch.component({

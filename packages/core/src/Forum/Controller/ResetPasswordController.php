@@ -17,7 +17,6 @@ use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Component\Translation\TranslatorInterface;
 
 class ResetPasswordController extends AbstractHtmlController
 {
@@ -27,18 +26,12 @@ class ResetPasswordController extends AbstractHtmlController
     protected $view;
 
     /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
      * @param Factory $view
      * @param TranslatorInterface $translator
      */
-    public function __construct(Factory $view, TranslatorInterface $translator)
+    public function __construct(Factory $view)
     {
         $this->view = $view;
-        $this->translator = $translator;
     }
 
     /**
@@ -56,10 +49,8 @@ class ResetPasswordController extends AbstractHtmlController
             throw new InvalidConfirmationTokenException;
         }
 
-        return $this->view->make('flarum::reset')
-            ->with('translator', $this->translator)
+        return $this->view->make('flarum.forum::reset-password')
             ->with('passwordToken', $token->id)
-            ->with('csrfToken', $request->getAttribute('session')->get('csrf_token'))
-            ->with('error', $request->getAttribute('session')->get('error'));
+            ->with('csrfToken', $request->getAttribute('session')->get('csrf_token'));
     }
 }

@@ -9,18 +9,27 @@ import username from 'flarum/helpers/username';
  * @implements SearchSource
  */
 export default class UsersSearchResults {
+  constructor() {
+    this.results = {};
+  }
+
   search(query) {
     return app.store.find('users', {
       filter: {q: query},
       page: {limit: 5}
+    }).then(results => {
+      this.results[query] = results;
+      m.redraw();
     });
   }
 
   view(query) {
     query = query.toLowerCase();
 
-    const results = app.store.all('users')
-      .filter(user => user.username().toLowerCase().substr(0, query.length) === query);
+    const results = (this.results[query] || [])
+      .concat(app.store.all('users').filter(user => [user.username(), user.displayName()].some(value => value.toLowerCase().substr(0, query.length) === query)))
+      .filter((e, i, arr) => arr.lastIndexOf(e) === i)
+      .sort((a, b) => a.displayName().localeCompare(b.displayName()));
 
     if (!results.length) return '';
 
