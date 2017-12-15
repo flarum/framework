@@ -12,11 +12,11 @@
 namespace Flarum\User\Command;
 
 use Exception;
-use Flarum\User\AvatarUploader;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\AuthToken;
+use Flarum\User\AvatarUploader;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
