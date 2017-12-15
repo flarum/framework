@@ -69,34 +69,27 @@ class RevisionCompiler implements CompilerInterface
      */
     public function getFile()
     {
-        $old = $current = $this->getRevision();
+        $oldrev = $this->getRevision();
 
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
         $file = $this->path.'/'.substr_replace($this->filename, '-'.$old, -strlen($ext) - 1, 0);
-
-        if ($this->watch || ! $old) {
-            $cacheDifferentiator = [$this->getCacheDifferentiator()];
-
-            foreach ($this->files as $source) {
-                $cacheDifferentiator[] = [$source, filemtime($source)];
-            }
-
-            $current = hash('crc32b', serialize($cacheDifferentiator));
-        }
-
         $exists = file_exists($file);
 
-        if (! $exists || $old !== $current) {
+        if (! $exists || ! $oldrev || $this->watch) {
             if ($exists) {
+                // Should not happen, as previous cache files with same name should
+                // be cleaned up during invalidation
+                error_log("Found previous asset file with same hash: {$file}");
                 unlink($file);
             }
 
-            $file = $this->path.'/'.substr_replace($this->filename, '-'.$current, -strlen($ext) - 1, 0);
+            $content = $this->compile();
+            $newrev = hash('crc32b', $content);
+            $file = $this->path.'/'.substr_replace($this->filename, '-'.$newrev, -strlen($ext) - 1, 0);
 
-            if ($content = $this->compile()) {
-                $this->putRevision($current);
-
+            if ($content) {
                 file_put_contents($file, $content);
+                $this->putRevision($newrev);
             } else {
                 return;
             }
@@ -192,12 +185,18 @@ class RevisionCompiler implements CompilerInterface
     {
         $revision = $this->getRevision();
 
-        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+        if (! $revision ) {
+            return;
+        }
 
+        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
         $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
 
         if (file_exists($file)) {
             unlink($file);
         }
+
+        // Clear revision, so file will be regenerated upon next ->getfile()
+        $this->putRevision("");
     }
 }
