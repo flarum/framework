@@ -51,8 +51,7 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             // All requests should first be piped through our global error handler
             $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
-            $errorDir = __DIR__.'/../../error';
-            $pipe->pipe(new HandleErrors($errorDir, $app->make('log'), $debugMode));
+            $pipe->pipe($app->make(HandleErrors::class, ['debug' => $debugMode]));
 
             $pipe->pipe($app->make(ParseJsonBody::class));
             $pipe->pipe($app->make(StartSession::class));
