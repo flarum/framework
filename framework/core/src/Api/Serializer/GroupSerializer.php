@@ -62,7 +62,7 @@ class GroupSerializer extends AbstractSerializer
      */
     protected function permissions($group)
     {
-        return $this->hasMany($group, 'Flarum\Api\Serializers\PermissionSerializer');
+        return $this->hasMany($group, PermissionSerializer::class);
     }
 
     /**

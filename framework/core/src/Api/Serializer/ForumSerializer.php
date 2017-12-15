@@ -97,7 +97,7 @@ class ForumSerializer extends AbstractSerializer
      */
     protected function groups($model)
     {
-        return $this->hasMany($model, 'Flarum\Api\Serializer\GroupSerializer');
+        return $this->hasMany($model, GroupSerializer::class);
     }
 
     /**
