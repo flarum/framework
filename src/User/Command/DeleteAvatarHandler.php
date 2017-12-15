@@ -13,9 +13,9 @@ namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
+use Flarum\User\AvatarUploader;
 use Flarum\User\Event\AvatarDeleting;
 use Flarum\User\UserRepository;
-use Flarum\Core\AvatarUploader;
 use Flarum\Event\AvatarWillBeDeleted;
 use Illuminate\Contracts\Events\Dispatcher;
 

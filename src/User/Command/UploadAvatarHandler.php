@@ -11,11 +11,10 @@
 
 namespace Flarum\User\Command;
 
-use Exception;
-use Flarum\Core\AvatarUploader;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
+use Flarum\User\AvatarUploader;
 use Flarum\User\AvatarValidator;
 use Flarum\User\Event\AvatarSaving;
 use Flarum\User\UserRepository;

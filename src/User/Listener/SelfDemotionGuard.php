@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Listener;
+namespace Flarum\User\Listener;
 
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Group;
-use Flarum\Event\UserWillBeSaved;
+use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\Group\Group;
+use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SelfDemotionGuard
@@ -23,15 +23,15 @@ class SelfDemotionGuard
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(UserWillBeSaved::class, [$this, 'whenUserWillBeSaved']);
+        $events->listen(Saving::class, [$this, 'whenUserWillBeSaved']);
     }
 
     /**
      * Prevent an admin from removing their admin permission via the API.
-     * @param UserWillBeSaved $event
+     * @param Saving $event
      * @throws PermissionDeniedException
      */
-    public function whenUserWillBeSaved(UserWillBeSaved $event)
+    public function whenUserWillBeSaved(Saving $event)
     {
         // Non-admin users pose no problem
         if (! $event->actor->isAdmin()) {

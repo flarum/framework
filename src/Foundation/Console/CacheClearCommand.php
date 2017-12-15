@@ -25,20 +25,12 @@ class CacheClearCommand extends AbstractCommand
     protected $cache;
 
     /**
-<<<<<<< HEAD:src/Foundation/Console/CacheClearCommand.php
-     * @var \Flarum\Forum\Frontend
-=======
      * @var ForumWebApp
->>>>>>> master:src/Debug/Console/CacheClearCommand.php
      */
     protected $forum;
 
     /**
-<<<<<<< HEAD:src/Foundation/Console/CacheClearCommand.php
-     * @var \Flarum\Admin\Frontend
-=======
      * @var AdminWebApp
->>>>>>> master:src/Debug/Console/CacheClearCommand.php
      */
     protected $admin;
 

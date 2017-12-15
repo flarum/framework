@@ -12,7 +12,7 @@
 namespace Flarum\User\Command;
 
 use Exception;
-use Flarum\Core\AvatarUploader;
+use Flarum\User\AvatarUploader;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;

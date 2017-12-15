@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core\Listener;
+namespace Flarum\Admin\Listener;
 
-use Flarum\Core\Exception\ValidationException;
-use Flarum\Event\PrepareSerializedSetting;
+use Flarum\Foundation\ValidationException;
+use Flarum\Settings\Event\Serializing;
 use Illuminate\Contracts\Events\Dispatcher;
 use Less_Exception_Parser;
 use Less_Parser;
@@ -21,10 +21,10 @@ class CheckCustomLessFormat
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PrepareSerializedSetting::class, [$this, 'check']);
+        $events->listen(Serializing::class, [$this, 'check']);
     }
 
-    public function check(PrepareSerializedSetting $event)
+    public function check(Serializing $event)
     {
         if ($event->key === 'custom_less') {
             $parser = new Less_Parser();
