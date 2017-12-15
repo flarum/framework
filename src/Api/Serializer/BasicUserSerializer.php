@@ -47,6 +47,6 @@ class BasicUserSerializer extends AbstractSerializer
      */
     protected function groups($user)
     {
-        return $this->hasMany($user, 'Flarum\Api\Serializer\GroupSerializer');
+        return $this->hasMany($user, GroupSerializer::class);
     }
 }
