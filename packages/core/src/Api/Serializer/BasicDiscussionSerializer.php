@@ -46,7 +46,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function startUser($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\BasicUserSerializer');
+        return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 
     /**
@@ -54,7 +54,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function startPost($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\BasicPostSerializer');
+        return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
     /**
@@ -62,7 +62,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function lastUser($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\BasicUserSerializer');
+        return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 
     /**
@@ -70,7 +70,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function lastPost($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\BasicPostSerializer');
+        return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
     /**
@@ -78,7 +78,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function posts($discussion)
     {
-        return $this->hasMany($discussion, 'Flarum\Api\Serializer\PostSerializer');
+        return $this->hasMany($discussion, PostSerializer::class);
     }
 
     /**
@@ -86,7 +86,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function relevantPosts($discussion)
     {
-        return $this->hasMany($discussion, 'Flarum\Api\Serializer\BasicPostSerializer');
+        return $this->hasMany($discussion, BasicPostSerializer::class);
     }
 
     /**
@@ -94,6 +94,6 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function hideUser($discussion)
     {
-        return $this->hasOne($discussion, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 }

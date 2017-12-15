@@ -57,7 +57,7 @@ class BasicPostSerializer extends AbstractSerializer
      */
     protected function user($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\BasicUserSerializer');
+        return $this->hasOne($post, BasicUserSerializer::class);
     }
 
     /**
@@ -65,6 +65,6 @@ class BasicPostSerializer extends AbstractSerializer
      */
     protected function discussion($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\BasicDiscussionSerializer');
+        return $this->hasOne($post, BasicDiscussionSerializer::class);
     }
 }

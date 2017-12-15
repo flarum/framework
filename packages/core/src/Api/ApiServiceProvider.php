@@ -15,6 +15,7 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Api\Middleware\FakeHttpMethods;
 use Flarum\Api\Middleware\HandleErrors;
 use Flarum\Api\Serializer\AbstractSerializer;
+use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureMiddleware;
@@ -114,7 +115,7 @@ class ApiServiceProvider extends AbstractServiceProvider
     {
         $blueprints = [];
         $serializers = [
-            'discussionRenamed' => 'Flarum\Api\Serializer\DiscussionBasicSerializer'
+            'discussionRenamed' => BasicDiscussionSerializer::class
         ];
 
         $this->app->make('events')->fire(

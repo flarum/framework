@@ -77,7 +77,7 @@ class PostSerializer extends BasicPostSerializer
      */
     protected function user($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, UserSerializer::class);
     }
 
     /**
@@ -85,7 +85,7 @@ class PostSerializer extends BasicPostSerializer
      */
     protected function discussion($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\DiscussionBasicSerializer');
+        return $this->hasOne($post, BasicDiscussionSerializer::class);
     }
 
     /**
@@ -93,7 +93,7 @@ class PostSerializer extends BasicPostSerializer
      */
     protected function editUser($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($post, BasicUserSerializer::class);
     }
 
     /**
@@ -101,6 +101,6 @@ class PostSerializer extends BasicPostSerializer
      */
     protected function hideUser($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($post, BasicUserSerializer::class);
     }
 }
