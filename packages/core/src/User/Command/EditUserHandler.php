@@ -12,9 +12,9 @@
 namespace Flarum\User\Command;
 
 use Exception;
-use Flarum\User\AvatarUploader;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
+use Flarum\User\AvatarUploader;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
