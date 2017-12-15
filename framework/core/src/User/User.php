@@ -316,7 +316,7 @@ class User extends AbstractModel
                 return $this->avatar_path;
             }
 
-            return app(UrlGenerator::class)->toPath('assets/avatars/'.$this->avatar_path);
+            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$this->avatar_path);
         }
     }
 

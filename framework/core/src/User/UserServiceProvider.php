@@ -41,15 +41,7 @@ class UserServiceProvider extends AbstractServiceProvider
             return $app->make('Illuminate\Contracts\Filesystem\Factory')->disk('flarum-avatars')->getDriver();
         };
 
-        $this->app->when('Flarum\User\Command\UploadAvatarHandler')
-            ->needs('League\Flysystem\FilesystemInterface')
-            ->give($avatarsFilesystem);
-
-        $this->app->when(Command\DeleteAvatarHandler::class)
-            ->needs('League\Flysystem\FilesystemInterface')
-            ->give($avatarsFilesystem);
-
-        $this->app->when(Command\RegisterUserHandler::class)
+        $this->app->when(AvatarUploader::class)
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarsFilesystem);
     }
