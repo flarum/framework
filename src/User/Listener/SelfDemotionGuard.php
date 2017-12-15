@@ -11,9 +11,9 @@
 
 namespace Flarum\User\Listener;
 
+use Flarum\User\Event\Saving;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Group\Group;
-use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SelfDemotionGuard
