@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Core;
+namespace Flarum\User;
 
-use Flarum\User\User;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
 use League\Flysystem\FilesystemInterface;

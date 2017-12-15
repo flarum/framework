@@ -26,9 +26,9 @@ use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
-use Zend\Stratigility\MiddlewarePipe;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Zend\Stratigility\MiddlewarePipe;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
