@@ -59,4 +59,3 @@ class ShareErrorsFromSession implements MiddlewareInterface
         return $out ? $out($request, $response) : $response;
     }
 }
-

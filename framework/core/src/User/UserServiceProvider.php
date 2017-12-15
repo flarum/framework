@@ -30,7 +30,7 @@ class UserServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->alias('flarum.gate', 'Illuminate\Contracts\Auth\Access\Gate');
-        $this->app->alias('flarum.gate', 'Flarum\User\Gate');
+        $this->app->alias('flarum.gate', Gate::class);
 
         $this->registerAvatarsFilesystem();
     }
@@ -45,11 +45,11 @@ class UserServiceProvider extends AbstractServiceProvider
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarsFilesystem);
 
-        $this->app->when('Flarum\User\Command\DeleteAvatarHandler')
+        $this->app->when(Command\DeleteAvatarHandler::class)
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarsFilesystem);
 
-        $this->app->when('Flarum\User\Command\RegisterUserHandler')
+        $this->app->when(Command\RegisterUserHandler::class)
             ->needs('League\Flysystem\FilesystemInterface')
             ->give($avatarsFilesystem);
     }
@@ -86,10 +86,10 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $events = $this->app->make('events');
 
-        $events->subscribe('Flarum\Core\Listener\SelfDemotionGuard');
-        $events->subscribe('Flarum\User\EmailConfirmationMailer');
-        $events->subscribe('Flarum\User\UserMetadataUpdater');
-        $events->subscribe('Flarum\User\UserPolicy');
+        $events->subscribe(Listener\SelfDemotionGuard::class);
+        $events->subscribe(EmailConfirmationMailer::class);
+        $events->subscribe(UserMetadataUpdater::class);
+        $events->subscribe(UserPolicy::class);
 
         $events->listen(ConfigureUserPreferences::class, [$this, 'configureUserPreferences']);
     }

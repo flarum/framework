@@ -11,14 +11,11 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Admin\Listener\CheckCustomLessFormat;
 use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
-use Flarum\Core\Listener\CheckCustomLessFormat;
-use Flarum\Event\ExtensionWasDisabled;
-use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Event\SettingWasSet;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\Middleware\DispatchRoute;
