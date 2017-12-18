@@ -41,9 +41,9 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
             // reset to the first hour of the day, and then convert back into UTC time.
             // We'll be working with seconds rather than milliseconds throughout too.
             var today = new Date();
-            today.setTime(today.getTime() + app.data.statistics.utcOffset * 1000);
+            today.setTime(today.getTime() + app.data.statistics.timezoneOffset * 1000);
             today.setUTCHours(0, 0, 0, 0);
-            today.setTime(today.getTime() - app.data.statistics.utcOffset * 1000);
+            today.setTime(today.getTime() - app.data.statistics.timezoneOffset * 1000);
             today = today / 1000;
 
             this.entities = ['users', 'discussions', 'posts'];
@@ -143,7 +143,7 @@ System.register('flarum/statistics/components/StatisticsWidget', ['flarum/compon
               return;
             }
 
-            var offset = app.data.statistics.utcOffset;
+            var offset = app.data.statistics.timezoneOffset;
             var period = this.periods[this.selectedPeriod];
             var periodLength = period.end - period.start;
             var labels = [];

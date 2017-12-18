@@ -84,8 +84,8 @@ class AddStatisticsData
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- correct for timezone
-                    IF(@date > ?, \'%Y-%m-%dT%H:00:00\', \'%Y-%m-%dT00:00:00\') -- if within the last 48 hours, group by hour
+                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
+                    IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 48 hours, group by hour
                 ) as time_group',
                 [$offset, new DateTime('-48 hours')]
             )
@@ -94,13 +94,14 @@ class AddStatisticsData
             ->groupBy('time_group')
             ->lists('count', 'time_group');
 
-        // Now that we have the aggregated statistics, convert each point in
-        // time into a UNIX timestamp .
-        $displayTimezone = $this->getDisplayTimezone();
+        // Now that we have the aggregated statistics, convert each time group
+        // into a UNIX timestamp.
+        $userTimezone = $this->getUserTimezone();
+
         $timed = [];
 
-        $results->each(function ($count, $time) use (&$timed, $displayTimezone) {
-            $time = new DateTime($time, $displayTimezone);
+        $results->each(function ($count, $time) use (&$timed, $userTimezone) {
+            $time = new DateTime($time, $userTimezone);
             $timed[$time->getTimestamp()] = $count;
         });
 
@@ -109,19 +110,14 @@ class AddStatisticsData
 
     private function getTimezoneOffset()
     {
+        $now = new DateTime;
+
         $dataTimezone = new DateTimeZone(date_default_timezone_get());
 
-        return $this->getDisplayTimezone()->getOffset(new DateTime('now', $dataTimezone));
+        return $this->getUserTimezone()->getOffset($now) - $dataTimezone->getOffset($now);
     }
 
-    private function getUTCOffset()
-    {
-        $utcTimezone = new DateTimeZone('UTC');
-
-        return $this->getDisplayTimezone()->getOffset(new DateTime('now', $utcTimezone));
-    }
-
-    private function getDisplayTimezone()
+    private function getUserTimezone()
     {
         return new DateTimeZone($this->settings->get('flarum-statistics.timezone', date_default_timezone_get()));
     }
