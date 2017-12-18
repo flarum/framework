@@ -49,10 +49,12 @@ class AddStatisticsData
      */
     public function addStatisticsData(ConfigureWebApp $event)
     {
-        $event->view->setVariable('statistics', array_merge(
-            $this->getStatistics(),
-            ['utcOffset' => $this->getUTCOffset()]
-        ));
+        if ($event->isAdmin()) {
+            $event->view->setVariable('statistics', array_merge(
+                $this->getStatistics(),
+                ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
+            ));
+        }
     }
 
     private function getStatistics()
