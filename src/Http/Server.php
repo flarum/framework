@@ -67,6 +67,7 @@ class Server
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out)
     {
+        // FIXME: Only call this when app is installed. Do this via middleware?
         $this->collectGarbage();
 
         $middleware = $this->getMiddleware($request->getUri()->getPath());
@@ -119,8 +120,10 @@ class Server
     {
         $this->app->register(InstallServiceProvider::class);
 
-        $pipe->pipe(new HandleErrors($this->getErrorDir(), $this->app->make('log'), true));
-
+        // FIXME: Re-enable HandleErrors middleware, if possible
+        // (Right now it tries to resolve a database connection because of the injected settings repo instance)
+        // We could register a different settings repo when Flarum is not installed
+        //$pipe->pipe($this->app->make(HandleErrors::class, ['debug' => true]));
         $pipe->pipe($this->app->make(StartSession::class));
         $pipe->pipe($this->app->make(DispatchRoute::class, ['routes' => $this->app->make('flarum.install.routes')]));
 
