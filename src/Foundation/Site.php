@@ -65,7 +65,7 @@ class Site
     /**
      * @var array
      */
-    protected $config;
+    protected $config = [];
 
     protected $extenders = [];
 
@@ -73,10 +73,6 @@ class Site
     {
         $this->basePath = getcwd();
         $this->publicPath = $this->basePath;
-
-        if (file_exists($file = $this->basePath.'/config.php')) {
-            $this->config = include $file;
-        }
     }
 
     /**
@@ -94,10 +90,6 @@ class Site
     public function setBasePath($basePath)
     {
         $this->basePath = $basePath;
-
-        if (file_exists($file = $this->basePath.'/config.php')) {
-            $this->config = include $file;
-        }
 
         return $this;
     }
@@ -135,6 +127,15 @@ class Site
         return $this;
     }
 
+    protected function getConfig()
+    {
+        if (empty($this->config) && file_exists($file = $this->basePath.'/config.php')) {
+            $this->config = include $file;
+        }
+
+        return $this->config;
+    }
+
     /**
      * @return Application
      */
@@ -153,7 +154,7 @@ class Site
         }
 
         $app->instance('env', 'production');
-        $app->instance('flarum.config', $this->config);
+        $app->instance('flarum.config', $this->getConfig());
         $app->instance('config', $config = $this->getIlluminateConfig($app));
 
         $this->registerLogger($app);
