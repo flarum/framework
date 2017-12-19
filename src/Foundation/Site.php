@@ -95,6 +95,10 @@ class Site
     {
         $this->basePath = $basePath;
 
+        if (file_exists($file = $this->basePath.'/config.php')) {
+            $this->config = include $file;
+        }
+
         return $this;
     }
 
