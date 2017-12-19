@@ -78,7 +78,7 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $events = $this->app->make('events');
 
-        $events->subscribe(Listener\SelfDemotionGuard::class);
+        $events->subscribe(SelfDemotionGuard::class);
         $events->subscribe(EmailConfirmationMailer::class);
         $events->subscribe(UserMetadataUpdater::class);
         $events->subscribe(UserPolicy::class);
