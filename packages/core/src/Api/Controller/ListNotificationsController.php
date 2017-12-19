@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\UrlGenerator;
+use Flarum\Http\UrlGenerator;
 use Flarum\Discussion\Discussion;
 use Flarum\Notification\NotificationRepository;
 use Flarum\User\Exception\PermissionDeniedException;
@@ -92,7 +92,7 @@ class ListNotificationsController extends AbstractListController
         }
 
         $document->addPaginationLinks(
-            $this->url->toRoute('notifications.index'),
+            $this->url->to('api')->route('notifications.index'),
             $request->getQueryParams(),
             $offset,
             $limit,
