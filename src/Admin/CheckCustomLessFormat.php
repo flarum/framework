@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Admin\Listener;
+namespace Flarum\Admin;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Settings\Event\Serializing;

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\User\Listener;
+namespace Flarum\User;
 
 use Flarum\Group\Group;
 use Flarum\User\Event\Saving;

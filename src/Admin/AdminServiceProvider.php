@@ -11,7 +11,6 @@
 
 namespace Flarum\Admin;
 
-use Flarum\Admin\Listener\CheckCustomLessFormat;
 use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
