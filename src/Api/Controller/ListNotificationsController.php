@@ -11,8 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Http\UrlGenerator;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\UrlGenerator;
 use Flarum\Notification\NotificationRepository;
 use Flarum\User\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface;
