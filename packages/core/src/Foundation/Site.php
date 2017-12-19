@@ -65,7 +65,7 @@ class Site
     /**
      * @var array
      */
-    protected $config = [];
+    protected $config;
 
     protected $extenders = [];
 
