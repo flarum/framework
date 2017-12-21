@@ -62,3 +62,5 @@
   </main>
 
 </div>
+
+{!! array_get($forum, 'attributes.footerHtml') !!}
