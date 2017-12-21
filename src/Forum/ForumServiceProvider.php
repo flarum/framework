@@ -17,6 +17,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Middleware\AuthenticateWithSession;
+use Flarum\Http\Middleware\CollectGarbage;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\ParseJsonBody;
@@ -54,6 +55,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(HandleErrors::class, ['debug' => $debugMode]));
 
             $pipe->pipe($app->make(ParseJsonBody::class));
+            $pipe->pipe($app->make(CollectGarbage::class));
             $pipe->pipe($app->make(StartSession::class));
             $pipe->pipe($app->make(RememberFromCookie::class));
             $pipe->pipe($app->make(AuthenticateWithSession::class));
