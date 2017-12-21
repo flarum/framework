@@ -18,9 +18,6 @@ use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\InstallServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
-use Flarum\User\AuthToken;
-use Flarum\User\EmailToken;
-use Flarum\User\PasswordToken;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -67,9 +64,6 @@ class Server
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out)
     {
-        // FIXME: Only call this when app is installed. Do this via middleware?
-        $this->collectGarbage();
-
         $middleware = $this->getMiddleware($request->getUri()->getPath());
 
         return $middleware($request, $response, $out);
@@ -150,24 +144,6 @@ class Server
         // TODO: FOR API render JSON-API error document for HTTP 503
 
         return $pipe;
-    }
-
-    private function collectGarbage()
-    {
-        if ($this->hitsLottery()) {
-            AccessToken::whereRaw('last_activity <= ? - lifetime', [time()])->delete();
-
-            $earliestToKeep = date('Y-m-d H:i:s', time() - 24 * 60 * 60);
-
-            EmailToken::where('created_at', '<=', $earliestToKeep)->delete();
-            PasswordToken::where('created_at', '<=', $earliestToKeep)->delete();
-            AuthToken::where('created_at', '<=', $earliestToKeep)->delete();
-        }
-    }
-
-    private function hitsLottery()
-    {
-        return mt_rand(1, 100) <= 2;
     }
 
     private function getErrorDir()
