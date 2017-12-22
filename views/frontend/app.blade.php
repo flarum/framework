@@ -65,5 +65,7 @@
     @endif
 
     {!! $foot !!}
+
+    {!! array_get($forum, 'attributes.footerHtml') !!}
   </body>
 </html>
