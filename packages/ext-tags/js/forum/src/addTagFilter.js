@@ -20,6 +20,14 @@ export default function() {
     return original();
   });
 
+  extend(IndexPage.prototype, 'view', function(vdom) {
+    const tag = this.currentTag();
+
+    if (tag) {
+      vdom.attrs.className += ' IndexPage--tag'+tag.id();
+    }
+  });
+
   // If currently viewing a tag, restyle the 'new discussion' button to use
   // the tag's color.
   extend(IndexPage.prototype, 'sidebarItems', function(items) {
