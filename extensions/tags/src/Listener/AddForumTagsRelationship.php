@@ -12,11 +12,11 @@
 namespace Flarum\Tags\Listener;
 
 use Flarum\Api\Controller\ShowForumController;
+use Flarum\Api\Event\Serializing;
+use Flarum\Api\Event\WillGetData;
+use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\Serializing;
-use Flarum\Event\WillGetData;
-use Flarum\Event\WillSerializeData;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
