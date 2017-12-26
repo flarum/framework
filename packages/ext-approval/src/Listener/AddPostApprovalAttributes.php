@@ -32,7 +32,7 @@ class AddPostApprovalAttributes
     public function addApiAttributes(Serializing $event)
     {
         if ($event->isSerializer(BasicDiscussionSerializer::class)
-            || $event->isSerializer(PostBasicSerializer::class)) {
+            || $event->isSerializer(PostSerializer::class)) {
             $event->attributes['isApproved'] = (bool) $event->model->is_approved;
         }
 
