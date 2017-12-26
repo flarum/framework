@@ -78,10 +78,17 @@ class PushNewPosts
      */
     protected function getPusher()
     {
+        $options = [];
+
+        if ($cluster = $this->settings->get('flarum-pusher.app_cluster')) {
+            $options['cluster'] = $cluster;
+        }
+
         return new Pusher(
             $this->settings->get('flarum-pusher.app_key'),
             $this->settings->get('flarum-pusher.app_secret'),
-            $this->settings->get('flarum-pusher.app_id')
+            $this->settings->get('flarum-pusher.app_id'),
+            $options
         );
     }
 }
