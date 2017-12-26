@@ -54,14 +54,12 @@ export default function addComposerAutocomplete() {
 
         if (this.selectionEnd - cursor > 0) return;
 
-        // Search backwards from the cursor for an '@' symbol, without any
-        // intervening whitespace. If we find one, we will want to show the
-        // autocomplete dropdown!
+        // Search backwards from the cursor for an '@' symbol. If we find one,
+        // we will want to show the autocomplete dropdown!
         const value = this.value;
         mentionStart = 0;
-        for (let i = cursor - 1; i >= 0; i--) {
+        for (let i = cursor - 1; i >= cursor - 30; i--) {
           const character = value.substr(i, 1);
-          if (/\s/.test(character)) break;
           if (character === '@') {
             mentionStart = i + 1;
             break;
@@ -95,6 +93,15 @@ export default function addComposerAutocomplete() {
             );
           };
 
+          const userMatches = function(user) {
+            const names = [
+              user.username(),
+              user.displayName()
+            ];
+
+            return names.some(value => value.toLowerCase().substr(0, typed.length) === typed);
+          };
+
           const buildSuggestions = () => {
             const suggestions = [];
 
@@ -102,7 +109,7 @@ export default function addComposerAutocomplete() {
             // matching that username.
             if (typed) {
               app.store.all('users').forEach(user => {
-                if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
+                if (!userMatches(user)) return;
 
                 suggestions.push(
                   makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user')
@@ -122,7 +129,7 @@ export default function addComposerAutocomplete() {
                 .sort((a, b) => b.time() - a.time())
                 .filter(post => {
                   const user = post.user();
-                  return user && user.username().toLowerCase().substr(0, typed.length) === typed;
+                  return user && userMatches(user);
                 })
                 .splice(0, 5)
                 .forEach(post => {
@@ -154,14 +161,18 @@ export default function addComposerAutocomplete() {
                 left = parent.width() - width;
               }
               dropdown.show(left, top);
+            } else {
+              dropdown.active = false;
+              dropdown.hide();
             }
           };
+
+          dropdown.active = true;
 
           buildSuggestions();
 
           dropdown.setIndex(0);
           dropdown.$().scrollTop(0);
-          dropdown.active = true;
 
           clearTimeout(searchTimeout);
           if (typed) {

@@ -26,20 +26,25 @@ export default class PostQuoteButton extends Button {
     $(document).on('mousedown', this.hide.bind(this));
   }
 
+  show(left, top) {
+    const $this = this.$().show();
+    const parentOffset = $this.offsetParent().offset();
+
+    $this
+      .css('left', left - parentOffset.left)
+      .css('top', top - parentOffset.top);
+  }
+
   showStart(left, top) {
     const $this = this.$();
 
-    $this.show()
-      .css('left', left)
-      .css('top', $(window).scrollTop() + top - $this.outerHeight() - 5);
+    this.show(left, $(window).scrollTop() + top - $this.outerHeight() - 5);
   }
 
   showEnd(right, bottom) {
     const $this = this.$();
 
-    $this.show()
-      .css('left', right - $this.outerWidth())
-      .css('top', $(window).scrollTop() + bottom + 5)
+    this.show(right - $this.outerWidth(), $(window).scrollTop() + bottom + 5);
   }
 
   hide() {
