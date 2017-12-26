@@ -12,7 +12,7 @@
 namespace Flarum\Tags\Listener;
 
 use Flarum\Event\ConfigureForumRoutes;
-use Flarum\Event\Rendering;
+use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets

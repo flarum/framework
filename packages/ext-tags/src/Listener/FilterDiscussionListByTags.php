@@ -11,7 +11,7 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Discussion\Event\ConfigureDiscussionGambits;
+use Flarum\Event\ConfigureDiscussionGambits;
 use Flarum\Discussion\Event\Searching;
 use Flarum\Tags\Gambit\TagGambit;
 use Flarum\Tags\Tag;
