@@ -13,10 +13,10 @@ namespace Flarum\Statistics\Listener;
 
 use DateTime;
 use DateTimeZone;
-use Flarum\Core\Discussion;
-use Flarum\Core\Post;
-use Flarum\Core\User;
-use Flarum\Event\ConfigureWebApp;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\User\User;
+use Flarum\Frontend\Event\Rendering;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -41,13 +41,13 @@ class AddStatisticsData
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureWebApp::class, [$this, 'addStatisticsData']);
+        $events->listen(Rendering::class, [$this, 'addStatisticsData']);
     }
 
     /**
-     * @param ConfigureWebApp $event
+     * @param Rendering $event
      */
-    public function addStatisticsData(ConfigureWebApp $event)
+    public function addStatisticsData(Rendering $event)
     {
         if ($event->isAdmin()) {
             $event->view->setVariable('statistics', array_merge(
