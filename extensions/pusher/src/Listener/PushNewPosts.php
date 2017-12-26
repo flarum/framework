@@ -53,7 +53,7 @@ class PushNewPosts
             $pusher->trigger('public', 'newPost', [
                 'postId' => $event->post->id,
                 'discussionId' => $event->post->discussion->id,
-                'tagIds' => $event->post->discussion->tags()->lists('id')
+                'tagIds' => $event->post->discussion->tags()->pluck('id')
             ]);
         }
     }
