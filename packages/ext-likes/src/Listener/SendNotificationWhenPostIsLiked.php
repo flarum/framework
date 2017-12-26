@@ -11,7 +11,7 @@
 
 namespace Flarum\Likes\Listener;
 
-use Flarum\Api\Serializer\BasicPostSerializer;
+use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
@@ -51,7 +51,7 @@ class SendNotificationWhenPostIsLiked
      */
     public function registerNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(PostLikedBlueprint::class, BasicPostSerializer::class, ['alert']);
+        $event->add(PostLikedBlueprint::class, PostSerializer::class, ['alert']);
     }
 
     /**
