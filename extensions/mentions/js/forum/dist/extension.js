@@ -179,14 +179,12 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
 
         if (this.selectionEnd - cursor > 0) return;
 
-        // Search backwards from the cursor for an '@' symbol, without any
-        // intervening whitespace. If we find one, we will want to show the
-        // autocomplete dropdown!
+        // Search backwards from the cursor for an '@' symbol. If we find one,
+        // we will want to show the autocomplete dropdown!
         var value = this.value;
         mentionStart = 0;
-        for (var i = cursor - 1; i >= 0; i--) {
+        for (var i = cursor - 1; i >= cursor - 30; i--) {
           var character = value.substr(i, 1);
-          if (/\s/.test(character)) break;
           if (character === '@') {
             mentionStart = i + 1;
             break;
@@ -228,6 +226,14 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
             );
           };
 
+          var userMatches = function userMatches(user) {
+            var names = [user.username(), user.displayName()];
+
+            return names.some(function (value) {
+              return value.toLowerCase().substr(0, typed.length) === typed;
+            });
+          };
+
           var buildSuggestions = function buildSuggestions() {
             var suggestions = [];
 
@@ -235,7 +241,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
             // matching that username.
             if (typed) {
               app.store.all('users').forEach(function (user) {
-                if (user.username().toLowerCase().substr(0, typed.length) !== typed) return;
+                if (!userMatches(user)) return;
 
                 suggestions.push(makeSuggestion(user, '@' + user.username(), '', 'MentionsDropdown-user'));
               });
@@ -254,7 +260,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
                 return b.time() - a.time();
               }).filter(function (post) {
                 var user = post.user();
-                return user && user.username().toLowerCase().substr(0, typed.length) === typed;
+                return user && userMatches(user);
               }).splice(0, 5).forEach(function (post) {
                 var user = post.user();
                 suggestions.push(makeSuggestion(user, '@' + user.username() + '#' + post.id(), [app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }), ' — ', truncate(post.contentPlain(), 200)], 'MentionsDropdown-post'));
@@ -279,14 +285,18 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
                 left = parent.width() - width;
               }
               dropdown.show(left, top);
+            } else {
+              dropdown.active = false;
+              dropdown.hide();
             }
           };
+
+          dropdown.active = true;
 
           buildSuggestions();
 
           dropdown.setIndex(0);
           dropdown.$().scrollTop(0);
-          dropdown.active = true;
 
           clearTimeout(searchTimeout);
           if (typed) {
@@ -1001,18 +1011,26 @@ System.register('flarum/mentions/components/PostQuoteButton', ['flarum/component
             $(document).on('mousedown', this.hide.bind(this));
           }
         }, {
+          key: 'show',
+          value: function show(left, top) {
+            var $this = this.$().show();
+            var parentOffset = $this.offsetParent().offset();
+
+            $this.css('left', left - parentOffset.left).css('top', top - parentOffset.top);
+          }
+        }, {
           key: 'showStart',
           value: function showStart(left, top) {
             var $this = this.$();
 
-            $this.show().css('left', left).css('top', $(window).scrollTop() + top - $this.outerHeight() - 5);
+            this.show(left, $(window).scrollTop() + top - $this.outerHeight() - 5);
           }
         }, {
           key: 'showEnd',
           value: function showEnd(right, bottom) {
             var $this = this.$();
 
-            $this.show().css('left', right - $this.outerWidth()).css('top', $(window).scrollTop() + bottom + 5);
+            this.show(right - $this.outerWidth(), $(window).scrollTop() + bottom + 5);
           }
         }, {
           key: 'hide',
@@ -1166,6 +1184,7 @@ System.register('flarum/mentions/main', ['flarum/extend', 'flarum/app', 'flarum/
           }), 80);
         });
 
+        // Remove post mentions when rendering post previews.
         getPlainContent.removeSelectors.push('a.PostMention');
       });
     }
@@ -1256,6 +1275,48 @@ System.register('flarum/mentions/utils/selectedText', [], function (_export, _co
 
   return {
     setters: [],
+    execute: function () {}
+  };
+});;
+'use strict';
+
+System.register('flarum/mentions/utils/textFormatter', ['flarum/helpers/username', 'flarum/utils/extractText'], function (_export, _context) {
+  "use strict";
+
+  var username, extractText;
+  function filterUserMentions(tag) {
+    var user = app.store.getBy('users', 'username', tag.getAttribute('username'));
+
+    if (user) {
+      tag.setAttribute('id', user.id());
+      tag.setAttribute('displayname', extractText(username(user)));
+
+      return true;
+    }
+  }
+
+  _export('filterUserMentions', filterUserMentions);
+
+  function filterPostMentions(tag) {
+    var post = app.store.getById('posts', tag.getAttribute('id'));
+
+    if (post) {
+      tag.setAttribute('discussionid', post.discussion().id());
+      tag.setAttribute('number', post.number());
+      tag.setAttribute('displayname', extractText(username(post.user())));
+
+      return true;
+    }
+  }
+
+  _export('filterPostMentions', filterPostMentions);
+
+  return {
+    setters: [function (_flarumHelpersUsername) {
+      username = _flarumHelpersUsername.default;
+    }, function (_flarumUtilsExtractText) {
+      extractText = _flarumUtilsExtractText.default;
+    }],
     execute: function () {}
   };
 });

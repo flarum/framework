@@ -11,7 +11,7 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Api\Serializer\BasicPostSerializer;
+use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Notification\NotificationSyncer;
@@ -57,7 +57,7 @@ class UpdatePostMentionsMetadata
      */
     public function addNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(PostMentionedBlueprint::class, BasicPostSerializer::class, ['alert']);
+        $event->add(PostMentionedBlueprint::class, PostSerializer::class, ['alert']);
     }
 
     /**
