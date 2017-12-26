@@ -156,15 +156,12 @@ System.register('flarum/sticky/components/DiscussionStickiedPost', ['flarum/comp
 });;
 'use strict';
 
-System.register('flarum/sticky/main', ['flarum/extend', 'flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export, _context) {
+System.register('flarum/sticky/main', ['flarum/app', 'flarum/Model', 'flarum/models/Discussion', 'flarum/sticky/components/DiscussionStickiedPost', 'flarum/sticky/addStickyBadge', 'flarum/sticky/addStickyControl', 'flarum/sticky/addStickyExcerpt'], function (_export, _context) {
   "use strict";
 
-  var extend, notificationType, app, Model, Discussion, DiscussionStickiedPost, addStickyBadge, addStickyControl, addStickyExcerpt;
+  var app, Model, Discussion, DiscussionStickiedPost, addStickyBadge, addStickyControl, addStickyExcerpt;
   return {
-    setters: [function (_flarumExtend) {
-      extend = _flarumExtend.extend;
-      notificationType = _flarumExtend.notificationType;
-    }, function (_flarumApp) {
+    setters: [function (_flarumApp) {
       app = _flarumApp.default;
     }, function (_flarumModel) {
       Model = _flarumModel.default;
