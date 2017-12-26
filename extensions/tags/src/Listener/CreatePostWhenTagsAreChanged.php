@@ -44,7 +44,7 @@ class CreatePostWhenTagsAreChanged
             $event->discussion->id,
             $event->actor->id,
             array_pluck($event->oldTags, 'id'),
-            $event->discussion->tags()->lists('id')->all()
+            $event->discussion->tags()->pluck('id')->all()
         );
 
         $event->discussion->mergePost($post);

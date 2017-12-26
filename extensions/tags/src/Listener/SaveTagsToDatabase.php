@@ -98,7 +98,7 @@ class SaveTagsToDatabase
 
             if ($discussion->exists) {
                 $oldTags = $discussion->tags()->get();
-                $oldTagIds = $oldTags->lists('id')->all();
+                $oldTagIds = $oldTags->pluck('id')->all();
 
                 if ($oldTagIds == $newTagIds) {
                     return;

@@ -41,7 +41,7 @@ class AddDiscussionTagsRelationship
     public function getModelRelationship(GetModelRelationship $event)
     {
         if ($event->isRelationship(Discussion::class, 'tags')) {
-            return $event->model->belongsToMany(Tag::class, 'discussions_tags', null, null, 'tags');
+            return $event->model->belongsToMany(Tag::class, 'discussions_tags', null, null, null, null, 'tags');
         }
     }
 
