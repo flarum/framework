@@ -11,15 +11,13 @@
 
 namespace Flarum\Mentions\Listener;
 
-use Flarum\Api\Controller\CreatePostController;
-use Flarum\Api\Controller\ListPostsController;
-use Flarum\Api\Controller\ShowDiscussionController;
-use Flarum\Api\Controller\ShowPostController;
+use Flarum\Api\Controller;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
