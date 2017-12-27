@@ -11,13 +11,13 @@
 
 namespace Flarum\Flags\Api\Controller;
 
-use Flarum\Api\Controller\AbstractCollectionController;
+use Flarum\Api\Controller\AbstractListController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListFlagsController extends AbstractCollectionController
+class ListFlagsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
