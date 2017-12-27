@@ -25,7 +25,7 @@ class AddClientAssets
     }
 
     /**
-     * @param ConfigureClientView $event
+     * @param Rendering $event
      */
     public function addAssets(Rendering $event)
     {
