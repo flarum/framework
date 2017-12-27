@@ -17,7 +17,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Contracts\Validation\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 
