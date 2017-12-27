@@ -13,8 +13,8 @@ namespace Flarum\Foundation;
 
 use Flarum\Foundation\Event\Validating;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\ValidationException;
 use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Translation\TranslatorInterface;
 
 abstract class AbstractValidator

@@ -15,6 +15,7 @@ use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
+use RuntimeException;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
