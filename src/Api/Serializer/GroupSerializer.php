@@ -58,14 +58,6 @@ class GroupSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function permissions($group)
-    {
-        return $this->hasMany($group, PermissionSerializer::class);
-    }
-
-    /**
      * @param string $name
      * @return string
      */
