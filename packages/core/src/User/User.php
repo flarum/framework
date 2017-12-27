@@ -16,7 +16,6 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
-use Flarum\Event\PostWasDeleted;
 use Flarum\Event\PrepareUserGroups;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\EventGeneratorTrait;

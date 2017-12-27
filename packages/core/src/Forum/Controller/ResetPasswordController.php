@@ -27,7 +27,6 @@ class ResetPasswordController extends AbstractHtmlController
 
     /**
      * @param Factory $view
-     * @param TranslatorInterface $translator
      */
     public function __construct(Factory $view)
     {

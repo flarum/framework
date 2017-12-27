@@ -27,6 +27,7 @@ use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
+use Flarum\Settings\Event\Saved;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Stratigility\MiddlewarePipe;
