@@ -32,9 +32,9 @@ class TagWillBeSaved
     public $data;
 
     /**
-     * @param Discussion $discussion
+     * @param Tag $tag
      * @param User $actor
-     * @param \Flarum\Tags\Tag[] $tag
+     * @param array $data
      */
     public function __construct(Tag $tag, User $actor, array $data)
     {
