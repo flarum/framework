@@ -11,8 +11,11 @@
 
 use Flarum\Embed\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Factory;
 
-return function (Dispatcher $events) {
+return function (Dispatcher $events, Factory $view) {
     $events->subscribe(Listener\AddEmbedRoute::class);
     $events->subscribe(Listener\FlushEmbedAssetsWhenSettingsAreChanged::class);
+
+    $view->addNamespace('flarum-embed', __DIR__.'/views');
 };

@@ -12,7 +12,6 @@ namespace Flarum\Embed;
 
 use Flarum\Api\Client;
 use Flarum\Forum\Controller\DiscussionController;
-use Flarum\Forum\Frontend;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -21,7 +20,7 @@ class EmbeddedDiscussionController extends DiscussionController
     /**
      * {@inheritdoc}
      */
-    public function __construct(Frontend $frontend, Dispatcher $events, Client $api, UrlGenerator $url)
+    public function __construct(EmbedFrontend $frontend, Dispatcher $events, Client $api, UrlGenerator $url)
     {
         parent::__construct($frontend, $events, $api, $url);
     }

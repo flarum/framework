@@ -10,8 +10,7 @@
 
 namespace Flarum\Embed\Listener;
 
-use Flarum\Embed\DiscussionController;
-use Flarum\Embed\EmbedWebApp;
+use Flarum\Embed\EmbedFrontend;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Settings\Event\Saved;
@@ -20,16 +19,16 @@ use Illuminate\Contracts\Events\Dispatcher;
 class FlushEmbedAssetsWhenSettingsAreChanged
 {
     /**
-     * @var DiscussionController
+     * @var EmbedFrontend
      */
-    protected $webApp;
+    protected $frontend;
 
     /**
-     * @param EmbedWebApp $webApp
+     * @param EmbedFrontend $frontend
      */
-    public function __construct(EmbedWebApp $webApp)
+    public function __construct(EmbedFrontend $frontend)
     {
-        $this->webApp = $webApp;
+        $this->frontend = $frontend;
     }
 
     /**
@@ -48,12 +47,12 @@ class FlushEmbedAssetsWhenSettingsAreChanged
     public function flushCss(Saved $event)
     {
         if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-            $this->webApp->getAssets()->flushCss();
+            $this->frontend->getAssets()->flushCss();
         }
     }
 
     public function flushAssets()
     {
-        $this->webApp->getAssets()->flush();
+        $this->frontend->getAssets()->flush();
     }
 }

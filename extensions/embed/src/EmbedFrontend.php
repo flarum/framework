@@ -10,9 +10,9 @@
 
 namespace Flarum\Embed;
 
-use Flarum\Forum\WebApp;
+use Flarum\Forum\Frontend;
 
-class EmbedWebApp extends WebApp
+class EmbedFrontend extends Frontend
 {
     /**
      * {@inheritdoc}
@@ -25,7 +25,7 @@ class EmbedWebApp extends WebApp
         $view->getCss()->addFile(__DIR__.'/../less/forum/extension.less');
 
         $view->loadModule('flarum/embed/main');
-        $view->layout = __DIR__.'/../views/embed.blade.php';
+        $view->layout = 'flarum-embed::embed';
 
         return $view;
     }
