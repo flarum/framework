@@ -92,7 +92,7 @@ class AddStatisticsData
             ->selectRaw('COUNT(id) as count')
             ->where($column, '>', new DateTime('-24 months'))
             ->groupBy('time_group')
-            ->lists('count', 'time_group');
+            ->pluck('count', 'time_group');
 
         // Now that we have the aggregated statistics, convert each time group
         // into a UNIX timestamp.
