@@ -20,7 +20,7 @@ return [
         });
 
         // Store slugs for existing discussions
-        $schema->getConnection()->table('discussions')->chunk(100, function ($discussions) use ($schema) {
+        $schema->getConnection()->table('discussions')->chunkById(100, function ($discussions) use ($schema) {
             foreach ($discussions as $discussion) {
                 $schema->getConnection()->table('discussions')->where('id', $discussion->id)->update([
                     'slug' => Str::slug($discussion->title)

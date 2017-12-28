@@ -11,8 +11,8 @@
 
 namespace Flarum\Event;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 class ScopePostVisibility
 {
     /**
-     * @var Discussion
+     * @var \Flarum\Discussion\Discussion
      */
     public $discussion;
 

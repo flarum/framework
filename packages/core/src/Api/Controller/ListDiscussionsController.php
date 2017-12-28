@@ -11,13 +11,13 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\UrlGenerator;
-use Flarum\Core\Search\Discussion\DiscussionSearcher;
-use Flarum\Core\Search\SearchCriteria;
+use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Http\UrlGenerator;
+use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListDiscussionsController extends AbstractCollectionController
+class ListDiscussionsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
@@ -86,7 +86,7 @@ class ListDiscussionsController extends AbstractCollectionController
         $results = $this->searcher->search($criteria, $limit, $offset, $load);
 
         $document->addPaginationLinks(
-            $this->url->toRoute('discussions.index'),
+            $this->url->to('api')->route('discussions.index'),
             $request->getQueryParams(),
             $offset,
             $limit,
