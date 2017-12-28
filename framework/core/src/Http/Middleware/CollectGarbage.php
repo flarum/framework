@@ -34,7 +34,7 @@ class CollectGarbage implements MiddlewareInterface
     private function collectGarbageSometimes()
     {
         // In order to save performance, we only execute this query
-        // from time to time (with 50% chance).
+        // from time to time (with 2% chance).
         if (! $this->hit()) {
             return;
         }
