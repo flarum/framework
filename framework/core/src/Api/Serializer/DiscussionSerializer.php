@@ -11,18 +11,18 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Access\Gate;
-use Flarum\Core\Discussion;
+use Flarum\Discussion\Discussion;
+use Flarum\User\Gate;
 
-class DiscussionSerializer extends DiscussionBasicSerializer
+class DiscussionSerializer extends BasicDiscussionSerializer
 {
     /**
-     * @var Gate
+     * @var \Flarum\User\Gate
      */
     protected $gate;
 
     /**
-     * @param \Flarum\Core\Access\Gate $gate
+     * @param \Flarum\User\Gate $gate
      */
     public function __construct(Gate $gate)
     {

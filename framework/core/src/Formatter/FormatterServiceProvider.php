@@ -11,8 +11,8 @@
 
 namespace Flarum\Formatter;
 
-use Flarum\Event\ExtensionWasDisabled;
-use Flarum\Event\ExtensionWasEnabled;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -24,8 +24,8 @@ class FormatterServiceProvider extends AbstractServiceProvider
      */
     public function boot(Dispatcher $events)
     {
-        $events->listen(ExtensionWasEnabled::class, [$this, 'flushFormatter']);
-        $events->listen(ExtensionWasDisabled::class, [$this, 'flushFormatter']);
+        $events->listen(Enabled::class, [$this, 'flushFormatter']);
+        $events->listen(Disabled::class, [$this, 'flushFormatter']);
     }
 
     /**
@@ -41,7 +41,7 @@ class FormatterServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->app->alias('flarum.formatter', 'Flarum\Formatter\Formatter');
+        $this->app->alias('flarum.formatter', Formatter::class);
     }
 
     public function flushFormatter()

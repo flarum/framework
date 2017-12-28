@@ -11,11 +11,11 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListGroupsController extends AbstractCollectionController
+class ListGroupsController extends AbstractListController
 {
     /**
      * {@inheritdoc}

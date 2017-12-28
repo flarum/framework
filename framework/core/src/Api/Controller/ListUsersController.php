@@ -11,14 +11,14 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\UrlGenerator;
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Search\SearchCriteria;
-use Flarum\Core\Search\User\UserSearcher;
+use Flarum\Http\UrlGenerator;
+use Flarum\Search\SearchCriteria;
+use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\Search\UserSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListUsersController extends AbstractCollectionController
+class ListUsersController extends AbstractListController
 {
     /**
      * {@inheritdoc}
@@ -84,7 +84,7 @@ class ListUsersController extends AbstractCollectionController
         $results = $this->searcher->search($criteria, $limit, $offset, $load);
 
         $document->addPaginationLinks(
-            $this->url->toRoute('users.index'),
+            $this->url->to('api')->route('users.index'),
             $request->getQueryParams(),
             $offset,
             $limit,

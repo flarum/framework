@@ -51,6 +51,8 @@ class HandleErrors
     /**
      * @param ViewFactory $view
      * @param LoggerInterface $logger
+     * @param TranslatorInterface $translator
+     * @param SettingsRepositoryInterface $settings
      * @param bool $debug
      */
     public function __construct(ViewFactory $view, LoggerInterface $logger, TranslatorInterface $translator, SettingsRepositoryInterface $settings, $debug = false)
@@ -99,8 +101,8 @@ class HandleErrors
         // Log the exception (with trace)
         $this->logger->debug($error);
 
-        if (! $this->view->exists($name = 'flarum::error.'.$status)) {
-            $name = 'flarum::error.default';
+        if (! $this->view->exists($name = 'flarum.forum::error.'.$status)) {
+            $name = 'flarum.forum::error.default';
         }
 
         $view = $this->view->make($name)

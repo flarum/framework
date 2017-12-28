@@ -12,10 +12,11 @@
 namespace Tests\Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Api\Handler\IlluminateValidationExceptionHandler;
-use Illuminate\Contracts\Validation\ValidationException;
+use Flarum\Api\ExceptionHandler\IlluminateValidationExceptionHandler;
+use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
-use Symfony\Component\Translation\Translator;
+use Illuminate\Validation\ValidationException;
 use Tests\Test\TestCase;
 
 class IlluminateValidationExceptionHandlerTest extends TestCase
@@ -54,7 +55,7 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
 
     private function makeValidator($data = [], $rules = [])
     {
-        $translator = new Translator('en');
+        $translator = new Translator(new ArrayLoader(), 'en');
         $factory = new Factory($translator);
 
         return $factory->make($data, $rules);
