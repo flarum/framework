@@ -12,8 +12,8 @@
 namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Event\PostWillBeSaved;
+use Flarum\Post\Event\Saving;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
@@ -25,14 +25,14 @@ class ApproveContent
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(PostWillBeSaved::class, [$this, 'approvePost']);
+        $events->listen(Saving::class, [$this, 'approvePost']);
         $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
     }
 
     /**
-     * @param PostWillBeSaved $event
+     * @param Saving $event
      */
-    public function approvePost(PostWillBeSaved $event)
+    public function approvePost(Saving $event)
     {
         $attributes = $event->data['attributes'];
         $post = $event->post;
@@ -58,13 +58,15 @@ class ApproveContent
     public function approveDiscussion(PostWasApproved $event)
     {
         $post = $event->post;
+        $discussion = $post->discussion;
 
-        $post->discussion->refreshCommentsCount();
-        $post->discussion->refreshLastPost();
+        $discussion->refreshCommentsCount();
+        $discussion->refreshLastPost();
 
         if ($post->number == 1) {
-            $post->discussion->is_approved = true;
+            $discussion->is_approved = true;
         }
-        $post->discussion->save();
+
+        $discussion->save();
     }
 }
