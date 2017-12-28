@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Notification;
+use Flarum\Notification\Notification;
 use InvalidArgumentException;
 
 class NotificationSerializer extends AbstractSerializer
@@ -32,7 +32,7 @@ class NotificationSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param \Flarum\Core\Notification $notification
+     * @param \Flarum\Notification\Notification $notification
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($notification)
@@ -57,7 +57,7 @@ class NotificationSerializer extends AbstractSerializer
      */
     protected function user($notification)
     {
-        return $this->hasOne($notification, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($notification, BasicUserSerializer::class);
     }
 
     /**
@@ -65,7 +65,7 @@ class NotificationSerializer extends AbstractSerializer
      */
     protected function sender($notification)
     {
-        return $this->hasOne($notification, 'Flarum\Api\Serializer\UserBasicSerializer');
+        return $this->hasOne($notification, BasicUserSerializer::class);
     }
 
     /**

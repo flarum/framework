@@ -11,14 +11,14 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\UrlGenerator;
-use Flarum\Core\Discussion;
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\NotificationRepository;
+use Flarum\Discussion\Discussion;
+use Flarum\Http\UrlGenerator;
+use Flarum\Notification\NotificationRepository;
+use Flarum\User\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListNotificationsController extends AbstractCollectionController
+class ListNotificationsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
@@ -92,7 +92,7 @@ class ListNotificationsController extends AbstractCollectionController
         }
 
         $document->addPaginationLinks(
-            $this->url->toRoute('notifications.index'),
+            $this->url->to('api')->route('notifications.index'),
             $request->getQueryParams(),
             $offset,
             $limit,
@@ -111,7 +111,7 @@ class ListNotificationsController extends AbstractCollectionController
     }
 
     /**
-     * @param \Flarum\Core\Notification[] $notifications
+     * @param \Flarum\Notification\Notification[] $notifications
      */
     private function loadSubjectDiscussions(array $notifications)
     {

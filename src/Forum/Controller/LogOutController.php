@@ -11,14 +11,14 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Event\UserLoggedOut;
-use Flarum\Forum\UrlGenerator;
 use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Exception\TokenMismatchException;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\Http\UrlGenerator;
+use Flarum\User\AssertPermissionTrait;
+use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -65,6 +65,7 @@ class LogOutController implements ControllerInterface
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
      * @param Factory $view
+     * @param UrlGenerator $url
      */
     public function __construct(
         Application $app,
@@ -118,7 +119,7 @@ class LogOutController implements ControllerInterface
 
         $actor->accessTokens()->delete();
 
-        $this->events->fire(new UserLoggedOut($actor));
+        $this->events->fire(new LoggedOut($actor));
 
         return $this->rememberer->forget($response);
     }

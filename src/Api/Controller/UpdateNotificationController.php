@@ -11,12 +11,12 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\ReadNotification;
+use Flarum\Notification\Command\ReadNotification;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class UpdateNotificationController extends AbstractResourceController
+class UpdateNotificationController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

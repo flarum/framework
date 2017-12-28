@@ -12,7 +12,7 @@
 namespace Tests\Flarum\Api\Handler;
 
 use Exception;
-use Flarum\Api\Handler\RouteNotFoundExceptionHandler;
+use Flarum\Api\ExceptionHandler\RouteNotFoundExceptionHandler;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Tests\Test\TestCase;
 
