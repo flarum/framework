@@ -59,6 +59,6 @@ class PasswordToken extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\User');
+        return $this->belongsTo(User::class);
     }
 }
