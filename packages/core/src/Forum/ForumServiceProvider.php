@@ -77,7 +77,7 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $this->populateRoutes($this->app->make('flarum.forum.routes'));
 
-        $this->loadViewsFrom(__DIR__.'/../../views/frontend', 'flarum.forum');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
         $this->app->make('view')->share([
             'translator' => $this->app->make(TranslatorInterface::class),
