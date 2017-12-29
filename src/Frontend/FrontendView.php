@@ -287,7 +287,7 @@ class FrontendView
         $this->view->share('forum', array_get($forum, 'data'));
         $this->view->share('debug', $this->app->inDebugMode());
 
-        $view = $this->view->make('flarum.forum::app');
+        $view = $this->view->make('flarum.forum::frontend.app');
 
         $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
         $view->description = $this->description ?: array_get($forum, 'data.attributes.description');
@@ -345,7 +345,7 @@ class FrontendView
 
     protected function buildContent()
     {
-        $view = $this->view->make('flarum.forum::content');
+        $view = $this->view->make('flarum.forum::frontend.content');
 
         $view->content = $this->content;
 

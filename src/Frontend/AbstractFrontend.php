@@ -86,7 +86,7 @@ abstract class AbstractFrontend
      */
     protected function getLayout()
     {
-        return 'flarum.forum::'.$this->getName();
+        return 'flarum.forum::frontend.'.$this->getName();
     }
 
     /**
