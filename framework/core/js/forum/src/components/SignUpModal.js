@@ -60,6 +60,10 @@ export default class SignUpModal extends Modal {
     ];
   }
 
+  fieldCantBeEdited(field) {
+    return this.props.identification_fields && this.props.identification_fields.indexOf(field) !== -1;
+  }
+
   body() {
     return [
       this.props.token ? '' : <LogInButtons/>,
@@ -69,14 +73,14 @@ export default class SignUpModal extends Modal {
           <input className="FormControl" name="username" type="text" placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
             value={this.username()}
             onchange={m.withAttr('value', this.username)}
-            disabled={this.loading} />
+            disabled={this.loading || this.fieldCantBeEdited('username')} />
         </div>
 
         <div className="Form-group">
           <input className="FormControl" name="email" type="email" placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
             value={this.email()}
             onchange={m.withAttr('value', this.email)}
-            disabled={this.loading || (this.props.token && this.props.email)} />
+            disabled={this.loading || this.fieldCantBeEdited('email')} />
         </div>
 
         {this.props.token ? '' : (
