@@ -1,5 +1,5 @@
 @extends('flarum.forum::layouts.basic')
-@inject('url', 'Flarum\Forum\UrlGenerator')
+@inject('url', 'Flarum\Http\UrlGenerator')
 
 @section('title', $translator->trans('core.views.reset_password.title'))
 
