@@ -3,7 +3,6 @@ import ItemList from 'flarum/utils/ItemList';
 import ComposerButton from 'flarum/components/ComposerButton';
 import listItems from 'flarum/helpers/listItems';
 import classList from 'flarum/utils/classList';
-import computed from 'flarum/utils/computed';
 
 /**
  * The `Composer` component displays the composer. It can be loaded with a
@@ -33,28 +32,6 @@ class Composer extends Component {
      * @type {Boolean}
      */
     this.active = false;
-
-    /**
-     * Computed the composer's current height, based on the intended height, and
-     * the composer's current state. This will be applied to the composer's
-     * content's DOM element.
-     *
-     * @return {Integer}
-     */
-    this.computedHeight = computed('height', 'position', (height, position) => {
-      // If the composer is minimized, then we don't want to set a height; we'll
-      // let the CSS decide how high it is. If it's fullscreen, then we need to
-      // make it as high as the window.
-      if (position === Composer.PositionEnum.MINIMIZED) {
-        return '';
-      } else if (position === Composer.PositionEnum.FULLSCREEN) {
-        return $(window).height();
-      }
-
-      // Otherwise, if it's normal or hidden, then we use the intended height.
-      // We don't let the composer get too small or too big, though.
-      return Math.max(this.minimumHeight(), Math.min(height, this.maximumHeight()));
-    });
   }
 
   view() {
@@ -504,6 +481,27 @@ class Composer extends Component {
    */
   maximumHeight() {
     return $(window).height() - $('#header').outerHeight();
+  }
+
+  /**
+   * Computed the composer's current height, based on the intended height, and
+   * the composer's current state. This will be applied to the composer's
+   * content's DOM element.
+   * @returns {Integer|String}
+   */
+  computedHeight() {
+    // If the composer is minimized, then we don't want to set a height; we'll
+    // let the CSS decide how high it is. If it's fullscreen, then we need to
+    // make it as high as the window.
+    if (this.position === Composer.PositionEnum.MINIMIZED) {
+      return '';
+    } else if (this.position === Composer.PositionEnum.FULLSCREEN) {
+      return $(window).height();
+    }
+
+    // Otherwise, if it's normal or hidden, then we use the intended height.
+    // We don't let the composer get too small or too big, though.
+    return Math.max(this.minimumHeight(), Math.min(this.height, this.maximumHeight()));
   }
 
   /**
