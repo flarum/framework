@@ -23,6 +23,7 @@ use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\ParseJsonBody;
 use Flarum\Http\Middleware\RememberFromCookie;
 use Flarum\Http\Middleware\SetLocale;
+use Flarum\Http\Middleware\ShareErrorsFromSession;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
@@ -61,6 +62,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe->pipe($app->make(RememberFromCookie::class));
             $pipe->pipe($app->make(AuthenticateWithSession::class));
             $pipe->pipe($app->make(SetLocale::class));
+            $pipe->pipe($app->make(ShareErrorsFromSession::class));
 
             event(new ConfigureMiddleware($pipe, 'forum'));
 
