@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\Command\UploadAvatar;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +22,7 @@ class UploadAvatarController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\UserSerializer';
+    public $serializer = UserSerializer::class;
 
     /**
      * @var Dispatcher

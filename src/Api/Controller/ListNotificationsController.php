@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\NotificationRepository;
@@ -23,7 +24,7 @@ class ListNotificationsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\NotificationSerializer';
+    public $serializer = NotificationSerializer::class;
 
     /**
      * {@inheritdoc}

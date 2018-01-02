@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
@@ -22,7 +23,7 @@ class ListDiscussionsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
+    public $serializer = DiscussionSerializer::class;
 
     /**
      * {@inheritdoc}

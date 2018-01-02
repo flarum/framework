@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Command\EditDiscussion;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -23,7 +24,7 @@ class UpdateDiscussionController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
+    public $serializer = DiscussionSerializer::class;
 
     /**
      * @var Dispatcher

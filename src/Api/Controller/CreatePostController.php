@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Post\Command\PostReply;
 use Flarum\Post\Floodgate;
@@ -23,7 +24,7 @@ class CreatePostController extends AbstractCreateController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\PostSerializer';
+    public $serializer = PostSerializer::class;
 
     /**
      * {@inheritdoc}

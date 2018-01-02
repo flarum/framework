@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Group\Command\EditGroup;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +22,7 @@ class UpdateGroupController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\GroupSerializer';
+    public $serializer = GroupSerializer::class;
 
     /**
      * @var Dispatcher

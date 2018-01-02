@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Post\PostRepository;
@@ -33,7 +34,7 @@ class ShowDiscussionController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
+    public $serializer = DiscussionSerializer::class;
 
     /**
      * {@inheritdoc}

@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Post\PostRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -20,7 +21,7 @@ class ShowPostController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\PostSerializer';
+    public $serializer = PostSerializer::class;
 
     /**
      * {@inheritdoc}
