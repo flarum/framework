@@ -18,12 +18,12 @@ class DefaultsDataProvider implements DataProviderInterface
         'host'     => 'localhost',
         'database' => 'flarum',
         'username' => 'root',
-        'password' => 'root',
+        'password' => '',
         'prefix'   => '',
         'port'     => '3306',
     ];
 
-    protected $baseUrl = 'http://flarum.dev';
+    protected $baseUrl = 'http://flarum.local';
 
     protected $adminUser = [
         'username'              => 'admin',
