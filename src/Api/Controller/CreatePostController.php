@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\PostReply;
-use Flarum\Core\Command\ReadDiscussion;
-use Flarum\Core\Post\Floodgate;
+use Flarum\Discussion\Command\ReadDiscussion;
+use Flarum\Post\Command\PostReply;
+use Flarum\Post\Floodgate;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -41,13 +41,13 @@ class CreatePostController extends AbstractCreateController
     protected $bus;
 
     /**
-     * @var Floodgate
+     * @var \Flarum\Post\Floodgate
      */
     protected $floodgate;
 
     /**
      * @param Dispatcher $bus
-     * @param Floodgate $floodgate
+     * @param \Flarum\Post\Floodgate $floodgate
      */
     public function __construct(Dispatcher $bus, Floodgate $floodgate)
     {
@@ -83,7 +83,7 @@ class CreatePostController extends AbstractCreateController
         }
 
         $discussion = $post->discussion;
-        $discussion->posts = $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id');
+        $discussion->posts = $discussion->postsVisibleTo($actor)->orderBy('time')->pluck('id');
 
         return $post;
     }

@@ -11,7 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\RegisterUser;
+use Flarum\User\Command\RegisterUser;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;

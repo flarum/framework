@@ -62,6 +62,10 @@ class Composer extends Component {
   }
 
   config(isInitialized, context) {
+    // Set the height of the Composer element and its contents on each redraw,
+    // so that they do not lose it if their DOM elements are recreated.
+    this.updateHeight();
+
     if (isInitialized) return;
 
     // Since this component is a part of the global UI that persists between

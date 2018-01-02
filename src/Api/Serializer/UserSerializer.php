@@ -11,12 +11,12 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Access\Gate;
+use Flarum\User\Gate;
 
-class UserSerializer extends UserBasicSerializer
+class UserSerializer extends BasicUserSerializer
 {
     /**
-     * @var Gate
+     * @var \Flarum\User\Gate
      */
     protected $gate;
 
@@ -40,7 +40,6 @@ class UserSerializer extends UserBasicSerializer
         $canEdit = $gate->allows('edit', $user);
 
         $attributes += [
-            'bio'              => $user->bio,
             'joinTime'         => $this->formatDate($user->join_time),
             'discussionsCount' => (int) $user->discussions_count,
             'commentsCount'    => (int) $user->comments_count,

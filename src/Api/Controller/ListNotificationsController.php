@@ -11,13 +11,14 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Exception\PermissionDeniedException;
-use Flarum\Core\Repository\NotificationRepository;
+use Flarum\Discussion\Discussion;
+use Flarum\Http\UrlGenerator;
+use Flarum\Notification\NotificationRepository;
+use Flarum\User\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListNotificationsController extends AbstractCollectionController
+class ListNotificationsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
@@ -39,16 +40,23 @@ class ListNotificationsController extends AbstractCollectionController
     public $limit = 10;
 
     /**
-     * @var \Flarum\Core\Repository\NotificationRepository
+     * @var NotificationRepository
      */
     protected $notifications;
 
     /**
-     * @param \Flarum\Core\Repository\NotificationRepository $notifications
+     * @var UrlGenerator
      */
-    public function __construct(NotificationRepository $notifications)
+    protected $url;
+
+    /**
+     * @param NotificationRepository $notifications
+     * @param UrlGenerator $url
+     */
+    public function __construct(NotificationRepository $notifications, UrlGenerator $url)
     {
         $this->notifications = $notifications;
+        $this->url = $url;
     }
 
     /**
@@ -68,9 +76,32 @@ class ListNotificationsController extends AbstractCollectionController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $notifications = $this->notifications->findByUser($actor, $limit, $offset)
+        if (! in_array('subject', $include)) {
+            $include[] = 'subject';
+        }
+
+        $notifications = $this->notifications->findByUser($actor, $limit + 1, $offset)
             ->load(array_diff($include, ['subject.discussion']))
             ->all();
+
+        $areMoreResults = false;
+
+        if (count($notifications) > $limit) {
+            array_pop($notifications);
+            $areMoreResults = true;
+        }
+
+        $document->addPaginationLinks(
+            $this->url->to('api')->route('notifications.index'),
+            $request->getQueryParams(),
+            $offset,
+            $limit,
+            $areMoreResults ? null : 0
+        );
+
+        $notifications = array_filter($notifications, function ($notification) {
+            return ! $notification->subjectModel || $notification->subject;
+        });
 
         if (in_array('subject.discussion', $include)) {
             $this->loadSubjectDiscussions($notifications);
@@ -80,7 +111,7 @@ class ListNotificationsController extends AbstractCollectionController
     }
 
     /**
-     * @param \Flarum\Core\Notification[] $notifications
+     * @param \Flarum\Notification\Notification[] $notifications
      */
     private function loadSubjectDiscussions(array $notifications)
     {

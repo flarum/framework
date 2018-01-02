@@ -11,11 +11,11 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Group;
+use Flarum\Group\Group;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowForumController extends AbstractResourceController
+class ShowForumController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

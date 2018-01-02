@@ -11,13 +11,13 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\UrlGenerator;
-use Flarum\Core\Search\Discussion\DiscussionSearcher;
-use Flarum\Core\Search\SearchCriteria;
+use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Http\UrlGenerator;
+use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListDiscussionsController extends AbstractCollectionController
+class ListDiscussionsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
@@ -86,13 +86,25 @@ class ListDiscussionsController extends AbstractCollectionController
         $results = $this->searcher->search($criteria, $limit, $offset, $load);
 
         $document->addPaginationLinks(
-            $this->url->toRoute('discussions.index'),
+            $this->url->to('api')->route('discussions.index'),
             $request->getQueryParams(),
             $offset,
             $limit,
             $results->areMoreResults() ? null : 0
         );
 
-        return $results->getResults();
+        $results = $results->getResults();
+
+        if ($relations = array_intersect($load, ['startPost', 'lastPost'])) {
+            foreach ($results as $discussion) {
+                foreach ($relations as $relation) {
+                    if ($discussion->$relation) {
+                        $discussion->$relation->discussion = $discussion;
+                    }
+                }
+            }
+        }
+
+        return $results;
     }
 }

@@ -11,12 +11,23 @@
 
 namespace Flarum\Admin;
 
-use Flarum\Event\ExtensionWasDisabled;
-use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Event\SettingWasSet;
+use Flarum\Admin\Middleware\RequireAdministrateAbility;
+use Flarum\Event\ConfigureMiddleware;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Handler\RouteHandlerFactory;
+use Flarum\Http\Middleware\AuthenticateWithSession;
+use Flarum\Http\Middleware\DispatchRoute;
+use Flarum\Http\Middleware\HandleErrors;
+use Flarum\Http\Middleware\ParseJsonBody;
+use Flarum\Http\Middleware\RememberFromCookie;
+use Flarum\Http\Middleware\SetLocale;
+use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
+use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\UrlGenerator;
+use Flarum\Settings\Event\Saved;
+use Zend\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
@@ -25,12 +36,34 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(UrlGenerator::class, function () {
-            return new UrlGenerator($this->app, $this->app->make('flarum.admin.routes'));
+        $this->app->extend(UrlGenerator::class, function (UrlGenerator $url) {
+            return $url->addCollection('admin', $this->app->make('flarum.admin.routes'), 'admin');
         });
 
         $this->app->singleton('flarum.admin.routes', function () {
             return new RouteCollection;
+        });
+
+        $this->app->singleton('flarum.admin.middleware', function ($app) {
+            $pipe = new MiddlewarePipe;
+            $pipe->raiseThrowables();
+
+            // All requests should first be piped through our global error handler
+            $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
+            $pipe->pipe($app->make(HandleErrors::class, ['debug' => $debugMode]));
+
+            $pipe->pipe($app->make(ParseJsonBody::class));
+            $pipe->pipe($app->make(StartSession::class));
+            $pipe->pipe($app->make(RememberFromCookie::class));
+            $pipe->pipe($app->make(AuthenticateWithSession::class));
+            $pipe->pipe($app->make(SetLocale::class));
+            $pipe->pipe($app->make(RequireAdministrateAbility::class));
+
+            event(new ConfigureMiddleware($pipe, 'admin'));
+
+            $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.admin.routes')]));
+
+            return $pipe;
         });
     }
 
@@ -46,6 +79,8 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->flushWebAppAssetsWhenThemeChanged();
 
         $this->flushWebAppAssetsWhenExtensionsChanged();
+
+        $this->checkCustomLessFormat();
     }
 
     /**
@@ -55,18 +90,15 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     protected function populateRoutes(RouteCollection $routes)
     {
-        $route = $this->app->make(RouteHandlerFactory::class);
+        $factory = $this->app->make(RouteHandlerFactory::class);
 
-        $routes->get(
-            '/',
-            'index',
-            $route->toController(Controller\WebAppController::class)
-        );
+        $callback = include __DIR__.'/routes.php';
+        $callback($routes, $factory);
     }
 
     protected function flushWebAppAssetsWhenThemeChanged()
     {
-        $this->app->make('events')->listen(SettingWasSet::class, function (SettingWasSet $event) {
+        $this->app->make('events')->listen(Saved::class, function (Saved $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
                 $this->getWebAppAssets()->flushCss();
             }
@@ -77,8 +109,8 @@ class AdminServiceProvider extends AbstractServiceProvider
     {
         $events = $this->app->make('events');
 
-        $events->listen(ExtensionWasEnabled::class, [$this, 'flushWebAppAssets']);
-        $events->listen(ExtensionWasDisabled::class, [$this, 'flushWebAppAssets']);
+        $events->listen(Enabled::class, [$this, 'flushWebAppAssets']);
+        $events->listen(Disabled::class, [$this, 'flushWebAppAssets']);
     }
 
     public function flushWebAppAssets()
@@ -87,10 +119,17 @@ class AdminServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * @return \Flarum\Http\WebApp\WebAppAssets
+     * @return \Flarum\Frontend\FrontendAssets
      */
     protected function getWebAppAssets()
     {
-        return $this->app->make(WebApp::class)->getAssets();
+        return $this->app->make(Frontend::class)->getAssets();
+    }
+
+    protected function checkCustomLessFormat()
+    {
+        $events = $this->app->make('events');
+
+        $events->subscribe(CheckCustomLessFormat::class);
     }
 }

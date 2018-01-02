@@ -11,17 +11,17 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\Repository\DiscussionRepository;
-use Flarum\Core\Repository\PostRepository;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
+use Flarum\Discussion\DiscussionRepository;
+use Flarum\Post\PostRepository;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowDiscussionController extends AbstractResourceController
+class ShowDiscussionController extends AbstractShowController
 {
     /**
-     * @var DiscussionRepository
+     * @var \Flarum\Discussion\DiscussionRepository
      */
     protected $discussions;
 
@@ -58,8 +58,8 @@ class ShowDiscussionController extends AbstractResourceController
     ];
 
     /**
-     * @param \Flarum\Core\Repository\DiscussionRepository $discussions
-     * @param \Flarum\Core\Repository\PostRepository $posts
+     * @param \Flarum\Discussion\DiscussionRepository $discussions
+     * @param \Flarum\Post\PostRepository $posts
      */
     public function __construct(DiscussionRepository $discussions, PostRepository $posts)
     {
@@ -117,7 +117,7 @@ class ShowDiscussionController extends AbstractResourceController
      */
     private function loadPostIds(Discussion $discussion, User $actor)
     {
-        return $discussion->postsVisibleTo($actor)->orderBy('time')->lists('id')->all();
+        return $discussion->postsVisibleTo($actor)->orderBy('time')->pluck('id')->all();
     }
 
     /**
@@ -173,6 +173,12 @@ class ShowDiscussionController extends AbstractResourceController
 
         $query->orderBy('time')->skip($offset)->take($limit)->with($include);
 
-        return $query->get()->all();
+        $posts = $query->get()->all();
+
+        foreach ($posts as $post) {
+            $post->discussion = $discussion;
+        }
+
+        return $posts;
     }
 }
