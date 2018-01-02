@@ -147,6 +147,8 @@ class ListPostsController extends AbstractListController
             $query->where('type', $type);
         }
 
+        $query->where('is_private', false);
+
         event(new ConfigurePostsQuery($query, $filter));
     }
 }
