@@ -9,10 +9,26 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Emoji\Listener;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Extend;
+use s9e\TextFormatter\Configurator;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\FormatEmoticons::class);
-};
+return [
+    (new Extend\Assets('forum'))
+        ->defaultAssets(__DIR__)
+        ->bootstrapper('flarum/emoji/main'),
+    new Extend\FormatterConfiguration(function (Configurator $config) {
+        $config->Emoji->useEmojiOne();
+        $config->Emoji->omitImageSize();
+        $config->Emoji->useSVG();
+
+        $config->Emoji->addAlias(':)', '🙂');
+        $config->Emoji->addAlias(':D', '😃');
+        $config->Emoji->addAlias(':P', '😛');
+        $config->Emoji->addAlias(':(', '🙁');
+        $config->Emoji->addAlias(':|', '😐');
+        $config->Emoji->addAlias(';)', '😉');
+        $config->Emoji->addAlias(':\'(', '😢');
+        $config->Emoji->addAlias(':O', '😮');
+        $config->Emoji->addAlias('>:(', '😡');
+    })
+];
