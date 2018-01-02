@@ -354,6 +354,12 @@ class Composer extends Component {
    */
   show() {
     if (this.position === Composer.PositionEnum.NORMAL || this.position === Composer.PositionEnum.FULLSCREEN) {
+      // show() is often called just after load()
+      // Even if the position of the Composer didn't change,
+      // the flexible part of the new component needs to be resized to the correct height
+      m.redraw(true);
+      this.updateHeight();
+
       return;
     }
 
