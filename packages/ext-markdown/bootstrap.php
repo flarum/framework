@@ -9,9 +9,11 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Markdown\Listener;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Extend;
+use s9e\TextFormatter\Configurator;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\FormatMarkdown::class);
-};
+return [
+    new Extend\FormatterConfiguration(function (Configurator $config) {
+        $config->Litedown;
+    }),
+];
