@@ -101,7 +101,7 @@ class HandleErrors
         // Log the exception (with trace)
         $this->logger->debug($error);
 
-        if (! $this->view->exists($name = 'flarum.forum::error.'.$status)) {
+        if (! $this->view->exists($name = "flarum.forum::error.$status")) {
             $name = 'flarum.forum::error.default';
         }
 
@@ -114,20 +114,16 @@ class HandleErrors
 
     private function getMessage($status)
     {
-        if (! $translation = $this->getTranslationIfExists($status)) {
-            if (! $translation = $this->getTranslationIfExists(500)) {
-                $translation = 'An error occurred while trying to load this page.';
-            }
-        }
-
-        return $translation;
+        return $this->getTranslationIfExists($status)
+            ?? $this->getTranslationIfExists(500)
+            ?? 'An error occurred while trying to load this page.';
     }
 
     private function getTranslationIfExists($status)
     {
-        $key = 'core.views.error.'.$status.'_message';
+        $key = "core.views.error.${status}_message";
         $translation = $this->translator->trans($key, ['{forum}' => $this->settings->get('forum_title')]);
 
-        return $translation === $key ? false : $translation;
+        return $translation === $key ? null : $translation;
     }
 }
