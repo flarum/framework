@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Flarum\User\Exception\PermissionDeniedException;
@@ -23,7 +24,7 @@ class ListUsersController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\UserSerializer';
+    public $serializer = UserSerializer::class;
 
     /**
      * {@inheritdoc}

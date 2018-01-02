@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\User\Command\EditUser;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -22,7 +23,7 @@ class UpdateUserController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\CurrentUserSerializer';
+    public $serializer = CurrentUserSerializer::class;
 
     /**
      * {@inheritdoc}

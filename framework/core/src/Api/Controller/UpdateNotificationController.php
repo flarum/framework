@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Notification\Command\ReadNotification;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +22,7 @@ class UpdateNotificationController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\NotificationSerializer';
+    public $serializer = NotificationSerializer::class;
 
     /**
      * @var Dispatcher

@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Group\Group;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -20,7 +21,7 @@ class ShowForumController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\ForumSerializer';
+    public $serializer = ForumSerializer::class;
 
     /**
      * {@inheritdoc}
