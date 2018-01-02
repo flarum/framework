@@ -1,10 +1,16 @@
 <?php
 
-use Flarum\Event\ConfigureLocales;
-use Illuminate\Contracts\Events\Dispatcher;
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-return function (Dispatcher $events) {
-    $events->listen(ConfigureLocales::class, function (ConfigureLocales $event) {
-        $event->loadLanguagePackFrom(__DIR__);
-    });
-};
+use Flarum\Extend;
+
+return [
+    new Extend\Locale(__DIR__)
+];
