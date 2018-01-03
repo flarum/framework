@@ -427,7 +427,7 @@ core:
     # Translations in this namespace are displayed by the basic HTML content loader.
     content:
       javascript_disabled_message: This site is best viewed in a modern browser with JavaScript enabled.
-      load_error_message: Something went wrong while trying to load the full version of this site.
+      load_error_message: Something went wrong while trying to load the full version of this site. Try hard-refreshing this page to fix the error.
       loading_text: Loading...
 
     # Translations in this namespace are displayed in the basic HTML discussion view.
