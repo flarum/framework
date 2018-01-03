@@ -76,11 +76,7 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
-        $this->flushWebAppAssetsWhenThemeChanged();
-
-        $this->flushWebAppAssetsWhenExtensionsChanged();
-
-        $this->checkCustomLessFormat();
+        $this->registerListeners();
     }
 
     /**
@@ -96,21 +92,23 @@ class AdminServiceProvider extends AbstractServiceProvider
         $callback($routes, $factory);
     }
 
-    protected function flushWebAppAssetsWhenThemeChanged()
+    protected function registerListeners()
     {
-        $this->app->make('events')->listen(Saved::class, function (Saved $event) {
+        $dispatcher = $this->app->make('events');
+
+        // Flush web app assets when the theme is changed
+        $dispatcher->listen(Saved::class, function (Saved $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
                 $this->getWebAppAssets()->flushCss();
             }
         });
-    }
 
-    protected function flushWebAppAssetsWhenExtensionsChanged()
-    {
-        $events = $this->app->make('events');
+        // Flush web app assets when extensions are changed
+        $dispatcher->listen(Enabled::class, [$this, 'flushWebAppAssets']);
+        $dispatcher->listen(Disabled::class, [$this, 'flushWebAppAssets']);
 
-        $events->listen(Enabled::class, [$this, 'flushWebAppAssets']);
-        $events->listen(Disabled::class, [$this, 'flushWebAppAssets']);
+        // Check the format of custom LESS code
+        $dispatcher->subscribe(CheckCustomLessFormat::class);
     }
 
     public function flushWebAppAssets()
@@ -124,12 +122,5 @@ class AdminServiceProvider extends AbstractServiceProvider
     protected function getWebAppAssets()
     {
         return $this->app->make(Frontend::class)->getAssets();
-    }
-
-    protected function checkCustomLessFormat()
-    {
-        $events = $this->app->make('events');
-
-        $events->subscribe(CheckCustomLessFormat::class);
     }
 }
