@@ -304,7 +304,7 @@ class FrontendView
         $view->jsUrls = $this->buildJsUrls($baseUrl);
 
         $view->head = $this->buildHeadContent();
-        $view->foot = implode("\n", $this->foot);
+        $view->foot = $this->buildFootContent(array_get($forum, 'data.attributes.footerHtml'));
 
         return $view->render();
     }
@@ -376,6 +376,15 @@ class FrontendView
         foreach ($this->links as $rel => $href) {
             $html .= "\n<link rel=\"$rel\" href=\"$href\" />";
         }
+
+        return $html;
+    }
+
+    protected function buildFootContent($customFooterHtml)
+    {
+        $html = implode("\n", $this->foot);
+
+        $html .= $customFooterHtml;
 
         return $html;
     }
