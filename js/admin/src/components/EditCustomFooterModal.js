@@ -1,8 +1,8 @@
 import SettingsModal from 'flarum/components/SettingsModal';
 
-export default class EditCustomHeaderModal extends SettingsModal {
+export default class EditCustomFooterModal extends SettingsModal {
   className() {
-    return 'EditCustomHeaderModal Modal--large';
+    return 'EditCustomFooterModal Modal--large';
   }
 
   title() {
