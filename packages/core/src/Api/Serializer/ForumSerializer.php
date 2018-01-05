@@ -77,6 +77,7 @@ class ForumSerializer extends AbstractSerializer
             'logoUrl' => $this->getLogoUrl(),
             'faviconUrl' => $this->getFaviconUrl(),
             'headerHtml' => $this->settings->get('custom_header'),
+            'footerHtml' => $this->settings->get('custom_footer'),
             'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
             'defaultRoute'  => $this->settings->get('default_route'),
             'canViewDiscussions' => $this->actor->can('viewDiscussions'),
