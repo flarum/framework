@@ -9,36 +9,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Extend;
 
 use DirectoryIterator;
 use Flarum\Locale\LocaleManager;
+use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
-/**
- * @deprecated
- */
-class ConfigureLocales
+class Locale implements Extender
 {
-    /**
-     * @var LocaleManager
-     */
-    public $locales;
+    protected $directory;
 
-    /**
-     * @param LocaleManager $locales
-     */
-    public function __construct(LocaleManager $locales)
+    public function __construct($directory)
     {
-        $this->locales = $locales;
+        $this->directory = $directory;
     }
 
-    /**
-     * Load language pack resources from the given directory.
-     *
-     * @param string $directory
-     */
-    public function loadLanguagePackFrom($directory)
+    public function apply(Container $container)
+    {
+        $this->loadLanguagePackFrom(
+            $this->directory,
+            $container->make(LocaleManager::class)
+        );
+    }
+
+    private function loadLanguagePackFrom($directory, LocaleManager $locales)
     {
         $name = $title = basename($directory);
 
@@ -57,23 +52,23 @@ class ConfigureLocales
             throw new RuntimeException("Language pack $name must define \"extra.flarum-locale.code\" in composer.json.");
         }
 
-        $this->locales->addLocale($locale, $title);
+        $locales->addLocale($locale, $title);
 
         if (! is_dir($localeDir = $directory.'/locale')) {
             throw new RuntimeException("Language pack $name must have a \"locale\" subdirectory.");
         }
 
         if (file_exists($file = $localeDir.'/config.js')) {
-            $this->locales->addJsFile($locale, $file);
+            $locales->addJsFile($locale, $file);
         }
 
         if (file_exists($file = $localeDir.'/config.css')) {
-            $this->locales->addCssFile($locale, $file);
+            $locales->addCssFile($locale, $file);
         }
 
         foreach (new DirectoryIterator($localeDir) as $file) {
             if ($file->isFile() && in_array($file->getExtension(), ['yml', 'yaml'])) {
-                $this->locales->addTranslations($locale, $file->getPathname());
+                $locales->addTranslations($locale, $file->getPathname());
             }
         }
     }
