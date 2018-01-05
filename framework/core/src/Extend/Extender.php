@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Extend;
 
-/**
- * @deprecated
- */
-class ConfigureApiRoutes extends AbstractConfigureRoutes
+use Illuminate\Contracts\Container\Container;
+
+interface Extender
 {
+    public function apply(Container $container);
 }
