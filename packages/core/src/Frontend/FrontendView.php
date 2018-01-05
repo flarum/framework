@@ -382,11 +382,7 @@ class FrontendView
 
     protected function buildFootContent($customFooterHtml)
     {
-        $html = implode("\n", $this->foot);
-
-        $html .= $customFooterHtml;
-
-        return $html;
+        return implode("\n", $this->foot) . "\n" . $customFooterHtml;
     }
 
     /**
