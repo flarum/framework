@@ -19,12 +19,15 @@ core:
       colored_header_label: Colored Header
       colors_heading: Colors
       colors_text: "Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements."
+      custom_footer_heading: Custom Footer
+      custom_footer_text: "Add HTML to be displayed at the very bottom of the page."
       custom_header_heading: Custom Header
       custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's default styles.
       dark_mode_label: Dark Mode
       edit_css_button: Edit Custom CSS
+      edit_footer_button: Edit Custom Footer
       edit_header_button: Edit Custom Header
       enter_hex_message: Please enter a hexadecimal color code.
       favicon_heading: Favicon
@@ -57,6 +60,12 @@ core:
       customize_text: "Customize your forum's appearance by adding your own LESS/CSS code to be applied on top of Flarum's <a>default styles</a>."
       submit_button: => core.ref.save_changes
       title: Edit Custom CSS
+
+    # These translations are used in the Edit Custom Footer modal dialog.
+    edit_footer:
+      customize_text: "Add HTML to be displayed at the very bottom of the page."
+      submit_button: => core.ref.save_changes
+      title: Edit Custom Footer
 
     # These translations are used in the Edit Group modal dialog.
     edit_group:
