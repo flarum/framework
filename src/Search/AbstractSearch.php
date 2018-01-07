@@ -85,12 +85,12 @@ abstract class AbstractSearch
      * Set the default sort order for the search. This will only be applied if
      * a sort order has not been specified in the search criteria.
      *
-     * @param array $defaultSort An array of sort-order pairs, where the column
+     * @param mixed $defaultSort An array of sort-order pairs, where the column
      *     is the key, and the order is the value. The order may be 'asc',
      *     'desc', or an array of IDs to order by.
      * @return mixed
      */
-    public function setDefaultSort(array $defaultSort)
+    public function setDefaultSort($defaultSort)
     {
         $this->defaultSort = $defaultSort;
     }
