@@ -12,7 +12,6 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
-use Flarum\Extend\Compat;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
@@ -286,14 +285,7 @@ class ExtensionManager
                 if ($this->filesystem->exists($bootstrapper)) {
                     $extenders = require $bootstrapper;
 
-                    if (is_array($extenders)) {
-                        return $extenders;
-                    }
-
-                    // Assume that the extension has not yet switched to the new
-                    // bootstrap.php format, and wrap the callback in a Compat
-                    // extender.
-                    return [new Compat($extenders)];
+                    return (array) $extenders;
                 } else {
                     return [];
                 }
