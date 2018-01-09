@@ -24,11 +24,11 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         $this->app->bind('flarum.extensions', ExtensionManager::class);
 
         $this->app->booting(function (Container $app) {
-            /** @var \Flarum\Extend\Extender[] $extenders */
+            /** @var callable[] $extenders */
             $extenders = $app->make('flarum.extensions')->getActiveExtenders();
 
             foreach ($extenders as $extender) {
-                $extender->apply($app);
+                $app->call($extender);
             }
         });
     }
