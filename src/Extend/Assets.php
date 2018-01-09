@@ -15,7 +15,7 @@ use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
 
-class Assets implements Extender
+class Assets
 {
     protected $appName;
 
@@ -49,7 +49,7 @@ class Assets implements Extender
         return $this;
     }
 
-    public function apply(Container $container)
+    public function __invoke(Container $container)
     {
         $container->make(Dispatcher::class)->listen(
             Rendering::class,
