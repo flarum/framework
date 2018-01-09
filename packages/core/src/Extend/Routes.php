@@ -14,7 +14,7 @@ namespace Flarum\Extend;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
-class Routes implements Extender
+class Routes
 {
     protected $appName;
 
@@ -62,7 +62,7 @@ class Routes implements Extender
         return $this;
     }
 
-    public function apply(Container $container)
+    public function __invoke(Container $container)
     {
         if (empty($this->routes)) {
             return;

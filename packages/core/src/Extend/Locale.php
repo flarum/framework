@@ -16,7 +16,7 @@ use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
-class Locale implements Extender
+class Locale
 {
     protected $directory;
 
@@ -25,7 +25,7 @@ class Locale implements Extender
         $this->directory = $directory;
     }
 
-    public function apply(Container $container)
+    public function __invoke(Container $container)
     {
         $this->loadLanguagePackFrom(
             $this->directory,
