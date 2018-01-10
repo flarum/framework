@@ -14,7 +14,7 @@ namespace Flarum\Extend;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
-class Routes
+class Routes implements Extender
 {
     protected $appName;
 

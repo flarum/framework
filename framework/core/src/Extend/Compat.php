@@ -11,26 +11,28 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Formatter\Event\Configuring;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
 
-class FormatterConfiguration implements Extender
+/**
+ * This class is used to wrap old bootstrap.php closures (as used in versions up
+ * to 0.1.0-beta7) in the new Extender format.
+ *
+ * This gives extensions the chance to work with the new API without making any
+ * changes, and have some time to convert to the pure usage of extenders.
+ *
+ * @deprecated
+ */
+class Compat implements Extender
 {
     protected $callback;
 
-    public function __construct(callable $callback)
+    public function __construct($callback)
     {
         $this->callback = $callback;
     }
 
     public function __invoke(Container $container)
     {
-        $container->make(Dispatcher::class)->listen(
-            Configuring::class,
-            function (Configuring $event) {
-                call_user_func($this->callback, $event->configurator);
-            }
-        );
+        $container->call($this->callback);
     }
 }
