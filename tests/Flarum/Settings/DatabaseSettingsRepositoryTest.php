@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Core\Settings;
+namespace Tests\Flarum\Settings;
 
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
