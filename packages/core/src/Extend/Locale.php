@@ -16,7 +16,7 @@ use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
 
-class Locale
+class Locale implements Extender
 {
     protected $directory;
 
