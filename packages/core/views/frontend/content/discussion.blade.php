@@ -1,9 +1,5 @@
-<?php
-$discussion = $document->data;
-$postsCount = count($discussion->relationships->posts->data);
-?>
 <div class="container">
-    <h2>{{ $discussion->attributes->title }}</h2>
+    <h2>{{ $document->data->attributes->title }}</h2>
 
     <div>
         @foreach ($posts as $post)
@@ -19,11 +15,11 @@ $postsCount = count($discussion->relationships->posts->data);
         @endforeach
     </div>
 
-    @if ($page > 1)
+    @if (isset($document->links->prev))
         <a href="{{ $url(['page' => $page - 1]) }}">&laquo; {{ $translator->trans('core.views.discussion.previous_page_button') }}</a>
     @endif
 
-    @if ($page < $postsCount / 20)
+    @if (isset($document->links->next))
         <a href="{{ $url(['page' => $page + 1]) }}">{{ $translator->trans('core.views.discussion.next_page_button') }} &raquo;</a>
     @endif
 </div>
