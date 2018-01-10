@@ -16,6 +16,10 @@ $url = app('Flarum\Http\UrlGenerator');
         @endforeach
     </ul>
 
+    @if (isset($document->links->prev))
+        <a href="{{ $url->to('forum')->route('index') }}?page={{ $page - 1 }}">&laquo; {{ $translator->trans('core.views.index.previous_page_button') }}</a>
+    @endif
+
     @if (isset($document->links->next))
         <a href="{{ $url->to('forum')->route('index') }}?page={{ $page + 1 }}">{{ $translator->trans('core.views.index.next_page_button') }} &raquo;</a>
     @endif
