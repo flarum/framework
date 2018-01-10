@@ -15,7 +15,7 @@ use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
 
-class Assets
+class Assets implements Extender
 {
     protected $appName;
 
