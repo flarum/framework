@@ -9,37 +9,37 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\Handler;
+namespace Tests\Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Api\ExceptionHandler\MethodNotAllowedExceptionHandler;
-use Flarum\Http\Exception\MethodNotAllowedException;
+use Flarum\Api\ExceptionHandler\TokenMismatchExceptionHandler;
+use Flarum\Http\Exception\TokenMismatchException;
 use Tests\Test\TestCase;
 
-class MethodNotAllowedExceptionHandlerTest extends TestCase
+class TokenMismatchExceptionHandlerTest extends TestCase
 {
     private $handler;
 
     public function init()
     {
-        $this->handler = new MethodNotAllowedExceptionHandler();
+        $this->handler = new TokenMismatchExceptionHandler;
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
         $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new MethodNotAllowedException()));
+        $this->assertTrue($this->handler->manages(new TokenMismatchException()));
     }
 
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new MethodNotAllowedException);
+        $response = $this->handler->handle(new TokenMismatchException);
 
-        $this->assertEquals(405, $response->getStatus());
+        $this->assertEquals(400, $response->getStatus());
         $this->assertEquals([
             [
-                'status' => '405',
-                'code' => 'method_not_allowed'
+                'status' => '400',
+                'code' => 'csrf_token_mismatch'
             ]
         ], $response->getErrors());
     }
