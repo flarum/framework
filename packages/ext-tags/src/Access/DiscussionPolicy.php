@@ -13,14 +13,11 @@ namespace Flarum\Tags\Access;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Event\ScopeHiddenDiscussionVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 
 class DiscussionPolicy extends AbstractPolicy
 {
@@ -40,16 +37,6 @@ class DiscussionPolicy extends AbstractPolicy
     public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        parent::subscribe($events);
-
-        $events->listen(ScopeHiddenDiscussionVisibility::class, [$this, 'scopeHiddenDiscussionVisibility']);
     }
 
     /**
@@ -106,20 +93,20 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param ScopeHiddenDiscussionVisibility $event
+     * @param User $actor
+     * @param Builder $query
+     * @param string $ability
      */
-    public function scopeHiddenDiscussionVisibility(ScopeHiddenDiscussionVisibility $event)
+    public function findWithPermission(User $actor, Builder $query, $ability)
     {
-        // By default, discussions are not visible to the public if they are
-        // hidden or contain zero comments - unless the actor has a certain
-        // permission. Since we grant permissions per-tag, we will make
-        // discussions visible in the tags for which the user has that
-        // permission.
-        $event->query->orWhereExists(function ($query) use ($event) {
-            return $query->select(new Expression(1))
+        // If a discussion requires a certain permission in order for it to be
+        // visible, then we can check if the user has been granted that
+        // permission for any of the discussion's tags.
+        $query->whereExists(function ($query) use ($actor, $ability) {
+            return $query->selectRaw('1')
                 ->from('discussions_tags')
-                ->whereIn('tag_id', Tag::getIdsWhereCan($event->actor, $event->permission))
-                ->where('discussions.id', new Expression('discussion_id'));
+                ->whereIn('tag_id', Tag::getIdsWhereCan($actor, 'discussion.'.$ability))
+                ->whereRaw('discussions.id = discussion_id');
         });
     }
 
