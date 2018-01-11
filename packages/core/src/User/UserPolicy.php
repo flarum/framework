@@ -25,7 +25,7 @@ class UserPolicy extends AbstractPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function after(User $actor, $ability)
+    public function can(User $actor, $ability)
     {
         if ($actor->hasPermission('user.'.$ability)) {
             return true;
