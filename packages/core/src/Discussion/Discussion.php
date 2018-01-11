@@ -392,7 +392,7 @@ class Discussion extends AbstractModel
     /**
      * Define the relationship with the discussion's readers.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function readers()
     {
