@@ -12,6 +12,8 @@
 namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Discussion\Search\DiscussionSearch;
+use Flarum\Event\ScopeModelVisibility;
+use Flarum\Post\Post;
 use Flarum\Search\AbstractSearch;
 use Flarum\Search\GambitInterface;
 use LogicException;
@@ -30,19 +32,19 @@ class FulltextGambit implements GambitInterface
         // TODO: add a migration for fulltext index on discussions.title
         $search->getQuery()
             ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT(posts.id ORDER BY MATCH(posts.content) AGAINST (?) DESC), \',\', 1) as most_relevant_post_id', [$bit])
-            ->join('posts', function ($join) use ($bit) {
-                $join->on('posts.discussion_id', '=', 'discussions.id')
-                    ->whereRaw('MATCH(posts.content) AGAINST (? IN BOOLEAN MODE)', [$bit]);
-
-                // TODO: need to scope post visibility
+            ->leftJoin('posts', 'posts.discussion_id', '=', 'discussions.id')
+            ->where(function ($query) use ($search) {
+                event(new ScopeModelVisibility(Post::query()->setQuery($query), $search->getActor(), 'view'));
             })
-            ->whereRaw('MATCH(discussions.title) AGAINST (? IN BOOLEAN MODE)', [$bit])
-            ->orWhereNotNull('posts.id')
-            ->groupBy('discussions.id');
+            ->where(function ($query) use ($bit) {
+                $query->whereRaw('MATCH(discussions.title) AGAINST (? IN BOOLEAN MODE)', [$bit])
+                    ->orWhereRaw('MATCH(posts.content) AGAINST (? IN BOOLEAN MODE)', [$bit]);
+            })
+            ->groupBy('posts.discussion_id');
 
         $search->setDefaultSort(function ($query) use ($bit) {
             $query->orderByRaw('MATCH(discussions.title) AGAINST (?) desc', [$bit]);
-            $query->orderByRaw('SUM(MATCH(posts.content) AGAINST (?)) desc', [$bit]);
+            $query->orderByRaw('MATCH(posts.content) AGAINST (?) desc', [$bit]);
         });
     }
 }
