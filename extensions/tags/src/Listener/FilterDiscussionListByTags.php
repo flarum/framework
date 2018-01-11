@@ -16,7 +16,6 @@ use Flarum\Discussion\Event\Searching;
 use Flarum\Tags\Gambit\TagGambit;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Query\Expression;
 
 class FilterDiscussionListByTags
 {
@@ -51,10 +50,10 @@ class FilterDiscussionListByTags
         }
 
         $query->whereNotExists(function ($query) {
-            return $query->select(new Expression(1))
+            return $query->selectRaw('1')
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'))
-                ->where('discussions.id', new Expression('discussion_id'));
+                ->whereRaw('discussions.id = discussion_id');
         });
     }
 }

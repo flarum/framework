@@ -14,7 +14,6 @@ namespace Flarum\Tags\Gambit;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\AbstractSearch;
 use Flarum\Tags\TagRepository;
-use Illuminate\Database\Query\Expression;
 
 class TagGambit extends AbstractRegexGambit
 {
@@ -48,17 +47,17 @@ class TagGambit extends AbstractRegexGambit
             foreach ($slugs as $slug) {
                 if ($slug === 'untagged') {
                     $query->orWhereNotExists(function ($query) {
-                        $query->select(new Expression(1))
+                        $query->selectRaw('1')
                               ->from('discussions_tags')
-                              ->where('discussions.id', new Expression('discussion_id'));
+                              ->whereRaw('discussions.id = discussion_id');
                     });
                 } else {
                     $id = $this->tags->getIdForSlug($slug);
 
                     $query->orWhereExists(function ($query) use ($id) {
-                        $query->select(new Expression(1))
+                        $query->selectRaw('1')
                               ->from('discussions_tags')
-                              ->where('discussions.id', new Expression('discussion_id'))
+                              ->whereRaw('discussions.id = discussion_id')
                               ->where('tag_id', $id);
                     });
                 }
