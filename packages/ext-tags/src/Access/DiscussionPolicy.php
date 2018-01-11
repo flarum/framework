@@ -58,7 +58,7 @@ class DiscussionPolicy extends AbstractPolicy
      * @param Discussion $discussion
      * @return bool
      */
-    public function after(User $actor, $ability, Discussion $discussion)
+    public function can(User $actor, $ability, Discussion $discussion)
     {
         // Wrap all discussion permission checks with some logic pertaining to
         // the discussion's tags. If the discussion has a tag that has been
