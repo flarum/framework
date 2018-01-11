@@ -11,16 +11,17 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Group;
+use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Group\Group;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ListGroupsController extends AbstractCollectionController
+class ListGroupsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\GroupSerializer';
+    public $serializer = GroupSerializer::class;
 
     /**
      * {@inheritdoc}

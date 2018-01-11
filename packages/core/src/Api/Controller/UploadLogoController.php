@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use League\Flysystem\Adapter\Local;
@@ -73,7 +73,7 @@ class UploadLogoController extends ShowForumController
             $mount->delete($file);
         }
 
-        $uploadName = 'logo-'.Str::lower(Str::quickRandom(8)).'.png';
+        $uploadName = 'logo-'.Str::lower(Str::random(8)).'.png';
 
         $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
 

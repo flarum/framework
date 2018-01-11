@@ -24,7 +24,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
 
     public function all()
     {
-        return $this->database->table('settings')->lists('value', 'key');
+        return $this->database->table('settings')->pluck('value', 'key')->all();
     }
 
     public function get($key, $default = null)

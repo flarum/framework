@@ -88,14 +88,11 @@
   right: 0;
   bottom: 0;
   background: fade(@body-bg, 90%);
-  opacity: 0;
-  pointer-events: none;
+  display: none;
   border-radius: @border-radius @border-radius 0 0;
-  .transition(opacity 0.2s);
 
   &.active {
-    opacity: 1;
-    pointer-events: auto;
+    display: block;
   }
 }
 .ComposerBody-editor {
@@ -119,7 +116,7 @@
     &:not(.minimized) {
       position: absolute;
       top: 0;
-      height: 100vh !important;
+      height: 350px !important;
       padding-top: @header-height-phone;
 
       &:before {

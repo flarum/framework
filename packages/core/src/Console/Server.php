@@ -11,16 +11,32 @@
 
 namespace Flarum\Console;
 
-use Flarum\Console\Command\GenerateMigrationCommand;
-use Flarum\Debug\Console\CacheClearCommand;
-use Flarum\Debug\Console\InfoCommand;
-use Flarum\Foundation\AbstractServer;
+use Flarum\Database\Console\GenerateMigrationCommand;
+use Flarum\Database\Console\MigrateCommand;
+use Flarum\Foundation\Application;
+use Flarum\Foundation\Console\CacheClearCommand;
+use Flarum\Foundation\Console\InfoCommand;
+use Flarum\Foundation\Site;
 use Flarum\Install\Console\InstallCommand;
-use Flarum\Update\Console\MigrateCommand;
-use Symfony\Component\Console\Application;
+use Flarum\Install\InstallServiceProvider;
+use Symfony\Component\Console\Application as ConsoleApplication;
 
-class Server extends AbstractServer
+class Server
 {
+    /**
+     * @param Site $site
+     * @return Server
+     */
+    public static function fromSite(Site $site)
+    {
+        return new static($site->boot());
+    }
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+    }
+
     public function listen()
     {
         $console = $this->getConsoleApplication();
@@ -29,14 +45,13 @@ class Server extends AbstractServer
     }
 
     /**
-     * @return Application
+     * @return ConsoleApplication
      */
     protected function getConsoleApplication()
     {
-        $app = $this->getApp();
-        $console = new Application('Flarum', $app->version());
+        $console = new ConsoleApplication('Flarum', $this->app->version());
 
-        $app->register('Flarum\Install\InstallServiceProvider');
+        $this->app->register(InstallServiceProvider::class);
 
         $commands = [
             InstallCommand::class,
@@ -44,7 +59,7 @@ class Server extends AbstractServer
             GenerateMigrationCommand::class,
         ];
 
-        if ($app->isInstalled()) {
+        if ($this->app->isInstalled()) {
             $commands = array_merge($commands, [
                 InfoCommand::class,
                 CacheClearCommand::class
@@ -52,9 +67,9 @@ class Server extends AbstractServer
         }
 
         foreach ($commands as $command) {
-            $console->add($app->make(
+            $console->add($this->app->make(
                 $command,
-                ['config' => $app->isInstalled() ? $app->make('flarum.config') : []]
+                ['config' => $this->app->isInstalled() ? $this->app->make('flarum.config') : []]
             ));
         }
 

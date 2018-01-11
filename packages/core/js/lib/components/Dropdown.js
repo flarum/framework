@@ -69,6 +69,10 @@ export default class Dropdown extends Component {
         $menu.offset().top + $menu.height() > $(window).scrollTop() + $(window).height()
       );
 
+      if ($menu.offset().top < 0) {
+        $menu.removeClass('Dropdown-menu--top');
+      }
+
       $menu.toggleClass(
         'Dropdown-menu--right',
         isRight || $menu.offset().left + $menu.width() > $(window).scrollLeft() + $(window).width()

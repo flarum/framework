@@ -126,7 +126,7 @@ class PostStream extends Component {
 
     this.visibleEnd = this.count();
 
-    this.loadRange(this.visibleStart, this.visibleEnd).then(() => m.redraw());
+    return this.loadRange(this.visibleStart, this.visibleEnd).then(() => m.redraw());
   }
 
   /**

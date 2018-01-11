@@ -1,0 +1,38 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Flarum\Extend;
+
+use Illuminate\Contracts\Container\Container;
+
+/**
+ * This class is used to wrap old bootstrap.php closures (as used in versions up
+ * to 0.1.0-beta7) in the new Extender format.
+ *
+ * This gives extensions the chance to work with the new API without making any
+ * changes, and have some time to convert to the pure usage of extenders.
+ *
+ * @deprecated
+ */
+class Compat implements Extender
+{
+    protected $callback;
+
+    public function __construct($callback)
+    {
+        $this->callback = $callback;
+    }
+
+    public function __invoke(Container $container)
+    {
+        $container->call($this->callback);
+    }
+}

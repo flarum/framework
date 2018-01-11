@@ -11,18 +11,18 @@
 
 namespace Flarum\Api\Serializer;
 
-use Flarum\Core\Access\Gate;
-use Flarum\Core\Post\CommentPost;
+use Flarum\Post\CommentPost;
+use Flarum\User\Gate;
 
-class PostSerializer extends PostBasicSerializer
+class PostSerializer extends BasicPostSerializer
 {
     /**
-     * @var \Flarum\Core\Access\Gate
+     * @var \Flarum\User\Gate
      */
     protected $gate;
 
     /**
-     * @param \Flarum\Core\Access\Gate $gate
+     * @param \Flarum\User\Gate $gate
      */
     public function __construct(Gate $gate)
     {
@@ -77,7 +77,7 @@ class PostSerializer extends PostBasicSerializer
      */
     protected function user($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, UserSerializer::class);
     }
 
     /**
@@ -85,7 +85,7 @@ class PostSerializer extends PostBasicSerializer
      */
     protected function discussion($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\DiscussionSerializer');
+        return $this->hasOne($post, BasicDiscussionSerializer::class);
     }
 
     /**
@@ -93,7 +93,7 @@ class PostSerializer extends PostBasicSerializer
      */
     protected function editUser($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, BasicUserSerializer::class);
     }
 
     /**
@@ -101,6 +101,6 @@ class PostSerializer extends PostBasicSerializer
      */
     protected function hideUser($post)
     {
-        return $this->hasOne($post, 'Flarum\Api\Serializer\UserSerializer');
+        return $this->hasOne($post, BasicUserSerializer::class);
     }
 }

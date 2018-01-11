@@ -11,11 +11,11 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Event\PrepareSerializedSetting;
-use Flarum\Event\SettingWasSet;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\Settings\Event\Saved;
+use Flarum\Settings\Event\Serializing;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;
@@ -53,11 +53,11 @@ class SetSettingsController implements ControllerInterface
         $settings = $request->getParsedBody();
 
         foreach ($settings as $k => $v) {
-            $this->dispatcher->fire(new PrepareSerializedSetting($k, $v));
+            $this->dispatcher->fire(new Serializing($k, $v));
 
             $this->settings->set($k, $v);
 
-            $this->dispatcher->fire(new SettingWasSet($k, $v));
+            $this->dispatcher->fire(new Saved($k, $v));
         }
 
         return new EmptyResponse(204);

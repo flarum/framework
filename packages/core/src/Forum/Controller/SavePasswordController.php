@@ -11,25 +11,29 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Core\PasswordToken;
-use Flarum\Core\Validator\UserValidator;
-use Flarum\Forum\UrlGenerator;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\Http\UrlGenerator;
+use Flarum\User\PasswordToken;
+use Flarum\User\UserValidator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Contracts\Validation\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class SavePasswordController implements ControllerInterface
 {
+    use DispatchEventsTrait;
+
     /**
      * @var UrlGenerator
      */
     protected $url;
 
     /**
-     * @var UserValidator
+     * @var \Flarum\User\UserValidator
      */
     protected $validator;
 
@@ -49,12 +53,13 @@ class SavePasswordController implements ControllerInterface
      * @param UserValidator $validator
      * @param Factory $validatorFactory
      */
-    public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory)
+    public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory, Dispatcher $events)
     {
         $this->url = $url;
         $this->authenticator = $authenticator;
         $this->validator = $validator;
         $this->validatorFactory = $validatorFactory;
+        $this->events = $events;
     }
 
     /**
@@ -75,23 +80,26 @@ class SavePasswordController implements ControllerInterface
             $this->validator->assertValid(compact('password'));
 
             $validator = $this->validatorFactory->make($input, ['password' => 'required|confirmed']);
+
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
         } catch (ValidationException $e) {
-            $request->getAttribute('session')->set('error', $e->errors()->first());
+            $request->getAttribute('session')->set('errors', $e->errors());
 
-            return new RedirectResponse($this->url->toRoute('resetPassword', ['token' => $token->id]));
+            return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->id]));
         }
 
         $token->user->changePassword($password);
         $token->user->save();
+
+        $this->dispatchEventsFor($token->user);
 
         $token->delete();
 
         $session = $request->getAttribute('session');
         $this->authenticator->logIn($session, $token->user->id);
 
-        return new RedirectResponse($this->url->toBase());
+        return new RedirectResponse($this->url->to('forum')->base());
     }
 }

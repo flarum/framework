@@ -3,6 +3,7 @@ import Button from 'flarum/components/Button';
 import Switch from 'flarum/components/Switch';
 import EditCustomCssModal from 'flarum/components/EditCustomCssModal';
 import EditCustomHeaderModal from 'flarum/components/EditCustomHeaderModal';
+import EditCustomFooterModal from 'flarum/components/EditCustomFooterModal';
 import UploadImageButton from 'flarum/components/UploadImageButton';
 import saveSettings from 'flarum/utils/saveSettings';
 
@@ -28,8 +29,8 @@ export default class AppearancePage extends Page {
               </div>
 
               <div className="AppearancePage-colors-input">
-                <input className="FormControl" type="color" placeholder="#aaaaaa" value={this.primaryColor()} onchange={m.withAttr('value', this.primaryColor)}/>
-                <input className="FormControl" type="color" placeholder="#aaaaaa" value={this.secondaryColor()} onchange={m.withAttr('value', this.secondaryColor)}/>
+                <input className="FormControl" type="text" placeholder="#aaaaaa" value={this.primaryColor()} onchange={m.withAttr('value', this.primaryColor)}/>
+                <input className="FormControl" type="text" placeholder="#aaaaaa" value={this.secondaryColor()} onchange={m.withAttr('value', this.secondaryColor)}/>
               </div>
 
               {Switch.component({
@@ -78,6 +79,18 @@ export default class AppearancePage extends Page {
               className: 'Button',
               children: app.translator.trans('core.admin.appearance.edit_header_button'),
               onclick: () => app.modal.show(new EditCustomHeaderModal())
+            })}
+          </fieldset>
+
+          <fieldset>
+            <legend>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</legend>
+            <div className="helpText">
+              {app.translator.trans('core.admin.appearance.custom_footer_text')}
+            </div>
+            {Button.component({
+              className: 'Button',
+              children: app.translator.trans('core.admin.appearance.edit_footer_button'),
+              onclick: () => app.modal.show(new EditCustomFooterModal())
             })}
           </fieldset>
 
