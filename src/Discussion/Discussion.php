@@ -19,6 +19,7 @@ use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
 use Flarum\Event\ScopePostVisibility;
+use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\MergeableInterface;
@@ -118,6 +119,12 @@ class Discussion extends AbstractModel
             // Delete all of the 'state' records for all of the users who have
             // read the discussion.
             $discussion->readers()->detach();
+        });
+
+        static::saving(function (Discussion $discussion) {
+            $event = new GetModelIsPrivate($discussion);
+
+            $discussion->is_private = static::$dispatcher->until($event) === true;
         });
     }
 
