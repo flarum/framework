@@ -44,10 +44,7 @@ class SendNotificationWhenReplyIsPosted
     {
         $events->listen(ConfigureNotificationTypes::class, [$this, 'addNotificationType']);
 
-        // Register with '1' as priority so this runs before discussion metadata
-        // is updated, as we need to compare the user's last read number to that
-        // of the previous post.
-        $events->listen(Posted::class, [$this, 'whenPosted'], 1);
+        $events->listen(Posted::class, [$this, 'whenPosted']);
         $events->listen(Hidden::class, [$this, 'whenHidden']);
         $events->listen(Restored::class, [$this, 'whenRestored']);
         $events->listen(Deleted::class, [$this, 'whenDeleted']);
@@ -72,7 +69,7 @@ class SendNotificationWhenReplyIsPosted
         $notify = $discussion->readers()
             ->where('users.id', '!=', $post->user_id)
             ->where('users_discussions.subscription', 'follow')
-            ->where('users_discussions.read_number', $discussion->last_post_number)
+            ->where('users_discussions.read_number', $discussion->last_post_number - 1)
             ->get();
 
         $this->notifications->sync(
