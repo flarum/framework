@@ -49,16 +49,16 @@ class PinStickiedDiscussionsToTop
             // discussions to the top no matter what.
             $gambits = $search->getActiveGambits();
 
-            foreach ($gambits as $gambit) {
-                if ($gambit instanceof TagGambit) {
+            if ($count = count($gambits)) {
+                if ($count === 1 && $gambits[0] instanceof TagGambit) {
                     if (! is_array($query->orders)) {
                         $query->orders = [];
                     }
 
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
-
-                    return;
                 }
+
+                return;
             }
 
             // Otherwise, if we are viewing "all discussions", only pin stickied
@@ -66,33 +66,31 @@ class PinStickiedDiscussionsToTop
             // performant way we create another query which will select all
             // stickied discussions, marry them into the main query, and then
             // reorder the unread ones up to the top.
-            if (empty($gambits)) {
-                $sticky = clone $query;
-                $sticky->where('is_sticky', true);
-                $sticky->orders = null;
+            $sticky = clone $query;
+            $sticky->where('is_sticky', true);
+            $sticky->orders = null;
 
-                $query->union($sticky);
+            $query->union($sticky);
 
-                $read = $query->newQuery()
-                    ->selectRaw(1)
-                    ->from('users_discussions as sticky')
-                    ->whereRaw('sticky.discussion_id = id')
-                    ->where('sticky.user_id', '=', $search->getActor()->id)
-                    ->whereRaw('sticky.read_number >= last_post_number');
+            $read = $query->newQuery()
+                ->selectRaw(1)
+                ->from('users_discussions as sticky')
+                ->whereRaw('sticky.discussion_id = id')
+                ->where('sticky.user_id', '=', $search->getActor()->id)
+                ->whereRaw('sticky.read_number >= last_post_number');
 
-                // Add the bindings manually (rather than as the second
-                // argument in orderByRaw) for now due to a bug in Laravel which
-                // would add the bindings in the wrong order.
-                $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_time > ? desc')
-                    ->addBinding(array_merge($read->getBindings(), [$search->getActor()->read_time ?: 0]), 'union');
+            // Add the bindings manually (rather than as the second
+            // argument in orderByRaw) for now due to a bug in Laravel which
+            // would add the bindings in the wrong order.
+            $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_time > ? desc')
+                ->addBinding(array_merge($read->getBindings(), [$search->getActor()->read_time ?: 0]), 'union');
 
-                $query->unionOrders = array_merge($query->unionOrders, $query->orders);
-                $query->unionLimit = $query->limit;
-                $query->unionOffset = $query->offset;
+            $query->unionOrders = array_merge($query->unionOrders, $query->orders);
+            $query->unionLimit = $query->limit;
+            $query->unionOffset = $query->offset;
 
-                $query->limit = $sticky->limit = $query->offset + $query->limit;
-                $query->offset = $sticky->offset = null;
-            }
+            $query->limit = $sticky->limit = $query->offset + $query->limit;
+            $query->offset = $sticky->offset = null;
         }
     }
 }
