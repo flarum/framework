@@ -92,10 +92,10 @@ class DiscussionPolicy extends AbstractPolicy
     {
         // Hide discussions which have tags that the user is not allowed to see.
         $query->whereNotExists(function ($query) use ($actor) {
-            return $query->select(new Expression(1))
+            return $query->selectRaw('1')
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'))
-                ->where('discussions.id', new Expression('discussion_id'));
+                ->whereRaw('discussions.id = discussion_id');
         });
 
         // Hide discussions with no tags if the user doesn't have that global
