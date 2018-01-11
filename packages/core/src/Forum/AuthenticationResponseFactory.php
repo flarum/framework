@@ -109,8 +109,7 @@ class AuthenticationResponseFactory
                 $suggestions,
                 ['token' => $token->id],
                 // List of the fields that can't be edited during sign up
-                // Only includes attributes on the sign up form, otherwise this could leak private attribute names
-                ['identification_fields' => array_keys(array_only($identification, ['username', 'email']))]
+                ['identificationFields' => array_keys($identification)]
             );
         }
 
