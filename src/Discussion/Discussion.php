@@ -396,7 +396,7 @@ class Discussion extends AbstractModel
      */
     public function mostRelevantPost()
     {
-        return $this->belongsTo('Flarum\Post\Post', 'most_relevant_post_id');
+        return $this->belongsTo(Post::class, 'most_relevant_post_id');
     }
 
     /**
