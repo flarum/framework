@@ -13,7 +13,6 @@ namespace Flarum\Discussion;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 
 class DiscussionRepository
 {
@@ -52,7 +51,7 @@ class DiscussionRepository
     {
         return Discussion::leftJoin('users_discussions', 'users_discussions.discussion_id', '=', 'discussions.id')
             ->where('user_id', $user->id)
-            ->where('read_number', '>=', new Expression('last_post_number'))
+            ->whereRaw('read_number >= last_post_number')
             ->pluck('id')
             ->all();
     }
