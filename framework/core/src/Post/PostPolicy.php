@@ -60,7 +60,7 @@ class PostPolicy extends AbstractPolicy
      * @param \Flarum\Post\Post $post
      * @return bool|null
      */
-    public function after(User $actor, $ability, Post $post)
+    public function can(User $actor, $ability, Post $post)
     {
         if ($actor->can($ability.'Posts', $post->discussion)) {
             return true;
