@@ -104,7 +104,13 @@ class AuthenticationResponseFactory
             $token = AuthToken::generate($identification);
             $token->save();
 
-            $payload = array_merge($identification, $suggestions, ['token' => $token->id]);
+            $payload = array_merge(
+                $identification,
+                $suggestions,
+                ['token' => $token->id],
+                // List of the fields that can't be edited during sign up
+                ['identificationFields' => array_keys($identification)]
+            );
         }
 
         return $payload;
