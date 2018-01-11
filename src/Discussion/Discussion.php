@@ -304,25 +304,7 @@ class Discussion extends AbstractModel
      */
     public function posts()
     {
-        return $this->hasMany('Flarum\Post\Post');
-    }
-
-    /**
-     * Define the relationship with the discussion's posts, but only ones which
-     * are visible to the given user.
-     *
-     * @param User $user
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function postsVisibleTo(User $user)
-    {
-        $relation = $this->posts();
-
-        static::$dispatcher->fire(
-            new ScopePostVisibility($this, $relation->getQuery(), $user)
-        );
-
-        return $relation;
+        return $this->hasMany(Post::class);
     }
 
     /**
@@ -332,7 +314,7 @@ class Discussion extends AbstractModel
      */
     public function comments()
     {
-        return $this->postsVisibleTo(new Guest)->where('type', 'comment');
+        return $this->posts()->where('is_private', false)->where('type', 'comment');
     }
 
     /**
@@ -345,6 +327,8 @@ class Discussion extends AbstractModel
     {
         return User::join('posts', 'posts.user_id', '=', 'users.id')
             ->where('posts.discussion_id', $this->id)
+            ->where('posts.is_private', false)
+            ->where('posts.type', 'comment')
             ->select('users.*')
             ->distinct();
     }

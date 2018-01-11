@@ -12,12 +12,13 @@
 namespace Flarum\Post;
 
 use Carbon\Carbon;
-use Flarum\Event\ScopePostVisibility;
-use Flarum\Event\ScopePrivatePostVisibility;
+use Flarum\Discussion\Discussion;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostPolicy extends AbstractPolicy
 {
@@ -30,6 +31,7 @@ class PostPolicy extends AbstractPolicy
      * @var SettingsRepositoryInterface
      */
     protected $settings;
+
     /**
      * @var Dispatcher
      */
@@ -37,21 +39,12 @@ class PostPolicy extends AbstractPolicy
 
     /**
      * @param SettingsRepositoryInterface $settings
+     * @param Dispatcher $events
      */
     public function __construct(SettingsRepositoryInterface $settings, Dispatcher $events)
     {
         $this->settings = $settings;
         $this->events = $events;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        parent::subscribe($events);
-
-        $events->listen(ScopePostVisibility::class, [$this, 'scopePostVisibility']);
     }
 
     /**
@@ -68,26 +61,38 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @param ScopePostVisibility $event
+     * @param User $actor
+     * @param Builder $query
      */
-    public function scopePostVisibility(ScopePostVisibility $event)
+    public function find(User $actor, $query)
     {
-        // Hide private posts per default.
-        $event->query->where(function ($query) use ($event) {
-            $query->where('posts.is_private', false);
-
-            $this->events->fire(
-                new ScopePrivatePostVisibility($event->discussion, $query, $event->actor)
-            );
+        // Hide private posts by default.
+        $query->where(function ($query) use ($actor) {
+            $query->where('posts.is_private', false)
+                ->orWhere(function ($query) use ($actor) {
+                    $this->events->fire(
+                        new ScopeModelVisibility($query, $actor, 'viewPrivate')
+                    );
+                });
         });
 
-        // When fetching a discussion's posts: if the user doesn't have permission
-        // to moderate the discussion, then they can't see posts that have been
-        // hidden by someone other than themself.
-        if ($event->actor->cannot('editPosts', $event->discussion)) {
-            $event->query->where(function ($query) use ($event) {
-                $query->whereNull('hide_time')
-                    ->orWhere('user_id', $event->actor->id);
+        // Hide hidden posts, unless they are authored by the current user, or
+        // the current user has permission to view hidden posts in the
+        // discussion.
+        if (! $actor->hasPermission('discussion.editPosts')) {
+            $query->where(function ($query) use ($actor) {
+                $query->whereNull('posts.hide_time')
+                    ->orWhere('user_id', $actor->id)
+                    ->orWhereExists(function ($query) use ($actor) {
+                        $query->selectRaw('1')
+                            ->from('discussions')
+                            ->whereRaw('discussions.id = posts.discussion_id')
+                            ->where(function ($query) use ($actor) {
+                                $this->events->dispatch(
+                                    new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'editPosts')
+                                );
+                            });
+                    });
             });
         }
     }
