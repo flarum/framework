@@ -162,7 +162,7 @@ export default {
         }
         app.composer.show();
 
-        if (goToLast && app.viewingDiscussion(this)) {
+        if (goToLast && app.viewingDiscussion(this) && ! app.composer.isFullScreen()) {
           app.current.stream.goToNumber('reply');
         }
 

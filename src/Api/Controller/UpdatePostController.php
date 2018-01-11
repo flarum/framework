@@ -11,17 +11,18 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\EditPost;
+use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Post\Command\EditPost;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class UpdatePostController extends AbstractResourceController
+class UpdatePostController extends AbstractShowController
 {
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\PostSerializer';
+    public $serializer = PostSerializer::class;
 
     /**
      * {@inheritdoc}

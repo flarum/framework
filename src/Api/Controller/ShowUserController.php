@@ -11,16 +11,17 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Repository\UserRepository;
+use Flarum\Api\Serializer\UserSerializer;
+use Flarum\User\UserRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowUserController extends AbstractResourceController
+class ShowUserController extends AbstractShowController
 {
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\UserSerializer';
+    public $serializer = UserSerializer::class;
 
     /**
      * {@inheritdoc}
@@ -28,12 +29,12 @@ class ShowUserController extends AbstractResourceController
     public $include = ['groups'];
 
     /**
-     * @var UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 
     /**
-     * @param UserRepository $users
+     * @param \Flarum\User\UserRepository $users
      */
     public function __construct(UserRepository $users)
     {

@@ -13,9 +13,9 @@ namespace Flarum\Api\Serializer;
 
 use Closure;
 use DateTime;
-use Flarum\Core\User;
+use Flarum\Api\Event\Serializing;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\PrepareApiAttributes;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use InvalidArgumentException;
@@ -71,7 +71,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         $attributes = $this->getDefaultAttributes($model);
 
         static::$dispatcher->fire(
-            new PrepareApiAttributes($this, $model, $attributes)
+            new Serializing($this, $model, $attributes)
         );
 
         return $attributes;

@@ -12,17 +12,17 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Core\User;
-use Flarum\Forum\UrlGenerator;
-use Flarum\Forum\WebApp;
+use Flarum\Forum\Frontend;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Http\UrlGenerator;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class DiscussionController extends WebAppController
+class DiscussionController extends FrontendController
 {
     /**
-     * @var ApiClient
+     * @var Client
      */
     protected $api;
 
@@ -34,7 +34,7 @@ class DiscussionController extends WebAppController
     /**
      * {@inheritdoc}
      */
-    public function __construct(WebApp $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
+    public function __construct(Frontend $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
     {
         parent::__construct($webApp, $events);
 
@@ -64,7 +64,7 @@ class DiscussionController extends WebAppController
         $document = $this->getDocument($request->getAttribute('actor'), $params);
 
         $getResource = function ($link) use ($document) {
-            return array_first($document->included, function ($key, $value) use ($link) {
+            return array_first($document->included, function ($value, $key) use ($link) {
                 return $value->type === $link->type && $value->id === $link->id;
             });
         };
@@ -73,7 +73,7 @@ class DiscussionController extends WebAppController
             $newQueryParams = array_merge($queryParams, $newQueryParams);
             $queryString = http_build_query($newQueryParams);
 
-            return $this->url->toRoute('discussion', ['id' => $document->data->id]).
+            return $this->url->to('forum')->route('discussion', ['id' => $document->data->id]).
             ($queryString ? '?'.$queryString : '');
         };
 
@@ -87,7 +87,7 @@ class DiscussionController extends WebAppController
 
         $view->title = $document->data->attributes->title;
         $view->document = $document;
-        $view->content = app('view')->make('flarum.forum::discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
+        $view->content = app('view')->make('flarum.forum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
 
         return $view;
     }

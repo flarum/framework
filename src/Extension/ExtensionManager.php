@@ -12,11 +12,12 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
-use Flarum\Event\ExtensionWasDisabled;
-use Flarum\Event\ExtensionWasEnabled;
-use Flarum\Event\ExtensionWasUninstalled;
-use Flarum\Event\ExtensionWillBeDisabled;
-use Flarum\Event\ExtensionWillBeEnabled;
+use Flarum\Extend\Compat;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Disabling;
+use Flarum\Extension\Event\Enabled;
+use Flarum\Extension\Event\Enabling;
+use Flarum\Extension\Event\Uninstalled;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -115,7 +116,7 @@ class ExtensionManager
         if (! $this->isEnabled($name)) {
             $extension = $this->getExtension($name);
 
-            $this->dispatcher->fire(new ExtensionWillBeEnabled($extension));
+            $this->dispatcher->fire(new Enabling($extension));
 
             $enabled = $this->getEnabled();
 
@@ -129,7 +130,7 @@ class ExtensionManager
 
             $extension->setEnabled(true);
 
-            $this->dispatcher->fire(new ExtensionWasEnabled($extension));
+            $this->dispatcher->fire(new Enabled($extension));
         }
     }
 
@@ -145,7 +146,7 @@ class ExtensionManager
         if (($k = array_search($name, $enabled)) !== false) {
             $extension = $this->getExtension($name);
 
-            $this->dispatcher->fire(new ExtensionWillBeDisabled($extension));
+            $this->dispatcher->fire(new Disabling($extension));
 
             unset($enabled[$k]);
 
@@ -153,7 +154,7 @@ class ExtensionManager
 
             $extension->setEnabled(false);
 
-            $this->dispatcher->fire(new ExtensionWasDisabled($extension));
+            $this->dispatcher->fire(new Disabled($extension));
         }
     }
 
@@ -174,7 +175,7 @@ class ExtensionManager
 
         $extension->setInstalled(false);
 
-        $this->dispatcher->fire(new ExtensionWasUninstalled($extension));
+        $this->dispatcher->fire(new Uninstalled($extension));
     }
 
     /**
@@ -273,21 +274,30 @@ class ExtensionManager
     }
 
     /**
-     * Loads all bootstrap.php files of the enabled extensions.
+     * Retrieve all extender instances of all enabled extensions.
      *
      * @return Collection
      */
-    public function getEnabledBootstrappers()
+    public function getActiveExtenders()
     {
-        $bootstrappers = new Collection;
+        return $this->getEnabledExtensions()
+            ->flatMap(function (Extension $extension) {
+                $bootstrapper = $extension->getBootstrapperPath();
+                if ($this->filesystem->exists($bootstrapper)) {
+                    $extenders = require $bootstrapper;
 
-        foreach ($this->getEnabledExtensions() as $extension) {
-            if ($this->filesystem->exists($file = $extension->getPath().'/bootstrap.php')) {
-                $bootstrappers->push($file);
-            }
-        }
+                    if (is_array($extenders)) {
+                        return $extenders;
+                    }
 
-        return $bootstrappers;
+                    // Assume that the extension has not yet switched to the new
+                    // bootstrap.php format, and wrap the callback in a Compat
+                    // extender.
+                    return [new Compat($extenders)];
+                } else {
+                    return [];
+                }
+            });
     }
 
     /**

@@ -11,8 +11,8 @@
 
 namespace Flarum\Http\Middleware;
 
-use Flarum\Core\Guest;
-use Flarum\Core\User;
+use Flarum\User\Guest;
+use Flarum\User\User;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;

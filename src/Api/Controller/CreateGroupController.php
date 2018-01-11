@@ -11,7 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\CreateGroup;
+use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Group\Command\CreateGroup;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -21,7 +22,7 @@ class CreateGroupController extends AbstractCreateController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\GroupSerializer';
+    public $serializer = GroupSerializer::class;
 
     /**
      * @var Dispatcher
