@@ -11,9 +11,10 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\ReadDiscussion;
-use Flarum\Core\Command\StartDiscussion;
-use Flarum\Core\Post\Floodgate;
+use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Discussion\Command\ReadDiscussion;
+use Flarum\Discussion\Command\StartDiscussion;
+use Flarum\Post\Floodgate;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -23,7 +24,7 @@ class CreateDiscussionController extends AbstractCreateController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\DiscussionSerializer';
+    public $serializer = DiscussionSerializer::class;
 
     /**
      * {@inheritdoc}

@@ -23,6 +23,13 @@ export default class AvatarEditor extends Component {
      * @type {Boolean}
      */
     this.loading = false;
+
+    /**
+     * Whether or not an image has been dragged over the dropzone.
+     *
+     * @type {Boolean}
+     */
+    this.isDraggedOver = false;
   }
 
   static initProps(props) {
@@ -35,12 +42,17 @@ export default class AvatarEditor extends Component {
     const user = this.props.user;
 
     return (
-      <div className={'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '')}>
+      <div className={'AvatarEditor Dropdown ' + this.props.className + (this.loading ? ' loading' : '') + (this.isDraggedOver ? ' dragover' : '')}>
         {avatar(user)}
         <a className={ user.avatarUrl() ? "Dropdown-toggle" : "Dropdown-toggle AvatarEditor--noAvatar" }
           title={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
           data-toggle="dropdown"
-          onclick={this.quickUpload.bind(this)}>
+          onclick={this.quickUpload.bind(this)}
+          ondragover={this.enableDragover.bind(this)}
+          ondragenter={this.enableDragover.bind(this)}
+          ondragleave={this.disableDragover.bind(this)}
+          ondragend={this.disableDragover.bind(this)}
+          ondrop={this.dropUpload.bind(this)}>
           {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('pencil') : icon('plus-circle'))}
         </a>
         <ul className="Dropdown-menu Menu">
@@ -62,7 +74,7 @@ export default class AvatarEditor extends Component {
       Button.component({
         icon: 'upload',
         children: app.translator.trans('core.forum.user.avatar_upload_button'),
-        onclick: this.upload.bind(this)
+        onclick: this.openPicker.bind(this)
       })
     );
 
@@ -78,6 +90,40 @@ export default class AvatarEditor extends Component {
   }
 
   /**
+   * Enable dragover style
+   *
+   * @param {Event} e
+   */
+  enableDragover(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggedOver = true;
+  }
+
+  /**
+   * Disable dragover style
+   *
+   * @param {Event} e
+   */
+  disableDragover(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggedOver = false;
+  }
+
+  /**
+   * Upload avatar when file is dropped into dropzone.
+   *
+   * @param {Event} e
+   */
+  dropUpload(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggedOver = false;
+    this.upload(e.dataTransfer.files[0]);
+  }
+
+  /**
    * If the user doesn't have an avatar, there's no point in showing the
    * controls dropdown, because only one option would be viable: uploading.
    * Thus, when the avatar editor's dropdown toggle button is clicked, we prompt
@@ -89,14 +135,14 @@ export default class AvatarEditor extends Component {
     if (!this.props.user.avatarUrl()) {
       e.preventDefault();
       e.stopPropagation();
-      this.upload();
+      this.openPicker();
     }
   }
 
   /**
-   * Prompt the user to upload a new avatar.
+   * Upload avatar using file picker
    */
-  upload() {
+  openPicker() {
     if (this.loading) return;
 
     // Create a hidden HTML input element and click on it so the user can select
@@ -105,22 +151,34 @@ export default class AvatarEditor extends Component {
     const $input = $('<input type="file">');
 
     $input.appendTo('body').hide().click().on('change', e => {
-      const data = new FormData();
-      data.append('avatar', $(e.target)[0].files[0]);
-
-      this.loading = true;
-      m.redraw();
-
-      app.request({
-        method: 'POST',
-        url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
-        serialize: raw => raw,
-        data
-      }).then(
-        this.success.bind(this),
-        this.failure.bind(this)
-      );
+      this.upload($(e.target)[0].files[0]);
     });
+  }
+
+  /**
+   * Upload avatar
+   *
+   * @param {File} file
+   */
+  upload(file) {
+    if (this.loading) return;
+
+    const user = this.props.user;
+    const data = new FormData();
+    data.append('avatar', file);
+
+    this.loading = true;
+    m.redraw();
+
+    app.request({
+      method: 'POST',
+      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/avatar',
+      serialize: raw => raw,
+      data
+    }).then(
+      this.success.bind(this),
+      this.failure.bind(this)
+    );
   }
 
   /**

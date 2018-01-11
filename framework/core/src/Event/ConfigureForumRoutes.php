@@ -11,17 +11,17 @@
 
 namespace Flarum\Event;
 
+use Flarum\Forum\Controller\FrontendController;
+
 /**
- * Configure forum routes.
- *
- * This event is fired when routes for the forum client are being registered.
+ * @deprecated
  */
 class ConfigureForumRoutes extends AbstractConfigureRoutes
 {
     /**
      * {@inheritdoc}
      */
-    public function get($url, $name, $handler = 'Flarum\Forum\Controller\WebAppController')
+    public function get($url, $name, $handler = FrontendController::class)
     {
         parent::get($url, $name, $handler);
     }

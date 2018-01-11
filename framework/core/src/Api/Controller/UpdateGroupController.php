@@ -11,17 +11,18 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\EditGroup;
+use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Group\Command\EditGroup;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class UpdateGroupController extends AbstractResourceController
+class UpdateGroupController extends AbstractShowController
 {
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\GroupSerializer';
+    public $serializer = GroupSerializer::class;
 
     /**
      * @var Dispatcher

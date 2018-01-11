@@ -11,7 +11,7 @@
 
 namespace Flarum\Event;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class GetPermission
 {

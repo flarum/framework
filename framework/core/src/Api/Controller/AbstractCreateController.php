@@ -13,7 +13,7 @@ namespace Flarum\Api\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-abstract class AbstractCreateController extends AbstractResourceController
+abstract class AbstractCreateController extends AbstractShowController
 {
     /**
      * {@inheritdoc}

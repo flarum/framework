@@ -11,7 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\RegisterUser;
+use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\User\Command\RegisterUser;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -21,7 +22,7 @@ class CreateUserController extends AbstractCreateController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\CurrentUserSerializer';
+    public $serializer = CurrentUserSerializer::class;
 
     /**
      * @var Dispatcher

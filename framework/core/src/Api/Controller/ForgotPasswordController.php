@@ -11,9 +11,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Command\RequestPasswordReset;
-use Flarum\Core\Repository\UserRepository;
 use Flarum\Http\Controller\ControllerInterface;
+use Flarum\User\Command\RequestPasswordReset;
+use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;
@@ -21,7 +21,7 @@ use Zend\Diactoros\Response\EmptyResponse;
 class ForgotPasswordController implements ControllerInterface
 {
     /**
-     * @var \Flarum\Core\Repository\UserRepository
+     * @var \Flarum\User\UserRepository
      */
     protected $users;
 
@@ -31,7 +31,7 @@ class ForgotPasswordController implements ControllerInterface
     protected $bus;
 
     /**
-     * @param \Flarum\Core\Repository\UserRepository $users
+     * @param \Flarum\User\UserRepository $users
      * @param Dispatcher $bus
      */
     public function __construct(UserRepository $users, Dispatcher $bus)

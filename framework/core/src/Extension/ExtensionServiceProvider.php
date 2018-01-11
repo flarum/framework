@@ -12,6 +12,7 @@
 namespace Flarum\Extension;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Contracts\Container\Container;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
 {
@@ -20,14 +21,24 @@ class ExtensionServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->bind('flarum.extensions', 'Flarum\Extension\ExtensionManager');
+        $this->app->bind('flarum.extensions', ExtensionManager::class);
 
-        $bootstrappers = $this->app->make('flarum.extensions')->getEnabledBootstrappers();
+        $this->app->booting(function (Container $app) {
+            $extenders = $app->make('flarum.extensions')->getActiveExtenders();
 
-        foreach ($bootstrappers as $file) {
-            $bootstrapper = require $file;
+            foreach ($extenders as $extender) {
+                $extender($app);
+            }
+        });
+    }
 
-            $this->app->call($bootstrapper);
-        }
+    /**
+     * {@inheritdoc}
+     */
+    public function boot()
+    {
+        $events = $this->app->make('events');
+
+        $events->subscribe(DefaultLanguagePackGuard::class);
     }
 }

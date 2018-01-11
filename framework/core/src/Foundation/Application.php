@@ -11,6 +11,7 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Events\EventServiceProvider;
@@ -125,7 +126,7 @@ class Application extends Container implements ApplicationContract
 
     public function isUpToDate()
     {
-        $settings = $this->make('Flarum\Settings\SettingsRepositoryInterface');
+        $settings = $this->make(SettingsRepositoryInterface::class);
 
         try {
             $version = $settings->get('version');
@@ -143,7 +144,7 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return array_get($this->make('flarum.config'), $key, $default);
+        return $this->isInstalled() ? array_get($this->make('flarum.config'), $key, $default) : $default;
     }
 
     /**
@@ -735,5 +736,23 @@ class Application extends Container implements ApplicationContract
         parent::flush();
 
         $this->loadedProviders = [];
+    }
+
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedPackagesPath()
+    {
+        return storage_path('app/cache/packages.php');
+    }
+
+    /**
+     * @return string
+     */
+    public function resourcePath()
+    {
+        return storage_path('resources');
     }
 }

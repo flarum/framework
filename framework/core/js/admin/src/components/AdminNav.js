@@ -18,9 +18,9 @@ export default class AdminNav extends Component {
     return (
       <SelectDropdown
         className="AdminNav App-titleControl"
-        buttonClassName="Button"
-        children={this.items().toArray()}
-        />
+        buttonClassName="Button">
+        {this.items().toArray()}
+      </SelectDropdown>
     );
   }
 

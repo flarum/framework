@@ -11,19 +11,20 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Core\Repository\PostRepository;
+use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\ConfigurePostsQuery;
+use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
-class ListPostsController extends AbstractCollectionController
+class ListPostsController extends AbstractListController
 {
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\PostSerializer';
+    public $serializer = PostSerializer::class;
 
     /**
      * {@inheritdoc}
@@ -42,12 +43,12 @@ class ListPostsController extends AbstractCollectionController
     public $sortFields = ['time'];
 
     /**
-     * @var \Flarum\Core\Repository\PostRepository
+     * @var \Flarum\Post\PostRepository
      */
     protected $posts;
 
     /**
-     * @param \Flarum\Core\Repository\PostRepository $posts
+     * @param \Flarum\Post\PostRepository $posts
      */
     public function __construct(PostRepository $posts)
     {
@@ -122,7 +123,7 @@ class ListPostsController extends AbstractCollectionController
             $query->orderBy($field, $order);
         }
 
-        return $query->lists('id')->all();
+        return $query->pluck('id')->all();
     }
 
     /**
