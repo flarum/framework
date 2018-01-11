@@ -11,7 +11,9 @@
 
 namespace Flarum\Approval\Listener;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureModelDefaultAttributes;
+use Flarum\Event\GetModelIsPrivate;
 use Flarum\Flags\Flag;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
@@ -26,6 +28,7 @@ class UnapproveNewContent
     {
         $events->listen(ConfigureModelDefaultAttributes::class, [$this, 'approveByDefault']);
         $events->listen(Saving::class, [$this, 'unapproveNewPosts']);
+        $events->listen(GetModelIsPrivate::class, [$this, 'markUnapprovedContentAsPrivate']);
     }
 
     /**
@@ -72,6 +75,19 @@ class UnapproveNewContent
 
                 $flag->save();
             });
+        }
+    }
+
+    /**
+     * @param GetModelIsPrivate $event
+     * @return bool|null
+     */
+    public function markUnapprovedContentAsPrivate(GetModelIsPrivate $event)
+    {
+        if ($event->model instanceof Post || $event->model instanceof Discussion) {
+            if (! $event->model->is_approved) {
+                return true;
+            }
         }
     }
 }

@@ -17,8 +17,9 @@ return function (Dispatcher $events) {
     $events->subscribe(Listener\AddClientAssets::class);
     $events->subscribe(Listener\AddPostApprovalAttributes::class);
     $events->subscribe(Listener\ApproveContent::class);
-    $events->subscribe(Listener\HideUnapprovedContent::class);
     $events->subscribe(Listener\UnapproveNewContent::class);
 
     $events->subscribe(Access\TagPolicy::class);
+    $events->subscribe(Access\DiscussionPolicy::class);
+    $events->subscribe(Access\PostPolicy::class);
 };
