@@ -16,7 +16,6 @@ use Flarum\Event\ConfigureDiscussionGambits;
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Subscriptions\Gambit\SubscriptionGambit;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Query\Expression;
 
 class FilterDiscussionListBySubscription
 {
@@ -49,7 +48,7 @@ class FilterDiscussionListBySubscription
             $event->search->getQuery()->whereNotExists(function ($query) use ($actor) {
                 $query->selectRaw(1)
                       ->from('users_discussions')
-                      ->where('discussions.id', new Expression('discussion_id'))
+                      ->whereRaw('discussions.id = discussion_id')
                       ->where('user_id', $actor->id)
                       ->where('subscription', 'ignore');
             });
