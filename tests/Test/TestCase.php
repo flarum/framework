@@ -16,9 +16,13 @@ use PHPUnit\Framework\TestCase as Test;
 
 abstract class TestCase extends Test
 {
+    use Concerns\CreatesForum;
+
     public function setUp()
     {
         Mockery::close();
+
+        $this->refreshApplication();
 
         $this->init();
     }
