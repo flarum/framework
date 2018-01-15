@@ -40,10 +40,10 @@ trait CreatesForum
     {
         $this->createsHttpForum();
 
-
         $data = new DefaultsDataProvider();
 
         $database = $data->getDatabaseConfiguration();
+
         $database['username'] = 'travis';
         $database['password'] = '';
 
