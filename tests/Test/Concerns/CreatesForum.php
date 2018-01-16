@@ -57,10 +57,12 @@ trait CreatesForum
 
         $this->app = $this->http->app;
 
-        $this->installsForum($data);
+        $this->installForum($data);
+
+        $this->app->boot();
     }
 
-    protected function installsForum(DataProviderInterface $data)
+    protected function installForum(DataProviderInterface $data)
     {
         $this->app->register(InstallServiceProvider::class);
         /** @var InstallCommand $command */
