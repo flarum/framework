@@ -2,6 +2,7 @@
 
 namespace Flarum\Tests\Test\Concerns;
 
+use Flarum\Api\ApiServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Site;
 use Flarum\Http\Server;
@@ -59,7 +60,7 @@ trait CreatesForum
 
         $this->installForum($data);
 
-        $this->app->boot();
+        $this->app->register(ApiServiceProvider::class);
     }
 
     protected function installForum(DataProviderInterface $data)
