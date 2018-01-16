@@ -9,11 +9,19 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Extend;
 use Flarum\Pusher\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\AddPusherApi::class);
-    $events->subscribe(Listener\PushNewPosts::class);
-};
+return [
+    (new Extend\Assets('forum'))
+        ->defaultAssets(__DIR__)
+        ->bootstrapper('flarum/pusher/main'),
+    (new Extend\Assets('admin'))
+        ->asset(__DIR__.'/js/admin/dist/extension.js')
+        ->bootstrapper('flarum/pusher/main'),
+    function (Dispatcher $events) {
+        $events->subscribe(Listener\AddPusherApi::class);
+        $events->subscribe(Listener\PushNewPosts::class);
+    },
+];
