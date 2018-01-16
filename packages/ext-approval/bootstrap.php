@@ -11,14 +11,22 @@
 
 use Flarum\Approval\Access;
 use Flarum\Approval\Listener;
+use Flarum\Extend;
 use Illuminate\Contracts\Events\Dispatcher;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\AddPostApprovalAttributes::class);
-    $events->subscribe(Listener\ApproveContent::class);
-    $events->subscribe(Listener\HideUnapprovedContent::class);
-    $events->subscribe(Listener\UnapproveNewContent::class);
+return [
+    (new Extend\Assets('forum'))
+        ->defaultAssets(__DIR__)
+        ->bootstrapper('flarum/approval/main'),
+    (new Extend\Assets('admin'))
+        ->asset(__DIR__.'/js/admin/dist/extension.js')
+        ->bootstrapper('flarum/approval/main'),
+    function (Dispatcher $events) {
+        $events->subscribe(Listener\AddPostApprovalAttributes::class);
+        $events->subscribe(Listener\ApproveContent::class);
+        $events->subscribe(Listener\HideUnapprovedContent::class);
+        $events->subscribe(Listener\UnapproveNewContent::class);
 
-    $events->subscribe(Access\TagPolicy::class);
-};
+        $events->subscribe(Access\TagPolicy::class);
+    },
+];
