@@ -10,6 +10,7 @@ trait MakesApiRequests
 {
     public function call(string $controller, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
     {
+        $this->app->make('flarum.api.middleware');
         /** @var Client $api */
         $api = $this->app->make(Client::class);
 
