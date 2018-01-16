@@ -9,18 +9,23 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Extend;
 use Flarum\Mentions\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 
-return function (Dispatcher $events, Factory $views) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\AddPostMentionedByRelationship::class);
-    $events->subscribe(Listener\FormatPostMentions::class);
-    $events->subscribe(Listener\FormatUserMentions::class);
-    $events->subscribe(Listener\UpdatePostMentionsMetadata::class);
-    $events->subscribe(Listener\UpdateUserMentionsMetadata::class);
-    $events->subscribe(Listener\AddFilterByMentions::class);
+return [
+    (new Extend\Assets('forum'))
+        ->defaultAssets(__DIR__)
+        ->bootstrapper('flarum/mentions/main'),
+    function (Dispatcher $events, Factory $views) {
+        $events->subscribe(Listener\AddPostMentionedByRelationship::class);
+        $events->subscribe(Listener\FormatPostMentions::class);
+        $events->subscribe(Listener\FormatUserMentions::class);
+        $events->subscribe(Listener\UpdatePostMentionsMetadata::class);
+        $events->subscribe(Listener\UpdateUserMentionsMetadata::class);
+        $events->subscribe(Listener\AddFilterByMentions::class);
 
-    $views->addNamespace('flarum-mentions', __DIR__.'/views');
-};
+        $views->addNamespace('flarum-mentions', __DIR__.'/views');
+    },
+];
