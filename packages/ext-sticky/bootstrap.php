@@ -9,13 +9,21 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Extend;
 use Flarum\Sticky\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\AddApiAttributes::class);
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\CreatePostWhenDiscussionIsStickied::class);
-    $events->subscribe(Listener\PinStickiedDiscussionsToTop::class);
-    $events->subscribe(Listener\SaveStickyToDatabase::class);
-};
+return [
+    (new Extend\Assets('forum'))
+        ->defaultAssets(__DIR__)
+        ->bootstrapper('flarum/sticky/main'),
+    (new Extend\Assets('admin'))
+        ->asset(__DIR__.'/js/admin/dist/extension.js')
+        ->bootstrapper('flarum/sticky/main'),
+    function (Dispatcher $events) {
+        $events->subscribe(Listener\AddApiAttributes::class);
+        $events->subscribe(Listener\CreatePostWhenDiscussionIsStickied::class);
+        $events->subscribe(Listener\PinStickiedDiscussionsToTop::class);
+        $events->subscribe(Listener\SaveStickyToDatabase::class);
+    },
+];
