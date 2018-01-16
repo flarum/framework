@@ -12,7 +12,14 @@
 use Flarum\Akismet\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\FilterNewPosts::class);
-};
+return [
+    (new \Flarum\Extend\Assets('forum'))
+        ->asset(__DIR__.'/js/forum/dist/extension.js')
+        ->bootstrapper('flarum/akismet/main'),
+    (new \Flarum\Extend\Assets('admin'))
+        ->asset(__DIR__.'/js/admin/dist/extension.js')
+        ->bootstrapper('flarum/akismet/main'),
+    function (Dispatcher $events) {
+        $events->subscribe(Listener\FilterNewPosts::class);
+    }
+];
