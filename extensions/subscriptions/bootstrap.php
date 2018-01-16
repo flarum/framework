@@ -9,17 +9,22 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Extend;
 use Flarum\Subscriptions\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 
-return function (Dispatcher $events, Factory $views) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\AddDiscussionSubscriptionAttribute::class);
-    $events->subscribe(Listener\FilterDiscussionListBySubscription::class);
-    $events->subscribe(Listener\SaveSubscriptionToDatabase::class);
-    $events->subscribe(Listener\SendNotificationWhenReplyIsPosted::class);
-    $events->subscribe(Listener\FollowAfterReply::class);
+return [
+    (new Extend\Assets('forum'))
+        ->defaultAssets(__DIR__)
+        ->bootstrapper('flarum/subscriptions/main'),
+    function (Dispatcher $events, Factory $views) {
+        $events->subscribe(Listener\AddDiscussionSubscriptionAttribute::class);
+        $events->subscribe(Listener\FilterDiscussionListBySubscription::class);
+        $events->subscribe(Listener\SaveSubscriptionToDatabase::class);
+        $events->subscribe(Listener\SendNotificationWhenReplyIsPosted::class);
+        $events->subscribe(Listener\FollowAfterReply::class);
 
-    $views->addNamespace('flarum-subscriptions', __DIR__.'/views');
-};
+        $views->addNamespace('flarum-subscriptions', __DIR__.'/views');
+    }
+];
