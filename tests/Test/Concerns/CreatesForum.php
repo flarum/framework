@@ -51,6 +51,8 @@ trait CreatesForum
 
         $data = new DefaultsDataProvider();
 
+        $data->setDebug();
+
         $database = $data->getDatabaseConfiguration();
 
         $database['database'] = env('DB_DATABASE', 'flarum');

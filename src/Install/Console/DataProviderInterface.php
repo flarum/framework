@@ -13,6 +13,8 @@ namespace Flarum\Install\Console;
 
 interface DataProviderInterface
 {
+    public function getDebug(): bool;
+
     public function getDatabaseConfiguration();
 
     public function getBaseUrl();

@@ -21,20 +21,11 @@ abstract class AbstractTestController extends TestCase
 
     protected function callWith(array $body = []): ResponseInterface
     {
-        $response = $this->call(
+        return $this->call(
             $this->controller,
             $this->actor,
             [],
             $body ? ['data' => ['attributes' => $body]] : []
         );
-
-        if ($response->getStatusCode() >= 500) {
-            echo "\n\n-- api response error --\n";
-            echo $response->getBody()->getContents();
-            echo file_get_contents($this->app->storagePath() . '/logs/flarum.log');
-            echo "\n-- --\n\n";
-        }
-
-        return $response;
     }
 }
