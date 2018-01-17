@@ -18,6 +18,7 @@ use Symfony\Component\Yaml\Yaml;
 class FileDataProvider implements DataProviderInterface
 {
     protected $default;
+    protected $debug = false;
     protected $baseUrl = null;
     protected $databaseConfiguration = [];
     protected $adminUser = [];
@@ -44,6 +45,7 @@ class FileDataProvider implements DataProviderInterface
             }
 
             // Define configuration variables
+            $this->debug = isset($configuration['debug']) ? (bool) $configuration['debug'] : false;
             $this->baseUrl = isset($configuration['baseUrl']) ? rtrim($configuration['baseUrl'], '/') : null;
             $this->databaseConfiguration = isset($configuration['databaseConfiguration']) ? $configuration['databaseConfiguration'] : [];
             $this->adminUser = isset($configuration['adminUser']) ? $configuration['adminUser'] : [];
@@ -71,5 +73,10 @@ class FileDataProvider implements DataProviderInterface
     public function getSettings()
     {
         return $this->settings + $this->default->getSettings();
+    }
+
+    public function getDebug(): bool
+    {
+        return $this->debug;
     }
 }

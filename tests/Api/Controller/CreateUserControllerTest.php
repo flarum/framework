@@ -10,12 +10,12 @@ class CreateUserControllerTest extends AbstractTestController
 
     /**
      * @test
+     * @expectedException \Illuminate\Validation\ValidationException
+     * @expectedExceptionMessage The given data was invalid.
      */
     public function cannot_create_user_without_data()
     {
-        $response = $this->callWith();
-
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->callWith();
     }
 
     /**

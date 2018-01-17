@@ -109,4 +109,9 @@ class UserDataProvider implements DataProviderInterface
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
+
+    public function getDebug(): bool
+    {
+        return false;
+    }
 }
