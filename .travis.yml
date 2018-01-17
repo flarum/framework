@@ -1,5 +1,8 @@
 language: php
 
+env:
+  - DB_USERNAME=travis
+
 php:
   - 7.0
   - 7.1
