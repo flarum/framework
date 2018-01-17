@@ -1,7 +1,8 @@
 /vendor
+composer.lock
 composer.phar
 .DS_Store
 Thumbs.db
-tests/_output/*
+tests/tmp
 .vagrant
 .idea/*

@@ -2,16 +2,11 @@
 
 namespace Flarum\Tests\Test\Concerns;
 
-use Flarum\Api\ApiServiceProvider;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Site;
 use Flarum\Http\Server;
 use Flarum\Install\Console\DataProviderInterface;
 use Flarum\Install\Console\DefaultsDataProvider;
-use Flarum\Install\Console\InstallCommand;
-use Flarum\Install\InstallServiceProvider;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\StreamOutput;
 
 trait CreatesForum
 {
@@ -30,50 +25,41 @@ trait CreatesForum
      */
     protected $app;
 
+    /**
+     * @var DataProviderInterface
+     */
+    protected $configuration;
+
+    protected function createsSite()
+    {
+        $this->site = (new Site)
+            ->setBasePath(__DIR__ . '/../../tmp')
+            ->setPublicPath(__DIR__ . '/../../tmp/public');
+    }
+
     protected function createsHttpForum()
     {
         $this->http = Server::fromSite(
-            $this->site = new Site
+            $this->site
         );
+        $this->app = $this->http->app;
     }
 
     protected function refreshApplication()
     {
-        $this->createsHttpForum();
+        $this->createsSite();
 
         $data = new DefaultsDataProvider();
 
         $database = $data->getDatabaseConfiguration();
 
-        $database['username'] = 'travis';
-        $database['password'] = '';
+        $database['database'] = env('DB_DATABASE', 'flarum');
+        $database['username'] = env('DB_USERNAME', 'root');
+        $database['password'] = env('DB_PASSWORD', '');
 
         $data->setDatabaseConfiguration($database);
+        $this->configuration = $data;
 
-        $this->site->setConfig([
-            'url' => $data->getBaseUrl(),
-            'debug' => true,
-            'database' => $data->getDatabaseConfiguration()
-        ]);
-
-        $this->app = $this->http->app;
-
-        $this->installForum($data);
-
-        $this->app->register(ApiServiceProvider::class);
-    }
-
-    protected function installForum(DataProviderInterface $data)
-    {
-        $this->app->register(InstallServiceProvider::class);
-        /** @var InstallCommand $command */
-        $command = $this->app->make(InstallCommand::class);
-        $command->setDataSource($data);
-
-        $body = fopen('php://temp', 'wb+');
-        $input = new StringInput('');
-        $output = new StreamOutput($body);
-
-        $command->run($input, $output);
+        $this->createsHttpForum();
     }
 }
