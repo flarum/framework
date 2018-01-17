@@ -28,29 +28,29 @@ abstract class AbstractPolicy
     public function subscribe(Dispatcher $events)
     {
         $events->listen(GetPermission::class, [$this, 'getPermission']);
-        $events->listen(GetPermission::class, [$this, 'getPermissionAfter'], -100);
         $events->listen(ScopeModelVisibility::class, [$this, 'scopeModelVisibility']);
     }
 
     /**
      * @param GetPermission $event
-     * @return bool|null
+     * @return bool|void
      */
     public function getPermission(GetPermission $event)
     {
-        if ($event->model instanceof $this->model && method_exists($this, $event->ability)) {
-            return call_user_func_array([$this, $event->ability], [$event->actor, $event->model]);
+        if (! $event->model instanceof $this->model) {
+            return;
         }
-    }
 
-    /**
-     * @param GetPermission $event
-     * @return bool|null
-     */
-    public function getPermissionAfter(GetPermission $event)
-    {
-        if ($event->model instanceof $this->model && method_exists($this, 'after')) {
-            return call_user_func_array([$this, 'after'], [$event->actor, $event->ability, $event->model]);
+        if (method_exists($this, $event->ability)) {
+            $result = call_user_func_array([$this, $event->ability], [$event->actor, $event->model]);
+
+            if (! is_null($result)) {
+                return $result;
+            }
+        }
+
+        if (method_exists($this, 'can')) {
+            return call_user_func_array([$this, 'can'], [$event->actor, $event->ability, $event->model]);
         }
     }
 

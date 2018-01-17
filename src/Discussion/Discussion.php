@@ -24,7 +24,6 @@ use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
-use Flarum\User\Guest;
 use Flarum\User\User;
 use Flarum\Util\Str;
 
@@ -102,7 +101,7 @@ class Discussion extends AbstractModel
     {
         parent::boot();
 
-        static::deleted(function ($discussion) {
+        static::deleted(function (Discussion $discussion) {
             $discussion->raise(new Deleted($discussion));
 
             // Delete all of the posts in the discussion. Before we delete them
@@ -241,6 +240,7 @@ class Discussion extends AbstractModel
      */
     public function refreshLastPost()
     {
+        /** @var Post $lastPost */
         if ($lastPost = $this->comments()->latest('time')->first()) {
             $this->setLastPost($lastPost);
         }
@@ -347,7 +347,7 @@ class Discussion extends AbstractModel
      */
     public function startPost()
     {
-        return $this->belongsTo('Flarum\Post\Post', 'start_post_id');
+        return $this->belongsTo(Post::class, 'start_post_id');
     }
 
     /**
@@ -357,7 +357,7 @@ class Discussion extends AbstractModel
      */
     public function startUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'start_user_id');
+        return $this->belongsTo(User::class, 'start_user_id');
     }
 
     /**
@@ -367,7 +367,7 @@ class Discussion extends AbstractModel
      */
     public function lastPost()
     {
-        return $this->belongsTo('Flarum\Post\Post', 'last_post_id');
+        return $this->belongsTo(Post::class, 'last_post_id');
     }
 
     /**
@@ -377,17 +377,17 @@ class Discussion extends AbstractModel
      */
     public function lastUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'last_user_id');
+        return $this->belongsTo(User::class, 'last_user_id');
     }
 
     /**
      * Define the relationship with the discussion's readers.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function readers()
     {
-        return $this->belongsToMany('Flarum\User\User', 'users_discussions');
+        return $this->belongsToMany(User::class, 'users_discussions');
     }
 
     /**
@@ -406,7 +406,7 @@ class Discussion extends AbstractModel
     {
         $user = $user ?: static::$stateUser;
 
-        return $this->hasOne('Flarum\Discussion\UserState')->where('user_id', $user ? $user->id : null);
+        return $this->hasOne(UserState::class)->where('user_id', $user ? $user->id : null);
     }
 
     /**
