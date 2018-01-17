@@ -28,4 +28,10 @@ abstract class AbstractTestController extends TestCase
             $body ? ['data' => ['attributes' => $body]] : []
         );
     }
+
+    protected function tearDown()
+    {
+        $this->actor = null;
+        parent::tearDown();
+    }
 }
