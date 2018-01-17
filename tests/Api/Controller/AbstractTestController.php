@@ -31,6 +31,7 @@ abstract class AbstractTestController extends TestCase
         if ($response->getStatusCode() >= 500) {
             echo "\n\n-- api response error --\n";
             echo $response->getBody()->getContents();
+            echo file_get_contents($this->app->storagePath() . 'logs/flarum.log');
             echo "\n-- --\n\n";
         }
 
