@@ -12,7 +12,6 @@
 namespace Flarum\Mentions\Listener;
 
 use Flarum\Formatter\Event\Configuring;
-use Flarum\Formatter\Event\Parsing;
 use Flarum\Formatter\Event\Rendering;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
