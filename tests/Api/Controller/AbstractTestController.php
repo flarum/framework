@@ -5,6 +5,7 @@ namespace Flarum\Tests\Api\Controller;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Tests\Test\TestCase;
 use Flarum\User\User;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractTestController extends TestCase
 {
@@ -18,13 +19,21 @@ abstract class AbstractTestController extends TestCase
      */
     protected $actor = null;
 
-    protected function callWith(array $body = [])
+    protected function callWith(array $body = []): ResponseInterface
     {
-        return $this->call(
+        $response = $this->call(
             $this->controller,
             $this->actor,
             [],
             $body ? ['data' => ['attributes' => $body]] : []
         );
+
+        if ($response->getStatusCode() >= 500) {
+            echo "\n\n-- api response error --\n";
+            echo $response->getBody()->getContents();
+            echo "\n-- --\n\n";
+        }
+
+        return $response;
     }
 }
