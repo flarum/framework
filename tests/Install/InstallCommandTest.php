@@ -15,16 +15,18 @@ class InstallCommandTest extends TestCase
      */
     public function allows_forum_installation()
     {
-        $this->app->register(InstallServiceProvider::class);
-        /** @var InstallCommand $command */
-        $command = $this->app->make(InstallCommand::class);
-        $command->setDataSource($this->configuration);
+        if (!file_exists($this->app->basePath() . DIRECTORY_SEPARATOR . 'config.php')) {
+            $this->app->register(InstallServiceProvider::class);
+            /** @var InstallCommand $command */
+            $command = $this->app->make(InstallCommand::class);
+            $command->setDataSource($this->configuration);
 
-        $body = fopen('php://temp', 'wb+');
-        $input = new StringInput('');
-        $output = new StreamOutput($body);
+            $body = fopen('php://temp', 'wb+');
+            $input = new StringInput('');
+            $output = new StreamOutput($body);
 
-        $command->run($input, $output);
+            $command->run($input, $output);
+        }
 
         $this->assertFileExists($this->app->basePath() . DIRECTORY_SEPARATOR . 'config.php');
     }
