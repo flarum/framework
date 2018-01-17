@@ -5,6 +5,7 @@ namespace Flarum\Tests\Install;
 use Flarum\Install\Console\InstallCommand;
 use Flarum\Install\InstallServiceProvider;
 use Flarum\Tests\Test\TestCase;
+use Flarum\User\User;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -29,5 +30,9 @@ class InstallCommandTest extends TestCase
         }
 
         $this->assertFileExists($this->app->basePath() . DIRECTORY_SEPARATOR . 'config.php');
+
+        $admin = $this->configuration->getAdminUser();
+
+        $this->assertEquals(User::find(1)->username, $admin['username']);
     }
 }
