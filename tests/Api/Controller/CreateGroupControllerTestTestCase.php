@@ -7,7 +7,7 @@ use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\Group\Group;
 use Illuminate\Support\Str;
 
-class CreateGroupControllerTest extends AbstractTestController
+class CreateGroupControllerTestTestCase extends ApiControllerTestCase
 {
     use RetrievesAuthorizedUsers;
 

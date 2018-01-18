@@ -7,7 +7,7 @@ use Flarum\Tests\Test\TestCase;
 use Flarum\User\User;
 use Psr\Http\Message\ResponseInterface;
 
-abstract class AbstractTestController extends TestCase
+abstract class ApiControllerTestCase extends TestCase
 {
     /**
      * @var ControllerInterface
