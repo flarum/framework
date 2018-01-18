@@ -4,11 +4,14 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\CreateUserController;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreateUserControllerTest extends AbstractTestController
 {
+    use RetrievesAuthorizedUsers;
+
     protected $controller = CreateUserController::class;
 
     protected $data = [
@@ -51,7 +54,7 @@ class CreateUserControllerTest extends AbstractTestController
      */
     public function admins_can_create_activated_users()
     {
-        $this->actor = User::find(1);
+        $this->actor = $this->getAdminUser();
 
         $response = $this->callWith(array_merge($this->data, [
             'isActivated' => 1
