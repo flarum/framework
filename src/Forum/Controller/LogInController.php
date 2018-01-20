@@ -20,8 +20,6 @@ use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\UserRepository;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
 
 class LogInController implements ControllerInterface
 {
@@ -60,8 +58,7 @@ class LogInController implements ControllerInterface
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse|EmptyResponse
+     * {@inheritdoc}
      */
     public function handle(Request $request)
     {
