@@ -17,7 +17,6 @@ use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\JsonResponse;
 
 class RegisterController implements ControllerInterface
 {
@@ -49,8 +48,7 @@ class RegisterController implements ControllerInterface
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
+     * {@inheritdoc}
      */
     public function handle(Request $request)
     {
