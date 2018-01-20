@@ -10,6 +10,7 @@
 
 namespace Flarum\Approval\Access;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Post\Post;
 use Flarum\User\AbstractPolicy;
@@ -50,7 +51,7 @@ class PostPolicy extends AbstractPolicy
 
         if (! $actor->hasPermission('discussion.approvePosts')) {
             $query->where(function (Builder $query) use ($actor) {
-                $query->where('start_user_id', $actor->id)
+                $query->where('user_id', $actor->id)
                     ->orWhereExists($this->discussionWhereCanApprovePosts($actor));
             });
         }
@@ -70,7 +71,7 @@ class PostPolicy extends AbstractPolicy
     {
         return function ($query) use ($actor) {
             $this->events->dispatch(
-                new ScopeModelVisibility($query, $actor, 'approvePosts')
+                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'approvePosts')
             );
         };
     }
