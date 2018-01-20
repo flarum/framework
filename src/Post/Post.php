@@ -192,7 +192,7 @@ class Post extends AbstractModel
      */
     public function scopeAllTypes(Builder $query)
     {
-        return $this->removeGlobalScopes($query);
+        return $query->withoutGlobalScopes();
     }
 
     /**
