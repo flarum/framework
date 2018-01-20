@@ -321,7 +321,10 @@ class Discussion extends AbstractModel
      */
     public function comments()
     {
-        return $this->posts()->where('is_private', false)->where('type', 'comment');
+        return $this->posts()
+            ->where('is_private', false)
+            ->whereNull('hide_time')
+            ->where('type', 'comment');
     }
 
     /**
