@@ -24,7 +24,6 @@ return [
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPostApprovalAttributes::class);
         $events->subscribe(Listener\ApproveContent::class);
-        $events->subscribe(Listener\HideUnapprovedContent::class);
         $events->subscribe(Listener\UnapproveNewContent::class);
 
         $events->subscribe(Access\TagPolicy::class);
