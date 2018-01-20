@@ -76,7 +76,7 @@ class DiscussionPolicy extends AbstractPolicy
     {
         return function ($query) use ($actor) {
             $this->events->dispatch(
-                new ScopeModelVisibility($query, $actor, 'approvePosts')
+                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'approvePosts')
             );
         };
     }
