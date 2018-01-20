@@ -36,7 +36,7 @@ class UnapproveNewContent
      */
     public function approveByDefault(ConfigureModelDefaultAttributes $event)
     {
-        if ($event->isModel(Post::class)) {
+        if ($event->isModel(Post::class) || $event->isModel(Discussion::class)) {
             $event->attributes['is_approved'] = true;
         }
     }
