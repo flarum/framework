@@ -10,16 +10,17 @@
  */
 
 use Flarum\Akismet\Listener;
+use Flarum\Extend;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
-    (new \Flarum\Extend\Assets('forum'))
+    (new Extend\Assets('forum'))
         ->asset(__DIR__.'/js/forum/dist/extension.js')
         ->bootstrapper('flarum/akismet/main'),
-    (new \Flarum\Extend\Assets('admin'))
+    (new Extend\Assets('admin'))
         ->asset(__DIR__.'/js/admin/dist/extension.js')
         ->bootstrapper('flarum/akismet/main'),
     function (Dispatcher $events) {
         $events->subscribe(Listener\FilterNewPosts::class);
-    }
+    },
 ];
