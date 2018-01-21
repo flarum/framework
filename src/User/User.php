@@ -134,7 +134,7 @@ class User extends AbstractModel
             // PostWasDeleted event for each post.
             $posts = $user->posts()->allTypes();
 
-            foreach ($posts->get() as $post) {
+            foreach ($posts->cursor() as $post) {
                 $user->raise(new PostDeleted($post));
             }
 
