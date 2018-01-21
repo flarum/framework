@@ -14,7 +14,8 @@ use s9e\TextFormatter\Configurator;
 
 return [
     (new Extend\Assets('forum'))
-        ->defaultAssets(__DIR__)
+        ->asset(__DIR__.'/js/forum/dist/extension.js')
+        ->asset(__DIR__.'/less/forum/extension.less')
         ->bootstrapper('flarum/emoji/main'),
     new Extend\FormatterConfiguration(function (Configurator $config) {
         $config->Emoji->useEmojiOne();
