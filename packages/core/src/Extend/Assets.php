@@ -27,14 +27,6 @@ class Assets implements Extender
         $this->appName = $appName;
     }
 
-    public function defaultAssets($baseDir)
-    {
-        $this->asset("$baseDir/js/{$this->appName}/dist/extension.js");
-        $this->asset("$baseDir/less/{$this->appName}/extension.less");
-
-        return $this;
-    }
-
     public function asset($path)
     {
         $this->assets[] = $path;
