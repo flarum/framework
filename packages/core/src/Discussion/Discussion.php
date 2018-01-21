@@ -108,7 +108,7 @@ class Discussion extends AbstractModel
             // PostWasDeleted event for each post.
             $posts = $discussion->posts()->allTypes();
 
-            foreach ($posts->get() as $post) {
+            foreach ($posts->cursor() as $post) {
                 $discussion->raise(new PostDeleted($post));
             }
 
