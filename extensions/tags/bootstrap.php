@@ -16,10 +16,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Assets('forum'))
-        ->defaultAssets(__DIR__)
+        ->asset(__DIR__.'/js/forum/dist/extension.js')
+        ->asset(__DIR__.'/less/forum/extension.less')
         ->bootstrapper('flarum/tags/main'),
     (new Extend\Assets('admin'))
-        ->defaultAssets(__DIR__)
+        ->asset(__DIR__.'/js/admin/dist/extension.js')
+        ->asset(__DIR__.'/less/admin/extension.less')
         ->bootstrapper('flarum/tags/main'),
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddClientAssets::class);
