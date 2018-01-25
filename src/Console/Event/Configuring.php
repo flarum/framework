@@ -15,9 +15,9 @@ use Flarum\Foundation\Application;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 /**
- * Configure the console application
+ * Configure the console application.
  *
- * This event is fired after the core commands are added to the application
+ * This event is fired after the core commands are added to the application.
  */
 class Configuring
 {
