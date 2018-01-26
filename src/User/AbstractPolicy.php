@@ -59,8 +59,16 @@ abstract class AbstractPolicy
      */
     public function scopeModelVisibility(ScopeModelVisibility $event)
     {
-        if ($event->model instanceof $this->model && method_exists($this, 'find')) {
-            call_user_func_array([$this, 'find'], [$event->actor, $event->query]);
+        if ($event->query->getModel() instanceof $this->model) {
+            if (substr($event->ability, 0, 4) === 'view') {
+                $method = 'find'.substr($event->ability, 4);
+
+                if (method_exists($this, $method)) {
+                    call_user_func_array([$this, $method], [$event->actor, $event->query]);
+                }
+            } elseif (method_exists($this, 'findWithPermission')) {
+                call_user_func_array([$this, 'findWithPermission'], [$event->actor, $event->query, $event->ability]);
+            }
         }
     }
 }

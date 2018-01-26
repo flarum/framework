@@ -118,7 +118,7 @@ class ShowDiscussionController extends AbstractShowController
      */
     private function loadPostIds(Discussion $discussion, User $actor)
     {
-        return $discussion->postsVisibleTo($actor)->orderBy('time')->pluck('id')->all();
+        return $discussion->posts()->whereVisibleTo($actor)->orderBy('time')->pluck('id')->all();
     }
 
     /**
@@ -170,7 +170,7 @@ class ShowDiscussionController extends AbstractShowController
      */
     private function loadPosts($discussion, $actor, $offset, $limit, array $include)
     {
-        $query = $discussion->postsVisibleTo($actor);
+        $query = $discussion->posts()->whereVisibleTo($actor);
 
         $query->orderBy('time')->skip($offset)->take($limit)->with($include);
 
