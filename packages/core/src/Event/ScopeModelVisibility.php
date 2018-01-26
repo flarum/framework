@@ -13,7 +13,6 @@ namespace Flarum\Event;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * The `ScopeModelVisibility` event allows constraints to be applied in a query
@@ -21,11 +20,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ScopeModelVisibility
 {
-    /**
-     * @var Model
-     */
-    public $model;
-
     /**
      * @var Builder
      */
@@ -37,14 +31,19 @@ class ScopeModelVisibility
     public $actor;
 
     /**
-     * @param Model $model
+     * @var string
+     */
+    public $ability;
+
+    /**
      * @param Builder $query
      * @param User $actor
+     * @param string $ability
      */
-    public function __construct(Model $model, Builder $query, User $actor)
+    public function __construct(Builder $query, User $actor, $ability)
     {
-        $this->model = $model;
         $this->query = $query;
         $this->actor = $actor;
+        $this->ability = $ability;
     }
 }
