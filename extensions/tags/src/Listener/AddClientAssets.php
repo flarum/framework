@@ -12,7 +12,6 @@
 namespace Flarum\Tags\Listener;
 
 use Flarum\Event\ConfigureForumRoutes;
-use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddClientAssets
@@ -22,30 +21,7 @@ class AddClientAssets
      */
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(Rendering::class, [$this, 'addAssets']);
         $events->listen(ConfigureForumRoutes::class, [$this, 'addRoutes']);
-    }
-
-    /**
-     * @param Rendering $app
-     */
-    public function addAssets(Rendering $app)
-    {
-        if ($app->isForum()) {
-            $app->addAssets([
-                __DIR__.'/../../js/forum/dist/extension.js',
-                __DIR__.'/../../less/forum/extension.less'
-            ]);
-            $app->addBootstrapper('flarum/tags/main');
-        }
-
-        if ($app->isAdmin()) {
-            $app->addAssets([
-                __DIR__.'/../../js/admin/dist/extension.js',
-                __DIR__.'/../../less/admin/extension.less'
-            ]);
-            $app->addBootstrapper('flarum/tags/main');
-        }
     }
 
     /**
