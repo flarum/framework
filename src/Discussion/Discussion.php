@@ -18,7 +18,6 @@ use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
-use Flarum\Event\ScopePostVisibility;
 use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted as PostDeleted;
