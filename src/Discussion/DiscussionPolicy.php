@@ -74,6 +74,7 @@ class DiscussionPolicy extends AbstractPolicy
     {
         if ($actor->cannot('viewDiscussions')) {
             $query->whereRaw('FALSE');
+
             return;
         }
 
