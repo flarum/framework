@@ -64,7 +64,7 @@ class UpdateDiscussionController extends AbstractShowController
 
         if ($posts = $discussion->getModifiedPosts()) {
             $posts = (new Collection($posts))->load('discussion', 'user');
-            $discussionPosts = $discussion->postsVisibleTo($actor)->orderBy('time')->pluck('id')->all();
+            $discussionPosts = $discussion->posts()->whereVisibleTo($actor)->orderBy('time')->pluck('id')->all();
 
             foreach ($discussionPosts as &$id) {
                 foreach ($posts as $post) {

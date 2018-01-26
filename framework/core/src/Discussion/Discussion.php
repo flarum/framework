@@ -18,7 +18,7 @@ use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
-use Flarum\Event\ScopePostVisibility;
+use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\MergeableInterface;
@@ -117,6 +117,12 @@ class Discussion extends AbstractModel
             // Delete all of the 'state' records for all of the users who have
             // read the discussion.
             $discussion->readers()->detach();
+        });
+
+        static::saving(function (Discussion $discussion) {
+            $event = new GetModelIsPrivate($discussion);
+
+            $discussion->is_private = static::$dispatcher->until($event) === true;
         });
     }
 
@@ -304,25 +310,7 @@ class Discussion extends AbstractModel
      */
     public function posts()
     {
-        return $this->hasMany('Flarum\Post\Post');
-    }
-
-    /**
-     * Define the relationship with the discussion's posts, but only ones which
-     * are visible to the given user.
-     *
-     * @param User $user
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function postsVisibleTo(User $user)
-    {
-        $relation = $this->posts();
-
-        static::$dispatcher->fire(
-            new ScopePostVisibility($this, $relation->getQuery(), $user)
-        );
-
-        return $relation;
+        return $this->hasMany(Post::class);
     }
 
     /**
@@ -332,7 +320,10 @@ class Discussion extends AbstractModel
      */
     public function comments()
     {
-        return $this->postsVisibleTo(new Guest)->where('type', 'comment');
+        return $this->posts()
+            ->where('is_private', false)
+            ->whereNull('hide_time')
+            ->where('type', 'comment');
     }
 
     /**
@@ -345,6 +336,8 @@ class Discussion extends AbstractModel
     {
         return User::join('posts', 'posts.user_id', '=', 'users.id')
             ->where('posts.discussion_id', $this->id)
+            ->where('posts.is_private', false)
+            ->where('posts.type', 'comment')
             ->select('users.*')
             ->distinct();
     }
