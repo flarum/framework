@@ -8,7 +8,7 @@ $url = app('Flarum\Forum\UrlGenerator');
         @foreach ($document->data as $discussion)
             <li>
                 <a href="{{ $url->toRoute('discussion', [
-                    'id' => $discussion->id . '-' . $discussion->attributes->slug
+                    'id' => $discussion->id . (trim($discussion->attributes->slug) ? '-' . $discussion->attributes->slug : '')
                 ]) }}">
                     {{ $discussion->attributes->title }}
                 </a>

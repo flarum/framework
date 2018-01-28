@@ -35,7 +35,7 @@ export default function(app) {
    */
   app.route.discussion = (discussion, near) => {
     return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
-      id: discussion.id() + '-' + discussion.slug(),
+      id: discussion.id() + (discussion.slug().trim() ? '-' + discussion.slug() : ''),
       near: near && near !== 1 ? near : undefined
     });
   };

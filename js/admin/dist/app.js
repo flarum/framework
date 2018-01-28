@@ -3038,7 +3038,7 @@ exports.System = System;
 	}
 
 	if( m.attrs ) m.attrs.bidi = bidi
-	
+
 	m.bidi = bidi
 
 	return bidi
@@ -16616,7 +16616,7 @@ return jQuery;
         left: o.left,
         top: o.top
       })
-        
+
       if (target) {
         target.insertBefore(el, target.firstChild||null)
       }
@@ -23797,7 +23797,7 @@ System.register('flarum/utils/string', [], function (_export, _context) {
   _export('truncate', truncate);
 
   function slug(string) {
-    return string.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-';
+    return string.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '');
   }
 
   /**

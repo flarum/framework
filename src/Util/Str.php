@@ -28,6 +28,6 @@ class Str
         $str = preg_replace('/-+/', '-', $str);
         $str = preg_replace('/-$|^-/', '', $str);
 
-        return $str ?: '-';
+        return $str;
     }
 }
