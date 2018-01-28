@@ -7,7 +7,7 @@
         @foreach ($document->data as $discussion)
             <li>
                 <a href="{{ $url->to('forum')->route('discussion', [
-                    'id' => $discussion->id . '-' . $discussion->attributes->slug
+                    'id' => $discussion->id . (trim($discussion->attributes->slug) ? '-' . $discussion->attributes->slug : '')
                 ]) }}">
                     {{ $discussion->attributes->title }}
                 </a>
