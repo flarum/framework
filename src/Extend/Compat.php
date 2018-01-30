@@ -31,7 +31,7 @@ class Compat implements Extender
         $this->callback = $callback;
     }
 
-    public function apply(Container $container)
+    public function __invoke(Container $container)
     {
         $container->call($this->callback);
     }

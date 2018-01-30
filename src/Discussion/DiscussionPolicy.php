@@ -12,8 +12,7 @@
 namespace Flarum\Discussion;
 
 use Carbon\Carbon;
-use Flarum\Event\ScopeHiddenDiscussionVisibility;
-use Flarum\Event\ScopePrivateDiscussionVisibility;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AbstractPolicy;
 use Flarum\User\Gate;
@@ -60,7 +59,7 @@ class DiscussionPolicy extends AbstractPolicy
      * @param string $ability
      * @return bool|null
      */
-    public function after(User $actor, $ability)
+    public function can(User $actor, $ability)
     {
         if ($actor->hasPermission('discussion.'.$ability)) {
             return true;
@@ -73,26 +72,47 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function find(User $actor, Builder $query)
     {
-        // Hide private discussions per default.
-        $query->where(function ($query) use ($actor) {
-            $query->where('discussions.is_private', false);
-
-            $this->events->fire(
-                new ScopePrivateDiscussionVisibility($query, $actor)
-            );
-        });
-
         if ($actor->cannot('viewDiscussions')) {
             $query->whereRaw('FALSE');
-        } elseif (! $actor->hasPermission('discussion.hide')) {
+
+            return;
+        }
+
+        // Hide private discussions by default.
+        $query->where(function ($query) use ($actor) {
+            $query->where('discussions.is_private', false)
+                ->orWhere(function ($query) use ($actor) {
+                    $this->events->fire(
+                        new ScopeModelVisibility($query, $actor, 'viewPrivate')
+                    );
+                });
+        });
+
+        // Hide hidden discussions, unless they are authored by the current
+        // user, or the current user has permission to view hidden discussions.
+        if (! $actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('discussions.hide_time')
-                    ->where('comments_count', '>', 0)
-                    ->orWhere('start_user_id', $actor->id);
+                    ->orWhere('start_user_id', $actor->id)
+                    ->orWhere(function ($query) use ($actor) {
+                        $this->events->fire(
+                            new ScopeModelVisibility($query, $actor, 'hide')
+                        );
+                    });
+            });
+        }
 
-                $this->events->fire(
-                    new ScopeHiddenDiscussionVisibility($query, $actor, 'discussion.hide')
-                );
+        // Hide discussions with no comments, unless they are authored by the
+        // current user, or the user is allowed to edit the discussion's posts.
+        if (! $actor->hasPermission('discussion.editPosts')) {
+            $query->where(function ($query) use ($actor) {
+                $query->where('comments_count', '>', 0)
+                    ->orWhere('start_user_id', $actor->id)
+                    ->orWhere(function ($query) use ($actor) {
+                        $this->events->fire(
+                            new ScopeModelVisibility($query, $actor, 'editPosts')
+                        );
+                    });
             });
         }
     }

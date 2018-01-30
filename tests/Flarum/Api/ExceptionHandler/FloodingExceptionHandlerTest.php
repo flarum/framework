@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\Handler;
+namespace Tests\Flarum\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\FloodingExceptionHandler;

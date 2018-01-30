@@ -284,18 +284,18 @@ class ExtensionManager
             ->flatMap(function (Extension $extension) {
                 $bootstrapper = $extension->getBootstrapperPath();
                 if ($this->filesystem->exists($bootstrapper)) {
-                    $extenders = require $bootstrapper;
-
-                    if (is_array($extenders)) {
-                        return $extenders;
-                    }
-
-                    // Assume that the extension has not yet switched to the new
-                    // bootstrap.php format, and wrap the callback in a Compat
-                    // extender.
-                    return [new Compat($extenders)];
+                    return (array) require $bootstrapper;
                 } else {
                     return [];
+                }
+            })->map(function ($extender) {
+                // If an extension has not yet switched to the new bootstrap.php
+                // format, it might return a function (or more of them). We wrap
+                // these in a Compat extender to enjoy an unique interface.
+                if ($extender instanceof \Closure) {
+                    return new Compat($extender);
+                } else {
+                    return $extender;
                 }
             });
     }

@@ -12,20 +12,34 @@
 namespace Flarum\Post;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Event\ScopePostVisibility;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostRepository
 {
     /**
      * Get a new query builder for the posts table.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function query()
     {
         return Post::query();
+    }
+
+    /**
+     * @param User|null $user
+     * @return Builder
+     */
+    protected function queryVisibleTo(User $user = null)
+    {
+        $query = $this->query();
+
+        if ($user !== null) {
+            $query->whereVisibleTo($user);
+        }
+
+        return $query;
     }
 
     /**
@@ -40,13 +54,7 @@ class PostRepository
      */
     public function findOrFail($id, User $actor = null)
     {
-        $posts = $this->findByIds([$id], $actor);
-
-        if (! count($posts)) {
-            throw new ModelNotFoundException;
-        }
-
-        return $posts->first();
+        return $this->queryVisibleTo($actor)->findOrFail($id);
     }
 
     /**
@@ -62,7 +70,8 @@ class PostRepository
      */
     public function findWhere(array $where = [], User $actor = null, $sort = [], $count = null, $start = 0)
     {
-        $query = Post::where($where)
+        $query = $this->queryVisibleTo($actor)
+            ->where($where)
             ->skip($start)
             ->take($count);
 
@@ -70,9 +79,7 @@ class PostRepository
             $query->orderBy($field, $order);
         }
 
-        $ids = $query->pluck('id')->all();
-
-        return $this->findByIds($ids, $actor);
+        return $query->get();
     }
 
     /**
@@ -111,7 +118,7 @@ class PostRepository
      */
     public function filterVisibleIds(array $ids, User $actor)
     {
-        return $this->queryIds($ids, $actor)->pluck('id')->all();
+        return $this->queryIds($ids, $actor)->pluck('posts.id')->all();
     }
 
     /**
@@ -127,7 +134,8 @@ class PostRepository
     public function getIndexForNumber($discussionId, $number, User $actor = null)
     {
         $query = Discussion::find($discussionId)
-            ->postsVisibleTo($actor)
+            ->posts()
+            ->whereVisibleTo($actor)
             ->where('time', '<', function ($query) use ($discussionId, $number) {
                 $query->select('time')
                       ->from('posts')
@@ -146,45 +154,10 @@ class PostRepository
     /**
      * @param array $ids
      * @param User|null $actor
-     * @return mixed
+     * @return Builder
      */
     protected function queryIds(array $ids, User $actor = null)
     {
-        $discussions = $this->getDiscussionsForPosts($ids, $actor);
-
-        $posts = Post::whereIn('id', $ids)
-            ->where(function ($query) use ($discussions, $actor) {
-                foreach ($discussions as $discussion) {
-                    $query->orWhere(function ($query) use ($discussion, $actor) {
-                        $query->where('discussion_id', $discussion->id);
-
-                        event(new ScopePostVisibility($discussion, $query, $actor));
-                    });
-                }
-
-                $query->orWhereRaw('FALSE');
-            });
-
-        foreach ($posts as $post) {
-            $post->discussion = $discussions->find($post->discussion_id);
-        }
-
-        return $posts;
-    }
-
-    /**
-     * @param $postIds
-     * @param User $actor
-     * @return mixed
-     */
-    protected function getDiscussionsForPosts($postIds, User $actor)
-    {
-        return Discussion::query()
-            ->select('discussions.*')
-            ->join('posts', 'posts.discussion_id', '=', 'discussions.id')
-            ->whereIn('posts.id', $postIds)
-            ->groupBy('discussions.id')
-            ->whereVisibleTo($actor)
-            ->get();
+        return $this->queryVisibleTo($actor)->whereIn('posts.id', $ids);
     }
 }

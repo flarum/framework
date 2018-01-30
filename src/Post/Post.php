@@ -12,7 +12,9 @@
 namespace Flarum\Post;
 
 use Flarum\Database\AbstractModel;
-use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Discussion\Discussion;
+use Flarum\Event\GetModelIsPrivate;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
@@ -40,7 +42,6 @@ use Illuminate\Database\Eloquent\Builder;
 class Post extends AbstractModel
 {
     use EventGeneratorTrait;
-    use ScopeVisibilityTrait;
 
     /**
      * {@inheritdoc}
@@ -96,11 +97,39 @@ class Post extends AbstractModel
             $post->discussion->save();
         });
 
+        static::saving(function (Post $post) {
+            $event = new GetModelIsPrivate($post);
+
+            $post->is_private = static::$dispatcher->until($event) === true;
+        });
+
         static::deleted(function (Post $post) {
             $post->raise(new Deleted($post));
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
+    }
+
+    /**
+     * @param Builder $query
+     * @param User $actor
+     */
+    public function scopeWhereVisibleTo(Builder $query, User $actor)
+    {
+        static::$dispatcher->dispatch(
+            new ScopeModelVisibility($query, $actor, 'view')
+        );
+
+        // Make sure the post's discussion is visible as well
+        $query->whereExists(function ($query) use ($actor) {
+            $query->selectRaw('1')
+                ->from('discussions')
+                ->whereRaw('discussions.id = posts.discussion_id');
+
+            static::$dispatcher->dispatch(
+                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
+            );
+        });
     }
 
     /**
@@ -111,15 +140,7 @@ class Post extends AbstractModel
      */
     public function isVisibleTo(User $user)
     {
-        $discussion = $this->discussion()->whereVisibleTo($user)->first();
-
-        if ($discussion) {
-            $this->setRelation('discussion', $discussion);
-
-            return (bool) $discussion->postsVisibleTo($user)->where('id', $this->id)->count();
-        }
-
-        return false;
+        return (bool) $this->newQuery()->whereVisibleTo($user)->find($this->id);
     }
 
     /**
@@ -171,7 +192,7 @@ class Post extends AbstractModel
      */
     public function scopeAllTypes(Builder $query)
     {
-        return $this->removeGlobalScopes($query);
+        return $query->withoutGlobalScopes();
     }
 
     /**

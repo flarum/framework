@@ -9,37 +9,37 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\Handler;
+namespace Tests\Flarum\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Api\ExceptionHandler\ModelNotFoundExceptionHandler;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Flarum\Api\ExceptionHandler\PermissionDeniedExceptionHandler;
+use Flarum\User\Exception\PermissionDeniedException;
 use Tests\Test\TestCase;
 
-class ModelNotFoundExceptionHandlerTest extends TestCase
+class PermissionDeniedExceptionHandlerTest extends TestCase
 {
     private $handler;
 
     public function init()
     {
-        $this->handler = new ModelNotFoundExceptionHandler;
+        $this->handler = new PermissionDeniedExceptionHandler;
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
         $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new ModelNotFoundException));
+        $this->assertTrue($this->handler->manages(new PermissionDeniedException));
     }
 
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new ModelNotFoundException);
+        $response = $this->handler->handle(new PermissionDeniedException);
 
-        $this->assertEquals(404, $response->getStatus());
+        $this->assertEquals(401, $response->getStatus());
         $this->assertEquals([
             [
-                'status' => '404',
-                'code' => 'resource_not_found'
+                'status' => '401',
+                'code' => 'permission_denied'
             ]
         ], $response->getErrors());
     }

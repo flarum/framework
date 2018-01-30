@@ -51,6 +51,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Get the ran migrations.
      *
+     * @param string $extension
      * @return array
      */
     public function getRan($extension = null)
