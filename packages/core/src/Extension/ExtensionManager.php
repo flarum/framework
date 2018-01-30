@@ -292,7 +292,7 @@ class ExtensionManager
                 // If an extension has not yet switched to the new bootstrap.php
                 // format, it might return a function (or more of them). We wrap
                 // these in a Compat extender to enjoy an unique interface.
-                if ($extender instanceof \Closure) {
+                if ($extender instanceof \Closure || is_string($extender)) {
                     return new Compat($extender);
                 } else {
                     return $extender;
