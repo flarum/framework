@@ -103,16 +103,18 @@ class DiscussionPolicy extends AbstractPolicy
         }
 
         // Hide discussions with no comments, unless they are authored by the
-        // current user.
-        $query->where(function ($query) use ($actor) {
-            $query->where('comments_count', '>', 0)
-                ->orWhere('start_user_id', $actor->id)
-                ->orWhere(function ($query) use ($actor) {
-                    $this->events->fire(
-                        new ScopeModelVisibility($query, $actor, 'viewEmpty')
-                    );
-                });
-        });
+        // current user, or the user is allowed to edit the discussion's posts.
+        if (! $actor->hasPermission('discussion.editPosts')) {
+            $query->where(function ($query) use ($actor) {
+                $query->where('comments_count', '>', 0)
+                    ->orWhere('start_user_id', $actor->id)
+                    ->orWhere(function ($query) use ($actor) {
+                        $this->events->fire(
+                            new ScopeModelVisibility($query, $actor, 'editPosts')
+                        );
+                    });
+            });
+        }
     }
 
     /**
