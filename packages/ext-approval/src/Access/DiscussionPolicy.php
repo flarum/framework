@@ -42,22 +42,7 @@ class DiscussionPolicy extends AbstractPolicy
      * @param Builder $query
      * @param User $actor
      */
-    public function findEmpty(User $actor, Builder $query)
-    {
-        $this->showIfApprovable($actor, $query);
-
-    }
-
-    /**
-     * @param Builder $query
-     * @param User $actor
-     */
     public function findPrivate(User $actor, Builder $query)
-    {
-        $this->showIfApprovable($actor, $query);
-    }
-
-    private function showIfApprovable(User $actor, Builder $query)
     {
         // Show empty/private discussions if they require approval and they are
         // authored by the current user, or the current user has permission to
