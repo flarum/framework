@@ -43,7 +43,8 @@ class DiscussionSearcher
      * @param DiscussionRepository $discussions
      * @param Dispatcher $events
      */
-    public function __construct(GambitManager $gambits, DiscussionRepository $discussions, Dispatcher $events) {
+    public function __construct(GambitManager $gambits, DiscussionRepository $discussions, Dispatcher $events)
+    {
         $this->gambits = $gambits;
         $this->discussions = $discussions;
         $this->events = $events;
