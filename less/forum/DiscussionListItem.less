@@ -50,27 +50,29 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  .read & {
+  .DiscussionList:not(.DiscussionList--searchResults) .read {
     color: mix(@heading-color, @body-bg, 55%);
   }
-  .unread & {
+  .DiscussionList:not(.DiscussionList--searchResults) .unread & {
     font-weight: 600;
+  }
+
+  mark {
+    background: none;
+    box-shadow: none;
+    font-weight: bold;
+    color: @text-color;
   }
 }
 .DiscussionListItem-info {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
+  color: @muted-more-color;
 
   > li {
     display: inline;
-    opacity: 0.7;
-    .transition(opacity 0.2s);
-
-    .DiscussionListItem:hover &, .DiscussionListItem.active & {
-      opacity: 1;
-    }
   }
   .username {
     font-weight: bold;
@@ -78,6 +80,27 @@
   .item-terminalPost .icon {
     font-size: 11px;
     margin-right: -1px;
+  }
+  .item-excerpt {
+    margin-top: 4px;
+    margin-right: 170px;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.5em;
+    display: block;
+
+    .DiscussionPage-list & {
+      margin-right: 0;
+    }
+    @media @phone {
+      display: none;
+    }
+    mark {
+      background: none;
+      box-shadow: none;
+      font-weight: bold;
+      color: inherit;
+    }
   }
 }
 .DiscussionListItem-count {
@@ -87,41 +110,6 @@
 
   .unread & {
     cursor: pointer;
-  }
-}
-.DiscussionListItem-relevantPosts {
-  padding-bottom: 15px;
-
-  @media @phone {
-    margin-left: -45px;
-    margin-right: -35px;
-  }
-
-  .PostPreview {
-    background: @control-bg;
-    display: block;
-    padding: 10px 15px;
-    border-bottom: 2px dotted @body-bg;
-    color: @muted-color;
-    transition: border-color 0.2s;
-
-    .DiscussionListItem:hover & {
-      border-color: lighten(@control-bg, 3%);
-    }
-
-    .Avatar, time {
-      display: none;
-    }
-    .PostPreview-content {
-      padding-left: 0;
-    }
-    &:first-child {
-      border-radius: @border-radius @border-radius 0 0;
-    }
-    &:hover {
-      background: darken(@control-bg, 3%);
-      text-decoration: none;
-    }
   }
 }
 
@@ -212,7 +200,7 @@
   .DiscussionListItem-controls {
     position: absolute;
     right: 5px;
-    top: 15px;
+    top: 5px;
     z-index: 1;
     opacity: 0;
     transition: opacity 0.2s;
@@ -244,10 +232,10 @@
     margin-right: -65px;
   }
   .DiscussionListItem-title {
-    font-size: 15px;
+    font-size: 16px;
   }
   .DiscussionListItem-count {
-    margin-top: 21px;
+    margin-top: 12px;
     margin-right: -70px;
     width: 55px;
     color: @muted-color;

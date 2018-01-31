@@ -21,7 +21,7 @@ Object.assign(Discussion.prototype, {
   commentsCount: Model.attribute('commentsCount'),
   repliesCount: computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1)),
   posts: Model.hasMany('posts'),
-  relevantPosts: Model.hasMany('relevantPosts'),
+  mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
   readTime: Model.attribute('readTime', Model.transformDate),
   readNumber: Model.attribute('readNumber'),
