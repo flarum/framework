@@ -13,10 +13,14 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->getConnection()->statement('ALTER TABLE posts ENGINE = InnoDB');
+        $connection = $schema->getConnection();
+        $prefix = $connection->getTablePrefix();
+        $connection->statement('ALTER TABLE '.$prefix.'posts ENGINE = InnoDB');
     },
 
     'down' => function (Builder $schema) {
-        $schema->getConnection()->statement('ALTER TABLE posts ENGINE = MyISAM');
+        $connection = $schema->getConnection();
+        $prefix = $connection->getTablePrefix();
+        $connection->statement('ALTER TABLE '.$prefix.'posts ENGINE = MyISAM');
     }
 ];
