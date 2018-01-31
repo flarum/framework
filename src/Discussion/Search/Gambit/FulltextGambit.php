@@ -33,6 +33,7 @@ class FulltextGambit implements GambitInterface
         $search->getQuery()
             ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT(posts.id ORDER BY MATCH(posts.content) AGAINST (?) DESC), \',\', 1) as most_relevant_post_id', [$bit])
             ->leftJoin('posts', 'posts.discussion_id', '=', 'discussions.id')
+            ->where('posts.type', 'comment')
             ->where(function ($query) use ($search) {
                 event(new ScopeModelVisibility(Post::query()->setQuery($query), $search->getActor(), 'view'));
             })
