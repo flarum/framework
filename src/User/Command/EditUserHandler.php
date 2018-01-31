@@ -147,6 +147,8 @@ class EditUserHandler
         }
 
         if ($avatarUrl = array_get($attributes, 'avatarUrl')) {
+            $this->assertPermission($canEdit);
+
             $validation = $this->validatorFactory->make(compact('avatarUrl'), ['avatarUrl' => 'url']);
 
             if ($validation->fails()) {
@@ -161,6 +163,8 @@ class EditUserHandler
                 //
             }
         } elseif (array_key_exists('avatarUrl', $attributes)) {
+            $this->assertPermission($canEdit);
+
             $this->avatarUploader->remove($user);
         }
 
