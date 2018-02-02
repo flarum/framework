@@ -114,16 +114,18 @@ class UpdateTagMetadata
             $tags = $discussion->tags;
         }
 
-        foreach ($tags as $tag) {
-            $tag->discussions_count += $delta;
+        if (! $discussion->is_private) {
+            foreach ($tags as $tag) {
+                $tag->discussions_count += $delta;
 
-            if ($discussion->last_time > $tag->last_time) {
-                $tag->setLastDiscussion($discussion);
-            } elseif ($discussion->id == $tag->last_discussion_id) {
-                $tag->refreshLastDiscussion();
+                if ($discussion->last_time > $tag->last_time) {
+                    $tag->setLastDiscussion($discussion);
+                } elseif ($discussion->id == $tag->last_discussion_id) {
+                    $tag->refreshLastDiscussion();
+                }
+
+                $tag->save();
             }
-
-            $tag->save();
         }
     }
 }
