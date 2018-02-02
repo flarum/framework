@@ -147,8 +147,8 @@ class InstallCommand extends AbstractCommand
                     'host' => 'required',
                     'database' => 'required|string',
                     'username' => 'required|string',
-                    'prefix' => 'alpha_dash|max:10',
-                    'port'   => 'integer|min:1|max:65535',
+                    'prefix' => 'nullable|alpha_dash|max:10',
+                    'port'   => 'nullable|integer|min:1|max:65535',
                 ]
             );
 
