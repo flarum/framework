@@ -16,18 +16,26 @@ class Str
     /**
      * Create a slug out of the given string.
      *
-     * Non-alphanumeric characters are converted to hyphens.
+     * nonsafe URL characters are converted to hyphens.
      *
-     * @param string $str
+     * @param string $string
      * @return string
      */
-    public static function slug($str)
+    public static function slug($string)
     {
-        $str = strtolower($str);
-        $str = preg_replace('/[^a-z0-9]/i', '-', $str);
-        $str = preg_replace('/-+/', '-', $str);
-        $str = preg_replace('/-$|^-/', '', $str);
+        // Regex for finding the nonsafe URL characters (many need escaping): & +$,:;=?@"#{}|^~[`%!']./()*\
+        $nonsafeChars = '/[& +$,:;=?@"#{}|^~[`%!\'\]\.\/\(\)\*\\]/g';
 
-        return $str ?: '-';
+        // Note: we trim hyphens after truncating because truncating can cause dangling hyphens.
+        // Example string:                                    // " ⚡⚡ Don't forget: URL fragments should be i18n-friendly, hyphenated, short, and clean."
+        $string = trim($string);                              // "⚡⚡ Don't forget: URL fragments should be i18n-friendly, hyphenated, short, and clean."
+        $string = preg_replace('/\'/gi', '', $string);        // "⚡⚡ Dont forget: URL fragments should be i18n-friendly, hyphenated, short, and clean."
+        $string = preg_replace($nonsafeChars, '-', $string);  // "⚡⚡-Dont-forget--URL-fragments-should-be-i18n-friendly--hyphenated--short--and-clean-"
+        $string = preg_replace('/-{2,}/g', '-', $string);     // "⚡⚡-Dont-forget-URL-fragments-should-be-i18n-friendly-hyphenated-short-and-clean-"
+        $string = substr($string, 0, 64);                     // "⚡⚡-Dont-forget-URL-fragments-should-be-i18n-friendly-hyphenated-"
+        $string = preg_replace('/^-+|-+$/gm', '', $string);   // "⚡⚡-Dont-forget-URL-fragments-should-be-i18n-friendly-hyphenated"
+        $string = strtolower($string);                        // "⚡⚡-dont-forget-url-fragments-should-be-i18n-friendly-hyphenated"
+
+        return $string ?: '-';
     }
 }
