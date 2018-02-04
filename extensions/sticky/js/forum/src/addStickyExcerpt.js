@@ -11,11 +11,11 @@ export default function addStickyControl() {
   extend(DiscussionListItem.prototype, 'infoItems', function(items) {
     const discussion = this.props.discussion;
 
-    if (discussion.isSticky()) {
+    if (discussion.isSticky() && !this.props.params.q) {
       const startPost = discussion.startPost();
 
       if (startPost) {
-        const excerpt = <span>{truncate(startPost.contentPlain(), 200)}</span>;
+        const excerpt = truncate(startPost.contentPlain(), 175);
 
         items.add('excerpt', excerpt, -100);
       }
