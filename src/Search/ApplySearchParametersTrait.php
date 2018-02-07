@@ -23,13 +23,17 @@ trait ApplySearchParametersTrait
     {
         $sort = $sort ?: $search->getDefaultSort();
 
-        foreach ($sort as $field => $order) {
-            if (is_array($order)) {
-                foreach ($order as $value) {
-                    $search->getQuery()->orderByRaw(snake_case($field).' != ?', [$value]);
+        if (is_callable($sort)) {
+            $sort($search->getQuery());
+        } else {
+            foreach ($sort as $field => $order) {
+                if (is_array($order)) {
+                    foreach ($order as $value) {
+                        $search->getQuery()->orderByRaw(snake_case($field).' != ?', [$value]);
+                    }
+                } else {
+                    $search->getQuery()->orderBy(snake_case($field), $order);
                 }
-            } else {
-                $search->getQuery()->orderBy(snake_case($field), $order);
             }
         }
     }

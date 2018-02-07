@@ -84,9 +84,9 @@ class BasicDiscussionSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function relevantPosts($discussion)
+    protected function mostRelevantPost($discussion)
     {
-        return $this->hasMany($discussion, BasicPostSerializer::class);
+        return $this->hasOne($discussion, PostSerializer::class);
     }
 
     /**

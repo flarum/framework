@@ -62,7 +62,7 @@ export default class DiscussionList extends Component {
     }
 
     return (
-      <div className="DiscussionList">
+      <div className={'DiscussionList'+(this.props.params.q ? ' DiscussionList--searchResults' : '')}>
         <ul className="DiscussionList-discussions">
           {this.discussions.map(discussion => {
             return (
@@ -94,7 +94,7 @@ export default class DiscussionList extends Component {
     if (this.props.params.q) {
       params.filter.q = this.props.params.q;
 
-      params.include.push('relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user');
+      params.include.push('mostRelevantPost', 'mostRelevantPost.user');
     }
 
     return params;

@@ -19740,10 +19740,10 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
 });;
 'use strict';
 
-System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList', 'flarum/utils/computed'], function (_export, _context) {
+System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/components/ComposerButton', 'flarum/helpers/listItems', 'flarum/utils/classList'], function (_export, _context) {
   "use strict";
 
-  var Component, ItemList, ComposerButton, listItems, classList, computed, Composer;
+  var Component, ItemList, ComposerButton, listItems, classList, Composer;
   return {
     setters: [function (_flarumComponent) {
       Component = _flarumComponent.default;
@@ -19755,8 +19755,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
       listItems = _flarumHelpersListItems.default;
     }, function (_flarumUtilsClassList) {
       classList = _flarumUtilsClassList.default;
-    }, function (_flarumUtilsComputed) {
-      computed = _flarumUtilsComputed.default;
     }],
     execute: function () {
       Composer = function (_Component) {
@@ -19791,28 +19789,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
              * @type {Boolean}
              */
             this.active = false;
-
-            /**
-             * Computed the composer's current height, based on the intended height, and
-             * the composer's current state. This will be applied to the composer's
-             * content's DOM element.
-             *
-             * @return {Integer}
-             */
-            this.computedHeight = computed('height', 'position', function (height, position) {
-              // If the composer is minimized, then we don't want to set a height; we'll
-              // let the CSS decide how high it is. If it's fullscreen, then we need to
-              // make it as high as the window.
-              if (position === Composer.PositionEnum.MINIMIZED) {
-                return '';
-              } else if (position === Composer.PositionEnum.FULLSCREEN) {
-                return $(window).height();
-              }
-
-              // Otherwise, if it's normal or hidden, then we use the intended height.
-              // We don't let the composer get too small or too big, though.
-              return Math.max(200, Math.min(height, $(window).height() - $('#header').outerHeight()));
-            });
           }
         }, {
           key: 'view',
@@ -19853,12 +19829,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
           value: function config(isInitialized, context) {
             var _this2 = this;
 
-            var defaultHeight = void 0;
-
-            if (!isInitialized) {
-              defaultHeight = this.$().height();
-            }
-
             // Set the height of the Composer element and its contents on each redraw,
             // so that they do not lose it if their DOM elements are recreated.
             this.updateHeight();
@@ -19869,11 +19839,8 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             // routes, we will flag the DOM to be retained across route changes.
             context.retain = true;
 
-            // Initialize the composer's intended height based on what the user has set
-            // it at previously, or otherwise the composer's default height. After that,
-            // we'll hide the composer.
-            this.height = localStorage.getItem('composerHeight') || defaultHeight;
-            this.$().hide().css('bottom', -this.height);
+            this.initializeHeight();
+            this.$().hide().css('bottom', -this.computedHeight());
 
             // Whenever any of the inputs inside the composer are have focus, we want to
             // add a class to the composer to draw attention to it.
@@ -19932,8 +19899,7 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             // height so that it fills the height of the composer, and update the
             // body's padding.
             var deltaPixels = this.mouseStart - e.clientY;
-            this.height = this.heightStart + deltaPixels;
-            this.updateHeight();
+            this.changeHeight(this.heightStart + deltaPixels);
 
             // Update the body's padding-bottom so that no content on the page will ever
             // get permanently hidden behind the composer. If the user is already
@@ -19942,8 +19908,6 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             var scrollTop = $(window).scrollTop();
             var anchorToBottom = scrollTop > 0 && scrollTop + $(window).height() >= $(document).height();
             this.updateBodyPadding(anchorToBottom);
-
-            localStorage.setItem('composerHeight', this.height);
           }
         }, {
           key: 'onmouseup',
@@ -20171,6 +20135,54 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
             }
 
             return items;
+          }
+        }, {
+          key: 'initializeHeight',
+          value: function initializeHeight() {
+            this.height = localStorage.getItem('composerHeight');
+
+            if (!this.height) {
+              this.height = this.defaultHeight();
+            }
+          }
+        }, {
+          key: 'defaultHeight',
+          value: function defaultHeight() {
+            return this.$().height();
+          }
+        }, {
+          key: 'minimumHeight',
+          value: function minimumHeight() {
+            return 200;
+          }
+        }, {
+          key: 'maximumHeight',
+          value: function maximumHeight() {
+            return $(window).height() - $('#header').outerHeight();
+          }
+        }, {
+          key: 'computedHeight',
+          value: function computedHeight() {
+            // If the composer is minimized, then we don't want to set a height; we'll
+            // let the CSS decide how high it is. If it's fullscreen, then we need to
+            // make it as high as the window.
+            if (this.position === Composer.PositionEnum.MINIMIZED) {
+              return '';
+            } else if (this.position === Composer.PositionEnum.FULLSCREEN) {
+              return $(window).height();
+            }
+
+            // Otherwise, if it's normal or hidden, then we use the intended height.
+            // We don't let the composer get too small or too big, though.
+            return Math.max(this.minimumHeight(), Math.min(this.height, this.maximumHeight()));
+          }
+        }, {
+          key: 'changeHeight',
+          value: function changeHeight(height) {
+            this.height = height;
+            this.updateHeight();
+
+            localStorage.setItem('composerHeight', this.height);
           }
         }]);
         return Composer;
@@ -20605,7 +20617,7 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
 
             return m(
               'div',
-              { className: 'DiscussionList' },
+              { className: 'DiscussionList' + (this.props.params.q ? ' DiscussionList--searchResults' : '') },
               m(
                 'ul',
                 { className: 'DiscussionList-discussions' },
@@ -20634,7 +20646,7 @@ System.register('flarum/components/DiscussionList', ['flarum/Component', 'flarum
             if (this.props.params.q) {
               params.filter.q = this.props.params.q;
 
-              params.include.push('relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user');
+              params.include.push('mostRelevantPost', 'mostRelevantPost.user');
             }
 
             return params;
@@ -20809,8 +20821,6 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
         }, {
           key: 'view',
           value: function view() {
-            var _this3 = this;
-
             var retain = this.subtree.retain();
 
             if (retain) return retain;
@@ -20820,10 +20830,21 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
             var isUnread = discussion.isUnread();
             var isRead = discussion.isRead();
             var showUnread = !this.showRepliesCount() && isUnread;
-            var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
-            var relevantPosts = this.props.params.q ? discussion.relevantPosts() : [];
+            var jumpTo = 0;
             var controls = DiscussionControls.controls(discussion, this).toArray();
             var attrs = this.attrs();
+
+            if (this.props.params.q) {
+              var post = discussion.mostRelevantPost();
+              if (post) {
+                jumpTo = post.number();
+              }
+
+              var phrase = this.props.params.q;
+              this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
+            } else {
+              jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
+            }
 
             return m(
               'div',
@@ -20867,7 +20888,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
                   m(
                     'h3',
                     { className: 'DiscussionListItem-title' },
-                    highlight(discussion.title(), this.props.params.q)
+                    highlight(discussion.title(), this.highlightRegExp)
                   ),
                   m(
                     'ul',
@@ -20881,14 +20902,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
                     onclick: this.markAsRead.bind(this),
                     title: showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : '' },
                   abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())
-                ),
-                relevantPosts && relevantPosts.length ? m(
-                  'div',
-                  { className: 'DiscussionListItem-relevantPosts' },
-                  relevantPosts.map(function (post) {
-                    return PostPreview.component({ post: post, highlight: _this3.props.params.q });
-                  })
-                ) : ''
+                )
               )
             );
           }
@@ -20940,10 +20954,19 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
           value: function infoItems() {
             var items = new ItemList();
 
-            items.add('terminalPost', TerminalPost.component({
-              discussion: this.props.discussion,
-              lastPost: !this.showStartPost()
-            }));
+            if (this.props.params.q) {
+              var post = this.props.discussion.mostRelevantPost() || this.props.discussion.startPost();
+
+              if (post && post.contentType() === 'comment') {
+                var excerpt = highlight(post.contentPlain(), this.highlightRegExp, 175);
+                items.add('excerpt', excerpt, -100);
+              }
+            } else {
+              items.add('terminalPost', TerminalPost.component({
+                discussion: this.props.discussion,
+                lastPost: !this.showStartPost()
+              }));
+            }
 
             return items;
           }
@@ -21387,7 +21410,7 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
             var params = {
               filter: { q: query },
               page: { limit: 3 },
-              include: 'relevantPosts,relevantPosts.discussion,relevantPosts.user'
+              include: 'mostRelevantPost'
             };
 
             return app.store.find('discussions', params).then(function (results) {
@@ -21414,24 +21437,23 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
                 href: app.route('index', { q: query })
               })
             ), results.map(function (discussion) {
-              var relevantPosts = discussion.relevantPosts();
-              var post = relevantPosts && relevantPosts[0];
+              var mostRelevantPost = discussion.mostRelevantPost();
 
               return m(
                 'li',
                 { className: 'DiscussionSearchResult', 'data-index': 'discussions' + discussion.id() },
                 m(
                   'a',
-                  { href: app.route.discussion(discussion, post && post.number()), config: m.route },
+                  { href: app.route.discussion(discussion, mostRelevantPost && mostRelevantPost.number()), config: m.route },
                   m(
                     'div',
                     { className: 'DiscussionSearchResult-title' },
                     highlight(discussion.title(), query)
                   ),
-                  post ? m(
+                  mostRelevantPost ? m(
                     'div',
                     { className: 'DiscussionSearchResult-excerpt' },
-                    highlight(post.contentPlain(), query, 100)
+                    highlight(mostRelevantPost.contentPlain(), query, 100)
                   ) : ''
                 )
               );
@@ -27314,6 +27336,11 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
             )];
           }
         }, {
+          key: 'isProvided',
+          value: function isProvided(field) {
+            return this.props.identificationFields && this.props.identificationFields.indexOf(field) !== -1;
+          }
+        }, {
           key: 'body',
           value: function body() {
             return [this.props.token ? '' : m(LogInButtons, null), m(
@@ -27325,7 +27352,7 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
                 m('input', { className: 'FormControl', name: 'username', type: 'text', placeholder: extractText(app.translator.trans('core.forum.sign_up.username_placeholder')),
                   value: this.username(),
                   onchange: m.withAttr('value', this.username),
-                  disabled: this.loading })
+                  disabled: this.loading || this.isProvided('username') })
               ),
               m(
                 'div',
@@ -27333,7 +27360,7 @@ System.register('flarum/components/SignUpModal', ['flarum/components/Modal', 'fl
                 m('input', { className: 'FormControl', name: 'email', type: 'email', placeholder: extractText(app.translator.trans('core.forum.sign_up.email_placeholder')),
                   value: this.email(),
                   onchange: m.withAttr('value', this.email),
-                  disabled: this.loading || this.props.token && this.props.email })
+                  disabled: this.loading || this.isProvided('email') })
               ),
               this.props.token ? '' : m(
                 'div',
@@ -29395,7 +29422,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
           return Math.max(0, commentsCount - 1);
         }),
         posts: Model.hasMany('posts'),
-        relevantPosts: Model.hasMany('relevantPosts'),
+        mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
         readTime: Model.attribute('readTime', Model.transformDate),
         readNumber: Model.attribute('readNumber'),
