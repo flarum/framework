@@ -12,6 +12,7 @@
 namespace Flarum\Console\Event;
 
 use Flarum\Foundation\Application;
+use Illuminate\Console\Command;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 /**
@@ -39,5 +40,23 @@ class Configuring
     {
         $this->app = $app;
         $this->console = $console;
+    }
+
+    /**
+     * Add a console command to the flarum binary.
+     *
+     * @param Command|string $command
+     */
+    public function addCommand($command)
+    {
+        if (is_string($command)) {
+            $command = $this->app->make($command);
+        }
+
+        if ($command instanceof Command) {
+            $command->setLaravel($this->app);
+        }
+
+        $this->console->add($command);
     }
 }
