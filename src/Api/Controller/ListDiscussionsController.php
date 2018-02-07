@@ -12,6 +12,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
@@ -92,6 +93,8 @@ class ListDiscussionsController extends AbstractListController
             $limit,
             $results->areMoreResults() ? null : 0
         );
+
+        Discussion::setStateUser($actor);
 
         $results = $results->getResults()->load($load);
 
