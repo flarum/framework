@@ -36,8 +36,9 @@ return [
             $table->engine = 'MyISAM';
         });
 
-        $prefix = $schema->getConnection()->getTablePrefix();
-        $schema->getConnection()->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
+        $connection = $schema->getConnection();
+        $prefix = $connection->getTablePrefix();
+        $connection->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
     },
 
     'down' => function (Builder $schema) {

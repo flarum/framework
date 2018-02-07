@@ -62,14 +62,24 @@ export default class DiscussionListItem extends Component {
     const isUnread = discussion.isUnread();
     const isRead = discussion.isRead();
     const showUnread = !this.showRepliesCount() && isUnread;
-    const jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
-    const relevantPosts = this.props.params.q ? discussion.relevantPosts() : [];
+    let jumpTo = 0;
     const controls = DiscussionControls.controls(discussion, this).toArray();
     const attrs = this.attrs();
 
+    if (this.props.params.q) {
+      const post = discussion.mostRelevantPost();
+      if (post) {
+        jumpTo = post.number();
+      }
+
+      const phrase = this.props.params.q;
+      this.highlightRegExp = new RegExp(phrase+'|'+phrase.trim().replace(/\s+/g, '|'), 'gi');
+    } else {
+      jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
+    }
+
     return (
       <div {...attrs}>
-
         {controls.length ? Dropdown.component({
           icon: 'ellipsis-v',
           children: controls,
@@ -100,7 +110,7 @@ export default class DiscussionListItem extends Component {
           <a href={app.route.discussion(discussion, jumpTo)}
             config={m.route}
             className="DiscussionListItem-main">
-            <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.props.params.q)}</h3>
+            <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </a>
 
@@ -109,13 +119,6 @@ export default class DiscussionListItem extends Component {
             title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}>
             {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())}
           </span>
-
-          {relevantPosts && relevantPosts.length
-            ? <div className="DiscussionListItem-relevantPosts">
-                {relevantPosts.map(post => PostPreview.component({post, highlight: this.props.params.q}))}
-              </div>
-            : ''}
-
         </div>
       </div>
     );
@@ -188,12 +191,21 @@ export default class DiscussionListItem extends Component {
   infoItems() {
     const items = new ItemList();
 
-    items.add('terminalPost',
-      TerminalPost.component({
-        discussion: this.props.discussion,
-        lastPost: !this.showStartPost()
-      })
-    );
+    if (this.props.params.q) {
+      const post = this.props.discussion.mostRelevantPost() || this.props.discussion.startPost();
+
+      if (post && post.contentType() === 'comment') {
+        const excerpt = highlight(post.contentPlain(), this.highlightRegExp, 175);
+        items.add('excerpt', excerpt, -100);
+      }
+    } else {
+      items.add('terminalPost',
+        TerminalPost.component({
+          discussion: this.props.discussion,
+          lastPost: !this.showStartPost()
+        })
+      );
+    }
 
     return items;
   }
