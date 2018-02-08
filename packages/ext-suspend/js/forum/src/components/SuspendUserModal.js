@@ -35,7 +35,7 @@ export default class SuspendUserModal extends Modal {
             <label>{app.translator.trans('flarum-suspend.forum.suspend_user.status_heading')}</label>
             <div>
               <label className="checkbox">
-                <input type="radio" name="status" checked={!this.status()} onclick={m.withAttr('value', this.status)}/>
+                <input type="radio" name="status" checked={!this.status()} value="" onclick={m.withAttr('value', this.status)}/>
                 {app.translator.trans('flarum-suspend.forum.suspend_user.not_suspended_label')}
               </label>
 
