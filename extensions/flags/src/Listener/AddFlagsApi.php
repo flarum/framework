@@ -45,7 +45,6 @@ class AddFlagsApi
     {
         $events->listen(ConfigureModelDates::class, [$this, 'configureModelDates']);
         $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
-        $events->listen(ConfigureApiRoutes::class, [$this, 'configureApiRoutes']);
     }
 
     /**
@@ -80,16 +79,6 @@ class AddFlagsApi
         if ($event->isSerializer(PostSerializer::class)) {
             $event->attributes['canFlag'] = $event->actor->can('flag', $event->model);
         }
-    }
-
-    /**
-     * @param ConfigureApiRoutes $event
-     */
-    public function configureApiRoutes(ConfigureApiRoutes $event)
-    {
-        $event->get('/flags', 'flags.index', Controller\ListFlagsController::class);
-        $event->post('/flags', 'flags.create', Controller\CreateFlagController::class);
-        $event->delete('/posts/{id}/flags', 'flags.delete', Controller\DeleteFlagsController::class);
     }
 
     /**
