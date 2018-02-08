@@ -23,7 +23,7 @@ export function slug(string) {
   return string.toLowerCase()
     .replace(/[^a-z0-9]/gi, '-')
     .replace(/-+/g, '-')
-    .replace(/-$|^-/g, '') || '-';
+    .replace(/-$|^-/g, '');
 }
 
 /**
