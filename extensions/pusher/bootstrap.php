@@ -10,6 +10,7 @@
  */
 
 use Flarum\Extend;
+use Flarum\Pusher\Api\Controller\AuthController;
 use Flarum\Pusher\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -21,6 +22,8 @@ return [
     (new Extend\Assets('admin'))
         ->asset(__DIR__.'/js/admin/dist/extension.js')
         ->bootstrapper('flarum/pusher/main'),
+    (new Extend\Routes('api'))
+        ->post('/pusher/auth', 'pusher.auth', AuthController::class),
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddPusherApi::class);
         $events->subscribe(Listener\PushNewPosts::class);
