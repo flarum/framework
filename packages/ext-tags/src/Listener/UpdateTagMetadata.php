@@ -110,22 +110,25 @@ class UpdateTagMetadata
             return;
         }
 
+        // We do not count private discussions in tags
+        if ($discussion->is_private) {
+            return;
+        }
+
         if (! $tags) {
             $tags = $discussion->tags;
         }
 
-        if (! $discussion->is_private) {
-            foreach ($tags as $tag) {
-                $tag->discussions_count += $delta;
+        foreach ($tags as $tag) {
+            $tag->discussions_count += $delta;
 
-                if ($discussion->last_time > $tag->last_time) {
-                    $tag->setLastDiscussion($discussion);
-                } elseif ($discussion->id == $tag->last_discussion_id) {
-                    $tag->refreshLastDiscussion();
-                }
-
-                $tag->save();
+            if ($discussion->last_time > $tag->last_time) {
+                $tag->setLastDiscussion($discussion);
+            } elseif ($discussion->id == $tag->last_discussion_id) {
+                $tag->refreshLastDiscussion();
             }
+
+            $tag->save();
         }
     }
 }
