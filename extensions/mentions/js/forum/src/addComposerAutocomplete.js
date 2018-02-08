@@ -179,7 +179,7 @@ export default function addComposerAutocomplete() {
             searchTimeout = setTimeout(function() {
               const typedLower = typed.toLowerCase();
               if (searched.indexOf(typedLower) === -1) {
-                app.store.find('users', {q: typed, page: {limit: 5}}).then(() => {
+                app.store.find('users', {filter: {q: typed}, page: {limit: 5}}).then(() => {
                   if (dropdown.active) buildSuggestions();
                 });
                 searched.push(typedLower);
