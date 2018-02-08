@@ -13,7 +13,6 @@ namespace Flarum\Subscriptions\Listener;
 
 use Flarum\Discussion\Event\Searching;
 use Flarum\Event\ConfigureDiscussionGambits;
-use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Subscriptions\Gambit\SubscriptionGambit;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -26,7 +25,6 @@ class FilterDiscussionListBySubscription
     {
         $events->listen(ConfigureDiscussionGambits::class, [$this, 'addGambit']);
         $events->listen(Searching::class, [$this, 'filterIgnored']);
-        $events->listen(ConfigureForumRoutes::class, [$this, 'addRoutes']);
     }
 
     /**
@@ -53,13 +51,5 @@ class FilterDiscussionListBySubscription
                       ->where('subscription', 'ignore');
             });
         }
-    }
-
-    /**
-     * @param ConfigureForumRoutes $event
-     */
-    public function addRoutes(ConfigureForumRoutes $event)
-    {
-        $event->get('/following', 'following');
     }
 }
