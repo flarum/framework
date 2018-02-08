@@ -303,7 +303,7 @@ System.register('flarum/mentions/addComposerAutocomplete', ['flarum/extend', 'fl
             searchTimeout = setTimeout(function () {
               var typedLower = typed.toLowerCase();
               if (searched.indexOf(typedLower) === -1) {
-                app.store.find('users', { q: typed, page: { limit: 5 } }).then(function () {
+                app.store.find('users', { filter: { q: typed }, page: { limit: 5 } }).then(function () {
                   if (dropdown.active) buildSuggestions();
                 });
                 searched.push(typedLower);
