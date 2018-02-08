@@ -59,7 +59,9 @@ class SaveSuspensionToDatabase
 
             $this->assertCan($actor, 'suspend', $user);
 
-            $user->suspend_until = new DateTime($attributes['suspendUntil']);
+            $user->suspend_until = $attributes['suspendUntil']
+                ? new DateTime($attributes['suspendUntil'])
+                : null;
         }
     }
 }
