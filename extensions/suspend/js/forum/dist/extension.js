@@ -71,7 +71,7 @@ System.register('flarum/suspend/components/SuspendUserModal', ['flarum/component
                     m(
                       'label',
                       { className: 'checkbox' },
-                      m('input', { type: 'radio', name: 'status', checked: !this.status(), onclick: m.withAttr('value', this.status) }),
+                      m('input', { type: 'radio', name: 'status', checked: !this.status(), value: '', onclick: m.withAttr('value', this.status) }),
                       app.translator.trans('flarum-suspend.forum.suspend_user.not_suspended_label')
                     ),
                     m(
