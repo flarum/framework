@@ -13,8 +13,6 @@ namespace Flarum\Pusher\Listener;
 
 use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Event\ConfigureApiRoutes;
-use Flarum\Pusher\Api\Controller\AuthController;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -39,7 +37,6 @@ class AddPusherApi
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Serializing::class, [$this, 'addAttributes']);
-        $events->listen(ConfigureApiRoutes::class, [$this, 'addRoutes']);
     }
 
     /**
@@ -51,13 +48,5 @@ class AddPusherApi
             $event->attributes['pusherKey'] = $this->settings->get('flarum-pusher.app_key');
             $event->attributes['pusherCluster'] = $this->settings->get('flarum-pusher.app_cluster');
         }
-    }
-
-    /**
-     * @param ConfigureApiRoutes $event
-     */
-    public function addRoutes(ConfigureApiRoutes $event)
-    {
-        $event->post('/pusher/auth', 'pusher.auth', AuthController::class);
     }
 }
