@@ -10,16 +10,31 @@
  */
 
 use Flarum\Embed\EmbeddedDiscussionController;
-use Flarum\Embed\Listener;
+use Flarum\Embed\EmbedFrontend;
 use Flarum\Extend;
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
+use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 
 return [
     (new Extend\Routes('forum'))
         ->get('/embed/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]', 'embed.discussion', EmbeddedDiscussionController::class),
-    function (Dispatcher $events, Factory $view) {
-        $events->subscribe(Listener\FlushEmbedAssetsWhenSettingsAreChanged::class);
+
+    // TODO: Convert to extenders
+    function (Dispatcher $events, Factory $view, EmbedFrontend $frontend) {
+        $events->listen(Saved::class, function (Saved $event) use ($frontend) {
+            if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
+                $frontend->getAssets()->flushCss();
+            }
+        });
+        $events->listen(Enabled::class, function () use ($frontend) {
+            $frontend->getAssets()->flush();
+        });
+        $events->listen(Disabled::class, function () use ($frontend) {
+            $frontend->getAssets()->flush();
+        });
 
         $view->addNamespace('flarum-embed', __DIR__.'/views');
     }
