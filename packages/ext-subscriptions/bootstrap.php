@@ -10,6 +10,7 @@
  */
 
 use Flarum\Extend;
+use Flarum\Forum\Controller\FrontendController;
 use Flarum\Subscriptions\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
@@ -19,6 +20,8 @@ return [
         ->asset(__DIR__.'/js/forum/dist/extension.js')
         ->asset(__DIR__.'/less/forum/extension.less')
         ->bootstrapper('flarum/subscriptions/main'),
+    (new Extend\Routes('forum'))
+        ->get('/following', 'following', FrontendController::class),
     function (Dispatcher $events, Factory $views) {
         $events->subscribe(Listener\AddDiscussionSubscriptionAttribute::class);
         $events->subscribe(Listener\FilterDiscussionListBySubscription::class);
