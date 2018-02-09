@@ -18,10 +18,7 @@ export default class NotificationGrid extends Component {
      *
      * @type {Array}
      */
-    this.methods = [
-      {name: 'alert', icon: 'bell', label: app.translator.trans('core.forum.settings.notify_by_web_heading')},
-      {name: 'email', icon: 'envelope-o', label: app.translator.trans('core.forum.settings.notify_by_email_heading')}
-    ];
+    this.methods = this.notificationMethods().toArray();
 
     /**
      * A map of notification type-method combinations to the checkbox instances
@@ -34,7 +31,7 @@ export default class NotificationGrid extends Component {
     /**
      * Information about the available notification types.
      *
-     * @type {Object}
+     * @type {Array}
      */
     this.types = this.notificationTypes().toArray();
 
@@ -165,11 +162,41 @@ export default class NotificationGrid extends Component {
   }
 
   /**
+   * Build an item list for the notification methods to display in the grid.
+   *
+   * Each notification method is an object which has the following properties:
+   *
+   * - `name` The name of the notification method.
+   * - `icon` The icon to display in the column header.
+   * - `label` The label to display in the column header.
+   *
+   * @return {ItemList}
+   */
+  notificationMethods() {
+    const items = new ItemList();
+
+    items.add('alert', {
+      name: 'alert',
+      icon: 'bell',
+      label: app.translator.trans('core.forum.settings.notify_by_web_heading'),
+    });
+
+    items.add('email', {
+      name: 'email',
+      icon: 'envelope-o',
+      label: app.translator.trans('core.forum.settings.notify_by_email_heading'),
+    });
+
+    return items;
+  }
+
+  /**
    * Build an item list for the notification types to display in the grid.
    *
    * Each notification type is an object which has the following properties:
    *
    * - `name` The name of the notification type.
+   * - `icon` The icon to display in the notification grid row.
    * - `label` The label to display in the notification grid row.
    *
    * @return {ItemList}
