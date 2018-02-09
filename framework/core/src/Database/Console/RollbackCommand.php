@@ -56,12 +56,12 @@ class RollbackCommand extends AbstractCommand
         $extension = $this->manager->getExtension($extensionName);
 
         if (!$extension) {
-            $this->info('Could not find extension ' . $extensionName);
+            $this->info('Could not find extension '.$extensionName);
 
             return;
         }
 
-        $this->info('Rolling back extension: ' . $extensionName);
+        $this->info('Rolling back extension: '.$extensionName);
 
         $notes = $this->manager->migrateDown($extension);
 
