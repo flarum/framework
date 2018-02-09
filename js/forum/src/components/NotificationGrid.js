@@ -31,7 +31,7 @@ export default class NotificationGrid extends Component {
     /**
      * Information about the available notification types.
      *
-     * @type {Object}
+     * @type {Array}
      */
     this.types = this.notificationTypes().toArray();
 
@@ -196,6 +196,7 @@ export default class NotificationGrid extends Component {
    * Each notification type is an object which has the following properties:
    *
    * - `name` The name of the notification type.
+   * - `icon` The icon to display in the notification grid row.
    * - `label` The label to display in the notification grid row.
    *
    * @return {ItemList}
