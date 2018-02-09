@@ -55,7 +55,7 @@ class RollbackCommand extends AbstractCommand
         $extensionName = $this->input->getArgument('extension');
         $extension = $this->manager->getExtension($extensionName);
 
-        if (!$extension) {
+        if (! $extension) {
             $this->info('Could not find extension '.$extensionName);
 
             return;
