@@ -70,7 +70,7 @@ class PostPolicy extends AbstractPolicy
         $query->where(function ($query) use ($actor) {
             $query->where('posts.is_private', false)
                 ->orWhere(function ($query) use ($actor) {
-                    $this->events->fire(
+                    $this->events->dispatch(
                         new ScopeModelVisibility($query, $actor, 'viewPrivate')
                     );
                 });

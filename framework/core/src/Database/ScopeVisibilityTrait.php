@@ -25,7 +25,7 @@ trait ScopeVisibilityTrait
      */
     public function scopeWhereVisibleTo(Builder $query, User $actor)
     {
-        static::$dispatcher->fire(
+        static::$dispatcher->dispatch(
             new ScopeModelVisibility($query, $actor, 'view')
         );
     }

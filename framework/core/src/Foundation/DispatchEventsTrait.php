@@ -32,7 +32,7 @@ trait DispatchEventsTrait
         foreach ($entity->releaseEvents() as $event) {
             $event->actor = $actor;
 
-            $this->events->fire($event);
+            $this->events->dispatch($event);
         }
     }
 }

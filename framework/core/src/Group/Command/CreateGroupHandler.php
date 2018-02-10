@@ -57,7 +57,7 @@ class CreateGroupHandler
             array_get($data, 'attributes.icon')
         );
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($group, $actor, $data)
         );
 

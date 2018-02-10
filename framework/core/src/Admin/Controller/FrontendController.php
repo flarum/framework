@@ -63,7 +63,7 @@ class FrontendController extends AbstractFrontendController
 
         $settings = $this->settings->all();
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Deserializing($settings)
         );
 

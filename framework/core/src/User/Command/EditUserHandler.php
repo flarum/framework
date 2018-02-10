@@ -168,7 +168,7 @@ class EditUserHandler
             $this->avatarUploader->remove($user);
         }
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($user, $actor, $data)
         );
 
