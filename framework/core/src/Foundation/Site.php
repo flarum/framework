@@ -33,6 +33,7 @@ use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Mail\MailServiceProvider;
+use Illuminate\Session\SessionServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
@@ -169,6 +170,7 @@ class Site
         $app->register(FilesystemServiceProvider::class);
         $app->register(HashServiceProvider::class);
         $app->register(MailServiceProvider::class);
+        $app->register(SessionServiceProvider::class);
         $app->register(ViewServiceProvider::class);
         $app->register(ValidationServiceProvider::class);
 
@@ -236,6 +238,15 @@ class Site
                         'root'   => $app->publicPath().'/assets/avatars'
                     ]
                 ]
+            ],
+            'session' => [
+                'driver' => 'file',
+                'lifetime' => 120,
+                'expire_on_close' => false,
+                'encrypt' => false,
+                'files' => $app->storagePath().'/sessions',
+                'lottery' => [2, 100],
+                'cookie' => 'session'
             ]
         ]);
     }
