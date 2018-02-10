@@ -35,6 +35,7 @@
         "illuminate/filesystem": "5.5.*",
         "illuminate/hashing": "5.5.*",
         "illuminate/mail": "5.5.*",
+        "illuminate/session": "5.5.*",
         "illuminate/support": "5.5.*",
         "illuminate/validation": "5.5.*",
         "illuminate/view": "5.5.*",
