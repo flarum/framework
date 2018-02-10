@@ -102,7 +102,7 @@ class LogOutController implements ControllerInterface
 
         // If a valid CSRF token hasn't been provided, show a view which will
         // allow the user to press a button to complete the log out process.
-        $csrfToken = $session->get('csrf_token');
+        $csrfToken = $session->token();
 
         if (array_get($request->getQueryParams(), 'token') !== $csrfToken) {
             $return = array_get($request->getQueryParams(), 'return');
