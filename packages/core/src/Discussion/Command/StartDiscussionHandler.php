@@ -70,7 +70,7 @@ class StartDiscussionHandler
             $actor
         );
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($discussion, $actor, $data)
         );
 

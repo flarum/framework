@@ -75,7 +75,7 @@ class EditGroupHandler
             $group->icon = $attributes['icon'];
         }
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($group, $actor, $data)
         );
 

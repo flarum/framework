@@ -90,13 +90,13 @@ abstract class AbstractSerializeController implements ControllerInterface
     {
         $document = new Document;
 
-        static::$events->fire(
+        static::$events->dispatch(
             new WillGetData($this)
         );
 
         $data = $this->data($request, $document);
 
-        static::$events->fire(
+        static::$events->dispatch(
             new WillSerializeData($this, $data, $request, $document)
         );
 

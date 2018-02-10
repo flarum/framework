@@ -93,7 +93,7 @@ abstract class AbstractValidator
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Validating($this, $validator)
         );
 

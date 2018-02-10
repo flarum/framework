@@ -53,11 +53,11 @@ class SetSettingsController implements ControllerInterface
         $settings = $request->getParsedBody();
 
         foreach ($settings as $k => $v) {
-            $this->dispatcher->fire(new Serializing($k, $v));
+            $this->dispatcher->dispatch(new Serializing($k, $v));
 
             $this->settings->set($k, $v);
 
-            $this->dispatcher->fire(new Saved($k, $v));
+            $this->dispatcher->dispatch(new Saved($k, $v));
         }
 
         return new EmptyResponse(204);

@@ -51,7 +51,7 @@ class DeleteDiscussionHandler
 
         $this->assertCan($actor, 'delete', $discussion);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Deleting($discussion, $actor, $command->data)
         );
 

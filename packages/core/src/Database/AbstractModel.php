@@ -75,7 +75,7 @@ abstract class AbstractModel extends Eloquent
     {
         $defaults = [];
 
-        static::$dispatcher->fire(
+        static::$dispatcher->dispatch(
             new ConfigureModelDefaultAttributes($this, $defaults)
         );
 
@@ -96,7 +96,7 @@ abstract class AbstractModel extends Eloquent
         $class = get_class($this);
 
         if (! isset($dates[$class])) {
-            static::$dispatcher->fire(
+            static::$dispatcher->dispatch(
                 new ConfigureModelDates($this, $this->dates)
             );
 

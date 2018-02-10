@@ -116,7 +116,7 @@ class RegisterUserHandler
             $user->activate();
         }
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($user, $actor, $data)
         );
 

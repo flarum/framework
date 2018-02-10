@@ -50,7 +50,7 @@ class DeleteGroupHandler
 
         $this->assertCan($actor, 'delete', $group);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Deleting($group, $actor, $command->data)
         );
 
