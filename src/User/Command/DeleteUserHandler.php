@@ -50,7 +50,7 @@ class DeleteUserHandler
 
         $this->assertCan($actor, 'delete', $user);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Deleting($user, $actor, $command->data)
         );
 

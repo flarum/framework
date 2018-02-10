@@ -53,7 +53,7 @@ class ReadDiscussionHandler
         $state = $discussion->stateFor($actor);
         $state->read($command->readNumber);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new UserDataSaving($state)
         );
 

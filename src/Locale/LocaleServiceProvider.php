@@ -29,7 +29,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
         $locales->addLocale($this->getDefaultLocale(), 'Default');
 
-        $events->fire(new ConfigureLocales($locales));
+        $events->dispatch(new ConfigureLocales($locales));
     }
 
     /**

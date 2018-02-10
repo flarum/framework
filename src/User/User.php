@@ -146,7 +146,7 @@ class User extends AbstractModel
             $user->notifications()->delete();
         });
 
-        static::$dispatcher->fire(
+        static::$dispatcher->dispatch(
             new ConfigureUserPreferences
         );
     }

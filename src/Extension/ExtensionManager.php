@@ -116,7 +116,7 @@ class ExtensionManager
         if (! $this->isEnabled($name)) {
             $extension = $this->getExtension($name);
 
-            $this->dispatcher->fire(new Enabling($extension));
+            $this->dispatcher->dispatch(new Enabling($extension));
 
             $enabled = $this->getEnabled();
 
@@ -130,7 +130,7 @@ class ExtensionManager
 
             $extension->setEnabled(true);
 
-            $this->dispatcher->fire(new Enabled($extension));
+            $this->dispatcher->dispatch(new Enabled($extension));
         }
     }
 
@@ -146,7 +146,7 @@ class ExtensionManager
         if (($k = array_search($name, $enabled)) !== false) {
             $extension = $this->getExtension($name);
 
-            $this->dispatcher->fire(new Disabling($extension));
+            $this->dispatcher->dispatch(new Disabling($extension));
 
             unset($enabled[$k]);
 
@@ -154,7 +154,7 @@ class ExtensionManager
 
             $extension->setEnabled(false);
 
-            $this->dispatcher->fire(new Disabled($extension));
+            $this->dispatcher->dispatch(new Disabled($extension));
         }
     }
 
@@ -175,7 +175,7 @@ class ExtensionManager
 
         $extension->setInstalled(false);
 
-        $this->dispatcher->fire(new Uninstalled($extension));
+        $this->dispatcher->dispatch(new Uninstalled($extension));
     }
 
     /**

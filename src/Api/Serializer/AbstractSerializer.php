@@ -70,7 +70,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
         $attributes = $this->getDefaultAttributes($model);
 
-        static::$dispatcher->fire(
+        static::$dispatcher->dispatch(
             new Serializing($this, $model, $attributes)
         );
 
