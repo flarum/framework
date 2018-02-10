@@ -1,8 +1,8 @@
-import Component from 'flarum/Component';
-import icon from 'flarum/helpers/icon';
-import extract from 'flarum/utils/extract';
-import extractText from 'flarum/utils/extractText';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
+import Component from 'Component';
+import icon from 'helpers/icon';
+import extract from 'utils/extract';
+import extractText from 'utils/extractText';
+import LoadingIndicator from 'components/LoadingIndicator';
 
 /**
  * The `Button` component defines an element which, when clicked, performs an

@@ -1,8 +1,8 @@
-import Button from 'flarum/components/Button';
-import Separator from 'flarum/components/Separator';
-import EditUserModal from 'flarum/components/EditUserModal';
-import UserPage from 'flarum/components/UserPage';
-import ItemList from 'flarum/utils/ItemList';
+import Button from 'components/Button';
+import Separator from 'components/Separator';
+import EditUserModal from 'components/EditUserModal';
+import UserPage from 'components/UserPage';
+import ItemList from 'utils/ItemList';
 
 /**
  * The `UserControls` utility constructs a list of buttons for a user which

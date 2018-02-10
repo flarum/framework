@@ -1,5 +1,5 @@
-import Model from 'flarum/Model';
-import computed from 'flarum/utils/computed';
+import Model from 'Model';
+import computed from 'utils/computed';
 
 export default class Notification extends Model {}
 

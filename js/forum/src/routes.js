@@ -1,9 +1,9 @@
-import IndexPage from 'flarum/components/IndexPage';
-import DiscussionPage from 'flarum/components/DiscussionPage';
-import PostsUserPage from 'flarum/components/PostsUserPage';
-import DiscussionsUserPage from 'flarum/components/DiscussionsUserPage';
-import SettingsPage from 'flarum/components/SettingsPage';
-import NotificationsPage from 'flarum/components/NotificationsPage';
+import IndexPage from 'components/IndexPage';
+import DiscussionPage from 'components/DiscussionPage';
+import PostsUserPage from 'components/PostsUserPage';
+import DiscussionsUserPage from 'components/DiscussionsUserPage';
+import SettingsPage from 'components/SettingsPage';
+import NotificationsPage from 'components/NotificationsPage';
 
 /**
  * The `routes` initializer defines the forum app's routes.

@@ -1,7 +1,7 @@
-import Model from 'flarum/Model';
-import computed from 'flarum/utils/computed';
-import ItemList from 'flarum/utils/ItemList';
-import Badge from 'flarum/components/Badge';
+import Model from 'Model';
+import computed from 'utils/computed';
+import ItemList from 'utils/ItemList';
+import Badge from 'components/Badge';
 
 export default class Discussion extends Model {}
 

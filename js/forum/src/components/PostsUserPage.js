@@ -1,7 +1,7 @@
-import UserPage from 'flarum/components/UserPage';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import Button from 'flarum/components/Button';
-import CommentPost from 'flarum/components/CommentPost';
+import UserPage from 'components/UserPage';
+import LoadingIndicator from 'components/LoadingIndicator';
+import Button from 'components/Button';
+import CommentPost from 'components/CommentPost';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their

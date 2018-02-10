@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import ItemList from 'flarum/utils/ItemList';
+import Component from 'Component';
+import ItemList from 'utils/ItemList';
 
 /**
  * The `LogInButtons` component displays a collection of social login buttons.

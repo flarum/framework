@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import humanTime from 'flarum/helpers/humanTime';
-import fullTime from 'flarum/helpers/fullTime';
+import Component from 'Component';
+import humanTime from 'helpers/humanTime';
+import fullTime from 'helpers/fullTime';
 
 /**
  * The `PostMeta` component displays the time of a post, and when clicked, shows

@@ -1,8 +1,8 @@
-import Component from 'flarum/Component';
-import DiscussionListItem from 'flarum/components/DiscussionListItem';
-import Button from 'flarum/components/Button';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import Placeholder from 'flarum/components/Placeholder';
+import Component from 'Component';
+import DiscussionListItem from 'components/DiscussionListItem';
+import Button from 'components/Button';
+import LoadingIndicator from 'components/LoadingIndicator';
+import Placeholder from 'components/Placeholder';
 
 /**
  * The `DiscussionList` component displays a list of discussions.

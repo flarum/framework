@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import avatar from 'flarum/helpers/avatar';
+import Component from 'Component';
+import avatar from 'helpers/avatar';
 
 /**
  * The `LoadingPost` component shows a placeholder that looks like a post,

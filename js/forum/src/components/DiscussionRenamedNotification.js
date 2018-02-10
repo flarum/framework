@@ -1,4 +1,4 @@
-import Notification from 'flarum/components/Notification';
+import Notification from 'components/Notification';
 
 /**
  * The `DiscussionRenamedNotification` component displays a notification which

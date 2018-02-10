@@ -1,14 +1,14 @@
 /*global s9e, hljs*/
 
-import Post from 'flarum/components/Post';
-import classList from 'flarum/utils/classList';
-import PostUser from 'flarum/components/PostUser';
-import PostMeta from 'flarum/components/PostMeta';
-import PostEdited from 'flarum/components/PostEdited';
-import EditPostComposer from 'flarum/components/EditPostComposer';
-import ItemList from 'flarum/utils/ItemList';
-import listItems from 'flarum/helpers/listItems';
-import Button from 'flarum/components/Button';
+import Post from 'components/Post';
+import classList from 'utils/classList';
+import PostUser from 'components/PostUser';
+import PostMeta from 'components/PostMeta';
+import PostEdited from 'components/PostEdited';
+import EditPostComposer from 'components/EditPostComposer';
+import ItemList from 'utils/ItemList';
+import listItems from 'helpers/listItems';
+import Button from 'components/Button';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This

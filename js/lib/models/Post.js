@@ -1,6 +1,6 @@
-import Model from 'flarum/Model';
-import computed from 'flarum/utils/computed';
-import { getPlainContent } from 'flarum/utils/string';
+import Model from 'Model';
+import computed from 'utils/computed';
+import { getPlainContent } from 'utils/string';
 
 export default class Post extends Model {}
 

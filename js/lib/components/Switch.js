@@ -1,4 +1,4 @@
-import Checkbox from 'flarum/components/Checkbox';
+import Checkbox from 'components/Checkbox';
 
 /**
  * The `Switch` component is a `Checkbox`, but with a switch display instead of

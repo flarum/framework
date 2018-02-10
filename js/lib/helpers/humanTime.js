@@ -1,4 +1,4 @@
-import humanTimeUtil from 'flarum/utils/humanTime';
+import humanTimeUtil from 'utils/humanTime';
 
 /**
  * The `humanTime` helper displays a time in a human-friendly time-ago format

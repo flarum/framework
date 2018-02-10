@@ -1,10 +1,10 @@
-import Component from 'flarum/Component';
-import avatar from 'flarum/helpers/avatar';
-import icon from 'flarum/helpers/icon';
-import listItems from 'flarum/helpers/listItems';
-import ItemList from 'flarum/utils/ItemList';
-import Button from 'flarum/components/Button';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
+import Component from 'Component';
+import avatar from 'helpers/avatar';
+import icon from 'helpers/icon';
+import listItems from 'helpers/listItems';
+import ItemList from 'utils/ItemList';
+import Button from 'components/Button';
+import LoadingIndicator from 'components/LoadingIndicator';
 
 /**
  * The `AvatarEditor` component displays a user's avatar along with a dropdown

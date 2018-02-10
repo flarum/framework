@@ -1,7 +1,7 @@
-import Modal from 'flarum/components/Modal';
-import Alert from 'flarum/components/Alert';
-import Button from 'flarum/components/Button';
-import extractText from 'flarum/utils/extractText';
+import Modal from 'components/Modal';
+import Alert from 'components/Alert';
+import Button from 'components/Button';
+import extractText from 'utils/extractText';
 
 /**
  * The `ForgotPasswordModal` component displays a modal which allows the user to

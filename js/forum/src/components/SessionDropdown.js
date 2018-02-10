@@ -1,11 +1,11 @@
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
-import Dropdown from 'flarum/components/Dropdown';
-import LinkButton from 'flarum/components/LinkButton';
-import Button from 'flarum/components/Button';
-import ItemList from 'flarum/utils/ItemList';
-import Separator from 'flarum/components/Separator';
-import Group from 'flarum/models/Group';
+import avatar from 'helpers/avatar';
+import username from 'helpers/username';
+import Dropdown from 'components/Dropdown';
+import LinkButton from 'components/LinkButton';
+import Button from 'components/Button';
+import ItemList from 'utils/ItemList';
+import Separator from 'components/Separator';
+import Group from 'models/Group';
 
 /**
  * The `SessionDropdown` component shows a button with the current user's

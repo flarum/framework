@@ -1,6 +1,6 @@
-import Dropdown from 'flarum/components/Dropdown';
-import Button from 'flarum/components/Button';
-import icon from 'flarum/helpers/icon';
+import Dropdown from 'components/Dropdown';
+import Button from 'components/Button';
+import icon from 'helpers/icon';
 
 /**
  * The `SplitDropdown` component is similar to `Dropdown`, but the first child

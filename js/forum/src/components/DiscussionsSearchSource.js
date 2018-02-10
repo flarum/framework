@@ -1,5 +1,5 @@
-import highlight from 'flarum/helpers/highlight';
-import LinkButton from 'flarum/components/LinkButton';
+import highlight from 'helpers/highlight';
+import LinkButton from 'components/LinkButton';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in

@@ -1,5 +1,5 @@
-import EventPost from 'flarum/components/EventPost';
-import extractText from 'flarum/utils/extractText';
+import EventPost from 'components/EventPost';
+import extractText from 'utils/extractText';
 
 /**
  * The `DiscussionRenamedPost` component displays a discussion event post

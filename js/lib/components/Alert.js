@@ -1,7 +1,7 @@
-import Component from 'flarum/Component';
-import Button from 'flarum/components/Button';
-import listItems from 'flarum/helpers/listItems';
-import extract from 'flarum/utils/extract';
+import Component from 'Component';
+import Button from 'components/Button';
+import listItems from 'helpers/listItems';
+import extract from 'utils/extract';
 
 /**
  * The `Alert` component represents an alert box, which contains a message,

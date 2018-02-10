@@ -1,4 +1,4 @@
-import humanTimeUtil from 'flarum/utils/humanTime';
+import humanTimeUtil from 'utils/humanTime';
 
 function updateHumanTimes() {
   $('[data-humantime]').each(function() {

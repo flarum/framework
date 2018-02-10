@@ -1,12 +1,12 @@
-import Page from 'flarum/components/Page';
-import ItemList from 'flarum/utils/ItemList';
-import DiscussionHero from 'flarum/components/DiscussionHero';
-import PostStream from 'flarum/components/PostStream';
-import PostStreamScrubber from 'flarum/components/PostStreamScrubber';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import SplitDropdown from 'flarum/components/SplitDropdown';
-import listItems from 'flarum/helpers/listItems';
-import DiscussionControls from 'flarum/utils/DiscussionControls';
+import Page from 'components/Page';
+import ItemList from 'utils/ItemList';
+import DiscussionHero from 'components/DiscussionHero';
+import PostStream from 'components/PostStream';
+import PostStreamScrubber from 'components/PostStreamScrubber';
+import LoadingIndicator from 'components/LoadingIndicator';
+import SplitDropdown from 'components/SplitDropdown';
+import listItems from 'helpers/listItems';
+import DiscussionControls from 'utils/DiscussionControls';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including

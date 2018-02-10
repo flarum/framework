@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import icon from 'flarum/helpers/icon';
+import Component from 'Component';
+import icon from 'helpers/icon';
 
 /**
  * The `Select` component displays a <select> input, surrounded with some extra

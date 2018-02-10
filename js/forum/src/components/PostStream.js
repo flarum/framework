@@ -1,11 +1,11 @@
-import Component from 'flarum/Component';
-import ScrollListener from 'flarum/utils/ScrollListener';
-import PostLoading from 'flarum/components/LoadingPost';
-import anchorScroll from 'flarum/utils/anchorScroll';
-import mixin from 'flarum/utils/mixin';
-import evented from 'flarum/utils/evented';
-import ReplyPlaceholder from 'flarum/components/ReplyPlaceholder';
-import Button from 'flarum/components/Button';
+import Component from 'Component';
+import ScrollListener from 'utils/ScrollListener';
+import PostLoading from 'components/LoadingPost';
+import anchorScroll from 'utils/anchorScroll';
+import mixin from 'utils/mixin';
+import evented from 'utils/evented';
+import ReplyPlaceholder from 'components/ReplyPlaceholder';
+import Button from 'components/Button';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in

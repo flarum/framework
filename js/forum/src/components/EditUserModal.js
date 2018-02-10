@@ -1,8 +1,8 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import GroupBadge from 'flarum/components/GroupBadge';
-import Group from 'flarum/models/Group';
-import extractText from 'flarum/utils/extractText';
+import Modal from 'components/Modal';
+import Button from 'components/Button';
+import GroupBadge from 'components/GroupBadge';
+import Group from 'models/Group';
+import extractText from 'utils/extractText';
 
 /**
  * The `EditUserModal` component displays a modal dialog with a login form.

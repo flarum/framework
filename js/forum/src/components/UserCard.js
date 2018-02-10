@@ -1,13 +1,13 @@
-import Component from 'flarum/Component';
-import humanTime from 'flarum/utils/humanTime';
-import ItemList from 'flarum/utils/ItemList';
-import UserControls from 'flarum/utils/UserControls';
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
-import icon from 'flarum/helpers/icon';
-import Dropdown from 'flarum/components/Dropdown';
-import AvatarEditor from 'flarum/components/AvatarEditor';
-import listItems from 'flarum/helpers/listItems';
+import Component from 'Component';
+import humanTime from 'utils/humanTime';
+import ItemList from 'utils/ItemList';
+import UserControls from 'utils/UserControls';
+import avatar from 'helpers/avatar';
+import username from 'helpers/username';
+import icon from 'helpers/icon';
+import Dropdown from 'components/Dropdown';
+import AvatarEditor from 'components/AvatarEditor';
+import listItems from 'helpers/listItems';
 
 /**
  * The `UserCard` component displays a user's profile card. This is used both on

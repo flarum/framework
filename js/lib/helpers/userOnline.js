@@ -1,4 +1,4 @@
-import icon from 'flarum/helpers/icon';
+import icon from 'helpers/icon';
 
 /**
  * The `useronline` helper displays a green circle if the user is online

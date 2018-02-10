@@ -1,7 +1,7 @@
-import Component from 'flarum/Component';
-import avatar from 'flarum/helpers/avatar';
-import icon from 'flarum/helpers/icon';
-import humanTime from 'flarum/helpers/humanTime';
+import Component from 'Component';
+import avatar from 'helpers/avatar';
+import icon from 'helpers/icon';
+import humanTime from 'helpers/humanTime';
 
 /**
  * The `Notification` component abstract displays a single notification.

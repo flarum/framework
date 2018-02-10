@@ -1,7 +1,7 @@
-import Component from 'flarum/Component';
-import Checkbox from 'flarum/components/Checkbox';
-import icon from 'flarum/helpers/icon';
-import ItemList from 'flarum/utils/ItemList';
+import Component from 'Component';
+import Checkbox from 'components/Checkbox';
+import icon from 'helpers/icon';
+import ItemList from 'utils/ItemList';
 
 /**
  * The `NotificationGrid` component displays a table of notification types and

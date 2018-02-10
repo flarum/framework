@@ -1,5 +1,5 @@
-import ComposerBody from 'flarum/components/ComposerBody';
-import extractText from 'flarum/utils/extractText';
+import ComposerBody from 'components/ComposerBody';
+import extractText from 'utils/extractText';
 
 /**
  * The `DiscussionComposer` component displays the composer content for starting

@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import Alert from 'flarum/components/Alert';
+import Component from 'Component';
+import Alert from 'components/Alert';
 
 /**
  * The `AlertManager` component provides an area in which `Alert` components can

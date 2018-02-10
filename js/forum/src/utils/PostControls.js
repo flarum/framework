@@ -1,7 +1,7 @@
-import EditPostComposer from 'flarum/components/EditPostComposer';
-import Button from 'flarum/components/Button';
-import Separator from 'flarum/components/Separator';
-import ItemList from 'flarum/utils/ItemList';
+import EditPostComposer from 'components/EditPostComposer';
+import Button from 'components/Button';
+import Separator from 'components/Separator';
+import ItemList from 'utils/ItemList';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which

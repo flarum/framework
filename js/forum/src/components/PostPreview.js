@@ -1,7 +1,7 @@
-import Component from 'flarum/Component';
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
-import highlight from 'flarum/helpers/highlight';
+import Component from 'Component';
+import avatar from 'helpers/avatar';
+import username from 'helpers/username';
+import highlight from 'helpers/highlight';
 
 /**
  * The `PostPreview` component shows a link to a post containing the avatar and

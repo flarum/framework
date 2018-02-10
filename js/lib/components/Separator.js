@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Component from 'Component';
 
 /**
  * The `Separator` component defines a menu separator item.

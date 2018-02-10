@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Component from 'Component';
 
 /**
  * The `Placeholder` component displays a muted text with some call to action,

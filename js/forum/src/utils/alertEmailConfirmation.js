@@ -1,6 +1,6 @@
-import Alert from 'flarum/components/Alert';
-import Button from 'flarum/components/Button';
-import icon from 'flarum/helpers/icon';
+import Alert from 'components/Alert';
+import Button from 'components/Button';
+import icon from 'helpers/icon';
 
 /**
  * Shows an alert if the user has not yet confirmed their email address.

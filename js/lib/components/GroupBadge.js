@@ -1,4 +1,4 @@
-import Badge from 'flarum/components/Badge';
+import Badge from 'components/Badge';
 
 export default class GroupBadge extends Badge {
   static initProps(props) {

@@ -1,8 +1,8 @@
-import Component from 'flarum/Component';
-import ItemList from 'flarum/utils/ItemList';
-import ComposerButton from 'flarum/components/ComposerButton';
-import listItems from 'flarum/helpers/listItems';
-import classList from 'flarum/utils/classList';
+import Component from 'Component';
+import ItemList from 'utils/ItemList';
+import ComposerButton from 'components/ComposerButton';
+import listItems from 'helpers/listItems';
+import classList from 'utils/classList';
 
 /**
  * The `Composer` component displays the composer. It can be loaded with a

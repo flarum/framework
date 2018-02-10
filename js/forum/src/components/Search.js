@@ -1,12 +1,12 @@
-import Component from 'flarum/Component';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import ItemList from 'flarum/utils/ItemList';
-import classList from 'flarum/utils/classList';
-import extractText from 'flarum/utils/extractText';
-import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
-import icon from 'flarum/helpers/icon';
-import DiscussionsSearchSource from 'flarum/components/DiscussionsSearchSource';
-import UsersSearchSource from 'flarum/components/UsersSearchSource';
+import Component from 'Component';
+import LoadingIndicator from 'components/LoadingIndicator';
+import ItemList from 'utils/ItemList';
+import classList from 'utils/classList';
+import extractText from 'utils/extractText';
+import KeyboardNavigatable from 'utils/KeyboardNavigatable';
+import icon from 'helpers/icon';
+import DiscussionsSearchSource from 'components/DiscussionsSearchSource';
+import UsersSearchSource from 'components/UsersSearchSource';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety

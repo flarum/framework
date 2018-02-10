@@ -1,5 +1,5 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
+import Modal from 'components/Modal';
+import Button from 'components/Button';
 
 /**
  * The `ChangePasswordModal` component shows a modal dialog which allows the

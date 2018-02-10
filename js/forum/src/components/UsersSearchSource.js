@@ -1,6 +1,6 @@
-import highlight from 'flarum/helpers/highlight';
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
+import highlight from 'helpers/highlight';
+import avatar from 'helpers/avatar';
+import username from 'helpers/username';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search

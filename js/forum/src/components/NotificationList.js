@@ -1,8 +1,8 @@
-import Component from 'flarum/Component';
-import listItems from 'flarum/helpers/listItems';
-import Button from 'flarum/components/Button';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import Discussion from 'flarum/models/Discussion';
+import Component from 'Component';
+import listItems from 'helpers/listItems';
+import Button from 'components/Button';
+import LoadingIndicator from 'components/LoadingIndicator';
+import Discussion from 'models/Discussion';
 
 /**
  * The `NotificationList` component displays a list of the logged-in user's

@@ -1,11 +1,11 @@
-import DiscussionPage from 'flarum/components/DiscussionPage';
-import ReplyComposer from 'flarum/components/ReplyComposer';
-import LogInModal from 'flarum/components/LogInModal';
-import Button from 'flarum/components/Button';
-import Separator from 'flarum/components/Separator';
-import RenameDiscussionModal from 'flarum/components/RenameDiscussionModal';
-import ItemList from 'flarum/utils/ItemList';
-import extractText from 'flarum/utils/extractText';
+import DiscussionPage from 'components/DiscussionPage';
+import ReplyComposer from 'components/ReplyComposer';
+import LogInModal from 'components/LogInModal';
+import Button from 'components/Button';
+import Separator from 'components/Separator';
+import RenameDiscussionModal from 'components/RenameDiscussionModal';
+import ItemList from 'utils/ItemList';
+import extractText from 'utils/extractText';
 
 /**
  * The `DiscussionControls` utility constructs a list of buttons for a

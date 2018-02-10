@@ -1,6 +1,6 @@
-import Dropdown from 'flarum/components/Dropdown';
-import icon from 'flarum/helpers/icon';
-import NotificationList from 'flarum/components/NotificationList';
+import Dropdown from 'components/Dropdown';
+import icon from 'helpers/icon';
+import NotificationList from 'components/NotificationList';
 
 export default class NotificationsDropdown extends Dropdown {
   static initProps(props) {

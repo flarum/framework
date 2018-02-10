@@ -1,7 +1,7 @@
-import Component from 'flarum/Component';
-import ItemList from 'flarum/utils/ItemList';
-import listItems from 'flarum/helpers/listItems';
-import Button from 'flarum/components/Button';
+import Component from 'Component';
+import ItemList from 'utils/ItemList';
+import listItems from 'helpers/listItems';
+import Button from 'components/Button';
 
 /**
  * The `TextEditor` component displays a textarea with controls, including a

@@ -1,4 +1,4 @@
-import Button from 'flarum/components/Button';
+import Button from 'components/Button';
 
 /**
  * The `LinkButton` component defines a `Button` which links to a route.

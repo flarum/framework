@@ -1,4 +1,4 @@
-import Button from 'flarum/components/Button';
+import Button from 'components/Button';
 
 /**
  * The `ComposerButton` component displays a button suitable for the composer

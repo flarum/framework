@@ -1,4 +1,4 @@
-import Component from 'flarum/Component';
+import Component from 'Component';
 
 /**
  * The `LoadingIndicator` component displays a loading spinner with spin.js. It

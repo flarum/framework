@@ -1,9 +1,9 @@
 /*global s9e*/
 
-import Component from 'flarum/Component';
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
-import DiscussionControls from 'flarum/utils/DiscussionControls';
+import Component from 'Component';
+import avatar from 'helpers/avatar';
+import username from 'helpers/username';
+import DiscussionControls from 'utils/DiscussionControls';
 
 /**
  * The `ReplyPlaceholder` component displays a placeholder for a reply, which,

@@ -1,19 +1,19 @@
-import Component from 'flarum/Component';
-import avatar from 'flarum/helpers/avatar';
-import listItems from 'flarum/helpers/listItems';
-import highlight from 'flarum/helpers/highlight';
-import icon from 'flarum/helpers/icon';
-import humanTime from 'flarum/utils/humanTime';
-import ItemList from 'flarum/utils/ItemList';
-import abbreviateNumber from 'flarum/utils/abbreviateNumber';
-import Dropdown from 'flarum/components/Dropdown';
-import TerminalPost from 'flarum/components/TerminalPost';
-import PostPreview from 'flarum/components/PostPreview';
-import SubtreeRetainer from 'flarum/utils/SubtreeRetainer';
-import DiscussionControls from 'flarum/utils/DiscussionControls';
-import slidable from 'flarum/utils/slidable';
-import extractText from 'flarum/utils/extractText';
-import classList from 'flarum/utils/classList';
+import Component from 'Component';
+import avatar from 'helpers/avatar';
+import listItems from 'helpers/listItems';
+import highlight from 'helpers/highlight';
+import icon from 'helpers/icon';
+import humanTime from 'utils/humanTime';
+import ItemList from 'utils/ItemList';
+import abbreviateNumber from 'utils/abbreviateNumber';
+import Dropdown from 'components/Dropdown';
+import TerminalPost from 'components/TerminalPost';
+import PostPreview from 'components/PostPreview';
+import SubtreeRetainer from 'utils/SubtreeRetainer';
+import DiscussionControls from 'utils/DiscussionControls';
+import slidable from 'utils/slidable';
+import extractText from 'utils/extractText';
+import classList from 'utils/classList';
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the

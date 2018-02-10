@@ -1,12 +1,12 @@
-import UserPage from 'flarum/components/UserPage';
-import ItemList from 'flarum/utils/ItemList';
-import Switch from 'flarum/components/Switch';
-import Button from 'flarum/components/Button';
-import FieldSet from 'flarum/components/FieldSet';
-import NotificationGrid from 'flarum/components/NotificationGrid';
-import ChangePasswordModal from 'flarum/components/ChangePasswordModal';
-import ChangeEmailModal from 'flarum/components/ChangeEmailModal';
-import listItems from 'flarum/helpers/listItems';
+import UserPage from 'components/UserPage';
+import ItemList from 'utils/ItemList';
+import Switch from 'components/Switch';
+import Button from 'components/Button';
+import FieldSet from 'components/FieldSet';
+import NotificationGrid from 'components/NotificationGrid';
+import ChangePasswordModal from 'components/ChangePasswordModal';
+import ChangeEmailModal from 'components/ChangeEmailModal';
+import listItems from 'helpers/listItems';
 
 /**
  * The `SettingsPage` component displays the user's settings control panel, in

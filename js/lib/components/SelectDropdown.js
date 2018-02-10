@@ -1,5 +1,5 @@
-import Dropdown from 'flarum/components/Dropdown';
-import icon from 'flarum/helpers/icon';
+import Dropdown from 'components/Dropdown';
+import icon from 'helpers/icon';
 
 /**
  * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle

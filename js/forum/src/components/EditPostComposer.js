@@ -1,5 +1,5 @@
-import ComposerBody from 'flarum/components/ComposerBody';
-import icon from 'flarum/helpers/icon';
+import ComposerBody from 'components/ComposerBody';
+import icon from 'helpers/icon';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {

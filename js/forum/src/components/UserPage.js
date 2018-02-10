@@ -1,12 +1,12 @@
-import Page from 'flarum/components/Page';
-import ItemList from 'flarum/utils/ItemList';
-import affixSidebar from 'flarum/utils/affixSidebar';
-import UserCard from 'flarum/components/UserCard';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import SelectDropdown from 'flarum/components/SelectDropdown';
-import LinkButton from 'flarum/components/LinkButton';
-import Separator from 'flarum/components/Separator';
-import listItems from 'flarum/helpers/listItems';
+import Page from 'components/Page';
+import ItemList from 'utils/ItemList';
+import affixSidebar from 'utils/affixSidebar';
+import UserCard from 'components/UserCard';
+import LoadingIndicator from 'components/LoadingIndicator';
+import SelectDropdown from 'components/SelectDropdown';
+import LinkButton from 'components/LinkButton';
+import Separator from 'components/Separator';
+import listItems from 'helpers/listItems';
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show

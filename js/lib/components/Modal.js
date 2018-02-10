@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import Alert from 'flarum/components/Alert';
-import Button from 'flarum/components/Button';
+import Component from 'Component';
+import Alert from 'components/Alert';
+import Button from 'components/Button';
 
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses

@@ -1,9 +1,9 @@
-import Modal from 'flarum/components/Modal';
-import LogInModal from 'flarum/components/LogInModal';
-import avatar from 'flarum/helpers/avatar';
-import Button from 'flarum/components/Button';
-import LogInButtons from 'flarum/components/LogInButtons';
-import extractText from 'flarum/utils/extractText';
+import Modal from 'components/Modal';
+import LogInModal from 'components/LogInModal';
+import avatar from 'helpers/avatar';
+import Button from 'components/Button';
+import LogInButtons from 'components/LogInButtons';
+import extractText from 'utils/extractText';
 
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.

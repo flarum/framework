@@ -1,5 +1,5 @@
-import Separator from 'flarum/components/Separator';
-import classList from 'flarum/utils/classList';
+import Separator from 'components/Separator';
+import classList from 'utils/classList';
 
 function isSeparator(item) {
   return item && item.component === Separator;

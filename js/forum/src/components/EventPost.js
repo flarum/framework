@@ -1,7 +1,7 @@
-import Post from 'flarum/components/Post';
-import { ucfirst } from 'flarum/utils/string';
-import usernameHelper from 'flarum/helpers/username';
-import icon from 'flarum/helpers/icon';
+import Post from 'components/Post';
+import { ucfirst } from 'utils/string';
+import usernameHelper from 'helpers/username';
+import icon from 'helpers/icon';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion

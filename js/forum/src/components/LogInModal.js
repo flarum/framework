@@ -1,10 +1,10 @@
-import Modal from 'flarum/components/Modal';
-import ForgotPasswordModal from 'flarum/components/ForgotPasswordModal';
-import SignUpModal from 'flarum/components/SignUpModal';
-import Alert from 'flarum/components/Alert';
-import Button from 'flarum/components/Button';
-import LogInButtons from 'flarum/components/LogInButtons';
-import extractText from 'flarum/utils/extractText';
+import Modal from 'components/Modal';
+import ForgotPasswordModal from 'components/ForgotPasswordModal';
+import SignUpModal from 'components/SignUpModal';
+import Alert from 'components/Alert';
+import Button from 'components/Button';
+import LogInButtons from 'components/LogInButtons';
+import extractText from 'utils/extractText';
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.

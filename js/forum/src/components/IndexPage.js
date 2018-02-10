@@ -1,17 +1,17 @@
-import { extend } from 'flarum/extend';
-import Page from 'flarum/components/Page';
-import ItemList from 'flarum/utils/ItemList';
-import listItems from 'flarum/helpers/listItems';
-import icon from 'flarum/helpers/icon';
-import DiscussionList from 'flarum/components/DiscussionList';
-import WelcomeHero from 'flarum/components/WelcomeHero';
-import DiscussionComposer from 'flarum/components/DiscussionComposer';
-import LogInModal from 'flarum/components/LogInModal';
-import DiscussionPage from 'flarum/components/DiscussionPage';
-import Dropdown from 'flarum/components/Dropdown';
-import Button from 'flarum/components/Button';
-import LinkButton from 'flarum/components/LinkButton';
-import SelectDropdown from 'flarum/components/SelectDropdown';
+import { extend } from 'extend';
+import Page from 'components/Page';
+import ItemList from 'utils/ItemList';
+import listItems from 'helpers/listItems';
+import icon from 'helpers/icon';
+import DiscussionList from 'components/DiscussionList';
+import WelcomeHero from 'components/WelcomeHero';
+import DiscussionComposer from 'components/DiscussionComposer';
+import LogInModal from 'components/LogInModal';
+import DiscussionPage from 'components/DiscussionPage';
+import Dropdown from 'components/Dropdown';
+import Button from 'components/Button';
+import LinkButton from 'components/LinkButton';
+import SelectDropdown from 'components/SelectDropdown';
 
 /**
  * The `IndexPage` component displays the index page, including the welcome

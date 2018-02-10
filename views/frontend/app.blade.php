@@ -41,16 +41,7 @@
         @if (! $debug)
         try {
         @endif
-          var app = System.get('flarum/app').default;
-          var modules = {!! json_encode($modules) !!};
-
-          for (var i in modules) {
-            var module = System.get(modules[i]);
-            if (module.default) module.default(app);
-          }
-
-          app.boot(@json($payload));
-
+          flarum.app.boot(@json($payload));
         @if (! $debug)
         } catch (e) {
           window.location += (window.location.search ? '&' : '?') + 'nojs=1';

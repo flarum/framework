@@ -1,9 +1,9 @@
-import Component from 'flarum/Component';
-import icon from 'flarum/helpers/icon';
-import ScrollListener from 'flarum/utils/ScrollListener';
-import SubtreeRetainer from 'flarum/utils/SubtreeRetainer';
-import computed from 'flarum/utils/computed';
-import formatNumber from 'flarum/utils/formatNumber';
+import Component from 'Component';
+import icon from 'helpers/icon';
+import ScrollListener from 'utils/ScrollListener';
+import SubtreeRetainer from 'utils/SubtreeRetainer';
+import computed from 'utils/computed';
+import formatNumber from 'utils/formatNumber';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to

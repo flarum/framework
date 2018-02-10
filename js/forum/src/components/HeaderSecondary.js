@@ -1,12 +1,12 @@
-import Component from 'flarum/Component';
-import Button from 'flarum/components/Button';
-import LogInModal from 'flarum/components/LogInModal';
-import SignUpModal from 'flarum/components/SignUpModal';
-import SessionDropdown from 'flarum/components/SessionDropdown';
-import SelectDropdown from 'flarum/components/SelectDropdown';
-import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
-import ItemList from 'flarum/utils/ItemList';
-import listItems from 'flarum/helpers/listItems';
+import Component from 'Component';
+import Button from 'components/Button';
+import LogInModal from 'components/LogInModal';
+import SignUpModal from 'components/SignUpModal';
+import SessionDropdown from 'components/SessionDropdown';
+import SelectDropdown from 'components/SelectDropdown';
+import NotificationsDropdown from 'components/NotificationsDropdown';
+import ItemList from 'utils/ItemList';
+import listItems from 'helpers/listItems';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls, such as

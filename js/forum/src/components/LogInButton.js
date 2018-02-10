@@ -1,4 +1,4 @@
-import Button from 'flarum/components/Button';
+import Button from 'components/Button';
 
 /**
  * The `LogInButton` component displays a social login button which will open

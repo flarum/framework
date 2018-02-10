@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import icon from 'flarum/helpers/icon';
+import Component from 'Component';
+import LoadingIndicator from 'components/LoadingIndicator';
+import icon from 'helpers/icon';
 
 /**
  * The `Checkbox` component defines a checkbox input.

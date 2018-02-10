@@ -107,7 +107,7 @@ abstract class AbstractFrontend
         $root = __DIR__.'/../..';
         $name = $this->getName();
 
-        $view->getJs()->addFile("$root/js/$name/dist/app.js");
+        $view->getJs()->addFile("$root/js/$name/dist/main.js");
         $view->getCss()->addFile("$root/less/$name/app.less");
     }
 

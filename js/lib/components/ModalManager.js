@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import Modal from 'flarum/components/Modal';
+import Component from 'Component';
+import Modal from 'components/Modal';
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog

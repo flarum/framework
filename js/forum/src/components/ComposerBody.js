@@ -1,9 +1,9 @@
-import Component from 'flarum/Component';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import TextEditor from 'flarum/components/TextEditor';
-import avatar from 'flarum/helpers/avatar';
-import listItems from 'flarum/helpers/listItems';
-import ItemList from 'flarum/utils/ItemList';
+import Component from 'Component';
+import LoadingIndicator from 'components/LoadingIndicator';
+import TextEditor from 'components/TextEditor';
+import avatar from 'helpers/avatar';
+import listItems from 'helpers/listItems';
+import ItemList from 'utils/ItemList';
 
 /**
  * The `ComposerBody` component handles the body, or the content, of the

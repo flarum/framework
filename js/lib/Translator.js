@@ -1,7 +1,7 @@
-import User from 'flarum/models/User';
-import username from 'flarum/helpers/username';
-import extractText from 'flarum/utils/extractText';
-import extract from 'flarum/utils/extract';
+import User from 'models/User';
+import username from 'helpers/username';
+import extractText from 'utils/extractText';
+import extract from 'utils/extract';
 
 /**
  * Translator with the same API as Symfony's.

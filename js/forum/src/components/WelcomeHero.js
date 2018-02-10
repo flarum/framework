@@ -1,5 +1,5 @@
-import Component from 'flarum/Component';
-import Button from 'flarum/components/Button';
+import Component from 'Component';
+import Button from 'components/Button';
 
 /**
  * The `WelcomeHero` component displays a hero that welcomes the user to the

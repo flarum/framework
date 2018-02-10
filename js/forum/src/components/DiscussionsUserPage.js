@@ -1,5 +1,5 @@
-import UserPage from 'flarum/components/UserPage';
-import DiscussionList from 'flarum/components/DiscussionList';
+import UserPage from 'components/UserPage';
+import DiscussionList from 'components/DiscussionList';
 
 /**
  * The `DiscussionsUserPage` component shows a discussion list inside of a user

@@ -1,8 +1,8 @@
-import ComposerBody from 'flarum/components/ComposerBody';
-import Alert from 'flarum/components/Alert';
-import Button from 'flarum/components/Button';
-import icon from 'flarum/helpers/icon';
-import extractText from 'flarum/utils/extractText';
+import ComposerBody from 'components/ComposerBody';
+import Alert from 'components/Alert';
+import Button from 'components/Button';
+import icon from 'helpers/icon';
+import extractText from 'utils/extractText';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {

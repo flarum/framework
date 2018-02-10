@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import humanTime from 'flarum/helpers/humanTime';
-import icon from 'flarum/helpers/icon';
+import Component from 'Component';
+import humanTime from 'helpers/humanTime';
+import icon from 'helpers/icon';
 
 /**
  * Displays information about a the first or last post in a discussion.

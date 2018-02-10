@@ -1,4 +1,4 @@
-import Model from 'flarum/Model';
+import Model from 'Model';
 
 export default class Forum extends Model {
   apiEndpoint() {

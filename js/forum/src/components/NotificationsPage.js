@@ -1,5 +1,5 @@
-import Page from 'flarum/components/Page';
-import NotificationList from 'flarum/components/NotificationList';
+import Page from 'components/Page';
+import NotificationList from 'components/NotificationList';
 
 /**
  * The `NotificationsPage` component shows the notifications list. It is only

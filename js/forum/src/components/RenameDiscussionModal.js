@@ -1,5 +1,5 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
+import Modal from 'components/Modal';
+import Button from 'components/Button';
 
 /**
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
