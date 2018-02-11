@@ -89,13 +89,6 @@ class JsCompiler extends RevisionCompiler
 
         $minifier = new FirstAvailable;
 
-        $remoteCache = $minifier->add('RemoteCache');
-        $remoteCache->url = 'http://s9e-textformatter.rhcloud.com/flarum-minifier/';
-
-        $hostedMinifer = $minifier->add('HostedMinifier');
-        $hostedMinifer->url = 'http://s9e-textformatter.rhcloud.com/flarum-minifier/';
-        $hostedMinifer->httpClient->timeout = 30;
-
         $ccs = $minifier->add('ClosureCompilerService');
         $ccs->compilationLevel = 'SIMPLE_OPTIMIZATIONS';
         $ccs->httpClient->timeout = 30;
