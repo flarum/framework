@@ -64,7 +64,7 @@ class AddForumTagsRelationship
     public function loadTagsRelationship(WillSerializeData $event)
     {
         // Expose the complete tag list to clients by adding it as a
-        // relationship to the /api/forum endpoint. Since the Forum model
+        // relationship to the /api endpoint. Since the Forum model
         // doesn't actually have a tags relationship, we will manually load and
         // assign the tags data to it using an event listener.
         if ($event->isController(ShowForumController::class)) {
