@@ -13,9 +13,9 @@ namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
-class RollbackCommand extends AbstractCommand
+class ResetCommand extends AbstractCommand
 {
     /**
      * @var ExtensionManager
@@ -38,12 +38,13 @@ class RollbackCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('migrate:rollback')
-            ->setDescription('Run rollback migrations for an extension')
-            ->addArgument(
+            ->setName('migrate:reset')
+            ->setDescription('Run all migrations down for an extension')
+            ->addOption(
                 'extension',
-                InputArgument::REQUIRED,
-                'The name of the extension.'
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The extension to reset migrations for.'
             );
     }
 
@@ -52,7 +53,14 @@ class RollbackCommand extends AbstractCommand
      */
     protected function fire()
     {
-        $extensionName = $this->input->getArgument('extension');
+        $extensionName = $this->input->getOption('extension');
+
+        if (! $extensionName) {
+            $this->info('No extension specified. Please check command syntax.');
+
+            return;
+        }
+
         $extension = $this->manager->getExtension($extensionName);
 
         if (! $extension) {
