@@ -18,7 +18,7 @@ use Flarum\User\User;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class InstallCommandTest extends TestCase
+class DefaultsInstallationCommandTest extends TestCase
 {
     protected $isInstalled = false;
 
@@ -28,7 +28,7 @@ class InstallCommandTest extends TestCase
     public function allows_forum_installation()
     {
         if (file_exists($this->app->basePath().DIRECTORY_SEPARATOR.'config.php')) {
-            unlink($this->app->basePath() . DIRECTORY_SEPARATOR . 'config.php');
+            unlink($this->app->basePath().DIRECTORY_SEPARATOR.'config.php');
         }
 
         $this->app->register(InstallServiceProvider::class);
