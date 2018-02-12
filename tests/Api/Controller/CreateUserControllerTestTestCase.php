@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\CreateUserController;
@@ -66,7 +75,6 @@ class CreateUserControllerTestTestCase extends ApiControllerTestCase
         $user = User::where('username', 'test')->firstOrFail();
 
         $this->assertEquals(1, $user->is_activated);
-
     }
 
     /**

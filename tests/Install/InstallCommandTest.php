@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\Install;
 
 use Flarum\Install\Console\InstallCommand;
@@ -16,7 +25,7 @@ class InstallCommandTest extends TestCase
      */
     public function allows_forum_installation()
     {
-        if (!file_exists($this->app->basePath() . DIRECTORY_SEPARATOR . 'config.php')) {
+        if (! file_exists($this->app->basePath().DIRECTORY_SEPARATOR.'config.php')) {
             $this->app->register(InstallServiceProvider::class);
             /** @var InstallCommand $command */
             $command = $this->app->make(InstallCommand::class);
@@ -29,7 +38,7 @@ class InstallCommandTest extends TestCase
             $command->run($input, $output);
         }
 
-        $this->assertFileExists($this->app->basePath() . DIRECTORY_SEPARATOR . 'config.php');
+        $this->assertFileExists($this->app->basePath().DIRECTORY_SEPARATOR.'config.php');
 
         $admin = $this->configuration->getAdminUser();
 
