@@ -75,7 +75,7 @@ class FileDataProvider implements DataProviderInterface
         return $this->settings + $this->default->getSettings();
     }
 
-    public function getDebug(): bool
+    public function isDebugMode(): bool
     {
         return $this->debug;
     }

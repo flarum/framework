@@ -54,7 +54,7 @@ class DefaultsDataProvider implements DataProviderInterface
         'welcome_title' => 'Welcome to Development Forum',
     ];
 
-    public function getDebug(): bool
+    public function isDebugMode(): bool
     {
         return $this->debug;
     }
