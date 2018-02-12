@@ -11,8 +11,8 @@
 
 namespace Flarum\Suspend\Notification;
 
-use Flarum\Core\Notification\BlueprintInterface;
-use Flarum\Core\User;
+use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\User\User;
 
 class UserSuspendedBlueprint implements BlueprintInterface
 {

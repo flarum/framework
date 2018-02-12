@@ -11,15 +11,16 @@
 
 namespace Flarum\Suspend\Listener;
 
-use DateTime;
-use Flarum\Api\Serializer\UserBasicSerializer;
-use Flarum\Core\Notification\NotificationSyncer;
-use Flarum\Core\User;
+use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Event\ConfigureNotificationTypes;
+use Flarum\Notification\NotificationSyncer;
+use Flarum\Suspend\Event\Suspended;
+use Flarum\Suspend\Event\Unsuspended;
 use Flarum\Suspend\Event\UserWasSuspended;
 use Flarum\Suspend\Event\UserWasUnsuspended;
 use Flarum\Suspend\Notification\UserSuspendedBlueprint;
 use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SendNotificationWhenUserIsSuspended
@@ -43,8 +44,8 @@ class SendNotificationWhenUserIsSuspended
     public function subscribe(Dispatcher $events)
     {
         $events->listen(ConfigureNotificationTypes::class, [$this, 'registerNotificationType']);
-        $events->listen(UserWasSuspended::class, [$this, 'whenUserWasSuspended']);
-        $events->listen(UserWasUnsuspended::class, [$this, 'whenUserWasUnsuspended']);
+        $events->listen(Suspended::class, [$this, 'whenSuspended']);
+        $events->listen(Unsuspended::class, [$this, 'whenUnsuspended']);
     }
 
     /**
@@ -52,43 +53,29 @@ class SendNotificationWhenUserIsSuspended
      */
     public function registerNotificationType(ConfigureNotificationTypes $event)
     {
-        $event->add(UserSuspendedBlueprint::class, UserBasicSerializer::class, ['alert', 'email']);
-        $event->add(UserUnsuspendedBlueprint::class, UserBasicSerializer::class, ['alert', 'email']);
+        $event->add(UserSuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email']);
+        $event->add(UserUnsuspendedBlueprint::class, BasicUserSerializer::class, ['alert', 'email']);
     }
 
     /**
-     * @param UserWasSuspended $event
+     * @param Suspended $event
      */
-    public function whenUserWasSuspended(UserWasSuspended $event)
+    public function whenSuspended(Suspended $event)
     {
-        $this->sync($event->user, $event->actor, [$event->user]);
+        $this->notifications->sync(
+            new UserSuspendedBlueprint($event->user, $event->actor),
+            [$event->user]
+        );
     }
 
     /**
-     * @param UserWasUnsuspended $event
+     * @param Unsuspended $event
      */
-    public function whenUserWasUnsuspended(UserWasUnsuspended $event)
+    public function whenUnsuspended(Unsuspended $event)
     {
-        $this->sync($event->user, $event->actor, [$event->user]);
-    }
-
-    /**
-     * @param User $user
-     * @param User $actor
-     * @param array $recipients
-     */
-    public function sync(User $user, User $actor, array $recipients)
-    {
-        if (isset($user->suspend_until) && $user->suspend_until > new DateTime()) {
-            $this->notifications->sync(
-                new UserSuspendedBlueprint($user, $actor),
-                $recipients
-            );
-        } else {
-            $this->notifications->sync(
-                new UserUnsuspendedBlueprint($user, $actor),
-                $recipients
-            );
-        }
+        $this->notifications->sync(
+            new UserUnsuspendedBlueprint($event->user, $event->actor),
+            [$event->user]
+        );
     }
 }

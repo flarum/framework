@@ -12,9 +12,9 @@
 namespace Flarum\Suspend\Listener;
 
 use DateTime;
+use Flarum\Suspend\Event\Suspended;
+use Flarum\Suspend\Event\Unsuspended;
 use Flarum\Suspend\SuspendValidator;
-use Flarum\Suspend\Event\UserWasSuspended;
-use Flarum\Suspend\Event\UserWasUnsuspended;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -29,13 +29,19 @@ class SaveSuspensionToDatabase
      * @var SuspendValidator
      */
     protected $validator;
+    /**
+     * @var Dispatcher
+     */
+    protected $events;
 
     /**
      * @param SuspendValidator $validator
+     * @param Dispatcher $events
      */
-    public function __construct(SuspendValidator $validator)
+    public function __construct(SuspendValidator $validator, Dispatcher $events)
     {
         $this->validator = $validator;
+        $this->events = $events;
     }
 
     /**
@@ -65,10 +71,12 @@ class SaveSuspensionToDatabase
                 ? new DateTime($attributes['suspendUntil'])
                 : null;
 
-            if (isset($attributes['suspendUntil'])) {
-                $user->raise(new UserWasSuspended($user, $actor));
-            } else {
-                $user->raise(new UserWasUnsuspended($user, $actor));
+            if ($user->isDirty('suspend_until')) {
+                $this->events->dispatch(
+                    $user->suspend_until === null ?
+                        new Unsuspended($user, $actor) :
+                        new Suspended($user, $actor)
+                );
             }
         }
     }

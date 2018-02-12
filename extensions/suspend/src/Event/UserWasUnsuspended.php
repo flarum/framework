@@ -11,7 +11,7 @@
 
 namespace Flarum\Suspend\Event;
 
-use Flarum\Core\User;
+use Flarum\User\User;
 
 class UserWasUnsuspended
 {
