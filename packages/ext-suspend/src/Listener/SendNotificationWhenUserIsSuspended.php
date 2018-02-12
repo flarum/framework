@@ -65,7 +65,7 @@ class SendNotificationWhenUserIsSuspended
     }
 
     /**
-     * @param UserWasSuspended $event
+     * @param UserWasUnsuspended $event
      */
     public function whenUserWasUnsuspended(UserWasUnsuspended $event)
     {
@@ -79,7 +79,7 @@ class SendNotificationWhenUserIsSuspended
      */
     public function sync(User $user, User $actor, array $recipients)
     {
-        if ($user->suspend_until > new DateTime()) {
+        if (isset($user->suspend_until) && $user->suspend_until > new DateTime()) {
             $this->notifications->sync(
                 new UserSuspendedBlueprint($user, $actor),
                 $recipients

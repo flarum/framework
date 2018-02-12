@@ -57,7 +57,7 @@ class UserSuspendedBlueprint implements BlueprintInterface
      */
     public function getData()
     {
-        return $this->user['suspend_until'];
+        return $this->user->suspend_until;
     }
 
     /**
