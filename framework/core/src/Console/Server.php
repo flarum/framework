@@ -14,6 +14,7 @@ namespace Flarum\Console;
 use Flarum\Console\Event\Configuring;
 use Flarum\Database\Console\GenerateMigrationCommand;
 use Flarum\Database\Console\MigrateCommand;
+use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
@@ -58,6 +59,7 @@ class Server
         $commands = [
             InstallCommand::class,
             MigrateCommand::class,
+            ResetCommand::class,
             GenerateMigrationCommand::class,
         ];
 
