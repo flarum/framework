@@ -11,7 +11,7 @@
 
 namespace Flarum\Suspend;
 
-use Flarum\Core\Validator\AbstractValidator;
+use Flarum\Foundation\AbstractValidator;
 
 class SuspendValidator extends AbstractValidator
 {
@@ -19,6 +19,6 @@ class SuspendValidator extends AbstractValidator
      * {@inheritdoc}
      */
     protected $rules = [
-        'suspendUntil' => ['date'],
+        'suspendUntil' => ['nullable', 'date'],
     ];
 }

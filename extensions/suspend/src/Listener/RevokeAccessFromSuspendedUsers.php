@@ -12,8 +12,8 @@
 namespace Flarum\Suspend\Listener;
 
 use Carbon\Carbon;
-use Flarum\Core\Group;
 use Flarum\Event\PrepareUserGroups;
+use Flarum\Group\Group;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class RevokeAccessFromSuspendedUsers
