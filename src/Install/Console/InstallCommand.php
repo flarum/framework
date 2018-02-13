@@ -138,7 +138,7 @@ class InstallCommand extends AbstractCommand
     protected function install()
     {
         try {
-            $this->debug = $this->dataSource->getDebug();
+            $this->debug = $this->dataSource->isDebugMode();
             $this->dbConfig = $this->dataSource->getDatabaseConfiguration();
 
             $validation = $this->getValidator()->make(

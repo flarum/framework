@@ -59,7 +59,7 @@ class DefaultsDataProvider implements DataProviderInterface
         return $this->debug;
     }
 
-    public function setDebug(bool $debug = true)
+    public function setDebugMode(bool $debug = true)
     {
         $this->debug = $debug;
     }
