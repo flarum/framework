@@ -17,4 +17,4 @@ flarum-statistics:
       posts_heading: => core.ref.posts
       today_label: Today
       total_label: Total
-      users_heading: Users
+      users_heading: => core.ref.users
