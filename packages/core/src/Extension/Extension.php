@@ -194,7 +194,7 @@ class Extension implements Arrayable
 
         if (file_exists($file)) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
-            if (!array_key_exists($extension, self::LOGO_MIMETYPES)) {
+            if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
                 throw new \RuntimeException('Invalid image type');
             }
 
