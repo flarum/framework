@@ -3,10 +3,11 @@
  *
  * @param {String} name The name of the icon class, without the `fa-` prefix.
  * @param {Object} attrs Any other attributes to apply.
+ * @param {String} prefix The icon class prefix.
  * @return {Object}
  */
-export default function icon(name, attrs = {}) {
-  attrs.className = 'icon fa fa-' + name + ' ' + (attrs.className || '');
+export default function icon(name, attrs = {}, prefix = 'fa') {
+  attrs.className = 'icon ' + prefix + ' fa-' + name + ' ' + (attrs.className || '');
 
   return <i {...attrs}/>;
 }
