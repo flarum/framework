@@ -59,7 +59,7 @@ export default {
     if (post.contentType() === 'comment' && post.canEdit()) {
       if (!post.isHidden()) {
         items.add('edit', Button.component({
-          icon: 'pencil',
+          icon: 'pencil-alt',
           children: app.translator.trans('core.forum.post_controls.edit_button'),
           onclick: this.editAction.bind(post)
         }));

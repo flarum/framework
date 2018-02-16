@@ -77,7 +77,7 @@ export default class Navigation extends Component {
     return Button.component({
       className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
       onclick: pane.togglePinned.bind(pane),
-      icon: 'thumb-tack'
+      icon: 'thumbtack'
     });
   }
 
@@ -100,7 +100,7 @@ export default class Navigation extends Component {
         e.stopPropagation();
         drawer.show();
       },
-      icon: 'reorder'
+      icon: 'bars'
     });
   }
 }

@@ -244,7 +244,7 @@ export default class IndexPage extends Page {
     items.add('refresh',
       Button.component({
         title: app.translator.trans('core.forum.index.refresh_tooltip'),
-        icon: 'refresh',
+        icon: 'sync',
         className: 'Button Button--icon',
         onclick: () => {
           app.cache.discussionList.refresh();

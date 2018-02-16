@@ -79,7 +79,7 @@ export default class SessionDropdown extends Dropdown {
 
     items.add('logOut',
       Button.component({
-        icon: 'sign-out',
+        icon: 'sign-out-alt',
         children: app.translator.trans('core.forum.header.log_out_button'),
         onclick: app.session.logout.bind(app.session)
       }),

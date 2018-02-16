@@ -206,7 +206,7 @@ export default class NotificationGrid extends Component {
 
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
-      icon: 'pencil',
+      icon: 'pencil-alt',
       label: app.translator.trans('core.forum.settings.notify_discussion_renamed_label')
     });
 

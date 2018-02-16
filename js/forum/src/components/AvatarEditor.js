@@ -53,7 +53,7 @@ export default class AvatarEditor extends Component {
           ondragleave={this.disableDragover.bind(this)}
           ondragend={this.disableDragover.bind(this)}
           ondrop={this.dropUpload.bind(this)}>
-          {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('pencil') : icon('plus-circle'))}
+          {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('pencil-alt') : icon('plus-circle'))}
         </a>
         <ul className="Dropdown-menu Menu">
           {listItems(this.controlItems().toArray())}

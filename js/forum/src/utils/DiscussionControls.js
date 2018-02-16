@@ -85,7 +85,7 @@ export default {
 
     if (discussion.canRename()) {
       items.add('rename', Button.component({
-        icon: 'pencil',
+        icon: 'pencil-alt',
         children: app.translator.trans('core.forum.discussion_controls.rename_button'),
         onclick: this.renameAction.bind(discussion)
       }));

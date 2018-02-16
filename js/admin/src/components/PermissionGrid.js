@@ -155,7 +155,7 @@ export default class PermissionGrid extends Component {
     }, 100);
 
     items.add('allowPostEditing', {
-      icon: 'pencil',
+      icon: 'pencil-alt',
       label: app.translator.trans('core.admin.permissions.allow_post_editing_label'),
       setting: () => {
         const minutes = parseInt(app.data.settings.allow_post_editing, 10);
@@ -205,7 +205,7 @@ export default class PermissionGrid extends Component {
     }, 80);
 
     items.add('editPosts', {
-      icon: 'pencil',
+      icon: 'pencil-alt',
       label: app.translator.trans('core.admin.permissions.edit_and_delete_posts_label'),
       permission: 'discussion.editPosts'
     }, 70);

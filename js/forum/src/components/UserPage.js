@@ -139,7 +139,7 @@ export default class UserPage extends Page {
       LinkButton.component({
         href: app.route('user.discussions', {username: user.username()}),
         children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionsCount()}</span>],
-        icon: 'reorder'
+        icon: 'bars'
       }),
       90
     );

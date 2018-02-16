@@ -41,7 +41,7 @@ export default class AdminNav extends Component {
 
     items.add('basics', AdminLinkButton.component({
       href: app.route('basics'),
-      icon: 'pencil',
+      icon: 'pencil-alt',
       children: app.translator.trans('core.admin.nav.basics_button'),
       description: app.translator.trans('core.admin.nav.basics_text')
     }));
