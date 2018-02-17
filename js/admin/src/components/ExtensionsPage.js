@@ -35,7 +35,7 @@ export default class ExtensionsPage extends Page {
                   return <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
                     <div className="ExtensionListItem-content">
                       <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-                        {extension.icon ? icon(extension.icon.name) : ''}
+                        {extension.icon ? icon(extension.icon.name, undefined, extension.icon.prefix) : ''}
                       </span>
                       {controls.length ? (
                         <Dropdown
