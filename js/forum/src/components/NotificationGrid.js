@@ -183,7 +183,8 @@ export default class NotificationGrid extends Component {
 
     items.add('email', {
       name: 'email',
-      icon: 'envelope-o',
+      icon: 'envelope',
+      iconPrefix: 'far',
       label: app.translator.trans('core.forum.settings.notify_by_email_heading'),
     });
 

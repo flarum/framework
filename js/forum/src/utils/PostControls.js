@@ -84,7 +84,8 @@ export default {
     if (post.contentType() === 'comment' && !post.isHidden()) {
       if (post.canEdit()) {
         items.add('hide', Button.component({
-          icon: 'trash-o',
+          icon: 'trash-alt',
+          iconPrefix: 'far',
           children: app.translator.trans('core.forum.post_controls.delete_button'),
           onclick: this.hideAction.bind(post)
         }));

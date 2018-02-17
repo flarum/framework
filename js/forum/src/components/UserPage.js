@@ -130,7 +130,8 @@ export default class UserPage extends Page {
       LinkButton.component({
         href: app.route('user.posts', {username: user.username()}),
         children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentsCount()}</span>],
-        icon: 'comment-o'
+        icon: 'comment',
+        iconPrefix: 'far'
       }),
       100
     );

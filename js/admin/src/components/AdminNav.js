@@ -34,7 +34,8 @@ export default class AdminNav extends Component {
 
     items.add('dashboard', AdminLinkButton.component({
       href: app.route('dashboard'),
-      icon: 'bar-chart',
+      icon: 'chart-bar',
+      iconPrefix: 'far',
       children: app.translator.trans('core.admin.nav.dashboard_button'),
       description: app.translator.trans('core.admin.nav.dashboard_text')
     }));

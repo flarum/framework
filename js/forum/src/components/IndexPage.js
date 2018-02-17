@@ -187,7 +187,8 @@ export default class IndexPage extends Page {
       LinkButton.component({
         href: app.route('index', params),
         children: app.translator.trans('core.forum.index.all_discussions_link'),
-        icon: 'comments-o'
+        icon: 'comments',
+        iconPrefix: 'far'
       }),
       100
     );

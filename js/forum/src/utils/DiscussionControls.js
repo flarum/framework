@@ -109,7 +109,8 @@ export default {
     if (!discussion.isHidden()) {
       if (discussion.canHide()) {
         items.add('hide', Button.component({
-          icon: 'trash-o',
+          icon: 'trash-alt',
+          iconPrefix: 'far',
           children: app.translator.trans('core.forum.discussion_controls.delete_button'),
           onclick: this.hideAction.bind(discussion)
         }));

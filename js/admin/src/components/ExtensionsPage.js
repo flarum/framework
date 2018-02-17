@@ -75,7 +75,8 @@ export default class ExtensionsPage extends Page {
 
     if (!enabled) {
       items.add('uninstall', Button.component({
-        icon: 'trash-o',
+        icon: 'trash-alt',
+        iconPrefix: 'far',
         children: app.translator.trans('core.admin.extensions.uninstall_button'),
         onclick: () => {
           app.request({

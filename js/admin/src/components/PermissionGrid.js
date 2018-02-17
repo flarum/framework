@@ -193,7 +193,8 @@ export default class PermissionGrid extends Component {
     }, 100);
 
     items.add('hideDiscussions', {
-      icon: 'trash-o',
+      icon: 'trash-alt',
+      iconPrefix: 'far',
       label: app.translator.trans('core.admin.permissions.delete_discussions_label'),
       permission: 'discussion.hide'
     }, 90);
