@@ -59,7 +59,7 @@ export default class NotificationGrid extends Component {
             <td/>
             {this.methods.map(method => (
               <th className="NotificationGrid-groupToggle" onclick={this.toggleMethod.bind(this, method.name)}>
-                {icon(method.icon)} {method.label}
+                {icon(method.icon, undefined, method.iconPrefix)} {method.label}
               </th>
             ))}
           </tr>
@@ -69,7 +69,7 @@ export default class NotificationGrid extends Component {
           {this.types.map(type => (
             <tr>
               <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
-                {icon(type.icon)} {type.label}
+                {icon(type.icon, undefined, type.iconPrefix)} {type.label}
               </td>
               {this.methods.map(method => (
                 <td className="NotificationGrid-checkbox">

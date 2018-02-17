@@ -115,7 +115,7 @@ export default class Dropdown extends Component {
    */
   getButtonContent() {
     return [
-      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
+      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}, this.props.iconPrefix) : '',
       <span className="Button-label">{this.props.label}</span>,
       this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
     ];
