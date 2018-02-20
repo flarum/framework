@@ -42,7 +42,7 @@ export default class ExtensionsPage extends Page {
                           className="ExtensionListItem-controls"
                           buttonClassName="Button Button--icon Button--flat"
                           menuClassName="Dropdown-menu--right"
-                          icon="ellipsis-h">
+                          icon="fa fa-ellipsis-h">
                           {controls}
                         </Dropdown>
                       ) : ''}
