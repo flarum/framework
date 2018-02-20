@@ -17,7 +17,6 @@ use Flarum\Foundation\Site;
 use Flarum\Http\Server;
 use Flarum\Install\Console\DataProviderInterface;
 use Flarum\Install\Console\DefaultsDataProvider;
-use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 
