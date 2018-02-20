@@ -29,6 +29,11 @@ abstract class TestCase extends Test
 
     protected function init()
     {
-        // To be overloaded by children - saves having to do setUp/mockery::close every time
+        // To be overloaded by children - saves having to do setUp
+    }
+
+    protected function tearDown()
+    {
+        $this->teardownApplication();
     }
 }
