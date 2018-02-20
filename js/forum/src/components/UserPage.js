@@ -130,8 +130,7 @@ export default class UserPage extends Page {
       LinkButton.component({
         href: app.route('user.posts', {username: user.username()}),
         children: [app.translator.trans('core.forum.user.posts_link'), <span className="Button-badge">{user.commentsCount()}</span>],
-        icon: 'comment',
-        iconPrefix: 'far'
+        icon: 'far fa-comment'
       }),
       100
     );
@@ -140,7 +139,7 @@ export default class UserPage extends Page {
       LinkButton.component({
         href: app.route('user.discussions', {username: user.username()}),
         children: [app.translator.trans('core.forum.user.discussions_link'), <span className="Button-badge">{user.discussionsCount()}</span>],
-        icon: 'bars'
+        icon: 'fa fa-bars'
       }),
       90
     );
@@ -151,7 +150,7 @@ export default class UserPage extends Page {
         LinkButton.component({
           href: app.route('settings'),
           children: app.translator.trans('core.forum.user.settings_link'),
-          icon: 'cog'
+          icon: 'fa fa-cog'
         }),
         -100
       );

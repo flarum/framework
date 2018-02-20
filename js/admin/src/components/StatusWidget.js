@@ -28,7 +28,7 @@ export default class StatusWidget extends DashboardWidget {
 
     items.add('help', (
       <a href="http://flarum.org/docs/troubleshooting" target="_blank">
-        {icon('question-circle')} {app.translator.trans('core.admin.dashboard.help_link')}
+        {icon('fa fa-question-circle')} {app.translator.trans('core.admin.dashboard.help_link')}
       </a>
     ));
 

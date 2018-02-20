@@ -29,7 +29,7 @@ export default class PermissionGrid extends Component {
             {scopes.map(scope => (
               <th>
                 {scope.label}{' '}
-                {scope.onremove ? Button.component({icon: 'times', className: 'Button Button--text PermissionGrid-removeScope', onclick: scope.onremove}) : ''}
+                {scope.onremove ? Button.component({icon: 'fa fa-times', className: 'Button Button--text PermissionGrid-removeScope', onclick: scope.onremove}) : ''}
               </th>
             ))}
             <th>{this.scopeControlItems().toArray()}</th>
@@ -44,7 +44,7 @@ export default class PermissionGrid extends Component {
             </tr>
             {section.children.map(child => (
               <tr className="PermissionGrid-child">
-                <th>{icon(child.icon, undefined, child.iconPrefix)}{child.label}</th>
+                <th>{icon(child.icon)}{child.label}</th>
                 {permissionCells(child)}
                 <td/>
               </tr>
@@ -85,21 +85,21 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('viewDiscussions', {
-      icon: 'eye',
+      icon: 'fa fa-eye',
       label: app.translator.trans('core.admin.permissions.view_discussions_label'),
       permission: 'viewDiscussions',
       allowGuest: true
     }, 100);
 
     items.add('viewUserList', {
-      icon: 'users',
+      icon: 'fa fa-users',
       label: app.translator.trans('core.admin.permissions.view_user_list_label'),
       permission: 'viewUserList',
       allowGuest: true
     }, 100);
 
     items.add('signUp', {
-      icon: 'user-plus',
+      icon: 'fa fa-user-plus',
       label: app.translator.trans('core.admin.permissions.sign_up_label'),
       setting: () => SettingDropdown.component({
         key: 'allow_sign_up',
@@ -117,13 +117,13 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('start', {
-      icon: 'edit',
+      icon: 'fa fa-edit',
       label: app.translator.trans('core.admin.permissions.start_discussions_label'),
       permission: 'startDiscussion'
     }, 100);
 
     items.add('allowRenaming', {
-      icon: 'i-cursor',
+      icon: 'fa fa-i-cursor',
       label: app.translator.trans('core.admin.permissions.allow_renaming_label'),
       setting: () => {
         const minutes = parseInt(app.data.settings.allow_renaming, 10);
@@ -149,13 +149,13 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('reply', {
-      icon: 'reply',
+      icon: 'fa fa-reply',
       label: app.translator.trans('core.admin.permissions.reply_to_discussions_label'),
       permission: 'discussion.reply'
     }, 100);
 
     items.add('allowPostEditing', {
-      icon: 'pencil-alt',
+      icon: 'fa fa-pencil-alt',
       label: app.translator.trans('core.admin.permissions.allow_post_editing_label'),
       setting: () => {
         const minutes = parseInt(app.data.settings.allow_post_editing, 10);
@@ -181,38 +181,37 @@ export default class PermissionGrid extends Component {
     const items = new ItemList();
 
     items.add('viewIpsPosts', {
-      icon: 'bullseye',
+      icon: 'fa fa-bullseye',
       label: app.translator.trans('core.admin.permissions.view_post_ips_label'),
       permission: 'discussion.viewIpsPosts'
     }, 110);
 
     items.add('renameDiscussions', {
-      icon: 'i-cursor',
+      icon: 'fa fa-i-cursor',
       label: app.translator.trans('core.admin.permissions.rename_discussions_label'),
       permission: 'discussion.rename'
     }, 100);
 
     items.add('hideDiscussions', {
-      icon: 'trash-alt',
-      iconPrefix: 'far',
+      icon: 'far fa-trash-alt',
       label: app.translator.trans('core.admin.permissions.delete_discussions_label'),
       permission: 'discussion.hide'
     }, 90);
 
     items.add('deleteDiscussions', {
-      icon: 'times',
+      icon: 'fa fa-times',
       label: app.translator.trans('core.admin.permissions.delete_discussions_forever_label'),
       permission: 'discussion.delete'
     }, 80);
 
     items.add('editPosts', {
-      icon: 'pencil-alt',
+      icon: 'fa fa-pencil-alt',
       label: app.translator.trans('core.admin.permissions.edit_and_delete_posts_label'),
       permission: 'discussion.editPosts'
     }, 70);
 
     items.add('deletePosts', {
-      icon: 'times',
+      icon: 'fa fa-times',
       label: app.translator.trans('core.admin.permissions.delete_posts_forever_label'),
       permission: 'discussion.deletePosts'
     }, 60);

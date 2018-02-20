@@ -54,10 +54,9 @@ export default class Button extends Component {
    */
   getButtonContent() {
     const iconName = this.props.icon;
-    const iconPrefix = this.props.iconPrefix;
 
     return [
-      iconName && iconName !== true ? icon(iconName, {className: 'Button-icon'}, iconPrefix) : '',
+      iconName && iconName !== true ? icon(iconName, {className: 'Button-icon'}) : '',
       this.props.children ? <span className="Button-label">{this.props.children}</span> : '',
       this.props.loading ? LoadingIndicator.component({size: 'tiny', className: 'LoadingIndicator--inline'}) : ''
     ];

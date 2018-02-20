@@ -59,7 +59,7 @@ export default class NotificationGrid extends Component {
             <td/>
             {this.methods.map(method => (
               <th className="NotificationGrid-groupToggle" onclick={this.toggleMethod.bind(this, method.name)}>
-                {icon(method.icon, undefined, method.iconPrefix)} {method.label}
+                {icon(method.icon)} {method.label}
               </th>
             ))}
           </tr>
@@ -69,7 +69,7 @@ export default class NotificationGrid extends Component {
           {this.types.map(type => (
             <tr>
               <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
-                {icon(type.icon, undefined, type.iconPrefix)} {type.label}
+                {icon(type.icon)} {type.label}
               </td>
               {this.methods.map(method => (
                 <td className="NotificationGrid-checkbox">
@@ -177,14 +177,13 @@ export default class NotificationGrid extends Component {
 
     items.add('alert', {
       name: 'alert',
-      icon: 'bell',
+      icon: 'fa fa-bell',
       label: app.translator.trans('core.forum.settings.notify_by_web_heading'),
     });
 
     items.add('email', {
       name: 'email',
-      icon: 'envelope',
-      iconPrefix: 'far',
+      icon: 'far fa-envelope',
       label: app.translator.trans('core.forum.settings.notify_by_email_heading'),
     });
 
@@ -207,7 +206,7 @@ export default class NotificationGrid extends Component {
 
     items.add('discussionRenamed', {
       name: 'discussionRenamed',
-      icon: 'pencil-alt',
+      icon: 'fa fa-pencil-alt',
       label: app.translator.trans('core.forum.settings.notify_discussion_renamed_label')
     });
 

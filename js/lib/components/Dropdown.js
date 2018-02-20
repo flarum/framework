@@ -26,7 +26,7 @@ export default class Dropdown extends Component {
     props.buttonClassName = props.buttonClassName || '';
     props.menuClassName = props.menuClassName || '';
     props.label = props.label || '';
-    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
+    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fa fa-caret-down';
   }
 
   init() {
@@ -115,7 +115,7 @@ export default class Dropdown extends Component {
    */
   getButtonContent() {
     return [
-      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}, this.props.iconPrefix) : '',
+      this.props.icon ? icon(this.props.icon, {className: 'Button-icon'}) : '',
       <span className="Button-label">{this.props.label}</span>,
       this.props.caretIcon ? icon(this.props.caretIcon, {className: 'Button-caret'}) : ''
     ];

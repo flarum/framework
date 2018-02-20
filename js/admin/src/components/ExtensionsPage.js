@@ -17,7 +17,7 @@ export default class ExtensionsPage extends Page {
           <div className="container">
             {Button.component({
               children: app.translator.trans('core.admin.extensions.add_button'),
-              icon: 'plus',
+              icon: 'fa fa-plus',
               className: 'Button Button--primary',
               onclick: () => app.modal.show(new AddExtensionModal())
             })}
@@ -35,7 +35,7 @@ export default class ExtensionsPage extends Page {
                   return <li className={'ExtensionListItem ' + (!this.isEnabled(extension.id) ? 'disabled' : '')}>
                     <div className="ExtensionListItem-content">
                       <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-                        {extension.icon ? icon(extension.icon.name, undefined, extension.icon.prefix) : ''}
+                        {extension.icon ? icon(extension.icon.name) : ''}
                       </span>
                       {controls.length ? (
                         <Dropdown
@@ -67,7 +67,7 @@ export default class ExtensionsPage extends Page {
 
     if (app.extensionSettings[name]) {
       items.add('settings', Button.component({
-        icon: 'cog',
+        icon: 'fa fa-cog',
         children: app.translator.trans('core.admin.extensions.settings_button'),
         onclick: app.extensionSettings[name]
       }));
@@ -75,8 +75,7 @@ export default class ExtensionsPage extends Page {
 
     if (!enabled) {
       items.add('uninstall', Button.component({
-        icon: 'trash-alt',
-        iconPrefix: 'far',
+        icon: 'far fa-trash-alt',
         children: app.translator.trans('core.admin.extensions.uninstall_button'),
         onclick: () => {
           app.request({

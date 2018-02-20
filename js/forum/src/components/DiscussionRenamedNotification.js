@@ -10,7 +10,7 @@ import Notification from 'flarum/components/Notification';
  */
 export default class DiscussionRenamedNotification extends Notification {
   icon() {
-    return 'pencil-alt';
+    return 'fa fa-pencil-alt';
   }
 
   href() {

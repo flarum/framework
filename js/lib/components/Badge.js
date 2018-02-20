@@ -20,14 +20,13 @@ export default class Badge extends Component {
     const attrs = Object.assign({}, this.props);
     const type = extract(attrs, 'type');
     const iconName = extract(attrs, 'icon');
-    const iconPrefix = extract(attrs, 'iconPrefix');
 
     attrs.className = 'Badge ' + (type ? 'Badge--' + type : '') + ' ' + (attrs.className || '');
     attrs.title = extract(attrs, 'label') || '';
 
     return (
       <span {...attrs}>
-        {iconName ? icon(iconName, {className: 'Badge-icon'}, iconPrefix) : m.trust('&nbsp;')}
+        {iconName ? icon(iconName, {className: 'Badge-icon'}) : m.trust('&nbsp;')}
       </span>
     );
   }

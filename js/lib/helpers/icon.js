@@ -6,8 +6,8 @@
  * @param {String} prefix The icon class prefix.
  * @return {Object}
  */
-export default function icon(name, attrs = {}, prefix = 'fa') {
-  attrs.className = 'icon ' + prefix + ' fa-' + name + ' ' + (attrs.className || '');
+export default function icon(name, attrs = {}) {
+  attrs.className = 'icon ' + name + ' ' + (attrs.className || '');
 
   return <i {...attrs}/>;
 }
