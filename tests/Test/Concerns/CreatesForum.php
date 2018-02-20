@@ -92,9 +92,17 @@ trait CreatesForum
 
     protected function teardownApplication()
     {
-        /** @var ConnectionInterface|Connection $db */
-        $db = $this->app->make(ConnectionInterface::class);
-        $db->getSchemaBuilder()->dropAllTables();
+        $this->app->bind(Builder::class, function ($container) {
+            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
+        });
+
+        /** @var Migrator $migrator */
+        $migrator = $this->app->make(Migrator::class);
+        if (! $migrator->getRepository()->repositoryExists()) {
+            $migrator->getRepository()->createRepository();
+        }
+
+        $migrator->reset(__DIR__.'/../../../migrations');
     }
 
     protected function setsApplicationConfiguration(DataProviderInterface $data)
