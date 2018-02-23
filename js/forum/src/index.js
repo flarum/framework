@@ -19,8 +19,15 @@ window.app = app;
 
 export { app };
 
-export const extensions = [];
+export const extensions = {};
 
 // Export public API
 // export { default as Extend } from './Extend';
 // export { IndexPage, DicsussionList } from './components';
+
+// Export deprecated API
+import deprecated from './deprecated';
+
+deprecated.app = app;
+
+export { deprecated };
