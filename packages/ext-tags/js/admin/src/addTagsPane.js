@@ -12,7 +12,7 @@ export default function() {
   extend(AdminNav.prototype, 'items', items => {
     items.add('tags', AdminLinkButton.component({
       href: app.route('tags'),
-      icon: 'tags',
+      icon: 'fa fa-tags',
       children: app.translator.trans('flarum-tags.admin.nav.tags_button'),
       description: app.translator.trans('flarum-tags.admin.nav.tags_text')
     }));

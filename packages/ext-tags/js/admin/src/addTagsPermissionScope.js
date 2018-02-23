@@ -11,7 +11,7 @@ import sortTags from 'flarum/tags/utils/sortTags';
 export default function() {
   override(app, 'getRequiredPermissions', (original, permission) => {
     const tagPrefix = permission.match(/^tag\d+\./);
-    
+
     if (tagPrefix) {
       const globalPermission = permission.substr(tagPrefix[0].length);
 
@@ -19,7 +19,7 @@ export default function() {
 
       return required.map(required => tagPrefix[0] + required);
     }
-    
+
     return original(permission);
   });
 
@@ -52,7 +52,7 @@ export default function() {
         className: 'Dropdown--restrictByTag',
         buttonClassName: 'Button Button--text',
         label: app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
-        icon: 'plus',
+        icon: 'fa fa-plus',
         caretIcon: null,
         children: tags.map(tag => Button.component({
           icon: true,

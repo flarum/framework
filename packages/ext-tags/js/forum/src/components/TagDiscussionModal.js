@@ -177,7 +177,7 @@ export default class TagDiscussionModal extends Modal {
               type: 'submit',
               className: 'Button Button--primary',
               disabled: primaryCount < this.minPrimary || secondaryCount < this.minSecondary,
-              icon: 'check',
+              icon: 'fa fa-check',
               children: app.translator.trans('flarum-tags.forum.choose_tags.submit_button')
             })}
           </div>

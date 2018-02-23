@@ -10,7 +10,7 @@ export default function() {
     if (discussion.canTag()) {
       items.add('tags', Button.component({
         children: app.translator.trans('flarum-tags.forum.discussion_controls.edit_tags_button'),
-        icon: 'tag',
+        icon: 'fa fa-tag',
         onclick: () => app.modal.show(new TagDiscussionModal({discussion}))
       }));
     }
