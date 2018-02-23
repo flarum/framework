@@ -10,7 +10,7 @@ export default function addSubscriptionBadge() {
       case 'follow':
         badge = Badge.component({
           label: app.translator.trans('flarum-subscriptions.forum.badge.following_tooltip'),
-          icon: 'star',
+          icon: 'fa fa-star',
           type: 'following'
         });
         break;
@@ -18,7 +18,7 @@ export default function addSubscriptionBadge() {
       case 'ignore':
         badge = Badge.component({
           label: app.translator.trans('flarum-subscriptions.forum.badge.ignoring_tooltip'),
-          icon: 'eye-slash',
+          icon: 'far fa-eye-slash',
           type: 'ignoring'
         });
         break;

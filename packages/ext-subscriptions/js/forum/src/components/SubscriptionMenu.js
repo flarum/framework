@@ -10,19 +10,19 @@ export default class SubscriptionMenu extends Dropdown {
     this.options = [
       {
         subscription: false,
-        icon: 'star-o',
+        icon: 'far fa-star',
         label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
         description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text')
       },
       {
         subscription: 'follow',
-        icon: 'star',
+        icon: 'fa fa-star',
         label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
         description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
       },
       {
         subscription: 'ignore',
-        icon: 'eye-slash',
+        icon: 'far fa-eye-slash',
         label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
         description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text')
       }
@@ -34,18 +34,18 @@ export default class SubscriptionMenu extends Dropdown {
     const subscription = discussion.subscription();
 
     let buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.follow_button');
-    let buttonIcon = 'star-o';
+    let buttonIcon = 'far fa-star';
     const buttonClass = 'SubscriptionMenu-button--' + subscription;
 
     switch (subscription) {
       case 'follow':
         buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button');
-        buttonIcon = 'star';
+        buttonIcon = 'fa fa-star';
         break;
 
       case 'ignore':
         buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button');
-        buttonIcon = 'eye-slash';
+        buttonIcon = 'far fa-eye-slash';
         break;
 
       default:
@@ -85,7 +85,7 @@ export default class SubscriptionMenu extends Dropdown {
         {Button.component(buttonProps)}
 
         <button className={'Dropdown-toggle Button Button--icon ' + buttonClass} data-toggle="dropdown">
-          {icon('caret-down', {className: 'Button-icon'})}
+          {icon('fa fa-caret-down', {className: 'Button-icon'})}
         </button>
 
         <ul className="Dropdown-menu dropdown-menu Dropdown-menu--right">

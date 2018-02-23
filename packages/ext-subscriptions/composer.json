@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Subscriptions",
             "icon": {
-                "name": "star",
+                "name": "fa fa-star",
                 "backgroundColor": "#ffea7b",
                 "color": "#de8e00"
             }
