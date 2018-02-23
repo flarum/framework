@@ -22,9 +22,9 @@ module.exports = {
           options: {
             presets: ['@babel/preset-env', '@babel/preset-react'],
             plugins: [
-              ['@babel/plugin-transform-runtime'],
-              ['@babel/plugin-proposal-class-properties'],
-              ['@babel/plugin-transform-react-jsx', {pragma: 'm'}]
+              '@babel/plugin-transform-runtime',
+              ['@babel/plugin-transform-react-jsx', {pragma: 'm'}],
+              '@babel/plugin-proposal-class-properties'
             ]
           }
         }
