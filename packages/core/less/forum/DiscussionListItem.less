@@ -244,8 +244,8 @@
     padding-left: 21px;
 
     &:before {
-      .fa();
-      content: @fa-var-comment-o;
+      .far();
+      content: @fa-var-comment;
       float: left;
       margin-left: -21px;
       margin-top: 3px;
@@ -255,9 +255,11 @@
       font-weight: bold;
 
       &:before {
+        .fa();
         content: @fa-var-comment;
       }
       &:hover:before {
+        .fa();
         content: @fa-var-check;
       }
     }

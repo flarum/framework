@@ -1,12 +1,12 @@
 /**
- * The `icon` helper displays a FontAwesome icon. The fa-fw class is applied.
+ * The `icon` helper displays an icon.
  *
- * @param {String} name The name of the icon class, without the `fa-` prefix.
+ * @param {String} fontClass The full icon class, prefix and the icon’s name.
  * @param {Object} attrs Any other attributes to apply.
  * @return {Object}
  */
-export default function icon(name, attrs = {}) {
-  attrs.className = 'icon fa fa-' + name + ' ' + (attrs.className || '');
+export default function icon(fontClass, attrs = {}) {
+  attrs.className = 'icon ' + fontClass + ' ' + (attrs.className || '');
 
   return <i {...attrs}/>;
 }
