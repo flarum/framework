@@ -53,12 +53,12 @@ export default class StatisticsWidget extends DashboardWidget {
         <div className="StatisticsWidget-labels">
           <div className="StatisticsWidget-label">{app.translator.trans('flarum-statistics.admin.statistics.total_label')}</div>
           <div className="StatisticsWidget-label">
-            <SelectDropdown buttonClassName="Button Button--text" caretIcon="caret-down">
+            <SelectDropdown buttonClassName="Button Button--text" caretIcon="fa fa-caret-down">
               {Object.keys(this.periods).map(period => (
                 <Button
                   active={period === this.selectedPeriod}
                   onclick={this.changePeriod.bind(this, period)}
-                  icon={period === this.selectedPeriod ? 'check' : true}>
+                  icon={period === this.selectedPeriod ? 'fa fa-check' : true}>
                   {app.translator.trans('flarum-statistics.admin.statistics.'+period+'_label')}
                 </Button>
               ))}
@@ -80,7 +80,7 @@ export default class StatisticsWidget extends DashboardWidget {
                 {abbreviateNumber(thisPeriodCount)}{' '}
                 {periodChange ? (
                   <span className={'StatisticsWidget-change StatisticsWidget-change--'+(periodChange > 0 ? 'up' : 'down')}>
-                    {icon('arrow-'+(periodChange > 0 ? 'up' : 'down'))}
+                    {icon('fa fa-arrow-'+(periodChange > 0 ? 'up' : 'down'))}
                     {Math.abs(periodChange.toFixed(1))}%
                   </span>
                 ) : ''}
