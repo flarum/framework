@@ -30,7 +30,7 @@
         "flarum-extension": {
             "title": "Approval",
             "icon": {
-                "name": "check",
+                "name": "fa fa-check",
                 "backgroundColor": "#ABDC88",
                 "color": "#3F8A32"
             }
