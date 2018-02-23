@@ -4,7 +4,7 @@ import punctuateSeries from 'flarum/helpers/punctuateSeries';
 
 export default class PostLikedNotification extends Notification {
   icon() {
-    return 'thumbs-o-up';
+    return 'far fa-thumbs-up';
   }
 
   href() {

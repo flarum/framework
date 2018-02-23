@@ -46,7 +46,7 @@ export default function() {
 
       items.add('liked', (
         <div className="Post-likedBy">
-          {icon('thumbs-o-up')}
+          {icon('far fa-thumbs-up')}
           {app.translator.transChoice('flarum-likes.forum.post.liked_by' + (likes[0] === app.session.user ? '_self' : '') + '_text', names.length, {
             count: names.length,
             users: punctuateSeries(names)

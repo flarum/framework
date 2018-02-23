@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Likes",
             "icon": {
-                "name": "thumbs-o-up",
+                "name": "far fa-thumbs-up",
                 "backgroundColor": "#3A649D",
                 "color": "#fff"
             }
