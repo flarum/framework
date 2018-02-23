@@ -3,7 +3,7 @@ import username from 'flarum/helpers/username';
 
 export default class NewPostNotification extends Notification {
   icon() {
-    return 'star';
+    return 'fa fa-star';
   }
 
   href() {
