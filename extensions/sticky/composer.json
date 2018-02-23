@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Sticky",
             "icon": {
-                "name": "thumb-tack",
+                "name": "fa fa-thumbtack",
                 "backgroundColor": "#D13E32",
                 "color": "#fff"
             }
