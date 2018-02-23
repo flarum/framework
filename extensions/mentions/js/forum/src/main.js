@@ -41,13 +41,13 @@ app.initializers.add('flarum-mentions', function() {
   extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
     items.add('postMentioned', {
       name: 'postMentioned',
-      icon: 'reply',
+      icon: 'fa fa-reply',
       label: app.translator.trans('flarum-mentions.forum.settings.notify_post_mentioned_label')
     });
 
     items.add('userMentioned', {
       name: 'userMentioned',
-      icon: 'at',
+      icon: 'fa fa-at',
       label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label')
     });
   });
@@ -61,7 +61,7 @@ app.initializers.add('flarum-mentions', function() {
         href: app.route('user.mentions', {username: user.username()}),
         name: 'mentions',
         children: [app.translator.trans('flarum-mentions.forum.user.mentions_link')],
-        icon: 'at'
+        icon: 'fa fa-at'
       }),
       80
     );
