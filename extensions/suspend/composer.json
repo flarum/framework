@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Suspend",
             "icon": {
-                "name": "ban",
+                "name": "fa fa-ban",
                 "backgroundColor": "#ddd",
                 "color": "#666"
             }
