@@ -68,7 +68,7 @@ export default function() {
     ));
 
     items.add('dismiss', (
-      <Button className="Button" icon="eye-slash" onclick={this.dismissFlag.bind(this)}>
+      <Button className="Button" icon="far fa-eye-slash" onclick={this.dismissFlag.bind(this)}>
         {app.translator.trans('flarum-flags.forum.post.dismiss_flag_button')}
       </Button>
     ), -100);

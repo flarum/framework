@@ -37,7 +37,7 @@ export default class FlagList extends Component {
                       if (!isInitialized) $(element).on('click', () => app.cache.flagIndex = post);
                     }}>
                       {avatar(post.user())}
-                      {icon('flag', {className: 'Notification-icon'})}
+                      {icon('fa fa-flag', {className: 'Notification-icon'})}
                       <span className="Notification-content">
                         {app.translator.trans('flarum-flags.forum.flagged_posts.item_text', {username: username(post.user()), em: <em/>, discussion: post.discussion().title()})}
                       </span>
