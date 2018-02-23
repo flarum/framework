@@ -5,7 +5,7 @@ import PermissionGrid from 'flarum/components/PermissionGrid';
 app.initializers.add('lock', () => {
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('lock', {
-      icon: 'lock',
+      icon: 'fa fa-lock',
       label: app.translator.trans('flarum-lock.admin.permissions.lock_discussions_label'),
       permission: 'discussion.lock'
     }, 95);
