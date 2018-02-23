@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Tags",
             "icon": {
-                "name": "tags",
+                "name": "fa fa-tags",
                 "backgroundColor": "#F28326",
                 "color": "#fff"
             }
