@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Flags",
             "icon": {
-                "name": "flag",
+                "name": "fa fa-flag",
                 "backgroundColor": "#D659B5",
                 "color": "#fff"
             }
