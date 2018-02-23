@@ -20,7 +20,7 @@ app.initializers.add('flarum-likes', () => {
   extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
     items.add('postLiked', {
       name: 'postLiked',
-      icon: 'thumbs-o-up',
+      icon: 'far fa-thumbs-up',
       label: app.translator.trans('flarum-likes.forum.settings.notify_post_liked_label')
     });
   });
