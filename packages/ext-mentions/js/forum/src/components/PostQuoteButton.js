@@ -9,7 +9,7 @@ export default class PostQuoteButton extends Button {
     const content = extract(this.props, 'content');
 
     this.props.className = 'Button PostQuoteButton';
-    this.props.icon = 'quote-left';
+    this.props.icon = 'fa fa-quote-left';
     this.props.children = app.translator.trans('flarum-mentions.forum.post.quote_button');
     this.props.onclick = () => {
       this.hide();

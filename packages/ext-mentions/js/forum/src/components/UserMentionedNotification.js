@@ -2,7 +2,7 @@ import Notification from 'flarum/components/Notification';
 
 export default class UserMentionedNotification extends Notification {
   icon() {
-    return 'at';
+    return 'fa fa-at';
   }
 
   href() {
