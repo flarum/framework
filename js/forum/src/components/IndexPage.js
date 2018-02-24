@@ -154,7 +154,7 @@ export default class IndexPage extends Page {
     items.add('newDiscussion',
       Button.component({
         children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
-        icon: 'edit',
+        icon: 'fa fa-edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
         onclick: this.newDiscussion.bind(this),
@@ -187,7 +187,7 @@ export default class IndexPage extends Page {
       LinkButton.component({
         href: app.route('index', params),
         children: app.translator.trans('core.forum.index.all_discussions_link'),
-        icon: 'comments-o'
+        icon: 'far fa-comments'
       }),
       100
     );
@@ -221,7 +221,7 @@ export default class IndexPage extends Page {
 
           return Button.component({
             children: label,
-            icon: active ? 'check' : true,
+            icon: active ? 'fa fa-check' : true,
             onclick: this.changeSort.bind(this, value),
             active: active,
           })
@@ -244,7 +244,7 @@ export default class IndexPage extends Page {
     items.add('refresh',
       Button.component({
         title: app.translator.trans('core.forum.index.refresh_tooltip'),
-        icon: 'refresh',
+        icon: 'fa fa-sync',
         className: 'Button Button--icon',
         onclick: () => {
           app.cache.discussionList.refresh();
@@ -260,7 +260,7 @@ export default class IndexPage extends Page {
       items.add('markAllAsRead',
         Button.component({
           title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
-          icon: 'check',
+          icon: 'fa fa-check',
           className: 'Button Button--icon',
           onclick: this.markAllAsRead.bind(this)
         })

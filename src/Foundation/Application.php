@@ -704,21 +704,23 @@ class Application extends Container implements ApplicationContract
     public function registerCoreContainerAliases()
     {
         $aliases = [
-            'app'                  => ['Flarum\Foundation\Application', 'Illuminate\Contracts\Container\Container', 'Illuminate\Contracts\Foundation\Application'],
-            'blade.compiler'       => 'Illuminate\View\Compilers\BladeCompiler',
-            'cache'                => ['Illuminate\Cache\CacheManager', 'Illuminate\Contracts\Cache\Factory'],
-            'cache.store'          => ['Illuminate\Cache\Repository', 'Illuminate\Contracts\Cache\Repository'],
-            'config'               => ['Illuminate\Config\Repository', 'Illuminate\Contracts\Config\Repository'],
-            'db'                   => 'Illuminate\Database\DatabaseManager',
-            'events'               => ['Illuminate\Events\Dispatcher', 'Illuminate\Contracts\Events\Dispatcher'],
-            'files'                => 'Illuminate\Filesystem\Filesystem',
-            'filesystem'           => ['Illuminate\Filesystem\FilesystemManager', 'Illuminate\Contracts\Filesystem\Factory'],
-            'filesystem.disk'      => 'Illuminate\Contracts\Filesystem\Filesystem',
-            'filesystem.cloud'     => 'Illuminate\Contracts\Filesystem\Cloud',
-            'hash'                 => 'Illuminate\Contracts\Hashing\Hasher',
-            'mailer'               => ['Illuminate\Mail\Mailer', 'Illuminate\Contracts\Mail\Mailer', 'Illuminate\Contracts\Mail\MailQueue'],
-            'validator'            => ['Illuminate\Validation\Factory', 'Illuminate\Contracts\Validation\Factory'],
-            'view'                 => ['Illuminate\View\Factory', 'Illuminate\Contracts\View\Factory'],
+            'app'                  => [\Flarum\Foundation\Application::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
+            'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
+            'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
+            'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'db'                   => [\Illuminate\Database\DatabaseManager::class],
+            'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
+            'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'files'                => [\Illuminate\Filesystem\Filesystem::class],
+            'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
+            'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
+            'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'hash'                 => [\Illuminate\Hashing\HashManager::class],
+            'hash.driver'          => [\Illuminate\Contracts\Hashing\Hasher::class],
+            'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 
         foreach ($aliases as $key => $aliases) {

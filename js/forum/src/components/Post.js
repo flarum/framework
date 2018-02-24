@@ -57,7 +57,7 @@ export default class Post extends Component {
                       className="Post-controls"
                       buttonClassName="Button Button--icon Button--flat"
                       menuClassName="Dropdown-menu--right"
-                      icon="ellipsis-h"
+                      icon="fa fa-ellipsis-h"
                       onshow={() => this.$('.Post-actions').addClass('open')}
                       onhide={() => this.$('.Post-actions').removeClass('open')}>
                       {controls}

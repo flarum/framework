@@ -29,7 +29,7 @@ export default class Modal extends Component {
           {this.isDismissible() ? (
             <div className="Modal-close App-backControl">
               {Button.component({
-                icon: 'times',
+                icon: 'fa fa-times',
                 onclick: this.hide.bind(this),
                 className: 'Button Button--icon Button--link'
               })}

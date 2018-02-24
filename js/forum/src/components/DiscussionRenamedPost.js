@@ -11,7 +11,7 @@ import extractText from 'utils/extractText';
  */
 export default class DiscussionRenamedPost extends EventPost {
   icon() {
-    return 'pencil';
+    return 'fa fa-pencil-alt';
   }
 
   description(data) {

@@ -13,7 +13,7 @@ import icon from 'helpers/icon';
  */
 export default class SelectDropdown extends Dropdown {
   static initProps(props) {
-    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'sort';
+    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fa fa-sort';
 
     super.initProps(props);
 

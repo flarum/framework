@@ -37,6 +37,13 @@ use Illuminate\Support\Str;
  */
 class Extension implements Arrayable
 {
+    const LOGO_MIMETYPES = [
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg',
+    ];
+
     /**
      * Unique Id of the extension.
      *
@@ -176,22 +183,28 @@ class Extension implements Arrayable
      */
     public function getIcon()
     {
-        if (($icon = $this->composerJsonAttribute('extra.flarum-extension.icon'))) {
-            if ($file = Arr::get($icon, 'image')) {
-                $file = $this->path.'/'.$file;
+        $icon = $this->composerJsonAttribute('extra.flarum-extension.icon');
+        $file = Arr::get($icon, 'image');
 
-                if (file_exists($file)) {
-                    $mimetype = pathinfo($file, PATHINFO_EXTENSION) === 'svg'
-                        ? 'image/svg+xml'
-                        : finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
-                    $data = file_get_contents($file);
-
-                    $icon['backgroundImage'] = 'url(\'data:'.$mimetype.';base64,'.base64_encode($data).'\')';
-                }
-            }
-
+        if (is_null($icon) || is_null($file)) {
             return $icon;
         }
+
+        $file = $this->path.'/'.$file;
+
+        if (file_exists($file)) {
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
+                throw new \RuntimeException('Invalid image type');
+            }
+
+            $mimetype = self::LOGO_MIMETYPES[$extension];
+            $data = base64_encode(file_get_contents($file));
+
+            $icon['backgroundImage'] = "url('data:$mimetype;base64,$data')";
+        }
+
+        return $icon;
     }
 
     /**
