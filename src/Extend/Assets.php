@@ -56,6 +56,7 @@ class Assets implements Extender
                 if ($this->js) {
                     $event->view->getJs()->addString(function () use ($extension) {
                         $name = $extension->getId();
+
                         return "flarum.extensions['$name']=".file_get_contents($this->js);
                     });
                 }
