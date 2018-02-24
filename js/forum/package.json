@@ -1,18 +1,11 @@
 {
   "name": "@flarum/core-forum",
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.39",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.39",
-    "@babel/plugin-transform-react-jsx": "^7.0.0-beta.39",
-    "@babel/plugin-transform-runtime": "^7.0.0-beta.39",
-    "@babel/preset-env": "^7.0.0-beta.39",
-    "@babel/preset-react": "^7.0.0-beta.39",
-    "@babel/runtime": "^7.0.0-beta.39",
-    "babel-loader": "^8.0.0-beta.0",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color-thief-browser": "^2.0.2",
     "expose-loader": "^0.7.4",
+    "flarum-webpack-config": "0.1.0-beta.4",
     "jquery": "^3.3.1",
     "jquery.hotkeys": "^0.1.0",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
@@ -20,8 +13,7 @@
     "moment": "^2.20.1",
     "punycode": "^2.1.0",
     "spin.js": "^3.1.0",
-    "webpack": "^4.0.0-beta.2",
-    "webpack-cli": "^2.0.4"
+    "webpack-merge": "^4.1.2"
   },
   "scripts": {
     "watch": "./node_modules/webpack/bin/webpack.js --mode development --watch",
