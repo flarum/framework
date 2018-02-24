@@ -24,7 +24,6 @@ export default class ForumApplication extends Application {
   notificationComponents = {
     discussionRenamed: DiscussionRenamedNotification
   };
-
   /**
    * A map of post types to their components.
    *
@@ -67,9 +66,16 @@ export default class ForumApplication extends Application {
   /**
    * @inheritdoc
    */
-  mount() {
+  boot(data) {
     routes(this);
 
+    super.boot(data);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  mount() {
     // Get the configured default route and update that route's path to be '/'.
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
