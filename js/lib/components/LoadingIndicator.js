@@ -1,4 +1,5 @@
 import Component from 'Component';
+import { Spinner } from 'spin.js';
 
 /**
  * The `LoadingIndicator` component displays a loading spinner with spin.js. It
@@ -19,9 +20,17 @@ export default class LoadingIndicator extends Component {
   }
 
   config() {
-    const size = this.props.size || 'small';
+    const options = { zIndex: 'auto' };
 
-    $.fn.spin.presets[size].zIndex = 'auto';
-    this.$().spin(size);
+    switch (this.props.size) {
+      case 'large':
+        Object.assign(options, { lines: 10, length: 8, width: 4, radius: 8 });
+        break;
+
+      default:
+        Object.assign(options, { lines: 8, length: 4, width: 3, radius: 5 });
+    }
+
+    new Spinner(options).spin(this.element);
   }
 }

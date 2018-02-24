@@ -1,7 +1,6 @@
 import 'expose-loader?$!expose-loader?jQuery!jquery';
 import 'expose-loader?m!mithril';
 import 'expose-loader?moment!moment';
-import 'expose-loader?Spinner!spin.js';
 import 'expose-loader?punycode!punycode';
 import 'expose-loader?ColorThief!color-thief-browser';
 import 'expose-loader?m.bidi!m.attrs.bidi';
