@@ -1,4 +1,4 @@
-import deprecated from '../../lib/deprecated';
+import compat from '../../lib/compat';
 
 import saveSettings from './utils/saveSettings';
 import SettingDropdown from './components/SettingDropdown';
@@ -30,7 +30,7 @@ import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';
 import AdminApplication from './AdminApplication';
 
-export default Object.assign(deprecated, {
+export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
   'components/SettingDropdown': SettingDropdown,
   'components/EditCustomFooterModal': EditCustomFooterModal,

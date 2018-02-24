@@ -22,9 +22,9 @@ export const extensions = {};
 // Export public API
 
 
-// Export deprecated API
-import deprecated from './deprecated';
+// Export compat API
+import compat from './compat';
 
-deprecated.app = app;
+compat.app = app;
 
-export { deprecated };
+export { compat };

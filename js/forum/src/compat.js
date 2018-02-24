@@ -1,4 +1,4 @@
-import deprecated from '../../lib/deprecated';
+import compat from '../../lib/compat';
 
 import PostControls from './utils/PostControls';
 import KeyboardNavigatable from './utils/KeyboardNavigatable';
@@ -67,7 +67,7 @@ import PostsUserPage from './components/PostsUserPage';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 
-export default Object.assign(deprecated, {
+export default Object.assign(compat, {
   'utils/PostControls': PostControls,
   'utils/KeyboardNavigatable': KeyboardNavigatable,
   'utils/slidable': slidable,
