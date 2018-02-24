@@ -34,28 +34,19 @@ module.exports = function(options = {}) {
         path.resolve(process.cwd(), 'node_modules'),
         'node_modules'
       ]
-    }
-  };
-
-  if (options.compatPrefix) {
-    // Strip the old-style module prefix from non-relative-path imports by
-    // aliasing it to nothing.
-    config.resolve = config.resolve || {};
-    config.resolve.alias = {
-      [options.compatPrefix]: '.'
-    };
+    },
 
     // Support importing old-style core modules.
-    config.externals = [
+    externals: [
       function(context, request, callback) {
         let matches;
-        if ((matches = /^flarum\/(.+)$/.exec(request)) && request.substr(0, options.compatPrefix.length) !== options.compatPrefix) {
+        if ((matches = /^flarum\/(.+)$/.exec(request))) {
           return callback(null, 'root flarum.compat[\'' + matches[1] + '\']');
         }
         callback();
       }
-    ];
-  }
+    ]
+  };
 
   return config;
 };
