@@ -11,6 +11,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Extension;
 use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
@@ -20,7 +21,7 @@ class Assets implements Extender
     protected $appName;
 
     protected $assets = [];
-    protected $bootstrapper;
+    protected $js;
 
     public function __construct($appName)
     {
@@ -34,26 +35,29 @@ class Assets implements Extender
         return $this;
     }
 
-    public function bootstrapper($name)
+    public function js($path)
     {
-        $this->bootstrapper = $name;
+        $this->js = $path;
 
         return $this;
     }
 
-    public function __invoke(Container $container)
+    public function __invoke(Container $container, Extension $extension = null)
     {
         $container->make(Dispatcher::class)->listen(
             Rendering::class,
-            function (Rendering $event) {
+            function (Rendering $event) use ($extension) {
                 if (! $this->matches($event)) {
                     return;
                 }
 
                 $event->addAssets($this->assets);
 
-                if ($this->bootstrapper) {
-                    $event->addBootstrapper($this->bootstrapper);
+                if ($this->js) {
+                    $event->view->getJs()->addString(function () use ($extension) {
+                        $name = $extension->getId();
+                        return "flarum.extensions['$name']=".file_get_contents($this->js);
+                    });
                 }
             }
         );
