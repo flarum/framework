@@ -11,7 +11,7 @@ export default function addStickyControl() {
   extend(DiscussionListItem.prototype, 'infoItems', function(items) {
     const discussion = this.props.discussion;
 
-    if (discussion.isSticky() && !this.props.params.q) {
+    if (discussion.isSticky() && !this.props.params.q && !discussion.readNumber()) {
       const startPost = discussion.startPost();
 
       if (startPost) {
