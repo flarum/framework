@@ -1,11 +1,11 @@
-import Page from 'flarum/components/Page';
-import Button from 'flarum/components/Button';
-import Switch from 'flarum/components/Switch';
-import EditCustomCssModal from 'flarum/components/EditCustomCssModal';
-import EditCustomHeaderModal from 'flarum/components/EditCustomHeaderModal';
-import EditCustomFooterModal from 'flarum/components/EditCustomFooterModal';
-import UploadImageButton from 'flarum/components/UploadImageButton';
-import saveSettings from 'flarum/utils/saveSettings';
+import Page from 'components/Page';
+import Button from 'components/Button';
+import Switch from 'components/Switch';
+import EditCustomCssModal from 'components/EditCustomCssModal';
+import EditCustomHeaderModal from 'components/EditCustomHeaderModal';
+import EditCustomFooterModal from 'components/EditCustomFooterModal';
+import UploadImageButton from 'components/UploadImageButton';
+import saveSettings from 'utils/saveSettings';
 
 export default class AppearancePage extends Page {
   init() {

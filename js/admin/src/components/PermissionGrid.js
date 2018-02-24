@@ -1,9 +1,9 @@
-import Component from 'flarum/Component';
-import PermissionDropdown from 'flarum/components/PermissionDropdown';
-import SettingDropdown from 'flarum/components/SettingDropdown';
-import Button from 'flarum/components/Button';
-import ItemList from 'flarum/utils/ItemList';
-import icon from 'flarum/helpers/icon';
+import Component from 'Component';
+import PermissionDropdown from 'components/PermissionDropdown';
+import SettingDropdown from 'components/SettingDropdown';
+import Button from 'components/Button';
+import ItemList from 'utils/ItemList';
+import icon from 'helpers/icon';
 
 export default class PermissionGrid extends Component {
   init() {

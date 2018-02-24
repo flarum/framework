@@ -1,4 +1,4 @@
-import SettingsModal from 'flarum/components/SettingsModal';
+import SettingsModal from 'components/SettingsModal';
 
 export default class EditCustomHeaderModal extends SettingsModal {
   className() {

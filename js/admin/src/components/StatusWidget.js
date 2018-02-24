@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import DashboardWidget from 'flarum/components/DashboardWidget';
-import icon from 'flarum/helpers/icon';
-import listItems from 'flarum/helpers/listItems';
-import ItemList from 'flarum/utils/ItemList';
+import DashboardWidget from 'components/DashboardWidget';
+import icon from 'helpers/icon';
+import listItems from 'helpers/listItems';
+import ItemList from 'utils/ItemList';
 
 export default class StatusWidget extends DashboardWidget {
   className() {

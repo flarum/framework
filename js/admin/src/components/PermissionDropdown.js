@@ -1,9 +1,9 @@
-import Dropdown from 'flarum/components/Dropdown';
-import Button from 'flarum/components/Button';
-import Separator from 'flarum/components/Separator';
-import Group from 'flarum/models/Group';
-import Badge from 'flarum/components/Badge';
-import GroupBadge from 'flarum/components/GroupBadge';
+import Dropdown from 'components/Dropdown';
+import Button from 'components/Button';
+import Separator from 'components/Separator';
+import Group from 'models/Group';
+import Badge from 'components/Badge';
+import GroupBadge from 'components/GroupBadge';
 
 function badgeForId(id) {
   const group = app.store.getById('groups', id);

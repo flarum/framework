@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import Component from 'flarum/Component';
+import Component from 'Component';
 
 export default class Widget extends Component {
   view() {

@@ -1,5 +1,5 @@
-import Page from 'flarum/components/Page';
-import StatusWidget from 'flarum/components/StatusWidget';
+import Page from 'components/Page';
+import StatusWidget from 'components/StatusWidget';
 
 export default class DashboardPage extends Page {
   view() {

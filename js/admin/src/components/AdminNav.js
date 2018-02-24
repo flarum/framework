@@ -7,11 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import Component from 'flarum/Component';
-import AdminLinkButton from 'flarum/components/AdminLinkButton';
-import SelectDropdown from 'flarum/components/SelectDropdown';
+import Component from 'Component';
+import AdminLinkButton from 'components/AdminLinkButton';
+import SelectDropdown from 'components/SelectDropdown';
 
-import ItemList from 'flarum/utils/ItemList';
+import ItemList from 'utils/ItemList';
 
 export default class AdminNav extends Component {
   view() {

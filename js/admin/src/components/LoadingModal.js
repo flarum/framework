@@ -1,4 +1,4 @@
-import Modal from 'flarum/components/Modal';
+import Modal from 'components/Modal';
 
 export default class LoadingModal extends Modal {
   isDismissible() {

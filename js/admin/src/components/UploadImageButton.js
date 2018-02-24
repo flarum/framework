@@ -1,4 +1,4 @@
-import Button from 'flarum/components/Button';
+import Button from 'components/Button';
 
 export default class UploadImageButton extends Button {
   init() {

@@ -1,7 +1,7 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import Badge from 'flarum/components/Badge';
-import Group from 'flarum/models/Group';
+import Modal from 'components/Modal';
+import Button from 'components/Button';
+import Badge from 'components/Badge';
+import Group from 'models/Group';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user

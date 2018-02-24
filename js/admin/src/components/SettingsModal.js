@@ -1,6 +1,6 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import saveSettings from 'flarum/utils/saveSettings';
+import Modal from 'components/Modal';
+import Button from 'components/Button';
+import saveSettings from 'utils/saveSettings';
 
 export default class SettingsModal extends Modal {
   init() {

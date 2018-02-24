@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import ItemList from 'flarum/utils/ItemList';
-import listItems from 'flarum/helpers/listItems';
+import Component from 'Component';
+import ItemList from 'utils/ItemList';
+import listItems from 'helpers/listItems';
 
 /**
  * The `HeaderPrimary` component displays primary header controls. On the

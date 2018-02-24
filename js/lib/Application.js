@@ -146,7 +146,6 @@ export default class Application {
     this.drawer = new Drawer();
 
     const basePath = this.forum.attribute('basePath');
-    m.route.mode = 'pathname';
     m.route(
       document.getElementById('content'),
       basePath + '/',

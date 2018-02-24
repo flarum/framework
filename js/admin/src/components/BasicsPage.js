@@ -1,11 +1,11 @@
-import Page from 'flarum/components/Page';
-import FieldSet from 'flarum/components/FieldSet';
-import Select from 'flarum/components/Select';
-import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import saveSettings from 'flarum/utils/saveSettings';
-import ItemList from 'flarum/utils/ItemList';
-import Switch from 'flarum/components/Switch';
+import Page from 'components/Page';
+import FieldSet from 'components/FieldSet';
+import Select from 'components/Select';
+import Button from 'components/Button';
+import Alert from 'components/Alert';
+import saveSettings from 'utils/saveSettings';
+import ItemList from 'utils/ItemList';
+import Switch from 'components/Switch';
 
 export default class BasicsPage extends Page {
   init() {

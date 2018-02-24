@@ -15,7 +15,7 @@ import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application from '../../lib/Application';
 import Navigation from '../../lib/components/Navigation';
 
-export default class ForumApp extends Application {
+export default class ForumApplication extends Application {
   /**
    * A map of notification types to their components.
    *
@@ -92,6 +92,7 @@ export default class ForumApp extends Application {
     this.pane = new Pane(document.getElementById('app'));
     this.composer = m.mount(document.getElementById('composer'), Composer.component());
 
+    m.route.mode = 'pathname';
     super.mount();
 
     alertEmailConfirmation(this);

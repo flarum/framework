@@ -1,8 +1,8 @@
-import avatar from 'flarum/helpers/avatar';
-import username from 'flarum/helpers/username';
-import Dropdown from 'flarum/components/Dropdown';
-import Button from 'flarum/components/Button';
-import ItemList from 'flarum/utils/ItemList';
+import avatar from 'helpers/avatar';
+import username from 'helpers/username';
+import Dropdown from 'components/Dropdown';
+import Button from 'components/Button';
+import ItemList from 'utils/ItemList';
 
 /**
  * The `SessionDropdown` component shows a button with the current user's

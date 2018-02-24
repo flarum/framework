@@ -1,13 +1,13 @@
-import Page from 'flarum/components/Page';
-import LinkButton from 'flarum/components/LinkButton';
-import Button from 'flarum/components/Button';
-import Dropdown from 'flarum/components/Dropdown';
-import Separator from 'flarum/components/Separator';
-import AddExtensionModal from 'flarum/components/AddExtensionModal';
-import LoadingModal from 'flarum/components/LoadingModal';
-import ItemList from 'flarum/utils/ItemList';
-import icon from 'flarum/helpers/icon';
-import listItems from 'flarum/helpers/listItems';
+import Page from 'components/Page';
+import LinkButton from 'components/LinkButton';
+import Button from 'components/Button';
+import Dropdown from 'components/Dropdown';
+import Separator from 'components/Separator';
+import AddExtensionModal from 'components/AddExtensionModal';
+import LoadingModal from 'components/LoadingModal';
+import ItemList from 'utils/ItemList';
+import icon from 'helpers/icon';
+import listItems from 'helpers/listItems';
 
 export default class ExtensionsPage extends Page {
   view() {

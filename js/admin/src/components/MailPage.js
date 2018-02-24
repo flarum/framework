@@ -1,8 +1,8 @@
-import Page from 'flarum/components/Page';
-import FieldSet from 'flarum/components/FieldSet';
-import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import saveSettings from 'flarum/utils/saveSettings';
+import Page from 'components/Page';
+import FieldSet from 'components/FieldSet';
+import Button from 'components/Button';
+import Alert from 'components/Alert';
+import saveSettings from 'utils/saveSettings';
 
 export default class MailPage extends Page {
   init() {

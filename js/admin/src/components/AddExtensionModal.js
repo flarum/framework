@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import Modal from 'flarum/components/Modal';
+import Modal from 'components/Modal';
 
 export default class AddExtensionModal extends Modal {
   className() {

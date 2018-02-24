@@ -1,7 +1,7 @@
-import Component from 'flarum/Component';
-import SessionDropdown from 'flarum/components/SessionDropdown';
-import ItemList from 'flarum/utils/ItemList';
-import listItems from 'flarum/helpers/listItems';
+import Component from 'Component';
+import SessionDropdown from 'components/SessionDropdown';
+import ItemList from 'utils/ItemList';
+import listItems from 'helpers/listItems';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls.

@@ -1,12 +1,12 @@
-import DashboardPage from 'flarum/components/DashboardPage';
-import BasicsPage from 'flarum/components/BasicsPage';
-import PermissionsPage from 'flarum/components/PermissionsPage';
-import AppearancePage from 'flarum/components/AppearancePage';
-import ExtensionsPage from 'flarum/components/ExtensionsPage';
-import MailPage from 'flarum/components/MailPage';
+import DashboardPage from 'components/DashboardPage';
+import BasicsPage from 'components/BasicsPage';
+import PermissionsPage from 'components/PermissionsPage';
+import AppearancePage from 'components/AppearancePage';
+import ExtensionsPage from 'components/ExtensionsPage';
+import MailPage from 'components/MailPage';
 
 /**
- * The `routes` initializer defines the admin app's routes.
+ * The `routes` initializer defines the forum app's routes.
  *
  * @param {App} app
  */
