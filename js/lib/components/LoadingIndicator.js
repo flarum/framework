@@ -20,7 +20,7 @@ export default class LoadingIndicator extends Component {
   }
 
   config() {
-    const options = { zIndex: 'auto' };
+    const options = { zIndex: 'auto', color: this.$().css('color') };
 
     switch (this.props.size) {
       case 'large':
