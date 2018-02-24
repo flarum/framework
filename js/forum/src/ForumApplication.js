@@ -95,6 +95,20 @@ export default class ForumApp extends Application {
     super.mount();
 
     alertEmailConfirmation(this);
+
+    // Route the home link back home when clicked. We do not want it to register
+    // if the user is opening it in a new tab, however.
+    $('#home-link').click(e => {
+      if (e.ctrlKey || e.metaKey || e.which === 2) return;
+      e.preventDefault();
+      app.history.home();
+
+      // Reload the current user so that their unread notification count is refreshed.
+      if (app.session.user) {
+        app.store.find('users', app.session.user.id());
+        m.redraw();
+      }
+    });
   }
 
   /**
