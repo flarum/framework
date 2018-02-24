@@ -21,25 +21,31 @@ module.exports = function(options = {}) {
           }
         }
       ]
+    },
+
+    // For backwards compatibility, search for non-relative-path modules
+    // in the `src` and `lib` directories. Also make sure the root node_modules
+    // directory is searched, otherwise importing a module from a file
+    // inside `lib` won't work.
+    resolve: {
+      modules: [
+        path.resolve(process.cwd(), 'src'),
+        path.resolve(process.cwd(), '../lib'),
+        path.resolve(process.cwd(), 'node_modules'),
+        'node_modules'
+      ]
     }
   };
 
-  if (options.compat) {
-    config.resolve = config.resolve || {};
-    config.resolve.modules = [
-      path.resolve(process.cwd(), 'src'),
-      path.resolve(process.cwd(), '../lib'),
-      path.resolve(process.cwd(), 'node_modules'),
-      'node_modules'
-    ];
-  }
-
   if (options.compatPrefix) {
+    // Strip the old-style module prefix from non-relative-path imports by
+    // aliasing it to nothing.
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       [options.compatPrefix]: '.'
     };
 
+    // Support importing old-style core modules.
     config.externals = [
       function(context, request, callback) {
         let matches;
