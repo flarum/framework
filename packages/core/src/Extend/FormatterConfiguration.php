@@ -11,6 +11,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Extension;
 use Flarum\Formatter\Event\Configuring;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
@@ -24,7 +25,7 @@ class FormatterConfiguration implements Extender
         $this->callback = $callback;
     }
 
-    public function __invoke(Container $container)
+    public function __invoke(Container $container, Extension $extension = null)
     {
         $container->make(Dispatcher::class)->listen(
             Configuring::class,
