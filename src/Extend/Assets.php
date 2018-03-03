@@ -11,6 +11,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Extension;
 use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
@@ -41,7 +42,7 @@ class Assets implements Extender
         return $this;
     }
 
-    public function __invoke(Container $container)
+    public function __invoke(Container $container, Extension $extension = null)
     {
         $container->make(Dispatcher::class)->listen(
             Rendering::class,
