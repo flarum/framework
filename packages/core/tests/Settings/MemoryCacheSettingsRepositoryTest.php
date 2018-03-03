@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\Flarum\Settings;
+namespace Flarum\Tests\Settings;
 
 use Flarum\Settings\MemoryCacheSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
