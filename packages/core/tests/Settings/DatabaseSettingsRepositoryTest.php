@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Settings;
+namespace Flarum\Tests\Settings;
 
 use Flarum\Settings\DatabaseSettingsRepository;
+use Flarum\Tests\Test\TestCase;
 use Illuminate\Database\ConnectionInterface;
 use Mockery as m;
-use Tests\Test\TestCase;
 
 class DatabaseSettingsRepositoryTest extends TestCase
 {

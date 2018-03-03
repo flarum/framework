@@ -70,7 +70,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Flarum\\Tests\\": "tests/"
         }
     },
     "extra": {
