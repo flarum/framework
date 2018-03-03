@@ -18956,9 +18956,9 @@ System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', '
                               extension.version
                             ),
                             m(
-                            'div',
-                            { className: 'ExtensionListItem-description' },
-                            extension.description
+                              'div',
+                              { className: 'ExtensionListItem-description' },
+                              extension.description
                             )
                           )
                         )
