@@ -284,20 +284,23 @@ class ExtensionManager
         return $this->getEnabledExtensions()
             ->flatMap(function (Extension $extension) {
                 $bootstrapper = $extension->getBootstrapperPath();
+
                 if ($this->filesystem->exists($bootstrapper)) {
-                    return (array) require $bootstrapper;
-                } else {
-                    return [];
+                    return array_map(function ($extender) use ($extension) {
+                        // If an extension has not yet switched to the new bootstrap.php
+                        // format, it might return a function (or more of them). We wrap
+                        // these in a Compat extender to enjoy an unique interface.
+                        if ($extender instanceof \Closure || is_string($extender)) {
+                            $extender = new Compat($extender);
+                        }
+
+                        return function ($app) use ($extension, $extender) {
+                            return $extender($app, $extension);
+                        };
+                    }, array_flatten((array) require $bootstrapper));
                 }
-            })->map(function ($extender) {
-                // If an extension has not yet switched to the new bootstrap.php
-                // format, it might return a function (or more of them). We wrap
-                // these in a Compat extender to enjoy an unique interface.
-                if ($extender instanceof \Closure || is_string($extender)) {
-                    return new Compat($extender);
-                } else {
-                    return $extender;
-                }
+
+                return [];
             });
     }
 
