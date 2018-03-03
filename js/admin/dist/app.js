@@ -18939,18 +18939,27 @@ System.register('flarum/components/ExtensionsPage', ['flarum/components/Page', '
                               icon: 'ellipsis-h' },
                             controls
                           ) : '',
-                          m(
-                            'label',
-                            { className: 'ExtensionListItem-title' },
-                            m('input', { type: 'checkbox', checked: _this2.isEnabled(extension.id), onclick: _this2.toggle.bind(_this2, extension.id) }),
-                            ' ',
-                            ' ',
-                            extension.extra['flarum-extension'].title
-                          ),
-                          m(
+						              m(
+                          'div',
+                          { className: 'ExtensionListItem-main' },
+                            m(
+                              'label',
+                              { className: 'ExtensionListItem-title' },
+                              m('input', { type: 'checkbox', checked: _this2.isEnabled(extension.id), onclick: _this2.toggle.bind(_this2, extension.id) }),
+                              ' ',
+                              ' ',
+                              extension.extra['flarum-extension'].title
+                            ),
+                            m(
+                              'div',
+                              { className: 'ExtensionListItem-version' },
+                              extension.version
+                            ),
+                            m(
                             'div',
-                            { className: 'ExtensionListItem-version' },
-                            extension.version
+                            { className: 'ExtensionListItem-description' },
+                            extension.description
+                            )
                           )
                         )
                       );
