@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\ExceptionHandler;
+namespace Flarum\Tests\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\ValidationExceptionHandler;
 use Flarum\Foundation\ValidationException;
-use Tests\Test\TestCase;
+use Flarum\Tests\Test\TestCase;
 
 class ValidationExceptionHandlerTest extends TestCase
 {

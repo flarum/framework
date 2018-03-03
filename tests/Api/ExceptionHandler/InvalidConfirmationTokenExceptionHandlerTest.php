@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\ExceptionHandler;
+namespace Flarum\Tests\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\InvalidConfirmationTokenExceptionHandler;
+use Flarum\Tests\Test\TestCase;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
-use Tests\Test\TestCase;
 
 class InvalidConfirmationTokenExceptionHandlerTest extends TestCase
 {

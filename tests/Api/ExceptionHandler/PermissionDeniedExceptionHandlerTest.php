@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\ExceptionHandler;
+namespace Flarum\Tests\Api\ExceptionHandler;
 
 use Exception;
 use Flarum\Api\ExceptionHandler\PermissionDeniedExceptionHandler;
+use Flarum\Tests\Test\TestCase;
 use Flarum\User\Exception\PermissionDeniedException;
-use Tests\Test\TestCase;
 
 class PermissionDeniedExceptionHandlerTest extends TestCase
 {
