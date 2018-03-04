@@ -115,7 +115,7 @@ class Extension implements Arrayable
     {
         $bootstrapper = $this->getBootstrapperPath();
 
-        if (!file_exists($bootstrapper)) {
+        if (! file_exists($bootstrapper)) {
             return;
         }
 
