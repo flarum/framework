@@ -12,7 +12,6 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
-use Flarum\Extend\Compat;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
