@@ -60,7 +60,6 @@ class FormatUserMentions
 
         $tag->template = '<a href="{$PROFILE_URL}{@username}" class="UserMention">@<xsl:value-of select="@displayname"/></a>';
         $tag->filterChain->prepend([static::class, 'addId'])
-            ->addParameterByName('userRepository')
             ->setJS('function(tag) { return System.get("flarum/mentions/utils/textFormatter").filterUserMentions(tag); }');
 
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
