@@ -20,11 +20,13 @@ use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
 use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Locale\LocaleManager;
+use Flarum\Foundation\Application;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
-use Flarum\Util\Str;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -461,6 +463,8 @@ class Discussion extends AbstractModel
     protected function setTitleAttribute($title)
     {
         $this->attributes['title'] = $title;
-        $this->slug = Str::slug($title);
+        $app = Application::getInstance();
+        $locale = $app->make(LocaleManager::class)->getLocale() ?? 'en';
+        $this->slug = Str::slug($title, '-', $locale);
     }
 }

@@ -9,8 +9,16 @@
  * file that was distributed with this source code.
  */
 
+/**
+ * @deprecated 0.1.0 Superseded by more complete Illuminate\Support namespace
+ */
 namespace Flarum\Util;
 
+/**
+ * Class Str
+ * @deprecated 0.1.0 Superseded by more complete Illuminate\Support\Str class
+ * @package Flarum\Util
+ */
 class Str
 {
     /**
@@ -18,6 +26,7 @@ class Str
      *
      * Non-alphanumeric characters are converted to hyphens.
      *
+     * @deprecated  0.1.0 Superseded by more complete Illuminate\Support\Str's slug function
      * @param string $str
      * @return string
      */

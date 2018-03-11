@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Util\Str;
+use Illuminate\Support\Str;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -19,11 +19,14 @@ return [
             $table->string('slug');
         });
 
+        $app = Application::getInstance();
+        $locale = $app->make(LocaleManager::class)->getLocale() ?? 'en';
+
         // Store slugs for existing discussions
-        $schema->getConnection()->table('discussions')->chunkById(100, function ($discussions) use ($schema) {
+        $schema->getConnection()->table('discussions')->chunkById(100, function ($discussions) use ($schema, $locale) {
             foreach ($discussions as $discussion) {
                 $schema->getConnection()->table('discussions')->where('id', $discussion->id)->update([
-                    'slug' => Str::slug($discussion->title)
+                    'slug' => Str::slug($discussion->title, '-', $locale)
                 ]);
             }
         });
