@@ -59,7 +59,7 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
-        $this->events->fire(new Parsing($parser, $context, $text));
+        $this->events->dispatch(new Parsing($parser, $context, $text));
 
         return $parser->parse($text);
     }
@@ -75,7 +75,7 @@ class Formatter
     {
         $renderer = $this->getRenderer($context);
 
-        $this->events->fire(new Rendering($renderer, $context, $xml));
+        $this->events->dispatch(new Rendering($renderer, $context, $xml));
 
         return $renderer->render($xml);
     }
@@ -117,7 +117,7 @@ class Formatter
         $configurator->Autolink;
         $configurator->tags->onDuplicate('replace');
 
-        $this->events->fire(new Configuring($configurator));
+        $this->events->dispatch(new Configuring($configurator));
 
         $this->configureExternalLinks($configurator);
 

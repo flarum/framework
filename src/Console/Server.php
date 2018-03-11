@@ -11,14 +11,17 @@
 
 namespace Flarum\Console;
 
+use Flarum\Console\Event\Configuring;
 use Flarum\Database\Console\GenerateMigrationCommand;
 use Flarum\Database\Console\MigrateCommand;
+use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Foundation\Site;
 use Flarum\Install\Console\InstallCommand;
 use Flarum\Install\InstallServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 class Server
@@ -56,6 +59,7 @@ class Server
         $commands = [
             InstallCommand::class,
             MigrateCommand::class,
+            ResetCommand::class,
             GenerateMigrationCommand::class,
         ];
 
@@ -72,6 +76,9 @@ class Server
                 ['config' => $this->app->isInstalled() ? $this->app->make('flarum.config') : []]
             ));
         }
+
+        $events = $this->app->make(Dispatcher::class);
+        $events->fire(new Configuring($this->app, $console));
 
         return $console;
     }

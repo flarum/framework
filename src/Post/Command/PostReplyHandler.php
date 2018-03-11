@@ -95,7 +95,7 @@ class PostReplyHandler
             $post->time = new DateTime($time);
         }
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($post, $actor, $command->data)
         );
 

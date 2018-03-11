@@ -97,7 +97,7 @@ class UploadAvatarHandler
 
             $image = (new ImageManager)->make($tmpFile);
 
-            $this->events->fire(
+            $this->events->dispatch(
                 new AvatarSaving($user, $actor, $image)
             );
 

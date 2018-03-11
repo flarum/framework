@@ -36,10 +36,10 @@ abstract class AbstractFrontendController extends AbstractHtmlController
     {
         $view = $this->getView($request);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new ConfigureClientView($this, $view, $request)
         );
-        $this->events->fire(
+        $this->events->dispatch(
             new Rendering($this, $view, $request)
         );
 

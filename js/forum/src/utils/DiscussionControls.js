@@ -55,12 +55,12 @@ export default {
       items.add('reply',
         !app.session.user || discussion.canReply()
           ? Button.component({
-            icon: 'reply',
+            icon: 'fa fa-reply',
             children: app.translator.trans(app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'),
             onclick: this.replyAction.bind(discussion, true, false)
           })
           : Button.component({
-            icon: 'reply',
+            icon: 'fa fa-reply',
             children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
             className: 'disabled',
             title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text')
@@ -85,7 +85,7 @@ export default {
 
     if (discussion.canRename()) {
       items.add('rename', Button.component({
-        icon: 'pencil',
+        icon: 'fa fa-pencil-alt',
         children: app.translator.trans('core.forum.discussion_controls.rename_button'),
         onclick: this.renameAction.bind(discussion)
       }));
@@ -109,7 +109,7 @@ export default {
     if (!discussion.isHidden()) {
       if (discussion.canHide()) {
         items.add('hide', Button.component({
-          icon: 'trash-o',
+          icon: 'far fa-trash-alt',
           children: app.translator.trans('core.forum.discussion_controls.delete_button'),
           onclick: this.hideAction.bind(discussion)
         }));
@@ -117,7 +117,7 @@ export default {
     } else {
       if (discussion.canHide()) {
         items.add('restore', Button.component({
-          icon: 'reply',
+          icon: 'fa fa-reply',
           children: app.translator.trans('core.forum.discussion_controls.restore_button'),
           onclick: this.restoreAction.bind(discussion)
         }));
@@ -125,7 +125,7 @@ export default {
 
       if (discussion.canDelete()) {
         items.add('delete', Button.component({
-          icon: 'times',
+          icon: 'fa fa-times',
           children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
           onclick: this.deleteAction.bind(discussion)
         }));

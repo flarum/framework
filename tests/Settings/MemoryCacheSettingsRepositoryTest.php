@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Settings;
+namespace Flarum\Tests\Settings;
 
 use Flarum\Settings\MemoryCacheSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Tests\Test\TestCase;
 use Mockery as m;
-use Tests\Test\TestCase;
 
 class MemoryCacheSettingsRepositoryTest extends TestCase
 {

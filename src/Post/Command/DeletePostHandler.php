@@ -50,7 +50,7 @@ class DeletePostHandler
 
         $this->assertCan($actor, 'delete', $post);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Deleting($post, $actor, $command->data)
         );
 

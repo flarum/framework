@@ -20,7 +20,7 @@ export default class TerminalPost extends Component {
 
     return (
       <span>
-        {lastPost ? icon('reply') : ''}{' '}
+        {lastPost ? icon('fa fa-reply') : ''}{' '}
         {app.translator.trans('core.forum.discussion_list.' + (lastPost ? 'replied' : 'started') + '_text', {
           user,
           ago: humanTime(time)

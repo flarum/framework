@@ -119,7 +119,7 @@ class LogOutController implements ControllerInterface
 
         $actor->accessTokens()->delete();
 
-        $this->events->fire(new LoggedOut($actor));
+        $this->events->dispatch(new LoggedOut($actor));
 
         return $this->rememberer->forget($response);
     }

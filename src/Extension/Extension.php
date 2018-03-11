@@ -11,6 +11,8 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Extend\Compat;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -37,6 +39,13 @@ use Illuminate\Support\Str;
  */
 class Extension implements Arrayable
 {
+    const LOGO_MIMETYPES = [
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg',
+    ];
+
     /**
      * Unique Id of the extension.
      *
@@ -100,6 +109,28 @@ class Extension implements Arrayable
         list($vendor, $package) = explode('/', $this->name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
         $this->id = "$vendor-$package";
+    }
+
+    public function extend(Container $app)
+    {
+        $bootstrapper = $this->getBootstrapperPath();
+
+        if (! file_exists($bootstrapper)) {
+            return;
+        }
+
+        $extenders = array_flatten((array) require $bootstrapper);
+
+        foreach ($extenders as $extender) {
+            // If an extension has not yet switched to the new bootstrap.php
+            // format, it might return a function (or more of them). We wrap
+            // these in a Compat extender to enjoy an unique interface.
+            if ($extender instanceof \Closure || is_string($extender)) {
+                $extender = new Compat($extender);
+            }
+
+            $extender($app, $this);
+        }
     }
 
     /**
@@ -176,22 +207,28 @@ class Extension implements Arrayable
      */
     public function getIcon()
     {
-        if (($icon = $this->composerJsonAttribute('extra.flarum-extension.icon'))) {
-            if ($file = Arr::get($icon, 'image')) {
-                $file = $this->path.'/'.$file;
+        $icon = $this->composerJsonAttribute('extra.flarum-extension.icon');
+        $file = Arr::get($icon, 'image');
 
-                if (file_exists($file)) {
-                    $mimetype = pathinfo($file, PATHINFO_EXTENSION) === 'svg'
-                        ? 'image/svg+xml'
-                        : finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
-                    $data = file_get_contents($file);
-
-                    $icon['backgroundImage'] = 'url(\'data:'.$mimetype.';base64,'.base64_encode($data).'\')';
-                }
-            }
-
+        if (is_null($icon) || is_null($file)) {
             return $icon;
         }
+
+        $file = $this->path.'/'.$file;
+
+        if (file_exists($file)) {
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            if (! array_key_exists($extension, self::LOGO_MIMETYPES)) {
+                throw new \RuntimeException('Invalid image type');
+            }
+
+            $mimetype = self::LOGO_MIMETYPES[$extension];
+            $data = base64_encode(file_get_contents($file));
+
+            $icon['backgroundImage'] = "url('data:$mimetype;base64,$data')";
+        }
+
+        return $icon;
     }
 
     /**

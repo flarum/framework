@@ -74,7 +74,7 @@ class EditDiscussionHandler
             }
         }
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($discussion, $actor, $data)
         );
 

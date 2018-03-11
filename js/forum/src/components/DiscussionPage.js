@@ -240,7 +240,7 @@ export default class DiscussionPage extends Page {
     items.add('controls',
       SplitDropdown.component({
         children: DiscussionControls.controls(this.discussion, this).toArray(),
-        icon: 'ellipsis-v',
+        icon: 'fa fa-ellipsis-v',
         className: 'App-primaryControl',
         buttonClassName: 'Button--primary'
       })

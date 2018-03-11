@@ -78,7 +78,7 @@ class EditPostHandler
             }
         }
 
-        $this->events->fire(
+        $this->events->dispatch(
             new Saving($post, $actor, $data)
         );
 

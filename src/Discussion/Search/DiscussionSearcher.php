@@ -11,26 +11,20 @@
 
 namespace Flarum\Discussion\Search;
 
-use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Searching;
-use Flarum\Post\PostRepository;
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\GambitManager;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchResults;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Events\Dispatcher;
 
-/**
- * Takes a DiscussionSearchCriteria object, performs a search using gambits,
- * and spits out a DiscussionSearchResults object.
- */
 class DiscussionSearcher
 {
     use ApplySearchParametersTrait;
 
     /**
-     * @var \Flarum\Search\GambitManager
+     * @var GambitManager
      */
     protected $gambits;
 
@@ -40,37 +34,34 @@ class DiscussionSearcher
     protected $discussions;
 
     /**
-     * @var PostRepository
+     * @var Dispatcher
      */
-    protected $posts;
+    protected $events;
 
     /**
-     * @param \Flarum\Search\GambitManager $gambits
+     * @param GambitManager $gambits
      * @param DiscussionRepository $discussions
-     * @param PostRepository $posts
+     * @param Dispatcher $events
      */
-    public function __construct(
-        GambitManager $gambits,
-        DiscussionRepository $discussions,
-        PostRepository $posts
-    ) {
+    public function __construct(GambitManager $gambits, DiscussionRepository $discussions, Dispatcher $events)
+    {
         $this->gambits = $gambits;
         $this->discussions = $discussions;
-        $this->posts = $posts;
+        $this->events = $events;
     }
 
     /**
      * @param SearchCriteria $criteria
      * @param int|null $limit
      * @param int $offset
-     * @param array $load An array of relationships to load on the results.
+     *
      * @return SearchResults
      */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0, array $load = [])
+    public function search(SearchCriteria $criteria, $limit = null, $offset = 0)
     {
         $actor = $criteria->actor;
 
-        $query = $this->discussions->query()->whereVisibleTo($actor);
+        $query = $this->discussions->query()->select('discussions.*')->whereVisibleTo($actor);
 
         // Construct an object which represents this search for discussions.
         // Apply gambits to it, sort, and paging criteria. Also give extensions
@@ -82,8 +73,7 @@ class DiscussionSearcher
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
 
-        // TODO: inject dispatcher
-        event(new Searching($search, $criteria));
+        $this->events->dispatch(new Searching($search, $criteria));
 
         // Execute the search query and retrieve the results. We get one more
         // results than the user asked for, so that we can say if there are more
@@ -96,42 +86,6 @@ class DiscussionSearcher
             $discussions->pop();
         }
 
-        // The relevant posts relationship isn't a typical Eloquent
-        // relationship; rather, we need to extract that information from our
-        // search object. We will delegate that task and prevent Eloquent
-        // from trying to load it.
-        if (in_array('relevantPosts', $load)) {
-            $this->loadRelevantPosts($discussions, $search);
-
-            $load = array_diff($load, ['relevantPosts', 'relevantPosts.discussion', 'relevantPosts.user']);
-        }
-
-        Discussion::setStateUser($actor);
-        $discussions->load($load);
-
         return new SearchResults($discussions, $areMoreResults);
-    }
-
-    /**
-     * Load relevant posts onto each discussion using information from the
-     * search.
-     *
-     * @param Collection $discussions
-     * @param DiscussionSearch $search
-     */
-    protected function loadRelevantPosts(Collection $discussions, DiscussionSearch $search)
-    {
-        $postIds = [];
-        foreach ($search->getRelevantPostIds() as $relevantPostIds) {
-            $postIds = array_merge($postIds, array_slice($relevantPostIds, 0, 2));
-        }
-
-        $posts = $postIds ? $this->posts->findByIds($postIds, $search->getActor())->load('user')->all() : [];
-
-        foreach ($discussions as $discussion) {
-            $discussion->relevantPosts = array_filter($posts, function ($post) use ($discussion) {
-                return $post->discussion_id == $discussion->id;
-            });
-        }
     }
 }

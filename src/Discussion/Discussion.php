@@ -383,6 +383,16 @@ class Discussion extends AbstractModel
     }
 
     /**
+     * Define the relationship with the discussion's most relevant post.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function mostRelevantPost()
+    {
+        return $this->belongsTo(Post::class, 'most_relevant_post_id');
+    }
+
+    /**
      * Define the relationship with the discussion's readers.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

@@ -62,7 +62,7 @@ class DeleteAvatarHandler
 
         $this->uploader->remove($user);
 
-        $this->events->fire(
+        $this->events->dispatch(
             new AvatarDeleting($user, $actor)
         );
 

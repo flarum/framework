@@ -11,9 +11,10 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 
 interface Extender
 {
-    public function __invoke(Container $container);
+    public function __invoke(Container $container, Extension $extension = null);
 }

@@ -12,6 +12,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
@@ -31,9 +32,8 @@ class ListDiscussionsController extends AbstractListController
     public $include = [
         'startUser',
         'lastUser',
-        'relevantPosts',
-        'relevantPosts.discussion',
-        'relevantPosts.user'
+        'mostRelevantPost',
+        'mostRelevantPost.user'
     ];
 
     /**
@@ -84,7 +84,7 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $load = array_merge($this->extractInclude($request), ['state']);
 
-        $results = $this->searcher->search($criteria, $limit, $offset, $load);
+        $results = $this->searcher->search($criteria, $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('discussions.index'),
@@ -94,7 +94,9 @@ class ListDiscussionsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
-        $results = $results->getResults();
+        Discussion::setStateUser($actor);
+
+        $results = $results->getResults()->load($load);
 
         if ($relations = array_intersect($load, ['startPost', 'lastPost'])) {
             foreach ($results as $discussion) {

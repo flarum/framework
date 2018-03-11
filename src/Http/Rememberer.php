@@ -33,8 +33,6 @@ class Rememberer
 
     public function remember(ResponseInterface $response, AccessToken $token)
     {
-        $lifetime = null;
-
         $token->lifetime = 5 * 365 * 24 * 60 * 60; // 5 years
         $token->save();
 

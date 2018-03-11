@@ -147,8 +147,8 @@ class InstallCommand extends AbstractCommand
                     'host' => 'required',
                     'database' => 'required|string',
                     'username' => 'required|string',
-                    'prefix' => 'alpha_dash|max:10',
-                    'port'   => 'integer|min:1|max:65535',
+                    'prefix' => 'nullable|alpha_dash|max:10',
+                    'port'   => 'nullable|integer|min:1|max:65535',
                 ]
             );
 
@@ -287,10 +287,10 @@ class InstallCommand extends AbstractCommand
         Group::unguard();
 
         $groups = [
-            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'wrench'],
+            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'fa fa-wrench'],
             [Group::GUEST_ID, 'Guest', 'Guests', null, null],
             [Group::MEMBER_ID, 'Member', 'Members', null, null],
-            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'bolt']
+            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fa fa-bolt']
         ];
 
         foreach ($groups as $group) {
@@ -386,7 +386,7 @@ class InstallCommand extends AbstractCommand
     protected function publishAssets()
     {
         $this->filesystem->copyDirectory(
-            $this->application->basePath().'/vendor/components/font-awesome/fonts',
+            $this->application->basePath().'/vendor/components/font-awesome/webfonts',
             $this->application->publicPath().'/assets/fonts'
         );
     }

@@ -21,7 +21,7 @@ Object.assign(Discussion.prototype, {
   commentsCount: Model.attribute('commentsCount'),
   repliesCount: computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1)),
   posts: Model.hasMany('posts'),
-  relevantPosts: Model.hasMany('relevantPosts'),
+  mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
   readTime: Model.attribute('readTime', Model.transformDate),
   readNumber: Model.attribute('readNumber'),
@@ -84,7 +84,7 @@ Object.assign(Discussion.prototype, {
     const items = new ItemList();
 
     if (this.isHidden()) {
-      items.add('hidden', <Badge type="hidden" icon="trash" label={app.translator.trans('core.lib.badge.hidden_tooltip')}/>);
+      items.add('hidden', <Badge type="hidden" icon="fa fa-trash" label={app.translator.trans('core.lib.badge.hidden_tooltip')}/>);
     }
 
     return items;
