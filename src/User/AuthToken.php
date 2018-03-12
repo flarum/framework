@@ -53,7 +53,7 @@ class AuthToken extends AbstractModel
      * @param array|null $suggestions
      * @return static
      */
-    public static function generate(array $payload, array $suggestions =  null)
+    public static function generate(array $payload, array $suggestions = null)
     {
         $token = new static;
 
