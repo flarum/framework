@@ -13,19 +13,21 @@ namespace Flarum\Http\Middleware;
 
 use Dflydev\FigCookies\FigResponseCookies;
 use Flarum\Http\CookieFactory;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
-use Illuminate\Session\SessionManager;
+use Illuminate\Session\Store;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use SessionHandlerInterface;
 
 class StartSession implements MiddlewareInterface
 {
     /**
-     * @var SessionManager
+     * @var SessionHandlerInterface
      */
-    protected $manager;
+    protected $handler;
 
     /**
      * @var CookieFactory
@@ -33,25 +35,29 @@ class StartSession implements MiddlewareInterface
     protected $cookie;
 
     /**
-     * @param SessionManager $manager
+     * @var array
+     */
+    protected $config;
+
+    /**
      * @param CookieFactory $cookie
      */
-    public function __construct(SessionManager $manager, CookieFactory $cookie)
+    public function __construct(SessionHandlerInterface $handler, CookieFactory $cookie, ConfigRepository $config)
     {
-        $this->manager = $manager;
+        $this->handler = $handler;
         $this->cookie = $cookie;
+        $this->config = $config->get('session');
     }
 
     public function process(Request $request, DelegateInterface $delegate)
     {
-        $request = $request->withAttribute('session',
-            $session = $this->startSession($request)
+        $request = $request->withAttribute(
+            'session',
+            $session = $this->makeSession($request)
         );
 
-        $this->collectGarbage($session);
-
+        $session->start();
         $response = $delegate->process($request);
-
         $session->save();
 
         $response = $this->withCsrfTokenHeader($response, $session);
@@ -59,37 +65,20 @@ class StartSession implements MiddlewareInterface
         return $this->withSessionCookie($response, $session);
     }
 
-    private function startSession(Request $request)
+    private function makeSession(Request $request)
     {
-        $session = $this->manager->driver();
+        $cookieName = $this->cookie->getName($this->config['cookie']);
 
-        $id = array_get($request->getCookieParams(), $this->cookie->getName($session->getName()));
-
-        $session->setId($id);
-        $session->start();
-
-        return $session;
-    }
-
-    private function collectGarbage(Session $session)
-    {
-        $config = $this->manager->getSessionConfig();
-
-        if ($this->configHitsLottery($config)) {
-            $session->getHandler()->gc($this->getSessionLifetimeInSeconds());
-        }
-    }
-
-    private function configHitsLottery(array $config)
-    {
-        return random_int(1, $config['lottery'][1]) <= $config['lottery'][0];
+        return new Store(
+            $cookieName,
+            $this->handler,
+            array_get($request->getCookieParams(), $cookieName)
+        );
     }
 
     private function withCsrfTokenHeader(Response $response, Session $session)
     {
-        $response = $response->withHeader('X-CSRF-Token', $session->token());
-
-        return $response;
+        return $response->withHeader('X-CSRF-Token', $session->token());
     }
 
     private function withSessionCookie(Response $response, Session $session)
@@ -102,6 +91,6 @@ class StartSession implements MiddlewareInterface
 
     private function getSessionLifetimeInSeconds()
     {
-        return ($this->manager->getSessionConfig()['lifetime'] ?? null) * 60;
+        return $this->config['lifetime'] * 60;
     }
 }
