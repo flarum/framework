@@ -240,12 +240,8 @@ class Site
                 ]
             ],
             'session' => [
-                'driver' => 'file',
                 'lifetime' => 120,
-                'expire_on_close' => false,
-                'encrypt' => false,
                 'files' => $app->storagePath().'/sessions',
-                'lottery' => [2, 100],
                 'cookie' => 'session'
             ]
         ]);
