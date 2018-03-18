@@ -50,7 +50,6 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.forum.middleware', function ($app) {
             $pipe = new MiddlewarePipe;
-            $pipe->raiseThrowables();
 
             // All requests should first be piped through our global error handler
             $debugMode = ! $app->isUpToDate() || $app->inDebugMode();

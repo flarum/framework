@@ -46,7 +46,6 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.admin.middleware', function ($app) {
             $pipe = new MiddlewarePipe;
-            $pipe->raiseThrowables();
 
             // All requests should first be piped through our global error handler
             $debugMode = ! $app->isUpToDate() || $app->inDebugMode();

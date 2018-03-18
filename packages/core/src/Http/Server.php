@@ -18,13 +18,14 @@ use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\InstallServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Server as DiactorosServer;
-use Zend\Stratigility\MiddlewareInterface;
 use Zend\Stratigility\MiddlewarePipe;
 use Zend\Stratigility\NoopFinalHandler;
+use function Zend\Stratigility\path;
 
 class Server
 {
@@ -76,7 +77,6 @@ class Server
     protected function getMiddleware($requestPath)
     {
         $pipe = new MiddlewarePipe;
-        $pipe->raiseThrowables();
 
         if (! $this->app->isInstalled()) {
             return $this->getInstallerMiddleware($pipe);
@@ -95,11 +95,11 @@ class Server
         $forum = parse_url($this->app->url(''), PHP_URL_PATH) ?: '/';
 
         if ($this->pathStartsWith($requestPath, $api)) {
-            $pipe->pipe($api, $this->app->make('flarum.api.middleware'));
+            $pipe->pipe(path($api, $this->app->make('flarum.api.middleware')));
         } elseif ($this->pathStartsWith($requestPath, $admin)) {
-            $pipe->pipe($admin, $this->app->make('flarum.admin.middleware'));
+            $pipe->pipe(path($admin, $this->app->make('flarum.admin.middleware')));
         } else {
-            $pipe->pipe($forum, $this->app->make('flarum.forum.middleware'));
+            $pipe->pipe(path($forum, $this->app->make('flarum.forum.middleware')));
         }
 
         return $pipe;
