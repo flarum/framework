@@ -42,15 +42,14 @@ class TagGambit extends AbstractRegexGambit
     {
         $slugs = explode(',', trim($matches[1], '"'));
 
-        // TODO: implement $negate
-        $search->getQuery()->where(function ($query) use ($slugs) {
+        $search->getQuery()->where(function ($query) use ($slugs, $negate) {
             foreach ($slugs as $slug) {
                 if ($slug === 'untagged') {
-                    $query->orWhereNotExists(function ($query) {
+                    $query->orWhereExists(function ($query) {
                         $query->selectRaw('1')
                               ->from('discussions_tags')
                               ->whereRaw('discussions.id = discussion_id');
-                    });
+                    }, !$negate);
                 } else {
                     $id = $this->tags->getIdForSlug($slug);
 
@@ -59,7 +58,7 @@ class TagGambit extends AbstractRegexGambit
                               ->from('discussions_tags')
                               ->whereRaw('discussions.id = discussion_id')
                               ->where('tag_id', $id);
-                    });
+                    }, $negate);
                 }
             }
         });
