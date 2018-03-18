@@ -12,9 +12,9 @@
 namespace Flarum\Http\Middleware;
 
 use Flarum\Locale\LocaleManager;
-use Psr\Http\Message\ResponseInterface as Response;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Stratigility\MiddlewareInterface;
 
 class SetLocale implements MiddlewareInterface
 {
@@ -31,10 +31,7 @@ class SetLocale implements MiddlewareInterface
         $this->locales = $locales;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    public function process(Request $request, DelegateInterface $delegate)
     {
         $actor = $request->getAttribute('actor');
 
@@ -48,6 +45,6 @@ class SetLocale implements MiddlewareInterface
             $this->locales->setLocale($locale);
         }
 
-        return $out ? $out($request, $response) : $response;
+        return $delegate->process($request);
     }
 }

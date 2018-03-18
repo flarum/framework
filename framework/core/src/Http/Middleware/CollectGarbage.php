@@ -15,20 +15,17 @@ use Flarum\Http\AccessToken;
 use Flarum\User\AuthToken;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
-use Psr\Http\Message\ResponseInterface as Response;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Stratigility\MiddlewareInterface;
 
 class CollectGarbage implements MiddlewareInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    public function process(Request $request, DelegateInterface $delegate)
     {
         $this->collectGarbageSometimes();
 
-        return $out ? $out($request, $response) : $response;
+        return $delegate->process($request);
     }
 
     private function collectGarbageSometimes()
