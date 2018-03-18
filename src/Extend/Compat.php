@@ -11,6 +11,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 
 /**
@@ -31,7 +32,7 @@ class Compat implements Extender
         $this->callback = $callback;
     }
 
-    public function __invoke(Container $container)
+    public function __invoke(Container $container, Extension $extension = null)
     {
         $container->call($this->callback);
     }

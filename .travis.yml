@@ -4,11 +4,8 @@ php:
   - 7.0
   - 7.1
   - 7.2
-  - hhvm
 
 matrix:
-  allow_failures:
-    - php: hhvm
   fast_finish: true
 
 before_script:
@@ -22,12 +19,6 @@ script:
 notifications:
   email:
     on_failure: change
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/7b9e9827a03b44a16588
-    on_success: always
-    on_failure: always
-    on_start: false
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

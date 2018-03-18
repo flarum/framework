@@ -12,6 +12,7 @@
 namespace Flarum\Extend;
 
 use DirectoryIterator;
+use Flarum\Extension\Extension;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use RuntimeException;
@@ -25,7 +26,7 @@ class Locale implements Extender
         $this->directory = $directory;
     }
 
-    public function __invoke(Container $container)
+    public function __invoke(Container $container, Extension $extension = null)
     {
         $this->loadLanguagePackFrom(
             $this->directory,

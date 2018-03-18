@@ -38,7 +38,7 @@ class ConfigureMiddleware
         $this->stackName = $stackName;
     }
 
-    public function pipe(callable $middleware)
+    public function pipe($middleware)
     {
         $this->pipe->pipe($middleware);
     }

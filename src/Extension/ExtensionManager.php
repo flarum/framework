@@ -12,7 +12,6 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
-use Flarum\Extend\Compat;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
@@ -20,6 +19,7 @@ use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
 use Flarum\Foundation\Application;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
@@ -275,30 +275,15 @@ class ExtensionManager
     }
 
     /**
-     * Retrieve all extender instances of all enabled extensions.
+     * Call on all enabled extensions to extend the Flarum application.
      *
-     * @return Collection
+     * @param Container $app
      */
-    public function getActiveExtenders()
+    public function extend(Container $app)
     {
-        return $this->getEnabledExtensions()
-            ->flatMap(function (Extension $extension) {
-                $bootstrapper = $extension->getBootstrapperPath();
-                if ($this->filesystem->exists($bootstrapper)) {
-                    return (array) require $bootstrapper;
-                } else {
-                    return [];
-                }
-            })->map(function ($extender) {
-                // If an extension has not yet switched to the new bootstrap.php
-                // format, it might return a function (or more of them). We wrap
-                // these in a Compat extender to enjoy an unique interface.
-                if ($extender instanceof \Closure || is_string($extender)) {
-                    return new Compat($extender);
-                } else {
-                    return $extender;
-                }
-            });
+        foreach ($this->getEnabledExtensions() as $extension) {
+            $extension->extend($app);
+        }
     }
 
     /**

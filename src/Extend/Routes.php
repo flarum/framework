@@ -11,6 +11,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Extension;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
@@ -62,7 +63,7 @@ class Routes implements Extender
         return $this;
     }
 
-    public function __invoke(Container $container)
+    public function __invoke(Container $container, Extension $extension = null)
     {
         if (empty($this->routes)) {
             return;

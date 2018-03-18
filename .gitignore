@@ -1,4 +1,5 @@
 /vendor
+composer.lock
 composer.phar
 .DS_Store
 Thumbs.db

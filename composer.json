@@ -54,7 +54,8 @@
         "s9e/text-formatter": "^0.8.1",
         "tobscure/json-api": "^0.3.0",
         "zendframework/zend-diactoros": "^1.6",
-        "zendframework/zend-stratigility": "^1.3"
+        "zendframework/zend-stratigility": "^2.2",
+        "http-interop/http-middleware": "^0.4.0"
     },
     "require-dev": {
         "mockery/mockery": "^0.9.4",
@@ -70,7 +71,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Flarum\\Tests\\": "tests/"
         }
     },
     "extra": {
