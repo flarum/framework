@@ -49,7 +49,7 @@ class TagGambit extends AbstractRegexGambit
                         $query->selectRaw('1')
                               ->from('discussions_tags')
                               ->whereRaw('discussions.id = discussion_id');
-                    }, !$negate);
+                    }, ! $negate);
                 } else {
                     $id = $this->tags->getIdForSlug($slug);
 
