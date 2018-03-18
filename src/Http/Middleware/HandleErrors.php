@@ -13,7 +13,6 @@ namespace Flarum\Http\Middleware;
 
 use Exception;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
 use Franzl\Middleware\Whoops\WhoopsRunner;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Interop\Http\ServerMiddleware\DelegateInterface;
