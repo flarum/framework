@@ -15,6 +15,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\User\AssertPermissionTrait;
 use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\EmptyResponse;
 
 class UpdateExtensionController implements ControllerInterface
 {
@@ -48,5 +49,7 @@ class UpdateExtensionController implements ControllerInterface
         } elseif ($enabled === false) {
             $this->extensions->disable($name);
         }
+
+        return new EmptyResponse;
     }
 }
