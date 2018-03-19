@@ -91,17 +91,9 @@ trait CreatesForum
 
     protected function teardownApplication()
     {
-        $this->app->bind(Builder::class, function ($container) {
-            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
-        });
-
-        /** @var Migrator $migrator */
-        $migrator = $this->app->make(Migrator::class);
-        if (! $migrator->getRepository()->repositoryExists()) {
-            $migrator->getRepository()->createRepository();
-        }
-
-        $migrator->reset(__DIR__.'/../../../migrations');
+        /** @var ConnectionInterface $connection */
+        $connection = $this->app->make(ConnectionInterface::class);
+        $connection->rollBack();
     }
 
     protected function setsApplicationConfiguration(DataProviderInterface $data)
@@ -149,6 +141,10 @@ trait CreatesForum
             }
 
             $migrator->run(__DIR__.'/../../../migrations');
+
+            /** @var ConnectionInterface $connection */
+            $connection = $app->make(\Illuminate\Database\ConnectionInterface::class);
+            $connection->beginTransaction();
         }
     }
 }
