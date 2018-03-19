@@ -30,6 +30,10 @@ class OrderTagsController implements ControllerInterface
 
         $order = array_get($request->getParsedBody(), 'order');
 
+        if ($order === null) {
+            return new EmptyResponse(422);
+        }
+
         Tag::query()->update([
             'position' => null,
             'parent_id' => null
