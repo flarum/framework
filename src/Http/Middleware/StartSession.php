@@ -14,11 +14,12 @@ namespace Flarum\Http\Middleware;
 use Dflydev\FigCookies\FigResponseCookies;
 use Flarum\Http\CookieFactory;
 use Illuminate\Support\Str;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Zend\Stratigility\MiddlewareInterface;
 
 class StartSession implements MiddlewareInterface
 {
@@ -37,16 +38,13 @@ class StartSession implements MiddlewareInterface
         $this->cookie = $cookie;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    public function process(Request $request, DelegateInterface $delegate)
     {
         $session = $this->startSession();
 
         $request = $request->withAttribute('session', $session);
 
-        $response = $out ? $out($request, $response) : $response;
+        $response = $delegate->process($request);
 
         $response = $this->withCsrfTokenHeader($response, $session);
 

@@ -13,17 +13,14 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\User\Guest;
 use Flarum\User\User;
-use Psr\Http\Message\ResponseInterface as Response;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Zend\Stratigility\MiddlewareInterface;
 
 class AuthenticateWithSession implements MiddlewareInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    public function process(Request $request, DelegateInterface $delegate)
     {
         $session = $request->getAttribute('session');
 
@@ -33,7 +30,7 @@ class AuthenticateWithSession implements MiddlewareInterface
 
         $request = $request->withAttribute('actor', $actor);
 
-        return $out ? $out($request, $response) : $response;
+        return $delegate->process($request);
     }
 
     private function getActor(SessionInterface $session)
