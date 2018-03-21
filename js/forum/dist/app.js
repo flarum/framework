@@ -18786,7 +18786,7 @@ System.register('flarum/components/Alert', ['flarum/Component', 'flarum/componen
 
             if (dismissible || dismissible === undefined) {
               dismissControl.push(m(Button, {
-                icon: 'times',
+                icon: 'fa fa-times',
                 className: 'Button Button--link Button--icon Alert-dismiss',
                 onclick: ondismiss }));
             }
@@ -18973,7 +18973,7 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
                   ondragleave: this.disableDragover.bind(this),
                   ondragend: this.disableDragover.bind(this),
                   ondrop: this.dropUpload.bind(this) },
-                this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('pencil') : icon('plus-circle')
+                this.loading ? LoadingIndicator.component() : user.avatarUrl() ? icon('fa fa-pencil-alt') : icon('fa fa-plus-circle')
               ),
               m(
                 'ul',
@@ -18988,13 +18988,13 @@ System.register('flarum/components/AvatarEditor', ['flarum/Component', 'flarum/h
             var items = new ItemList();
 
             items.add('upload', Button.component({
-              icon: 'upload',
+              icon: 'fa fa-upload',
               children: app.translator.trans('core.forum.user.avatar_upload_button'),
               onclick: this.openPicker.bind(this)
             }));
 
             items.add('remove', Button.component({
-              icon: 'times',
+              icon: 'fa fa-times',
               children: app.translator.trans('core.forum.user.avatar_remove_button'),
               onclick: this.remove.bind(this)
             }));
@@ -19546,7 +19546,7 @@ System.register('flarum/components/Checkbox', ['flarum/Component', 'flarum/compo
         }, {
           key: 'getDisplay',
           value: function getDisplay() {
-            return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'check' : 'times');
+            return this.loading ? LoadingIndicator.component({ size: 'tiny' }) : icon(this.props.state ? 'fa fa-check' : 'fa fa-times');
           }
         }, {
           key: 'onchange',
@@ -19723,7 +19723,7 @@ System.register('flarum/components/CommentPost', ['flarum/components/Post', 'fla
             if (post.isHidden()) {
               items.add('toggle', Button.component({
                 className: 'Button Button--default Button--more',
-                icon: 'ellipsis-h',
+                icon: 'fa fa-ellipsis-h',
                 onclick: this.toggleContent.bind(this)
               }));
             }
@@ -20107,28 +20107,28 @@ System.register('flarum/components/Composer', ['flarum/Component', 'flarum/utils
 
             if (this.position === Composer.PositionEnum.FULLSCREEN) {
               items.add('exitFullScreen', ComposerButton.component({
-                icon: 'compress',
+                icon: 'fa fa-compress',
                 title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
                 onclick: this.exitFullScreen.bind(this)
               }));
             } else {
               if (this.position !== Composer.PositionEnum.MINIMIZED) {
                 items.add('minimize', ComposerButton.component({
-                  icon: 'minus minimize',
+                  icon: 'fa fa-minus minimize',
                   title: app.translator.trans('core.forum.composer.minimize_tooltip'),
                   onclick: this.minimize.bind(this),
                   itemClassName: 'App-backControl'
                 }));
 
                 items.add('fullScreen', ComposerButton.component({
-                  icon: 'expand',
+                  icon: 'fa fa-expand',
                   title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
                   onclick: this.fullScreen.bind(this)
                 }));
               }
 
               items.add('close', ComposerButton.component({
-                icon: 'times',
+                icon: 'fa fa-times',
                 title: app.translator.trans('core.forum.composer.close_tooltip'),
                 onclick: this.close.bind(this)
               }));
@@ -20850,7 +20850,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
               'div',
               attrs,
               controls.length ? Dropdown.component({
-                icon: 'ellipsis-v',
+                icon: 'fa fa-ellipsis-v',
                 children: controls,
                 className: 'DiscussionListItem-controls',
                 buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right'
@@ -20859,7 +20859,7 @@ System.register('flarum/components/DiscussionListItem', ['flarum/Component', 'fl
                 'a',
                 { className: 'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled'),
                   onclick: this.markAsRead.bind(this) },
-                icon('check')
+                icon('fa fa-check')
               ),
               m(
                 'div',
@@ -21231,7 +21231,7 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
 
             items.add('controls', SplitDropdown.component({
               children: DiscussionControls.controls(this.discussion, this).toArray(),
-              icon: 'ellipsis-v',
+              icon: 'fa fa-ellipsis-v',
               className: 'App-primaryControl',
               buttonClassName: 'Button--primary'
             }));
@@ -21294,7 +21294,7 @@ System.register('flarum/components/DiscussionRenamedNotification', ['flarum/comp
         babelHelpers.createClass(DiscussionRenamedNotification, [{
           key: 'icon',
           value: function icon() {
-            return 'pencil';
+            return 'fa fa-pencil-alt';
           }
         }, {
           key: 'href',
@@ -21340,7 +21340,7 @@ System.register('flarum/components/DiscussionRenamedPost', ['flarum/components/E
         babelHelpers.createClass(DiscussionRenamedPost, [{
           key: 'icon',
           value: function icon() {
-            return 'pencil';
+            return 'fa fa-pencil-alt';
           }
         }, {
           key: 'description',
@@ -21432,7 +21432,7 @@ System.register('flarum/components/DiscussionsSearchSource', ['flarum/helpers/hi
               'li',
               null,
               LinkButton.component({
-                icon: 'search',
+                icon: 'fa fa-search',
                 children: app.translator.trans('core.forum.search.all_discussions_button', { query: query }),
                 href: app.route('index', { q: query })
               })
@@ -21638,7 +21638,7 @@ System.register('flarum/components/Dropdown', ['flarum/Component', 'flarum/helpe
             props.buttonClassName = props.buttonClassName || '';
             props.menuClassName = props.menuClassName || '';
             props.label = props.label || '';
-            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'caret-down';
+            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fa fa-caret-down';
           }
         }]);
         return Dropdown;
@@ -21716,7 +21716,7 @@ System.register('flarum/components/EditPostComposer', ['flarum/components/Compos
             items.add('title', m(
               'h3',
               null,
-              icon('pencil'),
+              icon('fa fa-pencil-alt'),
               ' ',
               ' ',
               m(
@@ -22443,7 +22443,7 @@ System.register('flarum/components/HeaderSecondary', ['flarum/Component', 'flaru
                 locales.push(Button.component({
                   active: app.data.locale === locale,
                   children: app.data.locales[locale],
-                  icon: app.data.locale === locale ? 'check' : true,
+                  icon: app.data.locale === locale ? 'fa fa-check' : true,
                   onclick: function onclick() {
                     if (app.session.user) {
                       app.session.user.savePreferences({ locale: locale }).then(function () {
@@ -22699,7 +22699,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             items.add('newDiscussion', Button.component({
               children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
-              icon: 'edit',
+              icon: 'fa fa-edit',
               className: 'Button Button--primary IndexPage-newDiscussion',
               itemClassName: 'App-primaryControl',
               onclick: this.newDiscussion.bind(this),
@@ -22723,7 +22723,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
             items.add('allDiscussions', LinkButton.component({
               href: app.route('index', params),
               children: app.translator.trans('core.forum.index.all_discussions_link'),
-              icon: 'comments-o'
+              icon: 'far fa-comments'
             }), 100);
 
             return items;
@@ -22752,7 +22752,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
                 return Button.component({
                   children: label,
-                  icon: active ? 'check' : true,
+                  icon: active ? 'fa fa-check' : true,
                   onclick: _this2.changeSort.bind(_this2, value),
                   active: active
                 });
@@ -22768,7 +22768,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             items.add('refresh', Button.component({
               title: app.translator.trans('core.forum.index.refresh_tooltip'),
-              icon: 'refresh',
+              icon: 'fa fa-sync',
               className: 'Button Button--icon',
               onclick: function onclick() {
                 app.cache.discussionList.refresh();
@@ -22782,7 +22782,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
             if (app.session.user) {
               items.add('markAllAsRead', Button.component({
                 title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
-                icon: 'check',
+                icon: 'fa fa-check',
                 className: 'Button Button--icon',
                 onclick: this.markAllAsRead.bind(this)
               }));
@@ -23347,7 +23347,7 @@ System.register('flarum/components/Modal', ['flarum/Component', 'flarum/componen
                   'div',
                   { className: 'Modal-close App-backControl' },
                   Button.component({
-                    icon: 'times',
+                    icon: 'fa fa-times',
                     onclick: this.hide.bind(this),
                     className: 'Button Button--icon Button--link'
                   })
@@ -23601,7 +23601,7 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             return LinkButton.component({
               className: 'Button Navigation-back Button--icon',
               href: history.backUrl(),
-              icon: 'chevron-left',
+              icon: 'fa fa-chevron-left',
               title: previous.title,
               config: function config() {},
               onclick: function onclick(e) {
@@ -23623,7 +23623,7 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
             return Button.component({
               className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
               onclick: pane.togglePinned.bind(pane),
-              icon: 'thumb-tack'
+              icon: 'fa fa-thumbtack'
             });
           }
         }, {
@@ -23642,7 +23642,7 @@ System.register('flarum/components/Navigation', ['flarum/Component', 'flarum/com
                 e.stopPropagation();
                 drawer.show();
               },
-              icon: 'reorder'
+              icon: 'fa fa-bars'
             });
           }
         }]);
@@ -23772,7 +23772,7 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
              *
              * @type {Array}
              */
-            this.methods = [{ name: 'alert', icon: 'bell', label: app.translator.trans('core.forum.settings.notify_by_web_heading') }, { name: 'email', icon: 'envelope-o', label: app.translator.trans('core.forum.settings.notify_by_email_heading') }];
+            this.methods = this.notificationMethods().toArray();
 
             /**
              * A map of notification type-method combinations to the checkbox instances
@@ -23785,7 +23785,7 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
             /**
              * Information about the available notification types.
              *
-             * @type {Object}
+             * @type {Array}
              */
             this.types = this.notificationTypes().toArray();
 
@@ -23930,13 +23930,32 @@ System.register('flarum/components/NotificationGrid', ['flarum/Component', 'flar
             return 'notify_' + type + '_' + method;
           }
         }, {
+          key: 'notificationMethods',
+          value: function notificationMethods() {
+            var items = new ItemList();
+
+            items.add('alert', {
+              name: 'alert',
+              icon: 'fa fa-bell',
+              label: app.translator.trans('core.forum.settings.notify_by_web_heading')
+            });
+
+            items.add('email', {
+              name: 'email',
+              icon: 'far fa-envelope',
+              label: app.translator.trans('core.forum.settings.notify_by_email_heading')
+            });
+
+            return items;
+          }
+        }, {
           key: 'notificationTypes',
           value: function notificationTypes() {
             var items = new ItemList();
 
             items.add('discussionRenamed', {
               name: 'discussionRenamed',
-              icon: 'pencil',
+              icon: 'fa fa-pencil-alt',
               label: app.translator.trans('core.forum.settings.notify_discussion_renamed_label')
             });
 
@@ -24010,7 +24029,7 @@ System.register('flarum/components/NotificationList', ['flarum/Component', 'flar
                   { className: 'App-primaryControl' },
                   Button.component({
                     className: 'Button Button--icon Button--link',
-                    icon: 'check',
+                    icon: 'fa fa-check',
                     title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
                     onclick: this.markAllAsRead.bind(this)
                   })
@@ -24293,7 +24312,7 @@ System.register('flarum/components/NotificationsDropdown', ['flarum/components/D
             props.buttonClassName = props.buttonClassName || 'Button Button--flat';
             props.menuClassName = props.menuClassName || 'Dropdown-menu--right';
             props.label = props.label || app.translator.trans('core.forum.notifications.tooltip');
-            props.icon = props.icon || 'bell';
+            props.icon = props.icon || 'fa fa-bell';
 
             babelHelpers.get(NotificationsDropdown.__proto__ || Object.getPrototypeOf(NotificationsDropdown), 'initProps', this).call(this, props);
           }
@@ -24539,7 +24558,7 @@ System.register('flarum/components/Post', ['flarum/Component', 'flarum/utils/Sub
                             className: 'Post-controls',
                             buttonClassName: 'Button Button--icon Button--flat',
                             menuClassName: 'Dropdown-menu--right',
-                            icon: 'ellipsis-h',
+                            icon: 'fa fa-ellipsis-h',
                             onshow: function onshow() {
                               return _this3.$('.Post-actions').addClass('open');
                             },
@@ -25454,7 +25473,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
                 { className: 'Button Dropdown-toggle', 'data-toggle': 'dropdown' },
                 viewing,
                 ' ',
-                icon('sort')
+                icon('fa fa-sort')
               ),
               m(
                 'div',
@@ -25465,7 +25484,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
                   m(
                     'a',
                     { className: 'Scrubber-first', onclick: this.goToFirst.bind(this) },
-                    icon('angle-double-up'),
+                    icon('fa fa-angle-double-up'),
                     ' ',
                     app.translator.trans('core.forum.post_scrubber.original_post_link')
                   ),
@@ -25502,7 +25521,7 @@ System.register('flarum/components/PostStreamScrubber', ['flarum/Component', 'fl
                   m(
                     'a',
                     { className: 'Scrubber-last', onclick: this.goToLast.bind(this) },
-                    icon('angle-double-down'),
+                    icon('fa fa-angle-double-down'),
                     ' ',
                     app.translator.trans('core.forum.post_scrubber.now_link')
                   )
@@ -26282,7 +26301,7 @@ System.register('flarum/components/ReplyComposer', ['flarum/components/ComposerB
             items.add('title', m(
               'h3',
               null,
-              icon('reply'),
+              icon('fa fa-reply'),
               ' ',
               ' ',
               m(
@@ -26647,7 +26666,7 @@ System.register('flarum/components/Search', ['flarum/Component', 'flarum/compone
                 this.loadingSources ? LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' }) : currentSearch ? m(
                   'button',
                   { className: 'Search-clear Button Button--icon Button--link', onclick: this.clear.bind(this) },
-                  icon('times-circle')
+                  icon('fa fa-times-circle')
                 ) : ''
               ),
               m(
@@ -26898,7 +26917,7 @@ System.register('flarum/components/Select', ['flarum/Component', 'flarum/helpers
                   );
                 })
               ),
-              icon('sort', { className: 'Select-caret' })
+              icon('fa fa-sort', { className: 'Select-caret' })
             );
           }
         }]);
@@ -26949,7 +26968,7 @@ System.register('flarum/components/SelectDropdown', ['flarum/components/Dropdown
         }], [{
           key: 'initProps',
           value: function initProps(props) {
-            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'sort';
+            props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fa fa-sort';
 
             babelHelpers.get(SelectDropdown.__proto__ || Object.getPrototypeOf(SelectDropdown), 'initProps', this).call(this, props);
 
@@ -27055,20 +27074,20 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
             var user = app.session.user;
 
             items.add('profile', LinkButton.component({
-              icon: 'user',
+              icon: 'fa fa-user',
               children: app.translator.trans('core.forum.header.profile_button'),
               href: app.route.user(user)
             }), 100);
 
             items.add('settings', LinkButton.component({
-              icon: 'cog',
+              icon: 'fa fa-cog',
               children: app.translator.trans('core.forum.header.settings_button'),
               href: app.route('settings')
             }), 50);
 
             if (app.forum.attribute('adminUrl')) {
               items.add('administration', LinkButton.component({
-                icon: 'wrench',
+                icon: 'fa fa-wrench',
                 children: app.translator.trans('core.forum.header.admin_button'),
                 href: app.forum.attribute('adminUrl'),
                 target: '_blank',
@@ -27079,7 +27098,7 @@ System.register('flarum/components/SessionDropdown', ['flarum/helpers/avatar', '
             items.add('separator', Separator.component(), -90);
 
             items.add('logOut', Button.component({
-              icon: 'sign-out',
+              icon: 'fa fa-sign-out-alt',
               children: app.translator.trans('core.forum.header.log_out_button'),
               onclick: app.session.logout.bind(app.session)
             }), -100);
@@ -27497,7 +27516,7 @@ System.register('flarum/components/SplitDropdown', ['flarum/components/Dropdown'
                 className: 'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName,
                 'data-toggle': 'dropdown' },
               icon(this.props.icon, { className: 'Button-icon' }),
-              icon('caret-down', { className: 'Button-caret' })
+              icon('fa fa-caret-down', { className: 'Button-caret' })
             )];
           }
         }, {
@@ -27599,7 +27618,7 @@ System.register('flarum/components/TerminalPost', ['flarum/Component', 'flarum/h
             return m(
               'span',
               null,
-              lastPost ? icon('reply') : '',
+              lastPost ? icon('fa fa-reply') : '',
               ' ',
               app.translator.trans('core.forum.discussion_list.' + (lastPost ? 'replied' : 'started') + '_text', {
                 user: user,
@@ -27691,7 +27710,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 
             items.add('submit', Button.component({
               children: this.props.submitLabel,
-              icon: 'check',
+              icon: 'fa fa-check',
               className: 'Button Button--primary',
               itemClassName: 'App-primaryControl',
               onclick: this.onsubmit.bind(this)
@@ -27699,7 +27718,7 @@ System.register('flarum/components/TextEditor', ['flarum/Component', 'flarum/uti
 
             if (this.props.preview) {
               items.add('preview', Button.component({
-                icon: 'eye',
+                icon: 'fa fa-eye',
                 className: 'Button Button--icon',
                 onclick: this.props.preview,
                 title: app.translator.trans('core.forum.composer.preview_tooltip')
@@ -27826,7 +27845,7 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
                     menuClassName: 'Dropdown-menu--right',
                     buttonClassName: this.props.controlsButtonClassName,
                     label: app.translator.trans('core.forum.user_controls.button'),
-                    icon: 'ellipsis-v'
+                    icon: 'fa fa-ellipsis-v'
                   }) : '',
                   m(
                     'div',
@@ -27873,7 +27892,7 @@ System.register('flarum/components/UserCard', ['flarum/Component', 'flarum/utils
               items.add('lastSeen', m(
                 'span',
                 { className: 'UserCard-lastSeen' + (online ? ' online' : '') },
-                online ? [icon('circle'), ' ', app.translator.trans('core.forum.user.online_text')] : [icon('clock-o'), ' ', humanTime(lastSeenTime)]
+                online ? [icon('fa fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')] : [icon('far fa-clock'), ' ', humanTime(lastSeenTime)]
               ));
             }
 
@@ -28025,7 +28044,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
                 { className: 'Button-badge' },
                 user.commentsCount()
               )],
-              icon: 'comment-o'
+              icon: 'far fa-comment'
             }), 100);
 
             items.add('discussions', LinkButton.component({
@@ -28035,7 +28054,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
                 { className: 'Button-badge' },
                 user.discussionsCount()
               )],
-              icon: 'reorder'
+              icon: 'fa fa-bars'
             }), 90);
 
             if (app.session.user === user) {
@@ -28043,7 +28062,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
               items.add('settings', LinkButton.component({
                 href: app.route('settings'),
                 children: app.translator.trans('core.forum.user.settings_link'),
-                icon: 'cog'
+                icon: 'fa fa-cog'
               }), -100);
             }
 
@@ -28181,7 +28200,7 @@ System.register('flarum/components/WelcomeHero', ['flarum/Component', 'flarum/co
                 'div',
                 { 'class': 'container' },
                 Button.component({
-                  icon: 'times',
+                  icon: 'fa fa-times',
                   onclick: slideUp,
                   className: 'Hero-close Button Button--icon Button--link'
                 }),
@@ -28573,10 +28592,10 @@ System.register('flarum/helpers/humanTime', ['flarum/utils/humanTime'], function
 System.register('flarum/helpers/icon', [], function (_export, _context) {
   "use strict";
 
-  function icon(name) {
+  function icon(fontClass) {
     var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    attrs.className = 'icon fa fa-' + name + ' ' + (attrs.className || '');
+    attrs.className = 'icon ' + fontClass + ' ' + (attrs.className || '');
 
     return m('i', attrs);
   }
@@ -28723,7 +28742,7 @@ System.register('flarum/helpers/userOnline', ['flarum/helpers/icon'], function (
             return m(
                 'span',
                 { className: 'UserOnline' },
-                icon('circle')
+                icon('fa fa-circle')
             );
         }
     }
@@ -28760,7 +28779,7 @@ System.register('flarum/initializers/alertEmailConfirmation', ['flarum/component
           url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation'
         }).then(function () {
           resendButton.props.loading = false;
-          resendButton.props.children = [icon('check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
+          resendButton.props.children = [icon('fa fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
           resendButton.props.disabled = true;
           m.redraw();
         }).catch(function () {
@@ -29028,8 +29047,9 @@ System.register('flarum/initializers/routes', ['flarum/components/IndexPage', 'f
      * @return {String}
      */
     app.route.discussion = function (discussion, near) {
+      var slug = discussion.slug();
       return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
-        id: discussion.id() + '-' + discussion.slug(),
+        id: discussion.id() + (slug.trim() ? '-' + slug : ''),
         near: near && near !== 1 ? near : undefined
       });
     };
@@ -29470,7 +29490,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
           var items = new ItemList();
 
           if (this.isHidden()) {
-            items.add('hidden', m(Badge, { type: 'hidden', icon: 'trash', label: app.translator.trans('core.lib.badge.hidden_tooltip') }));
+            items.add('hidden', m(Badge, { type: 'hidden', icon: 'fa fa-trash', label: app.translator.trans('core.lib.badge.hidden_tooltip') }));
           }
 
           return items;
@@ -29508,7 +29528,7 @@ System.register('flarum/models/Forum', ['flarum/Model'], function (_export, _con
         babelHelpers.createClass(Forum, [{
           key: 'apiEndpoint',
           value: function apiEndpoint() {
-            return '/forum';
+            return '/';
           }
         }]);
         return Forum;
@@ -30503,11 +30523,11 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           // discussions in the discussion list, etc.
           if (context instanceof DiscussionPage) {
             items.add('reply', !app.session.user || discussion.canReply() ? Button.component({
-              icon: 'reply',
+              icon: 'fa fa-reply',
               children: app.translator.trans(app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'),
               onclick: this.replyAction.bind(discussion, true, false)
             }) : Button.component({
-              icon: 'reply',
+              icon: 'fa fa-reply',
               children: app.translator.trans('core.forum.discussion_controls.cannot_reply_button'),
               className: 'disabled',
               title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text')
@@ -30521,7 +30541,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
           if (discussion.canRename()) {
             items.add('rename', Button.component({
-              icon: 'pencil',
+              icon: 'fa fa-pencil-alt',
               children: app.translator.trans('core.forum.discussion_controls.rename_button'),
               onclick: this.renameAction.bind(discussion)
             }));
@@ -30535,7 +30555,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           if (!discussion.isHidden()) {
             if (discussion.canHide()) {
               items.add('hide', Button.component({
-                icon: 'trash-o',
+                icon: 'far fa-trash-alt',
                 children: app.translator.trans('core.forum.discussion_controls.delete_button'),
                 onclick: this.hideAction.bind(discussion)
               }));
@@ -30543,7 +30563,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
           } else {
             if (discussion.canHide()) {
               items.add('restore', Button.component({
-                icon: 'reply',
+                icon: 'fa fa-reply',
                 children: app.translator.trans('core.forum.discussion_controls.restore_button'),
                 onclick: this.restoreAction.bind(discussion)
               }));
@@ -30551,7 +30571,7 @@ System.register('flarum/utils/DiscussionControls', ['flarum/components/Discussio
 
             if (discussion.canDelete()) {
               items.add('delete', Button.component({
-                icon: 'times',
+                icon: 'fa fa-times',
                 children: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
                 onclick: this.deleteAction.bind(discussion)
               }));
@@ -31497,7 +31517,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
           if (post.contentType() === 'comment' && post.canEdit()) {
             if (!post.isHidden()) {
               items.add('edit', Button.component({
-                icon: 'pencil',
+                icon: 'fa fa-pencil-alt',
                 children: app.translator.trans('core.forum.post_controls.edit_button'),
                 onclick: this.editAction.bind(post)
               }));
@@ -31512,7 +31532,7 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
           if (post.contentType() === 'comment' && !post.isHidden()) {
             if (post.canEdit()) {
               items.add('hide', Button.component({
-                icon: 'trash-o',
+                icon: 'far fa-trash-alt',
                 children: app.translator.trans('core.forum.post_controls.delete_button'),
                 onclick: this.hideAction.bind(post)
               }));
@@ -31520,14 +31540,14 @@ System.register('flarum/utils/PostControls', ['flarum/components/EditPostCompose
           } else {
             if (post.contentType() === 'comment' && post.canEdit()) {
               items.add('restore', Button.component({
-                icon: 'reply',
+                icon: 'fa fa-reply',
                 children: app.translator.trans('core.forum.post_controls.restore_button'),
                 onclick: this.restoreAction.bind(post)
               }));
             }
             if (post.canDelete()) {
               items.add('delete', Button.component({
-                icon: 'times',
+                icon: 'fa fa-times',
                 children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
                 onclick: this.deleteAction.bind(post, context)
               }));
@@ -31879,7 +31899,7 @@ System.register('flarum/utils/string', [], function (_export, _context) {
   _export('truncate', truncate);
 
   function slug(string) {
-    return string.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '') || '-';
+    return string.toLowerCase().replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/-$|^-/g, '');
   }
 
   /**
@@ -32115,7 +32135,7 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
 
           if (user.canEdit()) {
             items.add('edit', Button.component({
-              icon: 'pencil',
+              icon: 'fa fa-pencil-alt',
               children: app.translator.trans('core.forum.user_controls.edit_button'),
               onclick: this.editAction.bind(user)
             }));
@@ -32128,7 +32148,7 @@ System.register('flarum/utils/UserControls', ['flarum/components/Button', 'flaru
 
           if (user.id() !== '1' && user.canDelete()) {
             items.add('delete', Button.component({
-              icon: 'times',
+              icon: 'fa fa-times',
               children: app.translator.trans('core.forum.user_controls.delete_button'),
               onclick: this.deleteAction.bind(user)
             }));
