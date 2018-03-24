@@ -34,7 +34,7 @@ use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Illuminate\Contracts\Hashing\Hasher;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Illuminate\Contracts\Session\Session;
 
 /**
  * @property int $id
@@ -698,7 +698,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return SessionInterface
+     * @return Session
      */
     public function getSession()
     {
@@ -706,9 +706,9 @@ class User extends AbstractModel
     }
 
     /**
-     * @param SessionInterface $session
+     * @param Session $session
      */
-    public function setSession(SessionInterface $session)
+    public function setSession(Session $session)
     {
         $this->session = $session;
     }
