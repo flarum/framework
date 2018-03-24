@@ -464,7 +464,7 @@ class FrontendView
 
         return [
             'userId' => $actor->id,
-            'csrfToken' => $session->get('csrf_token')
+            'csrfToken' => $session->token()
         ];
     }
 
