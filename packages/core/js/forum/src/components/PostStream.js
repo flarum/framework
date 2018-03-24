@@ -124,7 +124,6 @@ class PostStream extends Component {
   update() {
     if (!this.viewingEnd) return m.deferred().resolve().promise;
 
-
     this.visibleEnd = this.count();
 
     return this.loadRange(this.visibleStart, this.visibleEnd).then(() => m.redraw());
