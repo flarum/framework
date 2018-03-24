@@ -122,7 +122,7 @@ class PostStream extends Component {
    * @public
    */
   update() {
-    if (!this.viewingEnd) return;
+    if (!this.viewingEnd) return m.deferred().resolve().promise;
 
     this.visibleEnd = this.count();
 
