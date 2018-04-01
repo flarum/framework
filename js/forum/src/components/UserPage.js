@@ -73,6 +73,7 @@ export default class UserPage extends Page {
     this.user = user;
 
     app.setTitle(user.displayName());
+    app.setDescription('');
 
     m.redraw();
   }

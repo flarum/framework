@@ -18246,10 +18246,10 @@ System.register('flarum/app', ['flarum/ForumApp', 'flarum/initializers/store', '
 });;
 'use strict';
 
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export, _context) {
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend', 'flarum/utils/string'], function (_export, _context) {
   "use strict";
 
-  var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, App;
+  var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, getPlainContent, truncate, App;
   return {
     setters: [function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
@@ -18271,6 +18271,9 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
       RequestError = _flarumUtilsRequestError.default;
     }, function (_flarumExtend) {
       extend = _flarumExtend.extend;
+    }, function (_flarumUtilsString) {
+      getPlainContent = _flarumUtilsString.getPlainContent;
+      truncate = _flarumUtilsString.truncate;
     }],
     execute: function () {
       App = function () {
@@ -18362,6 +18365,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
           this.title = '';
           this.titleCount = 0;
+
+          this.description = '';
         }
 
         /**
@@ -18412,6 +18417,18 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           key: 'updateTitle',
           value: function updateTitle() {
             document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+          }
+        }, {
+          key: 'setDescription',
+          value: function setDescription(description) {
+            description = truncate(getPlainContent(description), 300, 0);
+            this.description = description;
+            this.updateDescription();
+          }
+        }, {
+          key: 'updateDescription',
+          value: function updateDescription() {
+            document.head.querySelector('meta[name=description]').content = this.description ? this.description : this.forum.attribute('description');
           }
         }, {
           key: 'request',
@@ -21161,6 +21178,9 @@ System.register('flarum/components/DiscussionPage', ['flarum/components/Page', '
             app.setTitle(discussion.title());
             app.setTitleCount(0);
 
+            var description = this.discussion.description() || this.discussion.startPost.content();
+            app.setDescription(description);
+
             // When the API responds with a discussion, it will also include a number of
             // posts. Some of these posts are included because they are on the first
             // page of posts we want to display (determined by the `near` parameter) –
@@ -22649,6 +22669,7 @@ System.register('flarum/components/IndexPage', ['flarum/extend', 'flarum/compone
 
             app.setTitle('');
             app.setTitleCount(0);
+            app.setDescription('');
 
             // Work out the difference between the height of this hero and that of the
             // previous hero. Maintain the same scroll position relative to the bottom
@@ -24950,7 +24971,7 @@ System.register('flarum/components/PostStream', ['flarum/Component', 'flarum/uti
         }, {
           key: 'update',
           value: function update() {
-            if (!this.viewingEnd) return;
+            if (!this.viewingEnd) return m.deferred().resolve().promise;
 
             this.visibleEnd = this.count();
 
@@ -27164,6 +27185,7 @@ System.register('flarum/components/SettingsPage', ['flarum/components/UserPage',
 
             this.show(app.session.user);
             app.setTitle(app.translator.trans('core.forum.settings.title'));
+            app.setDescription('');
           }
         }, {
           key: 'content',
@@ -27997,6 +28019,7 @@ System.register('flarum/components/UserPage', ['flarum/components/Page', 'flarum
             this.user = user;
 
             app.setTitle(user.displayName());
+            app.setDescription('');
 
             m.redraw();
           }
@@ -29427,6 +29450,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
       babelHelpers.extends(Discussion.prototype, {
         title: Model.attribute('title'),
         slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
 
         startTime: Model.attribute('startTime', Model.transformDate),
         startUser: Model.hasOne('startUser'),

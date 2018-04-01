@@ -8,6 +8,7 @@ import extract from 'flarum/utils/extract';
 import patchMithril from 'flarum/utils/patchMithril';
 import RequestError from 'flarum/utils/RequestError';
 import { extend } from 'flarum/extend';
+import { getPlainContent, truncate } from 'flarum/utils/string';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -100,6 +101,8 @@ export default class App {
 
     this.title = '';
     this.titleCount = 0;
+
+    this.description = '';
   }
 
   /**
@@ -157,6 +160,23 @@ export default class App {
     document.title = (this.titleCount ? `(${this.titleCount}) ` : '') +
       (this.title ? this.title + ' - ' : '') +
       this.forum.attribute('title');
+  }
+
+  /**
+   * Set the <meta name="description"> of the page.
+   *
+   * @param {String} description
+   * @public
+   */
+  setDescription(description) {
+    description = truncate(getPlainContent(description), 300, 0);
+    this.description = description;
+    this.updateDescription();
+  }
+
+  updateDescription() {
+    document.head.querySelector('meta[name=description]').content =
+      (this.description ? this.description : this.forum.attribute('description'));
   }
 
   /**

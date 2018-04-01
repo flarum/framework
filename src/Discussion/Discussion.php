@@ -19,12 +19,12 @@ use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
 use Flarum\Event\GetModelIsPrivate;
-use Flarum\Foundation\EventGeneratorTrait;
-use Flarum\Locale\LocaleManager;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Str;
 
@@ -32,6 +32,7 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property string $title
  * @property string $slug
+ * @property string $description
  * @property int $comments_count
  * @property int $participants_count
  * @property int $number_index
@@ -464,7 +465,23 @@ class Discussion extends AbstractModel
     {
         $this->attributes['title'] = $title;
         $app = Application::getInstance();
-        $locale = $app->make(LocaleManager::class)->getLocale() ?? 'en';
+        $settings = $app->make(SettingsRepositoryInterface::class);
+        $locale = $settings->get('default_locale') ?? 'en';
         $this->slug = Str::slug($title, '-', $locale);
+    }
+
+    /**
+     * Get the description.
+     *
+     * Returns the stored description (if any) or generates one based on startPost´s content.
+     *
+     * @param string $description
+     * @return string
+     */
+    protected function getDescriptionAttribute($description)
+    {
+        $description = ($description == null) ? $this->startPost->content : $description;
+
+        return $description;
     }
 }

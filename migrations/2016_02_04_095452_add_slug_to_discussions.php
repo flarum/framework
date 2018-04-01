@@ -9,9 +9,11 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Support\Str;
+use Flarum\Foundation\Application;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
+use Illuminate\Support\Str;
 
 return [
     'up' => function (Builder $schema) {
@@ -20,7 +22,8 @@ return [
         });
 
         $app = Application::getInstance();
-        $locale = $app->make(LocaleManager::class)->getLocale() ?? 'en';
+        $settings = $app->make(SettingsRepositoryInterface::class);
+        $locale = $settings->get('default_locale') ?? 'en';
 
         // Store slugs for existing discussions
         $schema->getConnection()->table('discussions')->chunkById(100, function ($discussions) use ($schema, $locale) {

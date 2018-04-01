@@ -86,6 +86,7 @@ class DiscussionController extends FrontendController
         }
 
         $view->title = $document->data->attributes->title;
+        $view->description = $document->data->attributes->description;
         $view->document = $document;
         $view->content = app('view')->make('flarum.forum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
 

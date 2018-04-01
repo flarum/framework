@@ -16913,10 +16913,10 @@ System.register('flarum/app', ['flarum/App', 'flarum/initializers/store', 'flaru
 });;
 'use strict';
 
-System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend'], function (_export, _context) {
+System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert', 'flarum/components/Button', 'flarum/components/RequestErrorModal', 'flarum/components/ConfirmPasswordModal', 'flarum/Translator', 'flarum/utils/extract', 'flarum/utils/patchMithril', 'flarum/utils/RequestError', 'flarum/extend', 'flarum/utils/string'], function (_export, _context) {
   "use strict";
 
-  var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, App;
+  var ItemList, Alert, Button, RequestErrorModal, ConfirmPasswordModal, Translator, extract, patchMithril, RequestError, extend, getPlainContent, truncate, App;
   return {
     setters: [function (_flarumUtilsItemList) {
       ItemList = _flarumUtilsItemList.default;
@@ -16938,6 +16938,9 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
       RequestError = _flarumUtilsRequestError.default;
     }, function (_flarumExtend) {
       extend = _flarumExtend.extend;
+    }, function (_flarumUtilsString) {
+      getPlainContent = _flarumUtilsString.getPlainContent;
+      truncate = _flarumUtilsString.truncate;
     }],
     execute: function () {
       App = function () {
@@ -17029,6 +17032,8 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
 
           this.title = '';
           this.titleCount = 0;
+
+          this.description = '';
         }
 
         /**
@@ -17079,6 +17084,18 @@ System.register('flarum/App', ['flarum/utils/ItemList', 'flarum/components/Alert
           key: 'updateTitle',
           value: function updateTitle() {
             document.title = (this.titleCount ? '(' + this.titleCount + ') ' : '') + (this.title ? this.title + ' - ' : '') + this.forum.attribute('title');
+          }
+        }, {
+          key: 'setDescription',
+          value: function setDescription(description) {
+            description = truncate(getPlainContent(description), 300, 0);
+            this.description = description;
+            this.updateDescription();
+          }
+        }, {
+          key: 'updateDescription',
+          value: function updateDescription() {
+            document.head.querySelector('meta[name=description]').content = this.description ? this.description : this.forum.attribute('description');
           }
         }, {
           key: 'request',
@@ -22375,6 +22392,7 @@ System.register('flarum/models/Discussion', ['flarum/Model', 'flarum/utils/compu
       babelHelpers.extends(Discussion.prototype, {
         title: Model.attribute('title'),
         slug: Model.attribute('slug'),
+        description: Model.attribute('description'),
 
         startTime: Model.attribute('startTime', Model.transformDate),
         startUser: Model.hasOne('startUser'),

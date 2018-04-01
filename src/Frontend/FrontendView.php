@@ -17,6 +17,7 @@ use Flarum\Foundation\Application;
 use Flarum\Frontend\Asset\CompilerInterface;
 use Flarum\Frontend\Asset\LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
+use Illuminate\Support\Str;
 use Illuminate\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
@@ -42,7 +43,7 @@ class FrontendView
     public $description;
 
     /**
-     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
+     * The language of the document, displayed as the value of the attribute `lang` in the <html> tag.
      *
      * @var null|string
      */
@@ -290,7 +291,7 @@ class FrontendView
         $view = $this->view->make('flarum.forum::frontend.app');
 
         $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
-        $view->description = $this->description ?: array_get($forum, 'data.attributes.description');
+        $view->description = $this->buildDescription($this->description, $forum);
         $view->language = $this->language ?: $this->locales->getLocale();
         $view->direction = $this->direction ?: 'ltr';
 
@@ -312,6 +313,13 @@ class FrontendView
     protected function buildTitle($forumTitle)
     {
         return ($this->title ? $this->title.' - ' : '').$forumTitle;
+    }
+
+    protected function buildDescription($description, $forum)
+    {
+        $description = (($description == null) ? array_get($forum, 'data.attributes.description') : $description);
+
+        return strip_tags(Str::limit($description, 300, '...'));
     }
 
     protected function buildPayload(Request $request, $forum)
