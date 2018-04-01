@@ -13,16 +13,21 @@ namespace Flarum\Http\Middleware;
 
 use Dflydev\FigCookies\FigResponseCookies;
 use Flarum\Http\CookieFactory;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Session\Session;
+use Illuminate\Session\Store;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Zend\Stratigility\MiddlewareInterface;
+use SessionHandlerInterface;
 
 class StartSession implements MiddlewareInterface
 {
-    const COOKIE_NAME = 'session';
+    /**
+     * @var SessionHandlerInterface
+     */
+    protected $handler;
 
     /**
      * @var CookieFactory
@@ -30,57 +35,62 @@ class StartSession implements MiddlewareInterface
     protected $cookie;
 
     /**
-     * @param CookieFactory $cookie
+     * @var array
      */
-    public function __construct(CookieFactory $cookie)
-    {
-        $this->cookie = $cookie;
-    }
+    protected $config;
 
     /**
-     * {@inheritdoc}
+     * @param CookieFactory $cookie
      */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    public function __construct(SessionHandlerInterface $handler, CookieFactory $cookie, ConfigRepository $config)
     {
-        $session = $this->startSession();
+        $this->handler = $handler;
+        $this->cookie = $cookie;
+        $this->config = $config->get('session');
+    }
 
-        $request = $request->withAttribute('session', $session);
+    public function process(Request $request, DelegateInterface $delegate)
+    {
+        $request = $request->withAttribute(
+            'session',
+            $session = $this->makeSession($request)
+        );
 
-        $response = $out ? $out($request, $response) : $response;
+        $session->start();
+        $response = $delegate->process($request);
+        $session->save();
 
         $response = $this->withCsrfTokenHeader($response, $session);
 
         return $this->withSessionCookie($response, $session);
     }
 
-    private function startSession()
+    private function makeSession(Request $request)
     {
-        $session = new Session;
+        $cookieName = $this->cookie->getName($this->config['cookie']);
 
-        $session->setName($this->cookie->getName(self::COOKIE_NAME));
-        $session->start();
-
-        if (! $session->has('csrf_token')) {
-            $session->set('csrf_token', Str::random(40));
-        }
-
-        return $session;
+        return new Store(
+            $cookieName,
+            $this->handler,
+            array_get($request->getCookieParams(), $cookieName)
+        );
     }
 
-    private function withCsrfTokenHeader(Response $response, SessionInterface $session)
+    private function withCsrfTokenHeader(Response $response, Session $session)
     {
-        if ($session->has('csrf_token')) {
-            $response = $response->withHeader('X-CSRF-Token', $session->get('csrf_token'));
-        }
-
-        return $response;
+        return $response->withHeader('X-CSRF-Token', $session->token());
     }
 
-    private function withSessionCookie(Response $response, SessionInterface $session)
+    private function withSessionCookie(Response $response, Session $session)
     {
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make(self::COOKIE_NAME, $session->getId())
+            $this->cookie->make($session->getName(), $session->getId(), $this->getSessionLifetimeInSeconds())
         );
+    }
+
+    private function getSessionLifetimeInSeconds()
+    {
+        return $this->config['lifetime'] * 60;
     }
 }
