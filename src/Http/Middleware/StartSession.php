@@ -40,7 +40,9 @@ class StartSession implements MiddlewareInterface
     protected $config;
 
     /**
-     * @param CookieFactory $cookie
+     * @param SessionHandlerInterface $handler
+     * @param CookieFactory           $cookie
+     * @param ConfigRepository        $config
      */
     public function __construct(SessionHandlerInterface $handler, CookieFactory $cookie, ConfigRepository $config)
     {
