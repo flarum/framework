@@ -38,7 +38,7 @@ class Server
         $this->app = $app;
     }
 
-    public static function fromSite(Site $site): Server
+    public static function fromSite(Site $site): self
     {
         return new static($site->boot());
     }
