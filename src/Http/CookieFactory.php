@@ -53,7 +53,7 @@ class CookieFactory
         $url = parse_url(rtrim($app->url(), '/'));
 
         // Get the cookie settings from the config or use the default values
-        $this->prefix = $app->config('cookie.prefix', 'flarum');
+        $this->prefix = $app->config('cookie.name', 'flarum');
         $this->path = $app->config('cookie.path', array_get($url, 'path') ?: '/');
         $this->domain = $app->config('cookie.domain');
         $this->secure = $app->config('cookie.secure', array_get($url, 'scheme') === 'https');
@@ -72,7 +72,7 @@ class CookieFactory
      */
     public function make($name, $value = null, $maxAge = null)
     {
-        $cookie = SetCookie::create($name, $value);
+        $cookie = SetCookie::create($this->getName($name), $value);
 
         // Make sure we send both the MaxAge and Expires parameters (the former
         // is not supported by all browser versions)
