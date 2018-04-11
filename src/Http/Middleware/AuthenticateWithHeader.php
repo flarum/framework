@@ -14,15 +14,16 @@ namespace Flarum\Http\Middleware;
 use Flarum\Api\ApiKey;
 use Flarum\Http\AccessToken;
 use Flarum\User\User;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class AuthenticateWithHeader implements MiddlewareInterface
 {
     const TOKEN_PREFIX = 'Token ';
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $headerLine = $request->getHeaderLine('authorization');
 
@@ -50,7 +51,7 @@ class AuthenticateWithHeader implements MiddlewareInterface
             }
         }
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 
     private function getUser($string)

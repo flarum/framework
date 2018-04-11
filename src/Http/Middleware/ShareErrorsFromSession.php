@@ -13,9 +13,10 @@ namespace Flarum\Http\Middleware;
 
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Support\ViewErrorBag;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Inspired by Illuminate\View\Middleware\ShareErrorsFromSession.
@@ -37,7 +38,7 @@ class ShareErrorsFromSession implements MiddlewareInterface
         $this->view = $view;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $session = $request->getAttribute('session');
 
@@ -54,6 +55,6 @@ class ShareErrorsFromSession implements MiddlewareInterface
 
         $session->remove('errors');
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 }

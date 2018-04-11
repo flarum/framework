@@ -13,9 +13,10 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\Http\AccessToken;
 use Flarum\Http\CookieFactory;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class RememberFromCookie implements MiddlewareInterface
 {
@@ -32,7 +33,7 @@ class RememberFromCookie implements MiddlewareInterface
         $this->cookie = $cookie;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $id = array_get($request->getCookieParams(), $this->cookie->getName('remember'));
 
@@ -48,6 +49,6 @@ class RememberFromCookie implements MiddlewareInterface
             }
         }
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 }
