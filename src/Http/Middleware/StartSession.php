@@ -16,10 +16,10 @@ use Flarum\Http\CookieFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Session\Store;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use SessionHandlerInterface;
 
 class StartSession implements MiddlewareInterface
@@ -49,7 +49,7 @@ class StartSession implements MiddlewareInterface
         $this->config = $config->get('session');
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $request = $request->withAttribute(
             'session',
@@ -57,7 +57,7 @@ class StartSession implements MiddlewareInterface
         );
 
         $session->start();
-        $response = $delegate->process($request);
+        $response = $handler->handle($request);
         $session->save();
 
         $response = $this->withCsrfTokenHeader($response, $session);
@@ -65,7 +65,7 @@ class StartSession implements MiddlewareInterface
         return $this->withSessionCookie($response, $session);
     }
 
-    private function makeSession(Request $request)
+    private function makeSession(ServerRequestInterface $request)
     {
         $cookieName = $this->cookie->getName($this->config['cookie']);
 
@@ -76,12 +76,12 @@ class StartSession implements MiddlewareInterface
         );
     }
 
-    private function withCsrfTokenHeader(Response $response, Session $session)
+    private function withCsrfTokenHeader(ResponseInterface $response, Session $session)
     {
         return $response->withHeader('X-CSRF-Token', $session->token());
     }
 
-    private function withSessionCookie(Response $response, Session $session)
+    private function withSessionCookie(ResponseInterface $response, Session $session)
     {
         return FigResponseCookies::set(
             $response,

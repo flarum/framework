@@ -11,13 +11,14 @@
 
 namespace Flarum\Http\Middleware;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class ParseJsonBody implements MiddlewareInterface
 {
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if (str_contains($request->getHeaderLine('content-type'), 'json')) {
             $input = json_decode($request->getBody(), true);
@@ -25,6 +26,6 @@ class ParseJsonBody implements MiddlewareInterface
             $request = $request->withParsedBody($input ?: []);
         }
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 }
