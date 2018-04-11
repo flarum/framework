@@ -17,9 +17,9 @@ use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use SessionHandlerInterface;
 
 class CollectGarbage implements MiddlewareInterface

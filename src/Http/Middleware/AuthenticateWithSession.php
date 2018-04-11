@@ -15,9 +15,9 @@ use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Contracts\Session\Session;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 class AuthenticateWithSession implements MiddlewareInterface
 {

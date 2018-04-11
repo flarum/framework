@@ -24,8 +24,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Server as DiactorosServer;
 use Zend\Stratigility\MiddlewarePipe;
-use function Zend\Stratigility\path;
 use function Zend\Stratigility\middleware;
+use function Zend\Stratigility\path;
 
 class Server implements MiddlewareInterface, RequestHandlerInterface
 {
@@ -56,7 +56,7 @@ class Server implements MiddlewareInterface, RequestHandlerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -66,7 +66,7 @@ class Server implements MiddlewareInterface, RequestHandlerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

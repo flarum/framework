@@ -35,7 +35,7 @@ class HandleErrors implements MiddlewareInterface
 
     /**
      * Catch all errors that happen during further middleware execution.
-     * 
+     *
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
