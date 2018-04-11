@@ -21,7 +21,7 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('settings', function (Blueprint $table) {
-            $table->binary('value')->change();
+            $table->longText('value')->change();
         });
     }
 ];

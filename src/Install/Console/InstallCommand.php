@@ -138,6 +138,7 @@ class InstallCommand extends AbstractCommand
     protected function install()
     {
         try {
+            $this->debug = $this->dataSource->isDebugMode();
             $this->dbConfig = $this->dataSource->getDatabaseConfiguration();
 
             $validation = $this->getValidator()->make(
@@ -214,7 +215,7 @@ class InstallCommand extends AbstractCommand
         $dbConfig = $this->dbConfig;
 
         $config = [
-            'debug'    => false,
+            'debug'    => $this->debug,
             'database' => [
                 'driver'    => $dbConfig['driver'],
                 'host'      => $dbConfig['host'],

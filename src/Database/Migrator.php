@@ -151,7 +151,7 @@ class Migrator
     {
         $this->notes = [];
 
-        $migrations = array_reverse($this->repository->getRan($extension->getId()));
+        $migrations = array_reverse($this->repository->getRan($extension ? $extension->getId() : null));
 
         $count = count($migrations);
 
