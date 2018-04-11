@@ -69,12 +69,10 @@ class StartSession implements MiddlewareInterface
 
     private function makeSession(Request $request)
     {
-        $cookieName = $this->cookie->getName($this->config['cookie']);
-
         return new Store(
             $this->config['cookie'],
             $this->handler,
-            array_get($request->getCookieParams(), $cookieName)
+            array_get($request->getCookieParams(), $this->cookie->getName($this->config['cookie']))
         );
     }
 
