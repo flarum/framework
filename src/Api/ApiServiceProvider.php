@@ -53,7 +53,6 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->app->singleton('flarum.api.middleware', function ($app) {
             $pipe = new MiddlewarePipe;
-            $pipe->raiseThrowables();
 
             $pipe->pipe($app->make(HandleErrors::class));
 

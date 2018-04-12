@@ -72,6 +72,7 @@ class InfoCommand extends AbstractCommand
 
         $this->info('Base URL: '.$this->config['url']);
         $this->info('Installation path: '.getcwd());
+        $this->info('Debug mode '.($this->config['debug'] ? 'ON' : 'off'));
     }
 
     /**

@@ -13,15 +13,17 @@ namespace Flarum\Http\Middleware;
 
 use Exception;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Franzl\Middleware\Whoops\ErrorMiddleware as WhoopsMiddleware;
+use Franzl\Middleware\Whoops\WhoopsRunner;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
-class HandleErrors
+class HandleErrors implements MiddlewareInterface
 {
     /**
      * @var ViewFactory
@@ -68,20 +70,23 @@ class HandleErrors
      * Catch all errors that happen during further middleware execution.
      *
      * @param Request $request
-     * @param Response $response
-     * @param callable $out
+     * @param DelegateInterface $delegate
      * @return Response
      */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    public function process(Request $request, DelegateInterface $delegate)
     {
         try {
-            return $out($request, $response);
+            return $delegate->process($request);
         } catch (Exception $e) {
-            return $this->formatException($e, $request, $response, $out);
+            if ($this->debug) {
+                return WhoopsRunner::handle($e, $request);
+            } else {
+                return $this->formatException($e);
+            }
         }
     }
 
-    protected function formatException(Exception $error, Request $request, Response $response, callable $out = null)
+    protected function formatException(Exception $error)
     {
         $status = 500;
         $errorCode = $error->getCode();
@@ -90,12 +95,6 @@ class HandleErrors
         // exception's status.
         if (is_int($errorCode) && $errorCode >= 400 && $errorCode < 600) {
             $status = $errorCode;
-        }
-
-        if ($this->debug) {
-            $whoops = new WhoopsMiddleware;
-
-            return $whoops($error, $request, $response, $out);
         }
 
         // Log the exception (with trace)

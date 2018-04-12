@@ -9,37 +9,37 @@
  * file that was distributed with this source code.
  */
 
-namespace Tests\Flarum\Api\ExceptionHandler;
+namespace Flarum\Tests\Api\ExceptionHandler;
 
 use Exception;
-use Flarum\Api\ExceptionHandler\TokenMismatchExceptionHandler;
-use Flarum\Http\Exception\TokenMismatchException;
-use Tests\Test\TestCase;
+use Flarum\Api\ExceptionHandler\RouteNotFoundExceptionHandler;
+use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Tests\Test\TestCase;
 
-class TokenMismatchExceptionHandlerTest extends TestCase
+class RouteNotFoundExceptionHandlerTest extends TestCase
 {
     private $handler;
 
     public function init()
     {
-        $this->handler = new TokenMismatchExceptionHandler;
+        $this->handler = new RouteNotFoundExceptionHandler();
     }
 
     public function test_it_handles_recognisable_exceptions()
     {
         $this->assertFalse($this->handler->manages(new Exception));
-        $this->assertTrue($this->handler->manages(new TokenMismatchException()));
+        $this->assertTrue($this->handler->manages(new RouteNotFoundException()));
     }
 
     public function test_managing_exceptions()
     {
-        $response = $this->handler->handle(new TokenMismatchException);
+        $response = $this->handler->handle(new RouteNotFoundException);
 
-        $this->assertEquals(400, $response->getStatus());
+        $this->assertEquals(404, $response->getStatus());
         $this->assertEquals([
             [
-                'status' => '400',
-                'code' => 'csrf_token_mismatch'
+                'status' => '404',
+                'code' => 'route_not_found'
             ]
         ], $response->getErrors());
     }

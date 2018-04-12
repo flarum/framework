@@ -11,6 +11,8 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Extend\Compat;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -107,6 +109,28 @@ class Extension implements Arrayable
         list($vendor, $package) = explode('/', $this->name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
         $this->id = "$vendor-$package";
+    }
+
+    public function extend(Container $app)
+    {
+        $bootstrapper = $this->getBootstrapperPath();
+
+        if (! file_exists($bootstrapper)) {
+            return;
+        }
+
+        $extenders = array_flatten((array) require $bootstrapper);
+
+        foreach ($extenders as $extender) {
+            // If an extension has not yet switched to the new bootstrap.php
+            // format, it might return a function (or more of them). We wrap
+            // these in a Compat extender to enjoy an unique interface.
+            if ($extender instanceof \Closure || is_string($extender)) {
+                $extender = new Compat($extender);
+            }
+
+            $extender($app, $this);
+        }
     }
 
     /**

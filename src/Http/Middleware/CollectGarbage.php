@@ -15,20 +15,35 @@ use Flarum\Http\AccessToken;
 use Flarum\User\AuthToken;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
-use Psr\Http\Message\ResponseInterface as Response;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Stratigility\MiddlewareInterface;
+use SessionHandlerInterface;
 
 class CollectGarbage implements MiddlewareInterface
 {
     /**
-     * {@inheritdoc}
+     * @var SessionHandlerInterface
      */
-    public function __invoke(Request $request, Response $response, callable $out = null)
+    protected $sessionHandler;
+
+    /**
+     * @var array
+     */
+    protected $sessionConfig;
+
+    public function __construct(SessionHandlerInterface $handler, ConfigRepository $config)
+    {
+        $this->sessionHandler = $handler;
+        $this->sessionConfig = $config->get('session');
+    }
+
+    public function process(Request $request, DelegateInterface $delegate)
     {
         $this->collectGarbageSometimes();
 
-        return $out ? $out($request, $response) : $response;
+        return $delegate->process($request);
     }
 
     private function collectGarbageSometimes()
@@ -46,10 +61,17 @@ class CollectGarbage implements MiddlewareInterface
         EmailToken::where('created_at', '<=', $earliestToKeep)->delete();
         PasswordToken::where('created_at', '<=', $earliestToKeep)->delete();
         AuthToken::where('created_at', '<=', $earliestToKeep)->delete();
+
+        $this->sessionHandler->gc($this->getSessionLifetimeInSeconds());
     }
 
     private function hit()
     {
         return mt_rand(1, 100) <= 2;
+    }
+
+    private function getSessionLifetimeInSeconds()
+    {
+        return $this->sessionConfig['lifetime'] * 60;
     }
 }
