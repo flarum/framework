@@ -11,7 +11,6 @@
 
 namespace Flarum\Tests\Test;
 
-use Mockery;
 use PHPUnit\Framework\TestCase as Test;
 
 abstract class TestCase extends Test
