@@ -16,7 +16,7 @@ use Flarum\Group\Group;
 use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Illuminate\Support\Str;
 
-class CreateGroupControllerTestTestCase extends ApiControllerTestCase
+class CreateGroupControllerTest extends ApiControllerTestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -52,11 +52,13 @@ class CreateGroupControllerTestTestCase extends ApiControllerTestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
+        $data = json_decode($response->getBody()->getContents(), true);
         $group = Group::where('icon', $this->data['icon'])->firstOrFail();
 
         foreach ($this->data as $property => $value) {
+            $this->assertEquals($value, array_get($data, "data.attributes.$property"), "$property not matching to json response");
             $property = Str::snake($property);
-            $this->assertEquals($value, $group->{$property});
+            $this->assertEquals($value, $group->{$property}, "$property not matching to database result");
         }
     }
 
