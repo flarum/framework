@@ -17,7 +17,7 @@ use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 
-class CreateUserControllerTestTestCase extends ApiControllerTestCase
+class CreateUserControllerTest extends ApiControllerTestCase
 {
     use RetrievesAuthorizedUsers;
 
