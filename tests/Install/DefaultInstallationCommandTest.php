@@ -18,7 +18,7 @@ use Flarum\User\User;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class DefaultsInstallationCommandTest extends TestCase
+class DefaultInstallationCommandTest extends TestCase
 {
     protected $isInstalled = false;
 
