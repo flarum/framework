@@ -40,7 +40,9 @@ class StartSession implements MiddlewareInterface
     protected $config;
 
     /**
+     * @param SessionHandlerInterface $handler
      * @param CookieFactory $cookie
+     * @param ConfigRepository $config
      */
     public function __construct(SessionHandlerInterface $handler, CookieFactory $cookie, ConfigRepository $config)
     {
@@ -67,12 +69,10 @@ class StartSession implements MiddlewareInterface
 
     private function makeSession(Request $request)
     {
-        $cookieName = $this->cookie->getName($this->config['cookie']);
-
         return new Store(
-            $cookieName,
+            $this->config['cookie'],
             $this->handler,
-            array_get($request->getCookieParams(), $cookieName)
+            array_get($request->getCookieParams(), $this->cookie->getName($this->config['cookie']))
         );
     }
 
