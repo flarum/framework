@@ -40,11 +40,11 @@ class CreateDiscussionControllerTest extends ApiControllerTestCase
         $this->assertEquals(201, $response->getStatusCode());
 
         /** @var Discussion $discussion */
-        $discussion = Discussion::where("title", $this->data['title'])->firstOrFail();
+        $discussion = Discussion::where('title', $this->data['title'])->firstOrFail();
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals($this->data['title'], $discussion->title);
-        $this->assertEquals($this->data['title'], array_get($data, "data.attributes.title"));
+        $this->assertEquals($this->data['title'], array_get($data, 'data.attributes.title'));
     }
 
     /**
