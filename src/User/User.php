@@ -34,22 +34,21 @@ use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Renamed;
 use Illuminate\Contracts\Hashing\Hasher;
-use Illuminate\Contracts\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @property int $id
  * @property string $username
  * @property string $email
- * @property bool $is_activated
+ * @property bool $is_email_confirmed
  * @property string $password
  * @property string $locale
- * @property string|null $avatar_path
- * @property string $avatar_url
+ * @property string|null $avatar_url
  * @property array $preferences
- * @property \Carbon\Carbon|null $join_time
- * @property \Carbon\Carbon|null $last_seen_time
- * @property \Carbon\Carbon|null $read_time
- * @property \Carbon\Carbon|null $notifications_read_time
+ * @property \Carbon\Carbon|null $joined_at
+ * @property \Carbon\Carbon|null $last_seen_at
+ * @property \Carbon\Carbon|null $marked_all_as_read_at
+ * @property \Carbon\Carbon|null $read_notifications_at
  * @property int $discussions_count
  * @property int $comments_count
  */
@@ -67,10 +66,10 @@ class User extends AbstractModel
      * {@inheritdoc}
      */
     protected $dates = [
-        'join_time',
-        'last_seen_time',
-        'read_time',
-        'notifications_read_time'
+        'joined_at',
+        'last_seen_at',
+        'marked_all_as_read_at',
+        'read_notifications_at'
     ];
 
     /**
@@ -146,7 +145,7 @@ class User extends AbstractModel
             $user->notifications()->delete();
         });
 
-        static::$dispatcher->dispatch(
+        static::$dispatcher->fire(
             new ConfigureUserPreferences
         );
     }
@@ -166,7 +165,7 @@ class User extends AbstractModel
         $user->username = $username;
         $user->email = $email;
         $user->password = $password;
-        $user->join_time = time();
+        $user->joined_at = time();
 
         $user->raise(new Registered($user));
 
@@ -270,7 +269,7 @@ class User extends AbstractModel
      */
     public function markAllAsRead()
     {
-        $this->read_time = time();
+        $this->marked_all_as_read_at = time();
 
         return $this;
     }
@@ -282,7 +281,7 @@ class User extends AbstractModel
      */
     public function markNotificationsAsRead()
     {
-        $this->notifications_read_time = time();
+        $this->read_notifications_at = time();
 
         return $this;
     }
@@ -295,7 +294,7 @@ class User extends AbstractModel
      */
     public function changeAvatarPath($path)
     {
-        $this->avatar_path = $path;
+        $this->attributes['avatar_url'] = $path;
 
         $this->raise(new AvatarChanged($this));
 
@@ -306,17 +305,16 @@ class User extends AbstractModel
      * Get the URL of the user's avatar.
      *
      * @todo Allow different storage locations to be used
+     * @param string|null $value
      * @return string
      */
-    public function getAvatarUrlAttribute()
+    public function getAvatarUrlAttribute(string $value = null)
     {
-        if ($this->avatar_path) {
-            if (strpos($this->avatar_path, '://') !== false) {
-                return $this->avatar_path;
-            }
-
-            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$this->avatar_path);
+        if ($value && strpos($value, '://') === false) {
+            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$value);
         }
+
+        return $value;
     }
 
     /**
@@ -365,8 +363,8 @@ class User extends AbstractModel
      */
     public function activate()
     {
-        if ($this->is_activated !== true) {
-            $this->is_activated = true;
+        if ($this->is_email_confirmed !== true) {
+            $this->is_email_confirmed = true;
 
             $this->raise(new Activated($this));
         }
@@ -454,8 +452,8 @@ class User extends AbstractModel
         if (is_null($cached)) {
             $cached = $this->notifications()
                 ->whereIn('type', $this->getAlertableNotificationTypes())
-                ->where('is_read', 0)
-                ->where('is_deleted', 0)
+                ->whereNull('read_at')
+                ->whereNull('deleted_at')
                 ->get();
         }
 
@@ -470,7 +468,7 @@ class User extends AbstractModel
     public function getNewNotificationsCount()
     {
         return $this->getUnreadNotifications()->filter(function ($notification) {
-            return $notification->time > $this->notifications_read_time ?: 0;
+            return $notification->time > $this->read_notifications_at ?: 0;
         })->count();
     }
 
@@ -569,7 +567,7 @@ class User extends AbstractModel
      */
     public function updateLastSeen()
     {
-        $this->last_seen_time = time();
+        $this->last_seen_at = time();
 
         return $this;
     }
@@ -611,7 +609,7 @@ class User extends AbstractModel
      */
     public function read()
     {
-        return $this->belongsToMany('Flarum\Discussion\Discussion', 'users_discussions');
+        return $this->belongsToMany('Flarum\Discussion\Discussion');
     }
 
     /**
@@ -621,7 +619,7 @@ class User extends AbstractModel
      */
     public function groups()
     {
-        return $this->belongsToMany('Flarum\Group\Group', 'users_groups');
+        return $this->belongsToMany('Flarum\Group\Group');
     }
 
     /**
@@ -648,7 +646,7 @@ class User extends AbstractModel
         // more than a guest. If they are activated, we can give them the
         // standard 'member' group, as well as any other groups they've been
         // assigned to.
-        if ($this->is_activated) {
+        if ($this->is_email_confirmed) {
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->pluck('id')->all());
         }
 
@@ -698,7 +696,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return Session
+     * @return SessionInterface
      */
     public function getSession()
     {
@@ -706,9 +704,9 @@ class User extends AbstractModel
     }
 
     /**
-     * @param Session $session
+     * @param SessionInterface $session
      */
-    public function setSession(Session $session)
+    public function setSession(SessionInterface $session)
     {
         $this->session = $session;
     }
