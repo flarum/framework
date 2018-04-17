@@ -37,9 +37,9 @@ class CreatedGambit extends AbstractRegexGambit
         // provided with a YYYY-MM-DD..YYYY-MM-DD range, then find discussions
         // that were started during that period.
         if (empty($matches[3])) {
-            $search->getQuery()->whereDate('start_time', $negate ? '!=' : '=', $matches[1]);
+            $search->getQuery()->whereDate('created_at', $negate ? '!=' : '=', $matches[1]);
         } else {
-            $search->getQuery()->whereBetween('start_time', [$matches[1], $matches[3]], 'and', $negate);
+            $search->getQuery()->whereBetween('created_at', [$matches[1], $matches[3]], 'and', $negate);
         }
     }
 }

@@ -47,7 +47,7 @@ class ListDiscussionsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $sortFields = ['lastTime', 'commentsCount', 'startTime'];
+    public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
     /**
      * @var DiscussionSearcher
