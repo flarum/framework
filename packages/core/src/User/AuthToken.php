@@ -23,7 +23,7 @@ class AuthToken extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'auth_tokens';
+    protected $table = 'registration_tokens';
 
     /**
      * {@inheritdoc}
