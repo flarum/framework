@@ -24,14 +24,14 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $id
  * @property int $discussion_id
  * @property int $number
- * @property \Carbon\Carbon $time
+ * @property \Carbon\Carbon $created_at
  * @property int|null $user_id
  * @property string|null $type
  * @property string|null $content
- * @property \Carbon\Carbon|null $edit_time
- * @property int|null $edit_user_id
- * @property \Carbon\Carbon|null $hide_time
- * @property int|null $hide_user_id
+ * @property \Carbon\Carbon|null $edited_at
+ * @property int|null $edited_user_id
+ * @property \Carbon\Carbon|null $hidden_at
+ * @property int|null $hidden_user_id
  * @property \Flarum\Discussion\Discussion|null $discussion
  * @property User|null $user
  * @property User|null $editUser
@@ -51,7 +51,7 @@ class Post extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['time', 'edit_time', 'hide_time'];
+    protected $dates = ['created_at', 'edited_at', 'hidden_at'];
 
     /**
      * Casts properties to a specific type.
@@ -93,7 +93,7 @@ class Post extends AbstractModel
         // discussion.
         static::creating(function (Post $post) {
             $post->type = $post::$type;
-            $post->number = ++$post->discussion->number_index;
+            $post->number = ++$post->discussion->post_number_index;
             $post->discussion->save();
         });
 
@@ -170,7 +170,7 @@ class Post extends AbstractModel
      */
     public function editUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'edit_user_id');
+        return $this->belongsTo('Flarum\User\User', 'edited_user_id');
     }
 
     /**
@@ -180,7 +180,7 @@ class Post extends AbstractModel
      */
     public function hideUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'hide_user_id');
+        return $this->belongsTo('Flarum\User\User', 'hidden_user_id');
     }
 
     /**

@@ -93,7 +93,7 @@ class DiscussionPolicy extends AbstractPolicy
         if (! $actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('discussions.hide_time')
-                    ->orWhere('start_user_id', $actor->id)
+                    ->orWhere('user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
                         $this->events->fire(
                             new ScopeModelVisibility($query, $actor, 'hide')
@@ -106,8 +106,8 @@ class DiscussionPolicy extends AbstractPolicy
         // current user, or the user is allowed to edit the discussion's posts.
         if (! $actor->hasPermission('discussion.editPosts')) {
             $query->where(function ($query) use ($actor) {
-                $query->where('comments_count', '>', 0)
-                    ->orWhere('start_user_id', $actor->id)
+                $query->where('comment_count', '>', 0)
+                    ->orWhere('user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
                         $this->events->dispatch(
                             new ScopeModelVisibility($query, $actor, 'editPosts')
@@ -124,12 +124,12 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function rename(User $actor, Discussion $discussion)
     {
-        if ($discussion->start_user_id == $actor->id) {
+        if ($discussion->user_id == $actor->id) {
             $allowRenaming = $this->settings->get('allow_renaming');
 
             if ($allowRenaming === '-1'
-                || ($allowRenaming === 'reply' && $discussion->participants_count <= 1)
-                || ($discussion->start_time->diffInMinutes(new Carbon) < $allowRenaming)) {
+                || ($allowRenaming === 'reply' && $discussion->participant_count <= 1)
+                || ($discussion->created_at->diffInMinutes(new Carbon) < $allowRenaming)) {
                 return true;
             }
         }
@@ -142,7 +142,7 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function hide(User $actor, Discussion $discussion)
     {
-        if ($discussion->start_user_id == $actor->id && $discussion->participants_count <= 1) {
+        if ($discussion->user_id == $actor->id && $discussion->participant_count <= 1) {
             return true;
         }
     }

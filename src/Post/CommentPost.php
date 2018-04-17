@@ -51,7 +51,7 @@ class CommentPost extends Post
     {
         $post = new static;
 
-        $post->time = time();
+        $post->created_at = time();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
         $post->type = static::$type;
@@ -77,8 +77,8 @@ class CommentPost extends Post
         if ($this->content !== $content) {
             $this->content = $content;
 
-            $this->edit_time = time();
-            $this->edit_user_id = $actor->id;
+            $this->edited_at = time();
+            $this->edited_user_id = $actor->id;
 
             $this->raise(new Revised($this));
         }
@@ -94,9 +94,9 @@ class CommentPost extends Post
      */
     public function hide(User $actor = null)
     {
-        if (! $this->hide_time) {
-            $this->hide_time = time();
-            $this->hide_user_id = $actor ? $actor->id : null;
+        if (! $this->hidden_at) {
+            $this->hidden_at = time();
+            $this->hidden_user_id = $actor ? $actor->id : null;
 
             $this->raise(new Hidden($this));
         }
@@ -111,9 +111,9 @@ class CommentPost extends Post
      */
     public function restore()
     {
-        if ($this->hide_time !== null) {
-            $this->hide_time = null;
-            $this->hide_user_id = null;
+        if ($this->hidden_at !== null) {
+            $this->hidden_at = null;
+            $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
         }
