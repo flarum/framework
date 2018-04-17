@@ -26,8 +26,8 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @property int $user_id
  * @property int $discussion_id
- * @property \Carbon\Carbon|null $read_time
- * @property int|null $read_number
+ * @property \Carbon\Carbon|null $last_read_at
+ * @property int|null $last_read_post_number
  * @property Discussion $discussion
  * @property \Flarum\User\User $user
  */
@@ -38,12 +38,12 @@ class UserState extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'users_discussions';
+    protected $table = 'discussions_users';
 
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['read_time'];
+    protected $dates = ['last_read_at'];
 
     /**
      * Mark the discussion as being read up to a certain point. Raises the
@@ -54,9 +54,9 @@ class UserState extends AbstractModel
      */
     public function read($number)
     {
-        if ($number > $this->read_number) {
-            $this->read_number = $number;
-            $this->read_time = time();
+        if ($number > $this->last_read_at) {
+            $this->last_read_at = $number;
+            $this->last_read_at = time();
 
             $this->raise(new UserRead($this));
         }

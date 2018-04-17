@@ -37,10 +37,10 @@ class DiscussionSerializer extends BasicDiscussionSerializer
         $gate = $this->gate->forUser($this->actor);
 
         $attributes = parent::getDefaultAttributes($discussion) + [
-            'commentsCount'     => (int) $discussion->comments_count,
-            'participantsCount' => (int) $discussion->participants_count,
-            'startTime'         => $this->formatDate($discussion->start_time),
-            'lastTime'          => $this->formatDate($discussion->last_time),
+            'commentsCount'     => (int) $discussion->comment_count,
+            'participantsCount' => (int) $discussion->participant_count,
+            'startTime'         => $this->formatDate($discussion->created_at),
+            'lastTime'          => $this->formatDate($discussion->last_posted_at),
             'lastPostNumber'    => (int) $discussion->last_post_number,
             'canReply'          => $gate->allows('reply', $discussion),
             'canRename'         => $gate->allows('rename', $discussion),
@@ -48,9 +48,9 @@ class DiscussionSerializer extends BasicDiscussionSerializer
             'canHide'           => $gate->allows('hide', $discussion)
         ];
 
-        if ($discussion->hide_time) {
+        if ($discussion->hidden_at) {
             $attributes['isHidden'] = true;
-            $attributes['hideTime'] = $this->formatDate($discussion->hide_time);
+            $attributes['hideTime'] = $this->formatDate($discussion->hidden_at);
         }
 
         Discussion::setStateUser($this->actor);

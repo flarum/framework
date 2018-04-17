@@ -54,7 +54,7 @@ class DiscussionRenamedLogger
 
         $post = $event->discussion->mergePost($post);
 
-        if ($event->discussion->start_user_id !== $event->actor->id) {
+        if ($event->discussion->user_id !== $event->actor->id) {
             $blueprint = new DiscussionRenamedBlueprint($post);
 
             if ($post->exists) {

@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @property int $id
  * @property string $username
+ * @property string $display_name
  * @property string $email
  * @property bool $is_email_confirmed
  * @property string $password

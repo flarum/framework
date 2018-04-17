@@ -27,11 +27,11 @@ class NotificationRepository
     {
         $primaries = Notification::select(
             app('flarum.db')->raw('MAX(id) AS id'),
-            app('flarum.db')->raw('SUM(is_read = 0) AS unread_count')
+            app('flarum.db')->raw('SUM(read_at IS NULL) AS unread_count')
         )
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
-            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->groupBy('type', 'subject_id')
             ->orderByRaw('MAX(time) DESC')
             ->skip($offset)
@@ -40,7 +40,7 @@ class NotificationRepository
         return Notification::select('notifications.*', app('flarum.db')->raw('p.unread_count'))
             ->mergeBindings($primaries->getQuery())
             ->join(app('flarum.db')->raw('('.$primaries->toSql().') p'), 'notifications.id', '=', app('flarum.db')->raw('p.id'))
-            ->latest('time')
+            ->latest('created_at')
             ->get();
     }
 
@@ -53,6 +53,6 @@ class NotificationRepository
      */
     public function markAllAsRead(User $user)
     {
-        Notification::where('user_id', $user->id)->update(['is_read' => true]);
+        Notification::where('user_id', $user->id)->update(['read_at' => time()]);
     }
 }

@@ -30,18 +30,18 @@ use Flarum\Util\Str;
  * @property int $id
  * @property string $title
  * @property string $slug
- * @property int $comments_count
- * @property int $participants_count
- * @property int $number_index
- * @property \Carbon\Carbon $start_time
- * @property int|null $start_user_id
- * @property int|null $start_post_id
- * @property \Carbon\Carbon|null $last_time
- * @property int|null $last_user_id
+ * @property int $comment_count
+ * @property int $participant_count
+ * @property int $post_number_index
+ * @property \Carbon\Carbon $created_at
+ * @property int|null $user_id
+ * @property int|null $first_post_id
+ * @property \Carbon\Carbon|null $last_posted_at
+ * @property int|null $last_posted_user_id
  * @property int|null $last_post_id
  * @property int|null $last_post_number
- * @property \Carbon\Carbon|null $hide_time
- * @property int|null $hide_user_id
+ * @property \Carbon\Carbon|null $hidden_at
+ * @property int|null $hidden_user_id
  * @property UserState|null $state
  * @property \Illuminate\Database\Eloquent\Collection $posts
  * @property \Illuminate\Database\Eloquent\Collection $comments
@@ -73,7 +73,7 @@ class Discussion extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['start_time', 'last_time', 'hide_time'];
+    protected $dates = ['created_at', 'last_posted_at', 'hidden_at'];
 
     /**
      * Casts properties to a specific type.
@@ -138,8 +138,8 @@ class Discussion extends AbstractModel
         $discussion = new static;
 
         $discussion->title = $title;
-        $discussion->start_time = time();
-        $discussion->start_user_id = $user->id;
+        $discussion->created_at = time();
+        $discussion->user_id = $user->id;
 
         $discussion->setRelation('startUser', $user);
 
@@ -174,9 +174,9 @@ class Discussion extends AbstractModel
      */
     public function hide(User $actor = null)
     {
-        if (! $this->hide_time) {
-            $this->hide_time = time();
-            $this->hide_user_id = $actor ? $actor->id : null;
+        if (! $this->hidden_at) {
+            $this->hidden_at = time();
+            $this->hidden_user_id = $actor ? $actor->id : null;
 
             $this->raise(new Hidden($this));
         }
@@ -191,9 +191,9 @@ class Discussion extends AbstractModel
      */
     public function restore()
     {
-        if ($this->hide_time !== null) {
-            $this->hide_time = null;
-            $this->hide_user_id = null;
+        if ($this->hidden_at !== null) {
+            $this->hidden_at = null;
+            $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
         }
@@ -209,9 +209,9 @@ class Discussion extends AbstractModel
      */
     public function setStartPost(Post $post)
     {
-        $this->start_time = $post->time;
-        $this->start_user_id = $post->user_id;
-        $this->start_post_id = $post->id;
+        $this->created_at = $post->time;
+        $this->user_id = $post->user_id;
+        $this->first_post_id = $post->id;
 
         return $this;
     }
@@ -224,8 +224,8 @@ class Discussion extends AbstractModel
      */
     public function setLastPost(Post $post)
     {
-        $this->last_time = $post->time;
-        $this->last_user_id = $post->user_id;
+        $this->last_posted_at = $post->time;
+        $this->last_posted_user_id = $post->user_id;
         $this->last_post_id = $post->id;
         $this->last_post_number = $post->number;
 
@@ -240,7 +240,7 @@ class Discussion extends AbstractModel
     public function refreshLastPost()
     {
         /** @var Post $lastPost */
-        if ($lastPost = $this->comments()->latest('time')->first()) {
+        if ($lastPost = $this->comments()->latest('created_at')->first()) {
             $this->setLastPost($lastPost);
         }
 
@@ -254,7 +254,7 @@ class Discussion extends AbstractModel
      */
     public function refreshCommentsCount()
     {
-        $this->comments_count = $this->comments()->count();
+        $this->comment_count = $this->comments()->count();
 
         return $this;
     }
@@ -266,7 +266,7 @@ class Discussion extends AbstractModel
      */
     public function refreshParticipantsCount()
     {
-        $this->participants_count = $this->participants()->count('users.id');
+        $this->participant_count = $this->participants()->count('users.id');
 
         return $this;
     }
@@ -286,7 +286,7 @@ class Discussion extends AbstractModel
      */
     public function mergePost(MergeableInterface $post)
     {
-        $lastPost = $this->posts()->latest('time')->first();
+        $lastPost = $this->posts()->latest('created_at')->first();
 
         $post = $post->saveAfter($lastPost);
 
@@ -322,7 +322,7 @@ class Discussion extends AbstractModel
     {
         return $this->posts()
             ->where('is_private', false)
-            ->whereNull('hide_time')
+            ->whereNull('hidden_at')
             ->where('type', 'comment');
     }
 
@@ -349,7 +349,7 @@ class Discussion extends AbstractModel
      */
     public function startPost()
     {
-        return $this->belongsTo(Post::class, 'start_post_id');
+        return $this->belongsTo(Post::class, 'first_post_id');
     }
 
     /**
@@ -359,7 +359,7 @@ class Discussion extends AbstractModel
      */
     public function startUser()
     {
-        return $this->belongsTo(User::class, 'start_user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

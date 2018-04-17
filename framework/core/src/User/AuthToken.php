@@ -11,12 +11,14 @@
 
 namespace Flarum\User;
 
-use DateTime;
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 
 /**
- * @todo document database columns with @property
+ * @property string $token
+ * @property \Carbon\Carbon $created_at
+ * @property string $payload
  */
 class AuthToken extends AbstractModel
 {
@@ -38,9 +40,14 @@ class AuthToken extends AbstractModel
     public $incrementing = false;
 
     /**
+     * {@inheritdoc}
+     */
+    protected $primaryKey = 'token';
+
+    /**
      * Generate an email token for the specified user.
      *
-     * @param string $email
+     * @param string $payload
      *
      * @return static
      */
@@ -48,7 +55,7 @@ class AuthToken extends AbstractModel
     {
         $token = new static;
 
-        $token->id = str_random(40);
+        $token->token = str_random(40);
         $token->payload = $payload;
         $token->created_at = time();
 
@@ -80,17 +87,18 @@ class AuthToken extends AbstractModel
      * Find the token with the given ID, and assert that it has not expired.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $id
+     * @param string $token
      *
-     * @throws \Flarum\User\Exception\InvalidConfirmationTokenException
+     * @throws InvalidConfirmationTokenException
      *
-     * @return static
+     * @return AuthToken
      */
-    public function scopeValidOrFail($query, $id)
+    public function scopeValidOrFail($query, string $token)
     {
-        $token = $query->find($id);
+        /** @var AuthToken $token */
+        $token = $query->find($token);
 
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
+        if (! $token || $token->created_at->lessThan(Carbon::now()->subDay())) {
             throw new InvalidConfirmationTokenException;
         }
 
