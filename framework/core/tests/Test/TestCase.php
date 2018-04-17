@@ -11,20 +11,21 @@
 
 namespace Flarum\Tests\Test;
 
-use Mockery;
 use PHPUnit\Framework\TestCase as Test;
 
 abstract class TestCase extends Test
 {
+    use Concerns\CreatesForum,
+        Concerns\MakesApiRequests;
+
     public function setUp()
     {
-        Mockery::close();
-
+        $this->refreshApplication();
         $this->init();
     }
 
     protected function init()
     {
-        // To be overloaded by children - saves having to do setUp/mockery::close every time
+        // .. allows implementation by children without the need to call the parent.
     }
 }
