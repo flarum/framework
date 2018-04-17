@@ -15,14 +15,15 @@ use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * @todo document database columns with @property
+ * @property int $group_id
+ * @property string $permission
  */
 class Permission extends AbstractModel
 {
     /**
      * {@inheritdoc}
      */
-    protected $table = 'permissions';
+    protected $table = 'groups_permissions';
 
     /**
      * Define the relationship with the group that this permission is for.
