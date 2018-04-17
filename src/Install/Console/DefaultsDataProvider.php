@@ -23,6 +23,8 @@ class DefaultsDataProvider implements DataProviderInterface
         'port'     => '3306',
     ];
 
+    protected $debug = false;
+
     protected $baseUrl = 'http://flarum.local';
 
     protected $adminUser = [
@@ -95,5 +97,15 @@ class DefaultsDataProvider implements DataProviderInterface
     public function setSetting($key, $value)
     {
         $this->settings[$key] = $value;
+    }
+
+    public function isDebugMode(): bool
+    {
+        return $this->debug;
+    }
+
+    public function setDebugMode(bool $debug = true)
+    {
+        $this->debug = $debug;
     }
 }
