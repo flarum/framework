@@ -13,6 +13,7 @@ namespace Flarum\Locale;
 
 use Flarum\Event\ConfigureLocales;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use Symfony\Component\Translation\MessageSelector;
@@ -54,8 +55,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
     private function getDefaultLocale(): string
     {
-        return $this->app->isInstalled() && $this->app->isUpToDate()
-            ? $this->app->make('flarum.settings')->get('default_locale', 'en')
-            : 'en';
+        $repo = $this->app->make(SettingsRepositoryInterface::class);
+
+        return $repo->get('default_locale', 'en');
     }
 }

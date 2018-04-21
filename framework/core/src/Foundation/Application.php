@@ -11,7 +11,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Events\EventServiceProvider;
@@ -115,34 +114,13 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
-     * Determine if Flarum has been installed.
-     *
-     * @return bool
-     */
-    public function isInstalled(): bool
-    {
-        return $this->bound('flarum.config');
-    }
-
-    public function isUpToDate(): bool
-    {
-        $settings = $this->make(SettingsRepositoryInterface::class);
-
-        try {
-            $version = $settings->get('version');
-        } finally {
-            return isset($version) && $version === $this->version();
-        }
-    }
-
-    /**
      * @param string $key
      * @param mixed $default
      * @return mixed
      */
     public function config($key, $default = null)
     {
-        return $this->isInstalled() ? array_get($this->make('flarum.config'), $key, $default) : $default;
+        return array_get($this->make('flarum.config'), $key, $default);
     }
 
     /**
@@ -152,7 +130,7 @@ class Application extends Container implements ApplicationContract
      */
     public function inDebugMode()
     {
-        return ! $this->isInstalled() || $this->config('debug');
+        return $this->config('debug', true);
     }
 
     /**
@@ -163,7 +141,7 @@ class Application extends Container implements ApplicationContract
      */
     public function url($path = null)
     {
-        $config = $this->isInstalled() ? $this->make('flarum.config') : [];
+        $config = $this->make('flarum.config');
         $url = array_get($config, 'url', array_get($_SERVER, 'REQUEST_URI'));
 
         if (is_array($url)) {
