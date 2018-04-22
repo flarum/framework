@@ -123,6 +123,8 @@ export default class Application {
 
     this.translator.locale = data.locale;
 
+    patchMithril(window);
+
     this.initializers.toArray().forEach(initializer => initializer(this));
 
     this.store.pushPayload({data: this.data.resources});
@@ -138,8 +140,6 @@ export default class Application {
   }
 
   mount() {
-    patchMithril(window);
-
     this.modal = m.mount(document.getElementById('modal'), <ModalManager/>);
     this.alerts = m.mount(document.getElementById('alerts'), <AlertManager/>);
 
