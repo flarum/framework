@@ -9,12 +9,11 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'up' => function (Builder $schema, ConnectionInterface $db) {
+    'up' => function (Builder $schema) {
         $schema->create('tags', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 100);
@@ -36,7 +35,7 @@ return [
             $table->integer('last_discussion_id')->unsigned()->nullable();
         });
 
-        $db->table('tags')->insert([
+        $schema->getConnection()->table('tags')->insert([
             'name' => 'General',
             'slug' => 'general',
             'color' => '#888',
