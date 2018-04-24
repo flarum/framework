@@ -11,16 +11,16 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Database\ConnectionInterface;
 
 class DatabaseMigrationRepository implements MigrationRepositoryInterface
 {
     /**
-     * The database connection resolver instance.
+     * The name of the database connection to use.
      *
-     * @var \Illuminate\Database\ConnectionResolverInterface
+     * @var ConnectionInterface
      */
-    protected $resolver;
+    protected $connection;
 
     /**
      * The name of the migration table.
@@ -30,22 +30,15 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     protected $table;
 
     /**
-     * The name of the database connection to use.
-     *
-     * @var string
-     */
-    protected $connection;
-
-    /**
      * Create a new database migration repository instance.
      *
-     * @param  \Illuminate\Database\ConnectionResolverInterface $resolver
-     * @param  string                                           $table
+     * @param  \Illuminate\Database\ConnectionInterface $connection
+     * @param  string                                   $table
      */
-    public function __construct(Resolver $resolver, $table)
+    public function __construct(ConnectionInterface $connection, $table)
     {
+        $this->connection = $connection;
         $this->table = $table;
-        $this->resolver = $resolver;
     }
 
     /**
@@ -104,7 +97,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
      */
     public function createRepository()
     {
-        $schema = $this->getConnection()->getSchemaBuilder();
+        $schema = $this->connection->getSchemaBuilder();
 
         $schema->create($this->table, function ($table) {
             $table->string('migration');
@@ -119,7 +112,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
      */
     public function repositoryExists()
     {
-        $schema = $this->getConnection()->getSchemaBuilder();
+        $schema = $this->connection->getSchemaBuilder();
 
         return $schema->hasTable($this->table);
     }
@@ -131,37 +124,6 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
      */
     protected function table()
     {
-        return $this->getConnection()->table($this->table);
-    }
-
-    /**
-     * Get the connection resolver instance.
-     *
-     * @return \Illuminate\Database\ConnectionResolverInterface
-     */
-    public function getConnectionResolver()
-    {
-        return $this->resolver;
-    }
-
-    /**
-     * Resolve the database connection instance.
-     *
-     * @return \Illuminate\Database\Connection
-     */
-    public function getConnection()
-    {
-        return $this->resolver->connection($this->connection);
-    }
-
-    /**
-     * Set the information source to gather data.
-     *
-     * @param  string  $name
-     * @return void
-     */
-    public function setSource($name)
-    {
-        $this->connection = $name;
+        return $this->connection->table($this->table);
     }
 }
