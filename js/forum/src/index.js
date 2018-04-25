@@ -9,6 +9,7 @@ import 'bootstrap/js/dropdown';
 import 'bootstrap/js/modal';
 import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
+import 'jquery.hotkeys/jquery.hotkeys';
 
 import ForumApplication from './ForumApplication';
 
