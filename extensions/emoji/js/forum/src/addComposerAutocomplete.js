@@ -1,11 +1,11 @@
-/*global getCaretCoordinates*/
+import getCaretCoordinates from 'textarea-caret';
 
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
-import emojiMap from 'flarum/emoji/helpers/emojiMap';
+import emojiMap from './helpers/emojiMap';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
-import AutocompleteDropdown from 'flarum/emoji/components/AutocompleteDropdown';
+import AutocompleteDropdown from './components/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
 
