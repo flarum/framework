@@ -12,7 +12,7 @@
 namespace Flarum\Post;
 
 use DateTime;
-use Flarum\Post\Event\ChecksForFlooding;
+use Flarum\Post\Event\CheckingForFlooding;
 use Flarum\Post\Exception\FloodingException;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -46,10 +46,8 @@ class Floodgate
      */
     public function isFlooding(User $actor): bool
     {
-        $isFlooding = null;
-
-        $this->events->dispatch(
-            new ChecksForFlooding($actor, $isFlooding)
+        $isFlooding = $this->events->until(
+            new CheckingForFlooding($actor)
         );
 
         return $isFlooding ?? Post::where('user_id', $actor->id)->where('time', '>=', new DateTime('-10 seconds'))->exists();

@@ -13,24 +13,18 @@ namespace Flarum\Post\Event;
 
 use Flarum\User\User;
 
-class ChecksForFlooding
+class CheckingForFlooding
 {
     /**
      * @var User
      */
     public $actor;
-    /**
-     * @var bool|null
-     */
-    public $isFlooding;
 
     /**
      * @param User|null $actor
-     * @param bool|null $isFlooding
      */
-    public function __construct(User $actor = null, bool &$isFlooding = null)
+    public function __construct(User $actor = null)
     {
         $this->actor = $actor;
-        $this->isFlooding = &$isFlooding;
     }
 }
