@@ -14,7 +14,6 @@ namespace Flarum\Foundation;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Illuminate\Database\QueryException;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
