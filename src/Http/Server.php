@@ -113,6 +113,7 @@ class Server
     protected function getInstallerMiddleware(MiddlewarePipe $pipe)
     {
         $this->app->register(InstallServiceProvider::class);
+        $this->app->register(SessionServiceProvider::class);
 
         // FIXME: Re-enable HandleErrors middleware, if possible
         // (Right now it tries to resolve a database connection because of the injected settings repo instance)
