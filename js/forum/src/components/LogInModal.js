@@ -1,7 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import ForgotPasswordModal from 'flarum/components/ForgotPasswordModal';
 import SignUpModal from 'flarum/components/SignUpModal';
-import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 import LogInButtons from 'flarum/components/LogInButtons';
 import extractText from 'flarum/utils/extractText';
