@@ -50,51 +50,63 @@ export default class LogInModal extends Modal {
   content() {
     return [
       <div className="Modal-body">
-        <LogInButtons/>
-
-        <div className="Form Form--centered">
-          <div className="Form-group">
-            <input className="FormControl" name="identification" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
-              bidi={this.identification}
-              disabled={this.loading} />
-          </div>
-
-          <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={extractText(app.translator.trans('core.forum.log_in.password_placeholder'))}
-              bidi={this.password}
-              disabled={this.loading} />
-          </div>
-
-          <div className="Form-group">
-            <div>
-              <label className="checkbox">
-                <input type="checkbox" bidi={this.remember} disabled={this.loading} />
-                {app.translator.trans('core.forum.log_in.remember_me_label')}
-              </label>
-            </div>
-          </div>
-
-          <div className="Form-group">
-            {Button.component({
-              className: 'Button Button--primary Button--block',
-              type: 'submit',
-              loading: this.loading,
-              children: app.translator.trans('core.forum.log_in.submit_button')
-            })}
-          </div>
-        </div>
+        {this.body()}
       </div>,
       <div className="Modal-footer">
-        <p className="LogInModal-forgotPassword">
-          <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
-        </p>
-
-        {app.forum.attribute('allowSignUp') ? (
-          <p className="LogInModal-signUp">
-            {app.translator.trans('core.forum.log_in.sign_up_text', {a: <a onclick={this.signUp.bind(this)}/>})}
-          </p>
-        ) : ''}
+        {this.footer()}
       </div>
+    ];
+  }
+
+  body() {
+    return [
+      <LogInButtons/>,
+
+      <div className="Form Form--centered">
+        <div className="Form-group">
+          <input className="FormControl" name="identification" type="text" placeholder={extractText(app.translator.trans('core.forum.log_in.username_or_email_placeholder'))}
+            bidi={this.identification}
+            disabled={this.loading} />
+        </div>
+
+        <div className="Form-group">
+          <input className="FormControl" name="password" type="password" placeholder={extractText(app.translator.trans('core.forum.log_in.password_placeholder'))}
+            bidi={this.password}
+            disabled={this.loading} />
+        </div>
+
+        <div className="Form-group">
+          <div>
+            <label className="checkbox">
+              <input type="checkbox" bidi={this.remember} disabled={this.loading} />
+              {app.translator.trans('core.forum.log_in.remember_me_label')}
+            </label>
+          </div>
+        </div>
+
+        <div className="Form-group">
+          {Button.component({
+            className: 'Button Button--primary Button--block',
+            type: 'submit',
+            loading: this.loading,
+            children: app.translator.trans('core.forum.log_in.submit_button')
+          })}
+        </div>
+      </div>
+    ];
+  }
+
+  footer() {
+    return [
+      <p className="LogInModal-forgotPassword">
+        <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
+      </p>,
+
+      app.forum.attribute('allowSignUp') ? (
+        <p className="LogInModal-signUp">
+          {app.translator.trans('core.forum.log_in.sign_up_text', {a: <a onclick={this.signUp.bind(this)}/>})}
+        </p>
+      ) : ''
     ];
   }
 
