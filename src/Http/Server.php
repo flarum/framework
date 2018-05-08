@@ -118,7 +118,7 @@ class Server
         // (Right now it tries to resolve a database connection because of the injected settings repo instance)
         // We could register a different settings repo when Flarum is not installed
         //$pipe->pipe($this->app->make(HandleErrors::class, ['debug' => true]));
-        $pipe->pipe($this->app->make(StartSession::class));
+        //$pipe->pipe($this->app->make(StartSession::class));
         $pipe->pipe($this->app->make(DispatchRoute::class, ['routes' => $this->app->make('flarum.install.routes')]));
 
         return $pipe;
