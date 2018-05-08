@@ -36,6 +36,6 @@ class Sending
     public function __construct(BlueprintInterface $blueprint, array &$users)
     {
         $this->blueprint = $blueprint;
-        $this->users = $users;
+        $this->users = &$users;
     }
 }
