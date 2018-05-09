@@ -8,6 +8,6 @@ import icon from 'flarum/helpers/icon';
  */
 export default function userOnline(user) {
     if (user.lastSeenTime() && user.isOnline()) {
-        return <span className="UserOnline">{icon('fa fa-circle')}</span>;
+        return <span className="UserOnline">{icon('fas fa-circle')}</span>;
     }
 }

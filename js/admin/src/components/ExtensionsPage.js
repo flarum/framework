@@ -17,7 +17,7 @@ export default class ExtensionsPage extends Page {
           <div className="container">
             {Button.component({
               children: app.translator.trans('core.admin.extensions.add_button'),
-              icon: 'fa fa-plus',
+              icon: 'fas fa-plus',
               className: 'Button Button--primary',
               onclick: () => app.modal.show(new AddExtensionModal())
             })}
@@ -42,7 +42,7 @@ export default class ExtensionsPage extends Page {
                           className="ExtensionListItem-controls"
                           buttonClassName="Button Button--icon Button--flat"
                           menuClassName="Dropdown-menu--right"
-                          icon="fa fa-ellipsis-h">
+                          icon="fas fa-ellipsis-h">
                           {controls}
                         </Dropdown>
                       ) : ''}
@@ -67,7 +67,7 @@ export default class ExtensionsPage extends Page {
 
     if (app.extensionSettings[name]) {
       items.add('settings', Button.component({
-        icon: 'fa fa-cog',
+        icon: 'fas fa-cog',
         children: app.translator.trans('core.admin.extensions.settings_button'),
         onclick: app.extensionSettings[name]
       }));

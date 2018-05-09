@@ -92,7 +92,7 @@ export default class Search extends Component {
           {this.loadingSources
             ? LoadingIndicator.component({size: 'tiny', className: 'Button Button--icon Button--link'})
             : currentSearch
-              ? <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>{icon('fa fa-times-circle')}</button>
+              ? <button className="Search-clear Button Button--icon Button--link" onclick={this.clear.bind(this)}>{icon('fas fa-times-circle')}</button>
               : ''}
         </div>
         <ul className="Dropdown-menu Search-results">
