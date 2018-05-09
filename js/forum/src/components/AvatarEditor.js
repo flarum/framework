@@ -53,7 +53,7 @@ export default class AvatarEditor extends Component {
           ondragleave={this.disableDragover.bind(this)}
           ondragend={this.disableDragover.bind(this)}
           ondrop={this.dropUpload.bind(this)}>
-          {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('fa fa-pencil-alt') : icon('fa fa-plus-circle'))}
+          {this.loading ? LoadingIndicator.component() : (user.avatarUrl() ? icon('fas fa-pencil-alt') : icon('fas fa-plus-circle'))}
         </a>
         <ul className="Dropdown-menu Menu">
           {listItems(this.controlItems().toArray())}
@@ -72,7 +72,7 @@ export default class AvatarEditor extends Component {
 
     items.add('upload',
       Button.component({
-        icon: 'fa fa-upload',
+        icon: 'fas fa-upload',
         children: app.translator.trans('core.forum.user.avatar_upload_button'),
         onclick: this.openPicker.bind(this)
       })
@@ -80,7 +80,7 @@ export default class AvatarEditor extends Component {
 
     items.add('remove',
       Button.component({
-        icon: 'fa fa-times',
+        icon: 'fas fa-times',
         children: app.translator.trans('core.forum.user.avatar_remove_button'),
         onclick: this.remove.bind(this)
       })
