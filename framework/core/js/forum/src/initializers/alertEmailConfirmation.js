@@ -24,7 +24,7 @@ export default function alertEmailConfirmation(app) {
         url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/send-confirmation',
       }).then(() => {
         resendButton.props.loading = false;
-        resendButton.props.children = [icon('fa fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
+        resendButton.props.children = [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')];
         resendButton.props.disabled = true;
         m.redraw();
       }).catch(() => {

@@ -21,7 +21,7 @@ export default class WelcomeHero extends Component {
       <header className="Hero WelcomeHero">
         <div class="container">
           {Button.component({
-            icon: 'fa fa-times',
+            icon: 'fas fa-times',
             onclick: slideUp,
             className: 'Hero-close Button Button--icon Button--link'
           })}
