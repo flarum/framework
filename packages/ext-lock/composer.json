@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Lock",
             "icon": {
-                "name": "fa fa-lock",
+                "name": "fas fa-lock",
                 "backgroundColor": "#ddd",
                 "color": "#666"
             }

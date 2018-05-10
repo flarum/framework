@@ -2,7 +2,7 @@ import Notification from 'flarum/components/Notification';
 
 export default class DiscussionLockedNotification extends Notification {
   icon() {
-    return 'fa fa-lock';
+    return 'fas fa-lock';
   }
 
   href() {

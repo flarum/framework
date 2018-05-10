@@ -3,8 +3,8 @@ import EventPost from 'flarum/components/EventPost';
 export default class DiscussionLockedPost extends EventPost {
   icon() {
     return this.props.post.content().locked
-      ? 'fa fa-lock'
-      : 'fa fa-unlock';
+      ? 'fas fa-lock'
+      : 'fas fa-unlock';
   }
 
   descriptionKey() {
