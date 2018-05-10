@@ -16,31 +16,31 @@ use Flarum\Foundation\Site;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
+use Flarum\Http\Response\FinalHandler;
 use Flarum\Install\InstallServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Server as DiactorosServer;
 use Zend\Stratigility\MiddlewarePipe;
-use Zend\Stratigility\NoopFinalHandler;
 use function Zend\Stratigility\path;
 
 class Server
 {
     /**
-     * @param Site $site
-     * @return Server
+     * @var Application
      */
-    public static function fromSite(Site $site)
-    {
-        return new static($site->boot());
-    }
+    protected $app;
 
     public function __construct(Application $app)
     {
         $this->app = $app;
+    }
+
+    public static function fromSite(Site $site): self
+    {
+        return new static($site->boot());
     }
 
     public function listen()
@@ -52,7 +52,7 @@ class Server
             $_POST,
             $_COOKIE,
             $_FILES
-        )->listen(new NoopFinalHandler());
+        )->listen(new FinalHandler());
     }
 
     /**
@@ -67,14 +67,10 @@ class Server
     {
         $middleware = $this->getMiddleware($request->getUri()->getPath());
 
-        return $middleware($request, $response, $out);
+        return $middleware->process($request, $response, $out);
     }
 
-    /**
-     * @param string $requestPath
-     * @return MiddlewareInterface
-     */
-    protected function getMiddleware($requestPath)
+    protected function getMiddleware(string $requestPath): MiddlewarePipe
     {
         $pipe = new MiddlewarePipe;
 
@@ -105,12 +101,12 @@ class Server
         return $pipe;
     }
 
-    private function pathStartsWith($path, $prefix)
+    private function pathStartsWith(string $path, string $prefix): bool
     {
         return $path === $prefix || starts_with($path, "$prefix/");
     }
 
-    protected function getInstallerMiddleware(MiddlewarePipe $pipe)
+    protected function getInstallerMiddleware(MiddlewarePipe $pipe): MiddlewarePipe
     {
         $this->app->register(InstallServiceProvider::class);
 
@@ -124,7 +120,7 @@ class Server
         return $pipe;
     }
 
-    protected function getMaintenanceMiddleware(MiddlewarePipe $pipe)
+    protected function getMaintenanceMiddleware(MiddlewarePipe $pipe): MiddlewarePipe
     {
         $pipe->pipe(function () {
             return new HtmlResponse(file_get_contents($this->getErrorDir().'/503.html', 503));
@@ -135,7 +131,7 @@ class Server
         return $pipe;
     }
 
-    protected function getUpdaterMiddleware(MiddlewarePipe $pipe)
+    protected function getUpdaterMiddleware(MiddlewarePipe $pipe): MiddlewarePipe
     {
         $this->app->register(UpdateServiceProvider::class);
 
@@ -146,7 +142,7 @@ class Server
         return $pipe;
     }
 
-    private function getErrorDir()
+    private function getErrorDir(): string
     {
         return __DIR__.'/../../error';
     }
