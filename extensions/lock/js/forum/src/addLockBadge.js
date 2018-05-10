@@ -8,7 +8,7 @@ export default function addLockBadge() {
       badges.add('locked', Badge.component({
         type: 'locked',
         label: app.translator.trans('flarum-lock.forum.badge.locked_tooltip'),
-        icon: 'fa fa-lock'
+        icon: 'fas fa-lock'
       }));
     }
   });

@@ -22,7 +22,7 @@ app.initializers.add('flarum-lock', () => {
   extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
     items.add('discussionLocked', {
       name: 'discussionLocked',
-      icon: 'fa fa-lock',
+      icon: 'fas fa-lock',
       label: app.translator.trans('flarum-lock.forum.settings.notify_discussion_locked_label')
     });
   });
