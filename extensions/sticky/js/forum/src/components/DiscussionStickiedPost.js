@@ -2,7 +2,7 @@ import EventPost from 'flarum/components/EventPost';
 
 export default class DiscussionStickiedPost extends EventPost {
   icon() {
-    return 'fa fa-thumbtack';
+    return 'fas fa-thumbtack';
   }
 
   descriptionKey() {

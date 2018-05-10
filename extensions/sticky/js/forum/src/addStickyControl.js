@@ -8,7 +8,7 @@ export default function addStickyControl() {
     if (discussion.canSticky()) {
       items.add('sticky', Button.component({
         children: app.translator.trans(discussion.isSticky() ? 'flarum-sticky.forum.discussion_controls.unsticky_button' : 'flarum-sticky.forum.discussion_controls.sticky_button'),
-        icon: 'fa fa-thumbtack',
+        icon: 'fas fa-thumbtack',
         onclick: this.stickyAction.bind(discussion)
       }));
     }
