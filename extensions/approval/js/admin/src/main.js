@@ -14,7 +14,7 @@ app.initializers.add('approval', () => {
 
   extend(PermissionGrid.prototype, 'startItems', items => {
     items.add('startDiscussionsWithoutApproval', {
-      icon: 'fa fa-check',
+      icon: 'fas fa-check',
       label: app.translator.trans('flarum-approval.admin.permissions.start_discussions_without_approval_label'),
       permission: 'discussion.startWithoutApproval'
     }, 95);
@@ -22,7 +22,7 @@ app.initializers.add('approval', () => {
 
   extend(PermissionGrid.prototype, 'replyItems', items => {
     items.add('replyWithoutApproval', {
-      icon: 'fa fa-check',
+      icon: 'fas fa-check',
       label: app.translator.trans('flarum-approval.admin.permissions.reply_without_approval_label'),
       permission: 'discussion.replyWithoutApproval'
     }, 95);
@@ -30,7 +30,7 @@ app.initializers.add('approval', () => {
 
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('approvePosts', {
-      icon: 'fa fa-check',
+      icon: 'fas fa-check',
       label: app.translator.trans('flarum-approval.admin.permissions.approve_posts_label'),
       permission: 'discussion.approvePosts'
     }, 65);
