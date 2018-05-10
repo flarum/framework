@@ -24,7 +24,7 @@
         "flarum-extension": {
             "title": "BBCode",
             "icon": {
-                "name": "fa fa-bold",
+                "name": "fas fa-bold",
                 "backgroundColor": "#238C59",
                 "color": "#fff"
             }
