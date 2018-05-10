@@ -16,7 +16,7 @@ export default class SubscriptionMenu extends Dropdown {
       },
       {
         subscription: 'follow',
-        icon: 'fa fa-star',
+        icon: 'fas fa-star',
         label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
         description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text')
       },
@@ -40,7 +40,7 @@ export default class SubscriptionMenu extends Dropdown {
     switch (subscription) {
       case 'follow':
         buttonLabel = app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button');
-        buttonIcon = 'fa fa-star';
+        buttonIcon = 'fas fa-star';
         break;
 
       case 'ignore':
@@ -85,7 +85,7 @@ export default class SubscriptionMenu extends Dropdown {
         {Button.component(buttonProps)}
 
         <button className={'Dropdown-toggle Button Button--icon ' + buttonClass} data-toggle="dropdown">
-          {icon('fa fa-caret-down', {className: 'Button-icon'})}
+          {icon('fas fa-caret-down', {className: 'Button-icon'})}
         </button>
 
         <ul className="Dropdown-menu dropdown-menu Dropdown-menu--right">
