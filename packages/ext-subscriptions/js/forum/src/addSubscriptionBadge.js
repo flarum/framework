@@ -10,7 +10,7 @@ export default function addSubscriptionBadge() {
       case 'follow':
         badge = Badge.component({
           label: app.translator.trans('flarum-subscriptions.forum.badge.following_tooltip'),
-          icon: 'fa fa-star',
+          icon: 'fas fa-star',
           type: 'following'
         });
         break;

@@ -13,7 +13,7 @@ export default function addSubscriptionFilter() {
       items.add('following', LinkButton.component({
         href: app.route('index.filter', params),
         children: app.translator.trans('flarum-subscriptions.forum.index.following_link'),
-        icon: 'fa fa-star'
+        icon: 'fas fa-star'
       }), 50);
     }
   });

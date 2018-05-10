@@ -24,7 +24,7 @@ app.initializers.add('subscriptions', function() {
   extend(NotificationGrid.prototype, 'notificationTypes', function(items) {
     items.add('newPost', {
       name: 'newPost',
-      icon: 'fa fa-star',
+      icon: 'fas fa-star',
       label: app.translator.trans('flarum-subscriptions.forum.settings.notify_new_post_label')
     });
   });
