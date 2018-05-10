@@ -14,7 +14,7 @@ app.initializers.add('flarum-approval', () => {
 
   extend(Discussion.prototype, 'badges', function(items) {
     if (!this.isApproved() && !items.has('hidden')) {
-      items.add('awaitingApproval', <Badge type="awaitingApproval" icon="fa fa-gavel" label={app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip')}/>);
+      items.add('awaitingApproval', <Badge type="awaitingApproval" icon="fas fa-gavel" label={app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip')}/>);
     }
   });
 
@@ -50,7 +50,7 @@ app.initializers.add('flarum-approval', () => {
   extend(PostControls, 'destructiveControls', function(items, post) {
     if (!post.isApproved() && post.canApprove()) {
       items.add('approve',
-        <Button icon="fa fa-check" onclick={PostControls.approveAction.bind(post)}>
+        <Button icon="fas fa-check" onclick={PostControls.approveAction.bind(post)}>
           {app.translator.trans('flarum-approval.forum.post_controls.approve_button')}
         </Button>,
         10
