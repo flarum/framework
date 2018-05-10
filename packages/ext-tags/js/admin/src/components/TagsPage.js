@@ -14,7 +14,7 @@ function tagItem(tag) {
         <span className="TagListItem-name">{tag.name()}</span>
         {Button.component({
           className: 'Button Button--link',
-          icon: 'fa fa-pencil-alt',
+          icon: 'fas fa-pencil-alt',
           onclick: () => app.modal.show(new EditTagModal({tag}))
         })}
       </div>
@@ -40,7 +40,7 @@ export default class TagsPage extends Page {
             </p>
             {Button.component({
               className: 'Button Button--primary',
-              icon: 'fa fa-plus',
+              icon: 'fas fa-plus',
               children: app.translator.trans('flarum-tags.admin.tags.create_tag_button'),
               onclick: () => app.modal.show(new EditTagModal())
             })}
