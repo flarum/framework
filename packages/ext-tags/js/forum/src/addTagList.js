@@ -12,7 +12,7 @@ export default function() {
   // to the index page's sidebar.
   extend(IndexPage.prototype, 'navItems', function(items) {
     items.add('tags', LinkButton.component({
-      icon: 'fa fa-th-large',
+      icon: 'fas fa-th-large',
       children: app.translator.trans('flarum-tags.forum.index.tags_link'),
       href: app.route('tags')
     }), -10);

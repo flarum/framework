@@ -12,7 +12,7 @@ export default class TagsPage extends Component {
     this.tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
 
     app.current = this;
-    app.history.push('tags', icon('fa fa-th-large'));
+    app.history.push('tags', icon('fas fa-th-large'));
     app.drawer.hide();
     app.modal.close();
   }
