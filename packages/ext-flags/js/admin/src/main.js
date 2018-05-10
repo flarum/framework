@@ -9,7 +9,7 @@ app.initializers.add('flarum-flags', () => {
 
   extend(PermissionGrid.prototype, 'moderateItems', items => {
     items.add('viewFlags', {
-      icon: 'fa fa-flag',
+      icon: 'fas fa-flag',
       label: app.translator.trans('flarum-flags.admin.permissions.view_flags_label'),
       permission: 'discussion.viewFlags'
     }, 65);
@@ -17,7 +17,7 @@ app.initializers.add('flarum-flags', () => {
 
   extend(PermissionGrid.prototype, 'replyItems', items => {
     items.add('flagPosts', {
-      icon: 'fa fa-flag',
+      icon: 'fas fa-flag',
       label: app.translator.trans('flarum-flags.admin.permissions.flag_posts_label'),
       permission: 'discussion.flagPosts'
     }, 70);
