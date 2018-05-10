@@ -8,7 +8,7 @@ export default function addStickyBadge() {
       badges.add('sticky', Badge.component({
         type: 'sticky',
         label: app.translator.trans('flarum-sticky.forum.badge.sticky_tooltip'),
-        icon: 'fa fa-thumbtack'
+        icon: 'fas fa-thumbtack'
       }), 10);
     }
   });
