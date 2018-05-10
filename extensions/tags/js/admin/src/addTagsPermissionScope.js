@@ -52,7 +52,7 @@ export default function() {
         className: 'Dropdown--restrictByTag',
         buttonClassName: 'Button Button--text',
         label: app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
-        icon: 'fa fa-plus',
+        icon: 'fas fa-plus',
         caretIcon: null,
         children: tags.map(tag => Button.component({
           icon: true,
