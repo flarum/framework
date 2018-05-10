@@ -4,7 +4,7 @@ import punctuateSeries from 'flarum/helpers/punctuateSeries';
 
 export default class PostMentionedNotification extends Notification {
   icon() {
-    return 'fa fa-reply';
+    return 'fas fa-reply';
   }
 
   href() {
