@@ -19,7 +19,7 @@ export default class DiscussionTaggedPost extends EventPost {
   }
 
   icon() {
-    return 'fa fa-tag';
+    return 'fas fa-tag';
   }
 
   descriptionKey() {
