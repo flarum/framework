@@ -29,7 +29,7 @@
         "flarum-extension": {
             "title": "Mentions",
             "icon": {
-                "name": "fa fa-at",
+                "name": "fas fa-at",
                 "backgroundColor": "#539EC1",
                 "color": "#fff"
             }
