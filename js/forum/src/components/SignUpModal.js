@@ -1,9 +1,9 @@
 import Modal from 'flarum/components/Modal';
 import LogInModal from 'flarum/components/LogInModal';
-import avatar from 'flarum/helpers/avatar';
 import Button from 'flarum/components/Button';
 import LogInButtons from 'flarum/components/LogInButtons';
 import extractText from 'flarum/utils/extractText';
+import ItemList from 'flarum/utils/ItemList';
 
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.
@@ -69,39 +69,47 @@ export default class SignUpModal extends Modal {
       this.props.token ? '' : <LogInButtons/>,
 
       <div className="Form Form--centered">
-        <div className="Form-group">
-          <input className="FormControl" name="username" type="text" placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
-            value={this.username()}
-            onchange={m.withAttr('value', this.username)}
-            disabled={this.loading || this.isProvided('username')} />
-        </div>
-
-        <div className="Form-group">
-          <input className="FormControl" name="email" type="email" placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
-            value={this.email()}
-            onchange={m.withAttr('value', this.email)}
-            disabled={this.loading || this.isProvided('email')} />
-        </div>
-
-        {this.props.token ? '' : (
-          <div className="Form-group">
-            <input className="FormControl" name="password" type="password" placeholder={extractText(app.translator.trans('core.forum.sign_up.password_placeholder'))}
-              value={this.password()}
-              onchange={m.withAttr('value', this.password)}
-              disabled={this.loading} />
-          </div>
-        )}
-
-        <div className="Form-group">
-          <Button
-            className="Button Button--primary Button--block"
-            type="submit"
-            loading={this.loading}>
-            {app.translator.trans('core.forum.sign_up.submit_button')}
-          </Button>
-        </div>
+        {this.fields().toArray()}
       </div>
     ];
+  }
+
+  fields() {
+    const items = new ItemList();
+
+    items.add('username', <div className="Form-group">
+      <input className="FormControl" name="username" type="text" placeholder={extractText(app.translator.trans('core.forum.sign_up.username_placeholder'))}
+        value={this.username()}
+        onchange={m.withAttr('value', this.username)}
+        disabled={this.loading || this.isProvided('username')} />
+    </div>, 30);
+
+    items.add('email', <div className="Form-group">
+      <input className="FormControl" name="email" type="email" placeholder={extractText(app.translator.trans('core.forum.sign_up.email_placeholder'))}
+        value={this.email()}
+        onchange={m.withAttr('value', this.email)}
+        disabled={this.loading || this.isProvided('email')} />
+    </div>, 20);
+
+    if (!this.props.token) {
+      items.add('password', <div className="Form-group">
+        <input className="FormControl" name="password" type="password" placeholder={extractText(app.translator.trans('core.forum.sign_up.password_placeholder'))}
+          value={this.password()}
+          onchange={m.withAttr('value', this.password)}
+          disabled={this.loading} />
+      </div>, 10);
+    }
+
+    items.add('submit', <div className="Form-group">
+      <Button
+        className="Button Button--primary Button--block"
+        type="submit"
+        loading={this.loading}>
+        {app.translator.trans('core.forum.sign_up.submit_button')}
+      </Button>
+    </div>, -10);
+
+    return items;
   }
 
   footer() {
