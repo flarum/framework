@@ -28,7 +28,7 @@ export default class SplitDropdown extends Dropdown {
         className={'Dropdown-toggle Button Button--icon ' + this.props.buttonClassName}
         data-toggle="dropdown">
         {icon(this.props.icon, {className: 'Button-icon'})}
-        {icon('fa fa-caret-down', {className: 'Button-caret'})}
+        {icon('fas fa-caret-down', {className: 'Button-caret'})}
       </button>
     ];
   }
