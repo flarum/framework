@@ -27,6 +27,7 @@ return [
         $events->subscribe(Listener\AddUserSuspendAttributes::class);
         $events->subscribe(Listener\RevokeAccessFromSuspendedUsers::class);
         $events->subscribe(Listener\SaveSuspensionToDatabase::class);
+        $events->subscribe(Listener\SendNotificationWhenUserIsSuspended::class);
 
         $events->subscribe(Access\UserPolicy::class);
     }
