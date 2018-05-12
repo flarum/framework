@@ -7,8 +7,13 @@ import Model from 'flarum/Model';
 import User from 'flarum/models/User';
 
 import SuspendUserModal from 'flarum/suspend/components/SuspendUserModal';
+import UserSuspendedNotification from 'flarum/suspend/components/UserSuspendedNotification';
+import UserUnsuspendedNotification from 'flarum/suspend/components/UserUnsuspendedNotification';
 
 app.initializers.add('flarum-suspend', () => {
+  app.notificationComponents.userSuspended = UserSuspendedNotification;
+  app.notificationComponents.userUnsuspended = UserUnsuspendedNotification;
+
   User.prototype.canSuspend = Model.attribute('canSuspend');
   User.prototype.suspendUntil = Model.attribute('suspendUntil', Model.transformDate);
 
