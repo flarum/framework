@@ -16,11 +16,8 @@ use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Suspend\Event\Suspended;
 use Flarum\Suspend\Event\Unsuspended;
-use Flarum\Suspend\Event\UserWasSuspended;
-use Flarum\Suspend\Event\UserWasUnsuspended;
 use Flarum\Suspend\Notification\UserSuspendedBlueprint;
 use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
-use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SendNotificationWhenUserIsSuspended
