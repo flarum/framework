@@ -73,7 +73,7 @@ core:
       delete_button: Delete Group
       delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
       icon_label: Icon
-      icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>without</em> the <code>fa-</code> prefix."
+      icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
       name_label: Name
       plural_placeholder: Plural (e.g. Mods)
       singular_placeholder: Singular (e.g. Mod)
