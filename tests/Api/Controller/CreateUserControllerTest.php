@@ -74,7 +74,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
 
-        $this->assertEquals(1, $user->is_activated);
+        $this->assertEquals(1, $user->is_email_confirmed);
     }
 
     /**
