@@ -11,6 +11,7 @@
 
 namespace Flarum\User;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 
 /**
@@ -54,7 +55,7 @@ class PasswordToken extends AbstractModel
 
         $token->token = str_random(40);
         $token->user_id = $userId;
-        $token->created_at = time();
+        $token->created_at = Carbon::now();
 
         return $token;
     }

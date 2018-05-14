@@ -11,6 +11,7 @@
 
 namespace Flarum\Notification;
 
+use Carbon\Carbon;
 use Flarum\User\User;
 
 class NotificationRepository
@@ -53,6 +54,6 @@ class NotificationRepository
      */
     public function markAllAsRead(User $user)
     {
-        Notification::where('user_id', $user->id)->update(['read_at' => time()]);
+        Notification::where('user_id', $user->id)->update(['read_at' => Carbon::now()]);
     }
 }

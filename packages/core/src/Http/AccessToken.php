@@ -11,6 +11,7 @@
 
 namespace Flarum\Http;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 
 /**
@@ -47,7 +48,7 @@ class AccessToken extends AbstractModel
 
         $token->id = str_random(40);
         $token->user_id = $userId;
-        $token->last_activity = time();
+        $token->last_activity = Carbon::now();
         $token->lifetime = $lifetime;
 
         return $token;
@@ -55,7 +56,7 @@ class AccessToken extends AbstractModel
 
     public function touch()
     {
-        $this->last_activity = time();
+        $this->last_activity = Carbon::now();
 
         return $this->save();
     }

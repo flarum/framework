@@ -176,7 +176,7 @@ class Discussion extends AbstractModel
     public function hide(User $actor = null)
     {
         if (! $this->hidden_at) {
-            $this->hidden_at = time();
+            $this->hidden_at = Carbon::now();
             $this->hidden_user_id = $actor ? $actor->id : null;
 
             $this->raise(new Hidden($this));
