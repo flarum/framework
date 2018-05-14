@@ -14,16 +14,17 @@ namespace Flarum\Api\Serializer;
 class CurrentUserSerializer extends UserSerializer
 {
     /**
-     * {@inheritdoc}
+     * @param \Flarum\User\User $user
+     * @return array
      */
     protected function getDefaultAttributes($user)
     {
         $attributes = parent::getDefaultAttributes($user);
 
         $attributes += [
-            'isActivated'              => (bool) $user->is_activated,
+            'isActivated'              => (bool) $user->is_email_confirmed,
             'email'                    => $user->email,
-            'readTime'                 => $this->formatDate($user->read_time),
+            'readTime'                 => $this->formatDate($user->read_notifications_at),
             'unreadNotificationsCount' => (int) $user->getUnreadNotificationsCount(),
             'newNotificationsCount'    => (int) $user->getNewNotificationsCount(),
             'preferences'              => (array) $user->preferences

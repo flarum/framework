@@ -11,6 +11,7 @@
 
 namespace Flarum\User;
 
+use Carbon\Carbon;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
@@ -166,7 +167,7 @@ class User extends AbstractModel
         $user->username = $username;
         $user->email = $email;
         $user->password = $password;
-        $user->joined_at = time();
+        $user->joined_at = Carbon::now();
 
         $user->raise(new Registered($user));
 
@@ -270,7 +271,7 @@ class User extends AbstractModel
      */
     public function markAllAsRead()
     {
-        $this->marked_all_as_read_at = time();
+        $this->marked_all_as_read_at = Carbon::now();
 
         return $this;
     }
@@ -282,7 +283,7 @@ class User extends AbstractModel
      */
     public function markNotificationsAsRead()
     {
-        $this->read_notifications_at = time();
+        $this->read_notifications_at = Carbon::now();
 
         return $this;
     }
@@ -469,7 +470,7 @@ class User extends AbstractModel
     public function getNewNotificationsCount()
     {
         return $this->getUnreadNotifications()->filter(function ($notification) {
-            return $notification->time > $this->read_notifications_at ?: 0;
+            return $notification->created_at > $this->read_notifications_at ?: 0;
         })->count();
     }
 
@@ -568,7 +569,7 @@ class User extends AbstractModel
      */
     public function updateLastSeen()
     {
-        $this->last_seen_at = time();
+        $this->last_seen_at = Carbon::now();
 
         return $this;
     }

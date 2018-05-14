@@ -11,6 +11,7 @@
 
 namespace Flarum\Discussion;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Event\UserRead;
 use Flarum\Foundation\EventGeneratorTrait;
@@ -56,7 +57,7 @@ class UserState extends AbstractModel
     {
         if ($number > $this->last_read_at) {
             $this->last_read_at = $number;
-            $this->last_read_at = time();
+            $this->last_read_at = Carbon::now();
 
             $this->raise(new UserRead($this));
         }

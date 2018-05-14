@@ -11,7 +11,7 @@
 
 namespace Flarum\Post\Command;
 
-use DateTime;
+use Carbon\Carbon;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Notification\NotificationSyncer;
@@ -77,7 +77,7 @@ class PostReplyHandler
 
         // If this is the first post in the discussion, it's technically not a
         // "reply", so we won't check for that permission.
-        if ($discussion->number_index > 0) {
+        if ($discussion->post_number_index > 0) {
             $this->assertCan($actor, 'reply', $discussion);
         }
 
@@ -92,7 +92,7 @@ class PostReplyHandler
         );
 
         if ($actor->isAdmin() && ($time = array_get($command->data, 'attributes.time'))) {
-            $post->time = new DateTime($time);
+            $post->created_at = new Carbon($time);
         }
 
         $this->events->dispatch(

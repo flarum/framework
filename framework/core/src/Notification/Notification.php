@@ -11,6 +11,7 @@
 
 namespace Flarum\Notification;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
@@ -70,7 +71,7 @@ class Notification extends AbstractModel
      */
     public function read()
     {
-        $this->read_at = time();
+        $this->read_at = Carbon::now();
     }
 
     /**

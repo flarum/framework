@@ -57,7 +57,7 @@ class AuthToken extends AbstractModel
 
         $token->token = str_random(40);
         $token->payload = $payload;
-        $token->created_at = time();
+        $token->created_at = Carbon::now();
 
         return $token;
     }

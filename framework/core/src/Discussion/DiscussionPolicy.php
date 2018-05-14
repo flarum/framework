@@ -92,7 +92,7 @@ class DiscussionPolicy extends AbstractPolicy
         // user, or the current user has permission to view hidden discussions.
         if (! $actor->hasPermission('discussion.hide')) {
             $query->where(function ($query) use ($actor) {
-                $query->whereNull('discussions.hide_time')
+                $query->whereNull('discussions.hidden_at')
                     ->orWhere('user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
                         $this->events->fire(
