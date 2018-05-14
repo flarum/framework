@@ -11,6 +11,7 @@
 
 namespace Flarum\Discussion;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Event\Deleted;
@@ -138,7 +139,7 @@ class Discussion extends AbstractModel
         $discussion = new static;
 
         $discussion->title = $title;
-        $discussion->created_at = time();
+        $discussion->created_at = Carbon::now();
         $discussion->user_id = $user->id;
 
         $discussion->setRelation('startUser', $user);
@@ -209,7 +210,7 @@ class Discussion extends AbstractModel
      */
     public function setStartPost(Post $post)
     {
-        $this->created_at = $post->time;
+        $this->created_at = $post->created_at;
         $this->user_id = $post->user_id;
         $this->first_post_id = $post->id;
 
@@ -224,7 +225,7 @@ class Discussion extends AbstractModel
      */
     public function setLastPost(Post $post)
     {
-        $this->last_posted_at = $post->time;
+        $this->last_posted_at = $post->created_at;
         $this->last_posted_user_id = $post->user_id;
         $this->last_post_id = $post->id;
         $this->last_post_number = $post->number;
