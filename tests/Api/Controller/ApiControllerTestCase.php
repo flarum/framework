@@ -29,7 +29,7 @@ abstract class ApiControllerTestCase extends TestCase
      */
     protected $actor = null;
 
-    protected function callWith(array $body = []): ResponseInterface
+    protected function callWith(array $body = [], array $queryParams = []): ResponseInterface
     {
         if (!Arr::get($body, 'data') && Arr::isAssoc($body)) {
             $body = ['data' => ['attributes' => $body]];
@@ -38,7 +38,7 @@ abstract class ApiControllerTestCase extends TestCase
         return $this->call(
             $this->controller,
             $this->actor,
-            [],
+            $queryParams,
             $body
         );
     }
