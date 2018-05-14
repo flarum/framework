@@ -41,35 +41,35 @@ export default class AdminNav extends Component {
 
     items.add('basics', AdminLinkButton.component({
       href: app.route('basics'),
-      icon: 'fa fa-pencil-alt',
+      icon: 'fas fa-pencil-alt',
       children: app.translator.trans('core.admin.nav.basics_button'),
       description: app.translator.trans('core.admin.nav.basics_text')
     }));
 
     items.add('mail', AdminLinkButton.component({
       href: app.route('mail'),
-      icon: 'fa fa-envelope',
+      icon: 'fas fa-envelope',
       children: app.translator.trans('core.admin.nav.email_button'),
       description: app.translator.trans('core.admin.nav.email_text')
     }));
 
     items.add('permissions', AdminLinkButton.component({
       href: app.route('permissions'),
-      icon: 'fa fa-key',
+      icon: 'fas fa-key',
       children: app.translator.trans('core.admin.nav.permissions_button'),
       description: app.translator.trans('core.admin.nav.permissions_text')
     }));
 
     items.add('appearance', AdminLinkButton.component({
       href: app.route('appearance'),
-      icon: 'fa fa-paint-brush',
+      icon: 'fas fa-paint-brush',
       children: app.translator.trans('core.admin.nav.appearance_button'),
       description: app.translator.trans('core.admin.nav.appearance_text')
     }));
 
     items.add('extensions', AdminLinkButton.component({
       href: app.route('extensions'),
-      icon: 'fa fa-puzzle-piece',
+      icon: 'fas fa-puzzle-piece',
       children: app.translator.trans('core.admin.nav.extensions_button'),
       description: app.translator.trans('core.admin.nav.extensions_text')
     }));

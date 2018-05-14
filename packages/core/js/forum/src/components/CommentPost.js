@@ -142,7 +142,7 @@ export default class CommentPost extends Post {
       items.add('toggle', (
         Button.component({
           className: 'Button Button--default Button--more',
-          icon: 'fa fa-ellipsis-h',
+          icon: 'fas fa-ellipsis-h',
           onclick: this.toggleContent.bind(this)
         })
       ));

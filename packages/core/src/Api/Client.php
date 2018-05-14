@@ -16,6 +16,7 @@ use Flarum\Foundation\Application;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\User\User;
 use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\ServerRequestFactory;
 
 class Client
@@ -46,10 +47,10 @@ class Client
      * @param User|null $actor
      * @param array $queryParams
      * @param array $body
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      * @throws Exception
      */
-    public function send($controller, $actor, array $queryParams = [], array $body = [])
+    public function send($controller, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
     {
         $request = ServerRequestFactory::fromGlobals(null, $queryParams, $body);
 
