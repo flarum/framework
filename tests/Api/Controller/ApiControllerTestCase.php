@@ -31,7 +31,7 @@ abstract class ApiControllerTestCase extends TestCase
 
     protected function callWith(array $body = [], array $queryParams = []): ResponseInterface
     {
-        if (!Arr::get($body, 'data') && Arr::isAssoc($body)) {
+        if (! Arr::get($body, 'data') && Arr::isAssoc($body)) {
             $body = ['data' => ['attributes' => $body]];
         }
 
