@@ -129,7 +129,7 @@ class DiscussionPolicy extends AbstractPolicy
 
             if ($allowRenaming === '-1'
                 || ($allowRenaming === 'reply' && $discussion->participants_count <= 1)
-                || ($discussion->start_time->diffInMinutes(new Carbon) < $allowRenaming)) {
+                || ($discussion->start_time->diffInMinutes() < $allowRenaming)) {
                 return true;
             }
         }
