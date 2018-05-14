@@ -11,7 +11,6 @@
 
 namespace Flarum\Discussion;
 
-use Carbon\Carbon;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AbstractPolicy;
