@@ -16,7 +16,10 @@ use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 
 /**
- * @todo document database columns with @property
+ * @property string $token
+ * @property int $user_id
+ * @property \Carbon\Carbon $created_at
+ * @property string $email
  */
 class EmailToken extends AbstractModel
 {
@@ -49,7 +52,7 @@ class EmailToken extends AbstractModel
     {
         $token = new static;
 
-        $token->id = str_random(40);
+        $token->token = str_random(40);
         $token->user_id = $userId;
         $token->email = $email;
         $token->created_at = time();

@@ -50,6 +50,6 @@ class Floodgate
             new CheckingForFlooding($actor)
         );
 
-        return $isFlooding ?? Post::where('user_id', $actor->id)->where('time', '>=', new DateTime('-10 seconds'))->exists();
+        return $isFlooding ?? Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists();
     }
 }
