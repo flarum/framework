@@ -14,6 +14,7 @@ namespace Flarum\Tests\Api\Controller;
 use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Tests\Test\TestCase;
 use Flarum\User\User;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class ApiControllerTestCase extends TestCase
@@ -28,13 +29,17 @@ abstract class ApiControllerTestCase extends TestCase
      */
     protected $actor = null;
 
-    protected function callWith(array $body = []): ResponseInterface
+    protected function callWith(array $body = [], array $queryParams = []): ResponseInterface
     {
+        if (! Arr::get($body, 'data') && Arr::isAssoc($body)) {
+            $body = ['data' => ['attributes' => $body]];
+        }
+
         return $this->call(
             $this->controller,
             $this->actor,
-            [],
-            $body ? ['data' => ['attributes' => $body]] : []
+            $queryParams,
+            $body
         );
     }
 
