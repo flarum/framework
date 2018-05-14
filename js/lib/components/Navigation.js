@@ -52,7 +52,7 @@ export default class Navigation extends Component {
     return LinkButton.component({
       className: 'Button Navigation-back Button--icon',
       href: history.backUrl(),
-      icon: 'fa fa-chevron-left',
+      icon: 'fas fa-chevron-left',
       title: previous.title,
       config: () => {},
       onclick: e => {
@@ -77,7 +77,7 @@ export default class Navigation extends Component {
     return Button.component({
       className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
       onclick: pane.togglePinned.bind(pane),
-      icon: 'fa fa-thumbtack'
+      icon: 'fas fa-thumbtack'
     });
   }
 
@@ -100,7 +100,7 @@ export default class Navigation extends Component {
         e.stopPropagation();
         drawer.show();
       },
-      icon: 'fa fa-bars'
+      icon: 'fas fa-bars'
     });
   }
 }

@@ -11,7 +11,7 @@ import extractText from 'flarum/utils/extractText';
  */
 export default class DiscussionRenamedPost extends EventPost {
   icon() {
-    return 'fa fa-pencil-alt';
+    return 'fas fa-pencil-alt';
   }
 
   description(data) {
