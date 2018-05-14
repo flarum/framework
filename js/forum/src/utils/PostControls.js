@@ -59,7 +59,7 @@ export default {
     if (post.contentType() === 'comment' && post.canEdit()) {
       if (!post.isHidden()) {
         items.add('edit', Button.component({
-          icon: 'fa fa-pencil-alt',
+          icon: 'fas fa-pencil-alt',
           children: app.translator.trans('core.forum.post_controls.edit_button'),
           onclick: this.editAction.bind(post)
         }));
@@ -92,14 +92,14 @@ export default {
     } else {
       if (post.contentType() === 'comment' && post.canEdit()) {
         items.add('restore', Button.component({
-          icon: 'fa fa-reply',
+          icon: 'fas fa-reply',
           children: app.translator.trans('core.forum.post_controls.restore_button'),
           onclick: this.restoreAction.bind(post)
         }));
       }
       if (post.canDelete()) {
         items.add('delete', Button.component({
-          icon: 'fa fa-times',
+          icon: 'fas fa-times',
           children: app.translator.trans('core.forum.post_controls.delete_forever_button'),
           onclick: this.deleteAction.bind(post, context)
         }));
