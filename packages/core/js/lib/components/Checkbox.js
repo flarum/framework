@@ -52,7 +52,7 @@ export default class Checkbox extends Component {
   getDisplay() {
     return this.loading
       ? LoadingIndicator.component({size: 'tiny'})
-      : icon(this.props.state ? 'fa fa-check' : 'fa fa-times');
+      : icon(this.props.state ? 'fas fa-check' : 'fas fa-times');
   }
 
   /**

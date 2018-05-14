@@ -52,7 +52,7 @@ export default class EditPostComposer extends ComposerBody {
 
     items.add('title', (
       <h3>
-        {icon('fa fa-pencil-alt')} {' '}
+        {icon('fas fa-pencil-alt')} {' '}
         <a href={app.route.discussion(post.discussion(), post.number())} config={routeAndMinimize}>
           {app.translator.trans('core.forum.composer_edit.post_link', {number: post.number(), discussion: post.discussion().title()})}
         </a>

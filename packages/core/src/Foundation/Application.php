@@ -119,22 +119,20 @@ class Application extends Container implements ApplicationContract
      *
      * @return bool
      */
-    public function isInstalled()
+    public function isInstalled(): bool
     {
         return $this->bound('flarum.config');
     }
 
-    public function isUpToDate()
+    public function isUpToDate(): bool
     {
         $settings = $this->make(SettingsRepositoryInterface::class);
 
         try {
             $version = $settings->get('version');
         } finally {
-            $isUpToDate = isset($version) && $version === $this->version();
+            return isset($version) && $version === $this->version();
         }
-
-        return $isUpToDate;
     }
 
     /**
