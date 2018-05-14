@@ -50,8 +50,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * @property \Carbon\Carbon|null $last_seen_at
  * @property \Carbon\Carbon|null $marked_all_as_read_at
  * @property \Carbon\Carbon|null $read_notifications_at
- * @property int $discussions_count
- * @property int $comments_count
+ * @property int $discussion_count
+ * @property int $comment_count
  */
 class User extends AbstractModel
 {
