@@ -12,7 +12,6 @@
 namespace Flarum\User;
 
 use Carbon\Carbon;
-use DateTime;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 
