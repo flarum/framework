@@ -11,6 +11,7 @@
 
 namespace Flarum\User;
 
+use Carbon\Carbon;
 use DateTime;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
@@ -55,7 +56,7 @@ class EmailToken extends AbstractModel
         $token->token = str_random(40);
         $token->user_id = $userId;
         $token->email = $email;
-        $token->created_at = time();
+        $token->created_at = Carbon::now();
 
         return $token;
     }
@@ -80,9 +81,10 @@ class EmailToken extends AbstractModel
      */
     public function scopeValidOrFail($query, $id)
     {
+        /** @var EmailToken $token */
         $token = $query->find($id);
 
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
+        if (! $token || $token->created_at->diffInDays() >= 1) {
             throw new InvalidConfirmationTokenException;
         }
 

@@ -84,7 +84,7 @@ class CreatePostController extends AbstractCreateController
         }
 
         $discussion = $post->discussion;
-        $discussion->posts = $discussion->posts()->whereVisibleTo($actor)->orderBy('time')->pluck('id');
+        $discussion->posts = $discussion->posts()->whereVisibleTo($actor)->orderBy('created_at')->pluck('id');
 
         return $post;
     }

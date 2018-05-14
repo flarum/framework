@@ -11,6 +11,7 @@
 
 namespace Flarum\Http\Middleware;
 
+use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\User\AuthToken;
 use Flarum\User\EmailToken;
@@ -54,9 +55,11 @@ class CollectGarbage implements MiddlewareInterface
             return;
         }
 
-        AccessToken::whereRaw('last_activity <= ? - lifetime', [time()])->delete();
+        $time = Carbon::now()->timestamp;
 
-        $earliestToKeep = date('Y-m-d H:i:s', time() - 24 * 60 * 60);
+        AccessToken::whereRaw('last_activity <= ? - lifetime', [$time])->delete();
+
+        $earliestToKeep = date('Y-m-d H:i:s', $time - 24 * 60 * 60);
 
         EmailToken::where('created_at', '<=', $earliestToKeep)->delete();
         PasswordToken::where('created_at', '<=', $earliestToKeep)->delete();

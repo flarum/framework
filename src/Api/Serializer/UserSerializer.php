@@ -29,7 +29,8 @@ class UserSerializer extends BasicUserSerializer
     }
 
     /**
-     * {@inheritdoc}
+     * @param \Flarum\User\User $user
+     * @return array
      */
     protected function getDefaultAttributes($user)
     {
@@ -40,22 +41,22 @@ class UserSerializer extends BasicUserSerializer
         $canEdit = $gate->allows('edit', $user);
 
         $attributes += [
-            'joinTime'         => $this->formatDate($user->join_time),
-            'discussionsCount' => (int) $user->discussions_count,
-            'commentsCount'    => (int) $user->comments_count,
+            'joinTime'         => $this->formatDate($user->joined_at),
+            'discussionsCount' => (int) $user->discussion_count,
+            'commentsCount'    => (int) $user->comment_count,
             'canEdit'          => $canEdit,
             'canDelete'        => $gate->allows('delete', $user),
         ];
 
         if ($user->getPreference('discloseOnline')) {
             $attributes += [
-                'lastSeenTime' => $this->formatDate($user->last_seen_time)
+                'lastSeenTime' => $this->formatDate($user->last_seen_at)
             ];
         }
 
         if ($canEdit || $this->actor->id === $user->id) {
             $attributes += [
-                'isActivated' => (bool) $user->is_activated,
+                'isActivated' => (bool) $user->is_email_confirmed,
                 'email'       => $user->email
             ];
         }

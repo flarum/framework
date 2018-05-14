@@ -11,6 +11,7 @@
 
 namespace Flarum\Http;
 
+use Carbon\Carbon;
 use Dflydev\FigCookies\SetCookie;
 use Flarum\Foundation\Application;
 
@@ -79,7 +80,7 @@ class CookieFactory
         if ($maxAge) {
             $cookie = $cookie
                 ->withMaxAge($maxAge)
-                ->withExpires(time() + $maxAge);
+                ->withExpires(Carbon::now()->timestamp + $maxAge);
         }
 
         if ($this->domain != null) {
