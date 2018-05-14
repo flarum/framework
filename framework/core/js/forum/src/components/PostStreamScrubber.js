@@ -84,13 +84,13 @@ export default class PostStreamScrubber extends Component {
     return (
       <div className={'PostStreamScrubber Dropdown ' + (this.disabled() ? 'disabled ' : '') + (this.props.className || '')}>
         <button className="Button Dropdown-toggle" data-toggle="dropdown">
-          {viewing} {icon('fa fa-sort')}
+          {viewing} {icon('fas fa-sort')}
         </button>
 
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('fa fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
+              {icon('fas fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -110,7 +110,7 @@ export default class PostStreamScrubber extends Component {
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('fa fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
+              {icon('fas fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
             </a>
           </div>
         </div>

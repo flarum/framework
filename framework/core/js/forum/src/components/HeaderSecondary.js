@@ -46,7 +46,7 @@ export default class HeaderSecondary extends Component {
         locales.push(Button.component({
           active: app.data.locale === locale,
           children: app.data.locales[locale],
-          icon: app.data.locale === locale ? 'fa fa-check' : true,
+          icon: app.data.locale === locale ? 'fas fa-check' : true,
           onclick: () => {
             if (app.session.user) {
               app.session.user.savePreferences({locale}).then(() => window.location.reload());

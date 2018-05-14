@@ -51,7 +51,7 @@ export default class ReplyComposer extends ComposerBody {
 
     items.add('title', (
       <h3>
-        {icon('fa fa-reply')} {' '}
+        {icon('fas fa-reply')} {' '}
         <a href={app.route.discussion(discussion)} config={routeAndMinimize}>{discussion.title()}</a>
       </h3>
     ));
