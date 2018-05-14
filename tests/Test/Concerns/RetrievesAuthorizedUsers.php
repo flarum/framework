@@ -28,7 +28,7 @@ trait RetrievesAuthorizedUsers
 
     public function getNormalUser()
     {
-        User::unguarded(function () {
+        return User::unguarded(function () {
             return User::firstOrCreate([
                 'username' => $this->userAttributes['username']
             ], $this->userAttributes);
