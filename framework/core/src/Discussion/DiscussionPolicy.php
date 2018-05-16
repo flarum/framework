@@ -11,7 +11,6 @@
 
 namespace Flarum\Discussion;
 
-use Carbon\Carbon;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AbstractPolicy;
@@ -129,7 +128,7 @@ class DiscussionPolicy extends AbstractPolicy
 
             if ($allowRenaming === '-1'
                 || ($allowRenaming === 'reply' && $discussion->participant_count <= 1)
-                || ($discussion->created_at->diffInMinutes(new Carbon) < $allowRenaming)) {
+                || ($discussion->created_at->diffInMinutes() < $allowRenaming)) {
                 return true;
             }
         }
