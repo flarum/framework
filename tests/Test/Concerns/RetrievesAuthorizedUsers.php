@@ -21,12 +21,12 @@ trait RetrievesAuthorizedUsers
         'email' => 'normal@machine.local'
     ];
 
-    public function getAdminUser()
+    public function getAdminUser(): User
     {
         return User::find(1);
     }
 
-    public function getNormalUser()
+    public function getNormalUser(): User
     {
         return User::unguarded(function () {
             return User::firstOrCreate([
