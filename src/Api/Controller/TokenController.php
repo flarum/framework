@@ -70,7 +70,7 @@ class TokenController implements ControllerInterface
         $token->save();
 
         return new JsonResponse([
-            'token' => $token->id,
+            'token' => $token->token,
             'userId' => $user->id
         ]);
     }
