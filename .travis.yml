@@ -10,8 +10,7 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache
-    - js/forum/node_modules
-    - js/admin/node_modules
+    - $HOME/.npm
 
 before_install:
   - phpenv config-rm xdebug.ini || true
