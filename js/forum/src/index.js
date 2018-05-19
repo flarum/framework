@@ -32,3 +32,5 @@ import compat from './compat';
 compat.app = app;
 
 export { compat };
+
+alert('hi');
