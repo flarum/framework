@@ -18,7 +18,6 @@ cache:
 
 before_install:
   - phpenv config-rm xdebug.ini || true
-  - travis_retry composer self-update
 
 install:
   - composer install
@@ -51,5 +50,5 @@ notifications:
 env:
   global:
     # Define GH_USER_EMAIL & GH_USER_NAME env variables used by travis-scripts package
-    secure: "h2WGKCtWVBVRLhkpaZiRu9viXIUCark4cNFnEaGe1yG79BfmmitDM3gIjTifCZqHMpZf77e+HJ6kva93mbGH21GYkkblxghziKnA3ZFHLvmaG9QQxa0y3pJfJxcxUjyT9qVNQpNtAN2suq9LJycYFPhbVa+R22b1vR4x6yMxpz8="
+    secure: "DKgAHm0ulqQPSS8C0eJ1xBlcwEUzUuWyOZLrgBH/lHT9OsND64ComVjJ9JGLGl38BynNgNRsvB5+xjj8JdoivZvJNz6b7Xg14FIXmpszF2ZzBuENva8TKYcKnziqDl0tbvivD61SlnIKX4URJZr5cTKcg88l3hEUSEK+2HJSFhI="
     secure: "R7yEwlEAjPHUdFtj6PGWRsPFEIHWbhdpCQLcv0WuiD7jI5Xep/xzoMwLoM8DfreaVAAJImKXxauIshsWccUHKBeaxS1TIjEWrIvg5xCLpJK8/TUBj1/lo6HPwu6uV6H1ZD1mQULdpqJlKsu+fjXojkC7L7wDe86Bw9e78OwmwwY="
