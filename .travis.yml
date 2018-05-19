@@ -53,5 +53,4 @@ notifications:
 env:
   global:
     # Define GH_USER_EMAIL & GH_USER_NAME env variables used by travis-scripts package
-    secure: "UWdT7Ylgn7kXm+izyPpevdMjj/VSH7SG6qnBUaDn/aNh6ZtanMT+2PDWf6IRd24eCzobgyfu8BguS95FQcMvzvhyq5431hro61in6dkpviZiHCTgYlSqWAOYftOkC71z/lOAAizhcclSWoC56GNLKPL6AWnR4vfihZxm6V08Oq8="
-    secure: "R7yEwlEAjPHUdFtj6PGWRsPFEIHWbhdpCQLcv0WuiD7jI5Xep/xzoMwLoM8DfreaVAAJImKXxauIshsWccUHKBeaxS1TIjEWrIvg5xCLpJK8/TUBj1/lo6HPwu6uV6H1ZD1mQULdpqJlKsu+fjXojkC7L7wDe86Bw9e78OwmwwY="
+    secure: "NsqM7pjwecsBddmMZZdWFfS/wAi7oXT3nlq7sNWpF6kKSGqicdPKIeT/QQrxiUZi/+yqJeLhP518T2DCSPoL6I/vSYBNv1Bu63UYckvW84ZSDFqJ1Or9b1zVpGwOnE8FS4+a/N0Tj3vnkIWNmi47SSEApLW49Hz6fH28L5fWN1A="
