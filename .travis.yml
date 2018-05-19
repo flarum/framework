@@ -26,7 +26,7 @@ install:
   - cd $TRAVIS_BUILD_DIR/js/admin && npm install && npm run build
 
 script:
-  - $TRAVIS_BUILD_DIR/vendor/bin/phpunit
+  - cd $TRAVIS_BUILD_DIR && vendor/bin/phpunit
 
 after_success:
   - npm install @alrra/travis-scripts@^3.0.1
