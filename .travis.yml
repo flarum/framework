@@ -7,7 +7,7 @@ php:
 
 matrix:
   include:
-    - language: generic
+    - language: js
       before_install: 
       install:
         - cd $TRAVIS_BUILD_DIR/js/forum && npm install && npm run build
