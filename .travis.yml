@@ -1,9 +1,14 @@
+language: php
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+
 matrix:
   include:
-    - php: 7.0
-    - php: 7.1
-    - php: 7.2
     - language: generic
+      php: 
       before_install: 
       install:
         - cd $TRAVIS_BUILD_DIR/js/forum && npm install && npm run build
