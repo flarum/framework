@@ -10,7 +10,6 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache
-    - $HOME/.npm
     - js/forum/node_modules
     - js/admin/node_modules
 
