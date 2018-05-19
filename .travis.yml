@@ -27,21 +27,24 @@ install:
 script:
   - cd $TRAVIS_BUILD_DIR && vendor/bin/phpunit
 
-after_success:
-  - npm install @alrra/travis-scripts@^3.0.1
-  - |
-    # Set up SSH environment
-    $(npm bin)/set-up-ssh \
-      --key "$encrypted_678139e2bc67_key" \
-      --iv "$encrypted_678139e2bc67_iv" \
-      --path-encrypted-key "./.deploy.enc"
+jobs:
+  include:
+    - stage: bundle
+      script: |
+        npm install @alrra/travis-scripts@^3.0.1
 
-    # Commit bundle changes generated in before_script step
-    # --commands is a weird no-op but required for commit-changes to run
-    $(npm bin)/commit-changes \
-      --commands "echo committing" \
-      --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" \
-      --branch "webpack"
+        # Set up SSH environment
+        $(npm bin)/set-up-ssh \
+          --key "$encrypted_678139e2bc67_key" \
+          --iv "$encrypted_678139e2bc67_iv" \
+          --path-encrypted-key "./.deploy.enc"
+
+        # Commit bundle changes generated in before_script step
+        # --commands is a weird no-op but required for commit-changes to run
+        $(npm bin)/commit-changes \
+          --commands "echo committing" \
+          --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" \
+          --branch "webpack"
 
 notifications:
   email:
