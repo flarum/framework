@@ -8,19 +8,48 @@ php:
 matrix:
   fast_finish: true
 
-before_script:
-  - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then phpenv config-rm xdebug.ini; fi;
-  - composer self-update
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - js/forum/node_modules
+    - js/admin/node_modules
+
+before_install:
+  - phpenv config-rm xdebug.ini || true
+  - travis_retry composer self-update
+
+install:
   - composer install
+  - cd js/forum && npm install && npm run build
+  - cd js/admin && npm install && npm run build
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.xml
+  - vendor/bin/phpunit
+
+after_success:
+  - npm install @alrra/travis-scripts@^3.0.1
+  - |
+    # Set up SSH environment
+    $(npm bin)/set-up-ssh \
+      --key "$encrypted_678139e2bc67_key" \
+      --iv "$encrypted_678139e2bc67_iv" \
+      --path-encrypted-key "./.deploy.enc"
+
+    # Commit bundle changes generated in before_script step
+    # --commands is a weird no-op but required for commit-changes to run
+    $(npm bin)/commit-changes \
+      --commands "echo committing" \
+      --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" \
+      --branch "webpack"
 
 notifications:
   email:
     on_failure: change
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
-sudo: false
+env:
+  global:
+    # Define GH_USER_EMAIL & GH_USER_NAME env variables used by travis-scripts package
+    secure: "h2WGKCtWVBVRLhkpaZiRu9viXIUCark4cNFnEaGe1yG79BfmmitDM3gIjTifCZqHMpZf77e+HJ6kva93mbGH21GYkkblxghziKnA3ZFHLvmaG9QQxa0y3pJfJxcxUjyT9qVNQpNtAN2suq9LJycYFPhbVa+R22b1vR4x6yMxpz8="
+    secure: "R7yEwlEAjPHUdFtj6PGWRsPFEIHWbhdpCQLcv0WuiD7jI5Xep/xzoMwLoM8DfreaVAAJImKXxauIshsWccUHKBeaxS1TIjEWrIvg5xCLpJK8/TUBj1/lo6HPwu6uV6H1ZD1mQULdpqJlKsu+fjXojkC7L7wDe86Bw9e78OwmwwY="
