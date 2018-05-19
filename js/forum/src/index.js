@@ -33,4 +33,4 @@ compat.app = app;
 
 export { compat };
 
-alert('hi2');
+alert('hi3');
