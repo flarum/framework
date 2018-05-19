@@ -23,9 +23,10 @@ install:
   - composer install
   - cd $TRAVIS_BUILD_DIR/js/forum && npm install && npm run build
   - cd $TRAVIS_BUILD_DIR/js/admin && npm install && npm run build
+  - cd $TRAVIS_BUILD_DIR
 
 script:
-  - cd $TRAVIS_BUILD_DIR && vendor/bin/phpunit
+  - vendor/bin/phpunit
 
 jobs:
   include:
