@@ -5,7 +5,24 @@ php:
   - 7.1
   - 7.2
 
-matrix:
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - js/forum/node_modules
+    - js/admin/node_modules
+
+before_install:
+  - phpenv config-rm xdebug.ini || true
+
+install:
+  - composer install
+
+script:
+  - vendor/bin/phpunit
+
+jobs:
   include:
     - language: generic
       php: 
@@ -28,28 +45,6 @@ matrix:
           --commands "echo committing" \
           --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" \
           --branch "webpack"
-  fast_finish: true
-
-sudo: false
-
-cache:
-  directories:
-    - $HOME/.composer/cache
-    - js/forum/node_modules
-    - js/admin/node_modules
-
-before_install:
-  - phpenv config-rm xdebug.ini || true
-
-install:
-  - composer install
-
-script:
-  - vendor/bin/phpunit
-
-notifications:
-  email:
-    on_failure: change
 
 env:
   global:
