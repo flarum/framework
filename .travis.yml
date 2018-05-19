@@ -28,6 +28,8 @@ script:
 jobs:
   include:
     - stage: bundle
+      language: generic
+      before_install: 
       install:
         - cd $TRAVIS_BUILD_DIR/js/forum && npm install && npm run build
         - cd $TRAVIS_BUILD_DIR/js/admin && npm install && npm run build
