@@ -22,11 +22,11 @@ before_install:
 
 install:
   - composer install
-  - cd js/forum && npm install && npm run build
-  - cd js/admin && npm install && npm run build
+  - cd $TRAVIS_BUILD_DIR/js/forum && npm install && npm run build
+  - cd $TRAVIS_BUILD_DIR/js/admin && npm install && npm run build
 
 script:
-  - vendor/bin/phpunit
+  - $TRAVIS_BUILD_DIR/vendor/bin/phpunit
 
 after_success:
   - npm install @alrra/travis-scripts@^3.0.1
