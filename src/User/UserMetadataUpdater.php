@@ -49,7 +49,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasDeleted(PostDeleted $event)
     {
-        $this->updateCommentsCount($event->post, -1);
+        if (!isset($event->post->hide_time)) $this->updateCommentsCount($event->post, -1);
     }
 
     /**
