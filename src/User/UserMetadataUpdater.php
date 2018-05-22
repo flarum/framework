@@ -64,13 +64,15 @@ class UserMetadataUpdater
         $this->updateDiscussionsCount($event->discussion);
     }
 
-    private function updateCommentsCount(Post $post) {
+    private function updateCommentsCount(Post $post)
+    {
         if ($post && $post->exists) {
             $post->user->refreshCommentsCount();
         }
     }
 
-    private function updateDiscussionsCount(Discussion $discussion) {
+    private function updateDiscussionsCount(Discussion $discussion)
+    {
         if ($discussion && $discussion->exists) {
             $discussion->startUser->refreshDiscussionsCount();
         }
