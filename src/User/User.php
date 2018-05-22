@@ -14,6 +14,7 @@ namespace Flarum\User;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
+use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
@@ -746,5 +747,31 @@ class User extends AbstractModel
     public static function getNotificationPreferenceKey($type, $method)
     {
         return 'notify_'.$type.'_'.$method;
+    }
+
+    /**
+     * Refresh the user's comments count.
+     *
+     * @return $this
+     */
+    public function refreshCommentsCount()
+    {
+        $this->comments_count = $this->posts()->count();
+        $this->save();
+
+        return $this;
+    }
+
+    /**
+     * Refresh the user's comments count.
+     *
+     * @return $this
+     */
+    public function refreshDiscussionsCount()
+    {
+        $this->discussions_count = Discussion::where('start_user_id', $this->id)->count();
+        $this->save();
+
+        return $this;
     }
 }

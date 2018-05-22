@@ -30,8 +30,6 @@ class UserMetadataUpdater
     {
         $events->listen(Posted::class, [$this, 'whenPostWasPosted']);
         $events->listen(PostDeleted::class, [$this, 'whenPostWasDeleted']);
-        $events->listen(Hidden::class, [$this, 'whenPostWasHidden']);
-        $events->listen(Restored::class, [$this, 'whenPostWasRestored']);
         $events->listen(Started::class, [$this, 'whenDiscussionWasStarted']);
         $events->listen(DiscussionDeleted::class, [$this, 'whenDiscussionWasDeleted']);
     }
@@ -41,7 +39,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasPosted(Posted $event)
     {
-        $this->updateCommentsCount($event->post, 1);
+        $event->actor->refreshCommentsCount();
     }
 
     /**
@@ -49,23 +47,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasDeleted(PostDeleted $event)
     {
-        if (!isset($event->post->hide_time)) $this->updateCommentsCount($event->post, -1);
-    }
-
-    /**
-     * @param \Flarum\Post\Event\Hidden $event
-     */
-    public function whenPostWasHidden(Hidden $event)
-    {
-        $this->updateCommentsCount($event->post, -1);
-    }
-
-    /**
-     * @param \Flarum\Post\Event\Restored $event
-     */
-    public function whenPostWasRestored(Restored $event)
-    {
-        $this->updateCommentsCount($event->post, 1);
+        $event->actor->refreshCommentsCount();
     }
 
     /**
@@ -73,7 +55,7 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasStarted(Started $event)
     {
-        $this->updateDiscussionsCount($event->discussion, 1);
+        $event->actor->refreshDiscussionsCount();
     }
 
     /**
@@ -81,34 +63,6 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasDeleted(DiscussionDeleted $event)
     {
-        $this->updateDiscussionsCount($event->discussion, -1);
-    }
-
-    /**
-     * @param Post $post
-     * @param int $amount
-     */
-    protected function updateCommentsCount(Post $post, $amount)
-    {
-        $user = $post->user;
-
-        if ($user && $user->exists) {
-            $user->comments_count += $amount;
-            $user->save();
-        }
-    }
-
-    /**
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @param int $amount
-     */
-    protected function updateDiscussionsCount(Discussion $discussion, $amount)
-    {
-        $user = $discussion->startUser;
-
-        if ($user && $user->exists) {
-            $user->discussions_count += $amount;
-            $user->save();
-        }
+        $event->actor->refreshDiscussionsCount();
     }
 }
