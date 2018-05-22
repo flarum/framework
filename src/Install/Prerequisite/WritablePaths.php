@@ -54,6 +54,6 @@ class WritablePaths extends AbstractPrerequisite
             }
         }
 
-        return (substr($path, 0, 1) == '/' ? '/' : '').implode(DIRECTORY_SEPARATOR, $absolutes);;
+        return (substr($path, 0, 1) == '/' ? '/' : '').implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 }
