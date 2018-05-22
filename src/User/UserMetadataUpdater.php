@@ -11,14 +11,10 @@
 
 namespace Flarum\User;
 
-use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Deleted as DiscussionDeleted;
 use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Deleted as PostDeleted;
-use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
-use Flarum\Post\Event\Restored;
-use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserMetadataUpdater
