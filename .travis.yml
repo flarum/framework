@@ -2,9 +2,10 @@ language: php
 sudo: false
 
 env:
-  - DB_USERNAME=travis
-  - DB=mysql
-  - DB=mariadb
+  - DB_USERNAME=travis DB=mysql
+  - DB_USERNAME=travis DB=mariadb
+services:
+  - mysql
 addons:
   mariadb: '10.2'
 
