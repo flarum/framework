@@ -35,7 +35,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasPosted(Posted $event)
     {
-        $event->actor->refreshCommentsCount();
+        $event->post->user->refreshCommentsCount();
     }
 
     /**
@@ -43,7 +43,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasDeleted(PostDeleted $event)
     {
-        $event->actor->refreshCommentsCount();
+        $event->post->user->refreshCommentsCount();
     }
 
     /**
@@ -51,7 +51,7 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasStarted(Started $event)
     {
-        $event->actor->refreshDiscussionsCount();
+        $event->discussion->startUser->refreshDiscussionsCount();
     }
 
     /**
@@ -59,6 +59,6 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasDeleted(DiscussionDeleted $event)
     {
-        $event->actor->refreshDiscussionsCount();
+        $event->discussion->startUser->refreshDiscussionsCount();
     }
 }
