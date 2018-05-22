@@ -11,10 +11,12 @@
 
 namespace Flarum\User;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Deleted as DiscussionDeleted;
 use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\Event\Posted;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserMetadataUpdater
@@ -35,7 +37,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasPosted(Posted $event)
     {
-        $event->post->user->refreshCommentsCount();
+        $this->updateCommentsCount($event->post);
     }
 
     /**
@@ -43,7 +45,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasDeleted(PostDeleted $event)
     {
-        $event->post->user->refreshCommentsCount();
+        $this->updateCommentsCount($event->post);
     }
 
     /**
@@ -51,7 +53,7 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasStarted(Started $event)
     {
-        $event->discussion->startUser->refreshDiscussionsCount();
+        $this->updateDiscussionsCount($event->discussion);
     }
 
     /**
@@ -59,6 +61,18 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasDeleted(DiscussionDeleted $event)
     {
-        $event->discussion->startUser->refreshDiscussionsCount();
+        $this->updateDiscussionsCount($event->discussion);
+    }
+
+    private function updateCommentsCount(Post $post) {
+        if ($post && $post->exists) {
+            $post->user->refreshCommentsCount();
+        }
+    }
+
+    private function updateDiscussionsCount(Discussion $discussion) {
+        if ($discussion && $discussion->exists) {
+            $discussion->startUser->refreshDiscussionsCount();
+        }
     }
 }
