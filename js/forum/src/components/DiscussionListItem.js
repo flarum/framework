@@ -81,7 +81,7 @@ export default class DiscussionListItem extends Component {
     return (
       <div {...attrs}>
         {controls.length ? Dropdown.component({
-          icon: 'fa fa-ellipsis-v',
+          icon: 'fas fa-ellipsis-v',
           children: controls,
           className: 'DiscussionListItem-controls',
           buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right'
@@ -89,7 +89,7 @@ export default class DiscussionListItem extends Component {
 
         <a className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
           onclick={this.markAsRead.bind(this)}>
-          {icon('fa fa-check')}
+          {icon('fas fa-check')}
         </a>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>

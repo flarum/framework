@@ -236,6 +236,11 @@ class Site
                         'root'   => $app->publicPath().'/assets/avatars'
                     ]
                 ]
+            ],
+            'session' => [
+                'lifetime' => 120,
+                'files' => $app->storagePath().'/sessions',
+                'cookie' => 'session'
             ]
         ]);
     }

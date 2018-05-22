@@ -42,7 +42,7 @@ class InstallServiceProvider extends AbstractServiceProvider
                         'pdo_mysql',
                     ]),
                     new WritablePaths([
-                        public_path(),
+                        base_path(),
                         public_path('assets'),
                         storage_path(),
                     ])

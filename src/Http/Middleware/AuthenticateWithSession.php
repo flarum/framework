@@ -13,10 +13,10 @@ namespace Flarum\Http\Middleware;
 
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Contracts\Session\Session;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AuthenticateWithSession implements MiddlewareInterface
 {
@@ -33,7 +33,7 @@ class AuthenticateWithSession implements MiddlewareInterface
         return $delegate->process($request);
     }
 
-    private function getActor(SessionInterface $session)
+    private function getActor(Session $session)
     {
         $actor = User::find($session->get('user_id')) ?: new Guest;
 

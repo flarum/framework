@@ -62,7 +62,7 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
 
         if (! $code) {
             $authUrl = $this->provider->getAuthorizationUrl($this->getAuthorizationUrlOptions());
-            $session->set('oauth2state', $this->provider->getState());
+            $session->put('oauth2state', $this->provider->getState());
 
             return new RedirectResponse($authUrl.'&display=popup');
         } elseif (! $state || $state !== $session->get('oauth2state')) {
