@@ -39,12 +39,14 @@ class WritablePaths extends AbstractPrerequisite
 
     private function getAbsolutePath($path)
     {
-        $path = str_replace([ '/', '\\'], DIRECTORY_SEPARATOR, $path);
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
         $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
         $absolutes = [];
 
         foreach ($parts as $part) {
-            if ('.' == $part) continue;
+            if ('.' == $part) {
+                continue;
+            }
             if ('..' == $part) {
                 array_pop($absolutes);
             } else {
@@ -52,6 +54,6 @@ class WritablePaths extends AbstractPrerequisite
             }
         }
 
-        return (substr($path, 0, 1) == '/' ? '/' : '') . implode(DIRECTORY_SEPARATOR, $absolutes);
+        return (substr($path, 0, 1) == '/' ? '/' : '').implode(DIRECTORY_SEPARATOR, $absolutes);;
     }
 }
