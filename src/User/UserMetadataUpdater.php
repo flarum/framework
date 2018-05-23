@@ -66,19 +66,11 @@ class UserMetadataUpdater
 
     private function updateCommentsCount(Post $post)
     {
-        $user = $post->user;
-
-        if ($user && $user->exists) {
-            $user->refreshCommentsCount();
-        }
+        optional($post->user)->refreshCommentsCount();
     }
 
     private function updateDiscussionsCount(Discussion $discussion)
     {
-        $user = $discussion->startUser;
-
-        if ($user && $user->exists) {
-            $user->refreshDiscussionsCount();
-        }
+        optional($discussion->startUser)->refreshDiscussionsCount();
     }
 }
