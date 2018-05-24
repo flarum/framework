@@ -71,6 +71,9 @@ flarum-tags:
     discussion_controls:
       edit_tags_button: Edit Tags
 
+    header:
+      back_to_tags_tooltip: Back to Tag List
+
     # These translations are used on the index page, peripheral to the discussion list.
     index:
       more_link: More...
