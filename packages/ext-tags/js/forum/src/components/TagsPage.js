@@ -75,14 +75,10 @@ export default class TagsPage extends Component {
 
             {cloud.length ? (
               <div className="TagCloud">
-                {cloud.map(tag => {
-                  const color = tag.color();
-
-                  return [
-                    tagLabel(tag, {link: true}),
-                    ' '
-                  ];
-                })}
+                {cloud.map(tag => [
+                  tagLabel(tag, {link: true}),
+                  ' ',
+                ])}
               </div>
             ) : ''}
           </div>
