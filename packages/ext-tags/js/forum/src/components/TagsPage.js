@@ -1,20 +1,18 @@
-import Component from 'flarum/Component';
+import Page from 'flarum/components/Page';
 import IndexPage from 'flarum/components/IndexPage';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
-import icon from 'flarum/helpers/icon';
 
 import tagLabel from 'flarum/tags/helpers/tagLabel';
 import sortTags from 'flarum/tags/utils/sortTags';
 
-export default class TagsPage extends Component {
+export default class TagsPage extends Page {
   init() {
+    super.init();
+
     this.tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
 
-    app.current = this;
-    app.history.push('tags', icon('fas fa-th-large'));
-    app.drawer.hide();
-    app.modal.close();
+    app.history.push('tags', app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip'));
   }
 
   view() {
@@ -75,14 +73,10 @@ export default class TagsPage extends Component {
 
             {cloud.length ? (
               <div className="TagCloud">
-                {cloud.map(tag => {
-                  const color = tag.color();
-
-                  return [
-                    tagLabel(tag, {link: true}),
-                    ' '
-                  ];
-                })}
+                {cloud.map(tag => [
+                  tagLabel(tag, {link: true}),
+                  ' ',
+                ])}
               </div>
             ) : ''}
           </div>
