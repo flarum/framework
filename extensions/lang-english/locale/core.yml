@@ -268,7 +268,7 @@ core:
     # These translations are used in the header and session dropdown menu.
     header:
       admin_button: Administration
-      back_to_index_tooltip: Back to discussion list
+      back_to_index_tooltip: Back to Discussion List
       log_in_link: => core.ref.log_in
       log_out_button: => core.ref.log_out
       profile_button: Profile
