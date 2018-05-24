@@ -2,7 +2,6 @@ import Page from 'flarum/components/Page';
 import IndexPage from 'flarum/components/IndexPage';
 import listItems from 'flarum/helpers/listItems';
 import humanTime from 'flarum/helpers/humanTime';
-import icon from 'flarum/helpers/icon';
 
 import tagLabel from 'flarum/tags/helpers/tagLabel';
 import sortTags from 'flarum/tags/utils/sortTags';
@@ -13,7 +12,7 @@ export default class TagsPage extends Page {
 
     this.tags = sortTags(app.store.all('tags').filter(tag => !tag.parent()));
 
-    app.history.push('tags', icon('fas fa-th-large'));
+    app.history.push('tags', app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip'));
   }
 
   view() {
