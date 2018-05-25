@@ -171,6 +171,8 @@ export default {
         deferred.reject();
       }
     } else {
+      deferred.reject();
+
       app.modal.show(new LogInModal());
     }
 
