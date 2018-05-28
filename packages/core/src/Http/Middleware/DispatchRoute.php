@@ -15,12 +15,12 @@ use FastRoute\Dispatcher;
 use Flarum\Http\Exception\MethodNotAllowedException;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\RouteCollection;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 
-class DispatchRoute implements MiddlewareInterface
+class DispatchRoute implements Middleware
 {
     /**
      * @var RouteCollection
@@ -45,13 +45,10 @@ class DispatchRoute implements MiddlewareInterface
     /**
      * Dispatch the given request to our route collection.
      *
-     * @param Request $request
-     * @param DelegateInterface $delegate
-     * @return Response
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
      */
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, Handler $handler): Response
     {
         $method = $request->getMethod();
         $uri = $request->getUri()->getPath() ?: '/';
