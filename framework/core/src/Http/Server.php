@@ -18,16 +18,17 @@ use Flarum\Http\Middleware\HandleErrors;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\InstallServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Server as DiactorosServer;
 use Zend\Stratigility\MiddlewarePipe;
-use Zend\Stratigility\NoopFinalHandler;
+use function Zend\Stratigility\middleware;
 use function Zend\Stratigility\path;
 
-class Server
+class Server implements Middleware, Handler
 {
     /**
      * @param Site $site
@@ -46,33 +47,38 @@ class Server
     public function listen()
     {
         DiactorosServer::createServer(
-            $this,
+            [$this, 'handle'],
             $_SERVER,
             $_GET,
             $_POST,
             $_COOKIE,
             $_FILES
-        )->listen(new NoopFinalHandler());
+        )->listen();
     }
 
     /**
-     * Use as PSR-7 middleware.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @param callable $out
-     * @return ResponseInterface
+     * Use as PSR-15 middleware.
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out)
+    public function process(Request $request, Handler $handler): Response
     {
         $middleware = $this->getMiddleware($request->getUri()->getPath());
 
-        return $middleware($request, $response, $out);
+        return $middleware->process($request, $handler);
+    }
+
+    /**
+     * Use as PSR-15 request handler.
+     */
+    public function handle(Request $request): Response
+    {
+        $middleware = $this->getMiddleware($request->getUri()->getPath());
+
+        return $middleware->handle($request);
     }
 
     /**
      * @param string $requestPath
-     * @return MiddlewareInterface
+     * @return MiddlewarePipe
      */
     protected function getMiddleware($requestPath)
     {
@@ -126,9 +132,9 @@ class Server
 
     protected function getMaintenanceMiddleware(MiddlewarePipe $pipe)
     {
-        $pipe->pipe(function () {
+        $pipe->pipe(middleware(function () {
             return new HtmlResponse(file_get_contents($this->getErrorDir().'/503.html', 503));
-        });
+        }));
 
         // TODO: FOR API render JSON-API error document for HTTP 503
 
