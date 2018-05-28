@@ -3,7 +3,7 @@ sudo: false
 
 env:
   global:
-    - DB_DATABASE=mariadb
+    - DB=mariadb
 
 addons:
   mariadb: '10.2'
@@ -20,17 +20,17 @@ matrix:
       addons: # to prevent mariadb
       services: mysql
       env:
-        - DB_DATABASE=mysql
+        - DB=mysql
     - php: 7.1
       addons: # to prevent mariadb
       services: mysql
       env:
-        - DB_DATABASE=mysql
+        - DB=mysql
     - php: 7.2
       addons: # to prevent mariadb
       services: mysql
       env:
-        - DB_DATABASE=mysql
+        - DB=mysql
 
 before_install:
   - if [[ "$DB" == "mysql" || "$DB" == "mariadb" ]]; then mysql -e 'CREATE DATABASE flarum;'; fi

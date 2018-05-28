@@ -75,9 +75,10 @@ trait CreatesForum
         $data->setSetting('mail_driver', 'log');
 
         $database = $data->getDatabaseConfiguration();
-        $database['database'] = env('DB_DATABASE', 'flarum');
-        $database['username'] = env('DB_USERNAME', 'root');
-        $database['password'] = env('DB_PASSWORD', '');
+        $database['host'] = env('DB_HOST', $database['host']);
+        $database['database'] = env('DB_DATABASE', $database['database']);
+        $database['username'] = env('DB_USERNAME', $database['username']);
+        $database['password'] = env('DB_PASSWORD', $database['password']);
         $data->setDatabaseConfiguration($database);
 
         $this->configuration = $data;
