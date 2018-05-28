@@ -2,10 +2,9 @@ language: php
 sudo: false
 
 env:
-  - DB_USERNAME=travis DB=mysql
-  - DB_USERNAME=travis DB=mariadb
-services:
-  - mysql
+  global:
+    - DB_DATABASE=mariadb
+
 addons:
   mariadb: '10.2'
 
@@ -16,6 +15,23 @@ php:
 
 matrix:
   fast_finish: true
+  include:
+    - php: 7.0
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB_DATABASE=mysql
+    - php: 7.1
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB_DATABASE=mysql
+    - php: 7.2
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB_DATABASE=mysql
+
 before_install:
   - if [[ "$DB" == "mysql" || "$DB" == "mariadb" ]]; then mysql -e 'CREATE DATABASE flarum;'; fi
 before_script:
