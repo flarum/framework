@@ -11,15 +11,16 @@
 
 namespace Flarum\Api\Middleware;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 
-class FakeHttpMethods implements MiddlewareInterface
+class FakeHttpMethods implements Middleware
 {
     const HEADER_NAME = 'x-http-method-override';
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, Handler $handler): Response
     {
         if ($request->getMethod() === 'POST' && $request->hasHeader(self::HEADER_NAME)) {
             $fakeMethod = $request->getHeaderLine(self::HEADER_NAME);
@@ -27,6 +28,6 @@ class FakeHttpMethods implements MiddlewareInterface
             $request = $request->withMethod(strtoupper($fakeMethod));
         }
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 }
