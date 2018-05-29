@@ -12,7 +12,6 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\PasswordToken;
@@ -20,10 +19,12 @@ use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class SavePasswordController implements ControllerInterface
+class SavePasswordController implements RequestHandlerInterface
 {
     use DispatchEventsTrait;
 
@@ -64,9 +65,9 @@ class SavePasswordController implements ControllerInterface
 
     /**
      * @param Request $request
-     * @return RedirectResponse
+     * @return ResponseInterface
      */
-    public function handle(Request $request)
+    public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
 
