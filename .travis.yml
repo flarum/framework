@@ -1,9 +1,12 @@
 language: php
+sudo: false
 
 env:
-  - DB_USERNAME=travis
-services:
-  - mysql
+  global:
+    - DB=mariadb
+
+addons:
+  mariadb: '10.2'
 
 php:
   - 7.1
@@ -11,8 +14,20 @@ php:
 
 matrix:
   fast_finish: true
+  include:
+    - php: 7.1
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB=mysql
+    - php: 7.2
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB=mysql
+
 before_install:
-  - mysql -e 'CREATE DATABASE flarum;'
+  - if [[ "$DB" == "mysql" || "$DB" == "mariadb" ]]; then mysql -e 'CREATE DATABASE flarum;'; fi
 before_script:
   - composer self-update
   - composer install
@@ -26,5 +41,3 @@ notifications:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-sudo: false
