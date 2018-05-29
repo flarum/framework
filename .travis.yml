@@ -9,18 +9,12 @@ addons:
   mariadb: '10.2'
 
 php:
-  - 7.0
   - 7.1
   - 7.2
 
 matrix:
   fast_finish: true
   include:
-    - php: 7.0
-      addons: # to prevent mariadb
-      services: mysql
-      env:
-        - DB=mysql
     - php: 7.1
       addons: # to prevent mariadb
       services: mysql
