@@ -11,14 +11,15 @@
 
 namespace Flarum\Pusher\Api\Controller;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Pusher;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
-class AuthController implements ControllerInterface
+class AuthController implements RequestHandlerInterface
 {
     /**
      * @var SettingsRepositoryInterface
@@ -35,9 +36,9 @@ class AuthController implements ControllerInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @return EmptyResponse|JsonResponse
+     * @return ResponseInterface
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $userChannel = 'private-user'.$request->getAttribute('actor')->id;
         $body = $request->getParsedBody();
