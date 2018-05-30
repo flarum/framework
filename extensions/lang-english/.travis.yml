@@ -1,0 +1,7 @@
+language: bash
+
+before_script:
+  - go get github.com/sijad/yaml-translation-utils/yamllinter
+
+script:
+  - bash scripts/linter.sh
