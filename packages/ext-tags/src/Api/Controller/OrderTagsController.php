@@ -11,20 +11,21 @@
 
 namespace Flarum\Tags\Api\Controller;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\AssertPermissionTrait;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 
-class OrderTagsController implements ControllerInterface
+class OrderTagsController implements RequestHandlerInterface
 {
     use AssertPermissionTrait;
 
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $this->assertAdmin($request->getAttribute('actor'));
 
