@@ -27,7 +27,8 @@ matrix:
         - DB=mysql
 
 before_install:
-  - if [[ "$DB" == "mysql" || "$DB" == "mariadb" ]]; then mysql -e 'CREATE DATABASE flarum;'; fi
+  - mysql -e 'CREATE DATABASE flarum;'
+
 before_script:
   - composer self-update
   - composer install
