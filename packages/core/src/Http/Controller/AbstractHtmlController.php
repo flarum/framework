@@ -12,16 +12,18 @@
 namespace Flarum\Http\Controller;
 
 use Illuminate\Contracts\Support\Renderable;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
-abstract class AbstractHtmlController implements ControllerInterface
+abstract class AbstractHtmlController implements RequestHandlerInterface
 {
     /**
      * @param Request $request
      * @return HtmlResponse
      */
-    public function handle(Request $request)
+    public function handle(Request $request): ResponseInterface
     {
         $view = $this->render($request);
 
