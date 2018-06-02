@@ -21,9 +21,9 @@
     },
     "require": {
         "php": ">=7.1",
+        "components/font-awesome": "^5.0.6",
         "dflydev/fig-cookies": "^1.0.2",
         "doctrine/dbal": "^2.5",
-        "components/font-awesome": "^5.0.6",
         "franzl/whoops-middleware": "^0.4.0",
         "illuminate/bus": "5.5.*",
         "illuminate/cache": "5.5.*",
@@ -49,12 +49,12 @@
         "psr/http-message": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
+        "s9e/text-formatter": "^0.8.1",
         "symfony/config": "^3.3",
         "symfony/console": "^3.3",
         "symfony/http-foundation": "^3.3",
         "symfony/translation": "^3.3",
         "symfony/yaml": "^3.3",
-        "s9e/text-formatter": "^0.8.1",
         "tobscure/json-api": "^0.3.0",
         "zendframework/zend-diactoros": "^1.7",
         "zendframework/zend-stratigility": "^3.0"
@@ -75,6 +75,9 @@
         "psr-4": {
             "Flarum\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
     },
     "extra": {
         "branch-alias": {
