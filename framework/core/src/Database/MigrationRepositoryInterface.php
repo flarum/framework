@@ -52,12 +52,4 @@ interface MigrationRepositoryInterface
      * @return bool
      */
     public function repositoryExists();
-
-    /**
-     * Set the information source to gather data.
-     *
-     * @param  string  $name
-     * @return void
-     */
-    public function setSource($name);
 }
