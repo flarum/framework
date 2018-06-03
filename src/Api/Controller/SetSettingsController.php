@@ -11,16 +11,17 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Serializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 
-class SetSettingsController implements ControllerInterface
+class SetSettingsController implements RequestHandlerInterface
 {
     use AssertPermissionTrait;
 
@@ -46,7 +47,7 @@ class SetSettingsController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $this->assertAdmin($request->getAttribute('actor'));
 

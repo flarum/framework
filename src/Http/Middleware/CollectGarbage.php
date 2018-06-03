@@ -17,12 +17,13 @@ use Flarum\User\AuthToken;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 use SessionHandlerInterface;
 
-class CollectGarbage implements MiddlewareInterface
+class CollectGarbage implements Middleware
 {
     /**
      * @var SessionHandlerInterface
@@ -40,11 +41,11 @@ class CollectGarbage implements MiddlewareInterface
         $this->sessionConfig = $config->get('session');
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, Handler $handler): Response
     {
         $this->collectGarbageSometimes();
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 
     private function collectGarbageSometimes()

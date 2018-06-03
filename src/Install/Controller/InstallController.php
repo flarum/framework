@@ -12,17 +12,18 @@
 namespace Flarum\Install\Controller;
 
 use Exception;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Install\Console\DefaultsDataProvider;
 use Flarum\Install\Console\InstallCommand;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Response\HtmlResponse;
 
-class InstallController implements ControllerInterface
+class InstallController implements RequestHandlerInterface
 {
     protected $command;
 
@@ -44,9 +45,9 @@ class InstallController implements ControllerInterface
 
     /**
      * @param Request $request
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
-    public function handle(Request $request)
+    public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
 
