@@ -1,8 +1,24 @@
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 
 module.exports = function(options = {}) {
-  const config = {
+  return {
+    // Set up entry points for each of the forum + admin apps, but only
+    // if they exist.
+    entry: function() {
+      const entries = {};
+
+      for (const app of ['forum', 'admin']) {
+        const file = path.resolve(process.cwd(), 'js/' + app + '/index.js');
+        if (fs.existsSync(file)) {
+          entries[app] = file;
+        }
+      }
+      
+      return entries;
+    }(),
+
     module: {
       rules: [
         {
@@ -23,21 +39,31 @@ module.exports = function(options = {}) {
       ]
     },
 
+    output: {
+      path: path.resolve(process.cwd(), 'js')
+    },
+
     // For backwards compatibility, search for non-relative-path modules
-    // in the `src` and `lib` directories. Also make sure the root node_modules
-    // directory is searched, otherwise importing a module from a file
-    // inside `lib` won't work.
+    // in the source directories. Also make sure the root node_modules
+    // directory is searched.
     resolve: {
       modules: [
-        path.resolve(process.cwd(), 'src'),
-        path.resolve(process.cwd(), '../lib'),
+        path.resolve(process.cwd(), 'js/forum'),
+        path.resolve(process.cwd(), 'js/admin'),
+        path.resolve(process.cwd(), 'js/common'),
         path.resolve(process.cwd(), 'node_modules'),
         'node_modules'
       ]
     },
 
-    // Support importing old-style core modules.
     externals: [
+      {
+        '@flarum/core/forum': 'flarum',
+        '@flarum/core/admin': 'flarum',
+        'jquery': 'jQuery'
+      },
+
+      // Support importing old-style core modules.
       function(context, request, callback) {
         let matches;
         if ((matches = /^flarum\/(.+)$/.exec(request))) {
@@ -45,8 +71,8 @@ module.exports = function(options = {}) {
         }
         callback();
       }
-    ]
-  };
+    ],
 
-  return config;
+    devtool: 'source-map'
+  };
 };
