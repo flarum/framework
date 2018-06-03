@@ -15,15 +15,15 @@ use Exception;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Franzl\Middleware\Whoops\WhoopsRunner;
 use Illuminate\Contracts\View\Factory as ViewFactory;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
-class HandleErrors implements MiddlewareInterface
+class HandleErrors implements Middleware
 {
     /**
      * @var ViewFactory
@@ -68,15 +68,11 @@ class HandleErrors implements MiddlewareInterface
 
     /**
      * Catch all errors that happen during further middleware execution.
-     *
-     * @param Request $request
-     * @param DelegateInterface $delegate
-     * @return Response
      */
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, Handler $handler): Response
     {
         try {
-            return $delegate->process($request);
+            return $handler->handle($request);
         } catch (Exception $e) {
             if ($this->debug) {
                 return WhoopsRunner::handle($e, $request);

@@ -11,14 +11,15 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\User\Command\RequestPasswordReset;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 
-class ForgotPasswordController implements ControllerInterface
+class ForgotPasswordController implements RequestHandlerInterface
 {
     /**
      * @var \Flarum\User\UserRepository
@@ -43,7 +44,7 @@ class ForgotPasswordController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $email = array_get($request->getParsedBody(), 'email');
 

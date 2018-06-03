@@ -11,11 +11,11 @@
 
 namespace Flarum\Http;
 
-use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class ControllerRouteHandler
 {
@@ -55,15 +55,15 @@ class ControllerRouteHandler
 
     /**
      * @param string $class
-     * @return ControllerInterface
+     * @return RequestHandlerInterface
      */
     protected function resolveController($class)
     {
         $controller = $this->container->make($class);
 
-        if (! ($controller instanceof ControllerInterface)) {
+        if (! ($controller instanceof RequestHandlerInterface)) {
             throw new InvalidArgumentException(
-                'Controller must be an instance of '.ControllerInterface::class
+                'Controller must be an instance of '.RequestHandlerInterface::class
             );
         }
 
