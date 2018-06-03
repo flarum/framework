@@ -1,4 +1,4 @@
-import compat from '../../lib/compat';
+import compat from '../common/compat';
 
 import PostControls from './utils/PostControls';
 import KeyboardNavigatable from './utils/KeyboardNavigatable';

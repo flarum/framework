@@ -1,22 +1,24 @@
 {
-  "name": "@flarum/core-forum",
+  "name": "@flarum/core",
   "devDependencies": {
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color-thief-browser": "^2.0.2",
-    "expose-loader": "^0.7.4",
-    "flarum-webpack-config": "^0.1.0-beta.6",
+    "expose-loader": "^0.7.5",
+    "flarum-webpack-config": "0.1.0-beta.7",
     "jquery": "^3.3.1",
     "jquery.hotkeys": "^0.1.0",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
     "mithril": "^0.2.8",
-    "moment": "^2.20.1",
-    "punycode": "^2.1.0",
+    "moment": "^2.22.2",
+    "punycode": "^2.1.1",
     "spin.js": "^3.1.0",
+    "webpack": "^4.0.0",
+    "webpack-cli": "^2.1.5",
     "webpack-merge": "^4.1.2"
   },
   "scripts": {
-    "watch": "./node_modules/webpack/bin/webpack.js --mode development --watch",
-    "build": "./node_modules/webpack/bin/webpack.js --mode production"
+    "build": "./node_modules/webpack/bin/webpack.js --mode production --progress",
+    "watch": "npm run build -- --watch"
   }
 }

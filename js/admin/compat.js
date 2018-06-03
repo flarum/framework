@@ -1,4 +1,4 @@
-import compat from '../../lib/compat';
+import compat from '../common/compat';
 
 import saveSettings from './utils/saveSettings';
 import SettingDropdown from './components/SettingDropdown';

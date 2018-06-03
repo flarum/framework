@@ -12,8 +12,8 @@ import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes from './routes';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
-import Application from '../../lib/Application';
-import Navigation from '../../lib/components/Navigation';
+import Application from '../common/Application';
+import Navigation from '../common/components/Navigation';
 
 export default class ForumApplication extends Application {
   /**
