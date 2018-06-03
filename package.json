@@ -1,6 +1,7 @@
 {
   "name": "@flarum/core",
   "devDependencies": {
+    "@alrra/travis-scripts": "^3.0.1",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color-thief-browser": "^2.0.2",

@@ -10,8 +10,7 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache
-    - js/forum/node_modules
-    - js/admin/node_modules
+    - node_modules
 
 before_install:
   - phpenv config-rm xdebug.ini || true
@@ -24,16 +23,14 @@ script:
 
 jobs:
   include:
-    # Add a job to bundle and commit Flarum's JavaScript
+    # Add a job to bundle and commit JS
     - language: generic
       php: 
       before_install: 
       install:
-        - cd $TRAVIS_BUILD_DIR/js/forum && npm install && npm run build
-        - cd $TRAVIS_BUILD_DIR/js/admin && npm install && npm run build
+        - npm install && npm run build
       script: 
       after_success:
-        - cd $TRAVIS_BUILD_DIR && npm install @alrra/travis-scripts@^3.0.1
         - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "./.deploy.enc"
         - $(npm bin)/commit-changes --commands "true" --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" --branch "master"
 
