@@ -12,15 +12,16 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\AccessToken;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\JsonResponse;
 
-class TokenController implements ControllerInterface
+class TokenController implements RequestHandlerInterface
 {
     /**
      * @var \Flarum\User\UserRepository
@@ -52,7 +53,7 @@ class TokenController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
 

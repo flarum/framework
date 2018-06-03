@@ -12,12 +12,13 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\User\AssertPermissionTrait;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 
-class UpdateExtensionController implements ControllerInterface
+class UpdateExtensionController implements RequestHandlerInterface
 {
     use AssertPermissionTrait;
 
@@ -37,7 +38,7 @@ class UpdateExtensionController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $this->assertAdmin($request->getAttribute('actor'));
 
