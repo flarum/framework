@@ -17,8 +17,9 @@ use Flarum\Frontend\FrontendAssetsFactory;
 use Flarum\Frontend\FrontendViewFactory;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class Frontend extends AbstractFrontend
+class ForumFrontend extends AbstractFrontend
 {
     /**
      * @var Formatter
@@ -43,15 +44,15 @@ class Frontend extends AbstractFrontend
     /**
      * {@inheritdoc}
      */
-    public function getView()
+    public function getView(ServerRequestInterface $request)
     {
-        $view = parent::getView();
+        $view = parent::getView($request);
 
-        $view->getJs()->addString(function () {
+        $view->js->addString(function () {
             return $this->formatter->getJs();
         });
 
-        $view->getCss()->addString(function () {
+        $view->css->addString(function () {
             return $this->settings->get('custom_less');
         });
 

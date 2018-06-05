@@ -13,7 +13,7 @@ namespace Flarum\Admin;
 
 use Flarum\Frontend\AbstractFrontend;
 
-class Frontend extends AbstractFrontend
+class AdminFrontend extends AbstractFrontend
 {
     /**
      * {@inheritdoc}

@@ -11,9 +11,9 @@
 
 namespace Flarum\Foundation\Console;
 
-use Flarum\Admin\Frontend as AdminWebApp;
+use Flarum\Admin\AdminFrontend;
 use Flarum\Console\AbstractCommand;
-use Flarum\Forum\Frontend as ForumWebApp;
+use Flarum\Forum\ForumFrontend;
 use Flarum\Foundation\Application;
 use Illuminate\Contracts\Cache\Store;
 
@@ -25,12 +25,12 @@ class CacheClearCommand extends AbstractCommand
     protected $cache;
 
     /**
-     * @var ForumWebApp
+     * @var ForumFrontend
      */
     protected $forum;
 
     /**
-     * @var AdminWebApp
+     * @var AdminFrontend
      */
     protected $admin;
 
@@ -41,11 +41,11 @@ class CacheClearCommand extends AbstractCommand
 
     /**
      * @param Store $cache
-     * @param ForumWebApp $forum
-     * @param AdminWebApp $admin
+     * @param ForumFrontend $forum
+     * @param AdminFrontend $admin
      * @param Application $app
      */
-    public function __construct(Store $cache, ForumWebApp $forum, AdminWebApp $admin, Application $app)
+    public function __construct(Store $cache, ForumFrontend $forum, AdminFrontend $admin, Application $app)
     {
         $this->cache = $cache;
         $this->forum = $forum;

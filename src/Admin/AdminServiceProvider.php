@@ -120,6 +120,6 @@ class AdminServiceProvider extends AbstractServiceProvider
      */
     protected function getWebAppAssets()
     {
-        return $this->app->make(Frontend::class)->getAssets();
+        return $this->app->make(AdminFrontend::class)->getAssets();
     }
 }

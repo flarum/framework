@@ -11,18 +11,18 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Forum\Frontend;
+use Flarum\Forum\ForumFrontend;
 use Flarum\Frontend\AbstractFrontendController;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FrontendController extends AbstractFrontendController
 {
     /**
-     * {@inheritdoc}
+     * @param ForumFrontend $frontend
+     * @param Dispatcher $events
      */
-    public function __construct(Frontend $webApp, Dispatcher $events)
+    public function __construct(ForumFrontend $frontend, Dispatcher $events)
     {
-        $this->webApp = $webApp;
-        $this->events = $events;
+        parent::__construct($frontend, $events);
     }
 }

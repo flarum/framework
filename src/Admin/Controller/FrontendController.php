@@ -11,7 +11,7 @@
 
 namespace Flarum\Admin\Controller;
 
-use Flarum\Admin\Frontend;
+use Flarum\Admin\AdminFrontend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Frontend\AbstractFrontendController;
 use Flarum\Group\Permission;
@@ -39,16 +39,16 @@ class FrontendController extends AbstractFrontendController
     protected $db;
 
     /**
-     * @param Frontend $webApp
+     * @param AdminFrontend $frontend
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
      * @param ConnectionInterface $db
      */
-    public function __construct(Frontend $webApp, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions, ConnectionInterface $db)
+    public function __construct(AdminFrontend $frontend, Dispatcher $events, SettingsRepositoryInterface $settings, ExtensionManager $extensions, ConnectionInterface $db)
     {
-        $this->webApp = $webApp;
-        $this->events = $events;
+        parent::__construct($frontend, $events);
+
         $this->settings = $settings;
         $this->extensions = $extensions;
         $this->db = $db;
