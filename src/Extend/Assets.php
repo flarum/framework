@@ -12,27 +12,35 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Frontend\Event\Rendering;
+use Flarum\Frontend\Asset\ExtensionAssets;
+use Flarum\Frontend\CompilerFactory;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
 
 class Assets implements ExtenderInterface
 {
-    protected $appName;
+    protected $frontend;
 
-    protected $assets = [];
+    protected $css = [];
     protected $js;
 
-    public function __construct($appName)
+    public function __construct($frontend)
     {
-        $this->appName = $appName;
+        $this->frontend = $frontend;
     }
 
-    public function asset($path)
+    public function css($path)
     {
-        $this->assets[] = $path;
+        $this->css[] = $path;
 
         return $this;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function asset($path)
+    {
+        return $this->css($path);
     }
 
     public function js($path)
@@ -44,35 +52,13 @@ class Assets implements ExtenderInterface
 
     public function __invoke(Container $container, Extension $extension = null)
     {
-        $container->make(Dispatcher::class)->listen(
-            Rendering::class,
-            function (Rendering $event) use ($extension) {
-                if (! $this->matches($event)) {
-                    return;
-                }
-
-                $event->addAssets($this->assets);
-
-                if ($this->js) {
-                    $event->view->getJs()->addString(function () use ($extension) {
-                        $name = $extension->getId();
-
-                        return 'var module={};'.file_get_contents($this->js).";\nflarum.extensions['$name']=module.exports";
-                    });
-                }
+        $container->resolving(
+            "flarum.$this->frontend.assets",
+            function (CompilerFactory $assets) use ($extension) {
+                $assets->add(function () use ($extension) {
+                    return new ExtensionAssets($extension, $this->css, $this->js);
+                });
             }
         );
-    }
-
-    private function matches(Rendering $event)
-    {
-        switch ($this->appName) {
-            case 'admin':
-                return $event->isAdmin();
-            case 'forum':
-                return $event->isForum();
-            default:
-                return false;
-        }
     }
 }
