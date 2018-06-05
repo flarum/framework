@@ -14,9 +14,9 @@ namespace Flarum\Frontend;
 use Flarum\Foundation\Application;
 use Flarum\Frontend\Asset\JsCompiler;
 use Flarum\Frontend\Asset\LessCompiler;
-use Flarum\Frontend\Asset\LocaleJsCompiler as LocaleJsCompiler;
+use Flarum\Frontend\Asset\LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
-use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Filesystem\FilesystemAdapter;
 
 class FrontendAssets
 {
@@ -26,14 +26,9 @@ class FrontendAssets
     protected $name;
 
     /**
-     * @var Application
+     * @var FilesystemAdapter
      */
-    protected $app;
-
-    /**
-     * @var Repository
-     */
-    protected $cache;
+    protected $assetsDir;
 
     /**
      * @var LocaleManager
@@ -41,17 +36,64 @@ class FrontendAssets
     protected $locales;
 
     /**
-     * @param string $name
-     * @param Application $app
-     * @param Repository $cache
-     * @param LocaleManager $locales
+     * @var Application
      */
-    public function __construct($name, Application $app, Repository $cache, LocaleManager $locales)
+    protected $app;
+
+    /**
+     * @param string $name
+     * @param FilesystemAdapter $assetsDir
+     * @param LocaleManager $locales
+     * @param Application $app
+     */
+    public function __construct(string $name, FilesystemAdapter $assetsDir, LocaleManager $locales, Application $app)
     {
         $this->name = $name;
-        $this->app = $app;
-        $this->cache = $cache;
+        $this->assetsDir = $assetsDir;
         $this->locales = $locales;
+        $this->app = $app;
+    }
+
+    /**
+     * @return JsCompiler
+     */
+    public function getJs(): JsCompiler
+    {
+        return new JsCompiler(
+            $this->assetsDir,
+            "$this->name.js",
+            $this->app->inDebugMode()
+        );
+    }
+
+    /**
+     * @return LessCompiler
+     */
+    public function getCss(): LessCompiler
+    {
+        return $this->getLessCompiler("$this->name.css");
+    }
+
+    /**
+     * @param string $locale
+     * @return LocaleJsCompiler
+     */
+    public function getLocaleJs(string $locale): LocaleJsCompiler
+    {
+        return new LocaleJsCompiler(
+            $this->assetsDir,
+            "$this->name-$locale.js",
+            $this->app->inDebugMode()
+        );
+    }
+
+    /**
+     * @param string $locale
+     * @return LessCompiler
+     */
+    public function getLocaleCss(string $locale): LessCompiler
+    {
+        return $this->getLessCompiler("$this->name-$locale.css");
     }
 
     public function flush()
@@ -87,79 +129,39 @@ class FrontendAssets
     }
 
     /**
-     * @return JsCompiler
+     * @return string
      */
-    public function getJs()
+    public function getName(): string
     {
-        return new JsCompiler(
-            $this->getDestination(),
-            "$this->name.js",
-            $this->shouldWatch(),
-            $this->cache
-        );
-    }
-
-    /**
-     * @return LessCompiler
-     */
-    public function getCss()
-    {
-        return new LessCompiler(
-            $this->getDestination(),
-            "$this->name.css",
-            $this->shouldWatch(),
-            $this->getLessStorage()
-        );
-    }
-
-    /**
-     * @param $locale
-     * @return LocaleJsCompiler
-     */
-    public function getLocaleJs($locale)
-    {
-        return new LocaleJsCompiler(
-            $this->getDestination(),
-            "$this->name-$locale.js",
-            $this->shouldWatch(),
-            $this->cache
-        );
-    }
-
-    /**
-     * @param $locale
-     * @return LessCompiler
-     */
-    public function getLocaleCss($locale)
-    {
-        return new LessCompiler(
-            $this->getDestination(),
-            "$this->name-$locale.css",
-            $this->shouldWatch(),
-            $this->getLessStorage()
-        );
-    }
-
-    protected function getDestination()
-    {
-        return $this->app->publicPath().'/assets';
-    }
-
-    protected function shouldWatch()
-    {
-        return $this->app->config('debug');
-    }
-
-    protected function getLessStorage()
-    {
-        return $this->app->storagePath().'/less';
+        return $this->name;
     }
 
     /**
      * @param string $name
      */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @param string $filename
+     * @return LessCompiler
+     */
+    protected function getLessCompiler(string $filename): LessCompiler
+    {
+        $compiler = new LessCompiler(
+            $this->assetsDir,
+            $filename,
+            $this->app->inDebugMode()
+        );
+
+        $compiler->setCacheDir($this->app->storagePath().'/less');
+
+        $compiler->setImportDirs([
+            $this->app->basePath().'/vendor/components/font-awesome/less' => '',
+        ]);
+
+        return $compiler;
     }
 }

@@ -13,6 +13,7 @@ namespace Flarum\Frontend;
 
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 abstract class AbstractFrontend
 {
@@ -51,11 +52,12 @@ abstract class AbstractFrontend
     }
 
     /**
+     * @param ServerRequestInterface $request
      * @return FrontendView
      */
-    public function getView()
+    public function getView(ServerRequestInterface $request)
     {
-        $view = $this->view->make($this->getLayout(), $this->getAssets());
+        $view = $this->view->make($this->getLayout(), $request, $this->getAssets());
 
         $this->addDefaultAssets($view);
         $this->addCustomLess($view);
@@ -107,8 +109,8 @@ abstract class AbstractFrontend
         $root = __DIR__.'/../..';
         $name = $this->getName();
 
-        $view->getJs()->addFile("$root/js/$name.js");
-        $view->getCss()->addFile("$root/less/$name.less");
+        $view->js->addFile("$root/js/$name.js");
+        $view->css->addFile("$root/less/$name.less");
     }
 
     /**
@@ -116,9 +118,6 @@ abstract class AbstractFrontend
      */
     private function addCustomLess(FrontendView $view)
     {
-        $css = $view->getCss();
-        $localeCss = $view->getLocaleCss();
-
         $lessVariables = function () {
             $less = '';
 
@@ -129,8 +128,8 @@ abstract class AbstractFrontend
             return $less;
         };
 
-        $css->addString($lessVariables);
-        $localeCss->addString($lessVariables);
+        $view->css->addString($lessVariables);
+        $view->localeCss->addString($lessVariables);
     }
 
     /**
@@ -158,7 +157,7 @@ abstract class AbstractFrontend
 
         $translations = $this->filterTranslations($translations);
 
-        $view->getLocaleJs()->setTranslations($translations);
+        $view->localeJs->setTranslations($translations);
     }
 
     /**

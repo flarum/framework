@@ -12,20 +12,22 @@
 namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
+use Flarum\Api\Controller\ShowForumController;
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Foundation\Application;
 use Flarum\Frontend\Asset\CompilerInterface;
 use Flarum\Frontend\Asset\LocaleJsCompiler;
 use Flarum\Locale\LocaleManager;
-use Illuminate\View\Factory;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Resource;
 
 /**
- * This class represents a view which boots up Flarum's client.
+ * This class represents a view which boots up Flarum's frontend app.
  */
-class FrontendView
+class FrontendView implements Renderable
 {
     /**
      * The title of the document, displayed in the <title> tag.
@@ -35,14 +37,7 @@ class FrontendView
     public $title;
 
     /**
-     * The description of the document, displayed in a <meta> tag.
-     *
-     * @var null|string
-     */
-    public $description;
-
-    /**
-     * The language of the document, displayed as the value of the attribute `dir` in the <html> tag.
+     * The language of the document, displayed as the value of the attribute `lang` in the <html> tag.
      *
      * @var null|string
      */
@@ -56,88 +51,94 @@ class FrontendView
     public $direction;
 
     /**
-     * The path to the client layout view to display.
+     * The name of the frontend layout view to display.
      *
      * @var string
      */
     public $layout;
 
     /**
-     * The SEO content of the page, displayed within the layout in <noscript>
-     * tags.
+     * The SEO content of the page, displayed within the layout in <noscript> tags.
      *
-     * @var string
+     * @var string|Renderable
      */
     public $content;
 
     /**
-     * An API response to be preloaded into the page.
-     *
-     * This should be a JSON-API document.
+     * A JSON-API document to be preloaded into the Flarum JS.
      *
      * @var null|array|object
      */
     public $document;
 
     /**
-     * Other variables to preload into the page.
+     * Other variables to preload into the Flarum JS.
      *
      * @var array
      */
-    protected $variables = [];
+    public $variables = [];
 
     /**
-     * An array of JS modules to load before booting the app.
+     * An array of meta tags to append to the page's <head>.
      *
      * @var array
      */
-    protected $modules = ['locale'];
+    public $meta = [];
+
+    /**
+     * The canonical URL for this page.
+     *
+     * This will signal to search engines what URL should be used for this
+     * content, if it can be found under multiple addresses. This is an
+     * important tool to tackle duplicate content.
+     *
+     * @var null|string
+     */
+    public $canonicalUrl;
 
     /**
      * An array of strings to append to the page's <head>.
      *
      * @var array
      */
-    protected $head = [];
+    public $head = [];
 
     /**
      * An array of strings to prepend before the page's </body>.
      *
      * @var array
      */
-    protected $foot = [];
+    public $foot = [];
 
     /**
-     * A map of <link> tags to be generated.
-     *
+     * @var CompilerInterface
+     */
+    public $js;
+
+    /**
+     * @var CompilerInterface
+     */
+    public $css;
+
+    /**
+     * @var LocaleJsCompiler
+     */
+    public $localeJs;
+
+    /**
+     * @var CompilerInterface
+     */
+    public $localeCss;
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
      * @var array
      */
-    protected $links = [];
-
-    /**
-     * @var CompilerInterface
-     */
-    protected $js;
-
-    /**
-     * @var CompilerInterface
-     */
-    protected $css;
-
-    /**
-     * @var CompilerInterface
-     */
-    protected $localeJs;
-
-    /**
-     * @var CompilerInterface
-     */
-    protected $localeCss;
-
-    /**
-     * @var FrontendAssets
-     */
-    protected $assets;
+    protected $forum;
 
     /**
      * @var Client
@@ -160,172 +161,81 @@ class FrontendView
     protected $userSerializer;
 
     /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
      * @param string $layout
+     * @param Request $request
      * @param FrontendAssets $assets
      * @param Client $api
      * @param Factory $view
      * @param LocaleManager $locales
      * @param AbstractSerializer $userSerializer
-     * @param Application $app
      */
-    public function __construct($layout, FrontendAssets $assets, Client $api, Factory $view, LocaleManager $locales, AbstractSerializer $userSerializer, Application $app)
+    public function __construct(string $layout, Request $request, FrontendAssets $assets, Client $api, Factory $view, LocaleManager $locales, AbstractSerializer $userSerializer)
     {
         $this->layout = $layout;
+        $this->request = $request;
         $this->api = $api;
-        $this->assets = $assets;
         $this->view = $view;
         $this->locales = $locales;
         $this->userSerializer = $userSerializer;
-        $this->app = $app;
 
-        $this->addHeadString('<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,600">', 'font');
+        $this->forum = $this->getForumDocument();
 
-        $this->js = $this->assets->getJs();
-        $this->css = $this->assets->getCss();
+        $this->initializeAssets($assets);
 
-        $locale = $this->locales->getLocale();
-        $this->localeJs = $this->assets->getLocaleJs($locale);
-        $this->localeCss = $this->assets->getLocaleCss($locale);
-
-        foreach ($this->locales->getJsFiles($locale) as $file) {
-            $this->localeJs->addFile($file);
-        }
-
-        foreach ($this->locales->getCssFiles($locale) as $file) {
-            $this->localeCss->addFile($file);
-        }
+        $this->addDefaultContent();
     }
 
     /**
-     * Add a string to be appended to the page's <head>.
-     *
-     * @param string $string
-     * @param null|string $name
-     */
-    public function addHeadString($string, $name = null)
-    {
-        if ($name) {
-            $this->head[$name] = $string;
-        } else {
-            $this->head[] = $string;
-        }
-    }
-
-    /**
-     * Add a string to be prepended before the page's </body>.
-     *
-     * @param string $string
-     */
-    public function addFootString($string)
-    {
-        $this->foot[] = $string;
-    }
-
-    /**
-     * Configure a <link> tag.
-     *
-     * @param string $relation
-     * @param string $target
-     */
-    public function link($relation, $target)
-    {
-        $this->links[$relation] = $target;
-    }
-
-    /**
-     * Configure the canonical URL for this page.
-     *
-     * This will signal to search engines what URL should be used for this
-     * content, if it can be found under multiple addresses. This is an
-     * important tool to tackle duplicate content.
-     *
-     * @param string $url
-     */
-    public function setCanonicalUrl($url)
-    {
-        $this->link('canonical', $url);
-    }
-
-    /**
-     * Set a variable to be preloaded into the app.
-     *
-     * @param string $name
-     * @param mixed $value
-     */
-    public function setVariable($name, $value)
-    {
-        $this->variables[$name] = $value;
-    }
-
-    /**
-     * Add a JavaScript module to be imported before the app is booted.
-     *
-     * @param string $module
-     */
-    public function loadModule($module)
-    {
-        $this->modules[] = $module;
-    }
-
-    /**
-     * Get the string contents of the view.
-     *
-     * @param Request $request
      * @return string
      */
-    public function render(Request $request)
+    public function render(): string
     {
-        $forum = $this->getForumDocument($request);
+        $this->view->share('allowJs', ! array_get($this->request->getQueryParams(), 'nojs'));
+        $this->view->share('forum', array_get($this->forum, 'data'));
 
-        $this->view->share('translator', $this->locales->getTranslator());
-        $this->view->share('allowJs', ! array_get($request->getQueryParams(), 'nojs'));
-        $this->view->share('forum', array_get($forum, 'data'));
-        $this->view->share('debug', $this->app->inDebugMode());
-
-        $view = $this->view->make('flarum.forum::frontend.app');
-
-        $view->title = $this->buildTitle(array_get($forum, 'data.attributes.title'));
-        $view->description = $this->description ?: array_get($forum, 'data.attributes.description');
-        $view->language = $this->language ?: $this->locales->getLocale();
-        $view->direction = $this->direction ?: 'ltr';
-
-        $view->modules = $this->modules;
-        $view->payload = $this->buildPayload($request, $forum);
-
-        $view->layout = $this->buildLayout();
-
-        $baseUrl = array_get($forum, 'data.attributes.baseUrl');
-        $view->cssUrls = $this->buildCssUrls($baseUrl);
-        $view->jsUrls = $this->buildJsUrls($baseUrl);
-
-        $view->head = $this->buildHeadContent();
-        $view->foot = $this->buildFootContent(array_get($forum, 'data.attributes.footerHtml'));
-
-        return $view->render();
+        return $this->getView()->render();
     }
 
-    protected function buildTitle($forumTitle)
+    /**
+     * @return View
+     */
+    protected function getView(): View
     {
-        return ($this->title ? $this->title.' - ' : '').$forumTitle;
+        return $this->view->make('flarum.forum::frontend.app')->with([
+            'title' => $this->buildTitle(),
+            'payload' => $this->buildPayload(),
+            'layout' => $this->buildLayout(),
+            'language' => $this->language,
+            'direction' => $this->direction,
+            'js' => $this->buildJs(),
+            'head' => $this->buildHead(),
+            'foot' => $this->buildFoot(),
+        ]);
     }
 
-    protected function buildPayload(Request $request, $forum)
+    /**
+     * @return string
+     */
+    protected function buildTitle(): string
     {
-        $data = $this->getDataFromDocument($forum);
+        return ($this->title ? $this->title.' - ' : '').array_get($this->forum, 'data.attributes.title');
+    }
 
-        if ($request->getAttribute('actor')->exists) {
-            $user = $this->getUserDocument($request);
+    /**
+     * @return array
+     */
+    protected function buildPayload(): array
+    {
+        $data = $this->getDataFromDocument($this->forum);
+
+        if ($this->request->getAttribute('actor')->exists) {
+            $user = $this->getUserDocument();
             $data = array_merge($data, $this->getDataFromDocument($user));
         }
 
         $payload = [
             'resources' => $data,
-            'session' => $this->buildSession($request),
+            'session' => $this->buildSession(),
             'document' => $this->document,
             'locales' => $this->locales->getLocales(),
             'locale' => $this->locales->getLocale()
@@ -334,100 +244,80 @@ class FrontendView
         return array_merge($payload, $this->variables);
     }
 
-    protected function buildLayout()
+    /**
+     * @return View
+     */
+    protected function buildLayout(): View
     {
-        $view = $this->view->make($this->layout);
-
-        $view->content = $this->buildContent();
-
-        return $view;
+        return $this->view->make($this->layout)
+            ->with('content', $this->buildContent());
     }
 
-    protected function buildContent()
+    /**
+     * @return View
+     */
+    protected function buildContent(): View
     {
-        $view = $this->view->make('flarum.forum::frontend.content');
-
-        $view->content = $this->content;
-
-        return $view;
+        return $this->view->make('flarum.forum::frontend.content')
+            ->with('content', $this->content);
     }
 
-    protected function buildCssUrls($baseUrl)
+    /**
+     * @return string
+     */
+    protected function buildHead(): string
     {
-        return $this->buildAssetUrls($baseUrl, [$this->css->getFile(), $this->localeCss->getFile()]);
-    }
+        $cssUrls = array_filter([$this->css->getUrl(), $this->localeCss->getUrl()]);
 
-    protected function buildJsUrls($baseUrl)
-    {
-        return $this->buildAssetUrls($baseUrl, [$this->js->getFile(), $this->localeJs->getFile()]);
-    }
+        $head = array_map(function ($url) {
+            return '<link rel="stylesheet" href="'.e($url).'">';
+        }, $cssUrls);
 
-    protected function buildAssetUrls($baseUrl, $files)
-    {
-        return array_map(function ($file) use ($baseUrl) {
-            return $baseUrl.str_replace(public_path(), '', $file);
-        }, array_filter($files));
-    }
-
-    protected function buildHeadContent()
-    {
-        $html = implode("\n", $this->head);
-
-        foreach ($this->links as $rel => $href) {
-            $html .= "\n<link rel=\"$rel\" href=\"$href\" />";
+        if ($faviconUrl = array_get($this->forum, 'data.attributes.faviconUrl')) {
+            $head[] = '<link rel="shortcut icon" href="'.e($faviconUrl).'">';
         }
 
-        return $html;
-    }
+        if ($this->canonicalUrl) {
+            $head[] = '<link rel="canonical" href="'.e($this->canonicalUrl).'">';
+        }
 
-    protected function buildFootContent($customFooterHtml)
-    {
-        return implode("\n", $this->foot)."\n".$customFooterHtml;
-    }
+        $head = array_merge($head, array_map(function ($content, $name) {
+            return '<meta name="'.e($name).'" content="'.e($content).'">';
+        }, $this->meta, array_keys($this->meta)));
 
-    /**
-     * @return CompilerInterface
-     */
-    public function getJs()
-    {
-        return $this->js;
+        return implode("\n", array_merge($head, $this->head));
     }
 
     /**
-     * @return CompilerInterface
+     * @return string
      */
-    public function getCss()
+    protected function buildJs(): string
     {
-        return $this->css;
+        $urls = array_filter([$this->js->getUrl(), $this->localeJs->getUrl()]);
+
+        return implode("\n", array_map(function ($url) {
+            return '<script src="'.e($url).'"></script>';
+        }, $urls));
     }
 
     /**
-     * @return LocaleJsCompiler
+     * @return string
      */
-    public function getLocaleJs()
+    protected function buildFoot(): string
     {
-        return $this->localeJs;
-    }
-
-    /**
-     * @return CompilerInterface
-     */
-    public function getLocaleCss()
-    {
-        return $this->localeCss;
+        return implode("\n", $this->foot);
     }
 
     /**
      * Get the result of an API request to show the forum.
      *
-     * @param Request $request
      * @return array
      */
-    protected function getForumDocument(Request $request)
+    protected function getForumDocument(): array
     {
-        $actor = $request->getAttribute('actor');
+        $actor = $this->request->getAttribute('actor');
 
-        $response = $this->api->send('Flarum\Api\Controller\ShowForumController', $actor);
+        $response = $this->api->send(ShowForumController::class, $actor);
 
         return json_decode($response->getBody(), true);
     }
@@ -435,12 +325,11 @@ class FrontendView
     /**
      * Get the result of an API request to show the current user.
      *
-     * @param Request $request
      * @return array
      */
-    protected function getUserDocument(Request $request)
+    protected function getUserDocument(): array
     {
-        $actor = $request->getAttribute('actor');
+        $actor = $this->request->getAttribute('actor');
 
         $this->userSerializer->setActor($actor);
 
@@ -454,13 +343,12 @@ class FrontendView
     /**
      * Get information about the current session.
      *
-     * @param Request $request
      * @return array
      */
-    protected function buildSession(Request $request)
+    protected function buildSession(): array
     {
-        $actor = $request->getAttribute('actor');
-        $session = $request->getAttribute('session');
+        $actor = $this->request->getAttribute('actor');
+        $session = $this->request->getAttribute('session');
 
         return [
             'userId' => $actor->id,
@@ -468,14 +356,48 @@ class FrontendView
         ];
     }
 
+    private function initializeAssets(FrontendAssets $assets)
+    {
+        $this->js = $assets->getJs();
+        $this->css = $assets->getCss();
+
+        $locale = $this->locales->getLocale();
+
+        $this->localeJs = $assets->getLocaleJs($locale);
+        $this->localeCss = $assets->getLocaleCss($locale);
+
+        foreach ($this->locales->getJsFiles($locale) as $file) {
+            $this->localeJs->addFile($file);
+        }
+
+        foreach ($this->locales->getCssFiles($locale) as $file) {
+            $this->localeCss->addFile($file);
+        }
+    }
+
+    private function addDefaultContent()
+    {
+        $this->langauge = $this->locales->getLocale();
+        $this->direction = 'ltr';
+
+        $this->meta['viewport'] = 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
+        $this->meta['description'] = array_get($this->forum, 'data.attributes.description');
+        $this->meta['theme-color'] = array_get($this->forum, 'data.attributes.themePrimaryColor');
+
+        if (array_get($this->request->getQueryParams(), 'nojs')) {
+            $this->meta['robots'] = 'noindex';
+        }
+
+        $this->head['font'] = '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,600">';
+    }
+
     /**
-     * Get an array of data by merging the 'data' and 'included' keys of a
-     * JSON-API document.
+     * Get an array of data by merging the 'data' and 'included' keys of a JSON-API document.
      *
      * @param array $document
      * @return array
      */
-    private function getDataFromDocument(array $document)
+    private function getDataFromDocument(array $document): array
     {
         $data[] = $document['data'];
 

@@ -67,12 +67,12 @@ class FrontendController extends AbstractFrontendController
             new Deserializing($settings)
         );
 
-        $view->setVariable('settings', $settings);
-        $view->setVariable('permissions', Permission::map());
-        $view->setVariable('extensions', $this->extensions->getExtensions()->toArray());
+        $view->variables['settings'] = $settings;
+        $view->variables['permissions'] = Permission::map();
+        $view->variables['extensions'] = $this->extensions->getExtensions()->toArray();
 
-        $view->setVariable('phpVersion', PHP_VERSION);
-        $view->setVariable('mysqlVersion', $this->db->selectOne('select version() as version')->version);
+        $view->variables['phpVersion'] = PHP_VERSION;
+        $view->variables['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
 
         return $view;
     }

@@ -11,17 +11,21 @@
 
 namespace Flarum\Frontend\Asset;
 
+use Illuminate\Filesystem\FilesystemAdapter;
+
 class RevisionCompiler implements CompilerInterface
 {
-    /**
-     * @var string[]
-     */
-    protected $files = [];
+    const REV_MANIFEST = 'rev-manifest.json';
 
     /**
-     * @var callable[]
+     * @var FilesystemAdapter
      */
-    protected $strings = [];
+    protected $assetsDir;
+
+    /**
+     * @var string
+     */
+    protected $filename;
 
     /**
      * @var bool
@@ -29,13 +33,18 @@ class RevisionCompiler implements CompilerInterface
     protected $watch;
 
     /**
-     * @param string $path
+     * @var array
+     */
+    protected $content = [];
+
+    /**
+     * @param FilesystemAdapter $assetsDir
      * @param string $filename
      * @param bool $watch
      */
-    public function __construct($path, $filename, $watch = false)
+    public function __construct(FilesystemAdapter $assetsDir, string $filename, bool $watch = false)
     {
-        $this->path = $path;
+        $this->assetsDir = $assetsDir;
         $this->filename = $filename;
         $this->watch = $watch;
     }
@@ -43,7 +52,15 @@ class RevisionCompiler implements CompilerInterface
     /**
      * {@inheritdoc}
      */
-    public function setFilename($filename)
+    public function getFilename(): string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setFilename(string $filename)
     {
         $this->filename = $filename;
     }
@@ -51,9 +68,9 @@ class RevisionCompiler implements CompilerInterface
     /**
      * {@inheritdoc}
      */
-    public function addFile($file)
+    public function addFile(string $file)
     {
-        $this->files[] = $file;
+        $this->content[] = $file;
     }
 
     /**
@@ -61,52 +78,141 @@ class RevisionCompiler implements CompilerInterface
      */
     public function addString(callable $callback)
     {
-        $this->strings[] = $callback;
+        $this->content[] = $callback;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFile()
+    public function getUrl(): ?string
     {
-        $old = $current = $this->getRevision();
+        $oldRevision = $currentRevision = $this->getRevision();
 
+        if (! $oldRevision || $this->watch) {
+            $currentRevision = $this->calculateRevision();
+        }
+
+        $file = $oldFile = $oldRevision ? $this->getFilenameForRevision($oldRevision) : null;
+
+        if ($oldRevision !== $currentRevision || ($oldFile && ! $this->assetsDir->has($oldFile))) {
+            $file = $this->getFilenameForRevision($currentRevision);
+
+            if (! $this->save($file)) {
+                return null;
+            }
+
+            $this->putRevision($currentRevision);
+
+            if ($oldFile) {
+                $this->delete($oldFile);
+            }
+        }
+
+        return $this->assetsDir->url($file);
+    }
+
+    /**
+     * @param string $file
+     * @return bool true if the file was written, false if there was nothing to write
+     */
+    protected function save(string $file): bool
+    {
+        if ($content = $this->compile()) {
+            $this->assetsDir->put($file, $content);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    protected function compile(): string
+    {
+        $output = '';
+
+        foreach ($this->content as $source) {
+            if (is_callable($source)) {
+                $content = $source();
+            } else {
+                $content = file_get_contents($source);
+            }
+
+            $output .= $this->format($content);
+        }
+
+        return $output;
+    }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    protected function format(string $string): string
+    {
+        return $string;
+    }
+
+    /**
+     * Get the filename for the given revision.
+     *
+     * @param string $revision
+     * @return string
+     */
+    protected function getFilenameForRevision(string $revision): string
+    {
         $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
-        $file = $this->path.'/'.substr_replace($this->filename, '-'.$old, -strlen($ext) - 1, 0);
 
-        if ($this->watch || ! $old) {
-            $cacheDifferentiator = [$this->getCacheDifferentiator()];
+        return substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
+    }
 
-            foreach ($this->files as $source) {
+    /**
+     * @return string|null
+     */
+    protected function getRevision(): ?string
+    {
+        if ($this->assetsDir->has(static::REV_MANIFEST)) {
+            $manifest = json_decode($this->assetsDir->read(static::REV_MANIFEST), true);
+
+            return array_get($manifest, $this->filename);
+        }
+    }
+
+    /**
+     * @param string $revision
+     * @return int
+     */
+    protected function putRevision(string $revision)
+    {
+        if ($this->assetsDir->has(static::REV_MANIFEST)) {
+            $manifest = json_decode($this->assetsDir->read(static::REV_MANIFEST), true);
+        } else {
+            $manifest = [];
+        }
+
+        $manifest[$this->filename] = $revision;
+
+        $this->assetsDir->put(static::REV_MANIFEST, json_encode($manifest));
+    }
+
+    /**
+     * @return string
+     */
+    protected function calculateRevision(): string
+    {
+        $cacheDifferentiator = [$this->getCacheDifferentiator()];
+
+        foreach ($this->content as $source) {
+            if (is_callable($source)) {
+                $cacheDifferentiator[] = $source();
+            } else {
                 $cacheDifferentiator[] = [$source, filemtime($source)];
             }
-
-            foreach ($this->strings as $callback) {
-                $cacheDifferentiator[] = $callback();
-            }
-
-            $current = hash('crc32b', serialize($cacheDifferentiator));
         }
 
-        $exists = file_exists($file);
-
-        if (! $exists || $old !== $current) {
-            if ($exists) {
-                unlink($file);
-            }
-
-            $file = $this->path.'/'.substr_replace($this->filename, '-'.$current, -strlen($ext) - 1, 0);
-
-            if ($content = $this->compile()) {
-                $this->putRevision($current);
-
-                file_put_contents($file, $content);
-            } else {
-                return;
-            }
-        }
-
-        return $file;
+        return hash('crc32b', serialize($cacheDifferentiator));
     }
 
     /**
@@ -117,91 +223,24 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param string $string
-     * @return string
-     */
-    protected function format($string)
-    {
-        return $string;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function compile()
-    {
-        $output = '';
-
-        foreach ($this->files as $file) {
-            $output .= $this->formatFile($file);
-        }
-
-        foreach ($this->strings as $callback) {
-            $output .= $this->format($callback());
-        }
-
-        return $output;
-    }
-
-    /**
-     * @param string $file
-     * @return string
-     */
-    protected function formatFile($file)
-    {
-        return $this->format(file_get_contents($file));
-    }
-
-    /**
-     * @return string
-     */
-    protected function getRevisionFile()
-    {
-        return $this->path.'/rev-manifest.json';
-    }
-
-    /**
-     * @return string|null
-     */
-    protected function getRevision()
-    {
-        if (file_exists($file = $this->getRevisionFile())) {
-            $manifest = json_decode(file_get_contents($file), true);
-
-            return array_get($manifest, $this->filename);
-        }
-    }
-
-    /**
-     * @param string $revision
-     * @return int
-     */
-    protected function putRevision($revision)
-    {
-        if (file_exists($file = $this->getRevisionFile())) {
-            $manifest = json_decode(file_get_contents($file), true);
-        } else {
-            $manifest = [];
-        }
-
-        $manifest[$this->filename] = $revision;
-
-        return file_put_contents($this->getRevisionFile(), json_encode($manifest));
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function flush()
     {
         $revision = $this->getRevision();
 
-        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+        $file = $this->getFilenameForRevision($revision);
 
-        $file = $this->path.'/'.substr_replace($this->filename, '-'.$revision, -strlen($ext) - 1, 0);
+        $this->delete($file);
+    }
 
-        if (file_exists($file)) {
-            unlink($file);
+    /**
+     * @param string $file
+     */
+    protected function delete(string $file)
+    {
+        if ($this->assetsDir->has($file)) {
+            $this->assetsDir->delete($file);
         }
     }
 }

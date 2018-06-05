@@ -22,12 +22,22 @@ abstract class AbstractFrontendController extends AbstractHtmlController
     /**
      * @var AbstractFrontend
      */
-    protected $webApp;
+    protected $frontend;
 
     /**
      * @var Dispatcher
      */
     protected $events;
+
+    /**
+     * @param AbstractFrontend $frontend
+     * @param Dispatcher $events
+     */
+    public function __construct(AbstractFrontend $frontend, Dispatcher $events)
+    {
+        $this->frontend = $frontend;
+        $this->events = $events;
+    }
 
     /**
      * {@inheritdoc}
@@ -43,7 +53,7 @@ abstract class AbstractFrontendController extends AbstractHtmlController
             new Rendering($this, $view, $request)
         );
 
-        return $view->render($request);
+        return $view;
     }
 
     /**
@@ -52,6 +62,6 @@ abstract class AbstractFrontendController extends AbstractHtmlController
      */
     protected function getView(Request $request)
     {
-        return $this->webApp->getView();
+        return $this->frontend->getView($request);
     }
 }

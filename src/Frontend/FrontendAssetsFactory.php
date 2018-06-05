@@ -13,19 +13,19 @@ namespace Flarum\Frontend;
 
 use Flarum\Foundation\Application;
 use Flarum\Locale\LocaleManager;
-use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Filesystem\FilesystemAdapter;
 
 class FrontendAssetsFactory
 {
     /**
+     * @var FilesystemAdapter
+     */
+    protected $assetsDir;
+
+    /**
      * @var Application
      */
     protected $app;
-
-    /**
-     * @var Repository
-     */
-    protected $cache;
 
     /**
      * @var LocaleManager
@@ -33,14 +33,14 @@ class FrontendAssetsFactory
     protected $locales;
 
     /**
+     * @param FilesystemAdapter $assetsDir
      * @param Application $app
-     * @param Repository $cache
      * @param LocaleManager $locales
      */
-    public function __construct(Application $app, Repository $cache, LocaleManager $locales)
+    public function __construct(FilesystemAdapter $assetsDir, Application $app, LocaleManager $locales)
     {
+        $this->assetsDir = $assetsDir;
         $this->app = $app;
-        $this->cache = $cache;
         $this->locales = $locales;
     }
 
@@ -48,8 +48,8 @@ class FrontendAssetsFactory
      * @param string $name
      * @return FrontendAssets
      */
-    public function make($name)
+    public function make(string $name): FrontendAssets
     {
-        return new FrontendAssets($name, $this->app, $this->cache, $this->locales);
+        return new FrontendAssets($name, $this->assetsDir, $this->locales, $this->app);
     }
 }

@@ -13,21 +13,36 @@ namespace Flarum\Frontend\Asset;
 
 class LocaleJsCompiler extends JsCompiler
 {
+    /**
+     * @var array
+     */
     protected $translations = [];
 
+    /**
+     * {@inheritdoc}
+     */
     public function setTranslations(array $translations)
     {
         $this->translations = $translations;
     }
 
-    public function compile()
+    /**
+     * {@inheritdoc}
+     */
+    protected function save(string $file): bool
     {
-        $output = 'flarum.app.translator.translations = '.json_encode($this->translations).";\n";
+        array_unshift($this->content, function () {
+            return 'flarum.app.translator.translations='.json_encode($this->translations);
+        });
 
-        foreach ($this->files as $filename) {
-            $output .= file_get_contents($filename);
-        }
+        return parent::save($file);
+    }
 
-        return $this->format($output);
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCacheDifferentiator()
+    {
+        return $this->translations;
     }
 }

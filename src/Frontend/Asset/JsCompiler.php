@@ -11,41 +11,67 @@
 
 namespace Flarum\Frontend\Asset;
 
-use Illuminate\Cache\Repository;
+use axy\sourcemap\SourceMap;
 
 class JsCompiler extends RevisionCompiler
 {
     /**
-     * @var Repository
+     * {@inheritdoc}
      */
-    protected $cache;
-
-    /**
-     * @param string $path
-     * @param string $filename
-     * @param bool $watch
-     * @param Repository $cache
-     */
-    public function __construct($path, $filename, $watch = false, Repository $cache = null)
+    protected function save(string $file): bool
     {
-        parent::__construct($path, $filename, $watch);
+        $mapFile = $file.'.map';
 
-        $this->cache = $cache;
+        $map = new SourceMap();
+        $map->file = $mapFile;
+        $output = [];
+        $line = 0;
+
+        // For each of the sources, get their content and add it to the output.
+        // For file sources, if a sourcemap is present, add it to the output sourcemap.
+        foreach ($this->content as $source) {
+            if (is_callable($source)) {
+                $content = $source();
+            } else {
+                $content = file_get_contents($source);
+
+                if (file_exists($sourceMap = $source.'.map')) {
+                    $map->concat($sourceMap, $line);
+                }
+            }
+
+            $content = $this->format($content);
+            $output[] = $content;
+            $line += substr_count($content, "\n") + 1;
+        }
+
+        // Add a comment to the end of our file to point to the sourcemap we just constructed.
+        $output[] = '//# sourceMappingURL='.$this->assetsDir->url($mapFile);
+
+        $this->assetsDir->put($file, implode("\n", $output));
+
+        $map->save($mapFile);
+
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function format($string)
+    protected function format(string $string): string
     {
-        return $string.";\n";
+        return preg_replace('~//# sourceMappingURL.*$~s', '', $string).";\n";
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getCacheDifferentiator()
+    protected function delete(string $file)
     {
-        return $this->watch;
+        parent::delete($file);
+
+        if ($this->assetsDir->has($mapFile = $file.'.map')) {
+            $this->assetsDir->delete($mapFile);
+        }
     }
 }

@@ -13,9 +13,9 @@ namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
 use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Foundation\Application;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\View\Factory;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class FrontendViewFactory
 {
@@ -40,33 +40,27 @@ class FrontendViewFactory
     protected $userSerializer;
 
     /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
      * @param Client $api
      * @param Factory $view
      * @param LocaleManager $locales
      * @param CurrentUserSerializer $userSerializer
-     * @param Application $app
      */
-    public function __construct(Client $api, Factory $view, LocaleManager $locales, CurrentUserSerializer $userSerializer, Application $app)
+    public function __construct(Client $api, Factory $view, LocaleManager $locales, CurrentUserSerializer $userSerializer)
     {
         $this->api = $api;
         $this->view = $view;
         $this->locales = $locales;
         $this->userSerializer = $userSerializer;
-        $this->app = $app;
     }
 
     /**
      * @param string $layout
+     * @param Request $request
      * @param FrontendAssets $assets
      * @return FrontendView
      */
-    public function make($layout, FrontendAssets $assets)
+    public function make(string $layout, Request $request, FrontendAssets $assets): FrontendView
     {
-        return new FrontendView($layout, $assets, $this->api, $this->view, $this->locales, $this->userSerializer, $this->app);
+        return new FrontendView($layout, $request, $assets, $this->api, $this->view, $this->locales, $this->userSerializer);
     }
 }

@@ -14,14 +14,19 @@ namespace Flarum\Frontend\Asset;
 interface CompilerInterface
 {
     /**
+     * @return string
+     */
+    public function getFilename(): string;
+
+    /**
      * @param string $filename
      */
-    public function setFilename($filename);
+    public function setFilename(string $filename);
 
     /**
      * @param string $file
      */
-    public function addFile($file);
+    public function addFile(string $file);
 
     /**
      * @param callable $callback
@@ -29,14 +34,9 @@ interface CompilerInterface
     public function addString(callable $callback);
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFile();
-
-    /**
-     * @return string
-     */
-    public function compile();
+    public function getUrl(): ?string;
 
     public function flush();
 }

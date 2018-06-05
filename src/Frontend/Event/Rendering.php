@@ -63,19 +63,14 @@ class Rendering
 
             switch ($ext) {
                 case 'js':
-                    $this->view->getJs()->addFile($file);
+                    $this->view->js->addFile($file);
                     break;
 
                 case 'css':
                 case 'less':
-                    $this->view->getCss()->addFile($file);
+                    $this->view->css->addFile($file);
                     break;
             }
         }
-    }
-
-    public function addBootstrapper($bootstrapper)
-    {
-        $this->view->loadModule($bootstrapper);
     }
 }

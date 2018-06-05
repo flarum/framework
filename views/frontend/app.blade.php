@@ -1,60 +1,44 @@
 <!doctype html>
 <html dir="{{ $direction }}" lang="{{ $language }}">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>{{ $title }}</title>
-    <meta name="description" content="{{ $description }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
-    <meta name="theme-color" content="{{ array_get($forum, 'attributes.themePrimaryColor') }}">
-    @if (! $allowJs)
-      <meta name="robots" content="noindex" />
-    @endif
-
-    @foreach ($cssUrls as $url)
-      <link rel="stylesheet" href="{{ $url }}">
-    @endforeach
-
-    @if ($faviconUrl = array_get($forum, 'attributes.faviconUrl'))
-      <link href="{{ $faviconUrl }}" rel="shortcut icon">
-    @endif
 
     {!! $head !!}
-  </head>
+</head>
 
-  <body>
-    {!! $layout !!}
+<body>
+{!! $layout !!}
 
-    <div id="modal"></div>
-    <div id="alerts"></div>
+<div id="modal"></div>
+<div id="alerts"></div>
 
-    @if ($allowJs)
-      <script>
+@if ($allowJs)
+    <script>
         document.getElementById('flarum-loading').style.display = 'block';
-      </script>
+    </script>
 
-      @foreach ($jsUrls as $url)
-        <script src="{{ $url }}"></script>
-      @endforeach
+    {!! $js !!}
 
-      <script>
+    <script>
         document.getElementById('flarum-loading').style.display = 'none';
-        @if (! $debug)
+        @if (! array_get($forum, 'data.attributes.debug'))
         try {
         @endif
-          flarum.app.boot(@json($payload));
-        @if (! $debug)
+            flarum.app.boot(@json($payload));
+        @if (! array_get($forum, 'data.attributes.debug'))
         } catch (e) {
-          window.location += (window.location.search ? '&' : '?') + 'nojs=1';
-          throw e;
+            window.location += (window.location.search ? '&' : '?') + 'nojs=1';
+            throw e;
         }
         @endif
-      </script>
-    @else
-      <script>
+    </script>
+@else
+    <script>
         window.history.replaceState(null, null, window.location.toString().replace(/([&?]nojs=1$|nojs=1&)/, ''));
-      </script>
-    @endif
+    </script>
+@endif
 
-    {!! $foot !!}
-  </body>
+{!! $foot !!}
+</body>
 </html>
