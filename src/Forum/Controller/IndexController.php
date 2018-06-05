@@ -11,39 +11,38 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Api\Client as ApiClient;
-use Flarum\Forum\Frontend;
+use Flarum\Api\Client;
+use Flarum\Api\Controller\ListDiscussionsController;
+use Flarum\Forum\ForumFrontend;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexController extends FrontendController
 {
     /**
-     * @var ApiClient
+     * @var Client
      */
     protected $api;
 
     /**
-     * A map of sort query param values to their API sort param.
-     *
-     * @var array
+     * @var Factory
      */
-    private $sortMap = [
-        'latest' => '-lastTime',
-        'top' => '-commentsCount',
-        'newest' => '-startTime',
-        'oldest' => 'startTime'
-    ];
+    protected $view;
 
     /**
-     * {@inheritdoc}
+     * @param ForumFrontend $frontend
+     * @param Dispatcher $events
+     * @param Client $api
+     * @param Factory $view
      */
-    public function __construct(Frontend $webApp, Dispatcher $events, ApiClient $api)
+    public function __construct(ForumFrontend $frontend, Dispatcher $events, Client $api, Factory $view)
     {
-        parent::__construct($webApp, $events);
+        parent::__construct($frontend, $events);
 
         $this->api = $api;
+        $this->view = $view;
     }
 
     /**
@@ -59,8 +58,10 @@ class IndexController extends FrontendController
         $q = array_pull($queryParams, 'q');
         $page = array_pull($queryParams, 'page', 1);
 
+        $sortMap = $this->getSortMap();
+
         $params = [
-            'sort' => $sort && isset($this->sortMap[$sort]) ? $this->sortMap[$sort] : '',
+            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
             'filter' => compact('q'),
             'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
         ];
@@ -68,9 +69,24 @@ class IndexController extends FrontendController
         $document = $this->getDocument($request->getAttribute('actor'), $params);
 
         $view->document = $document;
-        $view->content = app('view')->make('flarum.forum::frontend.content.index', compact('document', 'page', 'forum'));
+        $view->content = $this->view->make('flarum.forum::frontend.content.index', compact('document', 'page', 'forum'));
 
         return $view;
+    }
+
+    /**
+     * Get a map of sort query param values and their API sort params.
+     *
+     * @return array
+     */
+    private function getSortMap()
+    {
+        return [
+            'latest' => '-lastTime',
+            'top' => '-commentsCount',
+            'newest' => '-startTime',
+            'oldest' => 'startTime'
+        ];
     }
 
     /**
@@ -82,6 +98,6 @@ class IndexController extends FrontendController
      */
     private function getDocument(User $actor, array $params)
     {
-        return json_decode($this->api->send('Flarum\Api\Controller\ListDiscussionsController', $actor, $params)->getBody());
+        return json_decode($this->api->send(ListDiscussionsController::class, $actor, $params)->getBody());
     }
 }

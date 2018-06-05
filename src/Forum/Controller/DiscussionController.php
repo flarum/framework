@@ -12,11 +12,12 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Forum\Frontend;
+use Flarum\Forum\ForumFrontend;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class DiscussionController extends FrontendController
@@ -32,14 +33,24 @@ class DiscussionController extends FrontendController
     protected $url;
 
     /**
-     * {@inheritdoc}
+     * @var Factory
      */
-    public function __construct(Frontend $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
+    protected $view;
+
+    /**
+     * @param ForumFrontend $frontend
+     * @param Dispatcher $events
+     * @param Client $api
+     * @param UrlGenerator $url
+     * @param Factory $view
+     */
+    public function __construct(ForumFrontend $frontend, Dispatcher $events, Client $api, UrlGenerator $url, Factory $view)
     {
-        parent::__construct($webApp, $events);
+        parent::__construct($frontend, $events);
 
         $this->api = $api;
         $this->url = $url;
+        $this->view = $view;
     }
 
     /**
@@ -87,7 +98,7 @@ class DiscussionController extends FrontendController
 
         $view->title = $document->data->attributes->title;
         $view->document = $document;
-        $view->content = app('view')->make('flarum.forum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
+        $view->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
 
         return $view;
     }
