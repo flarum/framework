@@ -16,6 +16,7 @@ use Flarum\Event\ConfigureMiddleware;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Frontend\FrontendAssets;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\Middleware\CollectGarbage;
 use Flarum\Http\Middleware\DispatchRoute;
@@ -85,9 +86,9 @@ class ForumServiceProvider extends AbstractServiceProvider
             'settings' => $this->app->make(SettingsRepositoryInterface::class)
         ]);
 
-        $this->flushWebAppAssetsWhenThemeChanged();
+        $this->flushFrontendAssetsWhenThemeChanged();
 
-        $this->flushWebAppAssetsWhenExtensionsChanged();
+        $this->flushFrontendAssetsWhenExtensionsChanged();
     }
 
     /**
@@ -121,32 +122,31 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
     }
 
-    protected function flushWebAppAssetsWhenThemeChanged()
+    protected function flushFrontendAssetsWhenThemeChanged()
     {
         $this->app->make('events')->listen(Saved::class, function (Saved $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getWebAppAssets()->flushCss();
+                $this->getFrontendAssets()->flushCss();
             }
         });
     }
 
-    protected function flushWebAppAssetsWhenExtensionsChanged()
+    protected function flushFrontendAssetsWhenExtensionsChanged()
     {
         $events = $this->app->make('events');
 
-        $events->listen(Enabled::class, [$this, 'flushWebAppAssets']);
-        $events->listen(Disabled::class, [$this, 'flushWebAppAssets']);
-    }
+        $handler = function () {
+            $this->getFrontendAssets()->flush();
+        };
 
-    public function flushWebAppAssets()
-    {
-        $this->getWebAppAssets()->flush();
+        $events->listen(Enabled::class, $handler);
+        $events->listen(Disabled::class, $handler);
     }
 
     /**
-     * @return \Flarum\Frontend\FrontendAssets
+     * @return FrontendAssets
      */
-    protected function getWebAppAssets()
+    protected function getFrontendAssets()
     {
         return $this->app->make(ForumFrontend::class)->getAssets();
     }

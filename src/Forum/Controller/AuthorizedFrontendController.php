@@ -14,7 +14,7 @@ namespace Flarum\Forum\Controller;
 use Flarum\User\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class AuthorizedWebAppController extends FrontendController
+class AuthorizedFrontendController extends FrontendController
 {
     /**
      * {@inheritdoc}

@@ -35,13 +35,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->get(
         '/settings',
         'settings',
-        $route->toController(Controller\AuthorizedWebAppController::class)
+        $route->toController(Controller\AuthorizedFrontendController::class)
     );
 
     $map->get(
         '/notifications',
         'notifications',
-        $route->toController(Controller\AuthorizedWebAppController::class)
+        $route->toController(Controller\AuthorizedFrontendController::class)
     );
 
     $map->get(

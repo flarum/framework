@@ -98,7 +98,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         // Flush web app assets when the theme is changed
         $dispatcher->listen(Saved::class, function (Saved $event) {
             if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getWebAppAssets()->flushCss();
+                $this->getFrontendAssets()->flushCss();
             }
         });
 
@@ -110,15 +110,15 @@ class AdminServiceProvider extends AbstractServiceProvider
         $dispatcher->subscribe(CheckCustomLessFormat::class);
     }
 
-    public function flushWebAppAssets()
+    public function flushFrontendAssets()
     {
-        $this->getWebAppAssets()->flush();
+        $this->getFrontendAssets()->flush();
     }
 
     /**
      * @return \Flarum\Frontend\FrontendAssets
      */
-    protected function getWebAppAssets()
+    protected function getFrontendAssets()
     {
         return $this->app->make(AdminFrontend::class)->getAssets();
     }
