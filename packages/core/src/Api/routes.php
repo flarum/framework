@@ -25,7 +25,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->post(
         '/token',
         'token',
-        $route->toController(Controller\TokenController::class)
+        $route->toController(Controller\CreateTokenController::class)
     );
 
     // Send forgot password email
