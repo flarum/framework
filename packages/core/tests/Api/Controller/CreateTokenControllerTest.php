@@ -11,15 +11,15 @@
 
 namespace Flarum\Tests\Api\Controller;
 
-use Flarum\Api\Controller\TokenController;
+use Flarum\Api\Controller\CreateTokenController;
 use Flarum\Http\AccessToken;
 use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 
-class TokenControllerTest extends ApiControllerTestCase
+class CreateTokenControllerTest extends ApiControllerTestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected $controller = TokenController::class;
+    protected $controller = CreateTokenController::class;
 
     /**
      * @test
