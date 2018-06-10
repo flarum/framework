@@ -11,7 +11,6 @@
 
 namespace Flarum\Http;
 
-use Flarum\Admin\AdminFrontend;
 use Flarum\Frontend\FrontendController;
 use Illuminate\Contracts\Container\Container;
 

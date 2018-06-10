@@ -11,10 +11,10 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Frontend\Asset\AssetInterface;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
-use Flarum\Frontend\Asset\AssetInterface;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Illuminate\Filesystem\FilesystemAdapter;
 

@@ -12,12 +12,8 @@
 namespace Flarum\Frontend;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Application;
 use Flarum\Http\UrlGenerator;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\View\Factory as ViewFactory;
-use Illuminate\Filesystem\FilesystemAdapter;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {

@@ -14,7 +14,6 @@ namespace Flarum\Forum;
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Frontend\FrontendAssets;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\Middleware\CollectGarbage;
 use Flarum\Http\Middleware\DispatchRoute;

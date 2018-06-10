@@ -11,9 +11,7 @@
 
 namespace Flarum\Foundation\Console;
 
-use Flarum\Admin\AdminFrontend;
 use Flarum\Console\AbstractCommand;
-use Flarum\Forum\ForumFrontend;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Event\ClearingCache;
 use Illuminate\Contracts\Cache\Store;

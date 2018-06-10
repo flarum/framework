@@ -12,14 +12,9 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Frontend\Asset\AbstractAsset;
-use Flarum\Frontend\Asset\AssetInterface;
 use Flarum\Frontend\Asset\ExtensionAssets;
-use Flarum\Frontend\Compiler\CompilerInterface;
-use Flarum\Frontend\Event\Rendering;
 use Flarum\Frontend\FrontendCompilerFactory;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
 
 class Assets implements Extender
 {
