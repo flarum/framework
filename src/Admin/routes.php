@@ -17,6 +17,6 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->get(
         '/',
         'index',
-        $route->toController(Controller\FrontendController::class)
+        $route->toAdmin()
     );
 };

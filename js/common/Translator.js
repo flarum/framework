@@ -1,6 +1,4 @@
-import User from 'models/User';
 import username from 'helpers/username';
-import extractText from 'utils/extractText';
 import extract from 'utils/extract';
 
 /**
@@ -21,6 +19,10 @@ export default class Translator {
     this.translations = {};
 
     this.locale = null;
+  }
+
+  addTranslations(translations) {
+    Object.assign(this.translations, translations);
   }
 
   trans(id, parameters) {

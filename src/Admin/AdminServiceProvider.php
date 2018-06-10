@@ -64,6 +64,19 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             return $pipe;
         });
+
+        $this->app->bind('flarum.admin.assets', function () {
+            return $this->app->make('flarum.frontend.assets.defaults')('admin');
+        });
+
+        $this->app->bind('flarum.admin.frontend', function () {
+            $view = $this->app->make('flarum.frontend.view.defaults')('admin');
+
+            $view->setAssets($this->app->make('flarum.admin.assets'));
+            $view->add($this->app->make(Content\AdminPayload::class));
+
+            return $view;
+        });
     }
 
     /**

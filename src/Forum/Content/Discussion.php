@@ -9,10 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Forum\Controller;
+namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Forum\ForumFrontend;
+use Flarum\Frontend\Content\ContentInterface;
+use Flarum\Frontend\FrontendView;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
@@ -20,7 +22,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class DiscussionController extends FrontendController
+class Discussion implements ContentInterface
 {
     /**
      * @var Client
@@ -38,28 +40,19 @@ class DiscussionController extends FrontendController
     protected $view;
 
     /**
-     * @param ForumFrontend $frontend
-     * @param Dispatcher $events
      * @param Client $api
      * @param UrlGenerator $url
      * @param Factory $view
      */
-    public function __construct(ForumFrontend $frontend, Dispatcher $events, Client $api, UrlGenerator $url, Factory $view)
+    public function __construct(Client $api, UrlGenerator $url, Factory $view)
     {
-        parent::__construct($frontend, $events);
-
         $this->api = $api;
         $this->url = $url;
         $this->view = $view;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getView(Request $request)
+    public function populate(FrontendView $view, Request $request)
     {
-        $view = parent::getView($request);
-
         $queryParams = $request->getQueryParams();
         $page = max(1, array_get($queryParams, 'page'));
 
@@ -75,7 +68,7 @@ class DiscussionController extends FrontendController
         $document = $this->getDocument($request->getAttribute('actor'), $params);
 
         $getResource = function ($link) use ($document) {
-            return array_first($document->included, function ($value, $key) use ($link) {
+            return array_first($document->included, function ($value) use ($link) {
                 return $value->type === $link->type && $value->id === $link->id;
             });
         };

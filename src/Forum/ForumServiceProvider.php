@@ -70,6 +70,27 @@ class ForumServiceProvider extends AbstractServiceProvider
 
             return $pipe;
         });
+
+        $this->app->bind('flarum.forum.assets', function () {
+            $assets = $this->app->make('flarum.frontend.assets.defaults')('forum');
+
+            $assets->add(function () {
+                return [
+                    $this->app->make(Asset\FormatterJs::class),
+                    $this->app->make(Asset\CustomCss::class)
+                ];
+            });
+
+            return $assets;
+        });
+
+        $this->app->bind('flarum.forum.frontend', function () {
+            $view = $this->app->make('flarum.frontend.view.defaults')('forum');
+
+            $view->setAssets($this->app->make('flarum.forum.assets'));
+
+            return $view;
+        });
     }
 
     /**
@@ -112,7 +133,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         if (isset($routes->getRouteData()[0]['GET'][$defaultRoute])) {
             $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute];
         } else {
-            $toDefaultController = $factory->toController(Controller\IndexController::class);
+            $toDefaultController = $factory->toForum(Content\Index::class);
         }
 
         $routes->get(

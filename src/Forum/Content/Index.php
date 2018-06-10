@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Forum\Controller;
+namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\ListDiscussionsController;
-use Flarum\Forum\ForumFrontend;
+use Flarum\Frontend\Content\ContentInterface;
+use Flarum\Frontend\FrontendView;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class IndexController extends FrontendController
+class Index implements ContentInterface
 {
     /**
      * @var Client
@@ -32,15 +32,11 @@ class IndexController extends FrontendController
     protected $view;
 
     /**
-     * @param ForumFrontend $frontend
-     * @param Dispatcher $events
      * @param Client $api
      * @param Factory $view
      */
-    public function __construct(ForumFrontend $frontend, Dispatcher $events, Client $api, Factory $view)
+    public function __construct(Client $api, Factory $view)
     {
-        parent::__construct($frontend, $events);
-
         $this->api = $api;
         $this->view = $view;
     }
@@ -48,10 +44,8 @@ class IndexController extends FrontendController
     /**
      * {@inheritdoc}
      */
-    protected function getView(Request $request)
+    public function populate(FrontendView $view, Request $request)
     {
-        $view = parent::getView($request);
-
         $queryParams = $request->getQueryParams();
 
         $sort = array_pull($queryParams, 'sort');

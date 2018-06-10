@@ -9,16 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Frontend\Asset;
+namespace Flarum\Frontend\Compiler;
 
 use axy\sourcemap\SourceMap;
+use Flarum\Frontend\Compiler\Source\FileSource;
 
 class JsCompiler extends RevisionCompiler
 {
     /**
      * {@inheritdoc}
      */
-    protected function save(string $file): bool
+    protected function save(string $file, array $sources): bool
     {
         $mapFile = $file.'.map';
 
@@ -27,15 +28,16 @@ class JsCompiler extends RevisionCompiler
         $output = [];
         $line = 0;
 
-        // For each of the sources, get their content and add it to the output.
-        // For file sources, if a sourcemap is present, add it to the output sourcemap.
-        foreach ($this->content as $source) {
-            if (is_callable($source)) {
-                $content = $source();
-            } else {
-                $content = file_get_contents($source);
+        // For each of the sources, get their content and add it to the
+        // output. For file sources, if a sourcemap is present, add it to
+        // the output sourcemap.
+        foreach ($sources as $source) {
+            $content = $source->getContent();
 
-                if (file_exists($sourceMap = $source.'.map')) {
+            if ($source instanceof FileSource) {
+                $sourceMap = $source->getPath().'.map';
+
+                if (file_exists($sourceMap)) {
                     $map->concat($sourceMap, $line);
                 }
             }
@@ -45,12 +47,17 @@ class JsCompiler extends RevisionCompiler
             $line += substr_count($content, "\n") + 1;
         }
 
-        // Add a comment to the end of our file to point to the sourcemap we just constructed.
+        // Add a comment to the end of our file to point to the sourcemap
+        // we just constructed. We will then write the JS file, save the
+        // map to a temporary location, and then move it to the asset dir.
         $output[] = '//# sourceMappingURL='.$this->assetsDir->url($mapFile);
 
         $this->assetsDir->put($file, implode("\n", $output));
 
-        $map->save($mapFile);
+        $mapTemp = tempnam(sys_get_temp_dir(), $mapFile);
+        $map->save($mapTemp);
+        $this->assetsDir->put($mapFile, file_get_contents($mapTemp));
+        @unlink($mapTemp);
 
         return true;
     }
