@@ -13,8 +13,6 @@ namespace Flarum\Forum;
 
 use Flarum\Event\ConfigureForumRoutes;
 use Flarum\Event\ConfigureMiddleware;
-use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Frontend\FrontendAssets;
 use Flarum\Http\Middleware\AuthenticateWithSession;
@@ -29,7 +27,6 @@ use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
-use Flarum\Settings\Event\Saved;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Stratigility\MiddlewarePipe;
@@ -107,9 +104,13 @@ class ForumServiceProvider extends AbstractServiceProvider
             'settings' => $this->app->make(SettingsRepositoryInterface::class)
         ]);
 
-        $this->flushFrontendAssetsWhenThemeChanged();
-
-        $this->flushFrontendAssetsWhenExtensionsChanged();
+        $this->app->make('events')->subscribe(
+            new RecompileFrontendAssets(
+                $this->app->make('flarum.forum.assets'),
+                $this->app->make('flarum.locales'),
+                $this->app
+            )
+        );
     }
 
     /**
@@ -141,34 +142,5 @@ class ForumServiceProvider extends AbstractServiceProvider
             'default',
             $toDefaultController
         );
-    }
-
-    protected function flushFrontendAssetsWhenThemeChanged()
-    {
-        $this->app->make('events')->listen(Saved::class, function (Saved $event) {
-            if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getFrontendAssets()->flushCss();
-            }
-        });
-    }
-
-    protected function flushFrontendAssetsWhenExtensionsChanged()
-    {
-        $events = $this->app->make('events');
-
-        $handler = function () {
-            $this->getFrontendAssets()->flush();
-        };
-
-        $events->listen(Enabled::class, $handler);
-        $events->listen(Disabled::class, $handler);
-    }
-
-    /**
-     * @return FrontendAssets
-     */
-    protected function getFrontendAssets()
-    {
-        return $this->app->make(ForumFrontend::class)->getAssets();
     }
 }
