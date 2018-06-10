@@ -13,18 +13,11 @@ namespace Flarum\Frontend;
 
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
-use Flarum\Foundation\ValidationException;
+use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
-use Flarum\Settings\Event\Saving;
-use Flarum\Settings\OverrideSettingsRepository;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Filesystem\FilesystemAdapter;
-use League\Flysystem\Adapter\NullAdapter;
-use League\Flysystem\Filesystem;
-use Less_Exception_Parser;
 
 class RecompileFrontendAssets
 {
@@ -61,8 +54,9 @@ class RecompileFrontendAssets
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Saved::class, [$this, 'whenSettingsSaved']);
-        $events->listen(Enabled::class, [$this, 'whenExtensionEnabledOrDisabled']);
-        $events->listen(Disabled::class, [$this, 'whenExtensionEnabledOrDisabled']);
+        $events->listen(Enabled::class, [$this, 'flush']);
+        $events->listen(Disabled::class, [$this, 'flush']);
+        $events->listen(ClearingCache::class, [$this, 'flush']);
     }
 
     public function whenSettingsSaved(Saved $event)
@@ -72,7 +66,7 @@ class RecompileFrontendAssets
         }
     }
 
-    public function whenExtensionEnabledOrDisabled()
+    public function flush()
     {
         $this->flushCss();
         $this->flushJs();

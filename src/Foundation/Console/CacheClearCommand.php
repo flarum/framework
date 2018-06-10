@@ -15,6 +15,7 @@ use Flarum\Admin\AdminFrontend;
 use Flarum\Console\AbstractCommand;
 use Flarum\Forum\ForumFrontend;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Event\ClearingCache;
 use Illuminate\Contracts\Cache\Store;
 
 class CacheClearCommand extends AbstractCommand
@@ -25,31 +26,17 @@ class CacheClearCommand extends AbstractCommand
     protected $cache;
 
     /**
-     * @var ForumFrontend
-     */
-    protected $forum;
-
-    /**
-     * @var AdminFrontend
-     */
-    protected $admin;
-
-    /**
      * @var Application
      */
     protected $app;
 
     /**
      * @param Store $cache
-     * @param ForumFrontend $forum
-     * @param AdminFrontend $admin
      * @param Application $app
      */
-    public function __construct(Store $cache, ForumFrontend $forum, AdminFrontend $admin, Application $app)
+    public function __construct(Store $cache, Application $app)
     {
         $this->cache = $cache;
-        $this->forum = $forum;
-        $this->admin = $admin;
         $this->app = $app;
 
         parent::__construct();
@@ -72,13 +59,12 @@ class CacheClearCommand extends AbstractCommand
     {
         $this->info('Clearing the cache...');
 
-        $this->forum->getAssets()->flush();
-        $this->admin->getAssets()->flush();
-
         $this->cache->flush();
 
         $storagePath = $this->app->storagePath();
         array_map('unlink', glob($storagePath.'/formatter/*'));
         array_map('unlink', glob($storagePath.'/locale/*'));
+
+        event(new ClearingCache);
     }
 }
