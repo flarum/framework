@@ -9,13 +9,8 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Http\RouteCollection;
-use Flarum\Http\RouteHandlerFactory;
+namespace Flarum\Foundation\Event;
 
-return function (RouteCollection $map, RouteHandlerFactory $route) {
-    $map->get(
-        '/',
-        'index',
-        $route->toAdmin()
-    );
-};
+class ClearingCache
+{
+}

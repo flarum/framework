@@ -9,17 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Forum\Controller;
+namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Forum\Frontend;
+use Flarum\Frontend\Content\ContentInterface;
+use Flarum\Frontend\FrontendView;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class DiscussionController extends FrontendController
+class Discussion implements ContentInterface
 {
     /**
      * @var Client
@@ -32,23 +33,24 @@ class DiscussionController extends FrontendController
     protected $url;
 
     /**
-     * {@inheritdoc}
+     * @var Factory
      */
-    public function __construct(Frontend $webApp, Dispatcher $events, Client $api, UrlGenerator $url)
-    {
-        parent::__construct($webApp, $events);
-
-        $this->api = $api;
-        $this->url = $url;
-    }
+    protected $view;
 
     /**
-     * {@inheritdoc}
+     * @param Client $api
+     * @param UrlGenerator $url
+     * @param Factory $view
      */
-    protected function getView(Request $request)
+    public function __construct(Client $api, UrlGenerator $url, Factory $view)
     {
-        $view = parent::getView($request);
+        $this->api = $api;
+        $this->url = $url;
+        $this->view = $view;
+    }
 
+    public function populate(FrontendView $view, Request $request)
+    {
         $queryParams = $request->getQueryParams();
         $page = max(1, array_get($queryParams, 'page'));
 
@@ -64,7 +66,7 @@ class DiscussionController extends FrontendController
         $document = $this->getDocument($request->getAttribute('actor'), $params);
 
         $getResource = function ($link) use ($document) {
-            return array_first($document->included, function ($value, $key) use ($link) {
+            return array_first($document->included, function ($value) use ($link) {
                 return $value->type === $link->type && $value->id === $link->id;
             });
         };
@@ -87,7 +89,7 @@ class DiscussionController extends FrontendController
 
         $view->title = $document->data->attributes->title;
         $view->document = $document;
-        $view->content = app('view')->make('flarum.forum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
+        $view->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('document', 'page', 'getResource', 'posts', 'url'));
 
         return $view;
     }

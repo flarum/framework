@@ -9,34 +9,31 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Frontend\Asset;
+namespace Flarum\Frontend\Compiler;
 
 interface CompilerInterface
 {
     /**
-     * @param string $filename
+     * @return string
      */
-    public function setFilename($filename);
+    public function getFilename(): string;
 
     /**
-     * @param string $file
+     * @param string $filename
      */
-    public function addFile($file);
+    public function setFilename(string $filename);
 
     /**
      * @param callable $callback
      */
-    public function addString(callable $callback);
+    public function addSources(callable $callback);
+
+    public function commit();
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFile();
-
-    /**
-     * @return string
-     */
-    public function compile();
+    public function getUrl(): ?string;
 
     public function flush();
 }

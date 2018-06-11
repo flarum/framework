@@ -45,6 +45,8 @@ class SetLocale implements MiddlewareInterface
             $this->locales->setLocale($locale);
         }
 
+        $request = $request->withAttribute('locale', $this->locales->getLocale());
+
         return $delegate->process($request);
     }
 }
