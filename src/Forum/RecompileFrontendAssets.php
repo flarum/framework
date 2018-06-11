@@ -12,11 +12,14 @@
 namespace Flarum\Forum;
 
 use Flarum\Foundation\ValidationException;
+use Flarum\Frontend\FrontendCompilerFactory;
 use Flarum\Frontend\RecompileFrontendAssets as BaseListener;
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\OverrideSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Adapter\NullAdapter;
@@ -25,6 +28,26 @@ use Less_Exception_Parser;
 
 class RecompileFrontendAssets extends BaseListener
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
+    /**
+     * @param FrontendCompilerFactory $assets
+     * @param LocaleManager $locales
+     * @param Container $container
+     */
+    public function __construct(FrontendCompilerFactory $assets, LocaleManager $locales, Container $container)
+    {
+        parent::__construct($assets, $locales);
+
+        $this->container = $container;
+    }
+
+    /**
+     * @param Dispatcher $events
+     */
     public function subscribe(Dispatcher $events)
     {
         parent::subscribe($events);
@@ -73,6 +96,9 @@ class RecompileFrontendAssets extends BaseListener
         }
     }
 
+    /**
+     * @param Saved $event
+     */
     public function whenSettingsSaved(Saved $event)
     {
         parent::whenSettingsSaved($event);

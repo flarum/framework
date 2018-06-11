@@ -89,15 +89,12 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->app->make('events')->subscribe(
             new RecompileFrontendAssets(
                 $this->app->make('flarum.admin.assets'),
-                $this->app->make('flarum.locales'),
-                $this->app
+                $this->app->make('flarum.locales')
             )
         );
     }
 
     /**
-     * Populate the forum client routes.
-     *
      * @param RouteCollection $routes
      */
     protected function populateRoutes(RouteCollection $routes)

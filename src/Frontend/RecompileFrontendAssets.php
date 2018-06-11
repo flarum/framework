@@ -16,7 +16,6 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class RecompileFrontendAssets
@@ -32,20 +31,13 @@ class RecompileFrontendAssets
     protected $locales;
 
     /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
      * @param FrontendCompilerFactory $assets
      * @param LocaleManager $locales
-     * @param Container $container
      */
-    public function __construct(FrontendCompilerFactory $assets, LocaleManager $locales, Container $container)
+    public function __construct(FrontendCompilerFactory $assets, LocaleManager $locales)
     {
         $this->assets = $assets;
         $this->locales = $locales;
-        $this->container = $container;
     }
 
     /**
