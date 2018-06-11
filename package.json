@@ -20,6 +20,6 @@
   },
   "scripts": {
     "build": "./node_modules/webpack/bin/webpack.js --mode production --progress",
-    "watch": "npm run build -- --watch"
+    "watch": "./node_modules/webpack/bin/webpack.js --mode development --watch"
   }
 }
