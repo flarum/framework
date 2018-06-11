@@ -11,6 +11,18 @@
 
 namespace Flarum\Settings;
 
+/**
+ * A settings repository decorator that allows overriding certain values.
+ *
+ * The `OverrideSettingsRepository` class decorates another
+ * `SettingsRepositoryInterface` instance but allows certain settings to be
+ * overridden with predefined values. It does not affect writing methods.
+ *
+ * Within Flarum, this can be used to test out new setting values in a system
+ * before they are committed to the database.
+ *
+ * @see \Flarum\Forum\RecompileFrontendAssets For an example usage.
+ */
 class OverrideSettingsRepository implements SettingsRepositoryInterface
 {
     protected $inner;
