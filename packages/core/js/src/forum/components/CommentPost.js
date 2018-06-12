@@ -80,7 +80,7 @@ export default class CommentPost extends Post {
     const post = this.props.post;
     const attrs = super.attrs();
 
-    attrs.className += ' '+classList({
+    attrs.className = (attrs.className || '') + ' ' + classList({
       'CommentPost': true,
       'Post--hidden': post.isHidden(),
       'Post--edited': post.isEdited(),
