@@ -1,5 +1,5 @@
-import Page from 'components/Page';
-import StatusWidget from 'components/StatusWidget';
+import Page from './Page';
+import StatusWidget from './StatusWidget';
 
 export default class DashboardPage extends Page {
   view() {

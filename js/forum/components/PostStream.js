@@ -1,11 +1,11 @@
-import Component from 'Component';
-import ScrollListener from 'utils/ScrollListener';
-import PostLoading from 'components/LoadingPost';
-import anchorScroll from 'utils/anchorScroll';
-import mixin from 'utils/mixin';
-import evented from 'utils/evented';
-import ReplyPlaceholder from 'components/ReplyPlaceholder';
-import Button from 'components/Button';
+import Component from '../../common/Component';
+import ScrollListener from '../../common/utils/ScrollListener';
+import PostLoading from './LoadingPost';
+import anchorScroll from '../../common/utils/anchorScroll';
+import mixin from '../../common/utils/mixin';
+import evented from '../../common/utils/evented';
+import ReplyPlaceholder from './ReplyPlaceholder';
+import Button from '../../common/components/Button';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in

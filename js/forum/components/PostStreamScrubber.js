@@ -1,9 +1,9 @@
-import Component from 'Component';
-import icon from 'helpers/icon';
-import ScrollListener from 'utils/ScrollListener';
-import SubtreeRetainer from 'utils/SubtreeRetainer';
-import computed from 'utils/computed';
-import formatNumber from 'utils/formatNumber';
+import Component from '../../common/Component';
+import icon from '../../common/helpers/icon';
+import ScrollListener from '../../common/utils/ScrollListener';
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import computed from '../../common/utils/computed';
+import formatNumber from '../../common/utils/formatNumber';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to

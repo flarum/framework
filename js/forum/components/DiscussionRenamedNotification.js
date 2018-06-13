@@ -1,4 +1,4 @@
-import Notification from 'components/Notification';
+import Notification from './Notification';
 
 /**
  * The `DiscussionRenamedNotification` component displays a notification which

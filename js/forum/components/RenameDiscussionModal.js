@@ -1,5 +1,5 @@
-import Modal from 'components/Modal';
-import Button from 'components/Button';
+import Modal from '../../common/components/Modal';
+import Button from '../../common/components/Button';
 
 /**
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion

@@ -1,11 +1,11 @@
-import Page from 'components/Page';
-import FieldSet from 'components/FieldSet';
-import Select from 'components/Select';
-import Button from 'components/Button';
-import Alert from 'components/Alert';
-import saveSettings from 'utils/saveSettings';
-import ItemList from 'utils/ItemList';
-import Switch from 'components/Switch';
+import Page from './Page';
+import FieldSet from '../../common/components/FieldSet';
+import Select from '../../common/components/Select';
+import Button from '../../common/components/Button';
+import Alert from '../../common/components/Alert';
+import saveSettings from '../utils/saveSettings';
+import ItemList from '../../common/utils/ItemList';
+import Switch from '../../common/components/Switch';
 
 export default class BasicsPage extends Page {
   init() {

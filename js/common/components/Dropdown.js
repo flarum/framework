@@ -1,6 +1,6 @@
-import Component from 'Component';
-import icon from 'helpers/icon';
-import listItems from 'helpers/listItems';
+import Component from '../Component';
+import icon from '../helpers/icon';
+import listItems from '../helpers/listItems';
 
 /**
  * The `Dropdown` component displays a button which, when clicked, shows a

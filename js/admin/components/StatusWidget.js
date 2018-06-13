@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import DashboardWidget from 'components/DashboardWidget';
-import icon from 'helpers/icon';
-import listItems from 'helpers/listItems';
-import ItemList from 'utils/ItemList';
+import DashboardWidget from './DashboardWidget';
+import icon from '../../common/helpers/icon';
+import listItems from '../../common/helpers/listItems';
+import ItemList from '../../common/utils/ItemList';
 
 export default class StatusWidget extends DashboardWidget {
   className() {

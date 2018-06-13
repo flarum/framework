@@ -1,4 +1,4 @@
-import humanTimeUtil from 'utils/humanTime';
+import humanTimeUtil from './humanTime';
 
 function updateHumanTimes() {
   $('[data-humantime]').each(function() {

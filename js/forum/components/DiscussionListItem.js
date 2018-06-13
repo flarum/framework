@@ -1,19 +1,19 @@
-import Component from 'Component';
-import avatar from 'helpers/avatar';
-import listItems from 'helpers/listItems';
-import highlight from 'helpers/highlight';
-import icon from 'helpers/icon';
-import humanTime from 'utils/humanTime';
-import ItemList from 'utils/ItemList';
-import abbreviateNumber from 'utils/abbreviateNumber';
-import Dropdown from 'components/Dropdown';
-import TerminalPost from 'components/TerminalPost';
-import PostPreview from 'components/PostPreview';
-import SubtreeRetainer from 'utils/SubtreeRetainer';
-import DiscussionControls from 'utils/DiscussionControls';
-import slidable from 'utils/slidable';
-import extractText from 'utils/extractText';
-import classList from 'utils/classList';
+import Component from '../../common/Component';
+import avatar from '../../common/helpers/avatar';
+import listItems from '../../common/helpers/listItems';
+import highlight from '../../common/helpers/highlight';
+import icon from '../../common/helpers/icon';
+import humanTime from '../../common/utils/humanTime';
+import ItemList from '../../common/utils/ItemList';
+import abbreviateNumber from '../../common/utils/abbreviateNumber';
+import Dropdown from '../../common/components/Dropdown';
+import TerminalPost from './TerminalPost';
+import PostPreview from './PostPreview';
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import DiscussionControls from '../utils/DiscussionControls';
+import slidable from '../utils/slidable';
+import extractText from '../../common/utils/extractText';
+import classList from '../../common/utils/classList';
 
 /**
  * The `DiscussionListItem` component shows a single discussion in the

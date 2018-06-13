@@ -1,12 +1,12 @@
-import UserPage from 'components/UserPage';
-import ItemList from 'utils/ItemList';
-import Switch from 'components/Switch';
-import Button from 'components/Button';
-import FieldSet from 'components/FieldSet';
-import NotificationGrid from 'components/NotificationGrid';
-import ChangePasswordModal from 'components/ChangePasswordModal';
-import ChangeEmailModal from 'components/ChangeEmailModal';
-import listItems from 'helpers/listItems';
+import UserPage from './UserPage';
+import ItemList from '../../common/utils/ItemList';
+import Switch from '../../common/components/Switch';
+import Button from '../../common/components/Button';
+import FieldSet from '../../common/components/FieldSet';
+import NotificationGrid from './NotificationGrid';
+import ChangePasswordModal from './ChangePasswordModal';
+import ChangeEmailModal from './ChangeEmailModal';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `SettingsPage` component displays the user's settings control panel, in

@@ -1,7 +1,7 @@
-import Component from 'Component';
-import Checkbox from 'components/Checkbox';
-import icon from 'helpers/icon';
-import ItemList from 'utils/ItemList';
+import Component from '../../common/Component';
+import Checkbox from '../../common/components/Checkbox';
+import icon from '../../common/helpers/icon';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `NotificationGrid` component displays a table of notification types and

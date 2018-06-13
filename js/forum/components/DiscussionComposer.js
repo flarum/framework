@@ -1,5 +1,5 @@
-import ComposerBody from 'components/ComposerBody';
-import extractText from 'utils/extractText';
+import ComposerBody from './ComposerBody';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `DiscussionComposer` component displays the composer content for starting

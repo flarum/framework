@@ -1,6 +1,6 @@
-import Component from 'Component';
-import humanTime from 'helpers/humanTime';
-import icon from 'helpers/icon';
+import Component from '../../common/Component';
+import humanTime from '../../common/helpers/humanTime';
+import icon from '../../common/helpers/icon';
 
 /**
  * Displays information about a the first or last post in a discussion.

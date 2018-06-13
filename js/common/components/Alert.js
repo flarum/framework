@@ -1,7 +1,7 @@
-import Component from 'Component';
-import Button from 'components/Button';
-import listItems from 'helpers/listItems';
-import extract from 'utils/extract';
+import Component from '../Component';
+import Button from './Button';
+import listItems from '../helpers/listItems';
+import extract from '../utils/extract';
 
 /**
  * The `Alert` component represents an alert box, which contains a message,

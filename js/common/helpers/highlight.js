@@ -1,4 +1,4 @@
-import { truncate } from 'utils/string';
+import { truncate } from '../utils/string';
 
 /**
  * The `highlight` helper searches for a word phrase in a string, and wraps

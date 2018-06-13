@@ -1,5 +1,5 @@
-import Component from 'Component';
-import Modal from 'components/Modal';
+import Component from '../Component';
+import Modal from './Modal';
 
 /**
  * The `ModalManager` component manages a modal dialog. Only one modal dialog

@@ -1,6 +1,6 @@
-import Component from 'Component';
-import ItemList from 'utils/ItemList';
-import listItems from 'helpers/listItems';
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `DiscussionHero` component displays the hero on a discussion page.

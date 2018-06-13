@@ -1,4 +1,4 @@
-import Checkbox from 'components/Checkbox';
+import Checkbox from './Checkbox';
 
 /**
  * The `Switch` component is a `Checkbox`, but with a switch display instead of

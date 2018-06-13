@@ -1,4 +1,4 @@
-import Button from 'components/Button';
+import Button from './Button';
 
 /**
  * The `LinkButton` component defines a `Button` which links to a route.

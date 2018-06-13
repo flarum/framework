@@ -1,11 +1,11 @@
-import Page from 'components/Page';
-import Button from 'components/Button';
-import Switch from 'components/Switch';
-import EditCustomCssModal from 'components/EditCustomCssModal';
-import EditCustomHeaderModal from 'components/EditCustomHeaderModal';
-import EditCustomFooterModal from 'components/EditCustomFooterModal';
-import UploadImageButton from 'components/UploadImageButton';
-import saveSettings from 'utils/saveSettings';
+import Page from './Page';
+import Button from '../../common/components/Button';
+import Switch from '../../common/components/Switch';
+import EditCustomCssModal from './EditCustomCssModal';
+import EditCustomHeaderModal from './EditCustomHeaderModal';
+import EditCustomFooterModal from './EditCustomFooterModal';
+import UploadImageButton from './UploadImageButton';
+import saveSettings from '../utils/saveSettings';
 
 export default class AppearancePage extends Page {
   init() {

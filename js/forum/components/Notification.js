@@ -1,7 +1,7 @@
-import Component from 'Component';
-import avatar from 'helpers/avatar';
-import icon from 'helpers/icon';
-import humanTime from 'helpers/humanTime';
+import Component from '../../common/Component';
+import avatar from '../../common/helpers/avatar';
+import icon from '../../common/helpers/icon';
+import humanTime from '../../common/helpers/humanTime';
 
 /**
  * The `Notification` component abstract displays a single notification.

@@ -1,5 +1,5 @@
-import Component from 'Component';
-import Button from 'components/Button';
+import Component from '../../common/Component';
+import Button from '../../common/components/Button';
 
 /**
  * The `WelcomeHero` component displays a hero that welcomes the user to the

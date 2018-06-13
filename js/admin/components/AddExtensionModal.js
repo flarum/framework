@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import Modal from 'components/Modal';
+import Modal from '../../common/components/Modal';
 
 export default class AddExtensionModal extends Modal {
   className() {

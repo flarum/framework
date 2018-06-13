@@ -1,6 +1,6 @@
-import Component from 'Component';
-import Alert from 'components/Alert';
-import Button from 'components/Button';
+import Component from '../Component';
+import Alert from './Alert';
+import Button from './Button';
 
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses

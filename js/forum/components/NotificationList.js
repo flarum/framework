@@ -1,8 +1,8 @@
-import Component from 'Component';
-import listItems from 'helpers/listItems';
-import Button from 'components/Button';
-import LoadingIndicator from 'components/LoadingIndicator';
-import Discussion from 'models/Discussion';
+import Component from '../../common/Component';
+import listItems from '../../common/helpers/listItems';
+import Button from '../../common/components/Button';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import Discussion from '../../common/models/Discussion';
 
 /**
  * The `NotificationList` component displays a list of the logged-in user's

@@ -1,9 +1,9 @@
 /*global s9e*/
 
-import Component from 'Component';
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
-import DiscussionControls from 'utils/DiscussionControls';
+import Component from '../../common/Component';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
+import DiscussionControls from '../utils/DiscussionControls';
 
 /**
  * The `ReplyPlaceholder` component displays a placeholder for a reply, which,

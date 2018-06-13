@@ -1,6 +1,6 @@
-import Dropdown from 'components/Dropdown';
-import icon from 'helpers/icon';
-import NotificationList from 'components/NotificationList';
+import Dropdown from '../../common/components/Dropdown';
+import icon from '../../common/helpers/icon';
+import NotificationList from './NotificationList';
 
 export default class NotificationsDropdown extends Dropdown {
   static initProps(props) {

@@ -1,9 +1,9 @@
-import Component from 'Component';
-import SubtreeRetainer from 'utils/SubtreeRetainer';
-import Dropdown from 'components/Dropdown';
-import PostControls from 'utils/PostControls';
-import listItems from 'helpers/listItems';
-import ItemList from 'utils/ItemList';
+import Component from '../../common/Component';
+import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import Dropdown from '../../common/components/Dropdown';
+import PostControls from '../utils/PostControls';
+import listItems from '../../common/helpers/listItems';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `Post` component displays a single post. The basic post template just

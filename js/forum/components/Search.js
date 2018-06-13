@@ -1,12 +1,12 @@
-import Component from 'Component';
-import LoadingIndicator from 'components/LoadingIndicator';
-import ItemList from 'utils/ItemList';
-import classList from 'utils/classList';
-import extractText from 'utils/extractText';
-import KeyboardNavigatable from 'utils/KeyboardNavigatable';
-import icon from 'helpers/icon';
-import DiscussionsSearchSource from 'components/DiscussionsSearchSource';
-import UsersSearchSource from 'components/UsersSearchSource';
+import Component from '../../common/Component';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import ItemList from '../../common/utils/ItemList';
+import classList from '../../common/utils/classList';
+import extractText from '../../common/utils/extractText';
+import KeyboardNavigatable from '../utils/KeyboardNavigatable';
+import icon from '../../common/helpers/icon';
+import DiscussionsSearchSource from './DiscussionsSearchSource';
+import UsersSearchSource from './UsersSearchSource';
 
 /**
  * The `Search` component displays a menu of as-you-type results from a variety

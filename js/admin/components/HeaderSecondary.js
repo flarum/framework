@@ -1,7 +1,7 @@
-import Component from 'Component';
-import SessionDropdown from 'components/SessionDropdown';
-import ItemList from 'utils/ItemList';
-import listItems from 'helpers/listItems';
+import Component from '../../common/Component';
+import SessionDropdown from './SessionDropdown';
+import ItemList from '../../common/utils/ItemList';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls.

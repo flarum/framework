@@ -1,9 +1,9 @@
-import DashboardPage from 'components/DashboardPage';
-import BasicsPage from 'components/BasicsPage';
-import PermissionsPage from 'components/PermissionsPage';
-import AppearancePage from 'components/AppearancePage';
-import ExtensionsPage from 'components/ExtensionsPage';
-import MailPage from 'components/MailPage';
+import DashboardPage from './components/DashboardPage';
+import BasicsPage from './components/BasicsPage';
+import PermissionsPage from './components/PermissionsPage';
+import AppearancePage from './components/AppearancePage';
+import ExtensionsPage from './components/ExtensionsPage';
+import MailPage from './components/MailPage';
 
 /**
  * The `routes` initializer defines the forum app's routes.

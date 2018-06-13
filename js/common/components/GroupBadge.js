@@ -1,4 +1,4 @@
-import Badge from 'components/Badge';
+import Badge from './Badge';
 
 export default class GroupBadge extends Badge {
   static initProps(props) {

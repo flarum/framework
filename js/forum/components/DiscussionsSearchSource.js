@@ -1,5 +1,5 @@
-import highlight from 'helpers/highlight';
-import LinkButton from 'components/LinkButton';
+import highlight from '../../common/helpers/highlight';
+import LinkButton from '../../common/components/LinkButton';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in

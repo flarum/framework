@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-import Component from 'Component';
-import AdminLinkButton from 'components/AdminLinkButton';
-import SelectDropdown from 'components/SelectDropdown';
+import Component from '../../common/Component';
+import AdminLinkButton from './AdminLinkButton';
+import SelectDropdown from '../../common/components/SelectDropdown';
 
 import ItemList from 'utils/ItemList';
 

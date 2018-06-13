@@ -1,4 +1,4 @@
-import Button from 'components/Button';
+import Button from '../../common/components/Button';
 
 export default class UploadImageButton extends Button {
   init() {

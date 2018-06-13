@@ -1,7 +1,7 @@
-import Modal from 'components/Modal';
-import Button from 'components/Button';
-import Badge from 'components/Badge';
-import Group from 'models/Group';
+import Modal from '../../common/components/Modal';
+import Button from '../../common/components/Button';
+import Badge from '../../common/components/Badge';
+import Group from '../../common/models/Group';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user

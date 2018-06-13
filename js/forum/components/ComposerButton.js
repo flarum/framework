@@ -1,4 +1,4 @@
-import Button from 'components/Button';
+import Button from '../../common/components/Button';
 
 /**
  * The `ComposerButton` component displays a button suitable for the composer

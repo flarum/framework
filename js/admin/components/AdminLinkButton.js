@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import LinkButton from 'components/LinkButton';
+import LinkButton from '../../common/components/LinkButton';
 
 export default class AdminLinkButton extends LinkButton {
   getButtonContent() {

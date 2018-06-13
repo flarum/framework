@@ -1,10 +1,10 @@
-import Modal from 'components/Modal';
-import ForgotPasswordModal from 'components/ForgotPasswordModal';
-import SignUpModal from 'components/SignUpModal';
-import Alert from 'components/Alert';
-import Button from 'components/Button';
-import LogInButtons from 'components/LogInButtons';
-import extractText from 'utils/extractText';
+import Modal from '../../common/components/Modal';
+import ForgotPasswordModal from './ForgotPasswordModal';
+import SignUpModal from './SignUpModal';
+import Alert from '../../common/components/Alert';
+import Button from '../../common/components/Button';
+import LogInButtons from './LogInButtons';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `LogInModal` component displays a modal dialog with a login form.

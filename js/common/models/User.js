@@ -1,10 +1,10 @@
 /*global ColorThief*/
 
-import Model from 'Model';
-import stringToColor from 'utils/stringToColor';
-import ItemList from 'utils/ItemList';
-import computed from 'utils/computed';
-import GroupBadge from 'components/GroupBadge';
+import Model from '../Model';
+import stringToColor from '../utils/stringToColor';
+import ItemList from '../utils/ItemList';
+import computed from '../utils/computed';
+import GroupBadge from '../components/GroupBadge';
 
 export default class User extends Model {}
 

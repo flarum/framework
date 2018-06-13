@@ -1,5 +1,5 @@
-import Component from 'Component';
-import listItems from 'helpers/listItems';
+import Component from '../Component';
+import listItems from '../helpers/listItems';
 
 /**
  * The `FieldSet` component defines a collection of fields, displayed in a list

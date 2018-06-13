@@ -1,5 +1,5 @@
-import ComposerBody from 'components/ComposerBody';
-import icon from 'helpers/icon';
+import ComposerBody from './ComposerBody';
+import icon from '../../common/helpers/icon';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {

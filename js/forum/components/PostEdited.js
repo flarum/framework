@@ -1,6 +1,6 @@
-import Component from 'Component';
-import humanTime from 'utils/humanTime';
-import extractText from 'utils/extractText';
+import Component from '../../common/Component';
+import humanTime from '../../common/utils/humanTime';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `PostEdited` component displays information about when and by whom a post

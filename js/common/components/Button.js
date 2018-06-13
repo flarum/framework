@@ -1,8 +1,8 @@
-import Component from 'Component';
-import icon from 'helpers/icon';
-import extract from 'utils/extract';
-import extractText from 'utils/extractText';
-import LoadingIndicator from 'components/LoadingIndicator';
+import Component from '../Component';
+import icon from '../helpers/icon';
+import extract from '../utils/extract';
+import extractText from '../utils/extractText';
+import LoadingIndicator from './LoadingIndicator';
 
 /**
  * The `Button` component defines an element which, when clicked, performs an

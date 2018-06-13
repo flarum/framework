@@ -1,5 +1,5 @@
-import Model from 'Model';
-import computed from 'utils/computed';
+import Model from '../Model';
+import computed from '../utils/computed';
 
 export default class Notification extends Model {}
 

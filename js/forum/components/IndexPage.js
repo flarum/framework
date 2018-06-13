@@ -1,17 +1,17 @@
-import { extend } from 'extend';
-import Page from 'components/Page';
-import ItemList from 'utils/ItemList';
-import listItems from 'helpers/listItems';
-import icon from 'helpers/icon';
-import DiscussionList from 'components/DiscussionList';
-import WelcomeHero from 'components/WelcomeHero';
-import DiscussionComposer from 'components/DiscussionComposer';
-import LogInModal from 'components/LogInModal';
-import DiscussionPage from 'components/DiscussionPage';
-import Dropdown from 'components/Dropdown';
-import Button from 'components/Button';
-import LinkButton from 'components/LinkButton';
-import SelectDropdown from 'components/SelectDropdown';
+import { extend } from '../../common/extend';
+import Page from './Page';
+import ItemList from '../../common/utils/ItemList';
+import listItems from '../../common/helpers/listItems';
+import icon from '../../common/helpers/icon';
+import DiscussionList from './DiscussionList';
+import WelcomeHero from './WelcomeHero';
+import DiscussionComposer from './DiscussionComposer';
+import LogInModal from './LogInModal';
+import DiscussionPage from './DiscussionPage';
+import Dropdown from '../../common/components/Dropdown';
+import Button from '../../common/components/Button';
+import LinkButton from '../../common/components/LinkButton';
+import SelectDropdown from '../../common/components/SelectDropdown';
 
 /**
  * The `IndexPage` component displays the index page, including the welcome

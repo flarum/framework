@@ -1,7 +1,7 @@
-import UserPage from 'components/UserPage';
-import LoadingIndicator from 'components/LoadingIndicator';
-import Button from 'components/Button';
-import CommentPost from 'components/CommentPost';
+import UserPage from './UserPage';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import Button from '../../common/components/Button';
+import CommentPost from './CommentPost';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their

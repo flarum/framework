@@ -1,12 +1,12 @@
-import Component from 'Component';
-import Button from 'components/Button';
-import LogInModal from 'components/LogInModal';
-import SignUpModal from 'components/SignUpModal';
-import SessionDropdown from 'components/SessionDropdown';
-import SelectDropdown from 'components/SelectDropdown';
-import NotificationsDropdown from 'components/NotificationsDropdown';
-import ItemList from 'utils/ItemList';
-import listItems from 'helpers/listItems';
+import Component from '../../common/Component';
+import Button from '../../common/components/Button';
+import LogInModal from './LogInModal';
+import SignUpModal from './SignUpModal';
+import SessionDropdown from './SessionDropdown';
+import SelectDropdown from '../../common/components/SelectDropdown';
+import NotificationsDropdown from './NotificationsDropdown';
+import ItemList from '../../common/utils/ItemList';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls, such as

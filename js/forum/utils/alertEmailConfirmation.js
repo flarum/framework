@@ -1,6 +1,6 @@
-import Alert from 'components/Alert';
-import Button from 'components/Button';
-import icon from 'helpers/icon';
+import Alert from '../../common/components/Alert';
+import Button from '../../common/components/Button';
+import icon from '../../common/helpers/icon';
 
 /**
  * Shows an alert if the user has not yet confirmed their email address.

@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import Component from 'Component';
+import Component from '../../common/Component';
 
 export default class DashboardWidget extends Component {
   view() {

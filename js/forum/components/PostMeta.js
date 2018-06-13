@@ -1,6 +1,6 @@
-import Component from 'Component';
-import humanTime from 'helpers/humanTime';
-import fullTime from 'helpers/fullTime';
+import Component from '../../common/Component';
+import humanTime from '../../common/helpers/humanTime';
+import fullTime from '../../common/helpers/fullTime';
 
 /**
  * The `PostMeta` component displays the time of a post, and when clicked, shows

@@ -1,9 +1,9 @@
-import Component from 'Component';
-import PermissionDropdown from 'components/PermissionDropdown';
-import SettingDropdown from 'components/SettingDropdown';
-import Button from 'components/Button';
-import ItemList from 'utils/ItemList';
-import icon from 'helpers/icon';
+import Component from '../../common/Component';
+import PermissionDropdown from './PermissionDropdown';
+import SettingDropdown from './SettingDropdown';
+import Button from '../../common/components/Button';
+import ItemList from '../../common/utils/ItemList';
+import icon from '../../common/helpers/icon';
 
 export default class PermissionGrid extends Component {
   init() {

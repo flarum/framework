@@ -1,9 +1,9 @@
-import Component from 'Component';
-import UserCard from 'components/UserCard';
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
-import userOnline from 'helpers/userOnline';
-import listItems from 'helpers/listItems';
+import Component from '../../common/Component';
+import UserCard from './UserCard';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
+import userOnline from '../../common/helpers/userOnline';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `PostUser` component shows the avatar and username of a post's author.

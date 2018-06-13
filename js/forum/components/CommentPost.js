@@ -1,14 +1,14 @@
 /*global s9e, hljs*/
 
-import Post from 'components/Post';
-import classList from 'utils/classList';
-import PostUser from 'components/PostUser';
-import PostMeta from 'components/PostMeta';
-import PostEdited from 'components/PostEdited';
-import EditPostComposer from 'components/EditPostComposer';
-import ItemList from 'utils/ItemList';
-import listItems from 'helpers/listItems';
-import Button from 'components/Button';
+import Post from './Post';
+import classList from '../../common/utils/classList';
+import PostUser from './PostUser';
+import PostMeta from './PostMeta';
+import PostEdited from './PostEdited';
+import EditPostComposer from './EditPostComposer';
+import ItemList from '../../common/utils/ItemList';
+import listItems from '../../common/helpers/listItems';
+import Button from '../../common/components/Button';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This

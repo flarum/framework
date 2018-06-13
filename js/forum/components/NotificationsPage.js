@@ -1,5 +1,5 @@
-import Page from 'components/Page';
-import NotificationList from 'components/NotificationList';
+import Page from './Page';
+import NotificationList from './NotificationList';
 
 /**
  * The `NotificationsPage` component shows the notifications list. It is only

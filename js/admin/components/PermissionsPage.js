@@ -1,9 +1,9 @@
-import Page from 'components/Page';
-import GroupBadge from 'components/GroupBadge';
-import EditGroupModal from 'components/EditGroupModal';
-import Group from 'models/Group';
-import icon from 'helpers/icon';
-import PermissionGrid from 'components/PermissionGrid';
+import Page from './Page';
+import GroupBadge from '../../common/components/GroupBadge';
+import EditGroupModal from './EditGroupModal';
+import Group from '../../common/models/Group';
+import icon from '../../common/helpers/icon';
+import PermissionGrid from './PermissionGrid';
 
 export default class PermissionsPage extends Page {
   view() {

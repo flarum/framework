@@ -1,5 +1,5 @@
-import UserPage from 'components/UserPage';
-import DiscussionList from 'components/DiscussionList';
+import UserPage from './UserPage';
+import DiscussionList from './DiscussionList';
 
 /**
  * The `DiscussionsUserPage` component shows a discussion list inside of a user

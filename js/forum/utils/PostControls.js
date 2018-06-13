@@ -1,7 +1,7 @@
-import EditPostComposer from 'components/EditPostComposer';
-import Button from 'components/Button';
-import Separator from 'components/Separator';
-import ItemList from 'utils/ItemList';
+import EditPostComposer from '../components/EditPostComposer';
+import Button from '../../common/components/Button';
+import Separator from '../../common/components/Separator';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which

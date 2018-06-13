@@ -1,9 +1,9 @@
-import Component from 'Component';
-import LoadingIndicator from 'components/LoadingIndicator';
-import TextEditor from 'components/TextEditor';
-import avatar from 'helpers/avatar';
-import listItems from 'helpers/listItems';
-import ItemList from 'utils/ItemList';
+import Component from '../../common/Component';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import TextEditor from './TextEditor';
+import avatar from '../../common/helpers/avatar';
+import listItems from '../../common/helpers/listItems';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `ComposerBody` component handles the body, or the content, of the

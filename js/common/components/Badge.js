@@ -1,6 +1,6 @@
-import Component from 'Component';
-import icon from 'helpers/icon';
-import extract from 'utils/extract';
+import Component from '../Component';
+import icon from '../helpers/icon';
+import extract from '../utils/extract';
 
 /**
  * The `Badge` component represents a user/discussion badge, indicating some

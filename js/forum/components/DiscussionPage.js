@@ -1,12 +1,12 @@
-import Page from 'components/Page';
-import ItemList from 'utils/ItemList';
-import DiscussionHero from 'components/DiscussionHero';
-import PostStream from 'components/PostStream';
-import PostStreamScrubber from 'components/PostStreamScrubber';
-import LoadingIndicator from 'components/LoadingIndicator';
-import SplitDropdown from 'components/SplitDropdown';
-import listItems from 'helpers/listItems';
-import DiscussionControls from 'utils/DiscussionControls';
+import Page from './Page';
+import ItemList from '../../common/utils/ItemList';
+import DiscussionHero from './DiscussionHero';
+import PostStream from './PostStream';
+import PostStreamScrubber from './PostStreamScrubber';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import SplitDropdown from '../../common/components/SplitDropdown';
+import listItems from '../../common/helpers/listItems';
+import DiscussionControls from '../utils/DiscussionControls';
 
 /**
  * The `DiscussionPage` component displays a whole discussion page, including

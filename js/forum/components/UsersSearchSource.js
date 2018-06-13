@@ -1,6 +1,6 @@
-import highlight from 'helpers/highlight';
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
+import highlight from '../../common/helpers/highlight';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search

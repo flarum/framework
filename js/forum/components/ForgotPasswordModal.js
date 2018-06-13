@@ -1,7 +1,7 @@
-import Modal from 'components/Modal';
-import Alert from 'components/Alert';
-import Button from 'components/Button';
-import extractText from 'utils/extractText';
+import Modal from '../../common/components/Modal';
+import Alert from '../../common/components/Alert';
+import Button from '../../common/components/Button';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `ForgotPasswordModal` component displays a modal which allows the user to

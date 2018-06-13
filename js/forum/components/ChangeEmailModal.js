@@ -1,5 +1,5 @@
-import Modal from 'components/Modal';
-import Button from 'components/Button';
+import Modal from '../../common/components/Modal';
+import Button from '../../common/components/Button';
 
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user

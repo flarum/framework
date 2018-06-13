@@ -1,8 +1,8 @@
-import Page from 'components/Page';
-import FieldSet from 'components/FieldSet';
-import Button from 'components/Button';
-import Alert from 'components/Alert';
-import saveSettings from 'utils/saveSettings';
+import Page from './Page';
+import FieldSet from '../../common/components/FieldSet';
+import Button from '../../common/components/Button';
+import Alert from '../../common/components/Alert';
+import saveSettings from '../utils/saveSettings';
 
 export default class MailPage extends Page {
   init() {

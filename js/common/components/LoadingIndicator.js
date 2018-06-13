@@ -1,4 +1,4 @@
-import Component from 'Component';
+import Component from '../Component';
 import { Spinner } from 'spin.js';
 
 /**

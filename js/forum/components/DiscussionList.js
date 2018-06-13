@@ -1,8 +1,8 @@
-import Component from 'Component';
-import DiscussionListItem from 'components/DiscussionListItem';
-import Button from 'components/Button';
-import LoadingIndicator from 'components/LoadingIndicator';
-import Placeholder from 'components/Placeholder';
+import Component from '../../common/Component';
+import DiscussionListItem from './DiscussionListItem';
+import Button from '../../common/components/Button';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import Placeholder from '../../common/components/Placeholder';
 
 /**
  * The `DiscussionList` component displays a list of discussions.

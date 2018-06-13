@@ -1,5 +1,5 @@
-import Separator from 'components/Separator';
-import classList from 'utils/classList';
+import Separator from '../components/Separator';
+import classList from '../utils/classList';
 
 function isSeparator(item) {
   return item && item.component === Separator;

@@ -1,9 +1,9 @@
-import Modal from 'components/Modal';
-import LogInModal from 'components/LogInModal';
-import avatar from 'helpers/avatar';
-import Button from 'components/Button';
-import LogInButtons from 'components/LogInButtons';
-import extractText from 'utils/extractText';
+import Modal from '../../common/components/Modal';
+import LogInModal from './LogInModal';
+import avatar from '../../common/helpers/avatar';
+import Button from '../../common/components/Button';
+import LogInButtons from './LogInButtons';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `SignUpModal` component displays a modal dialog with a singup form.

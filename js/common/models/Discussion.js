@@ -1,7 +1,7 @@
-import Model from 'Model';
-import computed from 'utils/computed';
-import ItemList from 'utils/ItemList';
-import Badge from 'components/Badge';
+import Model from '../Model';
+import computed from '../utils/computed';
+import ItemList from '../utils/ItemList';
+import Badge from '../components/Badge';
 
 export default class Discussion extends Model {}
 

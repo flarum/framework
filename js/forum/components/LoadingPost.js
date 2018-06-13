@@ -1,5 +1,5 @@
-import Component from 'Component';
-import avatar from 'helpers/avatar';
+import Component from '../../common/Component';
+import avatar from '../../common/helpers/avatar';
 
 /**
  * The `LoadingPost` component shows a placeholder that looks like a post,

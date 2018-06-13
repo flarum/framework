@@ -1,6 +1,6 @@
-import Modal from 'components/Modal';
-import Button from 'components/Button';
-import saveSettings from 'utils/saveSettings';
+import Modal from '../../common/components/Modal';
+import Button from '../../common/components/Button';
+import saveSettings from '../utils/saveSettings';
 
 export default class SettingsModal extends Modal {
   init() {

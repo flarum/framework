@@ -1,6 +1,6 @@
-import Component from 'Component';
-import Button from 'components/Button';
-import LinkButton from 'components/LinkButton';
+import Component from '../Component';
+import Button from './Button';
+import LinkButton from './LinkButton';
 
 /**
  * The `Navigation` component displays a set of navigation buttons. Typically

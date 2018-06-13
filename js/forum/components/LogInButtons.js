@@ -1,5 +1,5 @@
-import Component from 'Component';
-import ItemList from 'utils/ItemList';
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `LogInButtons` component displays a collection of social login buttons.

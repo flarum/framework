@@ -1,8 +1,8 @@
-import Modal from 'components/Modal';
-import Button from 'components/Button';
-import GroupBadge from 'components/GroupBadge';
-import Group from 'models/Group';
-import extractText from 'utils/extractText';
+import Modal from '../../common/components/Modal';
+import Button from '../../common/components/Button';
+import GroupBadge from '../../common/components/GroupBadge';
+import Group from '../../common/models/Group';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `EditUserModal` component displays a modal dialog with a login form.

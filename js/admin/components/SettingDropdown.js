@@ -1,6 +1,6 @@
-import SelectDropdown from 'components/SelectDropdown';
-import Button from 'components/Button';
-import saveSettings from 'utils/saveSettings';
+import SelectDropdown from '../../common/components/SelectDropdown';
+import Button from '../../common/components/Button';
+import saveSettings from '../utils/saveSettings';
 
 export default class SettingDropdown extends SelectDropdown {
   static initProps(props) {

@@ -1,11 +1,11 @@
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
-import Dropdown from 'components/Dropdown';
-import LinkButton from 'components/LinkButton';
-import Button from 'components/Button';
-import ItemList from 'utils/ItemList';
-import Separator from 'components/Separator';
-import Group from 'models/Group';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
+import Dropdown from '../../common/components/Dropdown';
+import LinkButton from '../../common/components/LinkButton';
+import Button from '../../common/components/Button';
+import ItemList from '../../common/utils/ItemList';
+import Separator from '../../common/components/Separator';
+import Group from '../../common/models/Group';
 
 /**
  * The `SessionDropdown` component shows a button with the current user's

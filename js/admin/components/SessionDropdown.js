@@ -1,8 +1,8 @@
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
-import Dropdown from 'components/Dropdown';
-import Button from 'components/Button';
-import ItemList from 'utils/ItemList';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
+import Dropdown from '../../common/components/Dropdown';
+import Button from '../../common/components/Button';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `SessionDropdown` component shows a button with the current user's

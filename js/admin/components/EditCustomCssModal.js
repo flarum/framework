@@ -1,4 +1,4 @@
-import SettingsModal from 'components/SettingsModal';
+import SettingsModal from './SettingsModal';
 
 export default class EditCustomCssModal extends SettingsModal {
   className() {

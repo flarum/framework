@@ -1,7 +1,7 @@
-import Component from 'Component';
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
-import highlight from 'helpers/highlight';
+import Component from '../../common/Component';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
+import highlight from '../../common/helpers/highlight';
 
 /**
  * The `PostPreview` component shows a link to a post containing the avatar and

@@ -1,5 +1,5 @@
-import EventPost from 'components/EventPost';
-import extractText from 'utils/extractText';
+import EventPost from './EventPost';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `DiscussionRenamedPost` component displays a discussion event post

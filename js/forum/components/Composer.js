@@ -1,8 +1,8 @@
-import Component from 'Component';
-import ItemList from 'utils/ItemList';
-import ComposerButton from 'components/ComposerButton';
-import listItems from 'helpers/listItems';
-import classList from 'utils/classList';
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';
+import ComposerButton from './ComposerButton';
+import listItems from '../../common/helpers/listItems';
+import classList from '../../common/utils/classList';
 
 /**
  * The `Composer` component displays the composer. It can be loaded with a

@@ -1,10 +1,10 @@
-import Component from 'Component';
-import avatar from 'helpers/avatar';
-import icon from 'helpers/icon';
-import listItems from 'helpers/listItems';
-import ItemList from 'utils/ItemList';
-import Button from 'components/Button';
-import LoadingIndicator from 'components/LoadingIndicator';
+import Component from '../../common/Component';
+import avatar from '../../common/helpers/avatar';
+import icon from '../../common/helpers/icon';
+import listItems from '../../common/helpers/listItems';
+import ItemList from '../../common/utils/ItemList';
+import Button from '../../common/components/Button';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
 
 /**
  * The `AvatarEditor` component displays a user's avatar along with a dropdown

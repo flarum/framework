@@ -1,13 +1,13 @@
-import Component from 'Component';
-import humanTime from 'utils/humanTime';
-import ItemList from 'utils/ItemList';
-import UserControls from 'utils/UserControls';
-import avatar from 'helpers/avatar';
-import username from 'helpers/username';
-import icon from 'helpers/icon';
-import Dropdown from 'components/Dropdown';
-import AvatarEditor from 'components/AvatarEditor';
-import listItems from 'helpers/listItems';
+import Component from '../../common/Component';
+import humanTime from '../../common/utils/humanTime';
+import ItemList from '../../common/utils/ItemList';
+import UserControls from '../utils/UserControls';
+import avatar from '../../common/helpers/avatar';
+import username from '../../common/helpers/username';
+import icon from '../../common/helpers/icon';
+import Dropdown from '../../common/components/Dropdown';
+import AvatarEditor from './AvatarEditor';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `UserCard` component displays a user's profile card. This is used both on

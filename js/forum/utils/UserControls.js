@@ -1,8 +1,8 @@
-import Button from 'components/Button';
-import Separator from 'components/Separator';
-import EditUserModal from 'components/EditUserModal';
-import UserPage from 'components/UserPage';
-import ItemList from 'utils/ItemList';
+import Button from '../../common/components/Button';
+import Separator from '../../common/components/Separator';
+import EditUserModal from '../components/EditUserModal';
+import UserPage from '../components/UserPage';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `UserControls` utility constructs a list of buttons for a user which

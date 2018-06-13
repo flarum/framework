@@ -1,4 +1,4 @@
-import icon from 'helpers/icon';
+import icon from './icon';
 
 /**
  * The `useronline` helper displays a green circle if the user is online

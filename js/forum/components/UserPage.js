@@ -1,12 +1,12 @@
-import Page from 'components/Page';
-import ItemList from 'utils/ItemList';
-import affixSidebar from 'utils/affixSidebar';
-import UserCard from 'components/UserCard';
-import LoadingIndicator from 'components/LoadingIndicator';
-import SelectDropdown from 'components/SelectDropdown';
-import LinkButton from 'components/LinkButton';
-import Separator from 'components/Separator';
-import listItems from 'helpers/listItems';
+import Page from './Page';
+import ItemList from '../../common/utils/ItemList';
+import affixSidebar from '../utils/affixSidebar';
+import UserCard from './UserCard';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import SelectDropdown from '../../common/components/SelectDropdown';
+import LinkButton from '../../common/components/LinkButton';
+import Separator from '../../common/components/Separator';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show

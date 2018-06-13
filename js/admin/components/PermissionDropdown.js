@@ -1,9 +1,9 @@
-import Dropdown from 'components/Dropdown';
-import Button from 'components/Button';
-import Separator from 'components/Separator';
-import Group from 'models/Group';
-import Badge from 'components/Badge';
-import GroupBadge from 'components/GroupBadge';
+import Dropdown from '../../common/components/Dropdown';
+import Button from '../../common/components/Button';
+import Separator from '../../common/components/Separator';
+import Group from '../../common/models/Group';
+import Badge from '../../common/components/Badge';
+import GroupBadge from '../../common/components/GroupBadge';
 
 function badgeForId(id) {
   const group = app.store.getById('groups', id);

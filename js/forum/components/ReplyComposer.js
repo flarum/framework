@@ -1,8 +1,8 @@
-import ComposerBody from 'components/ComposerBody';
-import Alert from 'components/Alert';
-import Button from 'components/Button';
-import icon from 'helpers/icon';
-import extractText from 'utils/extractText';
+import ComposerBody from './ComposerBody';
+import Alert from '../../common/components/Alert';
+import Button from '../../common/components/Button';
+import icon from '../../common/helpers/icon';
+import extractText from '../../common/utils/extractText';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {

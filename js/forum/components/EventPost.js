@@ -1,7 +1,7 @@
-import Post from 'components/Post';
-import { ucfirst } from 'utils/string';
-import usernameHelper from 'helpers/username';
-import icon from 'helpers/icon';
+import Post from './Post';
+import { ucfirst } from '../../common/utils/string';
+import usernameHelper from '../../common/helpers/username';
+import icon from '../../common/helpers/icon';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
