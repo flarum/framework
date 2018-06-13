@@ -1,6 +1,14 @@
 <?php
 
-// $composer = json_decode(file_get_contents(__DIR__.'/../../../composer.json'));
+/*
+ * This file is part of Flarum.
+ *
+ * (c) Toby Zerner <toby.zerner@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 // $default = str_replace('flarum-ext-', '', $composer->name);
 $prefix = readline('Module prefix: ');
 
@@ -14,13 +22,13 @@ $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__));
 $compat = '';
 
 foreach ($rii as $file) {
-    if ($file->isDir() || $file->getExtension() !== 'js') { 
+    if ($file->isDir() || $file->getExtension() !== 'js') {
         continue;
     }
 
     $path = substr($file->getPathname(), strlen(__DIR__) + 1, -3);
     if ($path !== 'index') {
-        $compat .= "import ".$file->getBasename('.js')." from './$path';\n";
+        $compat .= 'import '.$file->getBasename('.js')." from './$path';\n";
     }
 
     $content = file_get_contents($file->getRealPath());
@@ -33,7 +41,7 @@ foreach ($rii as $file) {
         $path = '';
 
         for ($i = 0; $i < count($dirs); $i++) {
-            if (!isset($importedDirs[$i]) || $dirs[$i] !== $importedDirs[$i]) {
+            if (! isset($importedDirs[$i]) || $dirs[$i] !== $importedDirs[$i]) {
                 return;
             }
         }
@@ -58,7 +66,7 @@ foreach ($rii as $file) {
 $compat .= "\nexport default {\n";
 
 foreach ($rii as $file) {
-    if ($file->isDir() || $file->getExtension() !== 'js') { 
+    if ($file->isDir() || $file->getExtension() !== 'js') {
         continue;
     }
 
