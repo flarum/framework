@@ -112,6 +112,9 @@ class Formatter
         $configurator->rendering->engine = 'PHP';
         $configurator->rendering->engine->cacheDir = $this->cacheDir;
 
+        $configurator->enableJavaScript();
+        $configurator->javascript->exportMethods = ['preview'];
+
         $configurator->Escaper;
         $configurator->Autoemail;
         $configurator->Autolink;
@@ -193,11 +196,6 @@ class Formatter
      */
     public function getJs()
     {
-        $configurator = $this->getConfigurator();
-        $configurator->enableJavaScript();
-        $configurator->javascript->exportMethods = ['preview'];
-        $configurator->javascript->setMinifier('MatthiasMullieMinify');
-
-        return $configurator->finalize()['js'];
+        return $this->getComponent('js');
     }
 }
