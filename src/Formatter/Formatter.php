@@ -198,9 +198,6 @@ class Formatter
         $configurator->javascript->exportMethods = ['preview'];
         $configurator->javascript->setMinifier('MatthiasMullieMinify');
 
-        return $configurator->finalize([
-            'returnParser' => false,
-            'returnRenderer' => false
-        ])['js'];
+        return $configurator->finalize()['js'];
     }
 }
