@@ -10,8 +10,7 @@
 import Component from '../../common/Component';
 import AdminLinkButton from './AdminLinkButton';
 import SelectDropdown from '../../common/components/SelectDropdown';
-
-import ItemList from 'utils/ItemList';
+import ItemList from '../../common/utils/ItemList';
 
 export default class AdminNav extends Component {
   view() {
