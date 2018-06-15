@@ -21,7 +21,8 @@ class ExtensionServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->app->bind('flarum.extensions', ExtensionManager::class);
+        $this->app->singleton(ExtensionManager::class);
+        $this->app->alias(ExtensionManager::class, 'flarum.extensions');
 
         $this->app->booting(function (Container $app) {
             $app->make('flarum.extensions')->extend($app);
