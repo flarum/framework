@@ -1,6 +1,6 @@
 ---
-name: "\U0001F917 Support Question"
-about: "If you have a question \U0001F4AC, please check out our forum or Discord!"
+name: "🤗 Support Question"
+about: "If you have a question 💬, please check out our forum or Discord!"
 
 ---
 

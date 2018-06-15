@@ -1,11 +1,11 @@
 ---
-name: "\U0001F680 Feature Request"
-about: "I have a suggestion (and may want to implement it \U0001F642)!"
+name: "🚀 Feature Request"
+about: "I have a suggestion (and may want to implement it 🙂)!"
 
 ---
 
 <!--
-Note: The issue tracker is only for serious feature requests which have had a bit of thought and planning put into them. If you just have an idea you would like to flesh out, please post in the Flarum Community: https://discuss.flarum.org/t/feedback
+Note: The issue tracker is only for serious requests which have had some thought and planning put into them. If you just have an idea you would like to discuss, please post in the Flarum Community: https://discuss.flarum.org/t/feedback
 -->
 
 ## Feature Request
