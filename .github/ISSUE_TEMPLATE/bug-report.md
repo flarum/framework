@@ -1,6 +1,6 @@
 ---
 name: "🐛 Bug Report"
-about: "If something isn't working as expected 🤔"
+about: "If something isn't working as expected"
 
 ---
 
@@ -34,7 +34,7 @@ Output of "php flarum info", run this in terminal in your Flarum directory.
 ```
 
 **Possible Solution**
-<!--- Only if you have suggestions on a fix for the bug -->
+<!--- Only if you have suggestions or a fix for the bug -->
 
 **Additional Context**
 Add any other context about the problem here.
