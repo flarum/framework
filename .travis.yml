@@ -10,7 +10,7 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache
-    - node_modules
+    - $HOME/.npm
 
 before_install:
   - phpenv config-rm xdebug.ini || true
@@ -28,7 +28,7 @@ jobs:
       php: 
       before_install: 
       install:
-        - npm install && npm run build
+        - cd js && npm ci && npm run build
       script: 
       after_success:
         - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "./.deploy.enc"

@@ -20,8 +20,6 @@ window.app = app;
 
 export { app };
 
-export const extensions = {};
-
 // Export public API
 // export { default as Extend } from './Extend';
 // export { IndexPage, DicsussionList } from './components';

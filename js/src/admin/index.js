@@ -17,8 +17,6 @@ window.app = app;
 
 export { app };
 
-export const extensions = {};
-
 // Export public API
 
 

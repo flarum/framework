@@ -1,12 +1,13 @@
 {
   "name": "@flarum/core",
-  "devDependencies": {
+  "version": "0.0.0",
+  "dependencies": {
     "@alrra/travis-scripts": "^3.0.1",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "color-thief-browser": "^2.0.2",
     "expose-loader": "^0.7.5",
-    "flarum-webpack-config": "0.1.0-beta.7",
+    "flarum-webpack-config": "^0.1.0-beta.7",
     "jquery": "^3.3.1",
     "jquery.hotkeys": "^0.1.0",
     "m.attrs.bidi": "github:tobscure/m.attrs.bidi",
@@ -19,7 +20,7 @@
     "webpack-merge": "^4.1.2"
   },
   "scripts": {
-    "build": "./node_modules/webpack/bin/webpack.js --mode production --progress",
-    "watch": "./node_modules/webpack/bin/webpack.js --mode development --watch"
+    "build": "webpack --mode production --progress",
+    "watch": "webpack --mode development --watch"
   }
 }

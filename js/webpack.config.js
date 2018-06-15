@@ -4,7 +4,7 @@ const merge = require('webpack-merge');
 
 module.exports = merge(config(), {
   output: {
-    library: 'flarum'
+    library: 'flarum.core'
   },
   plugins: [
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)

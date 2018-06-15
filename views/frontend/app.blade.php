@@ -30,6 +30,7 @@
     @if ($allowJs)
       <script>
         document.getElementById('flarum-loading').style.display = 'block';
+        var flarum={extensions:{}};
       </script>
 
       @foreach ($jsUrls as $url)
@@ -41,7 +42,7 @@
         @if (! $debug)
         try {
         @endif
-          flarum.app.boot(@json($payload));
+          flarum.core.app.boot(@json($payload));
         @if (! $debug)
         } catch (e) {
           window.location += (window.location.search ? '&' : '?') + 'nojs=1';

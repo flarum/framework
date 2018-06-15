@@ -22,7 +22,7 @@ class LocaleJsCompiler extends JsCompiler
 
     public function compile()
     {
-        $output = 'flarum.app.translator.translations = '.json_encode($this->translations).";\n";
+        $output = 'flarum.core.app.translator.translations='.json_encode($this->translations).";\n";
 
         foreach ($this->files as $filename) {
             $output .= file_get_contents($filename);
