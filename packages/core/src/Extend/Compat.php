@@ -23,7 +23,7 @@ use Illuminate\Contracts\Container\Container;
  *
  * @deprecated
  */
-class Compat implements Extender
+class Compat implements ExtenderInterface
 {
     protected $callback;
 
