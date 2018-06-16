@@ -27,9 +27,12 @@ module.exports = function(options = {}) {
           use: {
             loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env', '@babel/preset-react'],
+              presets: [
+                ['@babel/preset-env', {modules: false, loose: true}],
+                ['@babel/preset-react']
+              ],
               plugins: [
-                ['@babel/plugin-transform-runtime'],
+                ['@babel/plugin-transform-runtime', {useESModules: true}],
                 ['@babel/plugin-proposal-class-properties'],
                 ['@babel/plugin-transform-react-jsx', {pragma: 'm'}]
               ]
