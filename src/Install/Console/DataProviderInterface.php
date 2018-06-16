@@ -20,4 +20,6 @@ interface DataProviderInterface
     public function getAdminUser();
 
     public function getSettings();
+
+    public function isDebugMode(): bool;
 }

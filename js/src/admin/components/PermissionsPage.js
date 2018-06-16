@@ -24,7 +24,7 @@ export default class PermissionsPage extends Page {
                 </button>
               ))}
             <button className="Button Group Group--add" onclick={() => app.modal.show(new EditGroupModal())}>
-              {icon('fa fa-plus', {className: 'Group-icon'})}
+              {icon('fas fa-plus', {className: 'Group-icon'})}
               <span className="Group-name">{app.translator.trans('core.admin.permissions.new_group_button')}</span>
             </button>
           </div>

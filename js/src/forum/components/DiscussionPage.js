@@ -172,8 +172,13 @@ export default class DiscussionPage extends Page {
     // the 'discussion' relationship linked, then sorting and splicing.
     let includedPosts = [];
     if (discussion.payload && discussion.payload.included) {
+      const discussionId = discussion.id();
+
       includedPosts = discussion.payload.included
-        .filter(record => record.type === 'posts' && record.relationships && record.relationships.discussion)
+        .filter(record => record.type === 'posts'
+          && record.relationships
+          && record.relationships.discussion
+          && record.relationships.discussion.data.id === discussionId)
         .map(record => app.store.getById('posts', record.id))
         .sort((a, b) => a.id() - b.id())
         .slice(0, 20);
@@ -240,7 +245,7 @@ export default class DiscussionPage extends Page {
     items.add('controls',
       SplitDropdown.component({
         children: DiscussionControls.controls(this.discussion, this).toArray(),
-        icon: 'fa fa-ellipsis-v',
+        icon: 'fas fa-ellipsis-v',
         className: 'App-primaryControl',
         buttonClassName: 'Button--primary'
       })

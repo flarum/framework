@@ -18,7 +18,7 @@ export default class Select extends Component {
         <select className="Select-input FormControl" onchange={onchange ? m.withAttr('value', onchange.bind(this)) : undefined} value={value}>
           {Object.keys(options).map(key => <option value={key}>{options[key]}</option>)}
         </select>
-        {icon('fa fa-sort', {className: 'Select-caret'})}
+        {icon('fas fa-sort', {className: 'Select-caret'})}
       </span>
     );
   }

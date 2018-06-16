@@ -16,7 +16,7 @@ use Flarum\Formatter\Event\Configuring;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
 
-class FormatterConfiguration implements Extender
+class FormatterConfiguration implements ExtenderInterface
 {
     protected $callback;
 

@@ -59,7 +59,7 @@ export default {
 
     if (user.canEdit()) {
       items.add('edit', Button.component({
-        icon: 'fa fa-pencil-alt',
+        icon: 'fas fa-pencil-alt',
         children: app.translator.trans('core.forum.user_controls.edit_button'),
         onclick: this.editAction.bind(user)
       }));
@@ -82,7 +82,7 @@ export default {
 
     if (user.id() !== '1' && user.canDelete()) {
       items.add('delete', Button.component({
-        icon: 'fa fa-times',
+        icon: 'fas fa-times',
         children: app.translator.trans('core.forum.user_controls.delete_button'),
         onclick: this.deleteAction.bind(user)
       }));

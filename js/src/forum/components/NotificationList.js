@@ -34,7 +34,7 @@ export default class NotificationList extends Component {
           <div className="App-primaryControl">
             {Button.component({
               className: 'Button Button--icon Button--link',
-              icon: 'fa fa-check',
+              icon: 'fas fa-check',
               title: app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip'),
               onclick: this.markAllAsRead.bind(this)
             })}

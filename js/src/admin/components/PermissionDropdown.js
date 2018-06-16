@@ -52,9 +52,9 @@ export default class PermissionDropdown extends Dropdown {
     const adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
 
     if (everyone) {
-      this.props.label = Badge.component({icon: 'fa fa-globe'});
+      this.props.label = Badge.component({icon: 'fas fa-globe'});
     } else if (members) {
-      this.props.label = Badge.component({icon: 'fa fa-user'});
+      this.props.label = Badge.component({icon: 'fas fa-user'});
     } else {
       this.props.label = [
         badgeForId(Group.ADMINISTRATOR_ID),
@@ -66,8 +66,8 @@ export default class PermissionDropdown extends Dropdown {
       if (this.props.allowGuest) {
         this.props.children.push(
           Button.component({
-            children: [Badge.component({icon: 'fa fa-globe'}), ' ', app.translator.trans('core.admin.permissions_controls.everyone_button')],
-            icon: everyone ? 'fa fa-check' : true,
+            children: [Badge.component({icon: 'fas fa-globe'}), ' ', app.translator.trans('core.admin.permissions_controls.everyone_button')],
+            icon: everyone ? 'fas fa-check' : true,
             onclick: () => this.save([Group.GUEST_ID]),
             disabled: this.isGroupDisabled(Group.GUEST_ID)
           })
@@ -76,8 +76,8 @@ export default class PermissionDropdown extends Dropdown {
 
       this.props.children.push(
         Button.component({
-          children: [Badge.component({icon: 'fa fa-user'}), ' ', app.translator.trans('core.admin.permissions_controls.members_button')],
-          icon: members ? 'fa fa-check' : true,
+          children: [Badge.component({icon: 'fas fa-user'}), ' ', app.translator.trans('core.admin.permissions_controls.members_button')],
+          icon: members ? 'fas fa-check' : true,
           onclick: () => this.save([Group.MEMBER_ID]),
           disabled: this.isGroupDisabled(Group.MEMBER_ID)
         }),
@@ -86,7 +86,7 @@ export default class PermissionDropdown extends Dropdown {
 
         Button.component({
           children: [badgeForId(adminGroup.id()), ' ', adminGroup.namePlural()],
-          icon: !everyone && !members ? 'fa fa-check' : true,
+          icon: !everyone && !members ? 'fas fa-check' : true,
           disabled: !everyone && !members,
           onclick: e => {
             if (e.shiftKey) e.stopPropagation();
@@ -101,7 +101,7 @@ export default class PermissionDropdown extends Dropdown {
           .filter(group => [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
           .map(group => Button.component({
             children: [badgeForId(group.id()), ' ', group.namePlural()],
-            icon: groupIds.indexOf(group.id()) !== -1 ? 'fa fa-check' : true,
+            icon: groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true,
             onclick: (e) => {
               if (e.shiftKey) e.stopPropagation();
               this.toggle(group.id());

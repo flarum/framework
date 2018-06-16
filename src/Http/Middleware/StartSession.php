@@ -16,13 +16,13 @@ use Flarum\Http\CookieFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Session\Store;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 use SessionHandlerInterface;
 
-class StartSession implements MiddlewareInterface
+class StartSession implements Middleware
 {
     /**
      * @var SessionHandlerInterface
@@ -51,7 +51,7 @@ class StartSession implements MiddlewareInterface
         $this->config = $config->get('session');
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, Handler $handler): Response
     {
         $request = $request->withAttribute(
             'session',
@@ -59,7 +59,7 @@ class StartSession implements MiddlewareInterface
         );
 
         $session->start();
-        $response = $delegate->process($request);
+        $response = $handler->handle($request);
         $session->save();
 
         $response = $this->withCsrfTokenHeader($response, $session);

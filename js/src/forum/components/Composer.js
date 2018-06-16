@@ -422,28 +422,28 @@ class Composer extends Component {
 
     if (this.position === Composer.PositionEnum.FULLSCREEN) {
       items.add('exitFullScreen', ComposerButton.component({
-        icon: 'fa fa-compress',
+        icon: 'fas fa-compress',
         title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
         onclick: this.exitFullScreen.bind(this)
       }));
     } else {
       if (this.position !== Composer.PositionEnum.MINIMIZED) {
         items.add('minimize', ComposerButton.component({
-          icon: 'fa fa-minus minimize',
+          icon: 'fas fa-minus minimize',
           title: app.translator.trans('core.forum.composer.minimize_tooltip'),
           onclick: this.minimize.bind(this),
           itemClassName: 'App-backControl'
         }));
 
         items.add('fullScreen', ComposerButton.component({
-          icon: 'fa fa-expand',
+          icon: 'fas fa-expand',
           title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
           onclick: this.fullScreen.bind(this)
         }));
       }
 
       items.add('close', ComposerButton.component({
-        icon: 'fa fa-times',
+        icon: 'fas fa-times',
         title: app.translator.trans('core.forum.composer.close_tooltip'),
         onclick: this.close.bind(this)
       }));

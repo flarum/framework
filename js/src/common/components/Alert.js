@@ -37,7 +37,7 @@ export default class Alert extends Component {
     if (dismissible || dismissible === undefined) {
       dismissControl.push(
         <Button
-          icon="fa fa-times"
+          icon="fas fa-times"
           className="Button Button--link Button--icon Alert-dismiss"
           onclick={ondismiss}/>
       );

@@ -13,12 +13,13 @@ namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
 use Flarum\Api\Controller\CreateUserController;
-use Flarum\Http\Controller\ControllerInterface;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class RegisterController implements ControllerInterface
+class RegisterController implements RequestHandlerInterface
 {
     /**
      * @var Client
@@ -50,7 +51,7 @@ class RegisterController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(Request $request)
+    public function handle(Request $request): ResponseInterface
     {
         $controller = CreateUserController::class;
         $actor = $request->getAttribute('actor');

@@ -14,15 +14,16 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\JsonApiResponse;
-use Flarum\Http\Controller\ControllerInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Parameters;
 use Tobscure\JsonApi\SerializerInterface;
 
-abstract class AbstractSerializeController implements ControllerInterface
+abstract class AbstractSerializeController implements RequestHandlerInterface
 {
     /**
      * The name of the serializer class to output results with.
@@ -86,7 +87,7 @@ abstract class AbstractSerializeController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $document = new Document;
 

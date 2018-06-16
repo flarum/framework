@@ -154,7 +154,7 @@ export default class IndexPage extends Page {
     items.add('newDiscussion',
       Button.component({
         children: app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button'),
-        icon: 'fa fa-edit',
+        icon: 'fas fa-edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
         onclick: this.newDiscussion.bind(this),
@@ -221,7 +221,7 @@ export default class IndexPage extends Page {
 
           return Button.component({
             children: label,
-            icon: active ? 'fa fa-check' : true,
+            icon: active ? 'fas fa-check' : true,
             onclick: this.changeSort.bind(this, value),
             active: active,
           })
@@ -244,7 +244,7 @@ export default class IndexPage extends Page {
     items.add('refresh',
       Button.component({
         title: app.translator.trans('core.forum.index.refresh_tooltip'),
-        icon: 'fa fa-sync',
+        icon: 'fas fa-sync',
         className: 'Button Button--icon',
         onclick: () => {
           app.cache.discussionList.refresh();
@@ -260,7 +260,7 @@ export default class IndexPage extends Page {
       items.add('markAllAsRead',
         Button.component({
           title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
-          icon: 'fa fa-check',
+          icon: 'fas fa-check',
           className: 'Button Button--icon',
           onclick: this.markAllAsRead.bind(this)
         })

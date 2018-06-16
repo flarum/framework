@@ -26,7 +26,7 @@ export default class Dropdown extends Component {
     props.buttonClassName = props.buttonClassName || '';
     props.menuClassName = props.menuClassName || '';
     props.label = props.label || '';
-    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fa fa-caret-down';
+    props.caretIcon = typeof props.caretIcon !== 'undefined' ? props.caretIcon : 'fas fa-caret-down';
   }
 
   init() {

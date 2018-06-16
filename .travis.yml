@@ -1,11 +1,30 @@
 language: php
+sudo: false
+
+env:
+  global:
+    - DB=mariadb
+
+addons:
+  mariadb: '10.2'
 
 php:
-  - 7.0
   - 7.1
   - 7.2
 
-sudo: false
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB=mysql
+    - php: 7.2
+      addons: # to prevent mariadb
+      services: mysql
+      env:
+        - DB=mysql
 
 cache:
   directories:
@@ -13,23 +32,26 @@ cache:
     - $HOME/.npm
 
 before_install:
-  - phpenv config-rm xdebug.ini || true
+  - mysql -e 'CREATE DATABASE flarum;'
 
 install:
   - composer install
 
 script:
-  - vendor/bin/phpunit
+  - vendor/bin/phpunit --coverage-clover=coverage.xml
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 jobs:
   include:
     # Add a job to bundle and commit JS
     - language: generic
-      php: 
-      before_install: 
+      php:
+      before_install:
       install:
         - cd js && npm ci && npm run build
-      script: 
+      script:
       after_success:
         - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "./.deploy.enc"
         - $(npm bin)/commit-changes --commands "true" --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" --branch "master"

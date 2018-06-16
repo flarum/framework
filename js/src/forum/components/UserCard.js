@@ -40,7 +40,7 @@ export default class UserCard extends Component {
               menuClassName: 'Dropdown-menu--right',
               buttonClassName: this.props.controlsButtonClassName,
               label: app.translator.trans('core.forum.user_controls.button'),
-              icon: 'fa fa-ellipsis-v'
+              icon: 'fas fa-ellipsis-v'
             }) : ''}
 
             <div className="UserCard-profile">
@@ -87,7 +87,7 @@ export default class UserCard extends Component {
       items.add('lastSeen', (
         <span className={'UserCard-lastSeen' + (online ? ' online' : '')}>
           {online
-            ? [icon('fa fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
+            ? [icon('fas fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
             : [icon('far fa-clock'), ' ', humanTime(lastSeenTime)]}
         </span>
       ));

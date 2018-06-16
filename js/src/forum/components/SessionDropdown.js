@@ -46,7 +46,7 @@ export default class SessionDropdown extends Dropdown {
 
     items.add('profile',
       LinkButton.component({
-        icon: 'fa fa-user',
+        icon: 'fas fa-user',
         children: app.translator.trans('core.forum.header.profile_button'),
         href: app.route.user(user)
       }),
@@ -55,7 +55,7 @@ export default class SessionDropdown extends Dropdown {
 
     items.add('settings',
       LinkButton.component({
-        icon: 'fa fa-cog',
+        icon: 'fas fa-cog',
         children: app.translator.trans('core.forum.header.settings_button'),
         href: app.route('settings')
       }),
@@ -65,7 +65,7 @@ export default class SessionDropdown extends Dropdown {
     if (app.forum.attribute('adminUrl')) {
       items.add('administration',
         LinkButton.component({
-          icon: 'fa fa-wrench',
+          icon: 'fas fa-wrench',
           children: app.translator.trans('core.forum.header.admin_button'),
           href: app.forum.attribute('adminUrl'),
           target: '_blank',
@@ -79,7 +79,7 @@ export default class SessionDropdown extends Dropdown {
 
     items.add('logOut',
       Button.component({
-        icon: 'fa fa-sign-out-alt',
+        icon: 'fas fa-sign-out-alt',
         children: app.translator.trans('core.forum.header.log_out_button'),
         onclick: app.session.logout.bind(app.session)
       }),

@@ -138,6 +138,7 @@ class InstallCommand extends AbstractCommand
     protected function install()
     {
         try {
+            $this->debug = $this->dataSource->isDebugMode();
             $this->dbConfig = $this->dataSource->getDatabaseConfiguration();
 
             $validation = $this->getValidator()->make(
@@ -214,7 +215,7 @@ class InstallCommand extends AbstractCommand
         $dbConfig = $this->dbConfig;
 
         $config = [
-            'debug'    => false,
+            'debug'    => $this->debug,
             'database' => [
                 'driver'    => $dbConfig['driver'],
                 'host'      => $dbConfig['host'],
@@ -287,10 +288,10 @@ class InstallCommand extends AbstractCommand
         Group::unguard();
 
         $groups = [
-            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'fa fa-wrench'],
+            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'fas fa-wrench'],
             [Group::GUEST_ID, 'Guest', 'Guests', null, null],
             [Group::MEMBER_ID, 'Member', 'Members', null, null],
-            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fa fa-bolt']
+            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fas fa-bolt']
         ];
 
         foreach ($groups as $group) {

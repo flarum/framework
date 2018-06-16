@@ -11,9 +11,17 @@
          syntaxCheck="false">
 
     <testsuites>
+        <testsuite name="installation">
+            <directory suffix="Test.php">./tests/Install</directory>
+        </testsuite>
         <testsuite name="all">
             <directory suffix="Test.php">./tests</directory>
+            <exclude>./tests/Install</exclude>
         </testsuite>
     </testsuites>
-
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src/</directory>
+        </whitelist>
+    </filter>
 </phpunit>
