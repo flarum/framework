@@ -44,6 +44,8 @@ module.exports = function(options = {}) {
 
     output: {
       path: path.resolve(process.cwd(), 'dist'),
+      library: 'module.exports',
+      libraryTarget: 'assign'
     },
 
     externals: [
