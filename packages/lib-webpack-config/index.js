@@ -73,7 +73,7 @@ module.exports = function(options = {}) {
       function(context, request, callback) {
         let matches;
         if ((matches = /^flarum\/(.+)$/.exec(request))) {
-          return callback(null, 'root flarum.compat[\'' + matches[1] + '\']');
+          return callback(null, 'root flarum.core.compat[\'' + matches[1] + '\']');
         }
         callback();
       }
