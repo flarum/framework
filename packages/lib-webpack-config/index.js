@@ -46,19 +46,6 @@ module.exports = function(options = {}) {
       path: path.resolve(process.cwd(), 'js')
     },
 
-    // For backwards compatibility, search for non-relative-path modules
-    // in the source directories. Also make sure the root node_modules
-    // directory is searched.
-    resolve: {
-      modules: [
-        path.resolve(process.cwd(), 'js/forum'),
-        path.resolve(process.cwd(), 'js/admin'),
-        path.resolve(process.cwd(), 'js/common'),
-        path.resolve(process.cwd(), 'node_modules'),
-        'node_modules'
-      ]
-    },
-
     externals: [
       {
         '@flarum/core/forum': 'flarum',
