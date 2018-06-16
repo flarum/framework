@@ -12,7 +12,6 @@
 namespace Flarum\Api;
 
 use Flarum\Api\Controller\AbstractSerializeController;
-use Flarum\Api\Middleware;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;

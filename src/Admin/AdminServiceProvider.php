@@ -11,7 +11,6 @@
 
 namespace Flarum\Admin;
 
-use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Application;
