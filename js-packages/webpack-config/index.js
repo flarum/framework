@@ -43,7 +43,7 @@ module.exports = function(options = {}) {
     },
 
     output: {
-      path: path.resolve(process.cwd(), 'js')
+      path: path.resolve(process.cwd(), 'dist'),
     },
 
     externals: [
