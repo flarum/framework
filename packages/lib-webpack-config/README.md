@@ -37,4 +37,3 @@ module.exports = config({
   useExtensions: ['flarum/flarum-ext-tags']
 });
 ```
-
