@@ -50,9 +50,9 @@ module.exports = function(options = {}) {
 
     externals: [
       {
-        '@flarum/core/forum': 'flarum',
-        '@flarum/core/admin': 'flarum',
-        'jquery': 'jQuery'
+        '@flarum/core/forum': 'flarum.core',
+        '@flarum/core/admin': 'flarum.core',
+        'jquery': 'jQuery',
       },
 
       // Support importing old-style core modules.
