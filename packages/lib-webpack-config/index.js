@@ -55,6 +55,20 @@ module.exports = function(options = {}) {
         'jquery': 'jQuery',
       },
 
+      function() {
+        const externals = {};
+
+        if (options.useExtensions) {
+          for (const extension of options.useExtensions) {
+            externals['@'+extension] =
+              externals['@'+extension+'/forum'] =
+                externals['@'+extension+'/admin'] = "flarum.extensions['"+extension+"']";
+          }
+        }
+
+        return externals;
+      }(),
+
       // Support importing old-style core modules.
       function(context, request, callback) {
         let matches;
