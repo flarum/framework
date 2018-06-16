@@ -10,12 +10,12 @@ module.exports = function(options = {}) {
       const entries = {};
 
       for (const app of ['forum', 'admin']) {
-        const file = path.resolve(process.cwd(), 'js/' + app + '/index.js');
+        const file = path.resolve(process.cwd(), app+'.js');
         if (fs.existsSync(file)) {
           entries[app] = file;
         }
       }
-      
+
       return entries;
     }(),
 
