@@ -1,10 +1,13 @@
 {
   "name": "flarum-webpack-config",
   "version": "0.1.0-beta.7",
-  "description": "",
+  "description": "Webpack config factory for Flarum JavaScript compilation.",
   "main": "index.js",
   "author": "Toby Zerner",
   "license": "MIT",
+  "peerDependencies": {
+    "webpack": "^4.0.0"
+  },
   "dependencies": {
     "@babel/core": "^7.0.0-beta.39",
     "@babel/plugin-proposal-class-properties": "^7.0.0-beta.39",
@@ -13,8 +16,6 @@
     "@babel/preset-env": "^7.0.0-beta.39",
     "@babel/preset-react": "^7.0.0-beta.39",
     "@babel/runtime": "^7.0.0-beta.39",
-    "babel-loader": "^8.0.0-beta.0",
-    "webpack": "^4.0.0",
-    "webpack-cli": "^2.0.0"
+    "babel-loader": "^8.0.0-beta.0"
   }
 }
