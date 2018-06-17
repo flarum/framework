@@ -1,4 +1,5 @@
 language: php
+
 sudo: false
 
 env:
@@ -8,16 +9,10 @@ env:
 
   matrix:
     - DB=mysql
-    - DB=mariadb
 
 php:
   - 7.1
   - 7.2
-
-services: mysql
-
-addons:
-  mariadb: '10.2'
 
 cache:
   directories:
@@ -38,12 +33,21 @@ after_success:
 
 jobs:
   include:
-    # Add a job to bundle and commit JS
+    - php: 7.1
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+    - php: 7.2
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    # Bundle and commit JS
     - stage: build
       language: generic
-      addons:
-      php:
-      before_install:
+      addons: skip
+      php: skip
+      before_install: skip
       install:
         - npm i -g npm@6.1.0
         - cd js && npm ci
