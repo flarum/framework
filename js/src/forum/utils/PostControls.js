@@ -82,7 +82,7 @@ export default {
     const items = new ItemList();
 
     if (post.contentType() === 'comment' && !post.isHidden()) {
-      if (post.canEdit()) {
+      if (post.canHide()) {
         items.add('hide', Button.component({
           icon: 'far fa-trash-alt',
           children: app.translator.trans('core.forum.post_controls.delete_button'),
@@ -90,7 +90,7 @@ export default {
         }));
       }
     } else {
-      if (post.contentType() === 'comment' && post.canEdit()) {
+      if (post.contentType() === 'comment' && post.canHide()) {
         items.add('restore', Button.component({
           icon: 'fas fa-reply',
           children: app.translator.trans('core.forum.post_controls.restore_button'),
