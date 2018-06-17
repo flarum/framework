@@ -119,7 +119,16 @@ class Extension implements Arrayable
             return;
         }
 
-        $extenders = array_flatten((array) require $bootstrapper);
+        $this->runExtenders($app, require $bootstrapper);
+    }
+
+    private function runExtenders(Container $app, $extenders)
+    {
+        if (! is_array($extenders)) {
+            $extenders = [$extenders];
+        }
+
+        $extenders = array_flatten($extenders);
 
         foreach ($extenders as $extender) {
             // If an extension has not yet switched to the new bootstrap.php
@@ -129,7 +138,11 @@ class Extension implements Arrayable
                 $extender = new Compat($extender);
             }
 
-            $extender($app, $this);
+            // Extenders may return additional Extenders when they are invoked.
+            // Recursively run them if there were any returned.
+            if ($return = $extender($app, $this)) {
+                $this->runExtenders($app, $return);
+            }
         }
     }
 
