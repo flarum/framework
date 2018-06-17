@@ -3,13 +3,8 @@ sudo: false
 
 env:
   global:
-    - DB=mariadb
-
     # Define GH_USER_EMAIL & GH_USER_NAME env variables used by travis-scripts package
     - secure: "NsqM7pjwecsBddmMZZdWFfS/wAi7oXT3nlq7sNWpF6kKSGqicdPKIeT/QQrxiUZi/+yqJeLhP518T2DCSPoL6I/vSYBNv1Bu63UYckvW84ZSDFqJ1Or9b1zVpGwOnE8FS4+a/N0Tj3vnkIWNmi47SSEApLW49Hz6fH28L5fWN1A="
-
-addons:
-  mariadb: '10.2'
 
 php:
   - 7.1
@@ -18,16 +13,11 @@ php:
 matrix:
   fast_finish: true
   include:
-    - php: 7.1
-      addons: # to prevent mariadb
+    - env: DB=mysql
       services: mysql
-      env:
-        - DB=mysql
-    - php: 7.2
-      addons: # to prevent mariadb
-      services: mysql
-      env:
-        - DB=mysql
+    - env: DB=mariadb
+      addons:
+        mariadb: '10.2'
 
 cache:
   directories:
@@ -60,5 +50,5 @@ jobs:
       script:
         - npm run build
       after_success:
-        - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "./.deploy.enc"
+        - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "../.deploy.enc"
         - $(npm bin)/commit-changes --commands "true" --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" --branch "master"
