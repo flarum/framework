@@ -12,8 +12,7 @@
 use Flarum\Extend;
 use s9e\TextFormatter\Configurator;
 
-return [
-    new Extend\FormatterConfiguration(function (Configurator $config) {
+return (new Extend\Formatter)
+    ->configure(function (Configurator $config) {
         $config->Litedown;
-    }),
-];
+    });
