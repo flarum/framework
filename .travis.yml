@@ -44,6 +44,7 @@ jobs:
 
     # Bundle and commit JS
     - stage: build
+      if: branch = master AND type = push
       language: generic
       addons: skip
       php: skip
@@ -55,4 +56,4 @@ jobs:
         - npm run build -- --progress=false
       after_success:
         - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "../.deploy.enc"
-        - $(npm bin)/commit-changes --commands "true" --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" --branch "webpack"
+        - $(npm bin)/commit-changes --commands "true" --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" --branch "master"
