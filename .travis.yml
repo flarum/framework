@@ -6,9 +6,18 @@ env:
     # Define GH_USER_EMAIL & GH_USER_NAME env variables used by travis-scripts package
     - secure: "NsqM7pjwecsBddmMZZdWFfS/wAi7oXT3nlq7sNWpF6kKSGqicdPKIeT/QQrxiUZi/+yqJeLhP518T2DCSPoL6I/vSYBNv1Bu63UYckvW84ZSDFqJ1Or9b1zVpGwOnE8FS4+a/N0Tj3vnkIWNmi47SSEApLW49Hz6fH28L5fWN1A="
 
+  matrix:
+    - DB=mysql
+    - DB=mariadb
+
 php:
   - 7.1
   - 7.2
+
+services: mysql
+
+addons:
+  mariadb: '10.2'
 
 cache:
   directories:
@@ -29,11 +38,6 @@ after_success:
 
 jobs:
   include:
-    - env: DB=mysql
-      services: mysql
-    - env: DB=mariadb
-      addons:
-        mariadb: '10.2'
     # Add a job to bundle and commit JS
     - stage: build
       language: generic
