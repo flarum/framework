@@ -12,8 +12,8 @@
 use Flarum\Extend;
 use s9e\TextFormatter\Configurator;
 
-return [
-    new Extend\FormatterConfiguration(function (Configurator $config) {
+return (new Extend\Formatter)
+    ->configure(function (Configurator $config) {
         $config->BBCodes->addFromRepository('B');
         $config->BBCodes->addFromRepository('I');
         $config->BBCodes->addFromRepository('U');
@@ -29,5 +29,4 @@ return [
         $config->BBCodes->addFromRepository('CENTER');
         $config->BBCodes->addFromRepository('SIZE');
         $config->BBCodes->addFromRepository('*');
-    })
-];
+    });
