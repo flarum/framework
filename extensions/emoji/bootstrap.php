@@ -14,8 +14,8 @@ use s9e\TextFormatter\Configurator;
 
 return [
     (new Extend\Assets('forum'))
-        ->js(__DIR__.'/js/forum/dist/main.js')
-        ->asset(__DIR__.'/less/forum/extension.less'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->asset(__DIR__.'/less/forum.less'),
 
     new Extend\FormatterConfiguration(function (Configurator $config) {
         $config->Emoji->useEmojiOne();
