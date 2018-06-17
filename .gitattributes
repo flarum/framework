@@ -8,4 +8,4 @@
 phpunit.xml export-ignore
 tests export-ignore
 
-js/*/dist/*.js -diff
+js/dist/* -diff
