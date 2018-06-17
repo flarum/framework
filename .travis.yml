@@ -49,7 +49,8 @@ after_success:
 jobs:
   include:
     # Add a job to bundle and commit JS
-    - language: generic
+    - stage: build
+      language: generic
       addons:
       php:
       before_install:
