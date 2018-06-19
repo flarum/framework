@@ -2,28 +2,14 @@ language: php
 
 sudo: false
 
-env:
-  global:
-    # Define GH_USER_EMAIL & GH_USER_NAME env variables used by travis-scripts package
-    - secure: "NsqM7pjwecsBddmMZZdWFfS/wAi7oXT3nlq7sNWpF6kKSGqicdPKIeT/QQrxiUZi/+yqJeLhP518T2DCSPoL6I/vSYBNv1Bu63UYckvW84ZSDFqJ1Or9b1zVpGwOnE8FS4+a/N0Tj3vnkIWNmi47SSEApLW49Hz6fH28L5fWN1A="
-
-  matrix:
-    - DB=mysql
-
-php:
-  - 7.1
-  - 7.2
-
 cache:
   directories:
     - $HOME/.composer/cache
     - $HOME/.npm
 
-before_install:
-  - mysql -e 'CREATE DATABASE flarum;'
-
 install:
   - composer install
+  - mysql -e 'CREATE DATABASE flarum;'
 
 script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml
@@ -34,26 +20,24 @@ after_success:
 jobs:
   include:
     - php: 7.1
+      env: DB=mysql
+
+    - php: 7.2
+      env: DB=mysql
+
+    - php: 7.1
       addons:
         mariadb: '10.2'
       env: DB=mariadb
+
     - php: 7.2
       addons:
         mariadb: '10.2'
       env: DB=mariadb
 
-    # Bundle and commit JS
     - stage: build
       if: branch = master AND type = push
-      language: generic
-      addons: skip
-      php: skip
-      before_install: skip
-      install:
-        - npm i -g npm@6.1.0
-        - cd js && npm ci
-      script:
-        - npm run build -- --progress=false
-      after_success:
-        - $(npm bin)/set-up-ssh --key "$encrypted_678139e2bc67_key" --iv "$encrypted_678139e2bc67_iv" --path-encrypted-key "../.deploy.enc"
-        - $(npm bin)/commit-changes --commands "true" --commit-message "Bundled output for commit $TRAVIS_COMMIT [skip ci]" --branch "master"
+      install: skip
+      script: bash .travis/bundle.sh
+      after_success: skip
+      env: ENCRYPTION_KEY=$encrypted_678139e2bc67_key ENCRYPTION_IV=$encrypted_678139e2bc67_iv
