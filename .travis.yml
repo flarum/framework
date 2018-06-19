@@ -36,7 +36,7 @@ jobs:
       env: DB=mariadb
 
     - stage: build
-      if: branch = master AND type = push
+      if: branch = webpack AND type = push
       install: skip
       script: bash .travis/bundle.sh
       after_success: skip
