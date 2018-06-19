@@ -90,6 +90,8 @@ class UserRepository
      */
     public function getIdsForUsername($string, User $actor = null)
     {
+        $string = $this->escapeLikeString($string);
+
         $query = User::where('username', 'like', '%'.$string.'%')
             ->orderByRaw('username = ? desc', [$string])
             ->orderByRaw('username like ? desc', [$string.'%']);
@@ -111,5 +113,16 @@ class UserRepository
         }
 
         return $query;
+    }
+
+    /**
+     * Escape special characters that can be used as wildcards in a LIKE query.
+     *
+     * @param string $string
+     * @return string
+     */
+    private function escapeLikeString($string)
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $string);
     }
 }

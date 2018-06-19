@@ -15,7 +15,7 @@ use Flarum\Extension\Extension;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
-class Routes implements Extender
+class Routes implements ExtenderInterface
 {
     protected $appName;
 
