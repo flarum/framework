@@ -43,13 +43,13 @@ class Formatter implements ExtenderInterface
 
         // Also set up an event listener to flush the formatter cache whenever
         // this extension is enabled or disabled.
-        $flush = function ($event) use ($container, $extension) {
-            if ($event->extension === $extension) {
-                $container->make(ActualFormatter::class)->flush();
+        $events->listen(
+            [Enabled::class, Disabled::class],
+            function ($event) use ($container, $extension) {
+                if ($event->extension === $extension) {
+                    $container->make(ActualFormatter::class)->flush();
+                }
             }
-        };
-
-        $events->listen(Enabled::class, $flush);
-        $events->listen(Disabled::class, $flush);
+        );
     }
 }
