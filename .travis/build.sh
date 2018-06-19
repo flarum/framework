@@ -2,6 +2,8 @@
 
 main() {
   while getopts ":k:i:" opt; do
+    echo $opt
+    echo ${#OPTARG}
     case $opt in
       k) encrypted_key="$OPTARG"
       ;;
