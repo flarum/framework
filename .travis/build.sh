@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e # Exit with nonzero exit code if anything fails
-
 while getopts ":k:i:" opt; do
   case $opt in
     k) encrypted_key="$OPTARG"

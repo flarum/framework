@@ -36,6 +36,7 @@ jobs:
       env: DB=mariadb
 
     - stage: build
+      language: generic
       if: branch = webpack AND type = push
       install: skip
       script: bash .travis/build.sh -k $encrypted_678139e2bc67_key -i $encrypted_678139e2bc67_iv

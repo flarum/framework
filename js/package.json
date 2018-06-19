@@ -19,7 +19,7 @@
     "webpack-merge": "^4.1.2"
   },
   "scripts": {
-    "build": "webpack --mode production --progress",
+    "build": "webpack --mode production",
     "watch": "webpack --mode development --watch"
   }
 }
