@@ -38,6 +38,5 @@ jobs:
     - stage: build
       if: branch = webpack AND type = push
       install: skip
-      script: bash .travis/bundle.sh
+      script: bash .travis/build.sh -k $encrypted_678139e2bc67_key -i $encrypted_678139e2bc67_iv
       after_success: skip
-      env: ENCRYPTION_KEY=$encrypted_678139e2bc67_key ENCRYPTION_IV=$encrypted_678139e2bc67_iv
