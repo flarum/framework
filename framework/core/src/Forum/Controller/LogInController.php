@@ -12,7 +12,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
-use Flarum\Api\Controller\TokenController;
+use Flarum\Api\Controller\CreateTokenController;
 use Flarum\Http\AccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
@@ -67,7 +67,7 @@ class LogInController implements RequestHandlerInterface
         $body = $request->getParsedBody();
         $params = array_only($body, ['identification', 'password']);
 
-        $response = $this->apiClient->send(TokenController::class, $actor, [], $params);
+        $response = $this->apiClient->send(CreateTokenController::class, $actor, [], $params);
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody());

@@ -29,6 +29,10 @@ class FulltextGambit implements GambitInterface
             throw new LogicException('This gambit can only be applied on a DiscussionSearch');
         }
 
+        // The @ character crashes fulltext searches on InnoDB tables.
+        // See https://bugs.mysql.com/bug.php?id=74042
+        $bit = str_replace('@', '*', $bit);
+
         $search->getQuery()
             ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT(posts.id ORDER BY MATCH(posts.content) AGAINST (?) DESC), \',\', 1) as most_relevant_post_id', [$bit])
             ->leftJoin('posts', 'posts.discussion_id', '=', 'discussions.id')

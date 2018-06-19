@@ -11,6 +11,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\UserRepository;
 use Psr\Http\Message\ServerRequestInterface;
@@ -55,7 +56,7 @@ class ShowUserController extends AbstractShowController
         $actor = $request->getAttribute('actor');
 
         if ($actor->id == $id) {
-            $this->serializer = 'Flarum\Api\Serializer\CurrentUserSerializer';
+            $this->serializer = CurrentUserSerializer::class;
         }
 
         return $this->users->findOrFail($id, $actor);

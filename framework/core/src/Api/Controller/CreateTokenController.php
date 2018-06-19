@@ -21,7 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\JsonResponse;
 
-class TokenController implements RequestHandlerInterface
+class CreateTokenController implements RequestHandlerInterface
 {
     /**
      * @var \Flarum\User\UserRepository
