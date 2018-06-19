@@ -20,7 +20,7 @@ git add dist/* -f
 git commit -m "Bundled output for commit $TRAVIS_COMMIT [skip ci]"
 
 eval `ssh-agent -s`
-openssl aes-256-cbc -K $encrypted_key -iv $encrypted_iv -in ../.deploy.enc | ssh-add -
+openssl aes-256-cbc -K $encrypted_key -iv $encrypted_iv -in ../.deploy.enc -d | ssh-add -
 
 git config user.name "flarum-bot"
 git config user.email "bot@flarum.org"
