@@ -3,7 +3,7 @@ import Button from 'flarum/components/Button';
 import icon from 'flarum/helpers/icon';
 import extractText from 'flarum/utils/extractText';
 
-import SubscriptionMenuItem from 'flarum/subscriptions/components/SubscriptionMenuItem';
+import SubscriptionMenuItem from './SubscriptionMenuItem';
 
 export default class SubscriptionMenu extends Dropdown {
   init() {
