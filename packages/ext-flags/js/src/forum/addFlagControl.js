@@ -3,7 +3,7 @@ import app from 'flarum/app';
 import PostControls from 'flarum/utils/PostControls';
 import Button from 'flarum/components/Button';
 
-import FlagPostModal from 'flarum/flags/components/FlagPostModal';
+import FlagPostModal from './components/FlagPostModal';
 
 export default function() {
   extend(PostControls, 'userControls', function(items, post) {

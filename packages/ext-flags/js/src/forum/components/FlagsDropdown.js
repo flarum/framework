@@ -1,6 +1,6 @@
 import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
 
-import FlagList from 'flarum/flags/components/FlagList';
+import FlagList from './FlagList';
 
 export default class FlagsDropdown extends NotificationsDropdown {
   static initProps(props) {

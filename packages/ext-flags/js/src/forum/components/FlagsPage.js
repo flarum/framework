@@ -1,6 +1,6 @@
 import Page from 'flarum/components/Page';
 
-import FlagList from 'flarum/flags/components/FlagList';
+import FlagList from './FlagList';
 
 /**
  * The `FlagsPage` component shows the flags list. It is only
