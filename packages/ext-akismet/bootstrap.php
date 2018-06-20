@@ -15,11 +15,11 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Assets('forum'))
-        ->asset(__DIR__.'/js/forum/dist/extension.js')
-        ->bootstrapper('flarum/akismet/main'),
+        ->js(__DIR__.'/js/dist/forum.js'),
+
     (new Extend\Assets('admin'))
-        ->asset(__DIR__.'/js/admin/dist/extension.js')
-        ->bootstrapper('flarum/akismet/main'),
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\FilterNewPosts::class);
     },
