@@ -12,6 +12,7 @@ main() {
     esac
   done
 
+  git checkout -f $TRAVIS_BRANCH
   git config user.name "flarum-bot"
   git config user.email "bot@flarum.org"
 
