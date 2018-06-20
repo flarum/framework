@@ -5,7 +5,7 @@ import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 import icon from 'flarum/helpers/icon';
 
-import PostLikesModal from 'flarum/likes/components/PostLikesModal';
+import PostLikesModal from './components/PostLikesModal';
 
 export default function() {
   extend(CommentPost.prototype, 'footerItems', function(items) {

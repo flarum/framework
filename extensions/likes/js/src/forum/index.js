@@ -4,9 +4,9 @@ import Post from 'flarum/models/Post';
 import Model from 'flarum/Model';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 
-import addLikeAction from 'flarum/likes/addLikeAction';
-import addLikesList from 'flarum/likes/addLikesList';
-import PostLikedNotification from 'flarum/likes/components/PostLikedNotification';
+import addLikeAction from './addLikeAction';
+import addLikesList from './addLikesList';
+import PostLikedNotification from './components/PostLikedNotification';
 
 app.initializers.add('flarum-likes', () => {
   app.notificationComponents.postLiked = PostLikedNotification;
