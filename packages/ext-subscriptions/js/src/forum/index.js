@@ -4,12 +4,12 @@ import Model from 'flarum/Model';
 import Discussion from 'flarum/models/Discussion';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 
-import addSubscriptionBadge from 'flarum/subscriptions/addSubscriptionBadge';
-import addSubscriptionControls from 'flarum/subscriptions/addSubscriptionControls';
-import addSubscriptionFilter from 'flarum/subscriptions/addSubscriptionFilter';
-import addSubscriptionSettings from 'flarum/subscriptions/addSubscriptionSettings';
+import addSubscriptionBadge from './addSubscriptionBadge';
+import addSubscriptionControls from './addSubscriptionControls';
+import addSubscriptionFilter from './addSubscriptionFilter';
+import addSubscriptionSettings from './addSubscriptionSettings';
 
-import NewPostNotification from 'flarum/subscriptions/components/NewPostNotification';
+import NewPostNotification from './components/NewPostNotification';
 
 app.initializers.add('subscriptions', function() {
   app.notificationComponents.newPost = NewPostNotification;

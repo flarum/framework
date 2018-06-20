@@ -3,7 +3,7 @@ import Button from 'flarum/components/Button';
 import DiscussionPage from 'flarum/components/DiscussionPage';
 import DiscussionControls from 'flarum/utils/DiscussionControls';
 
-import SubscriptionMenu from 'flarum/subscriptions/components/SubscriptionMenu';
+import SubscriptionMenu from './components/SubscriptionMenu';
 
 export default function addSubscriptionControls() {
   extend(DiscussionControls, 'userControls', function(items, discussion, context) {

@@ -17,11 +17,12 @@ use Illuminate\Contracts\View\Factory;
 
 return [
     (new Extend\Assets('forum'))
-        ->asset(__DIR__.'/js/forum/dist/extension.js')
-        ->asset(__DIR__.'/less/forum/extension.less')
-        ->bootstrapper('flarum/subscriptions/main'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->asset(__DIR__.'/less/forum.less'),
+
     (new Extend\Routes('forum'))
         ->get('/following', 'following', FrontendController::class),
+
     function (Dispatcher $events, Factory $views) {
         $events->subscribe(Listener\AddDiscussionSubscriptionAttribute::class);
         $events->subscribe(Listener\FilterDiscussionListBySubscription::class);
