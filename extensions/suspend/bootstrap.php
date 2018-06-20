@@ -16,13 +16,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Assets('forum'))
-        ->asset(__DIR__.'/js/forum/dist/extension.js')
-        ->asset(__DIR__.'/less/forum/extension.less')
-        ->bootstrapper('flarum/suspend/main'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->asset(__DIR__.'/less/forum.less'),
+
     (new Extend\Assets('admin'))
-        ->asset(__DIR__.'/js/admin/dist/extension.js')
-        ->asset(__DIR__.'/less/admin/extension.less')
-        ->bootstrapper('flarum/suspend/main'),
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->asset(__DIR__.'/less/admin.less'),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddUserSuspendAttributes::class);
         $events->subscribe(Listener\RevokeAccessFromSuspendedUsers::class);
