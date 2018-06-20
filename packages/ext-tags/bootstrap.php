@@ -18,22 +18,24 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Assets('forum'))
-        ->asset(__DIR__.'/js/forum/dist/extension.js')
-        ->asset(__DIR__.'/less/forum/extension.less')
-        ->bootstrapper('flarum/tags/main'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->asset(__DIR__.'/less/forum.less'),
+
     (new Extend\Assets('admin'))
-        ->asset(__DIR__.'/js/admin/dist/extension.js')
-        ->asset(__DIR__.'/less/admin/extension.less')
-        ->bootstrapper('flarum/tags/main'),
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->asset(__DIR__.'/less/admin.less'),
+
     (new Extend\Routes('forum'))
         ->get('/t/{slug}', 'tag', FrontendController::class)
         ->get('/tags', 'tags', FrontendController::class),
+
     (new Extend\Routes('api'))
         ->get('/tags', 'tags.index', Controller\ListTagsController::class)
         ->post('/tags', 'tags.create', Controller\CreateTagController::class)
         ->post('/tags/order', 'tags.order', Controller\OrderTagsController::class)
         ->patch('/tags/{id}', 'tags.update', Controller\UpdateTagController::class)
         ->delete('/tags/{id}', 'tags.delete', Controller\DeleteTagController::class),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddDiscussionTagsRelationship::class);
         $events->subscribe(Listener\AddForumTagsRelationship::class);

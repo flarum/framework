@@ -1,6 +1,0 @@
-{
-  "name": "flarum-tags-admin",
-  "devDependencies": {
-    "html.sortable": "^0.2.9"
-  }
-}
