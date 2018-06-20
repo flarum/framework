@@ -9,10 +9,16 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Extend;
 use Flarum\Statistics\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 
-return function (Dispatcher $events) {
-    $events->subscribe(Listener\AddClientAssets::class);
-    $events->subscribe(Listener\AddStatisticsData::class);
-};
+return [
+    (new Extend\Assets('admin'))
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->asset(__DIR__.'/less/admin.less'),
+
+    function (Dispatcher $events) {
+        $events->subscribe(Listener\AddStatisticsData::class);
+    }
+];
