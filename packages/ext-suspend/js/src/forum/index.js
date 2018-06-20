@@ -6,9 +6,9 @@ import Badge from 'flarum/components/Badge';
 import Model from 'flarum/Model';
 import User from 'flarum/models/User';
 
-import SuspendUserModal from 'flarum/suspend/components/SuspendUserModal';
-import UserSuspendedNotification from 'flarum/suspend/components/UserSuspendedNotification';
-import UserUnsuspendedNotification from 'flarum/suspend/components/UserUnsuspendedNotification';
+import SuspendUserModal from './components/SuspendUserModal';
+import UserSuspendedNotification from './components/UserSuspendedNotification';
+import UserUnsuspendedNotification from './components/UserUnsuspendedNotification';
 
 app.initializers.add('flarum-suspend', () => {
   app.notificationComponents.userSuspended = UserSuspendedNotification;
