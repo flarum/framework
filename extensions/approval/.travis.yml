@@ -1,0 +1,15 @@
+language: minimal
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.npm
+
+jobs:
+  include:
+    - stage: build
+      if: branch = master AND type = push
+      script: curl -s https://raw.githubusercontent.com/flarum/core/master/.travis/build.sh | bash -s -
+        -k $encrypted_065f739a94a3_key
+        -i $encrypted_065f739a94a3_iv

@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import app from 'flarum/app';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
-app.initializers.add('approval', () => {
+app.initializers.add('flarum-approval', () => {
   extend(app, 'getRequiredPermissions', function(required, permission) {
     if (permission === 'discussion.startWithoutApproval') {
       required.push('startDiscussion');
