@@ -1,7 +1,7 @@
 import Button from 'flarum/components/Button';
 import extract from 'flarum/utils/extract';
 
-import reply from 'flarum/mentions/utils/reply';
+import reply from '../utils/reply';
 
 export default class PostQuoteButton extends Button {
   view() {

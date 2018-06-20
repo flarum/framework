@@ -1,8 +1,8 @@
 import { extend } from 'flarum/extend';
 import CommentPost from 'flarum/components/CommentPost';
 
-import PostQuoteButton from 'flarum/mentions/components/PostQuoteButton';
-import selectedText from 'flarum/mentions/utils/selectedText';
+import PostQuoteButton from './components/PostQuoteButton';
+import selectedText from './utils/selectedText';
 
 export default function addPostQuoteButton() {
   extend(CommentPost.prototype, 'config', function(original, isInitialized) {
