@@ -12,6 +12,9 @@ main() {
     esac
   done
 
+  git config user.name "flarum-bot"
+  git config user.email "bot@flarum.org"
+
   cd js
   npm i -g npm@6.1.0
   npm ci
@@ -22,9 +25,6 @@ main() {
 
   eval `ssh-agent -s`
   openssl aes-256-cbc -K $encrypted_key -iv $encrypted_iv -in ../.deploy.enc -d | ssh-add -
-
-  git config user.name "flarum-bot"
-  git config user.email "bot@flarum.org"
 
   git push git@github.com:$TRAVIS_REPO_SLUG.git $TRAVIS_BRANCH
 }
