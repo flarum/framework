@@ -15,12 +15,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Assets('forum'))
-        ->asset(__DIR__.'/js/forum/dist/extension.js')
-        ->asset(__DIR__.'/less/forum/extension.less')
-        ->bootstrapper('flarum/sticky/main'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->asset(__DIR__.'/less/forum.less'),
+
     (new Extend\Assets('admin'))
-        ->asset(__DIR__.'/js/admin/dist/extension.js')
-        ->bootstrapper('flarum/sticky/main'),
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     function (Dispatcher $events) {
         $events->subscribe(Listener\AddApiAttributes::class);
         $events->subscribe(Listener\CreatePostWhenDiscussionIsStickied::class);
