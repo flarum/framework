@@ -2,4 +2,4 @@
 .gitignore export-ignore
 .travis.yml export-ignore
 
-js/*/dist/*.js -diff
+js/dist/* -diff
