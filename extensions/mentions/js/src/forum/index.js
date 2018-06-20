@@ -3,16 +3,16 @@ import app from 'flarum/app';
 import NotificationGrid from 'flarum/components/NotificationGrid';
 import { getPlainContent } from 'flarum/utils/string';
 
-import addPostMentionPreviews from 'flarum/mentions/addPostMentionPreviews';
-import addMentionedByList from 'flarum/mentions/addMentionedByList';
-import addPostReplyAction from 'flarum/mentions/addPostReplyAction';
-import addPostQuoteButton from 'flarum/mentions/addPostQuoteButton';
-import addComposerAutocomplete from 'flarum/mentions/addComposerAutocomplete';
-import PostMentionedNotification from 'flarum/mentions/components/PostMentionedNotification';
-import UserMentionedNotification from 'flarum/mentions/components/UserMentionedNotification';
+import addPostMentionPreviews from './addPostMentionPreviews';
+import addMentionedByList from './addMentionedByList';
+import addPostReplyAction from './addPostReplyAction';
+import addPostQuoteButton from './addPostQuoteButton';
+import addComposerAutocomplete from './addComposerAutocomplete';
+import PostMentionedNotification from './components/PostMentionedNotification';
+import UserMentionedNotification from './components/UserMentionedNotification';
 import UserPage from 'flarum/components/UserPage'
 import LinkButton from 'flarum/components/LinkButton';
-import MentionsUserPage from 'flarum/mentions/components/MentionsUserPage';
+import MentionsUserPage from './components/MentionsUserPage';
 
 app.initializers.add('flarum-mentions', function() {
   // For every mention of a post inside a post's content, set up a hover handler

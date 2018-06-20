@@ -1,4 +1,4 @@
-/*global getCaretCoordinates*/
+import getCaretCoordinates from 'textarea-caret';
 
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
@@ -8,7 +8,7 @@ import highlight from 'flarum/helpers/highlight';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/utils/string';
 
-import AutocompleteDropdown from 'flarum/mentions/components/AutocompleteDropdown';
+import AutocompleteDropdown from './components/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
   extend(ComposerBody.prototype, 'config', function(original, isInitialized) {

@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import Button from 'flarum/components/Button';
 import CommentPost from 'flarum/components/CommentPost';
 
-import reply from 'flarum/mentions/utils/reply';
+import reply from './utils/reply';
 
 export default function () {
   extend(CommentPost.prototype, 'actionItems', function (items) {
