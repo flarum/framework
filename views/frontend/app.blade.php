@@ -42,6 +42,7 @@
         @if (! $debug)
         try {
         @endif
+          flarum.core.app.bootExtensions(flarum.extensions);
           flarum.core.app.boot(@json($payload));
         @if (! $debug)
         } catch (e) {

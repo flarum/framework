@@ -21,6 +21,7 @@ import Discussion from './models/Discussion';
 import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
+import { flattenDeep } from 'lodash-es';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -137,6 +138,18 @@ export default class Application {
     );
 
     this.mount();
+  }
+
+  bootExtensions(extensions) {
+    Object.keys(extensions).forEach(name => {
+      const extension = extensions[name];
+      
+      const extenders = flattenDeep(extension.extend);
+
+      for (const extender of extenders) {
+        extender.extend(this, { name, exports: extension });
+      }
+    });
   }
 
   mount() {
