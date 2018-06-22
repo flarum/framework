@@ -16,12 +16,12 @@ use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
 
-class Assets implements Extender
+class Assets implements ExtenderInterface
 {
     protected $appName;
 
     protected $assets = [];
-    protected $bootstrapper;
+    protected $js;
 
     public function __construct($appName)
     {
@@ -35,9 +35,9 @@ class Assets implements Extender
         return $this;
     }
 
-    public function bootstrapper($name)
+    public function js($path)
     {
-        $this->bootstrapper = $name;
+        $this->js = $path;
 
         return $this;
     }
@@ -46,15 +46,19 @@ class Assets implements Extender
     {
         $container->make(Dispatcher::class)->listen(
             Rendering::class,
-            function (Rendering $event) {
+            function (Rendering $event) use ($extension) {
                 if (! $this->matches($event)) {
                     return;
                 }
 
                 $event->addAssets($this->assets);
 
-                if ($this->bootstrapper) {
-                    $event->addBootstrapper($this->bootstrapper);
+                if ($this->js) {
+                    $event->view->getJs()->addString(function () use ($extension) {
+                        $name = $extension->getId();
+
+                        return 'var module={};'.file_get_contents($this->js).";\nflarum.extensions['$name']=module.exports";
+                    });
                 }
             }
         );

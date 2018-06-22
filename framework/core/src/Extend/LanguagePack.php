@@ -18,7 +18,7 @@ use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use RuntimeException;
 
-class LanguagePack implements Extender
+class LanguagePack implements ExtenderInterface
 {
     public function __invoke(Container $container, Extension $extension = null)
     {
