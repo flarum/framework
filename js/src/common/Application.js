@@ -10,7 +10,6 @@ import Session from './Session';
 import extract from './utils/extract';
 import Drawer from './utils/Drawer';
 import mapRoutes from './utils/mapRoutes';
-import patchMithril from './utils/patchMithril';
 import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import { extend } from './extend';
@@ -123,8 +122,6 @@ export default class Application {
     this.data = data;
 
     this.translator.locale = data.locale;
-
-    patchMithril(window);
 
     this.initializers.toArray().forEach(initializer => initializer(this));
 
