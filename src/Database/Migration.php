@@ -11,8 +11,7 @@
 
 namespace Flarum\Database;
 
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Database\ConnectionInterface;
+use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -100,12 +99,20 @@ abstract class Migration
     public static function addSettings(array $defaults)
     {
         return [
-            'up' => function (SettingsRepositoryInterface $settings) use ($defaults) {
+            'up' => function (Builder $schema) use ($defaults) {
+                $settings = new DatabaseSettingsRepository(
+                    $schema->getConnection()
+                );
+
                 foreach ($defaults as $key => $value) {
                     $settings->set($key, $value);
                 }
             },
-            'down' => function (SettingsRepositoryInterface $settings) use ($defaults) {
+            'down' => function (Builder $schema) use ($defaults) {
+                $settings = new DatabaseSettingsRepository(
+                    $schema->getConnection()
+                );
+
                 foreach (array_keys($defaults) as $key) {
                     $settings->delete($key);
                 }
@@ -130,7 +137,9 @@ abstract class Migration
         }
 
         return [
-            'up' => function (ConnectionInterface $db) use ($keys) {
+            'up' => function (Builder $schema) use ($keys) {
+                $db = $schema->getConnection();
+
                 foreach ($keys as $key) {
                     $instance = $db->table('permissions')->where($key)->first();
 
@@ -140,7 +149,9 @@ abstract class Migration
                 }
             },
 
-            'down' => function (ConnectionInterface $db) use ($keys) {
+            'down' => function (Builder $schema) use ($keys) {
+                $db = $schema->getConnection();
+
                 foreach ($keys as $key) {
                     $db->table('permissions')->where($key)->delete();
                 }

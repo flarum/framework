@@ -22,7 +22,7 @@ class MigrationServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->app->singleton('Flarum\Database\MigrationRepositoryInterface', function ($app) {
-            return new DatabaseMigrationRepository($app['db'], 'migrations');
+            return new DatabaseMigrationRepository($app['flarum.db'], 'migrations');
         });
 
         $this->app->bind(MigrationCreator::class, function (Application $app) {
