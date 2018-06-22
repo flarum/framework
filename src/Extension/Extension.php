@@ -124,7 +124,7 @@ class Extension implements Arrayable
         if (! is_array($extenders)) {
             $extenders = [$extenders];
         }
-        
+
         $extenders = array_flatten($extenders);
 
         foreach ($extenders as $extender) {
