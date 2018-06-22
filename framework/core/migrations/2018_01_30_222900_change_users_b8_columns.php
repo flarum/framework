@@ -23,7 +23,7 @@ return [
             $table->renameColumn('read_time', 'marked_all_as_read_at');
             $table->renameColumn('notifications_read_time', 'read_notifications_at');
             $table->renameColumn('avatar_path', 'avatar_url');
-            $table->dropColumn('bio', 'preferences');
+            $table->dropColumn('bio');
         });
     },
 
@@ -38,7 +38,6 @@ return [
             $table->renameColumn('read_notifications_at', 'notifications_read_time');
             $table->renameColumn('avatar_url', 'avatar_path');
             $table->text('bio')->nullable();
-            $table->binary('preferences')->nullable();
         });
     }
 ];
