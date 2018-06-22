@@ -17,19 +17,20 @@ return [
         ->js(__DIR__.'/js/dist/forum.js')
         ->asset(__DIR__.'/less/forum.less'),
 
-    new Extend\FormatterConfiguration(function (Configurator $config) {
-        $config->Emoji->useEmojiOne();
-        $config->Emoji->omitImageSize();
-        $config->Emoji->useSVG();
+    (new Extend\Formatter)
+        ->configure(function (Configurator $config) {
+            $config->Emoji->useEmojiOne();
+            $config->Emoji->omitImageSize();
+            $config->Emoji->useSVG();
 
-        $config->Emoji->addAlias(':)', '🙂');
-        $config->Emoji->addAlias(':D', '😃');
-        $config->Emoji->addAlias(':P', '😛');
-        $config->Emoji->addAlias(':(', '🙁');
-        $config->Emoji->addAlias(':|', '😐');
-        $config->Emoji->addAlias(';)', '😉');
-        $config->Emoji->addAlias(':\'(', '😢');
-        $config->Emoji->addAlias(':O', '😮');
-        $config->Emoji->addAlias('>:(', '😡');
-    })
+            $config->Emoji->addAlias(':)', '🙂');
+            $config->Emoji->addAlias(':D', '😃');
+            $config->Emoji->addAlias(':P', '😛');
+            $config->Emoji->addAlias(':(', '🙁');
+            $config->Emoji->addAlias(':|', '😐');
+            $config->Emoji->addAlias(';)', '😉');
+            $config->Emoji->addAlias(':\'(', '😢');
+            $config->Emoji->addAlias(':O', '😮');
+            $config->Emoji->addAlias('>:(', '😡');
+        })
 ];
