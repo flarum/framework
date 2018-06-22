@@ -115,14 +115,17 @@ export default class Application {
    */
   requestError = null;
 
+  data;
+
   title = '';
   titleCount = 0;
 
-  boot(data) {
-    this.data = data;
+  load(payload) {
+    this.data = payload;
+    this.translator.locale = payload.locale;
+  }
 
-    this.translator.locale = data.locale;
-
+  boot() {
     this.initializers.toArray().forEach(initializer => initializer(this));
 
     this.store.pushPayload({data: this.data.resources});
