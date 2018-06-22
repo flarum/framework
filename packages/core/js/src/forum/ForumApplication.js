@@ -63,13 +63,10 @@ export default class ForumApplication extends Application {
    */
   history = new History();
 
-  /**
-   * @inheritdoc
-   */
-  boot(data) {
-    routes(this);
+  constructor() {
+    super();
 
-    super.boot(data);
+    routes(this);
   }
 
   /**

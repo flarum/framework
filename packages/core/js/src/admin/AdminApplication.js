@@ -17,13 +17,10 @@ export default class AdminApplication extends Application {
     }
   };
 
-  /**
-   * @inheritdoc
-   */
-  boot(data) {
-    routes(this);
+  constructor() {
+    super();
 
-    super.boot(data);
+    routes(this);
   }
 
   /**

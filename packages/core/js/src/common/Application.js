@@ -10,7 +10,6 @@ import Session from './Session';
 import extract from './utils/extract';
 import Drawer from './utils/Drawer';
 import mapRoutes from './utils/mapRoutes';
-import patchMithril from './utils/patchMithril';
 import RequestError from './utils/RequestError';
 import ScrollListener from './utils/ScrollListener';
 import { extend } from './extend';
@@ -21,6 +20,7 @@ import Discussion from './models/Discussion';
 import Post from './models/Post';
 import Group from './models/Group';
 import Notification from './models/Notification';
+import { flattenDeep } from 'lodash-es';
 
 /**
  * The `App` class provides a container for an application, as well as various
@@ -115,16 +115,17 @@ export default class Application {
    */
   requestError = null;
 
+  data;
+
   title = '';
   titleCount = 0;
 
-  boot(data) {
-    this.data = data;
+  load(payload) {
+    this.data = payload;
+    this.translator.locale = payload.locale;
+  }
 
-    this.translator.locale = data.locale;
-
-    patchMithril(window);
-
+  boot() {
     this.initializers.toArray().forEach(initializer => initializer(this));
 
     this.store.pushPayload({data: this.data.resources});
@@ -137,6 +138,18 @@ export default class Application {
     );
 
     this.mount();
+  }
+
+  bootExtensions(extensions) {
+    Object.keys(extensions).forEach(name => {
+      const extension = extensions[name];
+      
+      const extenders = flattenDeep(extension.extend);
+
+      for (const extender of extenders) {
+        extender.extend(this, { name, exports: extension });
+      }
+    });
   }
 
   mount() {
