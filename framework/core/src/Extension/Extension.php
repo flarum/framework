@@ -119,7 +119,13 @@ class Extension implements Arrayable
             return;
         }
 
-        $extenders = array_flatten((array) require $bootstrapper);
+        $extenders = require $bootstrapper;
+
+        if (! is_array($extenders)) {
+            $extenders = [$extenders];
+        }
+
+        $extenders = array_flatten($extenders);
 
         foreach ($extenders as $extender) {
             // If an extension has not yet switched to the new bootstrap.php
