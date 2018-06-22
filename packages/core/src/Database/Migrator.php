@@ -13,7 +13,8 @@ namespace Flarum\Database;
 
 use Exception;
 use Flarum\Extension\Extension;
-use Illuminate\Database\ConnectionResolverInterface as Resolver;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
 
 class Migrator
@@ -33,18 +34,11 @@ class Migrator
     protected $files;
 
     /**
-     * The connection resolver instance.
+     * The database schema builder instance.
      *
-     * @var \Illuminate\Database\ConnectionResolverInterface
+     * @var Builder
      */
-    protected $resolver;
-
-    /**
-     * The name of the default connection.
-     *
-     * @var string
-     */
-    protected $connection;
+    protected $schemaBuilder;
 
     /**
      * The notes for the current operation.
@@ -57,17 +51,18 @@ class Migrator
      * Create a new migrator instance.
      *
      * @param  MigrationRepositoryInterface  $repository
-     * @param  Resolver                      $resolver
+     * @param  ConnectionInterface           $connection
      * @param  Filesystem                    $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
-        Resolver $resolver,
+        ConnectionInterface $connection,
         Filesystem $files
     ) {
         $this->files = $files;
-        $this->resolver = $resolver;
         $this->repository = $repository;
+
+        $this->schemaBuilder = $connection->getSchemaBuilder();
     }
 
     /**
@@ -199,7 +194,7 @@ class Migrator
     protected function runClosureMigration($migration, $direction = 'up')
     {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
-            app()->call($migration[$direction]);
+            call_user_func($migration[$direction], $this->schemaBuilder);
         } else {
             throw new Exception('Migration file should contain an array with up/down.');
         }
@@ -266,34 +261,6 @@ class Migrator
     public function getNotes()
     {
         return $this->notes;
-    }
-
-    /**
-     * Resolve the database connection instance.
-     *
-     * @param  string $connection
-     * @return \Illuminate\Database\Connection
-     */
-    public function resolveConnection($connection)
-    {
-        return $this->resolver->connection($connection);
-    }
-
-    /**
-     * Set the default connection name.
-     *
-     * @param  string $name
-     * @return void
-     */
-    public function setConnection($name)
-    {
-        if (! is_null($name)) {
-            $this->resolver->setDefaultConnection($name);
-        }
-
-        $this->repository->setSource($name);
-
-        $this->connection = $name;
     }
 
     /**
