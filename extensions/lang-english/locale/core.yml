@@ -139,7 +139,8 @@ core:
       delete_discussions_forever_label: Delete discussions forever
       delete_discussions_label: Delete discussions
       delete_posts_forever_label: Delete posts forever
-      edit_and_delete_posts_label: Edit and delete posts
+      delete_posts_label: Delete posts
+      edit_posts_label: Edit posts
       global_heading: Global
       moderate_heading: Moderate
       new_group_button: New Group
