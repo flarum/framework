@@ -11,4 +11,4 @@
 
 use Flarum\Database\Migration;
 
-return Migration::renameColumn('email_tokens', 'id','token');
+return Migration::renameColumn('email_tokens', 'id', 'token');
