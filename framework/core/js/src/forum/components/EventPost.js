@@ -18,7 +18,7 @@ export default class EventPost extends Post {
   attrs() {
     const attrs = super.attrs();
 
-    attrs.className += ' EventPost ' + ucfirst(this.props.post.contentType()) + 'Post';
+    attrs.className = (attrs.className || '') + ' EventPost ' + ucfirst(this.props.post.contentType()) + 'Post';
 
     return attrs;
   }
