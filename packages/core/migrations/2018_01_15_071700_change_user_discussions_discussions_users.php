@@ -9,14 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Builder;
+use Flarum\Database\Migration;
 
-return [
-    'up' => function (Builder $schema) {
-        $schema->rename('users_discussions', 'discussions_users');
-    },
-
-    'down' => function (Builder $schema) {
-        $schema->rename('discussions_users', 'users_discussions');
-    }
-];
+return Migration::renameTable('users_discussions', 'discussions_users');
