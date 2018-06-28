@@ -31,7 +31,7 @@ class InstallServiceProvider extends AbstractServiceProvider
             PrerequisiteInterface::class,
             function () {
                 return new Composite(
-                    new PhpVersion('5.5.0'),
+                    new PhpVersion('7.1.0'),
                     new PhpExtensions([
                         'dom',
                         'fileinfo',
