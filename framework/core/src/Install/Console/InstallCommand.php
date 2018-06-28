@@ -242,8 +242,8 @@ class InstallCommand extends AbstractCommand
         $db = $this->application->make('flarum.db');
         $version = $db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
 
-        if (version_compare($version, '7.1.0', '<')) {
-            throw new Exception('MySQL version too low. You need at least MySQL 7.1.');
+        if (version_compare($version, '5.5.0', '<')) {
+            throw new Exception('MySQL version too low. You need at least MySQL 5.5.');
         }
 
         $this->info('Writing config');
