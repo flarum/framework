@@ -152,6 +152,7 @@ abstract class AbstractServer
         }
 
         date_default_timezone_set('UTC');
+        ini_set('display_errors', 'off');
 
         $app = new Application($this->basePath, $this->publicPath);
 
