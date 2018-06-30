@@ -115,7 +115,6 @@ class Formatter
         $configurator->javascript->exportMethods = ['preview'];
 
         $minifier = $configurator->javascript->setMinifier('FirstAvailable');
-        $minifier->add('ClosureCompilerService');
         $minifier->add('MatthiasMullieMinify');
         $minifier->add('Noop');
 
