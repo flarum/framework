@@ -68,7 +68,7 @@ class HtmlDocument implements Renderable
      * @var string|Renderable
      */
     public $content;
-    
+
     /**
      * Other variables to preload into the Flarum JS.
      *
