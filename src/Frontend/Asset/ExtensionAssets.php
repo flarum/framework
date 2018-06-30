@@ -49,7 +49,7 @@ class ExtensionAssets implements AssetInterface
             $sources->addString(function () {
                 $name = $this->extension->getId();
 
-                return "var module={};".$this->getContent($this->js).";flarum.extensions['$name']=module.exports";
+                return 'var module={};'.$this->getContent($this->js).";flarum.extensions['$name']=module.exports";
             });
         }
     }
