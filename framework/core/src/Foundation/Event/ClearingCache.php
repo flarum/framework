@@ -9,13 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+namespace Flarum\Foundation\Event;
 
-use Flarum\Frontend\Event\Rendering;
-
-/**
- * @deprecated
- */
-class ConfigureClientView extends Rendering
+class ClearingCache
 {
 }

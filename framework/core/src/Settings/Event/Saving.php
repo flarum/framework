@@ -11,7 +11,7 @@
 
 namespace Flarum\Settings\Event;
 
-class Saved
+class Saving
 {
     /**
      * @var array
@@ -21,8 +21,8 @@ class Saved
     /**
      * @param array $settings
      */
-    public function __construct(array $settings)
+    public function __construct(array &$settings)
     {
-        $this->settings = $settings;
+        $this->settings = &$settings;
     }
 }

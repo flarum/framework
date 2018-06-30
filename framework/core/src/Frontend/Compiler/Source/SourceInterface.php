@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Admin;
+namespace Flarum\Frontend\Compiler\Source;
 
-use Flarum\Frontend\AbstractFrontend;
-
-class Frontend extends AbstractFrontend
+interface SourceInterface
 {
     /**
-     * {@inheritdoc}
+     * @return string
      */
-    protected function getName()
-    {
-        return 'admin';
-    }
+    public function getContent(): string;
+
+    /**
+     * @return mixed
+     */
+    public function getCacheDifferentiator();
 }

@@ -20,6 +20,7 @@ use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extension\ExtensionServiceProvider;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Forum\ForumServiceProvider;
+use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Group\GroupServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
@@ -188,6 +189,7 @@ class Site
 
             $app->register(DiscussionServiceProvider::class);
             $app->register(FormatterServiceProvider::class);
+            $app->register(FrontendServiceProvider::class);
             $app->register(GroupServiceProvider::class);
             $app->register(NotificationServiceProvider::class);
             $app->register(PostServiceProvider::class);
@@ -231,6 +233,11 @@ class Site
                 'default' => 'local',
                 'cloud' => 's3',
                 'disks' => [
+                    'flarum-assets' => [
+                        'driver' => 'local',
+                        'root'   => $app->publicPath().'/assets',
+                        'url'    => $app->url('assets')
+                    ],
                     'flarum-avatars' => [
                         'driver' => 'local',
                         'root'   => $app->publicPath().'/assets/avatars'
