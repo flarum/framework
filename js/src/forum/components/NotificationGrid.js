@@ -177,7 +177,7 @@ export default class NotificationGrid extends Component {
 
     items.add('alert', {
       name: 'alert',
-      icon: 'fas fa-bell',
+      icon: 'fas fa-globe',
       label: app.translator.trans('core.forum.settings.notify_by_web_heading'),
     });
 
