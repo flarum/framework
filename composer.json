@@ -24,7 +24,7 @@
         "axy/sourcemap": "^0.1.4",
         "components/font-awesome": "^5.0.6",
         "dflydev/fig-cookies": "^1.0.2",
-        "doctrine/dbal": "^2.5",
+        "doctrine/dbal": "^2.7",
         "franzl/whoops-middleware": "^0.4.0",
         "illuminate/bus": "5.5.*",
         "illuminate/cache": "5.5.*",
