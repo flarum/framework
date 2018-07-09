@@ -11,4 +11,4 @@
 
 use Flarum\Database\Migration;
 
-return Migration::renameTable('users_groups', 'group_users');
+return Migration::renameTable('users_groups', 'group_user');
