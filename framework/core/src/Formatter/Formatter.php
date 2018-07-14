@@ -114,9 +114,8 @@ class Formatter
         $configurator->enableJavaScript();
         $configurator->javascript->exportMethods = ['preview'];
 
-        $minifier = $configurator->javascript->setMinifier('FirstAvailable');
-        $minifier->add('MatthiasMullieMinify');
-        $minifier->add('Noop');
+        $configurator->javascript->setMinifier('MatthiasMullieMinify')
+            ->keepGoing = true;
 
         $configurator->Escaper;
         $configurator->Autoemail;
