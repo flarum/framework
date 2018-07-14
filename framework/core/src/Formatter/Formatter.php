@@ -96,8 +96,7 @@ class Formatter
      */
     public function flush()
     {
-        $this->cache->forget('flarum.formatter.parser');
-        $this->cache->forget('flarum.formatter.renderer');
+        $this->cache->forget('flarum.formatter');
     }
 
     /**
@@ -111,6 +110,13 @@ class Formatter
 
         $configurator->rendering->engine = 'PHP';
         $configurator->rendering->engine->cacheDir = $this->cacheDir;
+
+        $configurator->enableJavaScript();
+        $configurator->javascript->exportMethods = ['preview'];
+
+        $minifier = $configurator->javascript->setMinifier('FirstAvailable');
+        $minifier->add('MatthiasMullieMinify');
+        $minifier->add('Noop');
 
         $configurator->Escaper;
         $configurator->Autoemail;
@@ -142,16 +148,16 @@ class Formatter
     /**
      * Get a TextFormatter component.
      *
-     * @param string $name "renderer" or "parser"
+     * @param string $name "renderer" or "parser" or "js"
      * @return mixed
      */
     protected function getComponent($name)
     {
-        $cacheKey = 'flarum.formatter.'.$name;
-
-        return $this->cache->rememberForever($cacheKey, function () use ($name) {
-            return $this->getConfigurator()->finalize()[$name];
+        $formatter = $this->cache->rememberForever('flarum.formatter', function () {
+            return $this->getConfigurator()->finalize();
         });
+
+        return $formatter[$name];
     }
 
     /**
@@ -193,14 +199,6 @@ class Formatter
      */
     public function getJs()
     {
-        $configurator = $this->getConfigurator();
-        $configurator->enableJavaScript();
-        $configurator->javascript->exportMethods = ['preview'];
-        $configurator->javascript->setMinifier('MatthiasMullieMinify');
-
-        return $configurator->finalize([
-            'returnParser' => false,
-            'returnRenderer' => false
-        ])['js'];
+        return $this->getComponent('js');
     }
 }
