@@ -319,6 +319,7 @@ class InstallCommand extends AbstractCommand
             // Moderators can edit + delete stuff
             [Group::MODERATOR_ID, 'discussion.hide'],
             [Group::MODERATOR_ID, 'discussion.editPosts'],
+            [Group::MODERATOR_ID, 'discussion.hidePosts'],
             [Group::MODERATOR_ID, 'discussion.rename'],
             [Group::MODERATOR_ID, 'discussion.viewIpsPosts'],
         ];

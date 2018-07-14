@@ -24,5 +24,6 @@ Object.assign(Post.prototype, {
   isHidden: computed('hideTime', hideTime => !!hideTime),
 
   canEdit: Model.attribute('canEdit'),
+  canHide: Model.attribute('canHide'),
   canDelete: Model.attribute('canDelete')
 });
