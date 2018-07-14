@@ -79,7 +79,7 @@ class PostPolicy extends AbstractPolicy
         // Hide hidden posts, unless they are authored by the current user, or
         // the current user has permission to view hidden posts in the
         // discussion.
-        if (! $actor->hasPermission('discussion.editPosts')) {
+        if (! $actor->hasPermission('discussion.hidePosts')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('posts.hide_time')
                     ->orWhere('user_id', $actor->id)
@@ -89,7 +89,7 @@ class PostPolicy extends AbstractPolicy
                             ->whereRaw('discussions.id = posts.discussion_id')
                             ->where(function ($query) use ($actor) {
                                 $this->events->dispatch(
-                                    new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'editPosts')
+                                    new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'hidePosts')
                                 );
                             });
                     });
