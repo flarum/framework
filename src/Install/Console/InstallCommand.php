@@ -138,7 +138,6 @@ class InstallCommand extends AbstractCommand
     protected function install()
     {
         try {
-            $this->debug = $this->dataSource->isDebugMode();
             $this->dbConfig = $this->dataSource->getDatabaseConfiguration();
 
             $validation = $this->getValidator()->make(
@@ -177,7 +176,7 @@ class InstallCommand extends AbstractCommand
                 throw new Exception('Username can only contain letters, numbers, underscores, and dashes.');
             }
 
-            $this->storeConfiguration();
+            $this->storeConfiguration($this->dataSource->isDebugMode());
 
             $resolver = $this->application->make(ConnectionResolverInterface::class);
             AbstractModel::setConnectionResolver($resolver);
@@ -210,12 +209,12 @@ class InstallCommand extends AbstractCommand
         }
     }
 
-    protected function storeConfiguration()
+    protected function storeConfiguration(bool $debugMode)
     {
         $dbConfig = $this->dbConfig;
 
         $config = [
-            'debug'    => $this->debug,
+            'debug'    => $debugMode,
             'database' => [
                 'driver'    => $dbConfig['driver'],
                 'host'      => $dbConfig['host'],
