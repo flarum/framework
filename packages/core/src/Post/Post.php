@@ -122,9 +122,13 @@ class Post extends AbstractModel
 
         // Make sure the post's discussion is visible as well
         $query->whereExists(function ($query) use ($actor) {
+            $grammar = $query->getGrammar();
+            $column1 = $grammar->wrap('discussions.id');
+            $column2 = $grammar->wrap('posts.discussion_id');
+
             $query->selectRaw('1')
                 ->from('discussions')
-                ->whereRaw('discussions.id = posts.discussion_id');
+                ->whereRaw("$column1 = $column2");
 
             static::$dispatcher->dispatch(
                 new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
