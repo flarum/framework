@@ -73,9 +73,11 @@ class Discussion implements ContentInterface
 
         $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);
+            unset($newQueryParams['id']);
             $queryString = http_build_query($newQueryParams);
 
-            return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->id]).
+            $idWithSlug = $apiDocument->data->id . (trim($apiDocument->data->attributes->slug) ? '-' . $apiDocument->data->attributes->slug : '');
+            return $this->url->to('forum')->route('discussion', ['id' => $idWithSlug]).
             ($queryString ? '?'.$queryString : '');
         };
 
