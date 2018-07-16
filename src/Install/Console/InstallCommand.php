@@ -20,7 +20,6 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Group\Group;
 use Flarum\Group\GroupServiceProvider;
-use Flarum\Group\Permission;
 use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
