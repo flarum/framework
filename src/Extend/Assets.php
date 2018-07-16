@@ -12,63 +12,53 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Frontend\Event\Rendering;
+use Flarum\Frontend\Asset\ExtensionAssets;
+use Flarum\Frontend\CompilerFactory;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
 
-class Assets implements Extender
+class Assets implements ExtenderInterface
 {
-    protected $appName;
+    protected $frontend;
 
-    protected $assets = [];
-    protected $bootstrapper;
+    protected $css = [];
+    protected $js;
 
-    public function __construct($appName)
+    public function __construct($frontend)
     {
-        $this->appName = $appName;
+        $this->frontend = $frontend;
     }
 
-    public function asset($path)
+    public function css($path)
     {
-        $this->assets[] = $path;
+        $this->css[] = $path;
 
         return $this;
     }
 
-    public function bootstrapper($name)
+    /**
+     * @deprecated
+     */
+    public function asset($path)
     {
-        $this->bootstrapper = $name;
+        return $this->css($path);
+    }
+
+    public function js($path)
+    {
+        $this->js = $path;
 
         return $this;
     }
 
     public function __invoke(Container $container, Extension $extension = null)
     {
-        $container->make(Dispatcher::class)->listen(
-            Rendering::class,
-            function (Rendering $event) {
-                if (! $this->matches($event)) {
-                    return;
-                }
-
-                $event->addAssets($this->assets);
-
-                if ($this->bootstrapper) {
-                    $event->addBootstrapper($this->bootstrapper);
-                }
+        $container->resolving(
+            "flarum.$this->frontend.assets",
+            function (CompilerFactory $assets) use ($extension) {
+                $assets->add(function () use ($extension) {
+                    return new ExtensionAssets($extension, $this->css, $this->js);
+                });
             }
         );
-    }
-
-    private function matches(Rendering $event)
-    {
-        switch ($this->appName) {
-            case 'admin':
-                return $event->isAdmin();
-            case 'forum':
-                return $event->isForum();
-            default:
-                return false;
-        }
     }
 }

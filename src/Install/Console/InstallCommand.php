@@ -20,7 +20,6 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Group\Group;
 use Flarum\Group\GroupServiceProvider;
-use Flarum\Group\Permission;
 use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
@@ -138,7 +137,6 @@ class InstallCommand extends AbstractCommand
     protected function install()
     {
         try {
-            $this->debug = $this->dataSource->isDebugMode();
             $this->dbConfig = $this->dataSource->getDatabaseConfiguration();
 
             $validation = $this->getValidator()->make(
@@ -177,7 +175,7 @@ class InstallCommand extends AbstractCommand
                 throw new Exception('Username can only contain letters, numbers, underscores, and dashes.');
             }
 
-            $this->storeConfiguration();
+            $this->storeConfiguration($this->dataSource->isDebugMode());
 
             $resolver = $this->application->make(ConnectionResolverInterface::class);
             AbstractModel::setConnectionResolver($resolver);
@@ -196,7 +194,6 @@ class InstallCommand extends AbstractCommand
             $this->application->register(PostServiceProvider::class);
 
             $this->seedGroups();
-            $this->seedPermissions();
 
             $this->createAdminUser();
 
@@ -210,12 +207,12 @@ class InstallCommand extends AbstractCommand
         }
     }
 
-    protected function storeConfiguration()
+    protected function storeConfiguration(bool $debugMode)
     {
         $dbConfig = $this->dbConfig;
 
         $config = [
-            'debug'    => $this->debug,
+            'debug'    => $debugMode,
             'database' => [
                 'driver'    => $dbConfig['driver'],
                 'host'      => $dbConfig['host'],
@@ -303,34 +300,6 @@ class InstallCommand extends AbstractCommand
                 'icon' => $group[4],
             ]);
         }
-    }
-
-    protected function seedPermissions()
-    {
-        $permissions = [
-            // Guests can view the forum
-            [Group::GUEST_ID, 'viewDiscussions'],
-
-            // Members can create and reply to discussions, and view the user list
-            [Group::MEMBER_ID, 'startDiscussion'],
-            [Group::MEMBER_ID, 'discussion.reply'],
-            [Group::MEMBER_ID, 'viewUserList'],
-
-            // Moderators can edit + delete stuff
-            [Group::MODERATOR_ID, 'discussion.hide'],
-            [Group::MODERATOR_ID, 'discussion.editPosts'],
-            [Group::MODERATOR_ID, 'discussion.rename'],
-            [Group::MODERATOR_ID, 'discussion.viewIpsPosts'],
-        ];
-
-        foreach ($permissions as &$permission) {
-            $permission = [
-                'group_id'   => $permission[0],
-                'permission' => $permission[1]
-            ];
-        }
-
-        Permission::insert($permissions);
     }
 
     protected function createAdminUser()

@@ -14,13 +14,14 @@ namespace Flarum\Http\Middleware;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Contracts\Session\Session;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
 
-class AuthenticateWithSession implements MiddlewareInterface
+class AuthenticateWithSession implements Middleware
 {
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, Handler $handler): Response
     {
         $session = $request->getAttribute('session');
 
@@ -30,7 +31,7 @@ class AuthenticateWithSession implements MiddlewareInterface
 
         $request = $request->withAttribute('actor', $actor);
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 
     private function getActor(Session $session)

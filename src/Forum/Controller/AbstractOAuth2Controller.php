@@ -12,12 +12,13 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Forum\AuthenticationResponseFactory;
-use Flarum\Http\Controller\ControllerInterface;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\RedirectResponse;
 
-abstract class AbstractOAuth2Controller implements ControllerInterface
+abstract class AbstractOAuth2Controller implements RequestHandlerInterface
 {
     /**
      * @var AuthenticationResponseFactory
@@ -46,9 +47,9 @@ abstract class AbstractOAuth2Controller implements ControllerInterface
 
     /**
      * @param Request $request
-     * @return \Psr\Http\Message\ResponseInterface|RedirectResponse
+     * @return ResponseInterface
      */
-    public function handle(Request $request)
+    public function handle(Request $request): ResponseInterface
     {
         $redirectUri = (string) $request->getAttribute('originalUri', $request->getUri())->withQuery('');
 

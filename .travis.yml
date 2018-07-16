@@ -1,31 +1,45 @@
 language: php
 
-env:
-  - DB_USERNAME=travis
-services:
-  - mysql
+sudo: false
 
-php:
-  - 7.0
-  - 7.1
-  - 7.2
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/.npm
 
-matrix:
-  fast_finish: true
-before_install:
-  - mysql -e 'CREATE DATABASE flarum;'
-before_script:
-  - composer self-update
+install:
   - composer install
+  - mysql -e 'CREATE DATABASE flarum;'
 
 script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml
 
-notifications:
-  email:
-    on_failure: change
-
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
-sudo: false
+jobs:
+  include:
+    - php: 7.1
+      env: DB=mysql
+
+    - php: 7.2
+      env: DB=mysql
+
+    - php: 7.1
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    - php: 7.2
+      addons:
+        mariadb: '10.2'
+      env: DB=mariadb
+
+    - stage: build
+      language: generic
+      if: branch = master AND type = push
+      install: skip
+      script: bash .travis/build.sh
+        -k $encrypted_678139e2bc67_key
+        -i $encrypted_678139e2bc67_iv
+      after_success: skip

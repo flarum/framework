@@ -16,7 +16,7 @@ use Flarum\Extension\Extension;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 
-class Locales implements Extender
+class Locales implements ExtenderInterface
 {
     protected $directory;
 
