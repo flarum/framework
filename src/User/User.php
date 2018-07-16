@@ -606,6 +606,16 @@ class User extends AbstractModel
     }
 
     /**
+     * Define the relationship with the user's posts.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function discussions()
+    {
+        return $this->hasMany('Flarum\Discussion\Discussion', 'start_user_id');
+    }
+
+    /**
      * Define the relationship with the user's read discussions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -769,7 +779,7 @@ class User extends AbstractModel
      */
     public function refreshDiscussionsCount()
     {
-        $this->discussions_count = Discussion::where('start_user_id', $this->id)->count();
+        $this->discussions_count = $this->discussions()->count();
         $this->save();
 
         return $this;
