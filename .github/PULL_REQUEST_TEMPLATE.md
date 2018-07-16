@@ -1,5 +1,5 @@
 <!--
-IMPORTANT: We applaud pull requests, they excite us every single time. As we have an obligation to maintain a healthy code standard and quality, we take considerate amounts of time for reviews.
+IMPORTANT: We applaud pull requests, they excite us every single time. As we have an obligation to maintain a healthy code standard and quality, we take sufficient time for reviews.
 -->
 
 **Fixes #0000**
@@ -15,10 +15,10 @@ IMPORTANT: We applaud pull requests, they excite us every single time. As we hav
 
 **Confirmed**
 
-- [ ] for visual or frontend changes that the changes work as intended via visual confirmation on a local flarum installation.
-- [ ] for php changes that the unit tests are all AOK (green) by running them locally (`php vendor/bin/phpunit`).
+- [ ] Frontend changes: tested on a local Flarum installation.
+- [ ] Backend changes: tests are green (run `php vendor/bin/phpunit`).
 
 **Required changes:**
 
-- **Docs**: <!-- list of subjects or pages -->
-- **Core extensions**: <!-- list of extensions -->
+- [ ] Related documentation PR: (Remove if irrelevant)
+- [ ] Related core extension PRs: (Remove if irrelevant)
