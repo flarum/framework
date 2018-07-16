@@ -14,7 +14,6 @@ namespace Flarum\User;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
-use Flarum\Discussion\Discussion;
 use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetDisplayName;
 use Flarum\Event\PrepareUserGroups;
@@ -606,7 +605,7 @@ class User extends AbstractModel
     }
 
     /**
-     * Define the relationship with the user's posts.
+     * Define the relationship with the user's discussions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
