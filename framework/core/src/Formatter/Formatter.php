@@ -73,7 +73,7 @@ class Formatter
      */
     public function render($xml, $context = null)
     {
-        $renderer = $this->getRenderer($context);
+        $renderer = $this->getRenderer();
 
         $this->events->dispatch(new Rendering($renderer, $context, $xml));
 
@@ -177,10 +177,9 @@ class Formatter
     /**
      * Get the renderer.
      *
-     * @param mixed $context
      * @return \s9e\TextFormatter\Renderer
      */
-    protected function getRenderer($context = null)
+    protected function getRenderer()
     {
         spl_autoload_register(function ($class) {
             if (file_exists($file = $this->cacheDir.'/'.$class.'.php')) {
