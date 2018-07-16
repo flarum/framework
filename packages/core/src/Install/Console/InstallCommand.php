@@ -195,7 +195,6 @@ class InstallCommand extends AbstractCommand
             $this->application->register(PostServiceProvider::class);
 
             $this->seedGroups();
-            $this->seedPermissions();
 
             $this->createAdminUser();
 
@@ -302,35 +301,6 @@ class InstallCommand extends AbstractCommand
                 'icon' => $group[4],
             ]);
         }
-    }
-
-    protected function seedPermissions()
-    {
-        $permissions = [
-            // Guests can view the forum
-            [Group::GUEST_ID, 'viewDiscussions'],
-
-            // Members can create and reply to discussions, and view the user list
-            [Group::MEMBER_ID, 'startDiscussion'],
-            [Group::MEMBER_ID, 'discussion.reply'],
-            [Group::MEMBER_ID, 'viewUserList'],
-
-            // Moderators can edit + delete stuff
-            [Group::MODERATOR_ID, 'discussion.hide'],
-            [Group::MODERATOR_ID, 'discussion.editPosts'],
-            [Group::MODERATOR_ID, 'discussion.hidePosts'],
-            [Group::MODERATOR_ID, 'discussion.rename'],
-            [Group::MODERATOR_ID, 'discussion.viewIpsPosts'],
-        ];
-
-        foreach ($permissions as &$permission) {
-            $permission = [
-                'group_id'   => $permission[0],
-                'permission' => $permission[1]
-            ];
-        }
-
-        Permission::insert($permissions);
     }
 
     protected function createAdminUser()
