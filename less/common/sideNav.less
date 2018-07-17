@@ -98,6 +98,9 @@
 @media @desktop-up {
   .sideNav {
     float: left;
+
+    // Prevents the sidenav from changing the height of the content beside it because of floating wizardry
+    // Without this, the content on the right (like a post) would have a height of at least the height of the sidenav
     height: 0;
 
     &, > ul {
