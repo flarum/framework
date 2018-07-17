@@ -65,6 +65,58 @@
       margin-top: 15px;
       border-bottom: 1px solid @control-bg;
     }
+    
+    
+    .sideNav .Dropdown--select .Dropdown-menu>.Dropdown-separator {
+    background:none
+    }
+    
+    .sideNav--horizontal .Dropdown-separator {
+    display:none
+    }
+    
+    .sideNav .Dropdown-separator {
+    display:none
+    }
+    
+    .Dropdown-separator {
+    margin:8px 0;
+    background-color:#e4e8f6;
+    height:1px
+    }
+    
+    @media (min-width: 768px) {
+    .Dropdown--split .Dropdown-menu li:first-child,.Dropdown--split .Dropdown-menu li:first-child+li.Dropdown-separator {
+    display:none
+    }
+ }
+    .Dropdown-separator {
+    margin:0
+    }
+    
+    .TagsPage .sideNav .Dropdown-separator {
+    display:none
+    }
+    
+    .sideNav .Dropdown--select .Dropdown-menu>.Dropdown-separator {
+    background-color:#ededed !important
+    }
+    
+    .Composer .ComposerBody-editor .EnhancedTextEditor-toolbar .Dropdown-separator {
+    margin:0px 5px -6px 0;
+    width:1px;
+    height:19px;
+    background:rgba(0,0,0,0.1)
+    }
+    
+    .dark .sideNav .Dropdown--select .Dropdown-menu>.Dropdown-separator {
+    background-color:#313131 !important
+    }
+    
+    .dark .Composer .ComposerBody-editor .EnhancedTextEditor-toolbar .Dropdown-separator {
+    background:rgba(0,0,0,0.2)
+    }
+    
 
     > ul > li, .Dropdown-menu > li {
       display: inline-block;
