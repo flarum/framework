@@ -21,17 +21,6 @@ return [
             $table->foreign('id')->references('id')->on('notifications')->onDelete('cascade');
             $table->foreign('from_user_id')->references('id')->on('users')->onDelete('cascade');
         });
-
-        $schema->getConnection()->table('notifications')->chunkById(100, function ($notifications) use ($schema) {
-            foreach ($notifications as $notification) {
-                $insert = [
-                    'id' => $notification->id,
-                    'from_user_id' => $notification->sender_id
-                ];
-
-                $schema->getConnection()->table('notifications_from')->updateOrInsert($insert, $insert);
-            }
-        });
     },
 
     'down' => function (Builder $schema) {
