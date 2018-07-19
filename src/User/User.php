@@ -111,6 +111,20 @@ class User extends AbstractModel
     protected static $gate;
 
     /**
+     * A map of permissions and the groups they are granted to.
+     *
+     * By default members are granted permission to rename and hide their own
+     * discussions, and edit their own posts.
+     *
+     * @var array
+     */
+    public static $basePermissions = [
+        'discussion.own.rename' => [Group::MEMBER_ID],
+        'discussion.own.hide' => [Group::MEMBER_ID],
+        'discussion.editOwnPosts' => [Group::MEMBER_ID]
+    ];
+
+    /**
      * Boot the model.
      *
      * @return void
@@ -645,12 +659,11 @@ class User extends AbstractModel
     }
 
     /**
-     * Define the relationship with the permissions of all of the groups that
-     * the user is in.
+     * Get a list of permissions that the user has.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return string[]
      */
-    public function permissions()
+    public function getPermissions()
     {
         $groupIds = [Group::GUEST_ID];
 
@@ -664,17 +677,11 @@ class User extends AbstractModel
 
         event(new PrepareUserGroups($this, $groupIds));
 
-        return Permission::whereIn('group_id', $groupIds);
-    }
+        $permissions = array_keys(array_filter(static::$basePermissions, function ($ids) use ($groupIds) {
+            return array_intersect($ids, $groupIds);
+        }));
 
-    /**
-     * Get a list of permissions that the user has.
-     *
-     * @return string[]
-     */
-    public function getPermissions()
-    {
-        return $this->permissions()->pluck('permission')->all();
+        return array_merge($permissions, Permission::whereIn('group_id', $groupIds)->pluck('permission')->all());
     }
 
     /**
