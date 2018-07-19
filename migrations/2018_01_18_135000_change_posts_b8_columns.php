@@ -34,9 +34,8 @@ return [
 
             $table->renameColumn('edited_user_id', 'edit_user_id');
             $table->renameColumn('edited_user_id', 'hidden_user_id');
-        });
 
-        $prefix = $schema->getConnection()->getTablePrefix();
-        $schema->getConnection()->statement('ALTER TABLE '.$prefix.'posts MODIFY content FULLTEXT');
+            $table->mediumText('content')->change();
+        });
     }
 ];
