@@ -21,6 +21,8 @@ return [
 
             $table->timestamp('read_at')->nullable();
             $table->timestamp('deleted_at')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
         $schema->getConnection()->table('notifications')
@@ -46,6 +48,8 @@ return [
 
             $table->boolean('is_read');
             $table->boolean('is_deleted');
+
+            $table->dropForeign('notifications_user_id_foreign');
         });
 
         $schema->getConnection()->table('notifications')
