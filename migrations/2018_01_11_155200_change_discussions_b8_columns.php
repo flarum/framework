@@ -25,6 +25,12 @@ return [
             $table->renameColumn('last_user_id', 'last_posted_user_id');
             $table->renameColumn('hide_time', 'hidden_at');
             $table->renameColumn('hide_user_id', 'hidden_user_id');
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('last_posted_user_id')->references('id')->on('users');
+            $table->foreign('hidden_user_id')->references('id')->on('users');
+            $table->foreign('first_post_id')->references('id')->on('posts');
+            $table->foreign('last_post_id')->references('id')->on('posts');
         });
     },
 
@@ -40,6 +46,11 @@ return [
             $table->renameColumn('last_posted_user_id', 'last_user_id');
             $table->renameColumn('hidden_at', 'hide_time');
             $table->renameColumn('hidden_user_id', 'hide_user_id');
+
+            $table->dropForeign([
+                'discussions_user_id_foreign', 'discussions_last_posted_user_id', 'hidden_user_id',
+                'first_post_id', 'last_post_id'
+            ]);
         });
     }
 ];
