@@ -15,7 +15,6 @@ IMPORTANT: We applaud pull requests, they excite us every single time. As we hav
 
 **Confirmed**
 
-- [ ] Updated CHANGELOG.md.
 - [ ] Frontend changes: tested on a local Flarum installation.
 - [ ] Backend changes: tests are green (run `php vendor/bin/phpunit`).
 
