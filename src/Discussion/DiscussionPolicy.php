@@ -56,11 +56,16 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * @param User $actor
      * @param string $ability
+     * @param Discussion $discussion
      * @return bool|null
      */
-    public function can(User $actor, $ability)
+    public function can(User $actor, $ability, Discussion $discussion)
     {
         if ($actor->hasPermission('discussion.'.$ability)) {
+            return true;
+        }
+
+        if ($actor->id === $discussion->start_user_id && $actor->hasPermission('discussion.own.'.$ability)) {
             return true;
         }
     }
@@ -126,10 +131,9 @@ class DiscussionPolicy extends AbstractPolicy
         if ($discussion->start_user_id == $actor->id) {
             $allowRenaming = $this->settings->get('allow_renaming');
 
-            if ($allowRenaming === '-1'
-                || ($allowRenaming === 'reply' && $discussion->participants_count <= 1)
-                || ($discussion->start_time->diffInMinutes() < $allowRenaming)) {
-                return true;
+            if (($allowRenaming === 'reply' && $discussion->participants_count > 1)
+                || ($allowRenaming !== '-1' && $discussion->start_time->diffInMinutes() > $allowRenaming)) {
+                return false;
             }
         }
     }
@@ -141,8 +145,8 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function hide(User $actor, Discussion $discussion)
     {
-        if ($discussion->start_user_id == $actor->id && $discussion->participants_count <= 1) {
-            return true;
+        if ($discussion->start_user_id == $actor->id && $discussion->participants_count > 1) {
+            return false;
         }
     }
 }

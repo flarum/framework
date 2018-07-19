@@ -11,7 +11,6 @@
 
 namespace Flarum\Post;
 
-use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -56,6 +55,10 @@ class PostPolicy extends AbstractPolicy
     public function can(User $actor, $ability, Post $post)
     {
         if ($actor->can($ability.'Posts', $post->discussion)) {
+            return true;
+        }
+
+        if ($actor->id === $post->user_id && $actor->can($ability.'OwnPosts', $post->discussion)) {
             return true;
         }
     }
@@ -107,13 +110,16 @@ class PostPolicy extends AbstractPolicy
         // A post is allowed to be edited if the user has permission to moderate
         // the discussion which it's in, or if they are the author and the post
         // hasn't been deleted by someone else.
-        if ($post->user_id == $actor->id && (! $post->hide_time || $post->hide_user_id == $actor->id)) {
+        if ($post->user_id == $actor->id) {
+            if ($post->hide_time && $post->hide_user_id != $actor->id) {
+                return false;
+            }
+
             $allowEditing = $this->settings->get('allow_post_editing');
 
-            if ($allowEditing === '-1'
-                || ($allowEditing === 'reply' && $post->number >= $post->discussion->last_post_number)
-                || ($post->time->diffInMinutes(new Carbon) < $allowEditing)) {
-                return true;
+            if (($allowEditing === 'reply' && $post->number < $post->discussion->last_post_number)
+                || ($allowEditing !== '-1' && $post->time->diffInMinutes() > $allowEditing)) {
+                return false;
             }
         }
     }
