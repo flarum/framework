@@ -14,24 +14,18 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('access_tokens', function (Blueprint $table) {
+        $schema->table('email_tokens', function (Blueprint $table) {
             $table->renameColumn('id', 'token');
-            $table->renameColumn('lifetime', 'lifetime_seconds');
-            $table->renameColumn('last_activity', 'last_activity_at');
-            $table->dateTime('created_at');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('access_tokens', function (Blueprint $table) {
-            $table->renameColumn('lifetime_seconds', 'lifetime');
-            $table->renameColumn('last_activity_at', 'last_activity');
-            $table->dropColumn('created_at');
+        $schema->table('email_tokens', function (Blueprint $table) {
             $table->renameColumn('token', 'id');
 
-            $table->dropForeign('access_tokens_user_id_foreign');
+            $table->dropForeign('email_tokens_user_id_foreign');
         });
     }
 ];

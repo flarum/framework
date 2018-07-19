@@ -17,6 +17,9 @@ return [
         $schema->table('discussions_users', function (Blueprint $table) {
             $table->renameColumn('read_time', 'last_read_at');
             $table->renameColumn('read_number', 'last_read_post_number');
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('discussion_id')->references('id')->on('discussions')->onDelete('cascade');
         });
     },
 
@@ -24,6 +27,8 @@ return [
         $schema->table('discussions_users', function (Blueprint $table) {
             $table->renameColumn('last_read_at', 'read_time');
             $table->renameColumn('last_read_post_number', 'read_number');
+
+            $table->dropForeign(['discussions_users_user_id_foreign', 'discussions_users_discussion_id_foreign']);
         });
     }
 ];

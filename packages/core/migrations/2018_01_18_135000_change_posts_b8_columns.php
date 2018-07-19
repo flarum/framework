@@ -23,6 +23,11 @@ return [
             $table->renameColumn('hide_user_id', 'hidden_user_id');
 
             $table->longText('content')->change();
+
+            $table->foreign('discussion_id')->references('id')->on('discussions')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('edited_user_id')->references('id')->on('users');
+            $table->foreign('hidden_user_id')->references('id')->on('users');
         });
     },
 
@@ -36,6 +41,11 @@ return [
             $table->renameColumn('edited_user_id', 'hidden_user_id');
 
             $table->mediumText('content')->change();
+
+            $table->dropForeign([
+                'posts_user_id_foreign', 'posts_discussion_id_foreign',
+                'posts_edited_user_id_foreign', 'posts_hidden_user_id_foreign'
+            ]);
         });
     }
 ];
