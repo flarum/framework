@@ -18,7 +18,7 @@ return [
             $table->renameColumn('read_time', 'last_read_at');
             $table->renameColumn('read_number', 'last_read_post_number');
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('discussion_id')->references('id')->on('discussions')->onDelete('cascade');
         });
     },

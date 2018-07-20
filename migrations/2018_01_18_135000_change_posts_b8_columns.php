@@ -24,10 +24,9 @@ return [
 
             $table->longText('content')->change();
 
-            $table->foreign('discussion_id')->references('id')->on('discussions')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('edited_user_id')->references('id')->on('users');
-            $table->foreign('hidden_user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('edited_user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
         });
     },
 
