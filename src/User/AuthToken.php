@@ -34,6 +34,10 @@ class AuthToken extends AbstractModel
      */
     protected $dates = ['created_at'];
 
+    protected $casts = [
+        'payload' => 'array'
+    ];
+
     /**
      * Use a custom primary key for this model.
      *
@@ -47,13 +51,12 @@ class AuthToken extends AbstractModel
     protected $primaryKey = 'token';
 
     /**
-     * Generate an email token for the specified user.
+     * Generate an auth token for the specified user.
      *
-     * @param string $payload
-     *
+     * @param array $payload
      * @return static
      */
-    public static function generate($payload)
+    public static function generate(array $payload)
     {
         $token = new static;
 
@@ -62,27 +65,6 @@ class AuthToken extends AbstractModel
         $token->created_at = Carbon::now();
 
         return $token;
-    }
-
-    /**
-     * Unserialize the payload attribute from the database's JSON value.
-     *
-     * @param string $value
-     * @return string
-     */
-    public function getPayloadAttribute($value)
-    {
-        return json_decode($value, true);
-    }
-
-    /**
-     * Serialize the payload attribute to be stored in the database as JSON.
-     *
-     * @param string $value
-     */
-    public function setPayloadAttribute($value)
-    {
-        $this->attributes['payload'] = json_encode($value);
     }
 
     /**
