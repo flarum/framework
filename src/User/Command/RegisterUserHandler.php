@@ -69,11 +69,10 @@ class RegisterUserHandler
 
     /**
      * @param RegisterUser $command
+     * @return User
      * @throws PermissionDeniedException if signup is closed and the actor is
      *     not an administrator.
-     * @throws \Flarum\User\Exception\InvalidConfirmationTokenException if an
-     *     email confirmation token is provided but is invalid.
-     * @return User
+     * @throws ValidationException
      */
     public function handle(RegisterUser $command)
     {
@@ -103,11 +102,19 @@ class RegisterUserHandler
         // includes an email address, then we will activate the user's account
         // from the get-go.
         if (isset($token)) {
-            foreach ($token->payload as $k => $v) {
+            $payload = $token->payload;
+
+            if (isset($payload['avatarUrl'])) {
+                $this->uploadAvatarFromUrl($user, $payload['avatarUrl']);
+
+                unset($payload['avatarUrl']);
+            }
+
+            foreach ($payload as $k => $v) {
                 $user->$k = $v;
             }
 
-            if (isset($token->payload['email'])) {
+            if (isset($payload['email'])) {
                 $user->activate();
             }
         }
@@ -122,22 +129,6 @@ class RegisterUserHandler
 
         $this->validator->assertValid(array_merge($user->getAttributes(), compact('password')));
 
-        if ($avatarUrl = array_get($data, 'attributes.avatarUrl')) {
-            $validation = $this->validatorFactory->make(compact('avatarUrl'), ['avatarUrl' => 'url']);
-
-            if ($validation->fails()) {
-                throw new ValidationException($validation);
-            }
-
-            try {
-                $image = (new ImageManager)->make($avatarUrl);
-
-                $this->avatarUploader->upload($user, $image);
-            } catch (Exception $e) {
-                //
-            }
-        }
-
         $user->save();
 
         if (isset($token)) {
@@ -147,5 +138,12 @@ class RegisterUserHandler
         $this->dispatchEventsFor($user, $actor);
 
         return $user;
+    }
+
+    private function uploadAvatarFromUrl(User $user, string $url)
+    {
+        $image = (new ImageManager)->make($url);
+
+        $this->avatarUploader->upload($user, $image);
     }
 }
