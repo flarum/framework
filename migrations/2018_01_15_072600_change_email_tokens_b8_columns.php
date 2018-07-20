@@ -25,7 +25,7 @@ return [
         $schema->table('email_tokens', function (Blueprint $table) {
             $table->renameColumn('token', 'id');
 
-            $table->dropForeign('email_tokens_user_id_foreign');
+            $table->dropForeign(['user_id']);
         });
     }
 ];

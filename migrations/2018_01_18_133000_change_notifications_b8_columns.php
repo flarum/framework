@@ -49,7 +49,7 @@ return [
             $table->boolean('is_read');
             $table->boolean('is_deleted');
 
-            $table->dropForeign('notifications_user_id_foreign');
+            $table->dropForeign(['user_id']);
         });
 
         $schema->getConnection()->table('notifications')

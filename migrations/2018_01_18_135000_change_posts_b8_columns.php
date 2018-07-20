@@ -42,8 +42,8 @@ return [
             $table->mediumText('content')->change();
 
             $table->dropForeign([
-                'posts_user_id_foreign', 'posts_discussion_id_foreign',
-                'posts_edited_user_id_foreign', 'posts_hidden_user_id_foreign'
+                'user_id', 'discussion_id',
+                'edited_user_id', 'hidden_user_id'
             ]);
         });
     }

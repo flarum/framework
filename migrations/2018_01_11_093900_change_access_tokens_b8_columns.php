@@ -31,7 +31,7 @@ return [
             $table->dropColumn('created_at');
             $table->renameColumn('token', 'id');
 
-            $table->dropForeign('access_tokens_user_id_foreign');
+            $table->dropForeign(['user_id']);
         });
     }
 ];
