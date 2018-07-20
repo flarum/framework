@@ -400,7 +400,7 @@ class Discussion extends AbstractModel
      */
     public function readers()
     {
-        return $this->belongsToMany(User::class, 'discussions_users');
+        return $this->belongsToMany(User::class);
     }
 
     /**

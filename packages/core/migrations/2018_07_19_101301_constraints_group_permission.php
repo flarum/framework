@@ -14,14 +14,14 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('groups_permissions', function (Blueprint $table) {
+        $schema->table('group_permission', function (Blueprint $table) {
             $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('group_user', function (Blueprint $table) {
-            $table->dropForeign('group_user_group_id_foreign');
+        $schema->table('group_permission', function (Blueprint $table) {
+            $table->dropForeign('group_permission_group_id_foreign');
         });
     }
 ];

@@ -11,4 +11,4 @@
 
 use Flarum\Database\Migration;
 
-return Migration::renameTable('permissions', 'groups_permissions');
+return Migration::renameTable('permissions', 'group_permission');
