@@ -11,12 +11,15 @@
 
 namespace Flarum\User;
 
-use DateTime;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
+use Illuminate\Support\Carbon;
 
 /**
- * @todo document database columns with @property
+ * @property string $id
+ * @property array $payload
+ * @property array $suggestions
+ * @property Carbon $created_at
  */
 class AuthToken extends AbstractModel
 {
@@ -30,6 +33,11 @@ class AuthToken extends AbstractModel
      */
     protected $dates = ['created_at'];
 
+    protected $casts = [
+        'payload' => 'array',
+        'suggestions' => 'array'
+    ];
+
     /**
      * Use a custom primary key for this model.
      *
@@ -40,16 +48,18 @@ class AuthToken extends AbstractModel
     /**
      * Generate an email token for the specified user.
      *
-     * @param string $email
      *
+     * @param array      $payload
+     * @param array|null $suggestions
      * @return static
      */
-    public static function generate($payload)
+    public static function generate(array $payload, array $suggestions = null)
     {
         $token = new static;
 
         $token->id = str_random(40);
         $token->payload = $payload;
+        $token->suggestions = $suggestions;
         $token->created_at = time();
 
         return $token;
@@ -88,9 +98,10 @@ class AuthToken extends AbstractModel
      */
     public function scopeValidOrFail($query, $id)
     {
+        /** @var AuthToken $token */
         $token = $query->find($id);
 
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
+        if (! $token || $token->created_at->diffInDays() >= 1) {
             throw new InvalidConfirmationTokenException;
         }
 

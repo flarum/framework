@@ -101,7 +101,7 @@ class AuthenticationResponseFactory
         if ($user) {
             $payload = ['authenticated' => true];
         } else {
-            $token = AuthToken::generate($identification);
+            $token = AuthToken::generate($identification, $suggestions);
             $token->save();
 
             $payload = array_merge(
