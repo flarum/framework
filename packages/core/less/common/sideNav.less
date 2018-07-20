@@ -54,8 +54,12 @@
 }
 
 @media @desktop-up {
+  .sideNavContainer {
+    display: flex;
+  }
   .sideNav {
-    float: left;
+    flex-shrink: 0;
+    margin-right: 50px;
 
     &, > ul {
       width: 190px;
@@ -119,6 +123,6 @@
 @media @desktop-up {
   .sideNavOffset {
     margin-top: 30px;
-    margin-left: 240px;
+    flex: 1;
   }
 }
