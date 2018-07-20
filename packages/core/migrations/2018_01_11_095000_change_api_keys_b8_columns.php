@@ -28,7 +28,7 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('api_keys', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
+            $table->dropForeign('api_keys_user_id_foreign');
             $table->dropColumn('id', 'allowed_ips', 'user_id', 'scopes', 'created_at');
         });
     }
