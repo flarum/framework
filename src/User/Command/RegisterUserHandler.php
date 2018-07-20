@@ -11,7 +11,6 @@
 
 namespace Flarum\User\Command;
 
-use Exception;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;

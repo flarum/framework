@@ -11,19 +11,15 @@
 
 namespace Flarum\User\Command;
 
-use Exception;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
-use Flarum\User\AvatarUploader;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use Intervention\Image\ImageManager;
 
 class EditUserHandler
 {
