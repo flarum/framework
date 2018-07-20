@@ -48,8 +48,8 @@ return [
             $table->renameColumn('hidden_user_id', 'hide_user_id');
 
             $table->dropForeign([
-                'discussions_user_id_foreign', 'discussions_last_posted_user_id_foreign', 'discussions_hidden_user_id_foreign',
-                'discussions_first_post_id_foreign', 'discussions_last_post_id_foreign'
+                'user_id', 'last_posted_user_id', 'hidden_user_id',
+                'first_post_id', 'last_post_id'
             ]);
         });
     }

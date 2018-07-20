@@ -21,7 +21,7 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('group_permission', function (Blueprint $table) {
-            $table->dropForeign('group_permission_group_id_foreign');
+            $table->dropForeign(['group_id']);
         });
     }
 ];

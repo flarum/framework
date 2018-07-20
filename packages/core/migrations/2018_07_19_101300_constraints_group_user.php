@@ -22,7 +22,7 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('group_user', function (Blueprint $table) {
-            $table->dropForeign(['group_user_user_id_foreign', 'group_user_group_id_foreign']);
+            $table->dropForeign(['user_id', 'group_id']);
         });
     }
 ];
