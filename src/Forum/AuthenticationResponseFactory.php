@@ -12,71 +12,73 @@
 namespace Flarum\Forum;
 
 use Flarum\Http\Rememberer;
-use Flarum\Http\SessionAuthenticator;
 use Flarum\User\AuthToken;
 use Flarum\User\User;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 
 class AuthenticationResponseFactory
 {
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
     /**
      * @var Rememberer
      */
     protected $rememberer;
 
     /**
-     * AuthenticationResponseFactory constructor.
-     * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
      */
-    public function __construct(SessionAuthenticator $authenticator, Rememberer $rememberer)
+    public function __construct(Rememberer $rememberer)
     {
-        $this->authenticator = $authenticator;
         $this->rememberer = $rememberer;
     }
 
-    public function make(Request $request, array $identification, array $suggestions = [])
+    public function make(array $data): HtmlResponse
     {
-        if (isset($suggestions['username'])) {
-            $suggestions['username'] = $this->sanitizeUsername($suggestions['username']);
+        if (isset($data['suggestions']['username'])) {
+            $data['suggestions']['username'] = $this->sanitizeUsername($data['suggestions']['username']);
         }
 
-        $user = User::where($identification)->first();
+        if ($user = User::where($data['identification'])->first()) {
+            $payload = ['authenticated' => true];
+        } else {
+            $token = $this->generateToken($data['identification'], $data['attributes'] ?? []);
+            $payload = $this->buildPayload($token, $data['identification'], $data['suggestions'] ?? []);
+        }
 
-        $payload = $this->getPayload($identification, $suggestions, $user);
-
-        $response = $this->getResponse($payload);
+        $response = $this->makeResponse($payload);
 
         if ($user) {
-            $session = $request->getAttribute('session');
-            $this->authenticator->logIn($session, $user->id);
-
             $response = $this->rememberer->rememberUser($response, $user->id);
         }
 
         return $response;
     }
 
-    /**
-     * @param string $username
-     * @return string
-     */
-    private function sanitizeUsername($username)
+    private function sanitizeUsername(string $username): string
     {
         return preg_replace('/[^a-z0-9-_]/i', '', $username);
     }
 
-    /**
-     * @param array $payload
-     * @return HtmlResponse
-     */
-    private function getResponse(array $payload)
+    private function generateToken(array $identification, array $attributes): AuthToken
+    {
+        $payload = array_merge($identification, $attributes);
+
+        $token = AuthToken::generate($payload);
+        $token->save();
+
+        return $token;
+    }
+
+    private function buildPayload(AuthToken $token, array $identification, array $suggestions): array
+    {
+        $payload = array_merge($identification, $suggestions);
+
+        $payload['token'] = $token->id;
+        $payload['provided'] = array_keys($identification);
+
+        return $payload;
+    }
+
+    private function makeResponse(array $payload): HtmlResponse
     {
         $content = sprintf(
             '<script>window.opener.app.authenticationComplete(%s); window.close();</script>',
@@ -84,35 +86,5 @@ class AuthenticationResponseFactory
         );
 
         return new HtmlResponse($content);
-    }
-
-    /**
-     * @param array $identification
-     * @param array $suggestions
-     * @param User|null $user
-     * @return array
-     */
-    private function getPayload(array $identification, array $suggestions, User $user = null)
-    {
-        // If a user with these attributes already exists, then we will log them
-        // in by generating an access token. Otherwise, we will generate a
-        // unique token for these attributes and add it to the response, along
-        // with the suggested account information.
-        if ($user) {
-            $payload = ['authenticated' => true];
-        } else {
-            $token = AuthToken::generate($identification);
-            $token->save();
-
-            $payload = array_merge(
-                $identification,
-                $suggestions,
-                ['token' => $token->id],
-                // List of the fields that can't be edited during sign up
-                ['identificationFields' => array_keys($identification)]
-            );
-        }
-
-        return $payload;
     }
 }

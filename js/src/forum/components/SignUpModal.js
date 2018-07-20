@@ -61,7 +61,7 @@ export default class SignUpModal extends Modal {
   }
 
   isProvided(field) {
-    return this.props.identificationFields && this.props.identificationFields.indexOf(field) !== -1;
+    return this.props.provided && this.props.provided.indexOf(field) !== -1;
   }
 
   body() {
