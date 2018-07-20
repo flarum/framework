@@ -29,6 +29,5 @@ return [
         $events->subscribe(Listener\SaveLockedToDatabase::class);
 
         $events->subscribe(Access\DiscussionPolicy::class);
-        $events->subscribe(Access\PostPolicy::class);
     },
 ];
