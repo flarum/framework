@@ -13,6 +13,10 @@ flarum-suspend:
 
   # Translations in this namespace are used by the forum user interface.
   forum:
+    # These translations are used in the suspension notifications
+    notifications:
+      user_suspended_text: "{username} suspended you for {timeReadable}"
+      user_unsuspended_text: "{username} unsuspended you"
 
     # These translations are used in the Suspend User modal dialog (admin function).
     suspend_user:
