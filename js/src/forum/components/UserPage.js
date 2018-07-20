@@ -40,11 +40,13 @@ export default class UserPage extends Page {
             controlsButtonClassName: 'Button'
           }),
           <div className="container">
-            <nav className="sideNav UserPage-nav" config={affixSidebar}>
-              <ul>{listItems(this.sidebarItems().toArray())}</ul>
-            </nav>
-            <div className="sideNavOffset UserPage-content">
-              {this.content()}
+            <div className="sideNavContainer">
+              <nav className="sideNav UserPage-nav" config={affixSidebar}>
+                <ul>{listItems(this.sidebarItems().toArray())}</ul>
+              </nav>
+              <div className="sideNavOffset UserPage-content">
+                {this.content()}
+              </div>
             </div>
           </div>
         ] : [
