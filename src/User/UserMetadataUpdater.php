@@ -15,9 +15,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Deleted as DiscussionDeleted;
 use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Deleted as PostDeleted;
-use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
-use Flarum\Post\Event\Restored;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -30,8 +28,6 @@ class UserMetadataUpdater
     {
         $events->listen(Posted::class, [$this, 'whenPostWasPosted']);
         $events->listen(PostDeleted::class, [$this, 'whenPostWasDeleted']);
-        $events->listen(Hidden::class, [$this, 'whenPostWasHidden']);
-        $events->listen(Restored::class, [$this, 'whenPostWasRestored']);
         $events->listen(Started::class, [$this, 'whenDiscussionWasStarted']);
         $events->listen(DiscussionDeleted::class, [$this, 'whenDiscussionWasDeleted']);
     }
@@ -41,7 +37,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasPosted(Posted $event)
     {
-        $this->updateCommentsCount($event->post, 1);
+        $this->updateCommentsCount($event->post);
     }
 
     /**
@@ -49,23 +45,7 @@ class UserMetadataUpdater
      */
     public function whenPostWasDeleted(PostDeleted $event)
     {
-        $this->updateCommentsCount($event->post, -1);
-    }
-
-    /**
-     * @param \Flarum\Post\Event\Hidden $event
-     */
-    public function whenPostWasHidden(Hidden $event)
-    {
-        $this->updateCommentsCount($event->post, -1);
-    }
-
-    /**
-     * @param \Flarum\Post\Event\Restored $event
-     */
-    public function whenPostWasRestored(Restored $event)
-    {
-        $this->updateCommentsCount($event->post, 1);
+        $this->updateCommentsCount($event->post);
     }
 
     /**
@@ -73,7 +53,7 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasStarted(Started $event)
     {
-        $this->updateDiscussionsCount($event->discussion, 1);
+        $this->updateDiscussionsCount($event->discussion);
     }
 
     /**
@@ -81,34 +61,16 @@ class UserMetadataUpdater
      */
     public function whenDiscussionWasDeleted(DiscussionDeleted $event)
     {
-        $this->updateDiscussionsCount($event->discussion, -1);
+        $this->updateDiscussionsCount($event->discussion);
     }
 
-    /**
-     * @param Post $post
-     * @param int $amount
-     */
-    protected function updateCommentsCount(Post $post, $amount)
+    private function updateCommentsCount(Post $post)
     {
-        $user = $post->user;
-
-        if ($user && $user->exists) {
-            $user->comments_count += $amount;
-            $user->save();
-        }
+        optional($post->user)->refreshCommentsCount();
     }
 
-    /**
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @param int $amount
-     */
-    protected function updateDiscussionsCount(Discussion $discussion, $amount)
+    private function updateDiscussionsCount(Discussion $discussion)
     {
-        $user = $discussion->startUser;
-
-        if ($user && $user->exists) {
-            $user->discussions_count += $amount;
-            $user->save();
-        }
+        optional($discussion->startUser)->refreshDiscussionsCount();
     }
 }

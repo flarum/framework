@@ -11,7 +11,6 @@
 // .dropdown-select into a plain list.
 @media @expand-side-nav {
   .sideNav {
-    // Expand the dropdown-select component into a normal nav list.
     & .Dropdown--select {
       display: block;
 
@@ -48,50 +47,9 @@
   }
 }
 
-.sideNav--horizontal {}
-
-@media @expand-side-nav {
-  .sideNav--horizontal {
-    padding: 15px 0;
-    white-space: nowrap;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-
-    &:after {
-      content: " ";
-      position: absolute;
-      left: 0;
-      right: 0;
-      margin-top: 15px;
-      border-bottom: 1px solid @control-bg;
-    }
-
-    > ul > li, .Dropdown-menu > li {
-      display: inline-block;
-      margin: 0 20px 0 0;
-      vertical-align: top;
-    }
-    .Dropdown-separator {
-      display: none;
-    }
-
-    .Dropdown--select .Dropdown-menu > li > a {
-      padding-left: 25px;
-
-      .icon {
-        margin-left: -25px;
-      }
-    }
-
-    .affix {
-      position: static;
-    }
-  }
-
-  @media @tablet {
-    .sideNav {
-      .sideNav--horizontal();
-    }
+@media @tablet {
+  .sideNav {
+    .sideNav--horizontal();
   }
 }
 
@@ -112,6 +70,43 @@
         margin-bottom: 10px;
       }
     }
+  }
+}
+
+.sideNav--horizontal {
+  padding: 15px 0;
+  white-space: nowrap;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &:after {
+    content: " ";
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-top: 15px;
+    border-bottom: 1px solid @control-bg;
+  }
+
+  > ul > li, .Dropdown-menu > li {
+    display: inline-block;
+    margin: 0 20px 0 0;
+    vertical-align: top;
+  }
+  .Dropdown-separator {
+    display: none;
+  }
+
+  .Dropdown--select .Dropdown-menu > li > a {
+    padding-left: 25px;
+
+    .icon {
+      margin-left: -25px;
+    }
+  }
+
+  .affix {
+    position: static;
   }
 }
 

@@ -165,10 +165,9 @@ class CommentPost extends Post
     /**
      * Get the content rendered as HTML.
      *
-     * @param string $value
      * @return string
      */
-    public function getContentHtmlAttribute($value)
+    public function getContentHtmlAttribute()
     {
         return static::$formatter->render($this->attributes['content'], $this);
     }
