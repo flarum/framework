@@ -23,7 +23,7 @@ class Permission extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'groups_permissions';
+    protected $table = 'group_permission';
 
     /**
      * Define the relationship with the group that this permission is for.

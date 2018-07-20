@@ -26,9 +26,9 @@ return [
             $table->renameColumn('hide_time', 'hidden_at');
             $table->renameColumn('hide_user_id', 'hidden_user_id');
 
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('last_posted_user_id')->references('id')->on('users');
-            $table->foreign('hidden_user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('last_posted_user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('first_post_id')->references('id')->on('posts');
             $table->foreign('last_post_id')->references('id')->on('posts');
         });
