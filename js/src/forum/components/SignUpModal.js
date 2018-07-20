@@ -42,7 +42,7 @@ export default class SignUpModal extends Modal {
   }
 
   className() {
-    return 'Modal--small SignUpModal' + (this.welcomeUser ? ' SignUpModal--success' : '');
+    return 'Modal--small SignUpModal';
   }
 
   title() {
@@ -177,10 +177,6 @@ export default class SignUpModal extends Modal {
       data.token = this.props.token;
     } else {
       data.password = this.password();
-    }
-
-    if (this.props.avatarUrl) {
-      data.avatarUrl = this.props.avatarUrl;
     }
 
     return data;

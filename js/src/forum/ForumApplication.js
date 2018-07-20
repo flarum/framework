@@ -158,7 +158,6 @@ export default class ForumApplication extends Application {
     } else {
       const modal = new SignUpModal(payload);
       this.modal.show(modal);
-      modal.$('[name=password]').focus();
     }
   }
 }
