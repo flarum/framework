@@ -107,7 +107,7 @@ class PostPolicy extends AbstractPolicy
         // A post is allowed to be edited if the user has permission to moderate
         // the discussion which it's in, or if they are the author and the post
         // hasn't been deleted by someone else.
-        if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id)) {
+        if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id) && $actor->can('reply', $post->discussion)) {
             $allowEditing = $this->settings->get('allow_post_editing');
 
             if ($allowEditing === '-1'
