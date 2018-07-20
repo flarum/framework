@@ -21,7 +21,7 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('password_tokens', function (Blueprint $table) {
-            $table->dropForeign('password_tokens_user_id_foreign');
+            $table->dropForeign(['user_id']);
         });
     }
 ];
