@@ -19,19 +19,27 @@ return [
             $table->renameColumn('lifetime', 'lifetime_seconds');
             $table->renameColumn('last_activity', 'last_activity_at');
             $table->dateTime('created_at');
+            $table->integer('user_id')->unsigned()->change();
+        });
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        // Use a separate schema instance because this column gets renamed
+        // in the first one.
+        $schema->table('access_tokens', function (Blueprint $table) {
+            $table->dateTime('last_activity_at')->change();
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('access_tokens', function (Blueprint $table) {
+            $table->integer('last_activity_at')->change();
+        });
+
+        $schema->table('access_tokens', function (Blueprint $table) {
+            $table->renameColumn('token', 'id');
             $table->renameColumn('lifetime_seconds', 'lifetime');
             $table->renameColumn('last_activity_at', 'last_activity');
             $table->dropColumn('created_at');
-            $table->renameColumn('token', 'id');
-
-            $table->dropForeign(['user_id']);
+            $table->integer('user_id')->change();
         });
     }
 ];

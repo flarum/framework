@@ -14,14 +14,23 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
+        // Delete rows with non-existent users so that we will be able to create
+        // foreign keys without any issues.
+        $schema->getConnection()
+            ->table('access_tokens')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw(1)->from('users')->whereRaw('id = user_id');
+            })
+            ->delete();
+
         $schema->table('access_tokens', function (Blueprint $table) {
-            $table->dateTime('last_activity_at')->change();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('access_tokens', function (Blueprint $table) {
-            $table->integer('last_activity_at')->change();
+            $table->dropForeign(['user_id']);
         });
     }
 ];

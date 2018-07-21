@@ -13,12 +13,12 @@ use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
-    'notifications_from',
+    'user_user',
     function (Blueprint $table) {
-        $table->integer('id')->unsigned();
-        $table->integer('from_user_id')->unsigned();
+        $table->integer('user_id')->unsigned();
+        $table->integer('other_user_id')->unsigned();
 
-        $table->foreign('id')->references('id')->on('notifications')->onDelete('cascade');
-        $table->foreign('from_user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->foreign('user_id')->references('id')->on('posts')->onDelete('cascade');
+        $table->foreign('other_user_id')->references('id')->on('users')->onDelete('cascade');
     }
 );
