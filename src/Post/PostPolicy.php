@@ -82,7 +82,7 @@ class PostPolicy extends AbstractPolicy
         if (! $actor->hasPermission('discussion.editPosts')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('posts.hidden_at')
-                    ->orWhere('user_id', $actor->id)
+                    ->orWhere('posts.user_id', $actor->id)
                     ->orWhereExists(function ($query) use ($actor) {
                         $query->selectRaw('1')
                             ->from('discussions')
