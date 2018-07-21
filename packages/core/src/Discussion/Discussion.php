@@ -223,7 +223,7 @@ class Discussion extends AbstractModel
     public function refreshLastPost()
     {
         /** @var Post $lastPost */
-        if ($lastPost = $this->comments()->latest('created_at')->first()) {
+        if ($lastPost = $this->comments()->latest()->first()) {
             $this->setLastPost($lastPost);
         }
 
@@ -269,7 +269,7 @@ class Discussion extends AbstractModel
      */
     public function mergePost(MergeableInterface $post)
     {
-        $lastPost = $this->posts()->latest('created_at')->first();
+        $lastPost = $this->posts()->latest()->first();
 
         $post = $post->saveAfter($lastPost);
 
