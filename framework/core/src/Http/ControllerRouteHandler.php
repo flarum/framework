@@ -25,13 +25,13 @@ class ControllerRouteHandler
     protected $container;
 
     /**
-     * @var string
+     * @var string|callable
      */
     protected $controller;
 
     /**
      * @param Container $container
-     * @param string $controller
+     * @param string|callable $controller
      */
     public function __construct(Container $container, $controller)
     {
@@ -54,12 +54,16 @@ class ControllerRouteHandler
     }
 
     /**
-     * @param string $class
+     * @param string|callable $class
      * @return RequestHandlerInterface
      */
     protected function resolveController($class)
     {
-        $controller = $this->container->make($class);
+        if (is_callable($class)) {
+            $controller = $this->container->call($class);
+        } else {
+            $controller = $this->container->make($class);
+        }
 
         if (! ($controller instanceof RequestHandlerInterface)) {
             throw new InvalidArgumentException(

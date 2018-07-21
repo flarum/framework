@@ -206,9 +206,15 @@ export default class PermissionGrid extends Component {
 
     items.add('editPosts', {
       icon: 'fas fa-pencil-alt',
-      label: app.translator.trans('core.admin.permissions.edit_and_delete_posts_label'),
+      label: app.translator.trans('core.admin.permissions.edit_posts_label'),
       permission: 'discussion.editPosts'
     }, 70);
+
+    items.add('hidePosts', {
+      icon: 'far fa-trash-alt',
+      label: app.translator.trans('core.admin.permissions.delete_posts_label'),
+      permission: 'discussion.hidePosts'
+    }, 60);
 
     items.add('deletePosts', {
       icon: 'fas fa-times',

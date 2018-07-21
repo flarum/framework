@@ -73,7 +73,7 @@ class Formatter
      */
     public function render($xml, $context = null)
     {
-        $renderer = $this->getRenderer($context);
+        $renderer = $this->getRenderer();
 
         $this->events->dispatch(new Rendering($renderer, $context, $xml));
 
@@ -96,8 +96,7 @@ class Formatter
      */
     public function flush()
     {
-        $this->cache->forget('flarum.formatter.parser');
-        $this->cache->forget('flarum.formatter.renderer');
+        $this->cache->forget('flarum.formatter');
     }
 
     /**
@@ -111,6 +110,12 @@ class Formatter
 
         $configurator->rendering->engine = 'PHP';
         $configurator->rendering->engine->cacheDir = $this->cacheDir;
+
+        $configurator->enableJavaScript();
+        $configurator->javascript->exportMethods = ['preview'];
+
+        $configurator->javascript->setMinifier('MatthiasMullieMinify')
+            ->keepGoing = true;
 
         $configurator->Escaper;
         $configurator->Autoemail;
@@ -142,16 +147,16 @@ class Formatter
     /**
      * Get a TextFormatter component.
      *
-     * @param string $name "renderer" or "parser"
+     * @param string $name "renderer" or "parser" or "js"
      * @return mixed
      */
     protected function getComponent($name)
     {
-        $cacheKey = 'flarum.formatter.'.$name;
-
-        return $this->cache->rememberForever($cacheKey, function () use ($name) {
-            return $this->getConfigurator()->finalize()[$name];
+        $formatter = $this->cache->rememberForever('flarum.formatter', function () {
+            return $this->getConfigurator()->finalize();
         });
+
+        return $formatter[$name];
     }
 
     /**
@@ -172,10 +177,9 @@ class Formatter
     /**
      * Get the renderer.
      *
-     * @param mixed $context
      * @return \s9e\TextFormatter\Renderer
      */
-    protected function getRenderer($context = null)
+    protected function getRenderer()
     {
         spl_autoload_register(function ($class) {
             if (file_exists($file = $this->cacheDir.'/'.$class.'.php')) {
@@ -193,13 +197,6 @@ class Formatter
      */
     public function getJs()
     {
-        $configurator = $this->getConfigurator();
-        $configurator->enableJavaScript();
-        $configurator->javascript->exportMethods = ['preview'];
-
-        return $configurator->finalize([
-            'returnParser' => false,
-            'returnRenderer' => false
-        ])['js'];
+        return $this->getComponent('js');
     }
 }

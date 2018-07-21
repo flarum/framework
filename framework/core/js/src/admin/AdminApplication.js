@@ -55,7 +55,7 @@ export default class AdminApplication extends Application {
       required.push('discussion.hide');
     }
     if (permission === 'discussion.deletePosts') {
-      required.push('discussion.editPosts');
+      required.push('discussion.hidePosts');
     }
 
     return required;

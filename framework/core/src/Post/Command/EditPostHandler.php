@@ -68,7 +68,7 @@ class EditPostHandler
             }
 
             if (isset($attributes['isHidden'])) {
-                $this->assertCan($actor, 'edit', $post);
+                $this->assertCan($actor, 'hide', $post);
 
                 if ($attributes['isHidden']) {
                     $post->hide($actor);

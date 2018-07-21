@@ -5,7 +5,7 @@ about: "I have a suggestion (and may want to implement it!)"
 ---
 
 <!--
-Note: The issue tracker is only for serious requests which have had some thought and planning put into them. If you just have an idea you would like to discuss, please post in the Flarum Community: https://discuss.flarum.org/t/feedback
+IMPORTANT: Feature requests on this GitHub issue tracker are only accepted in case they have been approved by a core developer or contain extensive argumentation and directions for implementation. For all other feature requests, ideas and feedback please post in the Flarum Community: https://discuss.flarum.org/t/feedback.
 -->
 
 ## Feature Request
