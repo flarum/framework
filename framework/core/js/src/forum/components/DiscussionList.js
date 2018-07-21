@@ -112,10 +112,10 @@ export default class DiscussionList extends Component {
     if (this.props.params.q) {
       map.relevance = '';
     }
-    map.latest = '-lastTime';
-    map.top = '-commentsCount';
-    map.newest = '-startTime';
-    map.oldest = 'startTime';
+    map.latest = '-lastPostedAt';
+    map.top = '-commentCount';
+    map.newest = '-createdAt';
+    map.oldest = 'createdAt';
 
     return map;
   }

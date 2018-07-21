@@ -30,10 +30,10 @@ class IndexController extends FrontendController
      * @var array
      */
     private $sortMap = [
-        'latest' => '-lastTime',
-        'top' => '-commentsCount',
-        'newest' => '-startTime',
-        'oldest' => 'startTime'
+        'latest' => '-lastPostedAt',
+        'top' => '-commentCount',
+        'newest' => '-createdAt',
+        'oldest' => 'createdAt'
     ];
 
     /**
