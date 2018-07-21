@@ -16,9 +16,10 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('notifications', function (Blueprint $table) {
-            $table->dropColumn('sender_id', 'subject_type');
+            $table->dropColumn('subject_type');
 
             $table->renameColumn('time', 'created_at');
+            $table->renameColumn('sender_id', 'from_user_id');
 
             $table->dateTime('read_at')->nullable();
         });
@@ -34,10 +35,10 @@ return [
 
     'down' => function (Builder $schema) {
         $schema->table('notifications', function (Blueprint $table) {
-            $table->integer('sender_id')->unsigned()->nullable();
             $table->string('subject_type', 200)->nullable();
 
             $table->renameColumn('created_at', 'time');
+            $table->renameColumn('from_user_id', 'sender_id');
 
             $table->boolean('is_read');
         });

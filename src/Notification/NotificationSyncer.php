@@ -225,10 +225,10 @@ class NotificationSyncer
     protected function getAttributes(Blueprint\BlueprintInterface $blueprint)
     {
         return [
-            'type'       => $blueprint::getType(),
-            'sender_id'  => ($sender = $blueprint->getSender()) ? $sender->id : null,
+            'type' => $blueprint::getType(),
+            'from_user_id' => ($sender = $blueprint->getSender()) ? $sender->id : null,
             'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
-            'data'       => ($data = $blueprint->getData()) ? json_encode($data) : null
+            'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];
     }
 }
