@@ -28,7 +28,9 @@ class AuthToken extends AbstractModel
     protected $table = 'registration_tokens';
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at'];
 

@@ -32,7 +32,7 @@ class Permission extends AbstractModel
      */
     public function group()
     {
-        return $this->belongsTo(Group::class, 'group_id');
+        return $this->belongsTo(Group::class);
     }
 
     /**

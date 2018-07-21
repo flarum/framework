@@ -34,11 +34,6 @@ class Group extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'groups';
-
-    /**
      * The ID of the administrator group.
      */
     const ADMINISTRATOR_ID = 1;

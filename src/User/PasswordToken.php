@@ -22,12 +22,9 @@ use Flarum\Database\AbstractModel;
 class PasswordToken extends AbstractModel
 {
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'password_tokens';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at'];
 

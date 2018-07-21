@@ -42,7 +42,9 @@ class UserState extends AbstractModel
     protected $table = 'discussion_user';
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['last_read_at'];
 
