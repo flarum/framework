@@ -9,13 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Flarum\Event;
+use Flarum\Database\Migration;
+use Flarum\Group\Group;
 
-use Flarum\Frontend\Event\Rendering;
-
-/**
- * @deprecated
- */
-class ConfigureClientView extends Rendering
-{
-}
+return Migration::addPermissions([
+    'discussion.hidePosts' => Group::MODERATOR_ID
+]);

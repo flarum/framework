@@ -11,6 +11,7 @@
 
 namespace Flarum\Http;
 
+use Flarum\Frontend\Controller as FrontendController;
 use Illuminate\Contracts\Container\Container;
 
 class RouteHandlerFactory
@@ -29,11 +30,47 @@ class RouteHandlerFactory
     }
 
     /**
-     * @param string $controller
+     * @param string|callable $controller
      * @return ControllerRouteHandler
      */
     public function toController($controller)
     {
         return new ControllerRouteHandler($this->container, $controller);
+    }
+
+    /**
+     * @param string $frontend
+     * @param string|null $content
+     * @return ControllerRouteHandler
+     */
+    public function toFrontend(string $frontend, string $content = null)
+    {
+        return $this->toController(function (Container $container) use ($frontend, $content) {
+            $frontend = $container->make($frontend);
+
+            if ($content) {
+                $frontend->add($container->make($content));
+            }
+
+            return new FrontendController($frontend);
+        });
+    }
+
+    /**
+     * @param string|null $content
+     * @return ControllerRouteHandler
+     */
+    public function toForum(string $content = null)
+    {
+        return $this->toFrontend('flarum.forum.frontend', $content);
+    }
+
+    /**
+     * @param string|null $content
+     * @return ControllerRouteHandler
+     */
+    public function toAdmin(string $content = null)
+    {
+        return $this->toFrontend('flarum.admin.frontend', $content);
     }
 }

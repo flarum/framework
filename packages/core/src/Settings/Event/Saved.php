@@ -14,26 +14,15 @@ namespace Flarum\Settings\Event;
 class Saved
 {
     /**
-     * The setting key that was set.
-     *
-     * @var string
+     * @var array
      */
-    public $key;
+    public $settings;
 
     /**
-     * The setting value that was set.
-     *
-     * @var string
+     * @param array $settings
      */
-    public $value;
-
-    /**
-     * @param string $key The setting key that was set.
-     * @param string $value The setting value that was set.
-     */
-    public function __construct($key, $value)
+    public function __construct(array $settings)
     {
-        $this->key = $key;
-        $this->value = $value;
+        $this->settings = $settings;
     }
 }
