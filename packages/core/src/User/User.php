@@ -60,12 +60,9 @@ class User extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'users';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = [
         'joined_at',

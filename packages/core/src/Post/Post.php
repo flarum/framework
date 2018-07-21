@@ -43,18 +43,17 @@ class Post extends AbstractModel
 {
     use EventGeneratorTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $table = 'posts';
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at', 'edited_at', 'hidden_at'];
 
     /**
-     * Casts properties to a specific type.
+     * The attributes that should be cast to native types.
      *
      * @var array
      */
@@ -150,7 +149,7 @@ class Post extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo('Flarum\Discussion\Discussion', 'discussion_id');
+        return $this->belongsTo(Discussion::class);
     }
 
     /**
@@ -160,7 +159,7 @@ class Post extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\User\User', 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -170,7 +169,7 @@ class Post extends AbstractModel
      */
     public function editUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'edited_user_id');
+        return $this->belongsTo(User::class, 'edited_user_id');
     }
 
     /**
@@ -180,7 +179,7 @@ class Post extends AbstractModel
      */
     public function hideUser()
     {
-        return $this->belongsTo('Flarum\User\User', 'hidden_user_id');
+        return $this->belongsTo(User::class, 'hidden_user_id');
     }
 
     /**
