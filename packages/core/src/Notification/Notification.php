@@ -49,7 +49,7 @@ class Notification extends AbstractModel
      *
      * @var array
      */
-    protected $dates = ['created_at', 'read_at', 'deleted_at'];
+    protected $dates = ['created_at', 'read_at'];
 
     /**
      * A map of notification types and the model classes to use for their
@@ -112,7 +112,7 @@ class Notification extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -122,7 +122,7 @@ class Notification extends AbstractModel
      */
     public function sender()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'from_user_id');
     }
 
     /**
@@ -132,7 +132,7 @@ class Notification extends AbstractModel
      */
     public function subject()
     {
-        return $this->morphTo('subject', 'subjectModel', 'subject_id');
+        return $this->morphTo('subject', 'subjectModel');
     }
 
     /**
