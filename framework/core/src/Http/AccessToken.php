@@ -25,11 +25,6 @@ use Flarum\User\User;
 class AccessToken extends AbstractModel
 {
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'access_tokens';
-
-    /**
      * Use a custom primary key for this model.
      *
      * @var bool

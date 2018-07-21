@@ -60,11 +60,6 @@ class Discussion extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'discussions';
-
-    /**
      * An array of posts that have been modified during this request.
      *
      * @var array
@@ -72,12 +67,14 @@ class Discussion extends AbstractModel
     protected $modifiedPosts = [];
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at', 'last_posted_at', 'hidden_at'];
 
     /**
-     * Casts properties to a specific type.
+     * The attributes that should be cast to native types.
      *
      * @var array
      */

@@ -24,12 +24,9 @@ use Flarum\User\Exception\InvalidConfirmationTokenException;
 class EmailToken extends AbstractModel
 {
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'email_tokens';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at'];
 
@@ -39,6 +36,11 @@ class EmailToken extends AbstractModel
      * @var bool
      */
     public $incrementing = false;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $primaryKey = 'token';
 
     /**
      * Generate an email token for the specified user.
