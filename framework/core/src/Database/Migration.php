@@ -137,11 +137,11 @@ abstract class Migration
      */
     public static function addPermissions(array $permissions)
     {
-        $keys = [];
+        $rows = [];
 
         foreach ($permissions as $permission => $groups) {
             foreach ((array) $groups as $group) {
-                $keys[] = [
+                $rows[] = [
                     'group_id' => $group,
                     'permission' => $permission,
                 ];
@@ -149,23 +149,27 @@ abstract class Migration
         }
 
         return [
-            'up' => function (Builder $schema) use ($keys) {
+            'up' => function (Builder $schema) use ($rows) {
                 $db = $schema->getConnection();
 
-                foreach ($keys as $key) {
-                    $instance = $db->table('permissions')->where($key)->first();
-
-                    if (is_null($instance)) {
-                        $db->table('permissions')->insert($key);
+                foreach ($rows as $row) {
+                    if ($db->table('group_permission')->where($row)->exists()) {
+                        continue;
                     }
+
+                    if ($db->table('groups')->where('id', $row['group_id'])->doesntExist()) {
+                        continue;
+                    }
+
+                    $db->table('group_permission')->insert($row);
                 }
             },
 
-            'down' => function (Builder $schema) use ($keys) {
+            'down' => function (Builder $schema) use ($rows) {
                 $db = $schema->getConnection();
 
-                foreach ($keys as $key) {
-                    $db->table('permissions')->where($key)->delete();
+                foreach ($rows as $row) {
+                    $db->table('group_permission')->where($row)->delete();
                 }
             }
         ];
