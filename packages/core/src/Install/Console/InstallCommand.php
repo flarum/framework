@@ -193,8 +193,6 @@ class InstallCommand extends AbstractCommand
             $this->application->register(SearchServiceProvider::class);
             $this->application->register(PostServiceProvider::class);
 
-            $this->seedGroups();
-
             $this->createAdminUser();
 
             $this->enableBundledExtensions();
@@ -277,28 +275,6 @@ class InstallCommand extends AbstractCommand
 
         foreach ($this->settings as $k => $v) {
             $settings->set($k, $v);
-        }
-    }
-
-    protected function seedGroups()
-    {
-        Group::unguard();
-
-        $groups = [
-            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'fas fa-wrench'],
-            [Group::GUEST_ID, 'Guest', 'Guests', null, null],
-            [Group::MEMBER_ID, 'Member', 'Members', null, null],
-            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fas fa-bolt']
-        ];
-
-        foreach ($groups as $group) {
-            Group::create([
-                'id' => $group[0],
-                'name_singular' => $group[1],
-                'name_plural' => $group[2],
-                'color' => $group[3],
-                'icon' => $group[4],
-            ]);
         }
     }
 
