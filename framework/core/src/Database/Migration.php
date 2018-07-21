@@ -79,15 +79,27 @@ abstract class Migration
      */
     public static function renameColumn($tableName, $from, $to)
     {
+        return static::renameColumns($tableName, [$from => $to]);
+    }
+
+    /**
+     * Rename multiple columns.
+     */
+    public static function renameColumns($tableName, array $columnNames)
+    {
         return [
-            'up' => function (Builder $schema) use ($tableName, $from, $to) {
-                $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
-                    $table->renameColumn($from, $to);
+            'up' => function (Builder $schema) use ($tableName, $columnNames) {
+                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
+                    foreach ($columnNames as $from => $to) {
+                        $table->renameColumn($from, $to);
+                    }
                 });
             },
-            'down' => function (Builder $schema) use ($tableName, $from, $to) {
-                $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
-                    $table->renameColumn($to, $from);
+            'down' => function (Builder $schema) use ($tableName, $columnNames) {
+                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
+                    foreach ($columnNames as $to => $from) {
+                        $table->renameColumn($from, $to);
+                    }
                 });
             }
         ];
