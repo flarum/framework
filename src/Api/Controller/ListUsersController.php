@@ -36,10 +36,10 @@ class ListUsersController extends AbstractListController
      */
     public $sortFields = [
         'username',
-        'commentsCount',
-        'discussionsCount',
-        'lastSeenTime',
-        'joinTime'
+        'commentCount',
+        'discussionCount',
+        'lastSeenAt',
+        'joinedAt'
     ];
 
     /**
