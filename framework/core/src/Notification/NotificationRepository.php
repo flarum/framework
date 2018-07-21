@@ -41,7 +41,7 @@ class NotificationRepository
         return Notification::select('notifications.*', app('flarum.db')->raw('p.unread_count'))
             ->mergeBindings($primaries->getQuery())
             ->join(app('flarum.db')->raw('('.$primaries->toSql().') p'), 'notifications.id', '=', app('flarum.db')->raw('p.id'))
-            ->latest('created_at')
+            ->latest()
             ->get();
     }
 
