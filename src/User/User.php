@@ -126,22 +126,6 @@ class User extends AbstractModel
 
         static::deleted(function (User $user) {
             $user->raise(new Deleted($user));
-
-            // Delete all of the posts by the user. Before we delete them
-            // in a big batch query, we will loop through them and raise a
-            // PostWasDeleted event for each post.
-            $posts = $user->posts()->allTypes();
-
-            foreach ($posts->cursor() as $post) {
-                $user->raise(new PostDeleted($post));
-            }
-
-            $posts->delete();
-
-            $user->read()->detach();
-            $user->groups()->detach();
-            $user->accessTokens()->delete();
-            $user->notifications()->delete();
         });
 
         static::$dispatcher->fire(

@@ -37,8 +37,8 @@ return [
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('last_posted_user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('hidden_user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('first_post_id')->references('id')->on('posts');
-            $table->foreign('last_post_id')->references('id')->on('posts');
+            $table->foreign('first_post_id')->references('id')->on('posts')->onDelete('set null');
+            $table->foreign('last_post_id')->references('id')->on('posts')->onDelete('set null');
         });
     },
 

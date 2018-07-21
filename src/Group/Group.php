@@ -64,8 +64,6 @@ class Group extends AbstractModel
 
         static::deleted(function (Group $group) {
             $group->raise(new Deleted($group));
-
-            $group->permissions()->delete();
         });
     }
 
