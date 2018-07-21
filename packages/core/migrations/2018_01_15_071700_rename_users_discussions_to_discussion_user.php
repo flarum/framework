@@ -11,4 +11,4 @@
 
 use Flarum\Database\Migration;
 
-return Migration::renameColumn('registration_tokens', 'id', 'token');
+return Migration::renameTable('users_discussions', 'discussion_user');
