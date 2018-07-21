@@ -277,7 +277,7 @@ class User extends AbstractModel
      */
     public function changeAvatarPath($path)
     {
-        $this->attributes['avatar_url'] = $path;
+        $this->avatar_url = $path;
 
         $this->raise(new AvatarChanged($this));
 
