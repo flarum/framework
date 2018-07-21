@@ -100,21 +100,6 @@ class Discussion extends AbstractModel
 
         static::deleted(function (Discussion $discussion) {
             $discussion->raise(new Deleted($discussion));
-
-            // Delete all of the posts in the discussion. Before we delete them
-            // in a big batch query, we will loop through them and raise a
-            // PostWasDeleted event for each post.
-            $posts = $discussion->posts()->allTypes();
-
-            foreach ($posts->cursor() as $post) {
-                $discussion->raise(new PostDeleted($post));
-            }
-
-            $posts->delete();
-
-            // Delete all of the 'state' records for all of the users who have
-            // read the discussion.
-            $discussion->readers()->detach();
         });
 
         static::saving(function (Discussion $discussion) {
