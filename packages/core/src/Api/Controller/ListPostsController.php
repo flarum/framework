@@ -40,7 +40,7 @@ class ListPostsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $sortFields = ['time'];
+    public $sortFields = ['createdAt'];
 
     /**
      * @var \Flarum\Post\PostRepository
@@ -120,7 +120,7 @@ class ListPostsController extends AbstractListController
         $query->skip($offset)->take($limit);
 
         foreach ((array) $sort as $field => $order) {
-            $query->orderBy($field, $order);
+            $query->orderBy(snake_case($field), $order);
         }
 
         return $query->pluck('id')->all();
