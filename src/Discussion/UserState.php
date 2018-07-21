@@ -39,7 +39,7 @@ class UserState extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'discussions_users';
+    protected $table = 'discussion_user';
 
     /**
      * {@inheritdoc}
@@ -72,7 +72,7 @@ class UserState extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo(Discussion::class, 'discussion_id');
+        return $this->belongsTo(Discussion::class);
     }
 
     /**
@@ -82,7 +82,7 @@ class UserState extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
