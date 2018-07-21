@@ -435,7 +435,7 @@ class User extends AbstractModel
             $cached = $this->notifications()
                 ->whereIn('type', $this->getAlertableNotificationTypes())
                 ->whereNull('read_at')
-                ->whereNull('deleted_at')
+                ->where('is_deleted', false)
                 ->get();
         }
 

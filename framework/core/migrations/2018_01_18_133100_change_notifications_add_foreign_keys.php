@@ -23,14 +23,22 @@ return [
             })
             ->delete();
 
+        $schema->getConnection()
+            ->table('notifications')
+            ->whereNotExists(function ($query) {
+                $query->selectRaw(1)->from('users')->whereRaw('id = from_user_id');
+            })
+            ->update(['from_user_id' => null]);
+
         $schema->table('notifications', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('from_user_id')->references('id')->on('users')->onDelete('set null');
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('notifications', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
+            $table->dropForeign(['user_id', 'from_user_id']);
         });
     }
 ];
