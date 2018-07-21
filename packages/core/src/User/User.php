@@ -24,7 +24,6 @@ use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
-use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;

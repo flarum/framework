@@ -21,7 +21,6 @@ use Flarum\Discussion\Event\Restored;
 use Flarum\Discussion\Event\Started;
 use Flarum\Event\GetModelIsPrivate;
 use Flarum\Foundation\EventGeneratorTrait;
-use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
