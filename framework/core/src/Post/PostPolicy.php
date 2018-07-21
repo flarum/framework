@@ -86,7 +86,7 @@ class PostPolicy extends AbstractPolicy
                     ->orWhereExists(function ($query) use ($actor) {
                         $query->selectRaw('1')
                             ->from('discussions')
-                            ->whereRaw('discussions.id = posts.discussion_id')
+                            ->whereColumn('discussions.id', 'posts.discussion_id')
                             ->where(function ($query) use ($actor) {
                                 $this->events->dispatch(
                                     new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'hidePosts')

@@ -19,10 +19,10 @@ return [
         $connection = $schema->getConnection();
         $connection->table('discussion_user')
             ->whereNotExists(function ($query) {
-                $query->selectRaw(1)->from('users')->whereRaw('id = user_id');
+                $query->selectRaw(1)->from('users')->whereColumn('id', 'user_id');
             })
             ->orWhereNotExists(function ($query) {
-                $query->selectRaw(1)->from('discussions')->whereRaw('id = discussion_id');
+                $query->selectRaw(1)->from('discussions')->whereColumn('id', 'discussion_id');
             })
             ->delete();
 

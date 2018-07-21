@@ -19,7 +19,7 @@ return [
         $schema->getConnection()
             ->table('group_permission')
             ->whereNotExists(function ($query) {
-                $query->selectRaw(1)->from('groups')->whereRaw('id = group_id');
+                $query->selectRaw(1)->from('groups')->whereColumn('id', 'group_id');
             })
             ->delete();
 

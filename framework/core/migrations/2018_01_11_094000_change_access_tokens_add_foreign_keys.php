@@ -19,7 +19,7 @@ return [
         $schema->getConnection()
             ->table('access_tokens')
             ->whereNotExists(function ($query) {
-                $query->selectRaw(1)->from('users')->whereRaw('id = user_id');
+                $query->selectRaw(1)->from('users')->whereColumn('id', 'user_id');
             })
             ->delete();
 
