@@ -19,14 +19,14 @@ return [
         $schema->getConnection()
             ->table('notifications')
             ->whereNotExists(function ($query) {
-                $query->selectRaw(1)->from('users')->whereRaw('id = user_id');
+                $query->selectRaw(1)->from('users')->whereColumn('id', 'user_id');
             })
             ->delete();
 
         $schema->getConnection()
             ->table('notifications')
             ->whereNotExists(function ($query) {
-                $query->selectRaw(1)->from('users')->whereRaw('id = from_user_id');
+                $query->selectRaw(1)->from('users')->whereColumn('id', 'from_user_id');
             })
             ->update(['from_user_id' => null]);
 
