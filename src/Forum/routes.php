@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use Flarum\Forum\Content;
 use Flarum\Forum\Controller;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
@@ -17,31 +18,31 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->get(
         '/all',
         'index',
-        $route->toController(Controller\IndexController::class)
+        $route->toForum(Content\Index::class)
     );
 
     $map->get(
         '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
         'discussion',
-        $route->toController(Controller\DiscussionController::class)
+        $route->toForum(Content\Discussion::class)
     );
 
     $map->get(
         '/u/{username}[/{filter:[^/]*}]',
         'user',
-        $route->toController(Controller\FrontendController::class)
+        $route->toForum()
     );
 
     $map->get(
         '/settings',
         'settings',
-        $route->toController(Controller\AuthorizedWebAppController::class)
+        $route->toForum(Content\AssertRegistered::class)
     );
 
     $map->get(
         '/notifications',
         'notifications',
-        $route->toController(Controller\AuthorizedWebAppController::class)
+        $route->toForum(Content\AssertRegistered::class)
     );
 
     $map->get(

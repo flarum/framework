@@ -1,5 +1,5 @@
 <div class="container">
-    <h2>{{ $document->data->attributes->title }}</h2>
+    <h2>{{ $apiDocument->data->attributes->title }}</h2>
 
     <div>
         @foreach ($posts as $post)
@@ -15,11 +15,11 @@
         @endforeach
     </div>
 
-    @if (isset($document->links->prev))
+    @if (isset($apiDocument->links->prev))
         <a href="{{ $url(['page' => $page - 1]) }}">&laquo; {{ $translator->trans('core.views.discussion.previous_page_button') }}</a>
     @endif
 
-    @if (isset($document->links->next))
+    @if (isset($apiDocument->links->next))
         <a href="{{ $url(['page' => $page + 1]) }}">{{ $translator->trans('core.views.discussion.next_page_button') }} &raquo;</a>
     @endif
 </div>

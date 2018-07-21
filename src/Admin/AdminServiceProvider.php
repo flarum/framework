@@ -13,9 +13,8 @@ namespace Flarum\Admin;
 
 use Flarum\Admin\Middleware\RequireAdministrateAbility;
 use Flarum\Event\ConfigureMiddleware;
-use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Http\Middleware\HandleErrors;
@@ -26,7 +25,6 @@ use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
-use Flarum\Settings\Event\Saved;
 use Zend\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
@@ -64,6 +62,19 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             return $pipe;
         });
+
+        $this->app->bind('flarum.admin.assets', function () {
+            return $this->app->make('flarum.frontend.assets.defaults')('admin');
+        });
+
+        $this->app->bind('flarum.admin.frontend', function () {
+            $view = $this->app->make('flarum.frontend.view.defaults')('admin');
+
+            $view->setAssets($this->app->make('flarum.admin.assets'));
+            $view->add($this->app->make(Content\AdminPayload::class));
+
+            return $view;
+        });
     }
 
     /**
@@ -75,12 +86,15 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
-        $this->registerListeners();
+        $this->app->make('events')->subscribe(
+            new RecompileFrontendAssets(
+                $this->app->make('flarum.admin.assets'),
+                $this->app->make('flarum.locales')
+            )
+        );
     }
 
     /**
-     * Populate the forum client routes.
-     *
      * @param RouteCollection $routes
      */
     protected function populateRoutes(RouteCollection $routes)
@@ -89,37 +103,5 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
-    }
-
-    protected function registerListeners()
-    {
-        $dispatcher = $this->app->make('events');
-
-        // Flush web app assets when the theme is changed
-        $dispatcher->listen(Saved::class, function (Saved $event) {
-            if (preg_match('/^theme_|^custom_less$/i', $event->key)) {
-                $this->getWebAppAssets()->flushCss();
-            }
-        });
-
-        // Flush web app assets when extensions are changed
-        $dispatcher->listen(Enabled::class, [$this, 'flushWebAppAssets']);
-        $dispatcher->listen(Disabled::class, [$this, 'flushWebAppAssets']);
-
-        // Check the format of custom LESS code
-        $dispatcher->subscribe(CheckCustomLessFormat::class);
-    }
-
-    public function flushWebAppAssets()
-    {
-        $this->getWebAppAssets()->flush();
-    }
-
-    /**
-     * @return \Flarum\Frontend\FrontendAssets
-     */
-    protected function getWebAppAssets()
-    {
-        return $this->app->make(Frontend::class)->getAssets();
     }
 }
