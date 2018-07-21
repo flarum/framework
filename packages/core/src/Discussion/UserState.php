@@ -57,8 +57,8 @@ class UserState extends AbstractModel
      */
     public function read($number)
     {
-        if ($number > $this->last_read_at) {
-            $this->last_read_at = $number;
+        if ($number > $this->last_read_post_number) {
+            $this->last_read_post_number = $number;
             $this->last_read_at = Carbon::now();
 
             $this->raise(new UserRead($this));
