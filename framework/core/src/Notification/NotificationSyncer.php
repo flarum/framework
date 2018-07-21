@@ -179,7 +179,7 @@ class NotificationSyncer
             array_map(function (User $user) use ($attributes, $now) {
                 return $attributes + [
                     'user_id' => $user->id,
-                    'time' => $now
+                    'created_at' => $now
                 ];
             }, $recipients)
         );
