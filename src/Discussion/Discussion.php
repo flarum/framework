@@ -380,7 +380,7 @@ class Discussion extends AbstractModel
      */
     public function lastUser()
     {
-        return $this->belongsTo(User::class, 'last_user_id');
+        return $this->belongsTo(User::class, 'last_posted_user_id');
     }
 
     /**
