@@ -14,10 +14,10 @@ use Flarum\Extend;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
-    (new Extend\Assets('forum'))
+    (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js'),
 
-    (new Extend\Assets('admin'))
+    (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
     function (Dispatcher $events) {
