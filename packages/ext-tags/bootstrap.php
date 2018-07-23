@@ -10,7 +10,6 @@
  */
 
 use Flarum\Extend;
-use Flarum\Forum\Controller\FrontendController;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Listener;
@@ -19,15 +18,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less'),
+        ->css(__DIR__.'/less/forum.less')
+        ->route('/t/{slug}', 'tag')
+        ->route('/tags', 'tags'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/admin.less'),
-
-    (new Extend\Routes('forum'))
-        ->get('/t/{slug}', 'tag', FrontendController::class)
-        ->get('/tags', 'tags', FrontendController::class),
 
     (new Extend\Routes('api'))
         ->get('/tags', 'tags.index', Controller\ListTagsController::class)
