@@ -153,9 +153,9 @@ export default function addComposerAutocomplete() {
               const height = dropdown.$().outerHeight();
               const parent = dropdown.$().offsetParent();
               let left = coordinates.left;
-              let top = coordinates.top + 15;
+              let top = coordinates.top - this.scrollTop + 15;
               if (top + height > parent.height()) {
-                top = coordinates.top - height - 15;
+                top = coordinates.top - this.scrollTop - height - 15;
               }
               if (left + width > parent.width()) {
                 left = parent.width() - width;
