@@ -18,7 +18,7 @@ return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less')
-		->route('/following', 'following'),
+        ->route('/following', 'following'),
 
     function (Dispatcher $events, Factory $views) {
         $events->subscribe(Listener\AddDiscussionSubscriptionAttribute::class);
