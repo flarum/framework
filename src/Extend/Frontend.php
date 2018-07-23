@@ -14,7 +14,6 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Asset\ExtensionAssets;
 use Flarum\Frontend\CompilerFactory;
-use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
@@ -46,50 +45,50 @@ class Frontend implements ExtenderInterface
     }
 
     public function route($path, $name, $content = null)
-	{
-		$this->routes[] = compact('path', 'name', 'content');
+    {
+        $this->routes[] = compact('path', 'name', 'content');
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function __invoke(Container $container, Extension $extension = null)
-	{
-		$this->registerAssets($container, $extension);
-		$this->registerRoutes($container);
-	}
+    public function __invoke(Container $container, Extension $extension = null)
+    {
+        $this->registerAssets($container, $extension);
+        $this->registerRoutes($container);
+    }
 
     private function registerAssets(Container $container, Extension $extension)
-	{
-		if (empty($this->css) && empty($this->js)) {
-			return;
-		}
+    {
+        if (empty($this->css) && empty($this->js)) {
+            return;
+        }
 
-		$container->resolving(
-			"flarum.$this->frontend.assets",
-			function (CompilerFactory $assets) use ($extension) {
-				$assets->add(function () use ($extension) {
-					return new ExtensionAssets(
-						$extension, $this->css, $this->js
-					);
-				});
-			}
-		);
-	}
+        $container->resolving(
+            "flarum.$this->frontend.assets",
+            function (CompilerFactory $assets) use ($extension) {
+                $assets->add(function () use ($extension) {
+                    return new ExtensionAssets(
+                        $extension, $this->css, $this->js
+                    );
+                });
+            }
+        );
+    }
 
-	private function registerRoutes(Container $container)
-	{
+    private function registerRoutes(Container $container)
+    {
         if (empty($this->routes)) {
-        	return;
-		}
+            return;
+        }
 
-		$routes = $container->make("flarum.$this->frontend.routes");
-		$factory = $container->make(RouteHandlerFactory::class);
+        $routes = $container->make("flarum.$this->frontend.routes");
+        $factory = $container->make(RouteHandlerFactory::class);
 
-		foreach ($this->routes as $route) {
-			$routes->get(
-				$route['path'], $route['name'],
-				$factory->toForum($route['content'])
-			);
-		}
+        foreach ($this->routes as $route) {
+            $routes->get(
+                $route['path'], $route['name'],
+                $factory->toForum($route['content'])
+            );
+        }
     }
 }
