@@ -13,9 +13,9 @@ use Flarum\Extend;
 use s9e\TextFormatter\Configurator;
 
 return [
-    (new Extend\Assets('forum'))
+    (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->asset(__DIR__.'/less/forum.less'),
+        ->css(__DIR__.'/less/forum.less'),
 
     (new Extend\Formatter)
         ->configure(function (Configurator $config) {
