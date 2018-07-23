@@ -10,18 +10,15 @@
  */
 
 use Flarum\Extend;
-use Flarum\Forum\Controller\FrontendController;
 use Flarum\Subscriptions\Listener;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 
 return [
-    (new Extend\Assets('forum'))
+    (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->asset(__DIR__.'/less/forum.less'),
-
-    (new Extend\Routes('forum'))
-        ->get('/following', 'following', FrontendController::class),
+        ->css(__DIR__.'/less/forum.less')
+		->route('/following', 'following'),
 
     function (Dispatcher $events, Factory $views) {
         $events->subscribe(Listener\AddDiscussionSubscriptionAttribute::class);
