@@ -33,7 +33,7 @@ class SubscriptionGambit extends AbstractRegexGambit
         $search->getQuery()->$method(function ($query) use ($actor, $matches) {
             $query->selectRaw('1')
                   ->from('users_discussions')
-                  ->whereRaw('discussions.id = discussion_id')
+                  ->whereColumn('discussions.id', 'discussion_id')
                   ->where('user_id', $actor->id)
                   ->where('subscription', $matches[1] === 'follow' ? 'follow' : 'ignore');
         });
