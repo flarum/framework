@@ -12,8 +12,8 @@
 namespace Flarum\Forum\Auth;
 
 use Flarum\Http\Rememberer;
-use Flarum\User\RegistrationToken;
 use Flarum\User\LoginProvider;
+use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response\HtmlResponse;

@@ -57,7 +57,7 @@ class Registration
      * @param mixed $value
      * @return $this
      */
-    public function provide(string $key, $value): Registration
+    public function provide(string $key, $value): self
     {
         $this->provided[$key] = $value;
 
@@ -68,7 +68,7 @@ class Registration
      * @param string $email
      * @return $this
      */
-    public function provideTrustedEmail(string $email): Registration
+    public function provideTrustedEmail(string $email): self
     {
         return $this->provide('email', $email);
     }
@@ -77,7 +77,7 @@ class Registration
      * @param string $url
      * @return $this
      */
-    public function provideAvatar(string $url): Registration
+    public function provideAvatar(string $url): self
     {
         return $this->provide('avatar_url', $url);
     }
@@ -87,7 +87,7 @@ class Registration
      * @param mixed $value
      * @return $this
      */
-    public function suggest(string $key, $value): Registration
+    public function suggest(string $key, $value): self
     {
         $this->suggested[$key] = $value;
 
@@ -98,7 +98,7 @@ class Registration
      * @param string $username
      * @return $this
      */
-    public function suggestUsername(string $username): Registration
+    public function suggestUsername(string $username): self
     {
         $username = preg_replace('/[^a-z0-9-_]/i', '', $username);
 
@@ -109,7 +109,7 @@ class Registration
      * @param string $email
      * @return $this
      */
-    public function suggestEmail(string $email): Registration
+    public function suggestEmail(string $email): self
     {
         return $this->suggest('email', $email);
     }
@@ -118,7 +118,7 @@ class Registration
      * @param mixed $payload
      * @return $this
      */
-    public function setPayload($payload): Registration
+    public function setPayload($payload): self
     {
         $this->payload = $payload;
 
