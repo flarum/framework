@@ -17,8 +17,8 @@ return Migration::createTable(
     function (Blueprint $table) {
         $table->increments('id');
         $table->unsignedInteger('user_id');
-        $table->string('provider');
-        $table->string('identifier');
+        $table->string('provider', 100);
+        $table->string('identifier', 100);
         $table->dateTime('created_at')->nullable();
         $table->dateTime('last_login_at')->nullable();
 
