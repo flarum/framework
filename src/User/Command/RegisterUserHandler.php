@@ -14,14 +14,14 @@ namespace Flarum\User\Command;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AssertPermissionTrait;
-use Flarum\User\AuthToken;
+use Flarum\User\RegistrationToken;
 use Flarum\User\AvatarUploader;
+use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\ImageManager;
 
@@ -46,24 +46,17 @@ class RegisterUserHandler
     protected $avatarUploader;
 
     /**
-     * @var Factory
-     */
-    private $validatorFactory;
-
-    /**
      * @param Dispatcher $events
      * @param SettingsRepositoryInterface $settings
      * @param UserValidator $validator
      * @param AvatarUploader $avatarUploader
-     * @param Factory $validatorFactory
      */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, AvatarUploader $avatarUploader, Factory $validatorFactory)
+    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $validator, AvatarUploader $avatarUploader)
     {
         $this->events = $events;
         $this->settings = $settings;
         $this->validator = $validator;
         $this->avatarUploader = $avatarUploader;
-        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -82,40 +75,24 @@ class RegisterUserHandler
             $this->assertAdmin($actor);
         }
 
-        $username = array_get($data, 'attributes.username');
-        $email = array_get($data, 'attributes.email');
         $password = array_get($data, 'attributes.password');
 
         // If a valid authentication token was provided as an attribute,
         // then we won't require the user to choose a password.
         if (isset($data['attributes']['token'])) {
-            $token = AuthToken::validOrFail($data['attributes']['token']);
+            $token = RegistrationToken::validOrFail($data['attributes']['token']);
 
             $password = $password ?: str_random(20);
         }
 
-        $user = User::register($username, $email, $password);
+        $user = User::register(
+            array_get($data, 'attributes.username'),
+            array_get($data, 'attributes.email'),
+            $password
+        );
 
-        // If a valid authentication token was provided, then we will assign
-        // the attributes associated with it to the user's account. If this
-        // includes an email address, then we will activate the user's account
-        // from the get-go.
         if (isset($token)) {
-            $payload = $token->payload;
-
-            if (isset($payload['avatarUrl'])) {
-                $this->uploadAvatarFromUrl($user, $payload['avatarUrl']);
-
-                unset($payload['avatarUrl']);
-            }
-
-            foreach ($payload as $k => $v) {
-                $user->$k = $v;
-            }
-
-            if (isset($payload['email'])) {
-                $user->activate();
-            }
+            $this->applyToken($user, $token);
         }
 
         if ($actor->isAdmin() && array_get($data, 'attributes.isEmailConfirmed')) {
@@ -131,7 +108,7 @@ class RegisterUserHandler
         $user->save();
 
         if (isset($token)) {
-            $token->delete();
+            $this->fulfillToken($user, $token);
         }
 
         $this->dispatchEventsFor($user, $actor);
@@ -139,10 +116,42 @@ class RegisterUserHandler
         return $user;
     }
 
+    private function applyToken(User $user, RegistrationToken $token)
+    {
+        foreach ($token->user_attributes as $k => $v) {
+            if ($k === 'avatar_url') {
+                $this->uploadAvatarFromUrl($user, $v);
+                continue;
+            }
+
+            $user->$k = $v;
+
+            if ($k === 'email') {
+                $user->activate();
+            }
+        }
+
+        $this->events->dispatch(
+            new RegisteringFromProvider($user, $token->provider, $token->payload)
+        );
+    }
+
     private function uploadAvatarFromUrl(User $user, string $url)
     {
         $image = (new ImageManager)->make($url);
 
         $this->avatarUploader->upload($user, $image);
+    }
+
+    private function fulfillToken(User $user, RegistrationToken $token)
+    {
+        $token->delete();
+
+        if ($token->provider && $token->identifier) {
+            $user->loginProviders()->create([
+                'provider' => $token->provider,
+                'identifier' => $token->identifier
+            ]);
+        }
     }
 }

@@ -15,12 +15,18 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('auth_tokens', function (Blueprint $table) {
-            $table->text('payload')->change();
+            $table->string('provider');
+            $table->string('identifier');
+            $table->text('user_attributes')->nullable();
+
+            $table->text('payload')->nullable()->change();
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('auth_tokens', function (Blueprint $table) {
+            $table->dropColumn('provider', 'identifier', 'user_attributes');
+
             $table->string('payload', 150)->change();
         });
     }

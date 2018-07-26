@@ -13,7 +13,7 @@ namespace Flarum\Http\Middleware;
 
 use Carbon\Carbon;
 use Flarum\Http\AccessToken;
-use Flarum\User\AuthToken;
+use Flarum\User\RegistrationToken;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
@@ -64,7 +64,7 @@ class CollectGarbage implements Middleware
 
         EmailToken::where('created_at', '<=', $earliestToKeep)->delete();
         PasswordToken::where('created_at', '<=', $earliestToKeep)->delete();
-        AuthToken::where('created_at', '<=', $earliestToKeep)->delete();
+        RegistrationToken::where('created_at', '<=', $earliestToKeep)->delete();
 
         $this->sessionHandler->gc($this->getSessionLifetimeInSeconds());
     }
