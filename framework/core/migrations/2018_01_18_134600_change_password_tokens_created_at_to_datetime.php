@@ -14,14 +14,15 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('password_tokens', function (Blueprint $table) {
-            $table->dateTime('created_at')->change();
-        });
+        // do this manually because dbal doesn't recognize timestamp columns
+        $connection = $schema->getConnection();
+        $prefix = $connection->getTablePrefix();
+        $connection->statement("ALTER TABLE {$prefix}password_tokens MODIFY created_at DATETIME");
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('password_tokens', function (Blueprint $table) {
-            $table->timestamp('created_at')->change();
-        });
+        $connection = $schema->getConnection();
+        $prefix = $connection->getTablePrefix();
+        $connection->statement("ALTER TABLE {$prefix}password_tokens MODIFY created_at TIMESTAMP");
     }
 ];
