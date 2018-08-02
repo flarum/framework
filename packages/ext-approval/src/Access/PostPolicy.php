@@ -63,7 +63,7 @@ class PostPolicy extends AbstractPolicy
         return function ($query) use ($actor) {
             $query->selectRaw('1')
                 ->from('discussions')
-                ->whereRaw('discussions.id = posts.discussion_id')
+                ->whereColumn('discussions.id', 'posts.discussion_id')
                 ->where($this->canApprovePosts($actor));
         };
     }
