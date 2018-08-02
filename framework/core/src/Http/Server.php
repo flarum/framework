@@ -12,7 +12,13 @@
 namespace Flarum\Http;
 
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Server as DiactorosServer;
+use Throwable;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\ServerRequestFactory;
+use Zend\HttpHandlerRunner\Emitter\SapiEmitter;
+use Zend\HttpHandlerRunner\RequestHandlerRunner;
+use Zend\Stratigility\Middleware\ErrorResponseGenerator;
 
 class Server
 {
@@ -25,13 +31,16 @@ class Server
 
     public function listen()
     {
-        DiactorosServer::createServer(
-            [$this->requestHandler, 'handle'],
-            $_SERVER,
-            $_GET,
-            $_POST,
-            $_COOKIE,
-            $_FILES
-        )->listen();
+        $runner = new RequestHandlerRunner(
+            $this->requestHandler,
+            new SapiEmitter,
+            [ServerRequestFactory::class, 'fromGlobals'],
+            function (Throwable $e) {
+                $generator = new ErrorResponseGenerator;
+
+                return $generator($e, new ServerRequest, new Response);
+            }
+        );
+        $runner->run();
     }
 }
