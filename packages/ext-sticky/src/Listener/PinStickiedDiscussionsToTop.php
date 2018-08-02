@@ -75,9 +75,9 @@ class PinStickiedDiscussionsToTop
             $read = $query->newQuery()
                 ->selectRaw(1)
                 ->from('users_discussions as sticky')
-                ->whereRaw('sticky.discussion_id = id')
+                ->whereColumn('sticky.discussion_id', 'id')
                 ->where('sticky.user_id', '=', $search->getActor()->id)
-                ->whereRaw('sticky.read_number >= last_post_number');
+                ->whereColumn('sticky.read_number', '>=', 'last_post_number');
 
             // Add the bindings manually (rather than as the second
             // argument in orderByRaw) for now due to a bug in Laravel which
