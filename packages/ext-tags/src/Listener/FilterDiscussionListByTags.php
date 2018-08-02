@@ -53,7 +53,7 @@ class FilterDiscussionListByTags
             return $query->selectRaw('1')
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'))
-                ->whereRaw('discussions.id = discussion_id');
+                ->whereColumn('discussions.id', 'discussion_id');
         });
     }
 }

@@ -38,7 +38,7 @@ class FlagPolicy extends AbstractPolicy
                 return $query->selectRaw('1')
                     ->from('discussions_tags')
                     ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'discussion.viewFlags'))
-                    ->whereRaw('discussions.id = discussion_id');
+                    ->whereColumn('discussions.id', 'discussion_id');
             });
     }
 }
