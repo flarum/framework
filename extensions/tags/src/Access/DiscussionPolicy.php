@@ -82,7 +82,7 @@ class DiscussionPolicy extends AbstractPolicy
             return $query->selectRaw('1')
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'))
-                ->whereRaw('discussions.id = discussion_id');
+                ->whereColumn('discussions.id', 'discussion_id');
         });
 
         // Hide discussions with no tags if the user doesn't have that global
@@ -106,7 +106,7 @@ class DiscussionPolicy extends AbstractPolicy
             return $query->selectRaw('1')
                 ->from('discussions_tags')
                 ->whereIn('tag_id', Tag::getIdsWhereCan($actor, 'discussion.'.$ability))
-                ->whereRaw('discussions.id = discussion_id');
+                ->whereColumn('discussions.id', 'discussion_id');
         });
     }
 
