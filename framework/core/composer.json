@@ -2,7 +2,7 @@
     "name": "flarum/core",
     "description": "Delightfully simple forum software.",
     "keywords": ["forum", "discussion"],
-    "homepage": "http://flarum.org",
+    "homepage": "https://flarum.org/",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,7 @@
     "support": {
         "issues": "https://github.com/flarum/core/issues",
         "source": "https://github.com/flarum/core",
-        "docs": "http://flarum.org/docs"
+        "docs": "https://flarum.org/docs/"
     },
     "require": {
         "php": ">=7.1",
