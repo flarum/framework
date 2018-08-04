@@ -53,8 +53,6 @@ class InstallServiceProvider extends AbstractServiceProvider
         $this->app->singleton('flarum.install.routes', function () {
             return new RouteCollection;
         });
-
-        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
     }
 
     /**
@@ -62,6 +60,8 @@ class InstallServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
+        $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
+
         $this->populateRoutes($this->app->make('flarum.install.routes'));
     }
 
