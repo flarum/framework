@@ -38,7 +38,7 @@ export default class Search extends Component {
      *
      * @type {SearchSource[]}
      */
-    this.sources = [];
+    this.sources = null;
 
     /**
      * The number of sources that are still loading results.
@@ -76,7 +76,7 @@ export default class Search extends Component {
 
     // Initialize search sources in the view rather than the constructor so
     // that we have access to app.forum.
-    if (!this.sources.length) {
+    if (!this.sources) {
       this.sources = this.sourceItems().toArray();
     }
 
