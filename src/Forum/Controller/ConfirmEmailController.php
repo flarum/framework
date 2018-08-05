@@ -64,7 +64,7 @@ class ConfirmEmailController implements RequestHandlerInterface
                 new ConfirmEmail($token)
             );
         } catch (InvalidConfirmationTokenException $e) {
-            return new HtmlResponse('Invalid confirmation token');
+            return new HtmlResponse('The confirmation token is either invalid or has already been used');
         }
 
         $session = $request->getAttribute('session');
