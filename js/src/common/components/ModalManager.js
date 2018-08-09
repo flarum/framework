@@ -49,7 +49,7 @@ export default class ModalManager extends Component {
     this.showing = true;
     this.component = component;
 
-    app.current.retain = true;
+    if (app.current) app.current.retain = true;
 
     m.redraw(true);
 
