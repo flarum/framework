@@ -55,11 +55,11 @@ class AdminPayload implements ContentInterface
     public function populate(HtmlDocument $document, Request $request)
     {
         $settings = $this->settings->all();
-        
+
         $this->events->dispatch(
             new Deserializing($settings)
         );
-        
+
         $document->payload['settings'] = $settings;
         $document->payload['permissions'] = Permission::map();
         $document->payload['extensions'] = $this->extensions->getExtensions()->toArray();
