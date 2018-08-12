@@ -87,6 +87,7 @@ export default class DiscussionPage extends Page {
 
   view() {
     const discussion = this.discussion;
+    app.setTitle(discussion.title());
 
     return (
       <div className="DiscussionPage">
@@ -160,7 +161,6 @@ export default class DiscussionPage extends Page {
     this.discussion = discussion;
 
     app.history.push('discussion', discussion.title());
-    app.setTitle(discussion.title());
     app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
