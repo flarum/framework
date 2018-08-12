@@ -58,6 +58,7 @@ export default class RenameDiscussionModal extends Modal {
           app.current.stream.update();
         }
         m.redraw();
+        app.setTitle(title());
         this.hide();
       }).catch(() => {
         this.loading = false;
