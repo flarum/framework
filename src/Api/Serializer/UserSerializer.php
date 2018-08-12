@@ -47,7 +47,7 @@ class UserSerializer extends BasicUserSerializer
             'canDelete'        => $gate->allows('delete', $user),
         ];
 
-        if ($user->getPreference('discloseOnline')) {
+        if ($user->getPreference('discloseOnline') || $this->actor->isAdmin()) {
             $attributes += [
                 'lastSeenTime' => $this->formatDate($user->last_seen_time)
             ];
