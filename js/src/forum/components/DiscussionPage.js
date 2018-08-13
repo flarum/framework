@@ -87,7 +87,6 @@ export default class DiscussionPage extends Page {
 
   view() {
     const discussion = this.discussion;
-    app.setTitle(discussion.title());
 
     return (
       <div className="DiscussionPage">
@@ -114,6 +113,12 @@ export default class DiscussionPage extends Page {
         </div>
       </div>
     );
+  }
+
+  config() {
+    if (this.discussion) {
+      app.setTitle(this.discussion.title());
+    }
   }
 
   /**
