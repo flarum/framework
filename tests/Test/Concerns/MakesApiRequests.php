@@ -11,24 +11,17 @@
 
 namespace Flarum\Tests\Test\Concerns;
 
-use Flarum\Api\ApiServiceProvider;
 use Flarum\Api\Client;
 use Flarum\User\Guest;
-use Flarum\User\SessionServiceProvider;
 use Flarum\User\User;
-use Flarum\User\UserServiceProvider;
 use Psr\Http\Message\ResponseInterface;
 
 trait MakesApiRequests
 {
     public function call(string $controller, User $actor = null, array $queryParams = [], array $body = []): ResponseInterface
     {
-        $this->app->register(SessionServiceProvider::class);
-        $this->app->register(UserServiceProvider::class);
-        $this->app->register(ApiServiceProvider::class);
-        $this->app->make('flarum.api.middleware');
         /** @var Client $api */
-        $api = $this->app->make(Client::class);
+        $api = app(Client::class);
 
         return $api->send($controller, $actor ?? new Guest, $queryParams, $body);
     }
