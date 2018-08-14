@@ -16,6 +16,7 @@ use Flarum\Install\InstallServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Settings\UninstalledSettingsRepository;
+use Flarum\User\SessionServiceProvider;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\FilesystemServiceProvider;
@@ -79,6 +80,7 @@ class UninstalledSite implements SiteInterface
 
         $laravel->register(LocaleServiceProvider::class);
         $laravel->register(FilesystemServiceProvider::class);
+        $laravel->register(SessionServiceProvider::class);
         $laravel->register(ValidationServiceProvider::class);
 
         $laravel->register(InstallServiceProvider::class);
