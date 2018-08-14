@@ -1,5 +1,5 @@
 <!--
-IMPORTANT: We applaud pull requests, they excite us every single time. As we have an obligation to maintain a healthy code standard and quality, we take sufficient time for reviews.
+IMPORTANT: We applaud pull requests, they excite us every single time. As we have an obligation to maintain a healthy code standard and quality, we take sufficient time for reviews. Please do create a separate pull request per change/issue/feature; we will ask you to split bundled pull requests.
 -->
 
 **Fixes #0000**
