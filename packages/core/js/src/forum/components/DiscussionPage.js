@@ -115,6 +115,12 @@ export default class DiscussionPage extends Page {
     );
   }
 
+  config() {
+    if (this.discussion) {
+      app.setTitle(this.discussion.title());
+    }
+  }
+
   /**
    * Clear and reload the discussion.
    */
@@ -160,7 +166,6 @@ export default class DiscussionPage extends Page {
     this.discussion = discussion;
 
     app.history.push('discussion', discussion.title());
-    app.setTitle(discussion.title());
     app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
