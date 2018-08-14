@@ -82,7 +82,7 @@ class ForumSerializer extends AbstractSerializer
             'defaultRoute'  => $this->settings->get('default_route'),
             'canViewDiscussions' => $this->actor->can('viewDiscussions'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),
-            'canViewUserList' => $this->actor->can('viewUserList'),
+            'canViewUserList' => $this->actor->can('viewUserList')
         ];
 
         if ($this->actor->can('administrate')) {
