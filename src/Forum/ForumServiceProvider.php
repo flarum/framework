@@ -17,7 +17,8 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\Middleware\CollectGarbage;
 use Flarum\Http\Middleware\DispatchRoute;
-use Flarum\Http\Middleware\HandleErrors;
+use Flarum\Http\Middleware\HandleErrorsWithView;
+use Flarum\Http\Middleware\HandleErrorsWithWhoops;
 use Flarum\Http\Middleware\ParseJsonBody;
 use Flarum\Http\Middleware\RememberFromCookie;
 use Flarum\Http\Middleware\SetLocale;
@@ -49,8 +50,11 @@ class ForumServiceProvider extends AbstractServiceProvider
             $pipe = new MiddlewarePipe;
 
             // All requests should first be piped through our global error handler
-            $debugMode = ! $app->isUpToDate() || $app->inDebugMode();
-            $pipe->pipe($app->make(HandleErrors::class, ['debug' => $debugMode]));
+            if ($app->inDebugMode()) {
+                $pipe->pipe($app->make(HandleErrorsWithWhoops::class));
+            } else {
+                $pipe->pipe($app->make(HandleErrorsWithView::class));
+            }
 
             $pipe->pipe($app->make(ParseJsonBody::class));
             $pipe->pipe($app->make(CollectGarbage::class));
