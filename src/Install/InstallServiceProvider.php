@@ -40,6 +40,7 @@ class InstallServiceProvider extends AbstractServiceProvider
                         'mbstring',
                         'openssl',
                         'pdo_mysql',
+                        'tokenizer',
                     ]),
                     new WritablePaths([
                         base_path(),
