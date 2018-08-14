@@ -38,7 +38,7 @@ class Installer implements AppInterface
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe($this->laravel->make(HandleErrorsWithWhoops::class));
-        #$pipe->pipe($this->laravel->make(StartSession::class));
+        $pipe->pipe($this->laravel->make(StartSession::class));
         $pipe->pipe(
             $this->laravel->make(
                 DispatchRoute::class,

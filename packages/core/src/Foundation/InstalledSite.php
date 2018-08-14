@@ -29,6 +29,7 @@ use Flarum\Search\SearchServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Settings\SettingsServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
+use Flarum\User\SessionServiceProvider;
 use Flarum\User\UserServiceProvider;
 use Illuminate\Cache\FileStore;
 use Illuminate\Cache\Repository as CacheRepository;
@@ -143,6 +144,7 @@ class InstalledSite implements SiteInterface
         $laravel->register(NotificationServiceProvider::class);
         $laravel->register(PostServiceProvider::class);
         $laravel->register(SearchServiceProvider::class);
+        $laravel->register(SessionServiceProvider::class);
         $laravel->register(UserServiceProvider::class);
         $laravel->register(UpdateServiceProvider::class);
 
