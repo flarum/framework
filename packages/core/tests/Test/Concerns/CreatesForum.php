@@ -11,14 +11,17 @@
 
 namespace Flarum\Tests\Test\Concerns;
 
+use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
 use Flarum\Foundation\Application;
-use Flarum\Foundation\Site;
+use Flarum\Foundation\InstalledSite;
+use Flarum\Foundation\SiteInterface;
+use Flarum\Foundation\UninstalledSite;
 use Flarum\Http\Server;
 use Flarum\Install\Console\DataProviderInterface;
 use Flarum\Install\Console\DefaultsDataProvider;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Schema\Builder;
+use Illuminate\Database\Connectors\ConnectionFactory;
 
 trait CreatesForum
 {
@@ -28,7 +31,7 @@ trait CreatesForum
     protected $http;
 
     /**
-     * @var Site
+     * @var SiteInterface
      */
     protected $site;
 
@@ -51,41 +54,51 @@ trait CreatesForum
 
     protected function createsSite()
     {
-        $this->site = (new Site)
-            ->setBasePath(__DIR__.'/../../tmp')
-            ->setPublicPath(__DIR__.'/../../tmp/public');
+        if ($this->isInstalled) {
+            $this->site = new InstalledSite(
+                __DIR__.'/../../tmp',
+                __DIR__.'/../../tmp/public',
+                $this->getFlarumConfig()
+            );
+        } else {
+            $this->site = new UninstalledSite(
+                __DIR__.'/../../tmp',
+                __DIR__.'/../../tmp/public'
+            );
+        }
     }
 
     protected function createsHttpForum()
     {
-        $this->http = Server::fromSite(
-            $this->site
-        );
+        $this->app = $this->site->bootApp();
 
-        $this->app = $this->http->app;
+        $this->http = new Server(
+            $this->app->getRequestHandler()
+        );
     }
 
-    protected function refreshApplication()
+    protected function collectsConfiguration()
     {
-        $this->createsSite();
+        $this->configuration = new DefaultsDataProvider();
 
-        $data = new DefaultsDataProvider();
+        $this->configuration->setDebugMode();
+        $this->configuration->setSetting('mail_driver', 'log');
 
-        $data->setDebugMode();
-        $data->setSetting('mail_driver', 'log');
-
-        $database = $data->getDatabaseConfiguration();
+        $database = $this->configuration->getDatabaseConfiguration();
         $database['host'] = env('DB_HOST', $database['host']);
         $database['database'] = env('DB_DATABASE', $database['database']);
         $database['username'] = env('DB_USERNAME', $database['username']);
         $database['password'] = env('DB_PASSWORD', $database['password']);
-        $data->setDatabaseConfiguration($database);
+        $this->configuration->setDatabaseConfiguration($database);
+    }
 
-        $this->configuration = $data;
+    protected function refreshApplication()
+    {
+        $this->collectsConfiguration();
 
-        $this->setsApplicationConfiguration($data);
+        $this->seedsDatabase();
 
-        $this->seedsApplication();
+        $this->createsSite();
 
         $this->createsHttpForum();
     }
@@ -93,59 +106,56 @@ trait CreatesForum
     protected function teardownApplication()
     {
         /** @var ConnectionInterface $connection */
-        $connection = $this->app->make(ConnectionInterface::class);
+        $connection = app(ConnectionInterface::class);
         $connection->rollBack();
     }
 
-    protected function setsApplicationConfiguration(DataProviderInterface $data)
+    protected function getFlarumConfig()
     {
-        if ($this->isInstalled) {
-            $dbConfig = $data->getDatabaseConfiguration();
-            $this->site->setConfig(
-                $config = [
-                    'debug'    => $data->isDebugMode(),
-                    'database' => [
-                        'driver'    => $dbConfig['driver'],
-                        'host'      => $dbConfig['host'],
-                        'database'  => $dbConfig['database'],
-                        'username'  => $dbConfig['username'],
-                        'password'  => $dbConfig['password'],
-                        'charset'   => 'utf8mb4',
-                        'collation' => 'utf8mb4_unicode_ci',
-                        'prefix'    => $dbConfig['prefix'],
-                        'port'      => $dbConfig['port'],
-                        'strict'    => false
-                    ],
-                    'url'      => $data->getBaseUrl(),
-                    'paths'    => [
-                        'api'   => 'api',
-                        'admin' => 'admin',
-                    ],
-                ]
-            );
-        }
+        $dbConfig = $this->configuration->getDatabaseConfiguration();
+
+        return [
+            'debug'    => $this->configuration->isDebugMode(),
+            'database' => [
+                'driver'    => $dbConfig['driver'],
+                'host'      => $dbConfig['host'],
+                'database'  => $dbConfig['database'],
+                'username'  => $dbConfig['username'],
+                'password'  => $dbConfig['password'],
+                'charset'   => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix'    => $dbConfig['prefix'],
+                'port'      => $dbConfig['port'],
+                'strict'    => false
+            ],
+            'url'      => $this->configuration->getBaseUrl(),
+            'paths'    => [
+                'api'   => 'api',
+                'admin' => 'admin',
+            ],
+        ];
     }
 
-    protected function seedsApplication()
+    protected function seedsDatabase()
     {
-        if ($this->isInstalled) {
-            $app = app(\Illuminate\Contracts\Foundation\Application::class);
-
-            $app->bind(Builder::class, function ($container) {
-                return $container->make(ConnectionInterface::class)->getSchemaBuilder();
-            });
-
-            /** @var Migrator $migrator */
-            $migrator = $app->make(Migrator::class);
-            if (! $migrator->getRepository()->repositoryExists()) {
-                $migrator->getRepository()->createRepository();
-            }
-
-            $migrator->run(__DIR__.'/../../../migrations');
-
-            /** @var ConnectionInterface $connection */
-            $connection = $app->make(\Illuminate\Database\ConnectionInterface::class);
-            $connection->beginTransaction();
+        if (! $this->isInstalled) {
+            return;
         }
+
+        $app = app(\Illuminate\Contracts\Foundation\Application::class);
+
+        $factory = new ConnectionFactory($app);
+        $db = $factory->make($this->configuration->getDatabaseConfiguration());
+
+        $repository = new DatabaseMigrationRepository($db, 'migrations');
+        $migrator = new Migrator($repository, $db, app('files'));
+
+        if (! $migrator->getRepository()->repositoryExists()) {
+            $migrator->getRepository()->createRepository();
+        }
+
+        $migrator->run(__DIR__.'/../../../migrations');
+
+        $db->beginTransaction();
     }
 }
