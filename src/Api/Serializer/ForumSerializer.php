@@ -83,7 +83,6 @@ class ForumSerializer extends AbstractSerializer
             'canViewDiscussions' => $this->actor->can('viewDiscussions'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),
             'canViewUserList' => $this->actor->can('viewUserList'),
-            'canviewLastSeenAt' => $this->actor->can('viewLastSeenAt'),
         ];
 
         if ($this->actor->can('administrate')) {

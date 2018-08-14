@@ -113,7 +113,7 @@ export default class PermissionGrid extends Component {
     items.add('viewLastSeenAt', {
       icon: 'far fa-clock',
       label: app.translator.trans('core.admin.permissions.view_last_seen_at_label'),
-      permission: 'viewLastSeenAt',
+      permission: 'user.viewLastSeenAt',
     });
 
     return items;

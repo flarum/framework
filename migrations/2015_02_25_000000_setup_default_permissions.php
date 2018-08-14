@@ -27,5 +27,5 @@ return Migration::addPermissions([
     'discussion.hidePosts' => Group::MODERATOR_ID,
     'discussion.rename' => Group::MODERATOR_ID,
     'discussion.viewIpsPosts' => Group::MODERATOR_ID,
-    'viewLastSeenAt' => Group::MODERATOR_ID,
+    'user.viewLastSeenAt' => Group::MODERATOR_ID,
 ]);
