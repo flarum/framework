@@ -65,7 +65,7 @@ class ConfirmEmailController implements RequestHandlerInterface
                 new ConfirmEmail($token)
             );
         } catch (InvalidConfirmationTokenException $e) {
-            throw new CustomException('core.views.error.400_invalid_confirmation_token', 404, $e);
+            throw new CustomException('core.views.error.404_invalid_confirmation_token', 404, $e);
         }
 
         $session = $request->getAttribute('session');
