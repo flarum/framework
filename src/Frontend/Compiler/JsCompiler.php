@@ -31,7 +31,7 @@ class JsCompiler extends RevisionCompiler
         // output. For file sources, if a sourcemap is present, add it to
         // the output sourcemap.
         foreach ($sources as $source) {
-            $content = $source->getContent();
+            $content = preg_replace('~//# sourceMappingURL.*$~s', '', $source->getContent());
 
             if ($source instanceof FileSource) {
                 $sourceMap = $source->getPath().'.map';
@@ -50,7 +50,7 @@ class JsCompiler extends RevisionCompiler
         // map to a temporary location, and then move it to the asset dir.
         $output[] = '//# sourceMappingURL='.$this->assetsDir->url($mapFile);
 
-        $this->assetsDir->put($file, implode("\n", $output));
+        $this->assetsDir->put($file, $output);
 
         $mapTemp = tempnam(sys_get_temp_dir(), $mapFile);
         $map->save($mapTemp);
