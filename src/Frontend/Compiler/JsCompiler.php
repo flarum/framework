@@ -26,7 +26,6 @@ class JsCompiler extends RevisionCompiler
         $map = new SourceMap();
         $map->file = $mapFile;
         $output = [];
-        $line = 0;
 
         // For each of the sources, get their content and add it to the
         // output. For file sources, if a sourcemap is present, add it to
@@ -38,13 +37,12 @@ class JsCompiler extends RevisionCompiler
                 $sourceMap = $source->getPath().'.map';
 
                 if (file_exists($sourceMap)) {
-                    $map->concat($sourceMap, $line);
+                    $map->merge($sourceMap);
                 }
             }
 
             $content = $this->format($content);
             $output[] = $content;
-            $line += substr_count($content, "\n") + 1;
         }
 
         // Add a comment to the end of our file to point to the sourcemap
