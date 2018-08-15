@@ -60,7 +60,7 @@ class JsCompiler extends RevisionCompiler
 
         $mapTemp = tempnam(sys_get_temp_dir(), $mapFile);
         $map->save($mapTemp);
-        $this->assetsDir->put($mapFile, preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\)\/\/[^"\'].*))/', '', file_get_contents($mapTemp)));
+        $this->assetsDir->put($mapFile, file_get_contents($mapTemp));
         @unlink($mapTemp);
 
         return true;
