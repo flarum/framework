@@ -12,6 +12,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Foundation\Application;
+use Flarum\Http\Exception\CustomException;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Command\ConfirmEmail;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
@@ -54,6 +55,7 @@ class ConfirmEmailController implements RequestHandlerInterface
     /**
      * @param Request $request
      * @return ResponseInterface
+     * @throws CustomException
      */
     public function handle(Request $request): ResponseInterface
     {
@@ -64,7 +66,7 @@ class ConfirmEmailController implements RequestHandlerInterface
                 new ConfirmEmail($token)
             );
         } catch (InvalidConfirmationTokenException $e) {
-            return new HtmlResponse('The confirmation token is either invalid or has already been used');
+            throw new CustomException('core.views.error.400_invalid_confirmation_token', 404, $e);
         }
 
         $session = $request->getAttribute('session');
