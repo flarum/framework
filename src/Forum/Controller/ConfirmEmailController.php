@@ -20,7 +20,6 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ConfirmEmailController implements RequestHandlerInterface
