@@ -46,6 +46,9 @@ class ExtensionAssets implements AssetInterface
     public function js(SourceCollector $sources)
     {
         if ($this->js) {
+			$sources->addString(function() {
+				return $this->js.'.map';
+			});
             $sources->addString(function () {
                 $name = $this->extension->getId();
 
