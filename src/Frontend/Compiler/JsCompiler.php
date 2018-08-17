@@ -33,23 +33,23 @@ class JsCompiler extends RevisionCompiler
         // the output sourcemap.
         foreach ($sources as $source) {
             $content = $source->getContent();
-			
-			if (strpos($this->format($content), '.js.map')) {
-				$map->concat($content, ($line));
-			} else {
-				if ($source instanceof FileSource) {
-					$sourceMap = $source->getPath().'.map';
 
-					if (file_exists($sourceMap)) {
-						$map->concat($sourceMap, $line);
-					}
-				}
-			
-				$content = $this->format($content);
-				$output[] = $content;
-				$line += substr_count($content, "\n") + 1;
-			}
-		}
+            if (strpos($this->format($content), '.js.map')) {
+                $map->concat($content, ($line));
+            } else {
+                if ($source instanceof FileSource) {
+                    $sourceMap = $source->getPath().'.map';
+
+                    if (file_exists($sourceMap)) {
+                        $map->concat($sourceMap, $line);
+                    }
+                }
+
+                $content = $this->format($content);
+                $output[] = $content;
+                $line += substr_count($content, "\n") + 1;
+            }
+        }
 
         // Add a comment to the end of our file to point to the sourcemap
         // we just constructed. We will then write the JS file, save the
