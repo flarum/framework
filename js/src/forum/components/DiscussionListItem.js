@@ -72,7 +72,7 @@ export default class DiscussionListItem extends Component {
         jumpTo = post.number();
       }
 
-      const phrase = this.props.params.q;
+      const phrase = app.current.searching();
       this.highlightRegExp = new RegExp(phrase+'|'+phrase.trim().replace(/\s+/g, '|'), 'gi');
     } else {
       jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);

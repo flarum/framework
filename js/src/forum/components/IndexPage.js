@@ -280,7 +280,7 @@ export default class IndexPage extends Page {
    * @return {String}
    */
   searching() {
-    return this.params().q;
+    return this.params().q && this.params().q.replace(/([@*])/g, '');
   }
 
   /**

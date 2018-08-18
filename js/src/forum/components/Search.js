@@ -24,7 +24,7 @@ export default class Search extends Component {
      *
      * @type {Function}
      */
-    this.value = m.prop('');
+    this.value = m.prop();
 
     /**
      * Whether or not the search input has focus.
@@ -74,6 +74,8 @@ export default class Search extends Component {
       this.value(currentSearch || '');
     }
 
+    const value = this.value();
+
     return (
       <div className={'Search ' + classList({
         open: this.value() && this.hasFocus,
@@ -85,8 +87,8 @@ export default class Search extends Component {
           <input className="FormControl"
             type="search"
             placeholder={extractText(app.translator.trans('core.forum.header.search_placeholder'))}
-            value={this.value()}
-            oninput={m.withAttr('value', this.value)}
+            value={value}
+            oninput={m.withAttr('value', (query) => this.value(this.formatQuery(query)))}
             onfocus={() => this.hasFocus = true}
             onblur={() => this.hasFocus = false}/>
           {this.loadingSources
@@ -96,8 +98,8 @@ export default class Search extends Component {
               : ''}
         </div>
         <ul className="Dropdown-menu Search-results">
-          {this.value() && this.hasFocus
-            ? this.sources.map(source => source.view(this.value()))
+          {value && this.hasFocus
+            ? this.sources.map(source => source.view(value))
             : ''}
         </ul>
       </div>
@@ -136,9 +138,8 @@ export default class Search extends Component {
     // Handle input key events on the search input, triggering results to load.
     $input
       .on('input focus', function() {
-        const query = this.value.toLowerCase();
-
-        if (!query) return;
+        if (!this.value) return;
+        const query = this.value;
 
         clearTimeout(search.searchTimeout);
         search.searchTimeout = setTimeout(() => {
@@ -294,5 +295,9 @@ export default class Search extends Component {
         $dropdown.stop(true).animate({scrollTop}, 100);
       }
     }
+  }
+
+  formatQuery(query) {
+    return query && query.toLowerCase().replace(/([@*])/g, '');
   }
 }
