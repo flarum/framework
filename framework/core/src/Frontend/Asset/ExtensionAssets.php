@@ -47,9 +47,18 @@ class ExtensionAssets implements AssetInterface
     {
         if ($this->js) {
             $sources->addString(function () {
-                $name = $this->extension->getId();
+                return 'var module={}';
+            });
 
-                return 'var module={};'.$this->getContent($this->js).";flarum.extensions['$name']=module.exports";
+            if (is_callable($this->js)) {
+                $sources->addString($this->js);
+            } else {
+                $sources->addFile($this->js);
+            }
+
+            $sources->addString(function () {
+                $name = $this->extension->getId();
+                return "flarum.extensions['$name']=module.exports";
             });
         }
     }
@@ -63,11 +72,6 @@ class ExtensionAssets implements AssetInterface
                 $sources->addFile($asset);
             }
         }
-    }
-
-    private function getContent($asset)
-    {
-        return is_callable($asset) ? $asset() : file_get_contents($asset);
     }
 
     public function localeJs(SourceCollector $sources, string $locale)
