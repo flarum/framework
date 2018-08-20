@@ -53,6 +53,7 @@ class DefaultInstallationCommandTest extends TestCase
     private function getDatabase()
     {
         $factory = new ConnectionFactory(app());
+
         return $factory->make($this->configuration->getDatabaseConfiguration());
     }
 }
