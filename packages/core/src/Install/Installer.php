@@ -40,10 +40,7 @@ class Installer implements AppInterface
         $pipe->pipe($this->laravel->make(HandleErrorsWithWhoops::class));
         $pipe->pipe($this->laravel->make(StartSession::class));
         $pipe->pipe(
-            $this->laravel->make(
-                DispatchRoute::class,
-                ['routes' => $this->laravel->make('flarum.install.routes')]
-            )
+            new DispatchRoute($this->laravel->make('flarum.install.routes'))
         );
 
         return $pipe;
