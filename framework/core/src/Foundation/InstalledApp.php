@@ -99,10 +99,7 @@ class InstalledApp implements AppInterface
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(
-            $this->laravel->make(
-                DispatchRoute::class,
-                ['routes' => $this->laravel->make('flarum.update.routes')]
-            )
+            new DispatchRoute($this->laravel->make('flarum.update.routes'))
         );
 
         return $pipe;
