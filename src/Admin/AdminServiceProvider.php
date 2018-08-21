@@ -62,7 +62,7 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             event(new ConfigureMiddleware($pipe, 'admin'));
 
-            $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.admin.routes')]));
+            $pipe->pipe(new DispatchRoute($app->make('flarum.admin.routes')));
 
             return $pipe;
         });
