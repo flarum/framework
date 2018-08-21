@@ -24,9 +24,10 @@
   .clearfix();
 
   > li {
-    float: left;
     text-align: left;
     position: relative;
+    border-radius: 4px;
+    transition: background .2s;
   }
 }
 .ExtensionListItem.disabled {
@@ -39,45 +40,59 @@
   }
 }
 .ExtensionListItem {
-  width: 120px;
-  height: 160px;
-  margin-right: 15px;
-  margin-bottom: 15px;
+  padding: 10px;
 }
-.ExtensionListItem-title {
-  display: block;
-  font-size: 13px;
-  font-weight: bold;
-  margin: 8px 0 0;
-  white-space: nowrap;
+.ExtensionListItem:hover {
+  background: @control-bg;
+}
+.ExtensionListItem-content {
+  padding: 0 50px;
+  min-height: 40px;
+}
+.ExtensionListItem-main {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.ExtensionListItem-title {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
   cursor: pointer;
+  padding-right: 10px;
 }
 .ExtensionListItem-version {
   color: @muted-more-color;
   font-size: 11px;
   font-weight: normal;
+  display: inline-flex;
 }
 .ExtensionListItem-controls {
   float: right;
   display: none;
-  margin-right: -5px;
+  margin-right: -50px;
   margin-top: 1px;
 
   .ExtensionListItem:hover &, &.open {
     display: block;
   }
 }
+.ExtensionListItem-description {
+  font-size: 11px;
+  font-weight: normal;
+  text-align: justify;
+}
 
 .ExtensionIcon {
-  width: 120px;
-  height: 120px;
+  width: 40px;
+  height: 40px;
   background: @control-bg;
   color: @control-color;
   border-radius: 6px;
   display: inline-block;
-  font-size: 60px;
-  line-height: 120px;
+  font-size: 30px;
+  line-height: 40px;
   text-align: center;
+  margin-left: -50px;
+  position: absolute;
 }
