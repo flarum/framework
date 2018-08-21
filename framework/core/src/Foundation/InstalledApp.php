@@ -18,9 +18,7 @@ use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\MiddlewarePipe;
-use function Zend\Stratigility\middleware;
 use function Zend\Stratigility\path;
 
 class InstalledApp implements AppInterface
@@ -47,7 +45,7 @@ class InstalledApp implements AppInterface
     public function getRequestHandler()
     {
         if ($this->inMaintenanceMode()) {
-            return $this->getMaintenanceHandler();
+            return new MaintenanceModeHandler();
         } elseif ($this->needsUpdate()) {
             return $this->getUpdaterHandler();
         }
@@ -64,24 +62,6 @@ class InstalledApp implements AppInterface
     private function inMaintenanceMode(): bool
     {
         return $this->config['offline'] ?? false;
-    }
-
-    /**
-     * @return \Psr\Http\Server\RequestHandlerInterface
-     */
-    private function getMaintenanceHandler()
-    {
-        $pipe = new MiddlewarePipe;
-
-        $pipe->pipe(middleware(function () {
-            // FIXME: Fix path to 503.html
-            // TODO: FOR API render JSON-API error document for HTTP 503
-            return new HtmlResponse(
-                file_get_contents(__DIR__.'/../../503.html'), 503
-            );
-        }));
-
-        return $pipe;
     }
 
     private function needsUpdate(): bool
