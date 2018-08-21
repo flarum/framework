@@ -47,9 +47,9 @@ class InstalledApp implements AppInterface
     public function getRequestHandler()
     {
         if ($this->inMaintenanceMode()) {
-            return $this->getMaintenanceMiddleware();
+            return $this->getMaintenanceHandler();
         } elseif ($this->needsUpdate()) {
-            return $this->getUpdaterMiddleware();
+            return $this->getUpdaterHandler();
         }
 
         $pipe = new MiddlewarePipe;
@@ -69,7 +69,7 @@ class InstalledApp implements AppInterface
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    private function getMaintenanceMiddleware()
+    private function getMaintenanceHandler()
     {
         $pipe = new MiddlewarePipe;
 
@@ -95,7 +95,7 @@ class InstalledApp implements AppInterface
     /**
      * @return \Psr\Http\Server\RequestHandlerInterface
      */
-    public function getUpdaterMiddleware()
+    public function getUpdaterHandler()
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(
