@@ -47,13 +47,13 @@ export default class ExtensionsPage extends Page {
                         </Dropdown>
                       ) : ''}
                       <div className="ExtensionListItem-main">
-+                        <label className="ExtensionListItem-title">
-+                          <input type="checkbox" checked={this.isEnabled(extension.id)} onclick={this.toggle.bind(this, extension.id)}/> {' '}
-+                            {extension.extra['flarum-extension'].title}
-+                        </label>
-+                        <div className="ExtensionListItem-version">{extension.version}</div>
-+                        <div className="ExtensionListItem-description">{extension.description}</div>
-+                      </div>
+                        <label className="ExtensionListItem-title">
+                          <input type="checkbox" checked={this.isEnabled(extension.id)} onclick={this.toggle.bind(this, extension.id)}/> {' '}
+                            {extension.extra['flarum-extension'].title}
+                        </label>
+                        <div className="ExtensionListItem-version">{extension.version}</div>
+                        <div className="ExtensionListItem-description">{extension.description}</div>
+                      </div>
                     </div>
                   </li>;
                 })}
