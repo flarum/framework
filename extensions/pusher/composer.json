@@ -31,7 +31,7 @@
             "title": "Pusher",
             "icon": {
                 "image": "icon.png",
-                "backgroundSize": "55px 75px",
+                "backgroundSize": "46% 63%",
                 "backgroundPosition": "center",
                 "backgroundRepeat": "no-repeat",
                 "backgroundColor": "#40bad8",
