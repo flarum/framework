@@ -50,9 +50,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function boot()
     {
-        if ($this->app->isInstalled()) {
-            AbstractModel::setConnectionResolver($this->app->make('Illuminate\Database\ConnectionResolverInterface'));
-            AbstractModel::setEventDispatcher($this->app->make('events'));
-        }
+        AbstractModel::setConnectionResolver($this->app->make('Illuminate\Database\ConnectionResolverInterface'));
+        AbstractModel::setEventDispatcher($this->app->make('events'));
     }
 }

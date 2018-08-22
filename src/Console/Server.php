@@ -12,74 +12,37 @@
 namespace Flarum\Console;
 
 use Flarum\Console\Event\Configuring;
-use Flarum\Database\Console\GenerateMigrationCommand;
-use Flarum\Database\Console\MigrateCommand;
-use Flarum\Database\Console\ResetCommand;
 use Flarum\Foundation\Application;
-use Flarum\Foundation\Console\CacheClearCommand;
-use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Foundation\Site;
-use Flarum\Install\Console\InstallCommand;
-use Flarum\Install\InstallServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 class Server
 {
-    /**
-     * @param Site $site
-     * @return Server
-     */
-    public static function fromSite(Site $site)
-    {
-        return new static($site->boot());
-    }
+    protected $commands;
 
-    public function __construct(Application $app)
+    public function __construct(array $commands)
     {
-        $this->app = $app;
+        $this->commands = $commands;
     }
 
     public function listen()
     {
-        $console = $this->getConsoleApplication();
+        $console = new ConsoleApplication('Flarum', Application::VERSION);
+
+        foreach ($this->commands as $command) {
+            $console->add($command);
+        }
+
+        $this->extend($console);
 
         exit($console->run());
     }
 
-    /**
-     * @return ConsoleApplication
-     */
-    protected function getConsoleApplication()
+    private function extend(ConsoleApplication $console)
     {
-        $console = new ConsoleApplication('Flarum', $this->app->version());
+        $app = Application::getInstance();
 
-        $this->app->register(InstallServiceProvider::class);
-
-        $commands = [
-            InstallCommand::class,
-            MigrateCommand::class,
-            ResetCommand::class,
-            GenerateMigrationCommand::class,
-        ];
-
-        if ($this->app->isInstalled()) {
-            $commands = array_merge($commands, [
-                InfoCommand::class,
-                CacheClearCommand::class
-            ]);
-        }
-
-        foreach ($commands as $command) {
-            $console->add($this->app->make(
-                $command,
-                ['config' => $this->app->isInstalled() ? $this->app->make('flarum.config') : []]
-            ));
-        }
-
-        $events = $this->app->make(Dispatcher::class);
-        $events->fire(new Configuring($this->app, $console));
-
-        return $console;
+        $events = $app->make(Dispatcher::class);
+        $events->fire(new Configuring($app, $console));
     }
 }
