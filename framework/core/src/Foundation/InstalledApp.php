@@ -18,8 +18,9 @@ use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Middlewares\BasePathRouter;
+use Middlewares\RequestHandler;
 use Zend\Stratigility\MiddlewarePipe;
-use function Zend\Stratigility\path;
 
 class InstalledApp implements AppInterface
 {
@@ -52,9 +53,14 @@ class InstalledApp implements AppInterface
 
         $pipe = new MiddlewarePipe;
 
-        $pipe->pipe($this->subPath('api', 'flarum.api.middleware'));
-        $pipe->pipe($this->subPath('admin', 'flarum.admin.middleware'));
-        $pipe->pipe($this->subPath('', 'flarum.forum.middleware'));
+        $pipe->pipe(
+            new BasePathRouter([
+                $this->subPath('api') => 'flarum.api.middleware',
+                $this->subPath('admin') => 'flarum.admin.middleware',
+                $this->subPath('') => 'flarum.forum.middleware',
+            ])
+        );
+        $pipe->pipe(new RequestHandler($this->laravel));
 
         return $pipe;
     }
@@ -85,12 +91,9 @@ class InstalledApp implements AppInterface
         return $pipe;
     }
 
-    private function subPath($pathName, $middlewareStack)
+    private function subPath($pathName): string
     {
-        return path(
-            parse_url($this->laravel->url($pathName), PHP_URL_PATH) ?: '/',
-            $this->laravel->make($middlewareStack)
-        );
+        return parse_url($this->laravel->url($pathName), PHP_URL_PATH) ?: '/';
     }
 
     /**
