@@ -18,6 +18,8 @@ use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
+use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
 use Zend\Stratigility\MiddlewarePipe;
@@ -25,18 +27,18 @@ use Zend\Stratigility\MiddlewarePipe;
 class InstalledApp implements AppInterface
 {
     /**
-     * @var Application
+     * @var Container
      */
-    protected $laravel;
+    protected $container;
 
     /**
      * @var array
      */
     protected $config;
 
-    public function __construct(Application $laravel, array $config)
+    public function __construct(Container $container, array $config)
     {
-        $this->laravel = $laravel;
+        $this->container = $container;
         $this->config = $config;
     }
 
@@ -53,14 +55,15 @@ class InstalledApp implements AppInterface
 
         $pipe = new MiddlewarePipe;
 
+        $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
             new BasePathRouter([
                 $this->subPath('api') => 'flarum.api.middleware',
                 $this->subPath('admin') => 'flarum.admin.middleware',
-                $this->subPath('') => 'flarum.forum.middleware',
+                '/' => 'flarum.forum.middleware',
             ])
         );
-        $pipe->pipe(new RequestHandler($this->laravel));
+        $pipe->pipe(new RequestHandler($this->container));
 
         return $pipe;
     }
@@ -72,7 +75,7 @@ class InstalledApp implements AppInterface
 
     private function needsUpdate(): bool
     {
-        $settings = $this->laravel->make(SettingsRepositoryInterface::class);
+        $settings = $this->container->make(SettingsRepositoryInterface::class);
         $version = $settings->get('version');
 
         return $version !== Application::VERSION;
@@ -85,15 +88,20 @@ class InstalledApp implements AppInterface
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(
-            new DispatchRoute($this->laravel->make('flarum.update.routes'))
+            new DispatchRoute($this->container->make('flarum.update.routes'))
         );
 
         return $pipe;
     }
 
+    private function basePath(): string
+    {
+        return parse_url($this->config['url'], PHP_URL_PATH) ?: '/';
+    }
+
     private function subPath($pathName): string
     {
-        return parse_url($this->laravel->url($pathName), PHP_URL_PATH) ?: '/';
+        return '/'.$this->config['paths'][$pathName];
     }
 
     /**
@@ -102,11 +110,11 @@ class InstalledApp implements AppInterface
     public function getConsoleCommands()
     {
         return [
-            $this->laravel->make(GenerateMigrationCommand::class),
-            $this->laravel->make(InfoCommand::class, ['config' => $this->config]),
-            $this->laravel->make(MigrateCommand::class),
-            $this->laravel->make(ResetCommand::class),
-            $this->laravel->make(CacheClearCommand::class),
+            $this->container->make(GenerateMigrationCommand::class),
+            $this->container->make(InfoCommand::class, ['config' => $this->config]),
+            $this->container->make(MigrateCommand::class),
+            $this->container->make(ResetCommand::class),
+            $this->container->make(CacheClearCommand::class),
         ];
     }
 }
