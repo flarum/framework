@@ -12,23 +12,23 @@
 namespace Flarum\Install;
 
 use Flarum\Foundation\AppInterface;
-use Flarum\Foundation\Application;
 use Flarum\Http\Middleware\DispatchRoute;
 use Flarum\Http\Middleware\HandleErrorsWithWhoops;
 use Flarum\Http\Middleware\StartSession;
 use Flarum\Install\Console\InstallCommand;
+use Illuminate\Contracts\Container\Container;
 use Zend\Stratigility\MiddlewarePipe;
 
 class Installer implements AppInterface
 {
     /**
-     * @var Application
+     * @var Container
      */
-    protected $laravel;
+    protected $container;
 
-    public function __construct(Application $laravel)
+    public function __construct(Container $container)
     {
-        $this->laravel = $laravel;
+        $this->container = $container;
     }
 
     /**
@@ -37,10 +37,10 @@ class Installer implements AppInterface
     public function getRequestHandler()
     {
         $pipe = new MiddlewarePipe;
-        $pipe->pipe($this->laravel->make(HandleErrorsWithWhoops::class));
-        $pipe->pipe($this->laravel->make(StartSession::class));
+        $pipe->pipe($this->container->make(HandleErrorsWithWhoops::class));
+        $pipe->pipe($this->container->make(StartSession::class));
         $pipe->pipe(
-            new DispatchRoute($this->laravel->make('flarum.install.routes'))
+            new DispatchRoute($this->container->make('flarum.install.routes'))
         );
 
         return $pipe;
@@ -52,7 +52,7 @@ class Installer implements AppInterface
     public function getConsoleCommands()
     {
         return [
-            $this->laravel->make(InstallCommand::class),
+            $this->container->make(InstallCommand::class),
         ];
     }
 }

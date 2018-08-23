@@ -44,6 +44,7 @@
         "league/flysystem": "^1.0.11",
         "league/oauth2-client": "~1.0",
         "matthiasmullie/minify": "^1.3",
+        "middlewares/base-path": "^1.1",
         "middlewares/base-path-router": "^0.2.1",
         "middlewares/request-handler": "^1.2",
         "monolog/monolog": "^1.16.0",
