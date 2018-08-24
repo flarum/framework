@@ -16,7 +16,7 @@ Object.assign(Post.prototype, {
   contentPlain: computed('contentHtml', getPlainContent),
 
   editedAt: Model.attribute('editedAt', Model.transformDate),
-  editUser: Model.hasOne('editUser'),
+  editedUser: Model.hasOne('editedUser'),
   isEdited: computed('editedAt', editedAt => !!editedAt),
 
   hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
