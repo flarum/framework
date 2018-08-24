@@ -62,7 +62,7 @@ export default class NotificationsDropdown extends Dropdown {
   }
 
   getUnreadCount() {
-    return app.session.user.unreadNotificationsCount();
+    return app.session.user.unreadNotificationCount();
   }
 
   getNewCount() {
