@@ -26,7 +26,7 @@ Object.assign(User.prototype, {
   newNotificationsCount: Model.attribute('newNotificationsCount'),
 
   discussionCount: Model.attribute('discussionCount'),
-  commentsCount: Model.attribute('commentsCount'),
+  commentCount: Model.attribute('commentCount'),
 
   canEdit: Model.attribute('canEdit'),
   canDelete: Model.attribute('canDelete'),
