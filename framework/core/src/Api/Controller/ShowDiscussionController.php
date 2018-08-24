@@ -44,7 +44,7 @@ class ShowDiscussionController extends AbstractShowController
         'posts.discussion',
         'posts.user',
         'posts.user.groups',
-        'posts.editUser',
+        'posts.editedUser',
         'posts.hideUser'
     ];
 

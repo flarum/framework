@@ -92,7 +92,7 @@ class PostSerializer extends BasicPostSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function editUser($post)
+    protected function editedUser($post)
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }
