@@ -8,7 +8,7 @@ Object.assign(Post.prototype, {
   number: Model.attribute('number'),
   discussion: Model.hasOne('discussion'),
 
-  time: Model.attribute('time', Model.transformDate),
+  createdAt: Model.attribute('createdAt', Model.transformDate),
   user: Model.hasOne('user'),
   contentType: Model.attribute('contentType'),
   content: Model.attribute('content'),
