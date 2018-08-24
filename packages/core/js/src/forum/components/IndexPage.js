@@ -385,7 +385,7 @@ export default class IndexPage extends Page {
     const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
 
     if (confirmation) {
-      app.session.user.save({readTime: new Date()});
+      app.session.user.save({markedAllAsReadAt: new Date()});
     }
   }
 }

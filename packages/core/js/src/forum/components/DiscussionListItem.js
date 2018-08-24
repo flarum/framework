@@ -35,7 +35,7 @@ export default class DiscussionListItem extends Component {
     this.subtree = new SubtreeRetainer(
       () => this.props.discussion.freshness,
       () => {
-        const time = app.session.user && app.session.user.readTime();
+        const time = app.session.user && app.session.user.markedAllAsReadAt();
         return time && time.getTime();
       },
       () => this.active()
