@@ -29,7 +29,7 @@ Object.assign(Discussion.prototype, {
   isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
 
   hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
-  hideUser: Model.hasOne('hideUser'),
+  hiddenUser: Model.hasOne('hiddenUser'),
   isHidden: computed('hiddenAt', hiddenAt => !!hiddenAt),
 
   canReply: Model.attribute('canReply'),
