@@ -39,7 +39,7 @@ class DiscussionSerializer extends BasicDiscussionSerializer
         $attributes = parent::getDefaultAttributes($discussion) + [
             'commentCount'      => (int) $discussion->comment_count,
             'participantCount'  => (int) $discussion->participant_count,
-            'startTime'         => $this->formatDate($discussion->created_at),
+            'createdAt'         => $this->formatDate($discussion->created_at),
             'lastTime'          => $this->formatDate($discussion->last_posted_at),
             'lastPostNumber'    => (int) $discussion->last_post_number,
             'canReply'          => $gate->allows('reply', $discussion),
