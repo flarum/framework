@@ -117,7 +117,7 @@ export default class DiscussionListItem extends Component {
           <span className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
             title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}>
-            {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())}
+            {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'replyCount']())}
           </span>
         </div>
       </div>
