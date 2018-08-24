@@ -19,7 +19,7 @@ Object.assign(Discussion.prototype, {
   lastPostNumber: Model.attribute('lastPostNumber'),
 
   commentCount: Model.attribute('commentCount'),
-  repliesCount: computed('commentCount', commentCount => Math.max(0, commentCount - 1)),
+  replyCount: computed('commentCount', commentCount => Math.max(0, commentCount - 1)),
   posts: Model.hasMany('posts'),
   mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
