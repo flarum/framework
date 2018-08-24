@@ -30,7 +30,7 @@ class ListNotificationsController extends AbstractListController
      * {@inheritdoc}
      */
     public $include = [
-        'sender',
+        'fromUser',
         'subject',
         'subject.discussion'
     ];
