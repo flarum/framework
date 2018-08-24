@@ -242,11 +242,11 @@ class Discussion extends AbstractModel
     }
 
     /**
-     * Refresh the discussion's participants count.
+     * Refresh the discussion's participant count.
      *
      * @return $this
      */
-    public function refreshParticipantsCount()
+    public function refreshParticipantCount()
     {
         $this->participant_count = $this->participants()->count('users.id');
 
