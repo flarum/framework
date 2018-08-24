@@ -20,7 +20,7 @@ Object.assign(User.prototype, {
   groups: Model.hasMany('groups'),
 
   joinTime: Model.attribute('joinTime', Model.transformDate),
-  lastSeenTime: Model.attribute('lastSeenTime', Model.transformDate),
+  lastSeenAt: Model.attribute('lastSeenAt', Model.transformDate),
   readTime: Model.attribute('readTime', Model.transformDate),
   unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
   newNotificationsCount: Model.attribute('newNotificationsCount'),
@@ -54,7 +54,7 @@ Object.assign(User.prototype, {
    * @public
    */
   isOnline() {
-    return this.lastSeenTime() > moment().subtract(5, 'minutes').toDate();
+    return this.lastSeenAt() > moment().subtract(5, 'minutes').toDate();
   },
 
   /**
