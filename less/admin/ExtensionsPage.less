@@ -19,6 +19,7 @@
 
 .ExtensionList {
   margin: 0;
+  columns: 2;
   padding: 0;
   list-style: none;
   .clearfix();
@@ -95,4 +96,14 @@
   text-align: center;
   margin-left: -50px;
   position: absolute;
+}
+
+@media (max-width: 992px) {
+   .ExtensionListItem-description {
+        display: none;
+    }
+    .ExtensionListItem-version {
+        display: block;
+        margin-top: 8px;
+    }
 }
