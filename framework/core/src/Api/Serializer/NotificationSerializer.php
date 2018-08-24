@@ -65,7 +65,7 @@ class NotificationSerializer extends AbstractSerializer
      * @param Notification $notification
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function sender($notification)
+    protected function fromUser($notification)
     {
         return $this->hasOne($notification, BasicUserSerializer::class);
     }

@@ -23,7 +23,7 @@ interface BlueprintInterface
      *
      * @return \Flarum\User\User|null
      */
-    public function getSender();
+    public function getFromUser();
 
     /**
      * Get the model that is the subject of this activity.

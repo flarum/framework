@@ -226,7 +226,7 @@ class NotificationSyncer
     {
         return [
             'type' => $blueprint::getType(),
-            'from_user_id' => ($sender = $blueprint->getSender()) ? $sender->id : null,
+            'from_user_id' => ($fromUser = $blueprint->getFromUser()) ? $fromUser->id : null,
             'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
             'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];

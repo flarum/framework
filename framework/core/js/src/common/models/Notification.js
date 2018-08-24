@@ -14,6 +14,6 @@ Object.assign(Notification.prototype, {
   additionalUnreadCount: computed('unreadCount', unreadCount => Math.max(0, unreadCount - 1)),
 
   user: Model.hasOne('user'),
-  sender: Model.hasOne('sender'),
+  fromUser: Model.hasOne('fromUser'),
   subject: Model.hasOne('subject')
 });

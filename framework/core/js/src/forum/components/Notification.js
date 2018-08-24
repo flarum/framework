@@ -26,7 +26,7 @@ export default class Notification extends Component {
 
           if (!isInitialized) $(element).click(this.markAsRead.bind(this));
         }}>
-        {avatar(notification.sender())}
+        {avatar(notification.fromUser())}
         {icon(this.icon(), {className: 'Notification-icon'})}
         <span className="Notification-content">{this.content()}</span>
         {humanTime(notification.createdAt())}
