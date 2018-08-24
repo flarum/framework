@@ -14,7 +14,7 @@ Object.assign(Discussion.prototype, {
   firstPost: Model.hasOne('firstPost'),
 
   lastTime: Model.attribute('lastTime', Model.transformDate),
-  lastUser: Model.hasOne('lastUser'),
+  lastPostedUser: Model.hasOne('lastPostedUser'),
   lastPost: Model.hasOne('lastPost'),
   lastPostNumber: Model.attribute('lastPostNumber'),
 
