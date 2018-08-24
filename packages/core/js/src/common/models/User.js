@@ -23,7 +23,7 @@ Object.assign(User.prototype, {
   lastSeenAt: Model.attribute('lastSeenAt', Model.transformDate),
   markedAllAsReadAt: Model.attribute('markedAllAsReadAt', Model.transformDate),
   unreadNotificationCount: Model.attribute('unreadNotificationCount'),
-  newNotificationsCount: Model.attribute('newNotificationsCount'),
+  newNotificationCount: Model.attribute('newNotificationCount'),
 
   discussionCount: Model.attribute('discussionCount'),
   commentCount: Model.attribute('commentCount'),
