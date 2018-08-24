@@ -67,7 +67,7 @@ Object.assign(Discussion.prototype, {
   unreadCount() {
     const user = app.session.user;
 
-    if (user && user.readTime() < this.lastPostedAt()) {
+    if (user && user.markedAllAsReadAt() < this.lastPostedAt()) {
       return Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0));
     }
 
