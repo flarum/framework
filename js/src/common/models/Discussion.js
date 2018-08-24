@@ -23,7 +23,7 @@ Object.assign(Discussion.prototype, {
   posts: Model.hasMany('posts'),
   mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
-  readTime: Model.attribute('readTime', Model.transformDate),
+  lastReadAt: Model.attribute('lastReadAt', Model.transformDate),
   readNumber: Model.attribute('readNumber'),
   isUnread: computed('unreadCount', unreadCount => !!unreadCount),
   isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),

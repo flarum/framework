@@ -57,7 +57,7 @@ class DiscussionSerializer extends BasicDiscussionSerializer
 
         if ($state = $discussion->state) {
             $attributes += [
-                'readTime'   => $this->formatDate($state->last_read_at),
+                'lastReadAt' => $this->formatDate($state->last_read_at),
                 'readNumber' => (int) $state->last_read_post_number
             ];
         }
