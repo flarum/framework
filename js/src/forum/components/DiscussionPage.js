@@ -288,8 +288,8 @@ export default class DiscussionPage extends Page {
 
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
-    if (app.session.user && endNumber > (discussion.readNumber() || 0)) {
-      discussion.save({readNumber: endNumber});
+    if (app.session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
+      discussion.save({lastReadPostNumber: endNumber});
       m.redraw();
     }
   }

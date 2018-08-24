@@ -24,7 +24,7 @@ Object.assign(Discussion.prototype, {
   mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
   lastReadAt: Model.attribute('lastReadAt', Model.transformDate),
-  readNumber: Model.attribute('readNumber'),
+  lastReadPostNumber: Model.attribute('lastReadPostNumber'),
   isUnread: computed('unreadCount', unreadCount => !!unreadCount),
   isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
 
@@ -68,7 +68,7 @@ Object.assign(Discussion.prototype, {
     const user = app.session.user;
 
     if (user && user.readTime() < this.lastPostedAt()) {
-      return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
+      return Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0));
     }
 
     return 0;

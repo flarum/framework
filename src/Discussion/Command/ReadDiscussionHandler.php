@@ -51,7 +51,7 @@ class ReadDiscussionHandler
         $discussion = $this->discussions->findOrFail($command->discussionId, $actor);
 
         $state = $discussion->stateFor($actor);
-        $state->read($command->readNumber);
+        $state->read($command->lastReadPostNumber);
 
         $this->events->dispatch(
             new UserDataSaving($state)
