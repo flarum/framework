@@ -50,7 +50,7 @@ class DiscussionSerializer extends BasicDiscussionSerializer
 
         if ($discussion->hidden_at) {
             $attributes['isHidden'] = true;
-            $attributes['hideTime'] = $this->formatDate($discussion->hidden_at);
+            $attributes['hiddenAt'] = $this->formatDate($discussion->hidden_at);
         }
 
         Discussion::setStateUser($this->actor);
