@@ -40,7 +40,7 @@ class DiscussionSerializer extends BasicDiscussionSerializer
             'commentCount'      => (int) $discussion->comment_count,
             'participantCount'  => (int) $discussion->participant_count,
             'createdAt'         => $this->formatDate($discussion->created_at),
-            'lastTime'          => $this->formatDate($discussion->last_posted_at),
+            'lastPostedAt'      => $this->formatDate($discussion->last_posted_at),
             'lastPostNumber'    => (int) $discussion->last_post_number,
             'canReply'          => $gate->allows('reply', $discussion),
             'canRename'         => $gate->allows('rename', $discussion),
