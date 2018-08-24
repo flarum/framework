@@ -50,7 +50,7 @@ class UserSerializer extends BasicUserSerializer
 
         if ($user->getPreference('discloseOnline')) {
             $attributes += [
-                'lastSeenTime' => $this->formatDate($user->last_seen_at)
+                'lastSeenAt' => $this->formatDate($user->last_seen_at)
             ];
         }
 
