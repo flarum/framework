@@ -230,11 +230,11 @@ class Discussion extends AbstractModel
     }
 
     /**
-     * Refresh the discussion's comments count.
+     * Refresh the discussion's comment count.
      *
      * @return $this
      */
-    public function refreshCommentsCount()
+    public function refreshCommentCount()
     {
         $this->comment_count = $this->comments()->count();
 
