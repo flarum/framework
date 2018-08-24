@@ -28,9 +28,9 @@ Object.assign(Discussion.prototype, {
   isUnread: computed('unreadCount', unreadCount => !!unreadCount),
   isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
 
-  hideTime: Model.attribute('hideTime', Model.transformDate),
+  hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
   hideUser: Model.hasOne('hideUser'),
-  isHidden: computed('hideTime', hideTime => !!hideTime),
+  isHidden: computed('hiddenAt', hiddenAt => !!hiddenAt),
 
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
