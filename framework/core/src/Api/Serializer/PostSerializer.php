@@ -56,7 +56,7 @@ class PostSerializer extends BasicPostSerializer
         }
 
         if ($post->edited_at) {
-            $attributes['editTime'] = $this->formatDate($post->edited_at);
+            $attributes['editedAt'] = $this->formatDate($post->edited_at);
         }
 
         if ($post->hidden_at) {
