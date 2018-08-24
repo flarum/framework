@@ -12,9 +12,8 @@
 namespace Flarum\Tests\Install;
 
 use Flarum\Install\Console\InstallCommand;
-use Flarum\Install\InstallServiceProvider;
 use Flarum\Tests\Test\TestCase;
-use Flarum\User\User;
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -27,13 +26,12 @@ class DefaultInstallationCommandTest extends TestCase
      */
     public function allows_forum_installation()
     {
-        if (file_exists($this->app->basePath().DIRECTORY_SEPARATOR.'config.php')) {
-            unlink($this->app->basePath().DIRECTORY_SEPARATOR.'config.php');
+        if (file_exists(base_path('config.php'))) {
+            unlink(base_path('config.php'));
         }
 
-        $this->app->register(InstallServiceProvider::class);
         /** @var InstallCommand $command */
-        $command = $this->app->make(InstallCommand::class);
+        $command = app(InstallCommand::class);
         $command->setDataSource($this->configuration);
 
         $body = fopen('php://temp', 'wb+');
@@ -42,10 +40,20 @@ class DefaultInstallationCommandTest extends TestCase
 
         $command->run($input, $output);
 
-        $this->assertFileExists($this->app->basePath().DIRECTORY_SEPARATOR.'config.php');
+        $this->assertFileExists(base_path('config.php'));
 
         $admin = $this->configuration->getAdminUser();
 
-        $this->assertEquals(User::find(1)->username, $admin['username']);
+        $this->assertEquals(
+            $this->getDatabase()->table('users')->find(1)->username,
+            $admin['username']
+        );
+    }
+
+    private function getDatabase()
+    {
+        $factory = new ConnectionFactory(app());
+
+        return $factory->make($this->configuration->getDatabaseConfiguration());
     }
 }
