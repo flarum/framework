@@ -288,7 +288,7 @@ class InstallCommand extends AbstractCommand
             'is_email_confirmed' => 1,
         ]);
 
-        $this->db->table('users_groups')->insert([
+        $this->db->table('group_user')->insert([
             'user_id' => $uid,
             'group_id' => Group::ADMINISTRATOR_ID,
         ]);
