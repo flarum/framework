@@ -30,7 +30,7 @@ class ShowPostController extends AbstractShowController
         'user',
         'user.groups',
         'editedUser',
-        'hideUser',
+        'hiddenUser',
         'discussion'
     ];
 

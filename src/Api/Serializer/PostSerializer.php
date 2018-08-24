@@ -100,7 +100,7 @@ class PostSerializer extends BasicPostSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function hideUser($post)
+    protected function hiddenUser($post)
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }

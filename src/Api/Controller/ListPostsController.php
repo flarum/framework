@@ -33,7 +33,7 @@ class ListPostsController extends AbstractListController
         'user',
         'user.groups',
         'editedUser',
-        'hideUser',
+        'hiddenUser',
         'discussion'
     ];
 

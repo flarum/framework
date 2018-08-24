@@ -123,7 +123,7 @@ export default {
    * @return {Promise}
    */
   hideAction() {
-    this.pushAttributes({ hiddenAt: new Date(), hideUser: app.session.user });
+    this.pushAttributes({ hiddenAt: new Date(), hiddenUser: app.session.user });
 
     return this.save({ isHidden: true }).then(() => m.redraw());
   },
@@ -134,7 +134,7 @@ export default {
    * @return {Promise}
    */
   restoreAction() {
-    this.pushAttributes({ hiddenAt: null, hideUser: null });
+    this.pushAttributes({ hiddenAt: null, hiddenUser: null });
 
     return this.save({ isHidden: false }).then(() => m.redraw());
   },
