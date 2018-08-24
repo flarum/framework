@@ -13,7 +13,7 @@ Object.assign(Discussion.prototype, {
   user: Model.hasOne('user'),
   firstPost: Model.hasOne('firstPost'),
 
-  lastTime: Model.attribute('lastTime', Model.transformDate),
+  lastPostedAt: Model.attribute('lastPostedAt', Model.transformDate),
   lastPostedUser: Model.hasOne('lastPostedUser'),
   lastPost: Model.hasOne('lastPost'),
   lastPostNumber: Model.attribute('lastPostNumber'),
@@ -67,7 +67,7 @@ Object.assign(Discussion.prototype, {
   unreadCount() {
     const user = app.session.user;
 
-    if (user && user.readTime() < this.lastTime()) {
+    if (user && user.readTime() < this.lastPostedAt()) {
       return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
     }
 
