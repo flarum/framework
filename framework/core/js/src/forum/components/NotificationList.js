@@ -191,7 +191,7 @@ export default class NotificationList extends Component {
   markAllAsRead() {
     if (!app.cache.notifications) return;
 
-    app.session.user.pushAttributes({unreadNotificationsCount: 0});
+    app.session.user.pushAttributes({unreadNotificationCount: 0});
 
     app.cache.notifications.forEach(notifications => {
       notifications.forEach(notification => notification.pushAttributes({isRead: true}))

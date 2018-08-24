@@ -25,7 +25,7 @@ class CurrentUserSerializer extends UserSerializer
             'isEmailConfirmed'         => (bool) $user->is_email_confirmed,
             'email'                    => $user->email,
             'markedAllAsReadAt'        => $this->formatDate($user->marked_all_as_read_at),
-            'unreadNotificationsCount' => (int) $user->getUnreadNotificationsCount(),
+            'unreadNotificationCount'  => (int) $user->getUnreadNotificationCount(),
             'newNotificationsCount'    => (int) $user->getNewNotificationsCount(),
             'preferences'              => (array) $user->preferences
         ];
