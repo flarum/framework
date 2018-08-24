@@ -49,7 +49,7 @@ use Flarum\Util\Str;
  * @property Post|null $firstPost
  * @property User|null $user
  * @property Post|null $lastPost
- * @property User|null $lastUser
+ * @property User|null $lastPostedUser
  * @property \Illuminate\Database\Eloquent\Collection $readers
  * @property bool $is_private
  */
@@ -359,7 +359,7 @@ class Discussion extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function lastUser()
+    public function lastPostedUser()
     {
         return $this->belongsTo(User::class, 'last_posted_user_id');
     }

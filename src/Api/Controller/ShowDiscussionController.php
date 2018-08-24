@@ -53,7 +53,7 @@ class ShowDiscussionController extends AbstractShowController
      */
     public $optionalInclude = [
         'user',
-        'lastUser',
+        'lastPostedUser',
         'firstPost',
         'lastPost'
     ];

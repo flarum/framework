@@ -31,7 +31,7 @@ class ListDiscussionsController extends AbstractListController
      */
     public $include = [
         'user',
-        'lastUser',
+        'lastPostedUser',
         'mostRelevantPost',
         'mostRelevantPost.user'
     ];

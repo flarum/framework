@@ -87,7 +87,7 @@ export default class DiscussionList extends Component {
    * @api
    */
   requestParams() {
-    const params = {include: ['user', 'lastUser'], filter: {}};
+    const params = {include: ['user', 'lastPostedUser'], filter: {}};
 
     params.sort = this.sortMap()[this.props.params.sort];
 
