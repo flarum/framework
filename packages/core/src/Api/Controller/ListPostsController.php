@@ -32,7 +32,7 @@ class ListPostsController extends AbstractListController
     public $include = [
         'user',
         'user.groups',
-        'editUser',
+        'editedUser',
         'hideUser',
         'discussion'
     ];

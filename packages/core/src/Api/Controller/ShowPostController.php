@@ -29,7 +29,7 @@ class ShowPostController extends AbstractShowController
     public $include = [
         'user',
         'user.groups',
-        'editUser',
+        'editedUser',
         'hideUser',
         'discussion'
     ];
