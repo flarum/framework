@@ -19,9 +19,9 @@ Object.assign(Post.prototype, {
   editUser: Model.hasOne('editUser'),
   isEdited: computed('editedAt', editedAt => !!editedAt),
 
-  hideTime: Model.attribute('hideTime', Model.transformDate),
+  hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
   hideUser: Model.hasOne('hideUser'),
-  isHidden: computed('hideTime', hideTime => !!hideTime),
+  isHidden: computed('hiddenAt', hiddenAt => !!hiddenAt),
 
   canEdit: Model.attribute('canEdit'),
   canHide: Model.attribute('canHide'),
