@@ -103,7 +103,7 @@ class EditUserHandler
             }
         }
 
-        if ($actor->isAdmin() && ! empty($attributes['isActivated'])) {
+        if ($actor->isAdmin() && ! empty($attributes['isEmailConfirmed'])) {
             $user->activate();
         }
 

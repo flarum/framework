@@ -22,7 +22,7 @@ class CurrentUserSerializer extends UserSerializer
         $attributes = parent::getDefaultAttributes($user);
 
         $attributes += [
-            'isActivated'              => (bool) $user->is_email_confirmed,
+            'isEmailConfirmed'         => (bool) $user->is_email_confirmed,
             'email'                    => $user->email,
             'readTime'                 => $this->formatDate($user->marked_all_as_read_at),
             'unreadNotificationsCount' => (int) $user->getUnreadNotificationsCount(),
