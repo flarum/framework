@@ -16,7 +16,7 @@ export default class TerminalPost extends Component {
     const lastPost = this.props.lastPost && discussion.repliesCount();
 
     const user = discussion[lastPost ? 'lastPostedUser' : 'user']();
-    const time = discussion[lastPost ? 'lastTime' : 'startTime']();
+    const time = discussion[lastPost ? 'lastTime' : 'createdAt']();
 
     return (
       <span>
