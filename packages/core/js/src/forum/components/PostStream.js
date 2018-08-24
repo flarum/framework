@@ -205,7 +205,7 @@ class PostStream extends Component {
       const attrs = {'data-index': this.visibleStart + i};
 
       if (post) {
-        const time = post.time();
+        const time = post.createdAt();
         const PostComponent = app.postComponents[post.contentType()];
         content = PostComponent ? PostComponent.component({post}) : '';
 

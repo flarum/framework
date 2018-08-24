@@ -91,7 +91,7 @@ class PostReplyHandler
             $command->ipAddress
         );
 
-        if ($actor->isAdmin() && ($time = array_get($command->data, 'attributes.time'))) {
+        if ($actor->isAdmin() && ($time = array_get($command->data, 'attributes.createdAt'))) {
             $post->created_at = new Carbon($time);
         }
 
