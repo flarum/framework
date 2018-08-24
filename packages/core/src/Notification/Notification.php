@@ -120,7 +120,7 @@ class Notification extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sender()
+    public function fromUser()
     {
         return $this->belongsTo(User::class, 'from_user_id');
     }
