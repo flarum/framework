@@ -447,7 +447,7 @@ class User extends AbstractModel
      *
      * @return int
      */
-    public function getNewNotificationsCount()
+    public function getNewNotificationCount()
     {
         return $this->getUnreadNotifications()->filter(function ($notification) {
             return $notification->created_at > $this->read_notifications_at ?: 0;
