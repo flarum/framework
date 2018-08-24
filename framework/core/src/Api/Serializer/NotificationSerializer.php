@@ -47,7 +47,7 @@ class NotificationSerializer extends AbstractSerializer
             'id'          => (int) $notification->id,
             'contentType' => $notification->type,
             'content'     => $notification->data,
-            'time'        => $this->formatDate($notification->created_at),
+            'createdAt'   => $this->formatDate($notification->created_at),
             'isRead'      => (bool) $notification->read_at
         ];
     }

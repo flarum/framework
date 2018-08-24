@@ -29,7 +29,7 @@ export default class Notification extends Component {
         {avatar(notification.sender())}
         {icon(this.icon(), {className: 'Notification-icon'})}
         <span className="Notification-content">{this.content()}</span>
-        {humanTime(notification.time())}
+        {humanTime(notification.createdAt())}
         <div className="Notification-excerpt">
           {this.excerpt()}
         </div>
