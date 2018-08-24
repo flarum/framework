@@ -46,7 +46,7 @@ use Flarum\Util\Str;
  * @property \Illuminate\Database\Eloquent\Collection $posts
  * @property \Illuminate\Database\Eloquent\Collection $comments
  * @property \Illuminate\Database\Eloquent\Collection $participants
- * @property Post|null $startPost
+ * @property Post|null $firstPost
  * @property User|null $startUser
  * @property Post|null $lastPost
  * @property User|null $lastUser
@@ -184,12 +184,12 @@ class Discussion extends AbstractModel
     }
 
     /**
-     * Set the discussion's start post details.
+     * Set the discussion's first post details.
      *
      * @param Post $post
      * @return $this
      */
-    public function setStartPost(Post $post)
+    public function setFirstPost(Post $post)
     {
         $this->created_at = $post->created_at;
         $this->user_id = $post->user_id;
@@ -329,7 +329,7 @@ class Discussion extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function startPost()
+    public function firstPost()
     {
         return $this->belongsTo(Post::class, 'first_post_id');
     }

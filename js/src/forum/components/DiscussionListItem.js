@@ -156,7 +156,7 @@ export default class DiscussionListItem extends Component {
    *
    * @return {Boolean}
    */
-  showStartPost() {
+  showFirstPost() {
     return ['newest', 'oldest'].indexOf(this.props.params.sort) !== -1;
   }
 
@@ -192,7 +192,7 @@ export default class DiscussionListItem extends Component {
     const items = new ItemList();
 
     if (this.props.params.q) {
-      const post = this.props.discussion.mostRelevantPost() || this.props.discussion.startPost();
+      const post = this.props.discussion.mostRelevantPost() || this.props.discussion.firstPost();
 
       if (post && post.contentType() === 'comment') {
         const excerpt = highlight(post.contentPlain(), this.highlightRegExp, 175);
@@ -202,7 +202,7 @@ export default class DiscussionListItem extends Component {
       items.add('terminalPost',
         TerminalPost.component({
           discussion: this.props.discussion,
-          lastPost: !this.showStartPost()
+          lastPost: !this.showFirstPost()
         })
       );
     }
