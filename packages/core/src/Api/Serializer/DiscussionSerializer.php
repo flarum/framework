@@ -37,7 +37,7 @@ class DiscussionSerializer extends BasicDiscussionSerializer
         $gate = $this->gate->forUser($this->actor);
 
         $attributes = parent::getDefaultAttributes($discussion) + [
-            'commentsCount'     => (int) $discussion->comment_count,
+            'commentCount'      => (int) $discussion->comment_count,
             'participantsCount' => (int) $discussion->participant_count,
             'startTime'         => $this->formatDate($discussion->created_at),
             'lastTime'          => $this->formatDate($discussion->last_posted_at),

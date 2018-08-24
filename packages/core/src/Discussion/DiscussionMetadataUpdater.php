@@ -39,7 +39,7 @@ class DiscussionMetadataUpdater
         $discussion = $event->post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->refreshCommentsCount();
+            $discussion->refreshCommentCount();
             $discussion->refreshLastPost();
             $discussion->refreshParticipantsCount();
             $discussion->save();
@@ -76,7 +76,7 @@ class DiscussionMetadataUpdater
         $discussion = $event->post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->refreshCommentsCount();
+            $discussion->refreshCommentCount();
             $discussion->refreshParticipantsCount();
             $discussion->refreshLastPost();
             $discussion->save();
@@ -91,7 +91,7 @@ class DiscussionMetadataUpdater
         $discussion = $post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->refreshCommentsCount();
+            $discussion->refreshCommentCount();
             $discussion->refreshParticipantsCount();
 
             if ($discussion->last_post_id == $post->id) {
