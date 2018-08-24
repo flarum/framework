@@ -84,7 +84,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */
-        $settings = $this->app->make(SettingsRepositoryInterface::class);
+        $settings = app(SettingsRepositoryInterface::class);
         $settings->set('allow_sign_up', false);
 
         try {
