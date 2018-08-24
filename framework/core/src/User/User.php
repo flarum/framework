@@ -743,7 +743,7 @@ class User extends AbstractModel
      *
      * @return $this
      */
-    public function refreshCommentsCount()
+    public function refreshCommentCount()
     {
         $this->comment_count = $this->posts()->count();
 
@@ -755,7 +755,7 @@ class User extends AbstractModel
      *
      * @return $this
      */
-    public function refreshDiscussionsCount()
+    public function refreshDiscussionCount()
     {
         $this->discussion_count = $this->discussions()->count();
 

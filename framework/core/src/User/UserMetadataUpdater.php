@@ -69,7 +69,7 @@ class UserMetadataUpdater
         $user = $post->user;
 
         if ($user && $user->exists) {
-            $user->refreshCommentsCount()->save();
+            $user->refreshCommentCount()->save();
         }
     }
 
@@ -78,7 +78,7 @@ class UserMetadataUpdater
         $user = $discussion->user;
 
         if ($user && $user->exists) {
-            $user->refreshDiscussionsCount()->save();
+            $user->refreshDiscussionCount()->save();
         }
     }
 }
