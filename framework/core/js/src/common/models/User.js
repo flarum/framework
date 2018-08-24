@@ -21,7 +21,7 @@ Object.assign(User.prototype, {
 
   joinTime: Model.attribute('joinTime', Model.transformDate),
   lastSeenAt: Model.attribute('lastSeenAt', Model.transformDate),
-  readTime: Model.attribute('readTime', Model.transformDate),
+  markedAllAsReadAt: Model.attribute('markedAllAsReadAt', Model.transformDate),
   unreadNotificationsCount: Model.attribute('unreadNotificationsCount'),
   newNotificationsCount: Model.attribute('newNotificationsCount'),
 
