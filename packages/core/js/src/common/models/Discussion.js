@@ -10,7 +10,7 @@ Object.assign(Discussion.prototype, {
   slug: Model.attribute('slug'),
 
   startTime: Model.attribute('startTime', Model.transformDate),
-  startUser: Model.hasOne('startUser'),
+  user: Model.hasOne('user'),
   firstPost: Model.hasOne('firstPost'),
 
   lastTime: Model.attribute('lastTime', Model.transformDate),

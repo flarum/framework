@@ -30,7 +30,7 @@ class ListDiscussionsController extends AbstractListController
      * {@inheritdoc}
      */
     public $include = [
-        'startUser',
+        'user',
         'lastUser',
         'mostRelevantPost',
         'mostRelevantPost.user'
