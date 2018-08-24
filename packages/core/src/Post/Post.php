@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property \Flarum\Discussion\Discussion|null $discussion
  * @property User|null $user
  * @property User|null $editedUser
- * @property User|null $hideUser
+ * @property User|null $hiddenUser
  * @property string $ip_address
  * @property bool $is_private
  */
@@ -177,7 +177,7 @@ class Post extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function hideUser()
+    public function hiddenUser()
     {
         return $this->belongsTo(User::class, 'hidden_user_id');
     }
