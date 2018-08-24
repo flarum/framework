@@ -113,22 +113,8 @@ class Extension implements Arrayable
 
     public function extend(Container $app)
     {
-        $bootstrapper = $this->getBootstrapperPath();
-
-        if (! file_exists($bootstrapper)) {
-            return;
-        }
-
-        $extenders = require $bootstrapper;
-
-        if (! is_array($extenders)) {
-            $extenders = [$extenders];
-        }
-
-        $extenders = array_flatten($extenders);
-
-        foreach ($extenders as $extender) {
-            // If an extension has not yet switched to the new bootstrap.php
+        foreach ($this->getExtenders() as $extender) {
+            // If an extension has not yet switched to the new extend.php
             // format, it might return a function (or more of them). We wrap
             // these in a Compat extender to enjoy an unique interface.
             if ($extender instanceof \Closure || is_string($extender)) {
@@ -274,9 +260,39 @@ class Extension implements Arrayable
         return $this->path;
     }
 
-    public function getBootstrapperPath()
+    private function getExtenders(): array
     {
-        return "{$this->path}/bootstrap.php";
+        $extenderFile = $this->getExtenderFile();
+
+        if (! $extenderFile) {
+            return [];
+        }
+
+        $extenders = require $extenderFile;
+
+        if (! is_array($extenders)) {
+            $extenders = [$extenders];
+        }
+
+        return array_flatten($extenders);
+    }
+
+    private function getExtenderFile(): ?string
+    {
+        $filename = "{$this->path}/extend.php";
+
+        if (file_exists($filename)) {
+            return $filename;
+        }
+
+        // To give extension authors some time to migrate to the new extension
+        // format, we will also fallback to the old bootstrap.php name. Consider
+        // this feature deprecated.
+        $deprecatedFilename = "{$this->path}/bootstrap.php";
+
+        if (file_exists($deprecatedFilename)) {
+            return $deprecatedFilename;
+        }
     }
 
     /**
