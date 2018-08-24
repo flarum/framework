@@ -95,7 +95,7 @@ export default class DiscussionListItem extends Component {
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
           <a href={user ? app.route.user(user) : '#'}
             className="DiscussionListItem-author"
-            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: user, ago: humanTime(discussion.startTime())}))}
+            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: user, ago: humanTime(discussion.createdAt())}))}
             config={function(element) {
               $(element).tooltip({placement: 'right'});
               m.route.apply(this, arguments);
