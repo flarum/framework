@@ -58,7 +58,7 @@ export default class DiscussionListItem extends Component {
     if (retain) return retain;
 
     const discussion = this.props.discussion;
-    const startUser = discussion.startUser();
+    const user = discussion.user();
     const isUnread = discussion.isUnread();
     const isRead = discussion.isRead();
     const showUnread = !this.showRepliesCount() && isUnread;
@@ -93,14 +93,14 @@ export default class DiscussionListItem extends Component {
         </a>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
-          <a href={startUser ? app.route.user(startUser) : '#'}
+          <a href={user ? app.route.user(user) : '#'}
             className="DiscussionListItem-author"
-            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: startUser, ago: humanTime(discussion.startTime())}))}
+            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: user, ago: humanTime(discussion.startTime())}))}
             config={function(element) {
               $(element).tooltip({placement: 'right'});
               m.route.apply(this, arguments);
             }}>
-            {avatar(startUser, {title: ''})}
+            {avatar(user, {title: ''})}
           </a>
 
           <ul className="DiscussionListItem-badges badges">

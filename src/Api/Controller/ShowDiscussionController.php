@@ -52,7 +52,7 @@ class ShowDiscussionController extends AbstractShowController
      * {@inheritdoc}
      */
     public $optionalInclude = [
-        'startUser',
+        'user',
         'lastUser',
         'firstPost',
         'lastPost'

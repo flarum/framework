@@ -47,7 +47,7 @@ use Flarum\Util\Str;
  * @property \Illuminate\Database\Eloquent\Collection $comments
  * @property \Illuminate\Database\Eloquent\Collection $participants
  * @property Post|null $firstPost
- * @property User|null $startUser
+ * @property User|null $user
  * @property Post|null $lastPost
  * @property User|null $lastUser
  * @property \Illuminate\Database\Eloquent\Collection $readers
@@ -123,7 +123,7 @@ class Discussion extends AbstractModel
         $discussion->created_at = Carbon::now();
         $discussion->user_id = $user->id;
 
-        $discussion->setRelation('startUser', $user);
+        $discussion->setRelation('user', $user);
 
         $discussion->raise(new Started($discussion));
 
@@ -339,7 +339,7 @@ class Discussion extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function startUser()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

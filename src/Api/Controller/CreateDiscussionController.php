@@ -31,7 +31,7 @@ class CreateDiscussionController extends AbstractCreateController
      */
     public $include = [
         'posts',
-        'startUser',
+        'user',
         'lastUser',
         'firstPost',
         'lastPost'

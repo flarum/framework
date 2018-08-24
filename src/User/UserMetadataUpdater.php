@@ -75,7 +75,7 @@ class UserMetadataUpdater
 
     private function updateDiscussionsCount(Discussion $discussion)
     {
-        $user = $discussion->startUser;
+        $user = $discussion->user;
 
         if ($user && $user->exists) {
             $user->refreshDiscussionsCount()->save();
