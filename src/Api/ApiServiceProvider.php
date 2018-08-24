@@ -66,7 +66,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
             event(new ConfigureMiddleware($pipe, 'api'));
 
-            $pipe->pipe($app->make(DispatchRoute::class, ['routes' => $app->make('flarum.api.routes')]));
+            $pipe->pipe(new DispatchRoute($app->make('flarum.api.routes')));
 
             return $pipe;
         });

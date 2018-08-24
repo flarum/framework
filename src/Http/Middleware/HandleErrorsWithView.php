@@ -13,7 +13,6 @@ namespace Flarum\Http\Middleware;
 
 use Exception;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Franzl\Middleware\Whoops\WhoopsRunner;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,7 +22,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 
-class HandleErrors implements Middleware
+class HandleErrorsWithView implements Middleware
 {
     /**
      * @var ViewFactory
@@ -46,24 +45,17 @@ class HandleErrors implements Middleware
     protected $settings;
 
     /**
-     * @var bool
-     */
-    protected $debug;
-
-    /**
      * @param ViewFactory $view
      * @param LoggerInterface $logger
      * @param TranslatorInterface $translator
      * @param SettingsRepositoryInterface $settings
-     * @param bool $debug
      */
-    public function __construct(ViewFactory $view, LoggerInterface $logger, TranslatorInterface $translator, SettingsRepositoryInterface $settings, $debug = false)
+    public function __construct(ViewFactory $view, LoggerInterface $logger, TranslatorInterface $translator, SettingsRepositoryInterface $settings)
     {
         $this->view = $view;
         $this->logger = $logger;
         $this->translator = $translator;
         $this->settings = $settings;
-        $this->debug = $debug;
     }
 
     /**
@@ -74,11 +66,7 @@ class HandleErrors implements Middleware
         try {
             return $handler->handle($request);
         } catch (Exception $e) {
-            if ($this->debug) {
-                return WhoopsRunner::handle($e, $request);
-            } else {
-                return $this->formatException($e);
-            }
+            return $this->formatException($e);
         }
     }
 
