@@ -127,7 +127,7 @@ class User extends AbstractModel
             $user->raise(new Deleted($user));
         });
 
-        static::$dispatcher->fire(
+        static::$dispatcher->dispatch(
             new ConfigureUserPreferences
         );
     }
