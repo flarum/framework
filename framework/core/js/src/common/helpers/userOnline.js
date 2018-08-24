@@ -7,7 +7,7 @@ import icon from './icon';
  * @return {Object}
  */
 export default function userOnline(user) {
-    if (user.lastSeenTime() && user.isOnline()) {
+    if (user.lastSeenAt() && user.isOnline()) {
         return <span className="UserOnline">{icon('fas fa-circle')}</span>;
     }
 }
