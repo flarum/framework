@@ -31,7 +31,7 @@ use Flarum\User\User;
  *
  * @property int $id
  * @property int $user_id
- * @property int|null $sender_id
+ * @property int|null $from_user_id
  * @property string $type
  * @property int|null $subject_id
  * @property mixed|null $data
@@ -39,7 +39,7 @@ use Flarum\User\User;
  * @property \Carbon\Carbon $read_at
  * @property \Carbon\Carbon $deleted_at
  * @property \Flarum\User\User|null $user
- * @property \Flarum\User\User|null $sender
+ * @property \Flarum\User\User|null $fromUser
  * @property \Flarum\Database\AbstractModel|null $subject
  */
 class Notification extends AbstractModel
