@@ -12,7 +12,7 @@ Object.assign(User.prototype, {
   username: Model.attribute('username'),
   displayName: Model.attribute('displayName'),
   email: Model.attribute('email'),
-  isActivated: Model.attribute('isActivated'),
+  isEmailConfirmed: Model.attribute('isEmailConfirmed'),
   password: Model.attribute('password'),
 
   avatarUrl: Model.attribute('avatarUrl'),

@@ -66,7 +66,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
         $this->actor = $this->getAdminUser();
 
         $response = $this->callWith(array_merge($this->data, [
-            'isActivated' => 1
+            'isEmailConfirmed' => 1
         ]));
 
         $this->assertEquals(201, $response->getStatusCode());

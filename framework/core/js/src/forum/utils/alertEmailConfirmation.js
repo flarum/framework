@@ -10,7 +10,7 @@ import icon from '../../common/helpers/icon';
 export default function alertEmailConfirmation(app) {
   const user = app.session.user;
 
-  if (!user || user.isActivated()) return;
+  if (!user || user.isEmailConfirmed()) return;
 
   const resendButton = Button.component({
     className: 'Button Button--link',
