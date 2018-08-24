@@ -75,7 +75,7 @@ export default class DiscussionListItem extends Component {
       const phrase = this.props.params.q;
       this.highlightRegExp = new RegExp(phrase+'|'+phrase.trim().replace(/\s+/g, '|'), 'gi');
     } else {
-      jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
+      jumpTo = Math.min(discussion.lastPostNumber(), (discussion.lastReadPostNumber() || 0) + 1);
     }
 
     return (
@@ -177,7 +177,7 @@ export default class DiscussionListItem extends Component {
     const discussion = this.props.discussion;
 
     if (discussion.isUnread()) {
-      discussion.save({readNumber: discussion.lastPostNumber()});
+      discussion.save({lastReadPostNumber: discussion.lastPostNumber()});
       m.redraw();
     }
   }
