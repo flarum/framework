@@ -40,7 +40,7 @@ class ListDiscussionsController extends AbstractListController
      * {@inheritdoc}
      */
     public $optionalInclude = [
-        'startPost',
+        'firstPost',
         'lastPost'
     ];
 
@@ -98,7 +98,7 @@ class ListDiscussionsController extends AbstractListController
 
         $results = $results->getResults()->load($load);
 
-        if ($relations = array_intersect($load, ['startPost', 'lastPost'])) {
+        if ($relations = array_intersect($load, ['firstPost', 'lastPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
                     if ($discussion->$relation) {

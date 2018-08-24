@@ -94,7 +94,7 @@ class StartDiscussionHandler
         // attributes as posting the reply will have changed some of them (e.g.
         // last_time.)
         $discussion->setRawAttributes($post->discussion->getAttributes(), true);
-        $discussion->setStartPost($post);
+        $discussion->setFirstPost($post);
         $discussion->setLastPost($post);
 
         $this->dispatchEventsFor($discussion, $actor);

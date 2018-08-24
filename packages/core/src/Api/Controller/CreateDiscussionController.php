@@ -33,7 +33,7 @@ class CreateDiscussionController extends AbstractCreateController
         'posts',
         'startUser',
         'lastUser',
-        'startPost',
+        'firstPost',
         'lastPost'
     ];
 

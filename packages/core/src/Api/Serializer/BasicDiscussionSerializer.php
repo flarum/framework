@@ -52,7 +52,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function startPost($discussion)
+    protected function firstPost($discussion)
     {
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
