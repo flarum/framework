@@ -417,7 +417,7 @@ class User extends AbstractModel
      *
      * @return int
      */
-    public function getUnreadNotificationsCount()
+    public function getUnreadNotificationCount()
     {
         return $this->getUnreadNotifications()->count();
     }
