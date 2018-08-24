@@ -43,7 +43,7 @@ class UserSerializer extends BasicUserSerializer
         $attributes += [
             'joinTime'         => $this->formatDate($user->joined_at),
             'discussionCount'  => (int) $user->discussion_count,
-            'commentsCount'    => (int) $user->comment_count,
+            'commentCount'     => (int) $user->comment_count,
             'canEdit'          => $canEdit,
             'canDelete'        => $gate->allows('delete', $user),
         ];
