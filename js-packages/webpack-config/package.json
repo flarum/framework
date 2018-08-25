@@ -9,13 +9,13 @@
     "webpack": "^4.0.0"
   },
   "dependencies": {
-    "@babel/core": "^7.0.0-beta.39",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.39",
-    "@babel/plugin-transform-react-jsx": "^7.0.0-beta.39",
-    "@babel/plugin-transform-runtime": "^7.0.0-beta.39",
-    "@babel/preset-env": "^7.0.0-beta.39",
-    "@babel/preset-react": "^7.0.0-beta.39",
-    "@babel/runtime": "^7.0.0-beta.39",
-    "babel-loader": "^8.0.0-beta.0"
+    "@babel/core": "^7.0.0-rc.3",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-rc.3",
+    "@babel/plugin-transform-react-jsx": "^7.0.0-rc.3",
+    "@babel/plugin-transform-runtime": "^7.0.0-rc.3",
+    "@babel/preset-env": "^7.0.0-rc.3",
+    "@babel/preset-react": "^7.0.0-rc.3",
+    "@babel/runtime": "^7.0.0-rc.3",
+    "babel-loader": "^8.0.0-beta.6"
   }
 }
