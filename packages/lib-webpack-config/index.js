@@ -45,7 +45,8 @@ module.exports = function(options = {}) {
     output: {
       path: path.resolve(process.cwd(), 'dist'),
       library: 'module.exports',
-      libraryTarget: 'assign'
+      libraryTarget: 'assign',
+      devtoolNamespace: require(path.resolve(process.cwd(), 'package.json')).name
     },
 
     externals: [
