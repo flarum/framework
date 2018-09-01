@@ -73,6 +73,12 @@ class InfoCommand extends AbstractCommand
         $this->info('Base URL: '.$this->config['url']);
         $this->info('Installation path: '.getcwd());
         $this->info('Debug mode '.($this->config['debug'] ? 'ON' : 'off'));
+
+        if ($this->config['debug']) {
+            $this->error(
+                "Don't forget to turn off debug mode! It should never be turned on in a production system."
+            );
+        }
     }
 
     /**
