@@ -65,7 +65,7 @@ class Site
     {
         $extenderFile = "$basePath/extend.php";
 
-        if (!file_exists($extenderFile)) {
+        if (! file_exists($extenderFile)) {
             return [];
         }
 
