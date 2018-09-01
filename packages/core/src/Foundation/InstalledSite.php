@@ -69,6 +69,11 @@ class InstalledSite implements SiteInterface
      */
     protected $config;
 
+    /**
+     * @var \Flarum\Extend\ExtenderInterface[]
+     */
+    protected $extenders = [];
+
     public function __construct($basePath, $publicPath, array $config)
     {
         $this->basePath = $basePath;
@@ -96,6 +101,17 @@ class InstalledSite implements SiteInterface
     public function setStoragePath($storagePath)
     {
         $this->storagePath = $storagePath;
+
+        return $this;
+    }
+
+    /**
+     * @param \Flarum\Extend\ExtenderInterface[] $extenders
+     * @return InstalledSite
+     */
+    public function extendWith(array $extenders): self
+    {
+        $this->extenders = $extenders;
 
         return $this;
     }
@@ -155,6 +171,10 @@ class InstalledSite implements SiteInterface
         $laravel->register(ExtensionServiceProvider::class);
 
         $laravel->boot();
+
+        foreach ($this->extenders as $extension) {
+            $extension($laravel);
+        }
 
         return $laravel;
     }
