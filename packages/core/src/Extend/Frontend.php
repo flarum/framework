@@ -53,11 +53,11 @@ class Frontend implements ExtenderInterface
 
     public function __invoke(Container $container, Extension $extension = null)
     {
-        $this->registerAssets($container, $extension);
+        $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);
     }
 
-    private function registerAssets(Container $container, Extension $extension)
+    private function registerAssets(Container $container, string $moduleName)
     {
         if (empty($this->css) && empty($this->js)) {
             return;
@@ -65,10 +65,10 @@ class Frontend implements ExtenderInterface
 
         $container->resolving(
             "flarum.$this->frontend.assets",
-            function (CompilerFactory $assets) use ($extension) {
-                $assets->add(function () use ($extension) {
+            function (CompilerFactory $assets) use ($moduleName) {
+                $assets->add(function () use ($moduleName) {
                     return new ExtensionAssets(
-                        $extension, $this->css, $this->js
+                        $moduleName, $this->css, $this->js
                     );
                 });
             }
@@ -90,5 +90,10 @@ class Frontend implements ExtenderInterface
                 $factory->toForum($route['content'])
             );
         }
+    }
+
+    private function getModuleName(?Extension $extension): string
+    {
+        return $extension ? $extension->getId() : 'site-custom';
     }
 }

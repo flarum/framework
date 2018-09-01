@@ -11,15 +11,14 @@
 
 namespace Flarum\Frontend\Asset;
 
-use Flarum\Extension\Extension;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 
 class ExtensionAssets implements AssetInterface
 {
     /**
-     * @var Extension
+     * @var string
      */
-    protected $extension;
+    protected $moduleName;
 
     /**
      * @var array
@@ -32,13 +31,13 @@ class ExtensionAssets implements AssetInterface
     protected $js;
 
     /**
-     * @param Extension $extension
+     * @param string $moduleName
      * @param array $css
      * @param string|callable|null $js
      */
-    public function __construct(Extension $extension, array $css, $js = null)
+    public function __construct(string $moduleName, array $css, $js = null)
     {
-        $this->extension = $extension;
+        $this->moduleName = $moduleName;
         $this->css = $css;
         $this->js = $js;
     }
@@ -57,9 +56,7 @@ class ExtensionAssets implements AssetInterface
             }
 
             $sources->addString(function () {
-                $name = $this->extension->getId();
-
-                return "flarum.extensions['$name']=module.exports";
+                return "flarum.extensions['$this->moduleName']=module.exports";
             });
         }
     }
