@@ -35,11 +35,11 @@ class Site
         date_default_timezone_set('UTC');
 
         if (static::hasConfigFile($paths['base'])) {
-            return new InstalledSite(
+            return (new InstalledSite(
                 $paths['base'],
                 $paths['public'],
                 static::loadConfig($paths['base'])
-            );
+            ))->extendWith(static::loadExtenders($paths['base']));
         } else {
             return new UninstalledSite($paths['base'], $paths['public']);
         }
@@ -59,5 +59,16 @@ class Site
         }
 
         return $config;
+    }
+
+    private static function loadExtenders($basePath): array
+    {
+        $extenderFile = "$basePath/extend.php";
+
+        if (!file_exists($extenderFile)) {
+            return [];
+        }
+
+        return array_flatten(require $extenderFile);
     }
 }
