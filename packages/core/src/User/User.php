@@ -198,9 +198,10 @@ class User extends AbstractModel
     public function rename($username)
     {
         if ($username !== $this->username) {
+            $oldUsername = $this->username;
             $this->username = $username;
 
-            $this->raise(new Renamed($this));
+            $this->raise(new Renamed($this, $oldUsername));
         }
 
         return $this;
