@@ -57,12 +57,12 @@ class InfoCommand extends AbstractCommand
     protected function fire()
     {
         $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
-        $this->info("Flarum core $coreVersion");
+        $this->output->writeln("<info>Flarum core $coreVersion</info>");
 
-        $this->info('PHP '.PHP_VERSION);
+        $this->output->writeln('<info>PHP version:</info> '.PHP_VERSION);
 
         $phpExtensions = implode(', ', get_loaded_extensions());
-        $this->info("Loaded extensions: $phpExtensions");
+        $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
 
         $table = new Table($this->output);
         $table->setHeaders([
@@ -76,8 +76,7 @@ class InfoCommand extends AbstractCommand
             ]
         ])->setStyle(
             (new TableStyle())
-                ->setCellRowFormat('<info>%s</info>')
-                ->setBorderFormat('<info>%s</info>')
+                ->setCellHeaderFormat('<info>%s</info>')
         );
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
@@ -95,9 +94,9 @@ class InfoCommand extends AbstractCommand
 
         $table->render();
 
-        $this->info('Base URL: '.$this->config['url']);
-        $this->info('Installation path: '.getcwd());
-        $this->info('Debug mode '.($this->config['debug'] ? 'ON' : 'off'));
+        $this->output->writeln('<info>Base URL:</info> '.$this->config['url']);
+        $this->output->writeln('<info>Installation path:</info> '.getcwd());
+        $this->output->writeln('<info>Debug mode:</info> '.($this->config['debug'] ? 'ON' : 'off'));
 
         if ($this->config['debug']) {
             $this->error(
