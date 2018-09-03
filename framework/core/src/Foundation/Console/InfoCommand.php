@@ -14,6 +14,8 @@ namespace Flarum\Foundation\Console;
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableStyle;
 
 class InfoCommand extends AbstractCommand
 {
@@ -62,13 +64,36 @@ class InfoCommand extends AbstractCommand
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->info("Loaded extensions: $phpExtensions");
 
+        $table = new Table($this->output);
+        $table->setHeaders([
+            [
+                'Flarum Extensions'
+            ],
+            [
+                'ID',
+                'Version',
+                'Commit'
+            ]
+        ])->setStyle(
+            (new TableStyle())
+                ->setCellRowFormat('<info>%s</info>')
+                ->setBorderFormat('<info>%s</info>')
+        );
+
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             /* @var \Flarum\Extension\Extension $extension */
             $name = $extension->getId();
-            $version = $this->findPackageVersion($extension->getPath(), $extension->getVersion());
+            $fallback = $extension->getVersion();
+            $version = $this->findPackageVersion($extension->getPath());
 
-            $this->info("EXT $name $version");
+            $table->addRow([
+                $name,
+                $fallback,
+                $version
+            ]);
         }
+
+        $table->render();
 
         $this->info('Base URL: '.$this->config['url']);
         $this->info('Installation path: '.getcwd());
@@ -91,7 +116,7 @@ class InfoCommand extends AbstractCommand
      * @param string $fallback
      * @return string
      */
-    private function findPackageVersion($path, $fallback)
+    private function findPackageVersion($path, $fallback = null)
     {
         if (file_exists("$path/.git")) {
             $cwd = getcwd();
@@ -99,12 +124,12 @@ class InfoCommand extends AbstractCommand
 
             $output = [];
             $status = null;
-            exec('git rev-parse HEAD', $output, $status);
+            exec('git rev-parse HEAD 2> /dev/null', $output, $status);
 
             chdir($cwd);
 
             if ($status == 0) {
-                return "$fallback ($output[0])";
+                return isset($fallback) ? "$fallback ($output[0])" : $output[0];
             }
         }
 
