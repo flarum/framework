@@ -64,35 +64,7 @@ class InfoCommand extends AbstractCommand
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
 
-        $table = new Table($this->output);
-        $table->setHeaders([
-            [
-                'Flarum Extensions'
-            ],
-            [
-                'ID',
-                'Version',
-                'Commit'
-            ]
-        ])->setStyle(
-            (new TableStyle())
-                ->setCellHeaderFormat('<info>%s</info>')
-        );
-
-        foreach ($this->extensions->getEnabledExtensions() as $extension) {
-            /* @var \Flarum\Extension\Extension $extension */
-            $name = $extension->getId();
-            $fallback = $extension->getVersion();
-            $version = $this->findPackageVersion($extension->getPath());
-
-            $table->addRow([
-                $name,
-                $fallback,
-                $version
-            ]);
-        }
-
-        $table->render();
+        $this->getExtensionTable()->render();
 
         $this->output->writeln('<info>Base URL:</info> '.$this->config['url']);
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
@@ -103,6 +75,27 @@ class InfoCommand extends AbstractCommand
                 "Don't forget to turn off debug mode! It should never be turned on in a production system."
             );
         }
+    }
+
+    private function getExtensionTable()
+    {
+        $table = (new Table($this->output))
+            ->setHeaders([
+                ['Flarum Extensions'],
+                ['ID', 'Version', 'Commit']
+            ])->setStyle(
+                (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
+            );
+
+        foreach ($this->extensions->getEnabledExtensions() as $extension) {
+            $table->addRow([
+                $extension->getId(),
+                $extension->getVersion(),
+                $this->findPackageVersion($extension->getPath())
+            ]);
+        }
+
+        return $table;
     }
 
     /**
