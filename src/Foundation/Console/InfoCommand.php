@@ -64,8 +64,9 @@ class InfoCommand extends AbstractCommand
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             /* @var \Flarum\Extension\Extension $extension */
-            $name = $extension->getId();
-            $version = $this->findPackageVersion($extension->getPath(), $extension->getVersion());
+            $name = str_pad($extension->getId(), 25);
+            $fallback = str_pad($extension->getVersion(), 15);
+            $version = $this->findPackageVersion($extension->getPath(), $fallback);
 
             $this->info("EXT $name $version");
         }
