@@ -14,7 +14,6 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Asset\ExtensionAssets;
 use Flarum\Frontend\CompilerFactory;
-use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
 class Frontend implements ExtenderInterface
@@ -44,17 +43,9 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
-    public function route($path, $name, $content = null)
-    {
-        $this->routes[] = compact('path', 'name', 'content');
-
-        return $this;
-    }
-
     public function __invoke(Container $container, Extension $extension = null)
     {
         $this->registerAssets($container, $this->getModuleName($extension));
-        $this->registerRoutes($container);
     }
 
     private function registerAssets(Container $container, string $moduleName)
@@ -73,23 +64,6 @@ class Frontend implements ExtenderInterface
                 });
             }
         );
-    }
-
-    private function registerRoutes(Container $container)
-    {
-        if (empty($this->routes)) {
-            return;
-        }
-
-        $routes = $container->make("flarum.$this->frontend.routes");
-        $factory = $container->make(RouteHandlerFactory::class);
-
-        foreach ($this->routes as $route) {
-            $routes->get(
-                $route['path'], $route['name'],
-                $factory->toFrontend($this->frontend, $route['content'])
-            );
-        }
     }
 
     private function getModuleName(?Extension $extension): string
