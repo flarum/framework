@@ -46,7 +46,7 @@ class ControllerRouteHandler
      */
     public function __invoke(ServerRequestInterface $request, array $routeParams)
     {
-        $controller = $this->resolveController($this->controller);
+        $controller = $this->resolveController();
 
         $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
 
@@ -54,15 +54,14 @@ class ControllerRouteHandler
     }
 
     /**
-     * @param string|callable $class
      * @return RequestHandlerInterface
      */
-    protected function resolveController($class)
+    protected function resolveController()
     {
-        if (is_callable($class)) {
-            $controller = $this->container->call($class);
+        if (is_callable($this->controller)) {
+            $controller = $this->container->call($this->controller);
         } else {
-            $controller = $this->container->make($class);
+            $controller = $this->container->make($this->controller);
         }
 
         if (! ($controller instanceof RequestHandlerInterface)) {
