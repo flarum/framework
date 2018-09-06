@@ -116,7 +116,7 @@ class InfoCommand extends AbstractCommand
 
             $output = [];
             $status = null;
-            exec('git rev-parse HEAD 2> /dev/null', $output, $status);
+            exec('git rev-parse HEAD 2>&1', $output, $status);
 
             chdir($cwd);
 
