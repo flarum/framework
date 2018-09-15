@@ -115,6 +115,8 @@
 // ---------------------------------
 // BREAKPOINTS
 
+@screen-mini-max:				   410px;
+
 @screen-phone-max:                 (@screen-tablet - 1);
 
 @screen-tablet:                    768px;
@@ -125,6 +127,7 @@
 
 @screen-desktop-hd:                1100px;
 
+@mini:							   ~"(max-width: @{screen-mini-max})";
 @phone:                            ~"(max-width: @{screen-phone-max})";
 @tablet:                           ~"(min-width: @{screen-tablet}) and (max-width: @{screen-tablet-max})";
 @desktop:                          ~"(min-width: @{screen-desktop}) and (max-width: @{screen-desktop-max})";
