@@ -16,12 +16,13 @@ use Flarum\Frontend\Asset\ExtensionAssets;
 use Flarum\Frontend\CompilerFactory;
 use Illuminate\Contracts\Container\Container;
 
-class Assets implements ExtenderInterface
+class Frontend implements ExtenderInterface
 {
     protected $frontend;
 
     protected $css = [];
     protected $js;
+    protected $routes = [];
 
     public function __construct($frontend)
     {
@@ -35,14 +36,6 @@ class Assets implements ExtenderInterface
         return $this;
     }
 
-    /**
-     * @deprecated
-     */
-    public function asset($path)
-    {
-        return $this->css($path);
-    }
-
     public function js($path)
     {
         $this->js = $path;
@@ -52,13 +45,29 @@ class Assets implements ExtenderInterface
 
     public function __invoke(Container $container, Extension $extension = null)
     {
+        $this->registerAssets($container, $this->getModuleName($extension));
+    }
+
+    private function registerAssets(Container $container, string $moduleName)
+    {
+        if (empty($this->css) && empty($this->js)) {
+            return;
+        }
+
         $container->resolving(
             "flarum.$this->frontend.assets",
-            function (CompilerFactory $assets) use ($extension) {
-                $assets->add(function () use ($extension) {
-                    return new ExtensionAssets($extension, $this->css, $this->js);
+            function (CompilerFactory $assets) use ($moduleName) {
+                $assets->add(function () use ($moduleName) {
+                    return new ExtensionAssets(
+                        $moduleName, $this->css, $this->js
+                    );
                 });
             }
         );
+    }
+
+    private function getModuleName(?Extension $extension): string
+    {
+        return $extension ? $extension->getId() : 'site-custom';
     }
 }

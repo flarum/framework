@@ -11,15 +11,14 @@
 
 namespace Flarum\Frontend\Asset;
 
-use Flarum\Extension\Extension;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 
 class ExtensionAssets implements AssetInterface
 {
     /**
-     * @var Extension
+     * @var string
      */
-    protected $extension;
+    protected $moduleName;
 
     /**
      * @var array
@@ -32,13 +31,13 @@ class ExtensionAssets implements AssetInterface
     protected $js;
 
     /**
-     * @param Extension $extension
+     * @param string $moduleName
      * @param array $css
      * @param string|callable|null $js
      */
-    public function __construct(Extension $extension, array $css, $js = null)
+    public function __construct(string $moduleName, array $css, $js = null)
     {
-        $this->extension = $extension;
+        $this->moduleName = $moduleName;
         $this->css = $css;
         $this->js = $js;
     }
@@ -47,9 +46,17 @@ class ExtensionAssets implements AssetInterface
     {
         if ($this->js) {
             $sources->addString(function () {
-                $name = $this->extension->getId();
+                return 'var module={}';
+            });
 
-                return 'var module={};'.$this->getContent($this->js).";flarum.extensions['$name']=module.exports";
+            if (is_callable($this->js)) {
+                $sources->addString($this->js);
+            } else {
+                $sources->addFile($this->js);
+            }
+
+            $sources->addString(function () {
+                return "flarum.extensions['$this->moduleName']=module.exports";
             });
         }
     }
@@ -63,11 +70,6 @@ class ExtensionAssets implements AssetInterface
                 $sources->addFile($asset);
             }
         }
-    }
-
-    private function getContent($asset)
-    {
-        return is_callable($asset) ? $asset() : file_get_contents($asset);
     }
 
     public function localeJs(SourceCollector $sources, string $locale)

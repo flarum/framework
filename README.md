@@ -1,6 +1,6 @@
 # Flarum Core
 
-This repository contains Flarum's core code. If you want to set up a forum, visit the [main Flarum repository](http://github.com/flarum/flarum).
+This repository contains Flarum's core code. If you want to set up a forum, visit the [main Flarum repository](https://github.com/flarum/flarum).
 
 ## Contributing
 

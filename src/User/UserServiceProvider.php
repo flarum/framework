@@ -15,9 +15,7 @@ use Flarum\Event\ConfigureUserPreferences;
 use Flarum\Event\GetPermission;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Session\FileSessionHandler;
 use RuntimeException;
-use SessionHandlerInterface;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
@@ -26,22 +24,8 @@ class UserServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->registerSession();
         $this->registerGate();
         $this->registerAvatarsFilesystem();
-    }
-
-    protected function registerSession()
-    {
-        $this->app->singleton('session.handler', function ($app) {
-            return new FileSessionHandler(
-                $app['files'],
-                $app['config']['session.files'],
-                $app['config']['session.lifetime']
-            );
-        });
-
-        $this->app->alias('session.handler', SessionHandlerInterface::class);
     }
 
     protected function registerGate()

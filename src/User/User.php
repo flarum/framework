@@ -198,9 +198,10 @@ class User extends AbstractModel
     public function rename($username)
     {
         if ($username !== $this->username) {
+            $oldUsername = $this->username;
             $this->username = $username;
 
-            $this->raise(new Renamed($this));
+            $this->raise(new Renamed($this, $oldUsername));
         }
 
         return $this;
@@ -605,6 +606,16 @@ class User extends AbstractModel
     }
 
     /**
+     * Define the relationship with the user's discussions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function discussions()
+    {
+        return $this->hasMany('Flarum\Discussion\Discussion', 'start_user_id');
+    }
+
+    /**
      * Define the relationship with the user's read discussions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -746,5 +757,29 @@ class User extends AbstractModel
     public static function getNotificationPreferenceKey($type, $method)
     {
         return 'notify_'.$type.'_'.$method;
+    }
+
+    /**
+     * Refresh the user's comments count.
+     *
+     * @return $this
+     */
+    public function refreshCommentsCount()
+    {
+        $this->comments_count = $this->posts()->count();
+
+        return $this;
+    }
+
+    /**
+     * Refresh the user's comments count.
+     *
+     * @return $this
+     */
+    public function refreshDiscussionsCount()
+    {
+        $this->discussions_count = $this->discussions()->count();
+
+        return $this;
     }
 }

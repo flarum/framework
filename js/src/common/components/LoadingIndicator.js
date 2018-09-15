@@ -19,7 +19,9 @@ export default class LoadingIndicator extends Component {
     return <div {...attrs}>{m.trust('&nbsp;')}</div>;
   }
 
-  config() {
+  config(isInitialized) {
+    if (isInitialized) return;
+
     const options = { zIndex: 'auto', color: this.$().css('color') };
 
     switch (this.props.size) {

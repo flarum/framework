@@ -46,7 +46,7 @@ class RouteHandlerFactory
     public function toFrontend(string $frontend, string $content = null)
     {
         return $this->toController(function (Container $container) use ($frontend, $content) {
-            $frontend = $container->make($frontend);
+            $frontend = $container->make("flarum.$frontend.frontend");
 
             if ($content) {
                 $frontend->add($container->make($content));
@@ -62,7 +62,7 @@ class RouteHandlerFactory
      */
     public function toForum(string $content = null)
     {
-        return $this->toFrontend('flarum.forum.frontend', $content);
+        return $this->toFrontend('forum', $content);
     }
 
     /**
@@ -71,6 +71,6 @@ class RouteHandlerFactory
      */
     public function toAdmin(string $content = null)
     {
-        return $this->toFrontend('flarum.admin.frontend', $content);
+        return $this->toFrontend('admin', $content);
     }
 }

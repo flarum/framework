@@ -71,15 +71,17 @@ export default class IndexPage extends Page {
       <div className="IndexPage">
         {this.hero()}
         <div className="container">
-          <nav className="IndexPage-nav sideNav">
-            <ul>{listItems(this.sidebarItems().toArray())}</ul>
-          </nav>
-          <div className="IndexPage-results sideNavOffset">
-            <div className="IndexPage-toolbar">
-              <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
-              <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
+          <div className="sideNavContainer">
+            <nav className="IndexPage-nav sideNav">
+              <ul>{listItems(this.sidebarItems().toArray())}</ul>
+            </nav>
+            <div className="IndexPage-results sideNavOffset">
+              <div className="IndexPage-toolbar">
+                <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
+                <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
+              </div>
+              {app.cache.discussionList.render()}
             </div>
-            {app.cache.discussionList.render()}
           </div>
         </div>
       </div>
