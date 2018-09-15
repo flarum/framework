@@ -38,7 +38,9 @@ return [
                 continue;
             }
 
-            $db->table('group_permission')->updateOrInsert($row);
+            if ($db->table('group_permission')->where($row)->doesntExist()) {
+                $db->table('group_permission')->insert($row);
+            }
         }
     },
 
