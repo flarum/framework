@@ -9,22 +9,44 @@
  * file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
 use Flarum\Group\Group;
+use Illuminate\Database\Schema\Builder;
 
-return Migration::addPermissions([
+$rows = [
     // Guests can view the forum
-    'viewDiscussions' => Group::GUEST_ID,
+    ['permission' => 'viewDiscussions', 'group_id' => Group::GUEST_ID],
 
     // Members can create and reply to discussions, and view the user list
-    'startDiscussion' => Group::MEMBER_ID,
-    'discussion.reply' => Group::MEMBER_ID,
-    'viewUserList' => Group::MEMBER_ID,
+    ['permission' => 'startDiscussion', 'group_id' => Group::MEMBER_ID],
+    ['permission' => 'discussion.reply', 'group_id' => Group::MEMBER_ID],
+    ['permission' => 'viewUserList', 'group_id' => Group::MEMBER_ID],
 
     // Moderators can edit + delete stuff
-    'discussion.hide' => Group::MODERATOR_ID,
-    'discussion.editPosts' => Group::MODERATOR_ID,
-    'discussion.hidePosts' => Group::MODERATOR_ID,
-    'discussion.rename' => Group::MODERATOR_ID,
-    'discussion.viewIpsPosts' => Group::MODERATOR_ID,
-]);
+    ['permission' => 'discussion.hide', 'group_id' => Group::MODERATOR_ID],
+    ['permission' => 'discussion.editPosts', 'group_id' => Group::MODERATOR_ID],
+    ['permission' => 'discussion.hidePosts', 'group_id' => Group::MODERATOR_ID],
+    ['permission' => 'discussion.rename', 'group_id' => Group::MODERATOR_ID],
+    ['permission' => 'discussion.viewIpsPosts', 'group_id' => Group::MODERATOR_ID],
+];
+
+return [
+    'up' => function (Builder $schema) use ($rows) {
+        $db = $schema->getConnection();
+
+        foreach ($rows as $row) {
+            if ($db->table('groups')->where('id', $row['group_id'])->doesntExist()) {
+                continue;
+            }
+
+            $db->table('group_permission')->updateOrInsert($row);
+        }
+    },
+
+    'down' => function (Builder $schema) use ($rows) {
+        $db = $schema->getConnection();
+
+        foreach ($rows as $row) {
+            $db->table('group_permission')->where($row)->delete();
+        }
+    }
+];
