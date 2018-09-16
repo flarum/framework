@@ -41,12 +41,12 @@ class ListFlagsController extends AbstractListController
     {
         $actor = $request->getAttribute('actor');
 
-        $actor->flags_read_time = time();
+        $actor->read_flags_at = time();
         $actor->save();
 
         return Flag::whereVisibleTo($actor)
             ->with($this->extractInclude($request))
-            ->latest('flags.time')
+            ->latest('flags.created_at')
             ->groupBy('post_id')
             ->get();
     }

@@ -51,7 +51,7 @@ class AddFlagsApi
     public function configureModelDates(ConfigureModelDates $event)
     {
         if ($event->isModel(User::class)) {
-            $event->dates[] = 'flags_read_time';
+            $event->dates[] = 'read_flags_at';
         }
     }
 
@@ -64,14 +64,14 @@ class AddFlagsApi
             $event->attributes['canViewFlags'] = $event->actor->hasPermissionLike('discussion.viewFlags');
 
             if ($event->attributes['canViewFlags']) {
-                $event->attributes['flagsCount'] = (int) $this->getFlagsCount($event->actor);
+                $event->attributes['flagCount'] = (int) $this->getFlagCount($event->actor);
             }
 
             $event->attributes['guidelinesUrl'] = $this->settings->get('flarum-flags.guidelines_url');
         }
 
         if ($event->isSerializer(CurrentUserSerializer::class)) {
-            $event->attributes['newFlagsCount'] = (int) $this->getNewFlagsCount($event->model);
+            $event->attributes['newFlagCount'] = (int) $this->getNewFlagCount($event->model);
         }
 
         if ($event->isSerializer(PostSerializer::class)) {
@@ -83,7 +83,7 @@ class AddFlagsApi
      * @param User $actor
      * @return int
      */
-    protected function getFlagsCount(User $actor)
+    protected function getFlagCount(User $actor)
     {
         return Flag::whereVisibleTo($actor)->distinct()->count('flags.post_id');
     }
@@ -92,12 +92,12 @@ class AddFlagsApi
      * @param User $actor
      * @return int
      */
-    protected function getNewFlagsCount(User $actor)
+    protected function getNewFlagCount(User $actor)
     {
         $query = Flag::whereVisibleTo($actor);
 
-        if ($time = $actor->flags_read_time) {
-            $query->where('flags.time', '>', $time);
+        if ($time = $actor->read_flags_at) {
+            $query->where('flags.created_at', '>', $time);
         }
 
         return $query->distinct()->count('flags.post_id');

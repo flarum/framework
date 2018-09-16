@@ -65,7 +65,7 @@ class CreateFlagHandler
         $flag->type = 'user';
         $flag->reason = array_get($data, 'attributes.reason');
         $flag->reason_detail = array_get($data, 'attributes.reasonDetail');
-        $flag->time = time();
+        $flag->created_at = time();
 
         $flag->save();
 

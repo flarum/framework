@@ -41,7 +41,7 @@ export default class FlagList extends Component {
                       <span className="Notification-content">
                         {app.translator.trans('flarum-flags.forum.flagged_posts.item_text', {username: username(post.user()), em: <em/>, discussion: post.discussion().title()})}
                       </span>
-                      {humanTime(flag.time())}
+                      {humanTime(flag.createdAt())}
                       <div className="Notification-excerpt">
                         {post.contentPlain()}
                       </div>
@@ -63,7 +63,7 @@ export default class FlagList extends Component {
    * been loaded.
    */
   load() {
-    if (app.cache.flags && !app.session.user.attribute('newFlagsCount')) {
+    if (app.cache.flags && !app.session.user.attribute('newFlagCount')) {
       return;
     }
 
@@ -72,8 +72,8 @@ export default class FlagList extends Component {
 
     app.store.find('flags')
       .then(flags => {
-        app.session.user.pushAttributes({newFlagsCount: 0});
-        app.cache.flags = flags.sort((a, b) => b.time() - a.time());
+        app.session.user.pushAttributes({newFlagCount: 0});
+        app.cache.flags = flags.sort((a, b) => b.createdAt() - a.createdAt());
       })
       .catch(() => {})
       .then(() => {
