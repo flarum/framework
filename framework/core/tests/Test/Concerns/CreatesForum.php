@@ -89,6 +89,7 @@ trait CreatesForum
         $database['database'] = env('DB_DATABASE', $database['database']);
         $database['username'] = env('DB_USERNAME', $database['username']);
         $database['password'] = env('DB_PASSWORD', $database['password']);
+        $database['prefix'] = env('DB_PREFIX', $database['prefix']);
         $this->configuration->setDatabaseConfiguration($database);
     }
 
