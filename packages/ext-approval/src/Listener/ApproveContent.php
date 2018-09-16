@@ -60,7 +60,7 @@ class ApproveContent
         $post = $event->post;
         $discussion = $post->discussion;
 
-        $discussion->refreshCommentsCount();
+        $discussion->refreshCommentCount();
         $discussion->refreshLastPost();
 
         if ($post->number == 1) {
