@@ -13,6 +13,7 @@ namespace Flarum\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractCommand extends Command
@@ -55,12 +56,28 @@ abstract class AbstractCommand extends Command
     }
 
     /**
-     * Send an info string to the user.
+     * Send an info message to the user.
      *
-     * @param string $string
+     * @param string $message
      */
-    protected function info($string)
+    protected function info($message)
     {
-        $this->output->writeln("<info>$string</info>");
+        $this->output->writeln("<info>$message</info>");
+    }
+
+    /**
+     * Send an error or warning message to the user.
+     *
+     * If possible, this will send the message via STDERR.
+     *
+     * @param string $message
+     */
+    protected function error($message)
+    {
+        if ($this->output instanceof ConsoleOutputInterface) {
+            $this->output->getErrorOutput()->writeln("<error>$message</error>");
+        } else {
+            $this->output->writeln("<error>$message</error>");
+        }
     }
 }

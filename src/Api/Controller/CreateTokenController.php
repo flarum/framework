@@ -71,7 +71,7 @@ class CreateTokenController implements RequestHandlerInterface
         $token->save();
 
         return new JsonResponse([
-            'token' => $token->id,
+            'token' => $token->token,
             'userId' => $user->id
         ]);
     }

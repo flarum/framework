@@ -277,7 +277,7 @@ class Gate implements GateContract
 
                 $result = call_user_func_array([$instance, 'before'], $beforeArguments);
 
-                // If we recieved a non-null result from the before method, we will return it
+                // If we received a non-null result from the before method, we will return it
                 // as the result of a check. This allows developers to override the checks
                 // in the policy and return a result for all rules defined in the class.
                 if (! is_null($result)) {

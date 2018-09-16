@@ -87,7 +87,7 @@ export default class DiscussionList extends Component {
    * @api
    */
   requestParams() {
-    const params = {include: ['startUser', 'lastUser'], filter: {}};
+    const params = {include: ['user', 'lastPostedUser'], filter: {}};
 
     params.sort = this.sortMap()[this.props.params.sort];
 
@@ -112,10 +112,10 @@ export default class DiscussionList extends Component {
     if (this.props.params.q) {
       map.relevance = '';
     }
-    map.latest = '-lastTime';
-    map.top = '-commentsCount';
-    map.newest = '-startTime';
-    map.oldest = 'startTime';
+    map.latest = '-lastPostedAt';
+    map.top = '-commentCount';
+    map.newest = '-createdAt';
+    map.oldest = 'createdAt';
 
     return map;
   }

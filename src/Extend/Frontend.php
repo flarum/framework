@@ -14,7 +14,6 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Asset\ExtensionAssets;
 use Flarum\Frontend\CompilerFactory;
-use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
 class Frontend implements ExtenderInterface
@@ -44,20 +43,12 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
-    public function route($path, $name, $content = null)
-    {
-        $this->routes[] = compact('path', 'name', 'content');
-
-        return $this;
-    }
-
     public function __invoke(Container $container, Extension $extension = null)
     {
-        $this->registerAssets($container, $extension);
-        $this->registerRoutes($container);
+        $this->registerAssets($container, $this->getModuleName($extension));
     }
 
-    private function registerAssets(Container $container, Extension $extension)
+    private function registerAssets(Container $container, string $moduleName)
     {
         if (empty($this->css) && empty($this->js)) {
             return;
@@ -65,30 +56,18 @@ class Frontend implements ExtenderInterface
 
         $container->resolving(
             "flarum.$this->frontend.assets",
-            function (CompilerFactory $assets) use ($extension) {
-                $assets->add(function () use ($extension) {
+            function (CompilerFactory $assets) use ($moduleName) {
+                $assets->add(function () use ($moduleName) {
                     return new ExtensionAssets(
-                        $extension, $this->css, $this->js
+                        $moduleName, $this->css, $this->js
                     );
                 });
             }
         );
     }
 
-    private function registerRoutes(Container $container)
+    private function getModuleName(?Extension $extension): string
     {
-        if (empty($this->routes)) {
-            return;
-        }
-
-        $routes = $container->make("flarum.$this->frontend.routes");
-        $factory = $container->make(RouteHandlerFactory::class);
-
-        foreach ($this->routes as $route) {
-            $routes->get(
-                $route['path'], $route['name'],
-                $factory->toForum($route['content'])
-            );
-        }
+        return $extension ? $extension->getId() : 'site-custom';
     }
 }

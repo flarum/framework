@@ -11,20 +11,20 @@
 
 namespace Flarum\User;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 
 /**
- * @todo document database columns with @property
+ * @property string $token
+ * @property \Carbon\Carbon $created_at
+ * @property int $user_id
  */
 class PasswordToken extends AbstractModel
 {
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'password_tokens';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at'];
 
@@ -36,18 +36,23 @@ class PasswordToken extends AbstractModel
     public $incrementing = false;
 
     /**
+     * {@inheritdoc}
+     */
+    protected $primaryKey = 'token';
+
+    /**
      * Generate a password token for the specified user.
      *
      * @param int $userId
      * @return static
      */
-    public static function generate($userId)
+    public static function generate(int $userId)
     {
         $token = new static;
 
-        $token->id = str_random(40);
+        $token->token = str_random(40);
         $token->user_id = $userId;
-        $token->created_at = time();
+        $token->created_at = Carbon::now();
 
         return $token;
     }

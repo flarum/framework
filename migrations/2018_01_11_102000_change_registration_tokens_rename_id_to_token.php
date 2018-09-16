@@ -10,8 +10,5 @@
  */
 
 use Flarum\Database\Migration;
-use Flarum\Group\Group;
 
-return Migration::addPermissions([
-    'discussion.hidePosts' => Group::MODERATOR_ID
-]);
+return Migration::renameColumn('registration_tokens', 'id', 'token');

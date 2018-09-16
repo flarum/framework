@@ -33,22 +33,29 @@ class FulltextGambit implements GambitInterface
         // See https://bugs.mysql.com/bug.php?id=74042
         $bit = str_replace('@', '*', $bit);
 
-        $search->getQuery()
-            ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT(posts.id ORDER BY MATCH(posts.content) AGAINST (?) DESC), \',\', 1) as most_relevant_post_id', [$bit])
+        $query = $search->getQuery();
+        $grammar = $query->getGrammar();
+
+        $query
+            ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT('.$grammar->wrap('posts.id').' ORDER BY MATCH('.$grammar->wrap('posts.content').') AGAINST (?) DESC), \',\', 1) as most_relevant_post_id', [$bit])
             ->leftJoin('posts', 'posts.discussion_id', '=', 'discussions.id')
             ->where('posts.type', 'comment')
             ->where(function ($query) use ($search) {
                 event(new ScopeModelVisibility(Post::query()->setQuery($query), $search->getActor(), 'view'));
             })
             ->where(function ($query) use ($bit) {
-                $query->whereRaw('MATCH(discussions.title) AGAINST (? IN BOOLEAN MODE)', [$bit])
-                    ->orWhereRaw('MATCH(posts.content) AGAINST (? IN BOOLEAN MODE)', [$bit]);
+                $grammar = $query->getGrammar();
+
+                $query->whereRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (? IN BOOLEAN MODE)', [$bit])
+                    ->orWhereRaw('MATCH('.$grammar->wrap('posts.content').') AGAINST (? IN BOOLEAN MODE)', [$bit]);
             })
             ->groupBy('posts.discussion_id');
 
         $search->setDefaultSort(function ($query) use ($bit) {
-            $query->orderByRaw('MATCH(discussions.title) AGAINST (?) desc', [$bit]);
-            $query->orderByRaw('MATCH(posts.content) AGAINST (?) desc', [$bit]);
+            $grammar = $query->getGrammar();
+
+            $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
+            $query->orderByRaw('MATCH('.$grammar->wrap('posts.content').') AGAINST (?) desc', [$bit]);
         });
     }
 }

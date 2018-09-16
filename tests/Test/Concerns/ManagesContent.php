@@ -31,8 +31,8 @@ trait ManagesContent
 
         $post->save();
 
-        if (! $this->discussion->startPost) {
-            $this->discussion->setStartPost($post);
+        if (! $this->discussion->firstPost) {
+            $this->discussion->setFirstPost($post);
             $this->discussion->setLastPost($post);
 
             $this->discussion->save();

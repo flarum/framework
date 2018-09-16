@@ -37,7 +37,7 @@ export default class ForumApplication extends Application {
   /**
    * The page's search component instance.
    *
-   * @type {SearchBox}
+   * @type {Search}
    */
   search = new Search();
 

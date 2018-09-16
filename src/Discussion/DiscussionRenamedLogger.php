@@ -54,11 +54,11 @@ class DiscussionRenamedLogger
 
         $post = $event->discussion->mergePost($post);
 
-        if ($event->discussion->start_user_id !== $event->actor->id) {
+        if ($event->discussion->user_id !== $event->actor->id) {
             $blueprint = new DiscussionRenamedBlueprint($post);
 
             if ($post->exists) {
-                $this->notifications->sync($blueprint, [$event->discussion->startUser]);
+                $this->notifications->sync($blueprint, [$event->discussion->user]);
             } else {
                 $this->notifications->delete($blueprint);
             }

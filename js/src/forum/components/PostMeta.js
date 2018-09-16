@@ -14,7 +14,7 @@ import fullTime from '../../common/helpers/fullTime';
 export default class PostMeta extends Component {
   view() {
     const post = this.props.post;
-    const time = post.time();
+    const time = post.createdAt();
     const permalink = this.getPermalink(post);
     const touch = 'ontouchstart' in document.documentElement;
 

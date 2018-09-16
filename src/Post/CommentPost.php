@@ -11,6 +11,7 @@
 
 namespace Flarum\Post;
 
+use Carbon\Carbon;
 use Flarum\Formatter\Formatter;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
@@ -51,7 +52,7 @@ class CommentPost extends Post
     {
         $post = new static;
 
-        $post->time = time();
+        $post->created_at = Carbon::now();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
         $post->type = static::$type;
@@ -77,8 +78,8 @@ class CommentPost extends Post
         if ($this->content !== $content) {
             $this->content = $content;
 
-            $this->edit_time = time();
-            $this->edit_user_id = $actor->id;
+            $this->edited_at = Carbon::now();
+            $this->edited_user_id = $actor->id;
 
             $this->raise(new Revised($this));
         }
@@ -94,9 +95,9 @@ class CommentPost extends Post
      */
     public function hide(User $actor = null)
     {
-        if (! $this->hide_time) {
-            $this->hide_time = time();
-            $this->hide_user_id = $actor ? $actor->id : null;
+        if (! $this->hidden_at) {
+            $this->hidden_at = Carbon::now();
+            $this->hidden_user_id = $actor ? $actor->id : null;
 
             $this->raise(new Hidden($this));
         }
@@ -111,9 +112,9 @@ class CommentPost extends Post
      */
     public function restore()
     {
-        if ($this->hide_time !== null) {
-            $this->hide_time = null;
-            $this->hide_user_id = null;
+        if ($this->hidden_at !== null) {
+            $this->hidden_at = null;
+            $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
         }

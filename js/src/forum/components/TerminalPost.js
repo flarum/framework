@@ -13,10 +13,10 @@ import icon from '../../common/helpers/icon';
 export default class TerminalPost extends Component {
   view() {
     const discussion = this.props.discussion;
-    const lastPost = this.props.lastPost && discussion.repliesCount();
+    const lastPost = this.props.lastPost && discussion.replyCount();
 
-    const user = discussion[lastPost ? 'lastUser' : 'startUser']();
-    const time = discussion[lastPost ? 'lastTime' : 'startTime']();
+    const user = discussion[lastPost ? 'lastPostedUser' : 'user']();
+    const time = discussion[lastPost ? 'lastPostedAt' : 'createdAt']();
 
     return (
       <span>

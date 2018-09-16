@@ -112,7 +112,7 @@ class RegisterUserHandler
             }
         }
 
-        if ($actor->isAdmin() && array_get($data, 'attributes.isActivated')) {
+        if ($actor->isAdmin() && array_get($data, 'attributes.isEmailConfirmed')) {
             $user->activate();
         }
 

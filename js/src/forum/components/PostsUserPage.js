@@ -114,7 +114,7 @@ export default class PostsUserPage extends UserPage {
         type: 'comment'
       },
       page: {offset, limit: this.loadLimit},
-      sort: '-time'
+      sort: '-createdAt'
     });
   }
 

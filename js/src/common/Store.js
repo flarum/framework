@@ -75,7 +75,7 @@ export default class Store {
    * Make a request to the API to find record(s) of a specific type.
    *
    * @param {String} type The resource type.
-   * @param {Integer|Integer[]|Object} [id] The ID(s) of the model(s) to retreive.
+   * @param {Integer|Integer[]|Object} [id] The ID(s) of the model(s) to retrieve.
    *     Alternatively, if an object is passed, it will be handled as the
    *     `query` parameter.
    * @param {Object} [query]

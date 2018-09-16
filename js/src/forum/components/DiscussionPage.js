@@ -115,6 +115,12 @@ export default class DiscussionPage extends Page {
     );
   }
 
+  config() {
+    if (this.discussion) {
+      app.setTitle(this.discussion.title());
+    }
+  }
+
   /**
    * Clear and reload the discussion.
    */
@@ -160,7 +166,6 @@ export default class DiscussionPage extends Page {
     this.discussion = discussion;
 
     app.history.push('discussion', discussion.title());
-    app.setTitle(discussion.title());
     app.setTitleCount(0);
 
     // When the API responds with a discussion, it will also include a number of
@@ -283,8 +288,8 @@ export default class DiscussionPage extends Page {
 
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
-    if (app.session.user && endNumber > (discussion.readNumber() || 0)) {
-      discussion.save({readNumber: endNumber});
+    if (app.session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
+      discussion.save({lastReadPostNumber: endNumber});
       m.redraw();
     }
   }

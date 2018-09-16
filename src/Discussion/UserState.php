@@ -11,6 +11,7 @@
 
 namespace Flarum\Discussion;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Event\UserRead;
 use Flarum\Foundation\EventGeneratorTrait;
@@ -26,8 +27,8 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @property int $user_id
  * @property int $discussion_id
- * @property \Carbon\Carbon|null $read_time
- * @property int|null $read_number
+ * @property \Carbon\Carbon|null $last_read_at
+ * @property int|null $last_read_post_number
  * @property Discussion $discussion
  * @property \Flarum\User\User $user
  */
@@ -38,12 +39,14 @@ class UserState extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'users_discussions';
+    protected $table = 'discussion_user';
 
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
-    protected $dates = ['read_time'];
+    protected $dates = ['last_read_at'];
 
     /**
      * Mark the discussion as being read up to a certain point. Raises the
@@ -54,9 +57,9 @@ class UserState extends AbstractModel
      */
     public function read($number)
     {
-        if ($number > $this->read_number) {
-            $this->read_number = $number;
-            $this->read_time = time();
+        if ($number > $this->last_read_post_number) {
+            $this->last_read_post_number = $number;
+            $this->last_read_at = Carbon::now();
 
             $this->raise(new UserRead($this));
         }
@@ -71,7 +74,7 @@ class UserState extends AbstractModel
      */
     public function discussion()
     {
-        return $this->belongsTo(Discussion::class, 'discussion_id');
+        return $this->belongsTo(Discussion::class);
     }
 
     /**
@@ -81,7 +84,7 @@ class UserState extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
