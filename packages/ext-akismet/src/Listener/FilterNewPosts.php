@@ -85,7 +85,7 @@ class FilterNewPosts
 
                 $flag->post_id = $post->id;
                 $flag->type = 'akismet';
-                $flag->time = time();
+                $flag->created_at = time();
 
                 $flag->save();
             });
