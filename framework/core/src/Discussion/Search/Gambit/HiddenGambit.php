@@ -34,9 +34,9 @@ class HiddenGambit extends AbstractRegexGambit
 
         $search->getQuery()->where(function ($query) use ($negate) {
             if ($negate) {
-                $query->whereNull('hide_time')->where('comments_count', '>', 0);
+                $query->whereNull('hidden_at')->where('comment_count', '>', 0);
             } else {
-                $query->whereNotNull('hide_time')->orWhere('comments_count', 0);
+                $query->whereNotNull('hidden_at')->orWhere('comment_count', 0);
             }
         });
     }

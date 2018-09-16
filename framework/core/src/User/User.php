@@ -11,6 +11,7 @@
 
 namespace Flarum\User;
 
+use Carbon\Carbon;
 use DomainException;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
@@ -23,7 +24,6 @@ use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Notification;
-use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\User\Event\Activated;
 use Flarum\User\Event\AvatarChanged;
 use Flarum\User\Event\CheckingPassword;
@@ -39,19 +39,19 @@ use Illuminate\Contracts\Session\Session;
 /**
  * @property int $id
  * @property string $username
+ * @property string $display_name
  * @property string $email
- * @property bool $is_activated
+ * @property bool $is_email_confirmed
  * @property string $password
  * @property string $locale
- * @property string|null $avatar_path
- * @property string $avatar_url
+ * @property string|null $avatar_url
  * @property array $preferences
- * @property \Carbon\Carbon|null $join_time
- * @property \Carbon\Carbon|null $last_seen_time
- * @property \Carbon\Carbon|null $read_time
- * @property \Carbon\Carbon|null $notifications_read_time
- * @property int $discussions_count
- * @property int $comments_count
+ * @property \Carbon\Carbon|null $joined_at
+ * @property \Carbon\Carbon|null $last_seen_at
+ * @property \Carbon\Carbon|null $marked_all_as_read_at
+ * @property \Carbon\Carbon|null $read_notifications_at
+ * @property int $discussion_count
+ * @property int $comment_count
  */
 class User extends AbstractModel
 {
@@ -59,18 +59,15 @@ class User extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'users';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = [
-        'join_time',
-        'last_seen_time',
-        'read_time',
-        'notifications_read_time'
+        'joined_at',
+        'last_seen_at',
+        'marked_all_as_read_at',
+        'read_notifications_at'
     ];
 
     /**
@@ -81,7 +78,7 @@ class User extends AbstractModel
     protected $permissions = null;
 
     /**
-     * @var SessionInterface
+     * @var Session
      */
     protected $session;
 
@@ -128,22 +125,6 @@ class User extends AbstractModel
 
         static::deleted(function (User $user) {
             $user->raise(new Deleted($user));
-
-            // Delete all of the posts by the user. Before we delete them
-            // in a big batch query, we will loop through them and raise a
-            // PostWasDeleted event for each post.
-            $posts = $user->posts()->allTypes();
-
-            foreach ($posts->cursor() as $post) {
-                $user->raise(new PostDeleted($post));
-            }
-
-            $posts->delete();
-
-            $user->read()->detach();
-            $user->groups()->detach();
-            $user->accessTokens()->delete();
-            $user->notifications()->delete();
         });
 
         static::$dispatcher->dispatch(
@@ -166,7 +147,7 @@ class User extends AbstractModel
         $user->username = $username;
         $user->email = $email;
         $user->password = $password;
-        $user->join_time = time();
+        $user->joined_at = Carbon::now();
 
         $user->raise(new Registered($user));
 
@@ -271,7 +252,7 @@ class User extends AbstractModel
      */
     public function markAllAsRead()
     {
-        $this->read_time = time();
+        $this->marked_all_as_read_at = Carbon::now();
 
         return $this;
     }
@@ -283,7 +264,7 @@ class User extends AbstractModel
      */
     public function markNotificationsAsRead()
     {
-        $this->notifications_read_time = time();
+        $this->read_notifications_at = Carbon::now();
 
         return $this;
     }
@@ -296,7 +277,7 @@ class User extends AbstractModel
      */
     public function changeAvatarPath($path)
     {
-        $this->avatar_path = $path;
+        $this->avatar_url = $path;
 
         $this->raise(new AvatarChanged($this));
 
@@ -307,17 +288,16 @@ class User extends AbstractModel
      * Get the URL of the user's avatar.
      *
      * @todo Allow different storage locations to be used
+     * @param string|null $value
      * @return string
      */
-    public function getAvatarUrlAttribute()
+    public function getAvatarUrlAttribute(string $value = null)
     {
-        if ($this->avatar_path) {
-            if (strpos($this->avatar_path, '://') !== false) {
-                return $this->avatar_path;
-            }
-
-            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$this->avatar_path);
+        if ($value && strpos($value, '://') === false) {
+            return app(UrlGenerator::class)->to('forum')->path('assets/avatars/'.$value);
         }
+
+        return $value;
     }
 
     /**
@@ -366,8 +346,8 @@ class User extends AbstractModel
      */
     public function activate()
     {
-        if ($this->is_activated !== true) {
-            $this->is_activated = true;
+        if ($this->is_email_confirmed !== true) {
+            $this->is_email_confirmed = true;
 
             $this->raise(new Activated($this));
         }
@@ -438,7 +418,7 @@ class User extends AbstractModel
      *
      * @return int
      */
-    public function getUnreadNotificationsCount()
+    public function getUnreadNotificationCount()
     {
         return $this->getUnreadNotifications()->count();
     }
@@ -455,8 +435,8 @@ class User extends AbstractModel
         if (is_null($cached)) {
             $cached = $this->notifications()
                 ->whereIn('type', $this->getAlertableNotificationTypes())
-                ->where('is_read', 0)
-                ->where('is_deleted', 0)
+                ->whereNull('read_at')
+                ->where('is_deleted', false)
                 ->get();
         }
 
@@ -468,10 +448,10 @@ class User extends AbstractModel
      *
      * @return int
      */
-    public function getNewNotificationsCount()
+    public function getNewNotificationCount()
     {
         return $this->getUnreadNotifications()->filter(function ($notification) {
-            return $notification->time > $this->notifications_read_time ?: 0;
+            return $notification->created_at > $this->read_notifications_at ?: 0;
         })->count();
     }
 
@@ -570,7 +550,7 @@ class User extends AbstractModel
      */
     public function updateLastSeen()
     {
-        $this->last_seen_time = time();
+        $this->last_seen_at = Carbon::now();
 
         return $this;
     }
@@ -612,7 +592,7 @@ class User extends AbstractModel
      */
     public function discussions()
     {
-        return $this->hasMany('Flarum\Discussion\Discussion', 'start_user_id');
+        return $this->hasMany('Flarum\Discussion\Discussion');
     }
 
     /**
@@ -622,7 +602,7 @@ class User extends AbstractModel
      */
     public function read()
     {
-        return $this->belongsToMany('Flarum\Discussion\Discussion', 'users_discussions');
+        return $this->belongsToMany('Flarum\Discussion\Discussion');
     }
 
     /**
@@ -632,7 +612,7 @@ class User extends AbstractModel
      */
     public function groups()
     {
-        return $this->belongsToMany('Flarum\Group\Group', 'users_groups');
+        return $this->belongsToMany('Flarum\Group\Group');
     }
 
     /**
@@ -659,7 +639,7 @@ class User extends AbstractModel
         // more than a guest. If they are activated, we can give them the
         // standard 'member' group, as well as any other groups they've been
         // assigned to.
-        if ($this->is_activated) {
+        if ($this->is_email_confirmed) {
             $groupIds = array_merge($groupIds, [Group::MEMBER_ID], $this->groups->pluck('id')->all());
         }
 
@@ -764,9 +744,9 @@ class User extends AbstractModel
      *
      * @return $this
      */
-    public function refreshCommentsCount()
+    public function refreshCommentCount()
     {
-        $this->comments_count = $this->posts()->count();
+        $this->comment_count = $this->posts()->count();
 
         return $this;
     }
@@ -776,9 +756,9 @@ class User extends AbstractModel
      *
      * @return $this
      */
-    public function refreshDiscussionsCount()
+    public function refreshDiscussionCount()
     {
-        $this->discussions_count = $this->discussions()->count();
+        $this->discussion_count = $this->discussions()->count();
 
         return $this;
     }

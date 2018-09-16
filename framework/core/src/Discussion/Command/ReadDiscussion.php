@@ -34,17 +34,17 @@ class ReadDiscussion
      *
      * @var int
      */
-    public $readNumber;
+    public $lastReadPostNumber;
 
     /**
      * @param int $discussionId The ID of the discussion to mark as read.
      * @param User $actor The user to mark the discussion as read for.
-     * @param int $readNumber The number of the post to mark as read.
+     * @param int $lastReadPostNumber The number of the post to mark as read.
      */
-    public function __construct($discussionId, User $actor, $readNumber)
+    public function __construct($discussionId, User $actor, $lastReadPostNumber)
     {
         $this->discussionId = $discussionId;
         $this->actor = $actor;
-        $this->readNumber = $readNumber;
+        $this->lastReadPostNumber = $lastReadPostNumber;
     }
 }

@@ -11,22 +11,22 @@
 
 namespace Flarum\User;
 
-use DateTime;
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 
 /**
- * @todo document database columns with @property
+ * @property string $token
+ * @property int $user_id
+ * @property \Carbon\Carbon $created_at
+ * @property string $email
  */
 class EmailToken extends AbstractModel
 {
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'email_tokens';
-
-    /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
     protected $dates = ['created_at'];
 
@@ -36,6 +36,11 @@ class EmailToken extends AbstractModel
      * @var bool
      */
     public $incrementing = false;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $primaryKey = 'token';
 
     /**
      * Generate an email token for the specified user.
@@ -49,10 +54,10 @@ class EmailToken extends AbstractModel
     {
         $token = new static;
 
-        $token->id = str_random(40);
+        $token->token = str_random(40);
         $token->user_id = $userId;
         $token->email = $email;
-        $token->created_at = time();
+        $token->created_at = Carbon::now();
 
         return $token;
     }
@@ -77,9 +82,10 @@ class EmailToken extends AbstractModel
      */
     public function scopeValidOrFail($query, $id)
     {
+        /** @var EmailToken $token */
         $token = $query->find($id);
 
-        if (! $token || $token->created_at < new DateTime('-1 day')) {
+        if (! $token || $token->created_at->diffInDays() >= 1) {
             throw new InvalidConfirmationTokenException;
         }
 

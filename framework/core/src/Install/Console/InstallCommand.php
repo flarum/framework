@@ -184,8 +184,6 @@ class InstallCommand extends AbstractCommand
 
             $this->writeSettings();
 
-            $this->seedGroups();
-
             $this->createAdminUser();
 
             $this->enableBundledExtensions();
@@ -272,26 +270,6 @@ class InstallCommand extends AbstractCommand
         }
     }
 
-    protected function seedGroups()
-    {
-        $groups = [
-            [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'fas fa-wrench'],
-            [Group::GUEST_ID, 'Guest', 'Guests', null, null],
-            [Group::MEMBER_ID, 'Member', 'Members', null, null],
-            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fas fa-bolt']
-        ];
-
-        foreach ($groups as $group) {
-            $this->db->table('groups')->insert([
-                'id' => $group[0],
-                'name_singular' => $group[1],
-                'name_plural' => $group[2],
-                'color' => $group[3],
-                'icon' => $group[4],
-            ]);
-        }
-    }
-
     protected function createAdminUser()
     {
         $admin = $this->adminUser;
@@ -306,11 +284,11 @@ class InstallCommand extends AbstractCommand
             'username' => $admin['username'],
             'email' => $admin['email'],
             'password' => (new BcryptHasher)->make($admin['password']),
-            'join_time' => time(),
-            'is_activated' => 1,
+            'joined_at' => time(),
+            'is_email_confirmed' => 1,
         ]);
 
-        $this->db->table('users_groups')->insert([
+        $this->db->table('group_user')->insert([
             'user_id' => $uid,
             'group_id' => Group::ADMINISTRATOR_ID,
         ]);

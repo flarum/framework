@@ -76,10 +76,10 @@ class Index implements ContentInterface
     private function getSortMap()
     {
         return [
-            'latest' => '-lastTime',
-            'top' => '-commentsCount',
-            'newest' => '-startTime',
-            'oldest' => 'startTime'
+            'latest' => '-lastPostedAt',
+            'top' => '-commentCount',
+            'newest' => '-createdAt',
+            'oldest' => 'createdAt'
         ];
     }
 

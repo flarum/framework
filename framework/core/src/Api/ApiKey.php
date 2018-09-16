@@ -14,22 +14,16 @@ namespace Flarum\Api;
 use Flarum\Database\AbstractModel;
 
 /**
- * @property string $id
+ * @property int $id
+ * @property string $key
+ * @property string|null $allowed_ips
+ * @property string|null $scopes
+ * @property int|null $user_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon|null $last_activity_at
  */
 class ApiKey extends AbstractModel
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $table = 'api_keys';
-
-    /**
-     * Use a custom primary key for this model.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
     /**
      * Generate an API key.
      *
@@ -37,8 +31,10 @@ class ApiKey extends AbstractModel
      */
     public static function generate()
     {
-        return new static([
-            'id' => str_random(40)
-        ]);
+        $key = new static;
+
+        $key->key = str_random(40);
+
+        return $key;
     }
 }

@@ -53,9 +53,9 @@ class UnreadGambit extends AbstractRegexGambit
 
             $search->getQuery()->where(function ($query) use ($readIds, $negate, $actor) {
                 if (! $negate) {
-                    $query->whereNotIn('id', $readIds)->where('last_time', '>', $actor->read_time ?: 0);
+                    $query->whereNotIn('id', $readIds)->where('last_posted_at', '>', $actor->marked_all_as_read_at ?: 0);
                 } else {
-                    $query->whereIn('id', $readIds)->orWhere('last_time', '<=', $actor->read_time ?: 0);
+                    $query->whereIn('id', $readIds)->orWhere('last_posted_at', '<=', $actor->marked_all_as_read_at ?: 0);
                 }
             });
         }

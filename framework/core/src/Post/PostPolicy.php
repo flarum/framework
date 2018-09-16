@@ -81,12 +81,12 @@ class PostPolicy extends AbstractPolicy
         // discussion.
         if (! $actor->hasPermission('discussion.hidePosts')) {
             $query->where(function ($query) use ($actor) {
-                $query->whereNull('posts.hide_time')
-                    ->orWhere('user_id', $actor->id)
+                $query->whereNull('posts.hidden_at')
+                    ->orWhere('posts.user_id', $actor->id)
                     ->orWhereExists(function ($query) use ($actor) {
                         $query->selectRaw('1')
                             ->from('discussions')
-                            ->whereRaw('discussions.id = posts.discussion_id')
+                            ->whereColumn('discussions.id', 'posts.discussion_id')
                             ->where(function ($query) use ($actor) {
                                 $this->events->dispatch(
                                     new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'hidePosts')
@@ -107,12 +107,12 @@ class PostPolicy extends AbstractPolicy
         // A post is allowed to be edited if the user has permission to moderate
         // the discussion which it's in, or if they are the author and the post
         // hasn't been deleted by someone else.
-        if ($post->user_id == $actor->id && (! $post->hide_time || $post->hide_user_id == $actor->id)) {
+        if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id)) {
             $allowEditing = $this->settings->get('allow_post_editing');
 
             if ($allowEditing === '-1'
                 || ($allowEditing === 'reply' && $post->number >= $post->discussion->last_post_number)
-                || ($post->time->diffInMinutes(new Carbon) < $allowEditing)) {
+                || ($post->created_at->diffInMinutes(new Carbon) < $allowEditing)) {
                 return true;
             }
         }

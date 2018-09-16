@@ -47,12 +47,13 @@ class NotificationSerializer extends AbstractSerializer
             'id'          => (int) $notification->id,
             'contentType' => $notification->type,
             'content'     => $notification->data,
-            'time'        => $this->formatDate($notification->time),
-            'isRead'      => (bool) $notification->is_read
+            'createdAt'   => $this->formatDate($notification->created_at),
+            'isRead'      => (bool) $notification->read_at
         ];
     }
 
     /**
+     * @param Notification $notification
      * @return \Tobscure\JsonApi\Relationship
      */
     protected function user($notification)
@@ -61,14 +62,16 @@ class NotificationSerializer extends AbstractSerializer
     }
 
     /**
+     * @param Notification $notification
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function sender($notification)
+    protected function fromUser($notification)
     {
         return $this->hasOne($notification, BasicUserSerializer::class);
     }
 
     /**
+     * @param Notification $notification
      * @return \Tobscure\JsonApi\Relationship
      */
     protected function subject($notification)

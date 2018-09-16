@@ -11,6 +11,7 @@
 
 namespace Flarum\Notification\Command;
 
+use Carbon\Carbon;
 use Flarum\Notification\Notification;
 use Flarum\User\AssertPermissionTrait;
 
@@ -36,7 +37,7 @@ class ReadNotificationHandler
             'type' => $notification->type,
             'subject_id' => $notification->subject_id
         ])
-            ->update(['is_read' => true]);
+            ->update(['read_at' => Carbon::now()]);
 
         $notification->is_read = true;
 
