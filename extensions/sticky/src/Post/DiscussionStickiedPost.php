@@ -61,7 +61,7 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
         $post = new static;
 
         $post->content = static::buildContent($isSticky);
-        $post->time = time();
+        $post->created_at = time();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
 

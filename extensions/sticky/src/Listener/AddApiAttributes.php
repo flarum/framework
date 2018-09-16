@@ -25,7 +25,7 @@ class AddApiAttributes
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Serializing::class, [$this, 'prepareApiAttributes']);
-        $events->listen(WillGetData::class, [$this, 'includeStartPost']);
+        $events->listen(WillGetData::class, [$this, 'includeFirstPost']);
     }
 
     /**
@@ -42,10 +42,10 @@ class AddApiAttributes
     /**
      * @param WillGetData $event
      */
-    public function includeStartPost(WillGetData $event)
+    public function includeFirstPost(WillGetData $event)
     {
         if ($event->isController(ListDiscussionsController::class)) {
-            $event->addInclude('startPost');
+            $event->addInclude('firstPost');
         }
     }
 }
