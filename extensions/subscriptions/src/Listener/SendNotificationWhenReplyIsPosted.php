@@ -68,8 +68,8 @@ class SendNotificationWhenReplyIsPosted
 
         $notify = $discussion->readers()
             ->where('users.id', '!=', $post->user_id)
-            ->where('users_discussions.subscription', 'follow')
-            ->where('users_discussions.read_number', $discussion->last_post_number - 1)
+            ->where('discussion_user.subscription', 'follow')
+            ->where('discussion_user.last_read_post_number', $discussion->last_post_number - 1)
             ->get();
 
         $this->notifications->sync(
