@@ -126,7 +126,7 @@ export default function addComposerAutocomplete() {
             if (discussion) {
               discussion.posts()
                 .filter(post => post && post.contentType() === 'comment' && (!composerPost || post.number() < composerPost.number()))
-                .sort((a, b) => b.time() - a.time())
+                .sort((a, b) => b.createdAt() - a.createdAt())
                 .filter(post => {
                   const user = post.user();
                   return user && userMatches(user);

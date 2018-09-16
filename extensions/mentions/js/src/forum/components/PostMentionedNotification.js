@@ -19,7 +19,7 @@ export default class PostMentionedNotification extends Notification {
   content() {
     const notification = this.props.notification;
     const auc = notification.additionalUnreadCount();
-    const user = notification.sender();
+    const user = notification.fromUser();
 
     return app.translator.transChoice('flarum-mentions.forum.notifications.post_mentioned_text', auc + 1, {
       user,
