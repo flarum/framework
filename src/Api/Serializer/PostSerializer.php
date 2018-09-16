@@ -55,13 +55,13 @@ class PostSerializer extends BasicPostSerializer
             $attributes['content'] = $post->content;
         }
 
-        if ($post->edit_time) {
-            $attributes['editTime'] = $this->formatDate($post->edit_time);
+        if ($post->edited_at) {
+            $attributes['editedAt'] = $this->formatDate($post->edited_at);
         }
 
-        if ($post->hide_time) {
+        if ($post->hidden_at) {
             $attributes['isHidden'] = true;
-            $attributes['hideTime'] = $this->formatDate($post->hide_time);
+            $attributes['hiddenAt'] = $this->formatDate($post->hidden_at);
         }
 
         $attributes += [
@@ -92,7 +92,7 @@ class PostSerializer extends BasicPostSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function editUser($post)
+    protected function editedUser($post)
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }
@@ -100,7 +100,7 @@ class PostSerializer extends BasicPostSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function hideUser($post)
+    protected function hiddenUser($post)
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }

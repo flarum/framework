@@ -34,11 +34,6 @@ class Group extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $table = 'groups';
-
-    /**
      * The ID of the administrator group.
      */
     const ADMINISTRATOR_ID = 1;
@@ -69,8 +64,6 @@ class Group extends AbstractModel
 
         static::deleted(function (Group $group) {
             $group->raise(new Deleted($group));
-
-            $group->permissions()->delete();
         });
     }
 
@@ -121,7 +114,7 @@ class Group extends AbstractModel
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'users_groups');
+        return $this->belongsToMany(User::class);
     }
 
     /**

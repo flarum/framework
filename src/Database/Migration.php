@@ -79,15 +79,27 @@ abstract class Migration
      */
     public static function renameColumn($tableName, $from, $to)
     {
+        return static::renameColumns($tableName, [$from => $to]);
+    }
+
+    /**
+     * Rename multiple columns.
+     */
+    public static function renameColumns($tableName, array $columnNames)
+    {
         return [
-            'up' => function (Builder $schema) use ($tableName, $from, $to) {
-                $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
-                    $table->renameColumn($from, $to);
+            'up' => function (Builder $schema) use ($tableName, $columnNames) {
+                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
+                    foreach ($columnNames as $from => $to) {
+                        $table->renameColumn($from, $to);
+                    }
                 });
             },
-            'down' => function (Builder $schema) use ($tableName, $from, $to) {
-                $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
-                    $table->renameColumn($to, $from);
+            'down' => function (Builder $schema) use ($tableName, $columnNames) {
+                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
+                    foreach ($columnNames as $to => $from) {
+                        $table->renameColumn($from, $to);
+                    }
                 });
             }
         ];
@@ -125,11 +137,11 @@ abstract class Migration
      */
     public static function addPermissions(array $permissions)
     {
-        $keys = [];
+        $rows = [];
 
         foreach ($permissions as $permission => $groups) {
             foreach ((array) $groups as $group) {
-                $keys[] = [
+                $rows[] = [
                     'group_id' => $group,
                     'permission' => $permission,
                 ];
@@ -137,23 +149,27 @@ abstract class Migration
         }
 
         return [
-            'up' => function (Builder $schema) use ($keys) {
+            'up' => function (Builder $schema) use ($rows) {
                 $db = $schema->getConnection();
 
-                foreach ($keys as $key) {
-                    $instance = $db->table('permissions')->where($key)->first();
-
-                    if (is_null($instance)) {
-                        $db->table('permissions')->insert($key);
+                foreach ($rows as $row) {
+                    if ($db->table('group_permission')->where($row)->exists()) {
+                        continue;
                     }
+
+                    if ($db->table('groups')->where('id', $row['group_id'])->doesntExist()) {
+                        continue;
+                    }
+
+                    $db->table('group_permission')->insert($row);
                 }
             },
 
-            'down' => function (Builder $schema) use ($keys) {
+            'down' => function (Builder $schema) use ($rows) {
                 $db = $schema->getConnection();
 
-                foreach ($keys as $key) {
-                    $db->table('permissions')->where($key)->delete();
+                foreach ($rows as $row) {
+                    $db->table('group_permission')->where($row)->delete();
                 }
             }
         ];

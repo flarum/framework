@@ -66,7 +66,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
         $this->actor = $this->getAdminUser();
 
         $response = $this->callWith(array_merge($this->data, [
-            'isActivated' => 1
+            'isEmailConfirmed' => 1
         ]));
 
         $this->assertEquals(201, $response->getStatusCode());
@@ -74,7 +74,7 @@ class CreateUserControllerTest extends ApiControllerTestCase
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
 
-        $this->assertEquals(1, $user->is_activated);
+        $this->assertEquals(1, $user->is_email_confirmed);
     }
 
     /**

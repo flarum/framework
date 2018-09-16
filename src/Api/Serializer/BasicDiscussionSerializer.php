@@ -44,7 +44,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function startUser($discussion)
+    protected function user($discussion)
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }
@@ -52,7 +52,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function startPost($discussion)
+    protected function firstPost($discussion)
     {
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
@@ -60,7 +60,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function lastUser($discussion)
+    protected function lastPostedUser($discussion)
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }
@@ -92,7 +92,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship
      */
-    protected function hideUser($discussion)
+    protected function hiddenUser($discussion)
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }

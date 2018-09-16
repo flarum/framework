@@ -35,7 +35,7 @@ export default class DiscussionListItem extends Component {
     this.subtree = new SubtreeRetainer(
       () => this.props.discussion.freshness,
       () => {
-        const time = app.session.user && app.session.user.readTime();
+        const time = app.session.user && app.session.user.markedAllAsReadAt();
         return time && time.getTime();
       },
       () => this.active()
@@ -58,7 +58,7 @@ export default class DiscussionListItem extends Component {
     if (retain) return retain;
 
     const discussion = this.props.discussion;
-    const startUser = discussion.startUser();
+    const user = discussion.user();
     const isUnread = discussion.isUnread();
     const isRead = discussion.isRead();
     const showUnread = !this.showRepliesCount() && isUnread;
@@ -75,7 +75,7 @@ export default class DiscussionListItem extends Component {
       const phrase = this.props.params.q;
       this.highlightRegExp = new RegExp(phrase+'|'+phrase.trim().replace(/\s+/g, '|'), 'gi');
     } else {
-      jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
+      jumpTo = Math.min(discussion.lastPostNumber(), (discussion.lastReadPostNumber() || 0) + 1);
     }
 
     return (
@@ -93,14 +93,14 @@ export default class DiscussionListItem extends Component {
         </a>
 
         <div className={'DiscussionListItem-content Slidable-content' + (isUnread ? ' unread' : '') + (isRead ? ' read' : '')}>
-          <a href={startUser ? app.route.user(startUser) : '#'}
+          <a href={user ? app.route.user(user) : '#'}
             className="DiscussionListItem-author"
-            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: startUser, ago: humanTime(discussion.startTime())}))}
+            title={extractText(app.translator.trans('core.forum.discussion_list.started_text', {user: user, ago: humanTime(discussion.createdAt())}))}
             config={function(element) {
               $(element).tooltip({placement: 'right'});
               m.route.apply(this, arguments);
             }}>
-            {avatar(startUser, {title: ''})}
+            {avatar(user, {title: ''})}
           </a>
 
           <ul className="DiscussionListItem-badges badges">
@@ -117,7 +117,7 @@ export default class DiscussionListItem extends Component {
           <span className="DiscussionListItem-count"
             onclick={this.markAsRead.bind(this)}
             title={showUnread ? app.translator.trans('core.forum.discussion_list.mark_as_read_tooltip') : ''}>
-            {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'repliesCount']())}
+            {abbreviateNumber(discussion[showUnread ? 'unreadCount' : 'replyCount']())}
           </span>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default class DiscussionListItem extends Component {
    *
    * @return {Boolean}
    */
-  showStartPost() {
+  showFirstPost() {
     return ['newest', 'oldest'].indexOf(this.props.params.sort) !== -1;
   }
 
@@ -177,7 +177,7 @@ export default class DiscussionListItem extends Component {
     const discussion = this.props.discussion;
 
     if (discussion.isUnread()) {
-      discussion.save({readNumber: discussion.lastPostNumber()});
+      discussion.save({lastReadPostNumber: discussion.lastPostNumber()});
       m.redraw();
     }
   }
@@ -192,7 +192,7 @@ export default class DiscussionListItem extends Component {
     const items = new ItemList();
 
     if (this.props.params.q) {
-      const post = this.props.discussion.mostRelevantPost() || this.props.discussion.startPost();
+      const post = this.props.discussion.mostRelevantPost() || this.props.discussion.firstPost();
 
       if (post && post.contentType() === 'comment') {
         const excerpt = highlight(post.contentPlain(), this.highlightRegExp, 175);
@@ -202,7 +202,7 @@ export default class DiscussionListItem extends Component {
       items.add('terminalPost',
         TerminalPost.component({
           discussion: this.props.discussion,
-          lastPost: !this.showStartPost()
+          lastPost: !this.showFirstPost()
         })
       );
     }

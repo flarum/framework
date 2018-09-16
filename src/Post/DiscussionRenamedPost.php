@@ -11,6 +11,8 @@
 
 namespace Flarum\Post;
 
+use Carbon\Carbon;
+
 /**
  * A post which indicates that a discussion's title was changed.
  *
@@ -64,7 +66,7 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
         $post = new static;
 
         $post->content = static::buildContent($oldTitle, $newTitle);
-        $post->time = time();
+        $post->created_at = Carbon::now();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
 

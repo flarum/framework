@@ -63,6 +63,9 @@ class Migrator
         $this->repository = $repository;
 
         $this->schemaBuilder = $connection->getSchemaBuilder();
+
+        // Workaround for https://github.com/laravel/framework/issues/1186
+        $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
     }
 
     /**

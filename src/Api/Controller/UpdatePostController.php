@@ -28,7 +28,7 @@ class UpdatePostController extends AbstractShowController
      * {@inheritdoc}
      */
     public $include = [
-        'editUser',
+        'editedUser',
         'discussion'
     ];
 

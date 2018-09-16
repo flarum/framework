@@ -95,7 +95,7 @@ export default class Navigation extends Component {
 
     return Button.component({
       className: 'Button Button--icon Navigation-drawer' +
-        (user && user.newNotificationsCount() ? ' new' : ''),
+        (user && user.newNotificationCount() ? ' new' : ''),
       onclick: e => {
         e.stopPropagation();
         drawer.show();
