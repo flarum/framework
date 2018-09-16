@@ -12,8 +12,6 @@
 namespace Flarum\Api;
 
 use Flarum\Api\Controller\AbstractSerializeController;
-use Flarum\Api\Middleware\FakeHttpMethods;
-use Flarum\Api\Middleware\HandleErrors;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
@@ -21,13 +19,8 @@ use Flarum\Event\ConfigureApiRoutes;
 use Flarum\Event\ConfigureMiddleware;
 use Flarum\Event\ConfigureNotificationTypes;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\Middleware\AuthenticateWithHeader;
-use Flarum\Http\Middleware\AuthenticateWithSession;
-use Flarum\Http\Middleware\DispatchRoute;
-use Flarum\Http\Middleware\ParseJsonBody;
-use Flarum\Http\Middleware\RememberFromCookie;
-use Flarum\Http\Middleware\SetLocale;
-use Flarum\Http\Middleware\StartSession;
+use Flarum\Foundation\Application;
+use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
@@ -51,24 +44,26 @@ class ApiServiceProvider extends AbstractServiceProvider
             return new RouteCollection;
         });
 
-        $this->app->singleton('flarum.api.middleware', function ($app) {
+        $this->app->singleton('flarum.api.middleware', function (Application $app) {
             $pipe = new MiddlewarePipe;
 
-            $pipe->pipe($app->make(HandleErrors::class));
+            $pipe->pipe($app->make(Middleware\HandleErrors::class));
 
-            $pipe->pipe($app->make(ParseJsonBody::class));
-            $pipe->pipe($app->make(FakeHttpMethods::class));
-            $pipe->pipe($app->make(StartSession::class));
-            $pipe->pipe($app->make(RememberFromCookie::class));
-            $pipe->pipe($app->make(AuthenticateWithSession::class));
-            $pipe->pipe($app->make(AuthenticateWithHeader::class));
-            $pipe->pipe($app->make(SetLocale::class));
+            $pipe->pipe($app->make(HttpMiddleware\ParseJsonBody::class));
+            $pipe->pipe($app->make(Middleware\FakeHttpMethods::class));
+            $pipe->pipe($app->make(HttpMiddleware\StartSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\RememberFromCookie::class));
+            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithSession::class));
+            $pipe->pipe($app->make(HttpMiddleware\AuthenticateWithHeader::class));
+            $pipe->pipe($app->make(HttpMiddleware\SetLocale::class));
 
             event(new ConfigureMiddleware($pipe, 'api'));
 
-            $pipe->pipe(new DispatchRoute($app->make('flarum.api.routes')));
-
             return $pipe;
+        });
+
+        $this->app->afterResolving('flarum.api.middleware', function (MiddlewarePipe $pipe) {
+            $pipe->pipe(new HttpMiddleware\DispatchRoute($this->app->make('flarum.api.routes')));
         });
 
         $this->app->singleton(ErrorHandler::class, function () {
