@@ -137,7 +137,7 @@ export default class NotificationList extends Component {
    * been loaded.
    */
   load() {
-    if (app.session.user.newNotificationsCount()) {
+    if (app.session.user.newNotificationCount()) {
       delete app.cache.notifications;
     }
 
@@ -145,7 +145,7 @@ export default class NotificationList extends Component {
       return;
     }
 
-    app.session.user.pushAttributes({newNotificationsCount: 0});
+    app.session.user.pushAttributes({newNotificationCount: 0});
 
     this.loadMore();
   }
@@ -191,7 +191,7 @@ export default class NotificationList extends Component {
   markAllAsRead() {
     if (!app.cache.notifications) return;
 
-    app.session.user.pushAttributes({unreadNotificationsCount: 0});
+    app.session.user.pushAttributes({unreadNotificationCount: 0});
 
     app.cache.notifications.forEach(notifications => {
       notifications.forEach(notification => notification.pushAttributes({isRead: true}))

@@ -33,12 +33,12 @@ class Rememberer
 
     public function remember(ResponseInterface $response, AccessToken $token)
     {
-        $token->lifetime = 5 * 365 * 24 * 60 * 60; // 5 years
+        $token->lifetime_seconds = 5 * 365 * 24 * 60 * 60; // 5 years
         $token->save();
 
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make(self::COOKIE_NAME, $token->id, $token->lifetime)
+            $this->cookie->make(self::COOKIE_NAME, $token->token, $token->lifetime_seconds)
         );
     }
 
