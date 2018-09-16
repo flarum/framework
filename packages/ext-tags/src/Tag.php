@@ -30,7 +30,7 @@ class Tag extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['last_time'];
+    protected $dates = ['last_posted_at'];
 
     /**
      * {@inheritdoc}
@@ -40,8 +40,6 @@ class Tag extends AbstractModel
         parent::boot();
 
         static::deleted(function ($tag) {
-            $tag->discussions()->detach();
-
             Permission::where('permission', 'like', "tag{$tag->id}.%")->delete();
         });
     }
@@ -74,15 +72,23 @@ class Tag extends AbstractModel
      */
     public function parent()
     {
-        return $this->belongsTo('Flarum\Tags\Tag', 'parent_id');
+        return $this->belongsTo(self::class);
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function lastDiscussion()
+    public function lastPostedDiscussion()
     {
-        return $this->belongsTo(Discussion::class, 'last_discussion_id');
+        return $this->belongsTo(Discussion::class, 'last_posted_discussion_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lastPostedUser()
+    {
+        return $this->belongsTo(User::class, 'last_posted_user_id');
     }
 
     /**
@@ -90,7 +96,7 @@ class Tag extends AbstractModel
      */
     public function discussions()
     {
-        return $this->belongsToMany(Discussion::class, 'discussions_tags');
+        return $this->belongsToMany(Discussion::class);
     }
 
     /**
@@ -98,10 +104,10 @@ class Tag extends AbstractModel
      *
      * @return $this
      */
-    public function refreshLastDiscussion()
+    public function refreshLastPostedDiscussion()
     {
-        if ($lastDiscussion = $this->discussions()->latest('last_time')->first()) {
-            $this->setLastDiscussion($lastDiscussion);
+        if ($lastPostedDiscussion = $this->discussions()->latest('last_posted_at')->first()) {
+            $this->setLastPostedDiscussion($lastPostedDiscussion);
         }
 
         return $this;
@@ -113,10 +119,11 @@ class Tag extends AbstractModel
      * @param Discussion $discussion
      * @return $this
      */
-    public function setLastDiscussion(Discussion $discussion)
+    public function setLastPostedDiscussion(Discussion $discussion)
     {
-        $this->last_time = $discussion->last_time;
-        $this->last_discussion_id = $discussion->id;
+        $this->last_posted_at = $discussion->last_posted_at;
+        $this->last_posted_discussion_id = $discussion->id;
+        $this->last_posted_user_id = $discussion->last_posted_user_id;
 
         return $this;
     }

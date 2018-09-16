@@ -36,7 +36,7 @@ class FlagPolicy extends AbstractPolicy
             ->leftJoin('discussions', 'discussions.id', '=', 'posts.discussion_id')
             ->whereNotExists(function ($query) use ($actor) {
                 return $query->selectRaw('1')
-                    ->from('discussions_tags')
+                    ->from('discussion_tag')
                     ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'discussion.viewFlags'))
                     ->whereColumn('discussions.id', 'discussion_id');
             });

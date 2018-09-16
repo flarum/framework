@@ -44,10 +44,6 @@ class DeleteTagHandler
 
         $this->assertCan($actor, 'delete', $tag);
 
-        $this->tags->query()
-            ->where('parent_id', $tag->id)
-            ->update(['parent_id' => null]);
-
         $tag->delete();
 
         return $tag;

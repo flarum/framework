@@ -6,7 +6,7 @@ export default function sortTags(tags) {
     // If they're both secondary tags, sort them by their discussions count,
     // descending.
     if (aPos === null && bPos === null)
-      return b.discussionsCount() - a.discussionsCount();
+      return b.discussionCount() - a.discussionCount();
 
     // If just one is a secondary tag, then the primary tag should
     // come first.
