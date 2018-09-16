@@ -25,6 +25,9 @@ jobs:
     - php: 7.2
       env: DB=mysql
 
+    - php: 7.2
+      env: DB=mysql PREFIX=forum_
+
     - php: 7.1
       addons:
         mariadb: '10.2'
