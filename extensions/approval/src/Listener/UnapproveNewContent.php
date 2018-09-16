@@ -49,7 +49,7 @@ class UnapproveNewContent
         $post = $event->post;
 
         if (! $post->exists) {
-            $ability = $post->discussion->number_index == 0 ? 'startWithoutApproval' : 'replyWithoutApproval';
+            $ability = $post->discussion->post_number_index == 0 ? 'startWithoutApproval' : 'replyWithoutApproval';
 
             if ($event->actor->can($ability, $post->discussion)) {
                 if ($post->is_approved === null) {
@@ -71,7 +71,7 @@ class UnapproveNewContent
 
                 $flag->post_id = $post->id;
                 $flag->type = 'approval';
-                $flag->time = time();
+                $flag->created_at = time();
 
                 $flag->save();
             });
