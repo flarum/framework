@@ -47,7 +47,7 @@ class TagGambit extends AbstractRegexGambit
                 if ($slug === 'untagged') {
                     $query->orWhereExists(function ($query) {
                         $query->selectRaw('1')
-                              ->from('discussions_tags')
+                              ->from('discussion_tag')
                               ->whereColumn('discussions.id', 'discussion_id');
                     }, ! $negate);
                 } else {
@@ -55,7 +55,7 @@ class TagGambit extends AbstractRegexGambit
 
                     $query->orWhereExists(function ($query) use ($id) {
                         $query->selectRaw('1')
-                              ->from('discussions_tags')
+                              ->from('discussion_tag')
                               ->whereColumn('discussions.id', 'discussion_id')
                               ->where('tag_id', $id);
                     }, $negate);

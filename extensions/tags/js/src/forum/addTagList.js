@@ -41,7 +41,7 @@ export default function() {
 
     const more = tags
       .filter(tag => tag.position() === null)
-      .sort((a, b) => b.discussionsCount() - a.discussionsCount());
+      .sort((a, b) => b.discussionCount() - a.discussionCount());
 
     more.splice(0, 3).forEach(addTag);
 

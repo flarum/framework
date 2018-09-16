@@ -80,7 +80,7 @@ class DiscussionPolicy extends AbstractPolicy
         // Hide discussions which have tags that the user is not allowed to see.
         $query->whereNotExists(function ($query) use ($actor) {
             return $query->selectRaw('1')
-                ->from('discussions_tags')
+                ->from('discussion_tag')
                 ->whereIn('tag_id', Tag::getIdsWhereCannot($actor, 'viewDiscussions'))
                 ->whereColumn('discussions.id', 'discussion_id');
         });
@@ -104,7 +104,7 @@ class DiscussionPolicy extends AbstractPolicy
         // permission for any of the discussion's tags.
         $query->whereExists(function ($query) use ($actor, $ability) {
             return $query->selectRaw('1')
-                ->from('discussions_tags')
+                ->from('discussion_tag')
                 ->whereIn('tag_id', Tag::getIdsWhereCan($actor, 'discussion.'.$ability))
                 ->whereColumn('discussions.id', 'discussion_id');
         });
@@ -120,12 +120,12 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function tag(User $actor, Discussion $discussion)
     {
-        if ($discussion->start_user_id == $actor->id) {
+        if ($discussion->user_id == $actor->id) {
             $allowEditTags = $this->settings->get('allow_tag_change');
 
             if ($allowEditTags === '-1'
-                || ($allowEditTags === 'reply' && $discussion->participants_count <= 1)
-                || (is_numeric($allowEditTags) && $discussion->start_time->diffInMinutes(new Carbon) < $allowEditTags)
+                || ($allowEditTags === 'reply' && $discussion->participant_count <= 1)
+                || (is_numeric($allowEditTags) && $discussion->created_at->diffInMinutes(new Carbon) < $allowEditTags)
             ) {
                 return true;
             }

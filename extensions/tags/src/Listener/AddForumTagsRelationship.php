@@ -70,7 +70,7 @@ class AddForumTagsRelationship
         if ($event->isController(ShowForumController::class)) {
             $event->data['tags'] = Tag::whereVisibleTo($event->actor)
                 ->withStateFor($event->actor)
-                ->with(['parent', 'lastDiscussion'])
+                ->with(['parent', 'lastPostedDiscussion'])
                 ->get();
         }
     }
@@ -81,7 +81,7 @@ class AddForumTagsRelationship
     public function includeTagsRelationship(WillGetData $event)
     {
         if ($event->isController(ShowForumController::class)) {
-            $event->addInclude(['tags', 'tags.lastDiscussion', 'tags.parent']);
+            $event->addInclude(['tags', 'tags.lastPostedDiscussion', 'tags.parent']);
         }
     }
 

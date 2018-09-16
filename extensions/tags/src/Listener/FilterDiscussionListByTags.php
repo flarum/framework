@@ -51,7 +51,7 @@ class FilterDiscussionListByTags
 
         $query->whereNotExists(function ($query) {
             return $query->selectRaw('1')
-                ->from('discussions_tags')
+                ->from('discussion_tag')
                 ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'))
                 ->whereColumn('discussions.id', 'discussion_id');
         });

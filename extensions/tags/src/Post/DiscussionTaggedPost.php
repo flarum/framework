@@ -36,7 +36,7 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
                 $previous->delete();
             } else {
                 $previous->content = static::buildContent($previous->content[0], $this->content[1]);
-                $previous->time = $this->time;
+                $previous->created_at = $this->created_at;
 
                 $previous->save();
             }
@@ -63,7 +63,7 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
         $post = new static;
 
         $post->content = static::buildContent($oldTagIds, $newTagIds);
-        $post->time = time();
+        $post->created_at = time();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
 

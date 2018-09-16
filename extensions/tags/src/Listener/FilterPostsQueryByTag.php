@@ -31,8 +31,8 @@ class FilterPostsQueryByTag
     {
         if ($tagId = array_get($event->filter, 'tag')) {
             $event->query
-                ->join('discussions_tags', 'discussions_tags.discussion_id', '=', 'posts.discussion_id')
-                ->where('discussions_tags.tag_id', $tagId);
+                ->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'posts.discussion_id')
+                ->where('discussion_tag.tag_id', $tagId);
         }
     }
 }

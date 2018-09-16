@@ -30,7 +30,7 @@ export default class TagsPage extends Page {
           <div className="TagsPage-content sideNavOffset">
             <ul className="TagTiles">
               {pinned.map(tag => {
-                const lastDiscussion = tag.lastDiscussion();
+                const lastPostedDiscussion = tag.lastPostedDiscussion();
                 const children = sortTags(app.store.all('tags').filter(child => child.parent() === tag));
 
                 return (
@@ -55,16 +55,16 @@ export default class TagsPage extends Page {
                           </div>
                         ) : ''}
                     </a>
-                    {lastDiscussion
+                    {lastPostedDiscussion
                       ? (
-                        <a className="TagTile-lastDiscussion"
-                          href={app.route.discussion(lastDiscussion, lastDiscussion.lastPostNumber())}
+                        <a className="TagTile-lastPostedDiscussion"
+                          href={app.route.discussion(lastPostedDiscussion, lastPostedDiscussion.lastPostNumber())}
                           config={m.route}>
-                          <span className="TagTile-lastDiscussion-title">{lastDiscussion.title()}</span>
-                          {humanTime(lastDiscussion.lastTime())}
+                          <span className="TagTile-lastPostedDiscussion-title">{lastPostedDiscussion.title()}</span>
+                          {humanTime(lastPostedDiscussion.lastPostedAt())}
                         </a>
                       ) : (
-                        <span className="TagTile-lastDiscussion"/>
+                        <span className="TagTile-lastPostedDiscussion"/>
                       )}
                   </li>
                 );
