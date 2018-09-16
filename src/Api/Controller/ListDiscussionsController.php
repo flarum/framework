@@ -30,8 +30,8 @@ class ListDiscussionsController extends AbstractListController
      * {@inheritdoc}
      */
     public $include = [
-        'startUser',
-        'lastUser',
+        'user',
+        'lastPostedUser',
         'mostRelevantPost',
         'mostRelevantPost.user'
     ];
@@ -40,14 +40,14 @@ class ListDiscussionsController extends AbstractListController
      * {@inheritdoc}
      */
     public $optionalInclude = [
-        'startPost',
+        'firstPost',
         'lastPost'
     ];
 
     /**
      * {@inheritdoc}
      */
-    public $sortFields = ['lastTime', 'commentsCount', 'startTime'];
+    public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
     /**
      * @var DiscussionSearcher
@@ -98,7 +98,7 @@ class ListDiscussionsController extends AbstractListController
 
         $results = $results->getResults()->load($load);
 
-        if ($relations = array_intersect($load, ['startPost', 'lastPost'])) {
+        if ($relations = array_intersect($load, ['firstPost', 'lastPost'])) {
             foreach ($results as $discussion) {
                 foreach ($relations as $relation) {
                     if ($discussion->$relation) {

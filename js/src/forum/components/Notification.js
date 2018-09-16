@@ -26,10 +26,10 @@ export default class Notification extends Component {
 
           if (!isInitialized) $(element).click(this.markAsRead.bind(this));
         }}>
-        {avatar(notification.sender())}
+        {avatar(notification.fromUser())}
         {icon(this.icon(), {className: 'Notification-icon'})}
         <span className="Notification-content">{this.content()}</span>
-        {humanTime(notification.time())}
+        {humanTime(notification.createdAt())}
         <div className="Notification-excerpt">
           {this.excerpt()}
         </div>
@@ -79,7 +79,7 @@ export default class Notification extends Component {
   markAsRead() {
     if (this.props.notification.isRead()) return;
 
-    app.session.user.pushAttributes({unreadNotificationsCount: app.session.user.unreadNotificationsCount() - 1});
+    app.session.user.pushAttributes({unreadNotificationCount: app.session.user.unreadNotificationCount() - 1});
 
     this.props.notification.save({isRead: true});
   }

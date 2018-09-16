@@ -39,9 +39,9 @@ class DiscussionMetadataUpdater
         $discussion = $event->post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->refreshCommentsCount();
+            $discussion->refreshCommentCount();
             $discussion->refreshLastPost();
-            $discussion->refreshParticipantsCount();
+            $discussion->refreshParticipantCount();
             $discussion->save();
         }
     }
@@ -76,8 +76,8 @@ class DiscussionMetadataUpdater
         $discussion = $event->post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->refreshCommentsCount();
-            $discussion->refreshParticipantsCount();
+            $discussion->refreshCommentCount();
+            $discussion->refreshParticipantCount();
             $discussion->refreshLastPost();
             $discussion->save();
         }
@@ -91,8 +91,8 @@ class DiscussionMetadataUpdater
         $discussion = $post->discussion;
 
         if ($discussion && $discussion->exists) {
-            $discussion->refreshCommentsCount();
-            $discussion->refreshParticipantsCount();
+            $discussion->refreshCommentCount();
+            $discussion->refreshParticipantCount();
 
             if ($discussion->last_post_id == $post->id) {
                 $discussion->refreshLastPost();

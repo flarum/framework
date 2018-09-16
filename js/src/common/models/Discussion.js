@@ -9,28 +9,28 @@ Object.assign(Discussion.prototype, {
   title: Model.attribute('title'),
   slug: Model.attribute('slug'),
 
-  startTime: Model.attribute('startTime', Model.transformDate),
-  startUser: Model.hasOne('startUser'),
-  startPost: Model.hasOne('startPost'),
+  createdAt: Model.attribute('createdAt', Model.transformDate),
+  user: Model.hasOne('user'),
+  firstPost: Model.hasOne('firstPost'),
 
-  lastTime: Model.attribute('lastTime', Model.transformDate),
-  lastUser: Model.hasOne('lastUser'),
+  lastPostedAt: Model.attribute('lastPostedAt', Model.transformDate),
+  lastPostedUser: Model.hasOne('lastPostedUser'),
   lastPost: Model.hasOne('lastPost'),
   lastPostNumber: Model.attribute('lastPostNumber'),
 
-  commentsCount: Model.attribute('commentsCount'),
-  repliesCount: computed('commentsCount', commentsCount => Math.max(0, commentsCount - 1)),
+  commentCount: Model.attribute('commentCount'),
+  replyCount: computed('commentCount', commentCount => Math.max(0, commentCount - 1)),
   posts: Model.hasMany('posts'),
   mostRelevantPost: Model.hasOne('mostRelevantPost'),
 
-  readTime: Model.attribute('readTime', Model.transformDate),
-  readNumber: Model.attribute('readNumber'),
+  lastReadAt: Model.attribute('lastReadAt', Model.transformDate),
+  lastReadPostNumber: Model.attribute('lastReadPostNumber'),
   isUnread: computed('unreadCount', unreadCount => !!unreadCount),
   isRead: computed('unreadCount', unreadCount => app.session.user && !unreadCount),
 
-  hideTime: Model.attribute('hideTime', Model.transformDate),
-  hideUser: Model.hasOne('hideUser'),
-  isHidden: computed('hideTime', hideTime => !!hideTime),
+  hiddenAt: Model.attribute('hiddenAt', Model.transformDate),
+  hiddenUser: Model.hasOne('hiddenUser'),
+  isHidden: computed('hiddenAt', hiddenAt => !!hiddenAt),
 
   canReply: Model.attribute('canReply'),
   canRename: Model.attribute('canRename'),
@@ -67,8 +67,8 @@ Object.assign(Discussion.prototype, {
   unreadCount() {
     const user = app.session.user;
 
-    if (user && user.readTime() < this.lastTime()) {
-      return Math.max(0, this.lastPostNumber() - (this.readNumber() || 0));
+    if (user && user.markedAllAsReadAt() < this.lastPostedAt()) {
+      return Math.max(0, this.lastPostNumber() - (this.lastReadPostNumber() || 0));
     }
 
     return 0;

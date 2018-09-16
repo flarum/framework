@@ -11,28 +11,29 @@
 
 namespace Flarum\Http;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\User\User;
 
 /**
- * @property string $id
+ * @property string $token
  * @property int $user_id
- * @property int $last_activity
- * @property int $lifetime
+ * @property int $last_activity_at
+ * @property int $lifetime_seconds
  * @property \Flarum\User\User|null $user
  */
 class AccessToken extends AbstractModel
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $table = 'access_tokens';
-
     /**
      * Use a custom primary key for this model.
      *
      * @var bool
      */
     public $incrementing = false;
+
+    protected $primaryKey = 'token';
+
+    protected $dates = ['last_activity_at'];
 
     /**
      * Generate an access token for the specified user.
@@ -45,17 +46,17 @@ class AccessToken extends AbstractModel
     {
         $token = new static;
 
-        $token->id = str_random(40);
+        $token->token = str_random(40);
         $token->user_id = $userId;
-        $token->last_activity = time();
-        $token->lifetime = $lifetime;
+        $token->last_activity_at = Carbon::now();
+        $token->lifetime_seconds = $lifetime;
 
         return $token;
     }
 
     public function touch()
     {
-        $this->last_activity = time();
+        $this->last_activity_at = Carbon::now();
 
         return $this->save();
     }
@@ -67,6 +68,6 @@ class AccessToken extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo('Flarum\User\User');
+        return $this->belongsTo(User::class);
     }
 }

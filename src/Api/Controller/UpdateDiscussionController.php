@@ -54,7 +54,7 @@ class UpdateDiscussionController extends AbstractShowController
 
         // TODO: Refactor the ReadDiscussion (state) command into EditDiscussion?
         // That's what extensions will do anyway.
-        if ($readNumber = array_get($data, 'attributes.readNumber')) {
+        if ($readNumber = array_get($data, 'attributes.lastReadPostNumber')) {
             $state = $this->bus->dispatch(
                 new ReadDiscussion($discussionId, $actor, $readNumber)
             );
@@ -64,7 +64,7 @@ class UpdateDiscussionController extends AbstractShowController
 
         if ($posts = $discussion->getModifiedPosts()) {
             $posts = (new Collection($posts))->load('discussion', 'user');
-            $discussionPosts = $discussion->posts()->whereVisibleTo($actor)->orderBy('time')->pluck('id')->all();
+            $discussionPosts = $discussion->posts()->whereVisibleTo($actor)->oldest()->pluck('id')->all();
 
             foreach ($discussionPosts as &$id) {
                 foreach ($posts as $post) {

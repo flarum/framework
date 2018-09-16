@@ -11,6 +11,7 @@
 
 namespace Flarum\Notification;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
@@ -30,28 +31,25 @@ use Flarum\User\User;
  *
  * @property int $id
  * @property int $user_id
- * @property int|null $sender_id
+ * @property int|null $from_user_id
  * @property string $type
  * @property int|null $subject_id
  * @property mixed|null $data
- * @property \Carbon\Carbon $time
- * @property bool $is_read
- * @property bool $is_deleted
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $read_at
+ * @property \Carbon\Carbon $deleted_at
  * @property \Flarum\User\User|null $user
- * @property \Flarum\User\User|null $sender
+ * @property \Flarum\User\User|null $fromUser
  * @property \Flarum\Database\AbstractModel|null $subject
  */
 class Notification extends AbstractModel
 {
     /**
-     * {@inheritdoc}
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
      */
-    protected $table = 'notifications';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $dates = ['time'];
+    protected $dates = ['created_at', 'read_at'];
 
     /**
      * A map of notification types and the model classes to use for their
@@ -70,7 +68,7 @@ class Notification extends AbstractModel
      */
     public function read()
     {
-        $this->is_read = true;
+        $this->read_at = Carbon::now();
     }
 
     /**
@@ -114,7 +112,7 @@ class Notification extends AbstractModel
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -122,9 +120,9 @@ class Notification extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sender()
+    public function fromUser()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'from_user_id');
     }
 
     /**
@@ -134,7 +132,7 @@ class Notification extends AbstractModel
      */
     public function subject()
     {
-        return $this->morphTo('subject', 'subjectModel', 'subject_id');
+        return $this->morphTo('subject', 'subjectModel');
     }
 
     /**
