@@ -34,7 +34,7 @@ class AddUserSuspendAttributes
     public function addDates(ConfigureModelDates $event)
     {
         if ($event->isModel(User::class)) {
-            $event->dates[] = 'suspend_until';
+            $event->dates[] = 'suspended_until';
         }
     }
 
@@ -47,7 +47,7 @@ class AddUserSuspendAttributes
             $canSuspend = $event->actor->can('suspend', $event->model);
 
             if ($canSuspend) {
-                $event->attributes['suspendUntil'] = $event->formatDate($event->model->suspend_until);
+                $event->attributes['suspendedUntil'] = $event->formatDate($event->model->suspended_until);
             }
 
             $event->attributes['canSuspend'] = $canSuspend;

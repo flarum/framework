@@ -5,7 +5,7 @@ export default class SuspendUserModal extends Modal {
   init() {
     super.init();
 
-    let until = this.props.user.suspendUntil();
+    let until = this.props.user.suspendedUntil();
     let status = null;
 
     if (new Date() > until) until = null;
@@ -81,21 +81,21 @@ export default class SuspendUserModal extends Modal {
 
     this.loading = true;
 
-    let suspendUntil = null;
+    let suspendedUntil = null;
     switch (this.status()) {
       case 'indefinitely':
-        suspendUntil = new Date('2038-01-01');
+        suspendedUntil = new Date('2038-01-01');
         break;
 
       case 'limited':
-        suspendUntil = moment().add(this.daysRemaining(), 'days').toDate();
+        suspendedUntil = moment().add(this.daysRemaining(), 'days').toDate();
         break;
 
       default:
         // no default
     }
 
-    this.props.user.save({suspendUntil}).then(
+    this.props.user.save({suspendedUntil}).then(
       () => this.hide(),
       this.loaded.bind(this)
     );
