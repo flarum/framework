@@ -48,7 +48,7 @@ class PostLikedBlueprint implements BlueprintInterface
     /**
      * {@inheritdoc}
      */
-    public function getSender()
+    public function getFromUser()
     {
         return $this->user;
     }

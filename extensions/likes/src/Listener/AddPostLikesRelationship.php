@@ -42,7 +42,7 @@ class AddPostLikesRelationship
     public function getModelRelationship(GetModelRelationship $event)
     {
         if ($event->isRelationship(Post::class, 'likes')) {
-            return $event->model->belongsToMany(User::class, 'posts_likes', 'post_id', 'user_id', null, null, 'likes');
+            return $event->model->belongsToMany(User::class, 'post_likes', 'post_id', 'user_id', null, null, 'likes');
         }
     }
 
