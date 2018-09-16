@@ -45,7 +45,7 @@ class FilterDiscussionListBySubscription
             $actor = $event->search->getActor();
             $event->search->getQuery()->whereNotExists(function ($query) use ($actor) {
                 $query->selectRaw(1)
-                      ->from('users_discussions')
+                      ->from('discussion_user')
                       ->whereColumn('discussions.id', 'discussion_id')
                       ->where('user_id', $actor->id)
                       ->where('subscription', 'ignore');
