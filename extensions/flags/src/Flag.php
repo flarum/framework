@@ -23,12 +23,7 @@ class Flag extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $table = 'flags';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $dates = ['time'];
+    protected $dates = ['created_at'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
