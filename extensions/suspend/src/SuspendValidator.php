@@ -19,6 +19,6 @@ class SuspendValidator extends AbstractValidator
      * {@inheritdoc}
      */
     protected $rules = [
-        'suspendUntil' => ['nullable', 'date'],
+        'suspendedUntil' => ['nullable', 'date'],
     ];
 }

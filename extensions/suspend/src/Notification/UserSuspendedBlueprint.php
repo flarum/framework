@@ -47,7 +47,7 @@ class UserSuspendedBlueprint implements BlueprintInterface
     /**
      * {@inheritdoc}
      */
-    public function getSender()
+    public function getFromUser()
     {
         return $this->actor;
     }
@@ -57,7 +57,7 @@ class UserSuspendedBlueprint implements BlueprintInterface
      */
     public function getData()
     {
-        return $this->user->suspend_until;
+        return $this->user->suspended_until;
     }
 
     /**

@@ -15,7 +15,7 @@ app.initializers.add('flarum-suspend', () => {
   app.notificationComponents.userUnsuspended = UserUnsuspendedNotification;
 
   User.prototype.canSuspend = Model.attribute('canSuspend');
-  User.prototype.suspendUntil = Model.attribute('suspendUntil', Model.transformDate);
+  User.prototype.suspendedUntil = Model.attribute('suspendedUntil', Model.transformDate);
 
   extend(UserControls, 'moderationControls', (items, user) => {
     if (user.canSuspend()) {
@@ -28,7 +28,7 @@ app.initializers.add('flarum-suspend', () => {
   });
 
   extend(User.prototype, 'badges', function(items) {
-    const until = this.suspendUntil();
+    const until = this.suspendedUntil();
 
     if (new Date() < until) {
       items.add('suspended', Badge.component({
