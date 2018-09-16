@@ -57,15 +57,15 @@ class AddPostMentionedByRelationship
     public function getModelRelationship(GetModelRelationship $event)
     {
         if ($event->isRelationship(Post::class, 'mentionedBy')) {
-            return $event->model->belongsToMany(Post::class, 'mentions_posts', 'mentions_id', 'post_id', null, null, 'mentionedBy');
+            return $event->model->belongsToMany(Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id', null, null, 'mentionedBy');
         }
 
         if ($event->isRelationship(Post::class, 'mentionsPosts')) {
-            return $event->model->belongsToMany(Post::class, 'mentions_posts', 'post_id', 'mentions_id', null, null, 'mentionsPosts');
+            return $event->model->belongsToMany(Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id', null, null, 'mentionsPosts');
         }
 
         if ($event->isRelationship(Post::class, 'mentionsUsers')) {
-            return $event->model->belongsToMany(User::class, 'mentions_users', 'post_id', 'mentions_id', null, null, 'mentionsUsers');
+            return $event->model->belongsToMany(User::class, 'post_mentions_user', 'post_id', 'mentions_user_id', null, null, 'mentionsUsers');
         }
     }
 

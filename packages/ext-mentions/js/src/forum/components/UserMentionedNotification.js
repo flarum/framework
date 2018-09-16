@@ -12,7 +12,7 @@ export default class UserMentionedNotification extends Notification {
   }
 
   content() {
-    const user = this.props.notification.sender();
+    const user = this.props.notification.fromUser();
 
     return app.translator.trans('flarum-mentions.forum.notifications.user_mentioned_text', {user});
   }

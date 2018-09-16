@@ -48,7 +48,7 @@ class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
     /**
      * {@inheritdoc}
      */
-    public function getSender()
+    public function getFromUser()
     {
         return $this->reply->user;
     }
