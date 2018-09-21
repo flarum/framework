@@ -60,14 +60,12 @@ class MigrateCommand extends AbstractCommand
         });
 
         $migrator = $this->container->make('Flarum\Database\Migrator');
+        $migrator->setOutput($this->output);
 
         $migrator->run(__DIR__.'/../../../migrations');
 
-        foreach ($migrator->getNotes() as $note) {
-            $this->info($note);
-        }
-
         $extensions = $this->container->make('Flarum\Extension\ExtensionManager');
+        $extensions->getMigrator()->setOutput($this->output);
 
         foreach ($extensions->getExtensions() as $name => $extension) {
             if (! $extension->isEnabled()) {
@@ -76,11 +74,7 @@ class MigrateCommand extends AbstractCommand
 
             $this->info('Migrating extension: '.$name);
 
-            $notes = $extensions->migrate($extension);
-
-            foreach ($notes as $note) {
-                $this->info($note);
-            }
+            $extensions->migrate($extension);
         }
 
         $this->container->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->container->version());
