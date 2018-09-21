@@ -1,6 +1,4 @@
 import Notification from 'flarum/components/Notification';
-import username from 'flarum/helpers/username';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
 
 export default class PostLikedNotification extends Notification {
   icon() {
@@ -14,15 +12,8 @@ export default class PostLikedNotification extends Notification {
   content() {
     const notification = this.props.notification;
     const user = notification.fromUser();
-    const auc = notification.additionalUnreadCount();
 
-    return app.translator.transChoice('flarum-likes.forum.notifications.post_liked_text', auc + 1, {
-      user,
-      username: auc ? punctuateSeries([
-        username(user),
-        app.translator.transChoice('flarum-likes.forum.notifications.others_text', auc, {count: auc})
-      ]) : undefined
-    });
+    return app.translator.transChoice('flarum-likes.forum.notifications.post_liked_text', 1, {user});
   }
 
   excerpt() {
