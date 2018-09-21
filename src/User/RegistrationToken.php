@@ -80,11 +80,11 @@ class RegistrationToken extends AbstractModel
      *
      * @throws InvalidConfirmationTokenException
      *
-     * @return AuthToken
+     * @return RegistrationToken
      */
     public function scopeValidOrFail($query, string $token)
     {
-        /** @var AuthToken $token */
+        /** @var RegistrationToken $token */
         $token = $query->find($token);
 
         if (! $token || $token->created_at->lessThan(Carbon::now()->subDay())) {
