@@ -65,7 +65,7 @@ class FormatPostMentions
 
         $tag->filterChain
             ->prepend([static::class, 'addId'])
-            ->setJS('function(tag) { return System.get("flarum/mentions/utils/textFormatter").filterPostMentions(tag); }');
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }');
 
         $configurator->Preg->match('/\B@(?<username>[a-z0-9_-]+)#(?<id>\d+)/i', $tagName);
     }
