@@ -12,7 +12,6 @@
 namespace Flarum\Api;
 
 use Exception;
-use Flarum\Foundation\Application;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -83,7 +82,7 @@ class Client
      * @param ErrorHandler $errorHandler
      * @return Client
      */
-    public function setErrorHandler(?ErrorHandler $errorHandler): Client
+    public function setErrorHandler(?ErrorHandler $errorHandler): self
     {
         $this->errorHandler = $errorHandler;
 
