@@ -14,7 +14,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('auth_tokens', function (Blueprint $table) {
+        $schema->table('registration_tokens', function (Blueprint $table) {
             $table->string('provider');
             $table->string('identifier');
             $table->text('user_attributes')->nullable();
