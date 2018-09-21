@@ -71,10 +71,6 @@ trait CreatesForum
     protected function createsHttpForum()
     {
         $this->app = $this->site->bootApp();
-
-        $this->http = new Server(
-            $this->app->getRequestHandler()
-        );
     }
 
     protected function collectsConfiguration()
