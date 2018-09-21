@@ -18,7 +18,7 @@ export default class MentionsUserPage extends PostsUserPage {
         mentioned: this.user.id()
       },
       page: {offset, limit: this.loadLimit},
-      sort: '-time'
+      sort: '-createdAt'
     });
   }
 }
