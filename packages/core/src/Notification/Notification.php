@@ -102,7 +102,7 @@ class Notification extends AbstractModel
      */
     public function getSubjectModelAttribute()
     {
-        return array_get(static::$subjectModels, $this->type);
+        return $this->type ? array_get(static::$subjectModels, $this->type) : null;
     }
 
     /**
