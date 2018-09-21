@@ -78,8 +78,6 @@ class Migrator
      */
     public function run($path, Extension $extension = null)
     {
-        $this->notes = [];
-
         $files = $this->getMigrationFiles($path);
 
         $ran = $this->repository->getRan($extension ? $extension->getId() : null);
@@ -148,8 +146,6 @@ class Migrator
      */
     public function reset($path, Extension $extension = null)
     {
-        $this->notes = [];
-
         $migrations = array_reverse($this->repository->getRan($extension->getId()));
 
         $count = count($migrations);
@@ -168,7 +164,7 @@ class Migrator
     /**
      * Run "down" a migration instance.
      *
-     * @param            $path
+     * @param  string    $path
      * @param  string    $file
      * @param  string    $path
      * @param  Extension $extension
