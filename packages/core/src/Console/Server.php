@@ -13,23 +13,26 @@ namespace Flarum\Console;
 
 use Flarum\Console\Event\Configuring;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\SiteInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 class Server
 {
-    protected $commands;
+    private $site;
 
-    public function __construct(array $commands)
+    public function __construct(SiteInterface $site)
     {
-        $this->commands = $commands;
+        $this->site = $site;
     }
 
     public function listen()
     {
+        $app = $this->site->bootApp();
+
         $console = new ConsoleApplication('Flarum', Application::VERSION);
 
-        foreach ($this->commands as $command) {
+        foreach ($app->getConsoleCommands() as $command) {
             $console->add($command);
         }
 
