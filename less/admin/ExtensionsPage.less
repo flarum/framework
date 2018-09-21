@@ -19,7 +19,7 @@
 
 .ExtensionList {
   columns: 3;
-  column-width: 410px;
+  column-width: @extension-list-column-width;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -100,7 +100,7 @@
   position: absolute;
 }
 
-@media @mini {
+@media (max-width: @extension-list-column-width) {
   .ExtensionListItem-description {
     display: none;
   }
