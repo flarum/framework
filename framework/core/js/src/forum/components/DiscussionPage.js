@@ -115,7 +115,9 @@ export default class DiscussionPage extends Page {
     );
   }
 
-  config() {
+  config(...args) {
+    super.config(...args);
+
     if (this.discussion) {
       app.setTitle(this.discussion.title());
     }
