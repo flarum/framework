@@ -23,6 +23,8 @@ trait MakesApiRequests
         /** @var Client $api */
         $api = app(Client::class);
 
+        $api->setErrorHandler(null);
+
         return $api->send($controller, $actor ?? new Guest, $queryParams, $body);
     }
 }
