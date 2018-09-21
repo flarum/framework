@@ -70,3 +70,5 @@ app.initializers.add('flarum-mentions', function() {
   // Remove post mentions when rendering post previews.
   getPlainContent.removeSelectors.push('a.PostMention');
 });
+
+export * from './utils/textFormatter';
