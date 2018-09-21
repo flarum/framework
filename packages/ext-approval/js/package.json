@@ -2,9 +2,9 @@
   "name": "@flarum/flarum-ext-approval",
   "version": "0.0.0",
   "dependencies": {
-    "flarum-webpack-config": "^0.1.0-beta.8",
-    "webpack": "^4.0.0",
-    "webpack-cli": "^3.0.7"
+    "flarum-webpack-config": "0.1.0-beta.9",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
   },
   "scripts": {
     "build": "webpack --mode production",
