@@ -37,9 +37,7 @@ class Meta implements ContentInterface
 
     private function buildHead(HtmlDocument $document)
     {
-        $head = [
-            'font' => '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700,600">'
-        ];
+        $head = [];
 
         if ($faviconUrl = array_get($document->getForumApiDocument(), 'data.attributes.faviconUrl')) {
             $head['favicon'] = '<link rel="shortcut icon" href="'.e($faviconUrl).'">';
