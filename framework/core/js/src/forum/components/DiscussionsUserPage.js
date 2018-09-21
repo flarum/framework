@@ -17,7 +17,8 @@ export default class DiscussionsUserPage extends UserPage {
       <div className="DiscussionsUserPage">
         {DiscussionList.component({
           params: {
-            q: 'author:' + this.user.username()
+            q: 'author:' + this.user.username(),
+            sort: 'newest'
           }
         })}
       </div>
