@@ -249,12 +249,9 @@ class InstallCommand extends AbstractCommand
 
     protected function runMigrations()
     {
+        $this->migrator->setOutput($this->output);
         $this->migrator->getRepository()->createRepository();
         $this->migrator->run(__DIR__.'/../../../migrations');
-
-        foreach ($this->migrator->getNotes() as $note) {
-            $this->info($note);
-        }
     }
 
     protected function writeSettings()
