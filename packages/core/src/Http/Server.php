@@ -31,7 +31,7 @@ class Server
 
     public function listen()
     {
-        $app = $this->site->bootApp();
+        $app = $this->safelyBootApp();
 
         $runner = new RequestHandlerRunner(
             $app->getRequestHandler(),
@@ -44,5 +44,19 @@ class Server
             }
         );
         $runner->run();
+    }
+
+    /**
+     * Try to boot Flarum, and prevent exceptions from exposing sensitive info.
+     *
+     * @return \Flarum\Foundation\AppInterface
+     */
+    private function safelyBootApp()
+    {
+        try {
+            return $this->site->bootApp();
+        } catch (Throwable $e) {
+            exit('Error booting Flarum: '.$e->getMessage());
+        }
     }
 }
