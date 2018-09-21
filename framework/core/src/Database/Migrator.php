@@ -16,6 +16,7 @@ use Flarum\Extension\Extension;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrator
 {
@@ -41,11 +42,11 @@ class Migrator
     protected $schemaBuilder;
 
     /**
-     * The notes for the current operation.
+     * The output interface implementation.
      *
-     * @var array
+     * @var OutputInterface
      */
-    protected $notes = [];
+    protected $output;
 
     /**
      * Create a new migrator instance.
@@ -246,24 +247,29 @@ class Migrator
     }
 
     /**
-     * Raise a note event for the migrator.
+     * Set the output implementation that should be used by the console.
      *
-     * @param  string $message
+     * @param OutputInterface $output
+     * @return $this
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+
+        return $this;
+    }
+
+    /**
+     * Write a note to the conosle's output.
+     *
+     * @param string $message
      * @return void
      */
     protected function note($message)
     {
-        $this->notes[] = $message;
-    }
-
-    /**
-     * Get the notes for the last operation.
-     *
-     * @return array
-     */
-    public function getNotes()
-    {
-        return $this->notes;
+        if ($this->output) {
+            $this->output->writeln($message);
+        }
     }
 
     /**

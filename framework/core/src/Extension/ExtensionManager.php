@@ -236,11 +236,7 @@ class ExtensionManager
             } else {
                 $this->migrator->reset($migrationDir, $extension);
             }
-
-            return $this->migrator->getNotes();
         }
-
-        return [];
     }
 
     /**
