@@ -112,7 +112,7 @@ class Formatter
         $configurator->rendering->engine->cacheDir = $this->cacheDir;
 
         $configurator->enableJavaScript();
-        $configurator->javascript->exportMethods = ['preview'];
+        $configurator->javascript->exports = ['preview'];
 
         $configurator->javascript->setMinifier('MatthiasMullieMinify')
             ->keepGoing = true;
