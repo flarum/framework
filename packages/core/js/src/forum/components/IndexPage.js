@@ -159,7 +159,7 @@ export default class IndexPage extends Page {
         icon: 'fas fa-edit',
         className: 'Button Button--primary IndexPage-newDiscussion',
         itemClassName: 'App-primaryControl',
-        onclick: this.newDiscussion.bind(this),
+        onclick: this.newDiscussionAction.bind(this),
         disabled: !canStartDiscussion
       })
     );
@@ -339,39 +339,25 @@ export default class IndexPage extends Page {
   }
 
   /**
-   * Log the user in and then open the composer for a new discussion.
+   * Open the composer for a new discussion or prompt the user to login.
    *
    * @return {Promise}
    */
-  newDiscussion() {
+  newDiscussionAction() {
     const deferred = m.deferred();
 
     if (app.session.user) {
-      this.composeNewDiscussion(deferred);
+      const component = new DiscussionComposer({ user: app.session.user });
+
+      app.composer.load(component);
+      app.composer.show();
+
+      deferred.resolve(component);
     } else {
-      app.modal.show(
-        new LogInModal({
-          onlogin: this.composeNewDiscussion.bind(this, deferred)
-        })
-      );
+      deferred.reject();
+
+      app.modal.show(new LogInModal());
     }
-
-    return deferred.promise;
-  }
-
-  /**
-   * Initialize the composer for a new discussion.
-   *
-   * @param {Deferred} deferred
-   * @return {Promise}
-   */
-  composeNewDiscussion(deferred) {
-    const component = new DiscussionComposer({user: app.session.user});
-
-    app.composer.load(component);
-    app.composer.show();
-
-    deferred.resolve(component);
 
     return deferred.promise;
   }

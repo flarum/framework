@@ -111,10 +111,20 @@ export default {
 
   /**
    * Open the composer to edit a post.
+   *
+   * @return {Promise}
    */
   editAction() {
-    app.composer.load(new EditPostComposer({ post: this }));
+    const deferred = m.deferred();
+
+    const component = new EditPostComposer({ post: this });
+
+    app.composer.load(component);
     app.composer.show();
+
+    deferred.resolve(component);
+
+    return deferred.promise;
   },
 
   /**
