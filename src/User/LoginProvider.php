@@ -45,14 +45,16 @@ class LoginProvider extends AbstractModel
      *
      * @param string $provider
      * @param string $identifier
-     * @return User
+     * @return User|null
      */
-    public static function logIn(string $provider, string $identifier): User
+    public static function logIn(string $provider, string $identifier): ?User
     {
         if ($provider = static::where(compact('provider', 'identifier'))->first()) {
             $provider->touch();
 
             return $provider->user;
         }
+
+        return null;
     }
 }
