@@ -11,19 +11,15 @@
 
 namespace Flarum\User\Command;
 
-use Exception;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AssertPermissionTrait;
-use Flarum\User\AvatarUploader;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use Intervention\Image\ImageManager;
 
 class EditUserHandler
 {
@@ -41,35 +37,22 @@ class EditUserHandler
     protected $validator;
 
     /**
-     * @var AvatarUploader
-     */
-    protected $avatarUploader;
-
-    /**
-     * @var Factory
-     */
-    private $validatorFactory;
-
-    /**
      * @param Dispatcher $events
      * @param \Flarum\User\UserRepository $users
      * @param UserValidator $validator
-     * @param AvatarUploader $avatarUploader
-     * @param Factory $validatorFactory
      */
-    public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator, AvatarUploader $avatarUploader, Factory $validatorFactory)
+    public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
     {
         $this->events = $events;
         $this->users = $users;
         $this->validator = $validator;
-        $this->avatarUploader = $avatarUploader;
-        $this->validatorFactory = $validatorFactory;
     }
 
     /**
      * @param EditUser $command
      * @return User
      * @throws \Flarum\User\Exception\PermissionDeniedException
+     * @throws ValidationException
      */
     public function handle(EditUser $command)
     {
@@ -144,28 +127,6 @@ class EditUserHandler
             $user->afterSave(function (User $user) use ($newGroupIds) {
                 $user->groups()->sync($newGroupIds);
             });
-        }
-
-        if ($avatarUrl = array_get($attributes, 'avatarUrl')) {
-            $this->assertPermission($canEdit);
-
-            $validation = $this->validatorFactory->make(compact('avatarUrl'), ['avatarUrl' => 'url']);
-
-            if ($validation->fails()) {
-                throw new ValidationException($validation);
-            }
-
-            try {
-                $image = (new ImageManager)->make($avatarUrl);
-
-                $this->avatarUploader->upload($user, $image);
-            } catch (Exception $e) {
-                //
-            }
-        } elseif (array_key_exists('avatarUrl', $attributes)) {
-            $this->assertPermission($canEdit);
-
-            $this->avatarUploader->remove($user);
         }
 
         $this->events->dispatch(
