@@ -27,6 +27,7 @@ $rows = [
     ['permission' => 'discussion.hidePosts', 'group_id' => Group::MODERATOR_ID],
     ['permission' => 'discussion.rename', 'group_id' => Group::MODERATOR_ID],
     ['permission' => 'discussion.viewIpsPosts', 'group_id' => Group::MODERATOR_ID],
+    ['permission' => 'user.viewLastSeenAt', 'group_id' => Group::MODERATOR_ID],
 ];
 
 return [
