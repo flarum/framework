@@ -75,6 +75,19 @@ abstract class Migration
     }
 
     /**
+     * Drop columns from a table.
+     */
+    public static function dropColumns($tableName, array $columnDefinitions)
+    {
+        $inverse = static::addColumns($tableName, $columnDefinitions);
+
+        return [
+            'up' => $inverse['down'],
+            'down' => $inverse['up']
+        ];
+    }
+
+    /**
      * Rename a column.
      */
     public static function renameColumn($tableName, $from, $to)
