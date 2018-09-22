@@ -42,7 +42,7 @@ export default class SignUpModal extends Modal {
   }
 
   className() {
-    return 'Modal--small SignUpModal' + (this.welcomeUser ? ' SignUpModal--success' : '');
+    return 'Modal--small SignUpModal';
   }
 
   title() {
@@ -61,7 +61,7 @@ export default class SignUpModal extends Modal {
   }
 
   isProvided(field) {
-    return this.props.identificationFields && this.props.identificationFields.indexOf(field) !== -1;
+    return this.props.provided && this.props.provided.indexOf(field) !== -1;
   }
 
   body() {
@@ -177,10 +177,6 @@ export default class SignUpModal extends Modal {
       data.token = this.props.token;
     } else {
       data.password = this.password();
-    }
-
-    if (this.props.avatarUrl) {
-      data.avatarUrl = this.props.avatarUrl;
     }
 
     return data;

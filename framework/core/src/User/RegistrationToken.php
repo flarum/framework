@@ -17,22 +17,25 @@ use Flarum\User\Exception\InvalidConfirmationTokenException;
 
 /**
  * @property string $token
+ * @property string $provider
+ * @property string $identifier
+ * @property array $user_attributes
+ * @property array $payload
  * @property \Carbon\Carbon $created_at
- * @property string $payload
  */
-class AuthToken extends AbstractModel
+class RegistrationToken extends AbstractModel
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $table = 'registration_tokens';
-
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
     protected $dates = ['created_at'];
+
+    protected $casts = [
+        'user_attributes' => 'array',
+        'payload' => 'array'
+    ];
 
     /**
      * Use a custom primary key for this model.
@@ -47,42 +50,26 @@ class AuthToken extends AbstractModel
     protected $primaryKey = 'token';
 
     /**
-     * Generate an email token for the specified user.
+     * Generate an auth token for the specified user.
      *
-     * @param string $payload
-     *
+     * @param string $provider
+     * @param string $identifier
+     * @param array $attributes
+     * @param array $payload
      * @return static
      */
-    public static function generate($payload)
+    public static function generate(string $provider, string $identifier, array $attributes, array $payload)
     {
         $token = new static;
 
         $token->token = str_random(40);
+        $token->provider = $provider;
+        $token->identifier = $identifier;
+        $token->user_attributes = $attributes;
         $token->payload = $payload;
         $token->created_at = Carbon::now();
 
         return $token;
-    }
-
-    /**
-     * Unserialize the payload attribute from the database's JSON value.
-     *
-     * @param string $value
-     * @return string
-     */
-    public function getPayloadAttribute($value)
-    {
-        return json_decode($value, true);
-    }
-
-    /**
-     * Serialize the payload attribute to be stored in the database as JSON.
-     *
-     * @param string $value
-     */
-    public function setPayloadAttribute($value)
-    {
-        $this->attributes['payload'] = json_encode($value);
     }
 
     /**
@@ -93,11 +80,11 @@ class AuthToken extends AbstractModel
      *
      * @throws InvalidConfirmationTokenException
      *
-     * @return AuthToken
+     * @return RegistrationToken
      */
     public function scopeValidOrFail($query, string $token)
     {
-        /** @var AuthToken $token */
+        /** @var RegistrationToken $token */
         $token = $query->find($token);
 
         if (! $token || $token->created_at->lessThan(Carbon::now()->subDay())) {

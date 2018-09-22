@@ -148,17 +148,16 @@ export default class ForumApplication extends Application {
    * with the provided details.
    *
    * @param {Object} payload A dictionary of props to pass into the sign up
-   *     modal. A truthy `authenticated` prop indicates that the user has logged
+   *     modal. A truthy `loggedIn` prop indicates that the user has logged
    *     in, and thus the page is reloaded.
    * @public
    */
   authenticationComplete(payload) {
-    if (payload.authenticated) {
+    if (payload.loggedIn) {
       window.location.reload();
     } else {
       const modal = new SignUpModal(payload);
       this.modal.show(modal);
-      modal.$('[name=password]').focus();
     }
   }
 }
