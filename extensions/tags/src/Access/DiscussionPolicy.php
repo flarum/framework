@@ -120,7 +120,7 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function tag(User $actor, Discussion $discussion)
     {
-        if ($discussion->user_id == $actor->id) {
+        if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
             $allowEditTags = $this->settings->get('allow_tag_change');
 
             if ($allowEditTags === '-1'
