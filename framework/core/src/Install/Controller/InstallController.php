@@ -77,7 +77,7 @@ class InstallController implements RequestHandlerInterface
             'email'                 => array_get($input, 'adminEmail'),
         ]);
 
-        $baseUrl = rtrim((string) $request->getAttribute('originalUri'), '/');
+        $baseUrl = rtrim((string) $request->getUri(), '/');
         $data->setBaseUrl($baseUrl);
 
         $data->setSetting('forum_title', array_get($input, 'forumTitle'));
