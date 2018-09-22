@@ -301,8 +301,6 @@ class InstallCommand extends AbstractCommand
             $this->application->make('files')
         );
 
-        $migrator = $extensions->getMigrator();
-
         $disabled = [
             'flarum-akismet',
             'flarum-auth-facebook',
@@ -319,10 +317,6 @@ class InstallCommand extends AbstractCommand
             $this->info('Enabling extension: '.$name);
 
             $extensions->enable($name);
-
-            foreach ($migrator->getNotes() as $note) {
-                $this->info($note);
-            }
         }
     }
 
