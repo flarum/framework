@@ -43,7 +43,7 @@ class ResponseFactory
 
         $provided = $registration->getProvided();
 
-        if (isset($provided['email']) && $user = User::where(array_only($provided, 'email'))->first()) {
+        if (! empty($provided['email']) && $user = User::where(array_only($provided, 'email'))->first()) {
             $user->loginProviders()->create(compact('provider', 'identifier'));
 
             return $this->makeLoggedInResponse($user);
