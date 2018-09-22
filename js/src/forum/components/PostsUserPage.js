@@ -1,6 +1,7 @@
 import UserPage from './UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
+import Placeholder from '../../common/components/Placeholder';
 import CommentPost from './CommentPost';
 
 /**
@@ -59,6 +60,15 @@ export default class PostsUserPage extends UserPage {
       );
     }
 
+    if (this.posts.length === 0 && !this.loading) {
+      const text = app.translator.trans('core.forum.user.posts_empty_text');
+      return (
+        <div className="PostsUserPage">
+          {Placeholder.component({text})}
+        </div>
+      );
+    }
+
     return (
       <div className="PostsUserPage">
         <ul className="PostsUserPage-list">
@@ -71,7 +81,9 @@ export default class PostsUserPage extends UserPage {
             </li>
           ))}
         </ul>
-        {footer}
+        <div className="PostsUserPage-loadMore">
+          {footer}
+        </div>
       </div>
     );
   }
