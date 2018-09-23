@@ -44,6 +44,14 @@ export default class PostsUserPage extends UserPage {
   }
 
   content() {
+    if (this.posts.length === 0 && ! this.loading) {
+      return (
+        <div className="PostsUserPage">
+          <Placeholder text={app.translator.trans('core.forum.user.posts_empty_text')} />
+        </div>
+      );
+    }
+
     let footer;
 
     if (this.loading) {
@@ -56,15 +64,6 @@ export default class PostsUserPage extends UserPage {
             className: 'Button',
             onclick: this.loadMore.bind(this)
           })}
-        </div>
-      );
-    }
-
-    if (this.posts.length === 0 && !this.loading) {
-      const text = app.translator.trans('core.forum.user.posts_empty_text');
-      return (
-        <div className="PostsUserPage">
-          {Placeholder.component({text})}
         </div>
       );
     }
