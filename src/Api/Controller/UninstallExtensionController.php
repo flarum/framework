@@ -40,7 +40,6 @@ class UninstallExtensionController extends AbstractDeleteController
 
         if ($this->extensions->getExtension($name) == null) return;
 
-        $this->extensions->disable($name);
         $this->extensions->uninstall($name);
     }
 }
