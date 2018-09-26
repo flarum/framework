@@ -67,11 +67,7 @@ class MigrateCommand extends AbstractCommand
         $extensions = $this->container->make('Flarum\Extension\ExtensionManager');
         $extensions->getMigrator()->setOutput($this->output);
 
-        foreach ($extensions->getExtensions() as $name => $extension) {
-            if (! $extension->isEnabled()) {
-                continue;
-            }
-
+        foreach ($extensions->getEnabledExtensions() as $name => $extension) {
             $this->info('Migrating extension: '.$name);
 
             $extensions->migrate($extension);
