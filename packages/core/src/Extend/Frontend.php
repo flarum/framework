@@ -51,7 +51,7 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);

@@ -63,7 +63,7 @@ class Routes implements ExtenderInterface
         return $this;
     }
 
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         if (empty($this->routes)) {
             return;

@@ -25,7 +25,7 @@ class Locales implements ExtenderInterface
         $this->directory = $directory;
     }
 
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         /** @var LocaleManager $locales */
         $locales = $container->make(LocaleManager::class);
