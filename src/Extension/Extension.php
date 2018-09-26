@@ -85,13 +85,6 @@ class Extension implements Arrayable
     protected $version;
 
     /**
-     * Whether the extension is enabled.
-     *
-     * @var bool
-     */
-    protected $enabled = false;
-
-    /**
      * @param       $path
      * @param array $composerJson
      */
@@ -226,8 +219,6 @@ class Extension implements Arrayable
 
     public function enable(Container $container)
     {
-        $this->setEnabled(true);
-
         foreach ($this->getLifecycleExtenders() as $extender) {
             $extender->onEnable($container, $this);
         }
@@ -235,30 +226,9 @@ class Extension implements Arrayable
 
     public function disable(Container $container)
     {
-        $this->setEnabled(false);
-
         foreach ($this->getLifecycleExtenders() as $extender) {
             $extender->onDisable($container, $this);
         }
-    }
-
-    /**
-     * @param bool $enabled
-     * @return Extension
-     */
-    public function setEnabled($enabled)
-    {
-        $this->enabled = $enabled;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEnabled()
-    {
-        return $this->enabled;
     }
 
     /**
