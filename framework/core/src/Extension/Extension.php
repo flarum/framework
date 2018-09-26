@@ -12,6 +12,7 @@
 namespace Flarum\Extension;
 
 use Flarum\Extend\Compat;
+use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
@@ -223,6 +224,24 @@ class Extension implements Arrayable
         return $icon;
     }
 
+    public function enable(Container $container)
+    {
+        $this->setEnabled(true);
+
+        foreach ($this->getLifecycleExtenders() as $extender) {
+            $extender->onEnable($container, $this);
+        }
+    }
+
+    public function disable(Container $container)
+    {
+        $this->setEnabled(false);
+
+        foreach ($this->getLifecycleExtenders() as $extender) {
+            $extender->onDisable($container, $this);
+        }
+    }
+
     /**
      * @param bool $enabled
      * @return Extension
@@ -275,6 +294,19 @@ class Extension implements Arrayable
         }
 
         return array_flatten($extenders);
+    }
+
+    /**
+     * @return LifecycleInterface[]
+     */
+    private function getLifecycleExtenders(): array
+    {
+        return array_filter(
+            $this->getExtenders(),
+            function ($extender) {
+                return $extender instanceof LifecycleInterface;
+            }
+        );
     }
 
     private function getExtenderFile(): ?string
