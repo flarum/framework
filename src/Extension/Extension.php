@@ -121,7 +121,7 @@ class Extension implements Arrayable
                 $extender = new Compat($extender);
             }
 
-            $extender($app, $this);
+            $extender->extend($app, $this);
         }
     }
 
