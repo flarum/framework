@@ -34,7 +34,7 @@ export default class AutocompleteDropdown extends Component {
     clearTimeout(this.keyWasJustPressedTimeout);
     this.keyWasJustPressedTimeout = setTimeout(() => this.keyWasJustPressed = false, 500);
   }
-  
+
   complete() {
     this.$('li').eq(this.index).find('button').click();
   }

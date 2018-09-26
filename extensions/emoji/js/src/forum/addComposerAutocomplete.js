@@ -2,7 +2,8 @@ import getCaretCoordinates from 'textarea-caret';
 
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
-import emojiMap from './helpers/emojiMap';
+import emojiMap from './generated/emojiMap.json';
+import getEmojiIconCode from './helpers/getEmojiIconCode';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './components/AutocompleteDropdown';
@@ -75,25 +76,22 @@ export default function addComposerAutocomplete() {
         if (emojiStart) {
           typed = value.substring(emojiStart, cursor).toLowerCase();
 
-          const makeSuggestion = function(key) {
-            const code = ':' + key + ':';
-            const imageName = emojiMap[key];
+          const makeSuggestion = function({emoji, name, code}) {
             return (
               <button
-                key={key}
-                onclick={() => applySuggestion(code)}
+                key={emoji}
+                onclick={() => applySuggestion(emoji)}
                 onmouseenter={function() {
                   dropdown.setIndex($(this).parent().index());
                 }}>
-                  <img alt={code} class="emoji" draggable="false" src={'//cdn.jsdelivr.net/emojione/assets/png/' + imageName + '.png'}/>
-                  {key}
+                  <img alt={emoji} class="emoji" draggable="false" src={'//twemoji.maxcdn.com/2/72x72/' + code + '.png'}/>
+                  {name}
               </button>
             );
           };
 
           const buildSuggestions = () => {
-            const suggestions = [];
-            let similarEmoji = [];
+            const similarEmoji = [];
 
             // Build a regular expression to do a fuzzy match of the given input string
             const fuzzyRegexp = function(str) {
@@ -107,9 +105,16 @@ export default function addComposerAutocomplete() {
             const findMatchingEmojis = matcher => {
               for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
                 const curEmoji = emojiKeys[i];
-                if (matcher(curEmoji) && similarEmoji.indexOf(curEmoji) === -1) {
-                  --maxSuggestions;
-                  similarEmoji.push(emojiKeys[i]);
+
+                if (similarEmoji.indexOf(curEmoji) === -1) {
+                  const names = emojiMap[curEmoji];
+                  for (let name of names) {
+                    if (matcher(name)) {
+                      --maxSuggestions;
+                      similarEmoji.push(curEmoji);
+                      break;
+                    }
+                  }
                 }
               }
             };
@@ -120,13 +125,13 @@ export default function addComposerAutocomplete() {
             // If there are still suggestions left, try for some fuzzy matches
             findMatchingEmojis(emoji => regTyped.test(emoji));
 
-            similarEmoji = similarEmoji.sort((a, b) => {
-              return a.length - b.length
-            });
-
-            for (let key of similarEmoji) {
-              suggestions.push(makeSuggestion(key));
-            }
+            const suggestions = similarEmoji.map(emoji => ({
+                emoji,
+                name: emojiMap[emoji][0],
+                code: getEmojiIconCode(emoji),
+              })).sort((a, b) => {
+                return a.name.length - b.name.length;
+              }).map(makeSuggestion);
 
             if (suggestions.length) {
               dropdown.props.items = suggestions;

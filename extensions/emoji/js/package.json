@@ -2,13 +2,18 @@
   "name": "@flarum/flarum-ext-emoji",
   "version": "0.0.0",
   "dependencies": {
+    "emojibase-data": "^3.1.0",
     "flarum-webpack-config": "0.1.0-beta.9",
     "textarea-caret": "^3.1.0",
+    "twemoji": "^11.0.1",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
   },
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --mode development --watch"
+    "watch": "webpack --mode development --watch",
+    "prebuild": "npm run generate-emoji-map",
+    "prewatch": "npm run generate-emoji-map",
+    "generate-emoji-map": "node ./scripts/generate-emoji-map.js"
   }
 }
