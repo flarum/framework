@@ -16,5 +16,5 @@ use Illuminate\Contracts\Container\Container;
 
 interface ExtenderInterface
 {
-    public function __invoke(Container $container, Extension $extension = null);
+    public function extend(Container $container, Extension $extension = null);
 }

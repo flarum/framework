@@ -32,7 +32,7 @@ class Compat implements ExtenderInterface
         $this->callback = $callback;
     }
 
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         $container->call($this->callback);
     }
