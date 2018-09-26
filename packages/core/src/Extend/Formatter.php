@@ -11,15 +11,13 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
 use Flarum\Formatter\Event\Configuring;
 use Flarum\Formatter\Formatter as ActualFormatter;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
 
-class Formatter implements ExtenderInterface
+class Formatter implements ExtenderInterface, LifecycleInterface
 {
     protected $callback;
 
@@ -40,16 +38,17 @@ class Formatter implements ExtenderInterface
                 call_user_func($this->callback, $event->configurator);
             }
         );
+    }
 
-        // Also set up an event listener to flush the formatter cache whenever
-        // this extension is enabled or disabled.
-        $events->listen(
-            [Enabled::class, Disabled::class],
-            function ($event) use ($container, $extension) {
-                if ($event->extension === $extension) {
-                    $container->make(ActualFormatter::class)->flush();
-                }
-            }
-        );
+    public function onEnable(Container $container, Extension $extension)
+    {
+        // FLush the formatter cache when this extension is enabled
+        $container->make(ActualFormatter::class)->flush();
+    }
+
+    public function onDisable(Container $container, Extension $extension)
+    {
+        // FLush the formatter cache when this extension is disabled
+        $container->make(ActualFormatter::class)->flush();
     }
 }
