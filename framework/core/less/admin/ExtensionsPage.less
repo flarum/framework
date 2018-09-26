@@ -1,3 +1,5 @@
+@extension-list-column-width: 410px;
+
 .ExtensionsPage-header {
   padding: 20px 0;
   background: @control-bg;
@@ -18,12 +20,15 @@
 }
 
 .ExtensionList {
+  columns: 3;
+  column-width: @extension-list-column-width;
   margin: 0;
   padding: 0;
   list-style: none;
   .clearfix();
 
   > li {
+    break-inside: avoid-column;
     text-align: left;
     position: relative;
     border-radius: 4px;
@@ -95,4 +100,14 @@
   text-align: center;
   margin-left: -50px;
   position: absolute;
+}
+
+@media (max-width: @extension-list-column-width) {
+  .ExtensionListItem-description {
+    display: none;
+  }
+  .ExtensionListItem-version {
+    display: block;
+    margin-top: 8px;
+  }
 }
