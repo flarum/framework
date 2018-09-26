@@ -11,23 +11,11 @@
 
 namespace Flarum\Formatter;
 
-use Flarum\Extension\Event\Disabled;
-use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class FormatterServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Dispatcher $events)
-    {
-        $events->listen(Enabled::class, [$this, 'flushFormatter']);
-        $events->listen(Disabled::class, [$this, 'flushFormatter']);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -42,10 +30,5 @@ class FormatterServiceProvider extends AbstractServiceProvider
         });
 
         $this->app->alias('flarum.formatter', Formatter::class);
-    }
-
-    public function flushFormatter()
-    {
-        $this->app->make('flarum.formatter')->flush();
     }
 }
