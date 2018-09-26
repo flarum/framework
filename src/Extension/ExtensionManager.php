@@ -128,7 +128,7 @@ class ExtensionManager
 
             $this->setEnabled($enabled);
 
-            $extension->setEnabled(true);
+            $extension->enable($this->app);
 
             $this->dispatcher->dispatch(new Enabled($extension));
         }
@@ -152,7 +152,7 @@ class ExtensionManager
 
             $this->setEnabled($enabled);
 
-            $extension->setEnabled(false);
+            $extension->disable($this->app);
 
             $this->dispatcher->dispatch(new Disabled($extension));
         }
