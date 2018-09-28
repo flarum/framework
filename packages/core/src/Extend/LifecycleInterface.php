@@ -14,7 +14,9 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 
-interface ExtenderInterface
+interface LifecycleInterface
 {
-    public function extend(Container $container, Extension $extension = null);
+    public function onEnable(Container $container, Extension $extension);
+
+    public function onDisable(Container $container, Extension $extension);
 }

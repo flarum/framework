@@ -173,7 +173,7 @@ class InstalledSite implements SiteInterface
         $laravel->boot();
 
         foreach ($this->extenders as $extension) {
-            $extension($laravel);
+            $extension->extend($laravel);
         }
 
         return $laravel;

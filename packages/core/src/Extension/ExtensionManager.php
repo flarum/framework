@@ -83,7 +83,6 @@ class ExtensionManager
                 // Per default all extensions are installed if they are registered in composer.
                 $extension->setInstalled(true);
                 $extension->setVersion(Arr::get($package, 'version'));
-                $extension->setEnabled($this->isEnabled($extension->getId()));
 
                 $extensions->put($extension->getId(), $extension);
             }
@@ -113,25 +112,27 @@ class ExtensionManager
      */
     public function enable($name)
     {
-        if (! $this->isEnabled($name)) {
-            $extension = $this->getExtension($name);
-
-            $this->dispatcher->dispatch(new Enabling($extension));
-
-            $enabled = $this->getEnabled();
-
-            $enabled[] = $name;
-
-            $this->migrate($extension);
-
-            $this->publishAssets($extension);
-
-            $this->setEnabled($enabled);
-
-            $extension->setEnabled(true);
-
-            $this->dispatcher->dispatch(new Enabled($extension));
+        if ($this->isEnabled($name)) {
+            return;
         }
+
+        $extension = $this->getExtension($name);
+
+        $this->dispatcher->dispatch(new Enabling($extension));
+
+        $enabled = $this->getEnabled();
+
+        $enabled[] = $name;
+
+        $this->migrate($extension);
+
+        $this->publishAssets($extension);
+
+        $this->setEnabled($enabled);
+
+        $extension->enable($this->app);
+
+        $this->dispatcher->dispatch(new Enabled($extension));
     }
 
     /**
@@ -143,19 +144,21 @@ class ExtensionManager
     {
         $enabled = $this->getEnabled();
 
-        if (($k = array_search($name, $enabled)) !== false) {
-            $extension = $this->getExtension($name);
-
-            $this->dispatcher->dispatch(new Disabling($extension));
-
-            unset($enabled[$k]);
-
-            $this->setEnabled($enabled);
-
-            $extension->setEnabled(false);
-
-            $this->dispatcher->dispatch(new Disabled($extension));
+        if (($k = array_search($name, $enabled)) === false) {
+            return;
         }
+
+        $extension = $this->getExtension($name);
+
+        $this->dispatcher->dispatch(new Disabling($extension));
+
+        unset($enabled[$k]);
+
+        $this->setEnabled($enabled);
+
+        $extension->disable($this->app);
+
+        $this->dispatcher->dispatch(new Disabled($extension));
     }
 
     /**
