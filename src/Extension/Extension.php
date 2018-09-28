@@ -12,6 +12,7 @@
 namespace Flarum\Extension;
 
 use Flarum\Extend\Compat;
+use Flarum\Extend\LifecycleInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
@@ -84,13 +85,6 @@ class Extension implements Arrayable
     protected $version;
 
     /**
-     * Whether the extension is enabled.
-     *
-     * @var bool
-     */
-    protected $enabled = false;
-
-    /**
      * @param       $path
      * @param array $composerJson
      */
@@ -121,7 +115,7 @@ class Extension implements Arrayable
                 $extender = new Compat($extender);
             }
 
-            $extender($app, $this);
+            $extender->extend($app, $this);
         }
     }
 
@@ -223,23 +217,18 @@ class Extension implements Arrayable
         return $icon;
     }
 
-    /**
-     * @param bool $enabled
-     * @return Extension
-     */
-    public function setEnabled($enabled)
+    public function enable(Container $container)
     {
-        $this->enabled = $enabled;
-
-        return $this;
+        foreach ($this->getLifecycleExtenders() as $extender) {
+            $extender->onEnable($container, $this);
+        }
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnabled()
+    public function disable(Container $container)
     {
-        return $this->enabled;
+        foreach ($this->getLifecycleExtenders() as $extender) {
+            $extender->onDisable($container, $this);
+        }
     }
 
     /**
@@ -275,6 +264,19 @@ class Extension implements Arrayable
         }
 
         return array_flatten($extenders);
+    }
+
+    /**
+     * @return LifecycleInterface[]
+     */
+    private function getLifecycleExtenders(): array
+    {
+        return array_filter(
+            $this->getExtenders(),
+            function ($extender) {
+                return $extender instanceof LifecycleInterface;
+            }
+        );
     }
 
     private function getExtenderFile(): ?string
