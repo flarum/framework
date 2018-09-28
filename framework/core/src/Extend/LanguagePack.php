@@ -20,7 +20,7 @@ use RuntimeException;
 
 class LanguagePack implements ExtenderInterface
 {
-    public function __invoke(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null)
     {
         if (is_null($extension)) {
             throw new InvalidArgumentException(
