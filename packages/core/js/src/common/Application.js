@@ -185,11 +185,11 @@ export default class Application {
    * @return {Object|null}
    * @public
    */
-  preloadedDocument() {
-    if (this.data.document) {
-      const results = this.store.pushPayload(this.data.document);
+  preloadedApiDocument() {
+    if (this.data.apiDocument) {
+      const results = this.store.pushPayload(this.data.apiDocument);
 
-      this.data.document = null;
+      this.data.apiDocument = null;
 
       return results;
     }

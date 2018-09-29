@@ -130,7 +130,7 @@ export default class DiscussionPage extends Page {
     this.near = m.route.param('near') || 0;
     this.discussion = null;
 
-    const preloadedDiscussion = app.preloadedDocument();
+    const preloadedDiscussion = app.preloadedApiDocument();
     if (preloadedDiscussion) {
       // We must wrap this in a setTimeout because if we are mounting this
       // component for the first time on page load, then any calls to m.redraw
