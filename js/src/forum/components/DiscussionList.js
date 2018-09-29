@@ -150,7 +150,7 @@ export default class DiscussionList extends Component {
    * @return {Promise}
    */
   loadResults(offset) {
-    const preloadedDiscussions = app.preloadedDocument();
+    const preloadedDiscussions = app.preloadedApiDocument();
 
     if (preloadedDiscussions) {
       return m.deferred().resolve(preloadedDiscussions).promise;
