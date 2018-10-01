@@ -33,6 +33,10 @@ class Floodgate
      */
     public function assertNotFlooding(User $actor)
     {
+        if ($actor->can('postWithoutThrottle')) {
+            return;
+        }
+
         if ($this->isFlooding($actor)) {
             throw new FloodingException;
         }
