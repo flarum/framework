@@ -154,6 +154,12 @@ export default class PermissionGrid extends Component {
   replyItems() {
     const items = new ItemList();
 
+    items.add('floodgateThrottling', {
+      icon: 'fas fa-swimmer',
+      label: app.translator.trans('core.admin.permissions.floodgate_throttling_label'),
+      permission: 'floodgate.throttling'
+    }, 120);
+
     items.add('reply', {
       icon: 'fas fa-reply',
       label: app.translator.trans('core.admin.permissions.reply_to_discussions_label'),

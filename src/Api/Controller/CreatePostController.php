@@ -66,7 +66,7 @@ class CreatePostController extends AbstractCreateController
         $discussionId = array_get($data, 'relationships.discussion.data.id');
         $ipAddress = array_get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
-        if (! $request->getAttribute('bypassFloodgate')) {
+        if ($actor->can('floodgate.throttling') && ! $request->getAttribute('bypassFloodgate')) {
             $this->floodgate->assertNotFlooding($actor);
         }
 

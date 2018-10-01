@@ -16,10 +16,11 @@ $rows = [
     // Guests can view the forum
     ['permission' => 'viewDiscussions', 'group_id' => Group::GUEST_ID],
 
-    // Members can create and reply to discussions, and view the user list
+    // Members can create and reply to discussions, view the user list, and be throttled
     ['permission' => 'startDiscussion', 'group_id' => Group::MEMBER_ID],
     ['permission' => 'discussion.reply', 'group_id' => Group::MEMBER_ID],
     ['permission' => 'viewUserList', 'group_id' => Group::MEMBER_ID],
+    ['permission' => 'floodgate.throttling', 'group_id' => Group::MEMBER_ID],
 
     // Moderators can edit + delete stuff
     ['permission' => 'discussion.hide', 'group_id' => Group::MODERATOR_ID],
