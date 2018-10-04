@@ -52,27 +52,27 @@ class InstalledSite implements SiteInterface
     /**
      * @var string
      */
-    protected $basePath;
+    private $basePath;
 
     /**
      * @var string
      */
-    protected $publicPath;
+    private $publicPath;
 
     /**
      * @var string
      */
-    protected $storagePath;
+    private $storagePath;
 
     /**
      * @var array
      */
-    protected $config;
+    private $config;
 
     /**
      * @var \Flarum\Extend\ExtenderInterface[]
      */
-    protected $extenders = [];
+    private $extenders = [];
 
     public function __construct($basePath, $publicPath, array $config)
     {
@@ -116,7 +116,7 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): Application
+    private function bootLaravel(): Application
     {
         $laravel = new Application($this->basePath, $this->publicPath);
 
@@ -183,7 +183,7 @@ class InstalledSite implements SiteInterface
      * @param Application $app
      * @return ConfigRepository
      */
-    protected function getIlluminateConfig(Application $app)
+    private function getIlluminateConfig(Application $app)
     {
         return new ConfigRepository([
             'view' => [
@@ -216,7 +216,7 @@ class InstalledSite implements SiteInterface
         ]);
     }
 
-    protected function registerLogger(Application $app)
+    private function registerLogger(Application $app)
     {
         $logPath = $app->storagePath().'/logs/flarum.log';
         $handler = new StreamHandler($logPath, Logger::INFO);
@@ -226,7 +226,7 @@ class InstalledSite implements SiteInterface
         $app->alias('log', LoggerInterface::class);
     }
 
-    protected function registerCache(Application $app)
+    private function registerCache(Application $app)
     {
         $app->singleton('cache.store', function ($app) {
             return new CacheRepository($app->make('cache.filestore'));
