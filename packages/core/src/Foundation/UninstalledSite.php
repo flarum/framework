@@ -34,17 +34,17 @@ class UninstalledSite implements SiteInterface
     /**
      * @var string
      */
-    protected $basePath;
+    private $basePath;
 
     /**
      * @var string
      */
-    protected $publicPath;
+    private $publicPath;
 
     /**
      * @var string
      */
-    protected $storagePath;
+    private $storagePath;
 
     public function __construct($basePath, $publicPath)
     {
@@ -112,7 +112,7 @@ class UninstalledSite implements SiteInterface
      * @param Application $app
      * @return ConfigRepository
      */
-    protected function getIlluminateConfig(Application $app)
+    private function getIlluminateConfig(Application $app)
     {
         return new ConfigRepository([
             'session' => [
@@ -123,7 +123,7 @@ class UninstalledSite implements SiteInterface
         ]);
     }
 
-    protected function registerLogger(Application $app)
+    private function registerLogger(Application $app)
     {
         $logPath = $app->storagePath().'/logs/flarum-installer.log';
         $handler = new StreamHandler($logPath, Logger::DEBUG);
