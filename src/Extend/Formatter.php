@@ -42,8 +42,11 @@ class Formatter implements ExtenderInterface, LifecycleInterface
 
     public function onEnable(Container $container, Extension $extension)
     {
-        // FLush the formatter cache when this extension is enabled
-        $container->make(ActualFormatter::class)->flush();
+        // Only flush the cache, if the app is installed, otherwise there's no cache
+        if ($container->bound(ActualFormatter::class)) {
+            // FLush the formatter cache when this extension is enabled
+            $container->make(ActualFormatter::class)->flush();
+        }
     }
 
     public function onDisable(Container $container, Extension $extension)
