@@ -57,8 +57,9 @@ export default class EditUserModal extends Modal {
       items.add('email', <div className="Form-group">
         <label>{app.translator.trans('core.forum.edit_user.email_heading')}</label>
         <div>
-          <input className="FormControl" placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
-                 bidi={this.email} />
+          <input className="FormControl"
+                 placeholder={extractText(app.translator.trans('core.forum.edit_user.email_label'))}
+                 bidi={this.email}/>
         </div>
         {!this.isEmailConfirmed() ? (
           <div>
@@ -92,33 +93,34 @@ export default class EditUserModal extends Modal {
         </div>
       </div>, 20);
 
-      items.add('groups', <div className="Form-group EditUserModal-groups">
-        <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
-        <div>
-          {Object.keys(this.groups)
-            .map(id => app.store.getById('groups', id))
-            .map(group => (
-              <label className="checkbox">
-                <input type="checkbox"
-                       bidi={this.groups[group.id()]}
-                       disabled={this.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID} />
-                {GroupBadge.component({group, label: ''})} {group.nameSingular()}
-              </label>
-            ))}
-        </div>
-      </div>, 10);
-
-      items.add('submit', <div className="Form-group">
-        {Button.component({
-          className: 'Button Button--primary',
-          type: 'submit',
-          loading: this.loading,
-          children: app.translator.trans('core.forum.edit_user.submit_button')
-        })}
-      </div>, -10);
-      
-      return items;
     }
+
+    items.add('groups', <div className="Form-group EditUserModal-groups">
+      <label>{app.translator.trans('core.forum.edit_user.groups_heading')}</label>
+      <div>
+        {Object.keys(this.groups)
+          .map(id => app.store.getById('groups', id))
+          .map(group => (
+            <label className="checkbox">
+              <input type="checkbox"
+                     bidi={this.groups[group.id()]}
+                     disabled={this.props.user.id() === '1' && group.id() === Group.ADMINISTRATOR_ID} />
+              {GroupBadge.component({group, label: ''})} {group.nameSingular()}
+            </label>
+          ))}
+      </div>
+    </div>, 10);
+
+    items.add('submit', <div className="Form-group">
+      {Button.component({
+        className: 'Button Button--primary',
+        type: 'submit',
+        loading: this.loading,
+        children: app.translator.trans('core.forum.edit_user.submit_button')
+      })}
+    </div>, -10);
+
+    return items;
   }
 
   activate() {
