@@ -13,6 +13,7 @@ namespace Flarum\Tags\Listener;
 
 use Flarum\Discussion\Event\Searching;
 use Flarum\Event\ConfigureDiscussionGambits;
+use Flarum\Subscriptions\Gambit\SubscriptionGambit;
 use Flarum\Tags\Gambit\TagGambit;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -44,7 +45,7 @@ class FilterDiscussionListByTags
         $query = $event->search->getQuery();
 
         foreach ($event->search->getActiveGambits() as $gambit) {
-            if ($gambit instanceof TagGambit) {
+            if ($gambit instanceof TagGambit || $gambit instanceof SubscriptionGambit) {
                 return;
             }
         }
