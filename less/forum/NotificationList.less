@@ -98,6 +98,24 @@
     font-weight: bold;
     text-transform: uppercase;
   }
+
+  .Notification-action {
+    float: right;
+    margin-top: -11px;
+    margin-right: -11px;
+
+    & when (@config-colored-header = true) {
+      .Button--color(@control-color, @control-bg);
+
+      &:hover {
+        color: @link-color;
+      }
+    }
+
+    i.icon {
+      font-size: 12px;
+    }
+  }
 }
 .Notification-icon {
   float: left;
