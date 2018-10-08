@@ -23,7 +23,7 @@ return [
             $schema->getConnection()->table('groups')
                 ->where('id', $group->id)
                 ->update([
-                    'icon' => 'fa fa-'.$group->icon
+                    'icon' => 'fas fa-'.$group->icon
                 ]);
         }
     },
