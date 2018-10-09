@@ -64,10 +64,13 @@ export default class ItemList {
    * @param {*} content The item's content.
    * @param {Integer} [priority] The priority of the item. Items with a higher
    *     priority will be positioned before items with a lower priority.
+   * @return {ItemList}
    * @public
    */
   add(key, content, priority = 0) {
     this.items[key] = new Item(content, priority);
+
+    return this;
   }
 
   /**
@@ -76,6 +79,7 @@ export default class ItemList {
    * @param {String} key
    * @param {*} [content]
    * @param {Integer} [priority]
+   * @return {ItemList}
    * @public
    */
   replace(key, content = null, priority = null) {
@@ -88,22 +92,28 @@ export default class ItemList {
         this.items[key].priority = priority;
       }
     }
+
+    return this;
   }
 
   /**
    * Remove an item from the list.
    *
    * @param {String} key
+   * @return {ItemList}
    * @public
    */
   remove(key) {
     delete this.items[key];
+
+    return this;
   }
 
   /**
    * Merge another list's items into this one.
    *
    * @param {ItemList} items
+   * @return {ItemList}
    * @public
    */
   merge(items) {
@@ -112,6 +122,8 @@ export default class ItemList {
         this.items[i] = items.items[i];
       }
     }
+
+    return this;
   }
 
   /**
