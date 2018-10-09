@@ -43,7 +43,7 @@ use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -219,7 +219,7 @@ class InstalledSite implements SiteInterface
     private function registerLogger(Application $app)
     {
         $logPath = $app->storagePath().'/logs/flarum.log';
-        $handler = new StreamHandler($logPath, Logger::INFO);
+        $handler = new RotatingFileHandler($logPath, Logger::INFO);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
         $app->instance('log', new Logger($app->environment(), [$handler]));
