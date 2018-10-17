@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flarum-ext-subscriptions",
+    "name": "flarum/subscriptions",
     "description": "Allow users to follow discussions and receive notifications for new posts.",
     "type": "flarum-extension",
     "keywords": ["discussion"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flarum-ext-subscriptions"
+        "source": "https://github.com/flarum/subscriptions"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.8"
