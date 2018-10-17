@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flarum-ext-lock",
+    "name": "flarum/lock",
     "description": "End a discussion and don't let anyone add further replies.",
     "type": "flarum-extension",
     "keywords": ["moderation"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flarum-ext-lock"
+        "source": "https://github.com/flarum/lock"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.8"
