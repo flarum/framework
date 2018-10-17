@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flarum-ext-emoji",
+    "name": "flarum/emoji",
     "description": "Convert text and unicode emoji into Twemoji.",
     "type": "flarum-extension",
     "keywords": ["formatting"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flarum-ext-emoji"
+        "source": "https://github.com/flarum/emoji"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.8"
