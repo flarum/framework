@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flarum-ext-likes",
+    "name": "flarum/likes",
     "description": "Allow users to like posts.",
     "type": "flarum-extension",
     "keywords": ["discussion"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flarum-ext-likes"
+        "source": "https://github.com/flarum/likes"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.8"
