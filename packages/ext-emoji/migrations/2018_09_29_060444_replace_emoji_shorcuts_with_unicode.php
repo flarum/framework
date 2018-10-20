@@ -98,6 +98,6 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        // hmmm
+        // not implemented
     }
 ];
