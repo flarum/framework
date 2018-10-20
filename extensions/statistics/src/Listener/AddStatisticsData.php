@@ -60,9 +60,9 @@ class AddStatisticsData
     private function getStatistics()
     {
         $entities = [
-            'users' => [User::query(), 'join_time'],
-            'discussions' => [Discussion::query(), 'start_time'],
-            'posts' => [Post::where('type', 'comment'), 'time']
+            'users' => [User::query(), 'joined_at'],
+            'discussions' => [Discussion::query(), 'created_at'],
+            'posts' => [Post::where('type', 'comment'), 'created_at']
         ];
 
         return array_map(function ($entity) {
@@ -121,5 +121,4 @@ class AddStatisticsData
     {
         return new DateTimeZone($this->settings->get('flarum-statistics.timezone', date_default_timezone_get()));
     }
-
 }
