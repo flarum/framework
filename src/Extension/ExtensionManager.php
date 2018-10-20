@@ -266,11 +266,15 @@ class ExtensionManager
     /**
      * Get only enabled extensions.
      *
-     * @return Collection
+     * @return array
      */
     public function getEnabledExtensions()
     {
-        return $this->getExtensions()->only($this->getEnabled());
+        $extensions = $this->getExtensions();
+
+        return array_filter(array_map(function ($id) use ($extensions) {
+            return $extensions[$id] ?? null;
+        }, $this->getEnabled()));
     }
 
     /**
