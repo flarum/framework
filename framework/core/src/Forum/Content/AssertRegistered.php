@@ -20,7 +20,7 @@ class AssertRegistered implements ContentInterface
 {
     use AssertPermissionTrait;
 
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $this->assertRegistered($request->getAttribute('actor'));
     }

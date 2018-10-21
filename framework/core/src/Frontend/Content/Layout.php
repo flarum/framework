@@ -29,7 +29,7 @@ class Layout implements ContentInterface
         $this->layoutView = $layoutView;
     }
 
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $document->layoutView = $this->layoutView;
     }
