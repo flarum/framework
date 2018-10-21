@@ -41,7 +41,7 @@ class CorePayload implements ContentInterface
         $this->api = $api;
     }
 
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $document->payload = array_merge(
             $document->payload,
