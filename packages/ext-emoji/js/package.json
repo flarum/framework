@@ -1,5 +1,5 @@
 {
-  "name": "@flarum/flarum-ext-emoji",
+  "name": "@flarum/emoji",
   "version": "0.0.0",
   "dependencies": {
     "emojibase-data": "^3.1.0",
