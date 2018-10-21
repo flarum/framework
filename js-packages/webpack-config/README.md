@@ -27,13 +27,13 @@ For example, to access the Tags extension module within your extension:
 **forum.js**
 
 ```js
-import { Tag } from '@flarum/flarum-ext-tags/forum';
+import { Tag } from '@flarum/tags/forum';
 ```
 
 **webpack.config.js**
 
 ```js
 module.exports = config({
-  useExtensions: ['flarum/flarum-ext-tags']
+  useExtensions: ['flarum/tags']
 });
 ```
