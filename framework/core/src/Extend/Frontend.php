@@ -14,6 +14,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Asset\ExtensionAssets;
 use Flarum\Frontend\CompilerFactory;
+use Flarum\Frontend\HtmlDocumentFactory;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
 
@@ -24,6 +25,7 @@ class Frontend implements ExtenderInterface
     protected $css = [];
     protected $js;
     protected $routes = [];
+    protected $content = [];
 
     public function __construct($frontend)
     {
@@ -51,10 +53,22 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * @param callable|string $callback
+     * @return $this
+     */
+    public function content($callback)
+    {
+        $this->content[] = $callback;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null)
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);
+        $this->registerContent($container);
     }
 
     private function registerAssets(Container $container, string $moduleName)
@@ -90,6 +104,26 @@ class Frontend implements ExtenderInterface
                 $factory->toFrontend($this->frontend, $route['content'])
             );
         }
+    }
+
+    private function registerContent(Container $container)
+    {
+        if (empty($this->content)) {
+            return;
+        }
+
+        $container->resolving(
+            "flarum.$this->frontend.frontend",
+            function (HtmlDocumentFactory $view, Container $container) {
+                foreach ($this->content as $content) {
+                    if (is_string($content)) {
+                        $content = $container->make($content);
+                    }
+
+                    $view->add($content);
+                }
+            }
+        );
     }
 
     private function getModuleName(?Extension $extension): string

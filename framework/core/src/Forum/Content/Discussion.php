@@ -49,7 +49,7 @@ class Discussion implements ContentInterface
         $this->view = $view;
     }
 
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
         $page = max(1, array_get($queryParams, 'page'));

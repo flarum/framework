@@ -61,7 +61,7 @@ class HtmlDocumentFactory
     }
 
     /**
-     * @param ContentInterface $content
+     * @param ContentInterface|callable $content
      */
     public function add($content)
     {
@@ -116,7 +116,7 @@ class HtmlDocumentFactory
     protected function populate(HtmlDocument $view, Request $request)
     {
         foreach ($this->content as $content) {
-            $content->populate($view, $request);
+            $content($view, $request);
         }
     }
 

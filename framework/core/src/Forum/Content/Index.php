@@ -44,7 +44,7 @@ class Index implements ContentInterface
     /**
      * {@inheritdoc}
      */
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $queryParams = $request->getQueryParams();
 
