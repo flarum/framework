@@ -52,7 +52,7 @@ class AdminPayload implements ContentInterface
         $this->events = $events;
     }
 
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $settings = $this->settings->all();
 
