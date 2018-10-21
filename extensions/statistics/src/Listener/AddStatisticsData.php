@@ -14,12 +14,12 @@ namespace Flarum\Statistics\Listener;
 use DateTime;
 use DateTimeZone;
 use Flarum\Discussion\Discussion;
+use Flarum\Frontend\HtmlDocument;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use Flarum\Frontend\Event\Rendering;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class AddStatisticsData
 {
@@ -36,25 +36,12 @@ class AddStatisticsData
         $this->settings = $settings;
     }
 
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
+    public function __invoke(HtmlDocument $view)
     {
-        $events->listen(Rendering::class, [$this, 'addStatisticsData']);
-    }
-
-    /**
-     * @param Rendering $event
-     */
-    public function addStatisticsData(Rendering $event)
-    {
-        if ($event->isAdmin()) {
-            $event->view->setVariable('statistics', array_merge(
-                $this->getStatistics(),
-                ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
-            ));
-        }
+        $view->payload['statistics'] = array_merge(
+            $this->getStatistics(),
+            ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
+        );
     }
 
     private function getStatistics()
