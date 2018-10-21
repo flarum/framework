@@ -20,5 +20,5 @@ interface ContentInterface
      * @param HtmlDocument $document
      * @param Request $request
      */
-    public function populate(HtmlDocument $document, Request $request);
+    public function __invoke(HtmlDocument $document, Request $request);
 }
