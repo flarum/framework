@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Meta implements ContentInterface
 {
-    public function populate(HtmlDocument $document, Request $request)
+    public function __invoke(HtmlDocument $document, Request $request)
     {
         $document->meta = array_merge($document->meta, $this->buildMeta($document));
         $document->head = array_merge($document->head, $this->buildHead($document));
