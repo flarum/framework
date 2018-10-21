@@ -1,5 +1,5 @@
 {
-    "name": "flarum/flarum-ext-statistics",
+    "name": "flarum/statistics",
     "description": "Add a basic statistics widget on the Dashboard.",
     "type": "flarum-extension",
     "keywords": ["administration"],
@@ -12,7 +12,7 @@
     ],
     "support": {
         "issues": "https://github.com/flarum/core/issues",
-        "source": "https://github.com/flarum/flarum-ext-statistics"
+        "source": "https://github.com/flarum/statistics"
     },
     "require": {
         "flarum/core": "^0.1.0-beta.8"
