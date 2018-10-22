@@ -52,7 +52,7 @@ class PostPolicy extends AbstractPolicy
 
         if (! $actor->hasPermission('discussion.approvePosts')) {
             $query->where(function (Builder $query) use ($actor) {
-                $query->where('user_id', $actor->id)
+                $query->where('posts.user_id', $actor->id)
                     ->orWhereExists($this->discussionWhereCanApprovePosts($actor));
             });
         }
