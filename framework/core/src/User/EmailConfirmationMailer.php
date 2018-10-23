@@ -72,7 +72,7 @@ class EmailConfirmationMailer
     {
         $user = $event->user;
 
-        if ($user->is_activated) {
+        if ($user->is_email_confirmed) {
             return;
         }
 
