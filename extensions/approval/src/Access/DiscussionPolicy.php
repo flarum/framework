@@ -51,7 +51,7 @@ class DiscussionPolicy extends AbstractPolicy
 
         if (! $actor->hasPermission('discussion.approvePosts')) {
             $query->where(function (Builder $query) use ($actor) {
-                $query->where('discussion.user_id', $actor->id)
+                $query->where('discussions.user_id', $actor->id)
                     ->orWhere($this->canApprovePosts($actor));
             });
         }
