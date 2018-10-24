@@ -32,24 +32,13 @@ use Psr\Log\LoggerInterface;
 class UninstalledSite implements SiteInterface
 {
     /**
-     * @var string
+     * @var array
      */
-    private $basePath;
+    private $paths;
 
-    /**
-     * @var string
-     */
-    private $publicPath;
-
-    /**
-     * @var string
-     */
-    private $storagePath;
-
-    public function __construct($basePath, $publicPath)
+    public function __construct(array $paths)
     {
-        $this->basePath = $basePath;
-        $this->publicPath = $publicPath;
+        $this->paths = $paths;
     }
 
     /**
@@ -66,15 +55,13 @@ class UninstalledSite implements SiteInterface
 
     private function bootLaravel(): Application
     {
-        $laravel = new Application($this->basePath, $this->publicPath);
+        $laravel = new Application($this->paths['base'], $this->paths['public']);
 
-        if ($this->storagePath) {
-            $laravel->useStoragePath($this->storagePath);
-        }
+        $laravel->useStoragePath($this->paths['storage']);
 
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', []);
-        $laravel->instance('config', $config = $this->getIlluminateConfig($laravel));
+        $laravel->instance('config', $config = $this->getIlluminateConfig());
 
         $this->registerLogger($laravel);
 
@@ -109,15 +96,14 @@ class UninstalledSite implements SiteInterface
     }
 
     /**
-     * @param Application $app
      * @return ConfigRepository
      */
-    private function getIlluminateConfig(Application $app)
+    private function getIlluminateConfig()
     {
         return new ConfigRepository([
             'session' => [
                 'lifetime' => 120,
-                'files' => $app->storagePath().'/sessions',
+                'files' => $this->paths['storage'].'/sessions',
                 'cookie' => 'session'
             ]
         ]);
@@ -125,7 +111,7 @@ class UninstalledSite implements SiteInterface
 
     private function registerLogger(Application $app)
     {
-        $logPath = $app->storagePath().'/logs/flarum-installer.log';
+        $logPath = $this->paths['storage'].'/logs/flarum-installer.log';
         $handler = new StreamHandler($logPath, Logger::DEBUG);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
