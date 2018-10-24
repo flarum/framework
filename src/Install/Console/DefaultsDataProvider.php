@@ -14,13 +14,16 @@ namespace Flarum\Install\Console;
 class DefaultsDataProvider implements DataProviderInterface
 {
     protected $databaseConfiguration = [
-        'driver'   => 'mysql',
-        'host'     => 'localhost',
-        'database' => 'flarum',
-        'username' => 'root',
-        'password' => '',
-        'prefix'   => '',
-        'port'     => '3306',
+        'driver'    => 'mysql',
+        'host'      => 'localhost',
+        'database'  => 'flarum',
+        'username'  => 'root',
+        'password'  => '',
+        'charset'   => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix'    => '',
+        'port'      => '3306',
+        'strict'    => false,
     ];
 
     protected $debug = false;
