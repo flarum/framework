@@ -24,6 +24,7 @@ class Site
             'storage' => "$basePath/storage",
         ]);
     }
+
     /**
      * @param array $paths
      * @return SiteInterface
