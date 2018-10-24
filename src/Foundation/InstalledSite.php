@@ -50,19 +50,9 @@ use Psr\Log\LoggerInterface;
 class InstalledSite implements SiteInterface
 {
     /**
-     * @var string
+     * @var array
      */
-    private $basePath;
-
-    /**
-     * @var string
-     */
-    private $publicPath;
-
-    /**
-     * @var string
-     */
-    private $storagePath;
+    private $paths;
 
     /**
      * @var array
@@ -74,10 +64,9 @@ class InstalledSite implements SiteInterface
      */
     private $extenders = [];
 
-    public function __construct($basePath, $publicPath, array $config)
+    public function __construct(array $paths, array $config)
     {
-        $this->basePath = $basePath;
-        $this->publicPath = $publicPath;
+        $this->paths = $paths;
         $this->config = $config;
     }
 
@@ -95,17 +84,6 @@ class InstalledSite implements SiteInterface
     }
 
     /**
-     * @param $storagePath
-     * @return static
-     */
-    public function setStoragePath($storagePath)
-    {
-        $this->storagePath = $storagePath;
-
-        return $this;
-    }
-
-    /**
      * @param \Flarum\Extend\ExtenderInterface[] $extenders
      * @return InstalledSite
      */
@@ -118,11 +96,9 @@ class InstalledSite implements SiteInterface
 
     private function bootLaravel(): Application
     {
-        $laravel = new Application($this->basePath, $this->publicPath);
+        $laravel = new Application($this->paths['base'], $this->paths['public']);
 
-        if ($this->storagePath) {
-            $laravel->useStoragePath($this->storagePath);
-        }
+        $laravel->useStoragePath($this->paths['storage']);
 
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', $this->config);
@@ -188,7 +164,7 @@ class InstalledSite implements SiteInterface
         return new ConfigRepository([
             'view' => [
                 'paths' => [],
-                'compiled' => $app->storagePath().'/views',
+                'compiled' => $this->paths['storage'].'/views',
             ],
             'mail' => [
                 'driver' => 'mail',
@@ -199,18 +175,18 @@ class InstalledSite implements SiteInterface
                 'disks' => [
                     'flarum-assets' => [
                         'driver' => 'local',
-                        'root'   => $app->publicPath().'/assets',
+                        'root'   => $this->paths['public'].'/assets',
                         'url'    => $app->url('assets')
                     ],
                     'flarum-avatars' => [
                         'driver' => 'local',
-                        'root'   => $app->publicPath().'/assets/avatars'
+                        'root'   => $this->paths['public'].'/assets/avatars'
                     ]
                 ]
             ],
             'session' => [
                 'lifetime' => 120,
-                'files' => $app->storagePath().'/sessions',
+                'files' => $this->paths['storage'].'/sessions',
                 'cookie' => 'session'
             ]
         ]);
@@ -218,7 +194,7 @@ class InstalledSite implements SiteInterface
 
     private function registerLogger(Application $app)
     {
-        $logPath = $app->storagePath().'/logs/flarum.log';
+        $logPath = $this->paths['storage'].'/logs/flarum.log';
         $handler = new RotatingFileHandler($logPath, Logger::INFO);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
@@ -233,8 +209,8 @@ class InstalledSite implements SiteInterface
         });
         $app->alias('cache.store', Repository::class);
 
-        $app->singleton('cache.filestore', function ($app) {
-            return new FileStore(new Filesystem, $app->storagePath().'/cache');
+        $app->singleton('cache.filestore', function () {
+            return new FileStore(new Filesystem, $this->paths['storage'].'/cache');
         });
         $app->alias('cache.filestore', Store::class);
     }
