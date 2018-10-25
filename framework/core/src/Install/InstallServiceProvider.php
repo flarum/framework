@@ -74,13 +74,13 @@ class InstallServiceProvider extends AbstractServiceProvider
         $route = $this->app->make(RouteHandlerFactory::class);
 
         $routes->get(
-            '/',
+            '/{path:.*}',
             'index',
             $route->toController(Controller\IndexController::class)
         );
 
         $routes->post(
-            '/',
+            '/{path:.*}',
             'install',
             $route->toController(Controller\InstallController::class)
         );
