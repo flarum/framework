@@ -150,13 +150,12 @@ export default class Application {
     });
   }
 
-  mount() {
+  mount(basePath = '') {
     this.modal = m.mount(document.getElementById('modal'), <ModalManager/>);
     this.alerts = m.mount(document.getElementById('alerts'), <AlertManager/>);
 
     this.drawer = new Drawer();
 
-    const basePath = this.forum.attribute('basePath');
     m.route(
       document.getElementById('content'),
       basePath + '/',
