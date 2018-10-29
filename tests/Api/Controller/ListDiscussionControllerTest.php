@@ -43,7 +43,7 @@ class ListDiscussionControllerTest extends ApiControllerTestCase
 
         $response = $this->callWith([], [
             'filter' => [
-                'q' => 'author:' . $user->username . ' foo'
+                'q' => 'author:'.$user->username.' foo'
             ],
             'include' => 'mostRelevantPost'
         ]);
