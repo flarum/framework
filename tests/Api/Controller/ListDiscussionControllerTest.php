@@ -13,9 +13,12 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Discussion\Discussion;
+use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 
 class ListDiscussionControllerTest extends ApiControllerTestCase
 {
+    use RetrievesAuthorizedUsers;
+
     protected $controller = ListDiscussionsController::class;
 
     /**
@@ -29,5 +32,22 @@ class ListDiscussionControllerTest extends ApiControllerTestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(Discussion::count(), count($data['data']));
+    }
+
+    /**
+     * @test
+     */
+    public function can_search_for_author()
+    {
+        $user = $this->getNormalUser();
+
+        $response = $this->callWith([], [
+            'filter' => [
+                'q' => 'author:'.$user->username.' foo'
+            ],
+            'include' => 'mostRelevantPost'
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }
