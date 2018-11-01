@@ -34,8 +34,9 @@ class AuthenticateWithHeader implements Middleware
 
             if ($key = ApiKey::where('key', $id)->first()) {
                 $key->touch();
-                
-                $actor = $key->user ?? $this->getUser($parts[1]);
+
+                $userId = $parts[1] ?? '';
+                $actor = $key->user ?? $this->getUser($userId);
 
                 $request = $request->withAttribute('apiKey', $key);
                 $request = $request->withAttribute('bypassFloodgate', true);

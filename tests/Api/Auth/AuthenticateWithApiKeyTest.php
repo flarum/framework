@@ -1,0 +1,154 @@
+<?php
+
+namespace Flarum\Tests\Api\Auth;
+
+use Carbon\Carbon;
+use Flarum\Api\ApiKey;
+use Flarum\Api\Controller\CreateGroupController;
+use Flarum\Event\ConfigureMiddleware;
+use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
+use Flarum\Tests\Test\TestCase;
+use Illuminate\Contracts\Events\Dispatcher;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequestFactory;
+use Zend\Stratigility\MiddlewarePipe;
+
+class AuthenticateWithApiKeyTest extends TestCase
+{
+    use RetrievesAuthorizedUsers;
+
+    protected function key(int $user_id = null): ApiKey
+    {
+        return ApiKey::unguarded(function () use ($user_id) {
+            return ApiKey::query()->firstOrCreate([
+                'key'        => str_random(),
+                'user_id'    => $user_id,
+                'created_at' => Carbon::now()
+            ]);
+        });
+    }
+
+    /**
+     * @test
+     * @expectedException \Flarum\User\Exception\PermissionDeniedException
+     */
+    public function cannot_authorize_without_key()
+    {
+        $this->call(
+            CreateGroupController::class
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function master_token_can_authenticate_as_anyone()
+    {
+        $key = $this->key();
+
+        $request = ServerRequestFactory::fromGlobals()
+            ->withAddedHeader('Authorization', "Token {$key->key}; userId=1");
+
+        $pipe = $this->injectAuthorizationPipeline();
+
+        $response = $pipe->handle($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(1, $response->getHeader('X-Authenticated-As')[0]);
+
+        $key = $key->refresh();
+
+        $this->assertNotNull($key->last_activity_at);
+
+        $key->delete();
+    }
+
+    /**
+     * @test
+     */
+    public function personal_api_token_cannot_authenticate_as_anyone()
+    {
+        $user = $this->getNormalUser();
+
+        $key = $this->key($user->id);
+
+        $request = ServerRequestFactory::fromGlobals()
+            ->withAddedHeader('Authorization', "Token {$key->key}; userId=1");
+
+        $pipe = $this->injectAuthorizationPipeline();
+
+        $response = $pipe->handle($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($user->id, $response->getHeader('X-Authenticated-As')[0]);
+
+        $key = $key->refresh();
+
+        $this->assertNotNull($key->last_activity_at);
+
+        $key->delete();
+    }
+
+    /**
+     * @test
+     */
+    public function personal_api_token_authenticates_user()
+    {
+        $user = $this->getNormalUser();
+
+        $key = $this->key($user->id);
+
+        $request = ServerRequestFactory::fromGlobals()
+            ->withAddedHeader('Authorization', "Token {$key->key}");
+
+        $pipe = $this->injectAuthorizationPipeline();
+
+        $response = $pipe->handle($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($user->id, $response->getHeader('X-Authenticated-As')[0]);
+
+        $key = $key->refresh();
+
+        $this->assertNotNull($key->last_activity_at);
+
+        $key->delete();
+    }
+
+    /**
+     * @return \Illuminate\Foundation\Application|mixed
+     */
+    protected function injectAuthorizationPipeline(): MiddlewarePipe
+    {
+        /** @var Dispatcher $events */
+        $events = app(Dispatcher::class);
+
+        $events->listen(ConfigureMiddleware::class, function (ConfigureMiddleware $e) {
+            $e->pipe(new class implements MiddlewareInterface
+            {
+                /**
+                 * Process an incoming server request and return a response, optionally delegating
+                 * response creation to a handler.
+                 */
+                public function process(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler
+                ): ResponseInterface {
+                    if ($actor = $request->getAttribute('actor')) {
+                        return new Response\EmptyResponse(200, [
+                            'X-Authenticated-As' => $actor->id
+                        ]);
+                    }
+                }
+            });
+        });
+
+        $pipe = app('flarum.api.middleware');
+
+        return $pipe;
+    }
+}

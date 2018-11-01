@@ -11,6 +11,7 @@
 
 namespace Flarum\Api;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
