@@ -18,7 +18,8 @@ use Flarum\User\User;
 /**
  * @property string $token
  * @property int $user_id
- * @property int $last_activity_at
+ * @property Carbon $created_at
+ * @property Carbon|null $last_activity_at
  * @property int $lifetime_seconds
  * @property \Flarum\User\User|null $user
  */
