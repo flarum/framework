@@ -5,10 +5,8 @@ namespace Flarum\Tests\Api\Auth;
 use Carbon\Carbon;
 use Flarum\Api\ApiKey;
 use Flarum\Api\Controller\CreateGroupController;
-use Flarum\Event\ConfigureMiddleware;
 use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\Tests\Test\TestCase;
-use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -119,16 +117,10 @@ class AuthenticateWithApiKeyTest extends TestCase
         $key->delete();
     }
 
-    /**
-     * @return \Illuminate\Foundation\Application|mixed
-     */
     protected function injectAuthorizationPipeline(): MiddlewarePipe
     {
-        /** @var Dispatcher $events */
-        $events = app(Dispatcher::class);
-
-        $events->listen(ConfigureMiddleware::class, function (ConfigureMiddleware $e) {
-            $e->pipe(new class implements MiddlewareInterface
+        app()->resolving('flarum.api.middleware', function ($pipeline) {
+            $pipeline->pipe(new class implements MiddlewareInterface
             {
                 /**
                  * Process an incoming server request and return a response, optionally delegating
