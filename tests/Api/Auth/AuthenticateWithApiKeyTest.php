@@ -129,8 +129,7 @@ class AuthenticateWithApiKeyTest extends TestCase
     protected function injectAuthorizationPipeline(): MiddlewarePipe
     {
         app()->resolving('flarum.api.middleware', function ($pipeline) {
-            $pipeline->pipe(new class implements MiddlewareInterface
-            {
+            $pipeline->pipe(new class implements MiddlewareInterface {
                 public function process(
                     ServerRequestInterface $request,
                     RequestHandlerInterface $handler
