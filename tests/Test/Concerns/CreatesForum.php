@@ -54,17 +54,16 @@ trait CreatesForum
 
     protected function createsSite()
     {
+        $paths = [
+            'base' => __DIR__.'/../../tmp',
+            'public' => __DIR__.'/../../tmp/public',
+            'storage' => __DIR__.'/../../tmp/storage',
+        ];
+
         if ($this->isInstalled) {
-            $this->site = new InstalledSite(
-                __DIR__.'/../../tmp',
-                __DIR__.'/../../tmp/public',
-                $this->getFlarumConfig()
-            );
+            $this->site = new InstalledSite($paths, $this->getFlarumConfig());
         } else {
-            $this->site = new UninstalledSite(
-                __DIR__.'/../../tmp',
-                __DIR__.'/../../tmp/public'
-            );
+            $this->site = new UninstalledSite($paths);
         }
     }
 

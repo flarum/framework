@@ -96,7 +96,7 @@ export default class ForumApplication extends Application {
     this.composer = m.mount(document.getElementById('composer'), Composer.component());
 
     m.route.mode = 'pathname';
-    super.mount();
+    super.mount(this.forum.attribute('basePath'));
 
     alertEmailConfirmation(this);
 

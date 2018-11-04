@@ -150,13 +150,12 @@ export default class Application {
     });
   }
 
-  mount() {
+  mount(basePath = '') {
     this.modal = m.mount(document.getElementById('modal'), <ModalManager/>);
     this.alerts = m.mount(document.getElementById('alerts'), <AlertManager/>);
 
     this.drawer = new Drawer();
 
-    const basePath = this.forum.attribute('basePath');
     m.route(
       document.getElementById('content'),
       basePath + '/',
@@ -185,11 +184,11 @@ export default class Application {
    * @return {Object|null}
    * @public
    */
-  preloadedDocument() {
-    if (this.data.document) {
-      const results = this.store.pushPayload(this.data.document);
+  preloadedApiDocument() {
+    if (this.data.apiDocument) {
+      const results = this.store.pushPayload(this.data.apiDocument);
 
-      this.data.document = null;
+      this.data.apiDocument = null;
 
       return results;
     }

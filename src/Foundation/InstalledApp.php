@@ -101,7 +101,7 @@ class InstalledApp implements AppInterface
 
     private function subPath($pathName): string
     {
-        return '/'.$this->config['paths'][$pathName];
+        return '/'.($this->config['paths'][$pathName] ?? $pathName);
     }
 
     /**

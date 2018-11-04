@@ -43,41 +43,30 @@ use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 class InstalledSite implements SiteInterface
 {
     /**
-     * @var string
+     * @var array
      */
-    protected $basePath;
-
-    /**
-     * @var string
-     */
-    protected $publicPath;
-
-    /**
-     * @var string
-     */
-    protected $storagePath;
+    private $paths;
 
     /**
      * @var array
      */
-    protected $config;
+    private $config;
 
     /**
      * @var \Flarum\Extend\ExtenderInterface[]
      */
-    protected $extenders = [];
+    private $extenders = [];
 
-    public function __construct($basePath, $publicPath, array $config)
+    public function __construct(array $paths, array $config)
     {
-        $this->basePath = $basePath;
-        $this->publicPath = $publicPath;
+        $this->paths = $paths;
         $this->config = $config;
     }
 
@@ -95,17 +84,6 @@ class InstalledSite implements SiteInterface
     }
 
     /**
-     * @param $storagePath
-     * @return static
-     */
-    public function setStoragePath($storagePath)
-    {
-        $this->storagePath = $storagePath;
-
-        return $this;
-    }
-
-    /**
      * @param \Flarum\Extend\ExtenderInterface[] $extenders
      * @return InstalledSite
      */
@@ -116,13 +94,11 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): Application
+    private function bootLaravel(): Application
     {
-        $laravel = new Application($this->basePath, $this->publicPath);
+        $laravel = new Application($this->paths['base'], $this->paths['public']);
 
-        if ($this->storagePath) {
-            $laravel->useStoragePath($this->storagePath);
-        }
+        $laravel->useStoragePath($this->paths['storage']);
 
         $laravel->instance('env', 'production');
         $laravel->instance('flarum.config', $this->config);
@@ -183,12 +159,12 @@ class InstalledSite implements SiteInterface
      * @param Application $app
      * @return ConfigRepository
      */
-    protected function getIlluminateConfig(Application $app)
+    private function getIlluminateConfig(Application $app)
     {
         return new ConfigRepository([
             'view' => [
                 'paths' => [],
-                'compiled' => $app->storagePath().'/views',
+                'compiled' => $this->paths['storage'].'/views',
             ],
             'mail' => [
                 'driver' => 'mail',
@@ -199,42 +175,42 @@ class InstalledSite implements SiteInterface
                 'disks' => [
                     'flarum-assets' => [
                         'driver' => 'local',
-                        'root'   => $app->publicPath().'/assets',
+                        'root'   => $this->paths['public'].'/assets',
                         'url'    => $app->url('assets')
                     ],
                     'flarum-avatars' => [
                         'driver' => 'local',
-                        'root'   => $app->publicPath().'/assets/avatars'
+                        'root'   => $this->paths['public'].'/assets/avatars'
                     ]
                 ]
             ],
             'session' => [
                 'lifetime' => 120,
-                'files' => $app->storagePath().'/sessions',
+                'files' => $this->paths['storage'].'/sessions',
                 'cookie' => 'session'
             ]
         ]);
     }
 
-    protected function registerLogger(Application $app)
+    private function registerLogger(Application $app)
     {
-        $logPath = $app->storagePath().'/logs/flarum.log';
-        $handler = new StreamHandler($logPath, Logger::INFO);
+        $logPath = $this->paths['storage'].'/logs/flarum.log';
+        $handler = new RotatingFileHandler($logPath, Logger::INFO);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
         $app->instance('log', new Logger($app->environment(), [$handler]));
         $app->alias('log', LoggerInterface::class);
     }
 
-    protected function registerCache(Application $app)
+    private function registerCache(Application $app)
     {
         $app->singleton('cache.store', function ($app) {
             return new CacheRepository($app->make('cache.filestore'));
         });
         $app->alias('cache.store', Repository::class);
 
-        $app->singleton('cache.filestore', function ($app) {
-            return new FileStore(new Filesystem, $app->storagePath().'/cache');
+        $app->singleton('cache.filestore', function () {
+            return new FileStore(new Filesystem, $this->paths['storage'].'/cache');
         });
         $app->alias('cache.filestore', Store::class);
     }
