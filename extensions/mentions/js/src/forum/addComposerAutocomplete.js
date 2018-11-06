@@ -46,7 +46,7 @@ export default function addComposerAutocomplete() {
 
     $textarea
       .after($container)
-      .on('click keyup', function(e) {
+      .on('click keyup input', function(e) {
         // Up, down, enter, tab, escape, left, right.
         if ([9, 13, 27, 40, 38, 37, 39].indexOf(e.which) !== -1) return;
 
