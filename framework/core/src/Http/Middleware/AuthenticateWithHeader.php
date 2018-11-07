@@ -32,13 +32,14 @@ class AuthenticateWithHeader implements Middleware
         if (isset($parts[0]) && starts_with($parts[0], self::TOKEN_PREFIX)) {
             $id = substr($parts[0], strlen(self::TOKEN_PREFIX));
 
-            if (isset($parts[1])) {
-                if ($key = ApiKey::find($id)) {
-                    $actor = $this->getUser($parts[1]);
+            if ($key = ApiKey::where('key', $id)->first()) {
+                $key->touch();
 
-                    $request = $request->withAttribute('apiKey', $key);
-                    $request = $request->withAttribute('bypassFloodgate', true);
-                }
+                $userId = $parts[1] ?? '';
+                $actor = $key->user ?? $this->getUser($userId);
+
+                $request = $request->withAttribute('apiKey', $key);
+                $request = $request->withAttribute('bypassFloodgate', true);
             } elseif ($token = AccessToken::find($id)) {
                 $token->touch();
 
