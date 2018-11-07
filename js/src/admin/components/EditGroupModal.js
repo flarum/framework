@@ -2,6 +2,7 @@ import Modal from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
@@ -36,43 +37,51 @@ export default class EditGroupModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form">
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.edit_group.name_label')}</label>
-            <div className="EditGroupModal-name-input">
-              <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')} value={this.nameSingular()} oninput={m.withAttr('value', this.nameSingular)}/>
-              <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')} value={this.namePlural()} oninput={m.withAttr('value', this.namePlural)}/>
-            </div>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.edit_group.color_label')}</label>
-            <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
-            <div className="helpText">
-              {app.translator.trans('core.admin.edit_group.icon_text', {a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1"/>})}
-            </div>
-            <input className="FormControl" placeholder="fas fa-bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
-          </div>
-
-          <div className="Form-group">
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary EditGroupModal-save',
-              loading: this.loading,
-              children: app.translator.trans('core.admin.edit_group.submit_button')
-            })}
-            {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
-              <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
-                {app.translator.trans('core.admin.edit_group.delete_button')}
-              </button>
-            ) : ''}
-          </div>
+          {this.fields().toArray()}
         </div>
       </div>
     );
+  }
+
+  fields() {
+    const items = new ItemList();
+
+    items.add('name', <div className="Form-group">
+      <label>{app.translator.trans('core.admin.edit_group.name_label')}</label>
+      <div className="EditGroupModal-name-input">
+        <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')} value={this.nameSingular()} oninput={m.withAttr('value', this.nameSingular)}/>
+        <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')} value={this.namePlural()} oninput={m.withAttr('value', this.namePlural)}/>
+      </div>
+    </div>, 30);
+
+    items.add('color', <div className="Form-group">
+      <label>{app.translator.trans('core.admin.edit_group.color_label')}</label>
+      <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
+    </div>, 20);
+
+    items.add('icon', <div className="Form-group">
+      <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
+      <div className="helpText">
+        {app.translator.trans('core.admin.edit_group.icon_text', {a: <a href="https://fontawesome.com/icons?m=free" tabindex="-1"/>})}
+      </div>
+      <input className="FormControl" placeholder="fas fa-bolt" value={this.icon()} oninput={m.withAttr('value', this.icon)}/>
+    </div>, 10);
+
+    items.add('submit', <div className="Form-group">
+      {Button.component({
+        type: 'submit',
+        className: 'Button Button--primary EditGroupModal-save',
+        loading: this.loading,
+        children: app.translator.trans('core.admin.edit_group.submit_button')
+      })}
+      {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
+        <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
+          {app.translator.trans('core.admin.edit_group.delete_button')}
+        </button>
+      ) : ''}
+    </div>, -10);
+
+    return items;
   }
 
   onsubmit(e) {
