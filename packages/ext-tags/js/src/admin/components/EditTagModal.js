@@ -1,5 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
+import ItemList from 'flarum/utils/ItemList';
 import { slug } from 'flarum/utils/string';
 
 import tagLabel from '../../common/helpers/tagLabel';
@@ -38,54 +39,62 @@ export default class EditTagModal extends Modal {
     return (
       <div className="Modal-body">
         <div className="Form">
-          <div className="Form-group">
-            <label>{app.translator.trans('flarum-tags.admin.edit_tag.name_label')}</label>
-            <input className="FormControl" placeholder={app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder')} value={this.name()} oninput={e => {
-              this.name(e.target.value);
-              this.slug(slug(e.target.value));
-            }}/>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('flarum-tags.admin.edit_tag.slug_label')}</label>
-            <input className="FormControl" value={this.slug()} oninput={m.withAttr('value', this.slug)}/>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('flarum-tags.admin.edit_tag.description_label')}</label>
-            <textarea className="FormControl" value={this.description()} oninput={m.withAttr('value', this.description)}/>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('flarum-tags.admin.edit_tag.color_label')}</label>
-            <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
-          </div>
-
-          <div className="Form-group">
-            <div>
-              <label className="checkbox">
-                <input type="checkbox" value="1" checked={this.isHidden()} onchange={m.withAttr('checked', this.isHidden)}/>
-                {app.translator.trans('flarum-tags.admin.edit_tag.hide_label')}
-              </label>
-            </div>
-          </div>
-
-          <div className="Form-group">
-            {Button.component({
-              type: 'submit',
-              className: 'Button Button--primary EditTagModal-save',
-              loading: this.loading,
-              children: app.translator.trans('flarum-tags.admin.edit_tag.submit_button')
-            })}
-            {this.tag.exists ? (
-              <button type="button" className="Button EditTagModal-delete" onclick={this.delete.bind(this)}>
-                {app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')}
-              </button>
-            ) : ''}
-          </div>
+          {this.fields().toArray()}
         </div>
       </div>
     );
+  }
+
+  fields() {
+    const items = new ItemList();
+
+    items.add('name', <div className="Form-group">
+      <label>{app.translator.trans('flarum-tags.admin.edit_tag.name_label')}</label>
+      <input className="FormControl" placeholder={app.translator.trans('flarum-tags.admin.edit_tag.name_placeholder')} value={this.name()} oninput={e => {
+        this.name(e.target.value);
+        this.slug(slug(e.target.value));
+      }}/>
+    </div>, 50);
+
+    items.add('slug', <div className="Form-group">
+      <label>{app.translator.trans('flarum-tags.admin.edit_tag.slug_label')}</label>
+      <input className="FormControl" value={this.slug()} oninput={m.withAttr('value', this.slug)}/>
+    </div>, 40);
+
+    items.add('description', <div className="Form-group">
+      <label>{app.translator.trans('flarum-tags.admin.edit_tag.description_label')}</label>
+      <textarea className="FormControl" value={this.description()} oninput={m.withAttr('value', this.description)}/>
+    </div>, 30);
+
+    items.add('color', <div className="Form-group">
+      <label>{app.translator.trans('flarum-tags.admin.edit_tag.color_label')}</label>
+      <input className="FormControl" placeholder="#aaaaaa" value={this.color()} oninput={m.withAttr('value', this.color)}/>
+    </div>, 20);
+
+    items.add('hidden', <div className="Form-group">
+      <div>
+        <label className="checkbox">
+          <input type="checkbox" value="1" checked={this.isHidden()} onchange={m.withAttr('checked', this.isHidden)}/>
+          {app.translator.trans('flarum-tags.admin.edit_tag.hide_label')}
+        </label>
+      </div>
+    </div>, 10);
+
+    items.add('submit', <div className="Form-group">
+      {Button.component({
+        type: 'submit',
+        className: 'Button Button--primary EditTagModal-save',
+        loading: this.loading,
+        children: app.translator.trans('flarum-tags.admin.edit_tag.submit_button')
+      })}
+      {this.tag.exists ? (
+        <button type="button" className="Button EditTagModal-delete" onclick={this.delete.bind(this)}>
+          {app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')}
+        </button>
+      ) : ''}
+    </div>, -10);
+
+    return items;
   }
 
   submitData() {
