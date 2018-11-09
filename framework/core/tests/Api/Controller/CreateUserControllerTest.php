@@ -13,14 +13,11 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\CreateUserController;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreateUserControllerTest extends ApiControllerTestCase
 {
-    use RetrievesAuthorizedUsers;
-
     protected $controller = CreateUserController::class;
 
     protected $data = [

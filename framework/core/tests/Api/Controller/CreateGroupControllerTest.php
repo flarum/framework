@@ -13,13 +13,10 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\CreateGroupController;
 use Flarum\Group\Group;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Illuminate\Support\Str;
 
 class CreateGroupControllerTest extends ApiControllerTestCase
 {
-    use RetrievesAuthorizedUsers;
-
     protected $controller = CreateGroupController::class;
 
     protected $data = [

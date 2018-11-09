@@ -13,12 +13,9 @@ namespace Flarum\Tests\Api\Controller;
 
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Discussion\Discussion;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 
 class ListDiscussionControllerTest extends ApiControllerTestCase
 {
-    use RetrievesAuthorizedUsers;
-
     protected $controller = ListDiscussionsController::class;
 
     /**

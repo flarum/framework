@@ -11,6 +11,7 @@
 
 namespace Flarum\Tests\Api\Controller;
 
+use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Flarum\Tests\Test\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -19,6 +20,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class ApiControllerTestCase extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+
     /**
      * @var RequestHandlerInterface
      */
