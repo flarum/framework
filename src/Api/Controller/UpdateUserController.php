@@ -11,6 +11,8 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Core\Command\EditUser;
 use Flarum\Core\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -22,7 +24,7 @@ class UpdateUserController extends AbstractResourceController
     /**
      * {@inheritdoc}
      */
-    public $serializer = 'Flarum\Api\Serializer\CurrentUserSerializer';
+    public $serializer = UserSerializer::class;
 
     /**
      * {@inheritdoc}
@@ -50,6 +52,10 @@ class UpdateUserController extends AbstractResourceController
         $id = array_get($request->getQueryParams(), 'id');
         $actor = $request->getAttribute('actor');
         $data = array_get($request->getParsedBody(), 'data', []);
+
+        if ($actor->id == $id) {
+            $this->serializer = CurrentUserSerializer::class;
+        }
 
         // Require the user's current password if they are attempting to change
         // their own email address.
