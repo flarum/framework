@@ -14,13 +14,10 @@ namespace Flarum\Tests\Api\Controller;
 use Flarum\Api\Controller\CreateDiscussionController;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
-use Flarum\Tests\Test\Concerns\RetrievesAuthorizedUsers;
 use Illuminate\Support\Arr;
 
 class CreateDiscussionControllerTest extends ApiControllerTestCase
 {
-    use RetrievesAuthorizedUsers;
-
     protected $controller = CreateDiscussionController::class;
 
     protected $data = [
