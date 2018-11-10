@@ -64,23 +64,8 @@
   margin: -20px -10px;
 }
 .StatisticsWidget-chart .chart-container {
-  position: relative;
-  .frappe-chart {
-    height: 160px !important;
-
-    .line-chart {
-      .dataset-0 {
-        opacity: 0.2;
-
-        path {
-          stroke: #7f7f7f !important;
-        }
-
-        circle {
-          fill: #7f7f7f !important;
-        }
-      }
-    }
+  .dataset-0 {
+    opacity: 0.2;
   }
   .chart-legend {
     display: none;
@@ -95,7 +80,63 @@
  * Frappe Charts 1.0.0 by @frappe - https://frappe.io/charts
  * License - MIT https://github.com/frappe/charts/blob/master/LICENSE
  */
-.StatisticsWidget-chart .chart-container .graph-svg-tip {
+.chart-container {
+  position: relative; /* for absolutely positioned tooltip */
+
+  /* https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/ */
+  font-family: -apple-system, BlinkMacSystemFont,
+  'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+  'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+  .axis, .chart-label {
+    fill: #555b51;
+
+    line {
+      stroke: #dadada;
+    }
+  }
+  .dataset-units {
+    circle {
+      stroke: #fff;
+      stroke-width: 2;
+    }
+
+    path {
+      fill: none;
+      stroke-opacity: 1;
+      stroke-width: 2px;
+    }
+  }
+  .dataset-path {
+    stroke-width: 2px;
+  }
+  .path-group {
+    path {
+      fill: none;
+      stroke-opacity: 1;
+      stroke-width: 2px;
+    }
+  }
+  line.dashed {
+    stroke-dasharray: 5, 3;
+  }
+  .axis-line {
+    .specific-value {
+      text-anchor: start;
+    }
+    .y-line {
+      text-anchor: end;
+    }
+    .x-line {
+      text-anchor: middle;
+    }
+  }
+  .legend-dataset-text {
+    fill: #6c7680;
+    font-weight: 600;
+  }
+}
+.graph-svg-tip {
   position: absolute;
   z-index: 99999;
   padding: 10px;
