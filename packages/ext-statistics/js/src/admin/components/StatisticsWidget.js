@@ -139,10 +139,14 @@ export default class StatisticsWidget extends DashboardWidget {
       context.chart = new Chart(elm, {
         data,
         type: 'line',
-        height: 200,
+        height: 280,
         axisOptions: {
           xAxisMode: 'tick',
-          yAxisMode: 'span'
+          yAxisMode: 'span',
+          xIsSeries: true
+        },
+        lineOptions: {
+          hideDots: 1
         },
         colors: ['black', app.forum.attribute('themePrimaryColor')]
       });
