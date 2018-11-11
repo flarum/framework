@@ -16,15 +16,6 @@ use RuntimeException;
 
 class Site
 {
-    public static function fromDefaultBase($basePath)
-    {
-        return static::fromPaths([
-            'base' => $basePath,
-            'public' => "$basePath/public",
-            'storage' => "$basePath/storage",
-        ]);
-    }
-
     /**
      * @param array $paths
      * @return SiteInterface
