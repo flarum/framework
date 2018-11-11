@@ -315,7 +315,7 @@ export default class PostStreamScrubber extends Component {
     const visible = this.visible || 1;
 
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(Math.ceil(index + visible)));
+    $scrubber.find('.Scrubber-index').text(formatNumber(Math.min(Math.ceil(index + visible), count)));
     $scrubber.find('.Scrubber-description').text(this.description);
     $scrubber.toggleClass('disabled', this.disabled());
 
