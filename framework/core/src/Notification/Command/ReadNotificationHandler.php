@@ -39,7 +39,7 @@ class ReadNotificationHandler
         ])
             ->update(['read_at' => Carbon::now()]);
 
-        $notification->is_read = true;
+        $notification->read_at = Carbon::now();
 
         return $notification;
     }
