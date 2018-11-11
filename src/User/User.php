@@ -125,6 +125,8 @@ class User extends AbstractModel
 
         static::deleted(function (User $user) {
             $user->raise(new Deleted($user));
+
+            Notification::whereSubject($user)->delete();
         });
 
         static::$dispatcher->dispatch(

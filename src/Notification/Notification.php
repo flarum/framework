@@ -170,6 +170,35 @@ class Notification extends AbstractModel
     }
 
     /**
+     * Scope the query to include only notifications that have the given
+     * subject.
+     *
+     * @param Builder $query
+     * @param object $model
+     */
+    public function scopeWhereSubject(Builder $query, $model)
+    {
+        $query->whereSubjectModel(get_class($model))
+            ->where('subject_id', $model->id);
+    }
+
+    /**
+     * Scope the query to include only notification types that use the given
+     * subject model.
+     *
+     * @param Builder $query
+     * @param string $class
+     */
+    public function scopeWhereSubjectModel(Builder $query, string $class)
+    {
+        $notificationTypes = array_filter(Notification::getSubjectModels(), function ($modelClass) use ($class) {
+            return $modelClass === $class or is_subclass_of($class, $modelClass);
+        });
+
+        $query->whereIn('type', array_keys($notificationTypes));
+    }
+
+    /**
      * Get the type-to-subject-model map.
      *
      * @return array
