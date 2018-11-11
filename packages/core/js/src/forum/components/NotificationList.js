@@ -178,7 +178,8 @@ export default class NotificationList extends Component {
    */
   parseResults(results) {
     app.cache.notifications = app.cache.notifications || [];
-    app.cache.notifications.push(results);
+
+    if (results.length) app.cache.notifications.push(results);
 
     this.moreResults = !!results.payload.links.next;
 
