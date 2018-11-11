@@ -25,7 +25,6 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Tobscure\JsonApi\ErrorHandler;
-use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
 use Tobscure\JsonApi\Exception\Handler\InvalidParameterExceptionHandler;
 use Zend\Stratigility\MiddlewarePipe;
 
@@ -80,7 +79,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             $handler->registerHandler(new ExceptionHandler\TokenMismatchExceptionHandler);
             $handler->registerHandler(new ExceptionHandler\ValidationExceptionHandler);
             $handler->registerHandler(new InvalidParameterExceptionHandler);
-            $handler->registerHandler(new FallbackExceptionHandler($this->app->inDebugMode()));
+            $handler->registerHandler(new ExceptionHandler\FallbackExceptionHandler($this->app->inDebugMode(), $this->app->make('log')));
 
             return $handler;
         });
