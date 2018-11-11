@@ -33,6 +33,7 @@ class NotificationRepository
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
             ->where('is_deleted', false)
+            ->whereSubjectVisibleTo($user)
             ->groupBy('type', 'subject_id')
             ->orderByRaw('MAX(created_at) DESC')
             ->skip($offset)

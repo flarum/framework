@@ -437,6 +437,7 @@ class User extends AbstractModel
                 ->whereIn('type', $this->getAlertableNotificationTypes())
                 ->whereNull('read_at')
                 ->where('is_deleted', false)
+                ->whereSubjectVisibleTo($this)
                 ->get();
         }
 

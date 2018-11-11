@@ -13,7 +13,9 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Event\ScopeModelVisibility;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Models a notification record in the database.
@@ -133,6 +135,38 @@ class Notification extends AbstractModel
     public function subject()
     {
         return $this->morphTo('subject', 'subjectModel');
+    }
+
+    /**
+     * Scope the query to include only notifications whose subjects are visible
+     * to the given user.
+     *
+     * @param Builder $query
+     */
+    public function scopeWhereSubjectVisibleTo(Builder $query, User $actor)
+    {
+        $query->where(function ($query) use ($actor) {
+            $classes = [];
+
+            foreach (static::$subjectModels as $type => $class) {
+                $classes[$class][] = $type;
+            }
+
+            foreach ($classes as $class => $types) {
+                $query->orWhere(function ($query) use ($types, $class, $actor) {
+                    $query->whereIn('type', $types)
+                        ->whereExists(function ($query) use ($class, $actor) {
+                            $query->selectRaw(1)
+                                ->from((new $class)->getTable())
+                                ->whereColumn('id', 'subject_id');
+
+                            static::$dispatcher->dispatch(
+                                new ScopeModelVisibility($class::query()->setQuery($query), $actor, 'view')
+                            );
+                        });
+                });
+            }
+        });
     }
 
     /**
