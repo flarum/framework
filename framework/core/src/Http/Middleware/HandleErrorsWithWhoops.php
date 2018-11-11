@@ -11,12 +11,12 @@
 
 namespace Flarum\Http\Middleware;
 
-use Exception;
 use Franzl\Middleware\Whoops\WhoopsRunner;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Throwable;
 
 class HandleErrorsWithWhoops implements Middleware
 {
@@ -27,7 +27,7 @@ class HandleErrorsWithWhoops implements Middleware
     {
         try {
             return $handler->handle($request);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return WhoopsRunner::handle($e, $request);
         }
     }
