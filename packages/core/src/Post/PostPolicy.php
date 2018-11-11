@@ -66,6 +66,17 @@ class PostPolicy extends AbstractPolicy
      */
     public function find(User $actor, $query)
     {
+        // Make sure the post's discussion is visible as well.
+        $query->whereExists(function ($query) use ($actor) {
+            $query->selectRaw('1')
+                ->from('discussions')
+                ->whereColumn('discussions.id', 'posts.discussion_id');
+
+            $this->events->dispatch(
+                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
+            );
+        });
+
         // Hide private posts by default.
         $query->where(function ($query) use ($actor) {
             $query->where('posts.is_private', false)

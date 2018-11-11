@@ -12,6 +12,7 @@
 namespace Flarum\Post;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Event\GetModelIsPrivate;
 use Flarum\Event\ScopeModelVisibility;
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Builder;
 class Post extends AbstractModel
 {
     use EventGeneratorTrait;
+    use ScopeVisibilityTrait;
 
     protected $table = 'posts';
 
@@ -107,28 +109,6 @@ class Post extends AbstractModel
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
-    }
-
-    /**
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function scopeWhereVisibleTo(Builder $query, User $actor)
-    {
-        static::$dispatcher->dispatch(
-            new ScopeModelVisibility($query, $actor, 'view')
-        );
-
-        // Make sure the post's discussion is visible as well
-        $query->whereExists(function ($query) use ($actor) {
-            $query->selectRaw('1')
-                ->from('discussions')
-                ->whereColumn('discussions.id', 'posts.discussion_id');
-
-            static::$dispatcher->dispatch(
-                new ScopeModelVisibility(Discussion::query()->setQuery($query), $actor, 'view')
-            );
-        });
     }
 
     /**
