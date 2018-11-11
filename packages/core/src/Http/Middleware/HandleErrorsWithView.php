@@ -81,11 +81,10 @@ class HandleErrorsWithView implements Middleware
             $status = $errorCode;
         }
 
-        // Log the exception (with trace)
-        $this->logger->debug($error);
-
         if (! $this->view->exists($name = "flarum.forum::error.$status")) {
             $name = 'flarum.forum::error.default';
+
+            $this->logger->error($error);
         }
 
         $view = $this->view->make($name)
