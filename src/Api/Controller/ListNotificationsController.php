@@ -100,10 +100,6 @@ class ListNotificationsController extends AbstractListController
             $areMoreResults ? null : 0
         );
 
-        $notifications = array_filter($notifications, function ($notification) {
-            return ! $notification->subjectModel || $notification->subject;
-        });
-
         if (in_array('subject.discussion', $include)) {
             $this->loadSubjectDiscussions($notifications);
         }
