@@ -17,6 +17,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Event\GetModelIsPrivate;
 use Flarum\Event\ScopeModelVisibility;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -106,6 +107,8 @@ class Post extends AbstractModel
 
         static::deleted(function (Post $post) {
             $post->raise(new Deleted($post));
+
+            Notification::whereSubject($post)->delete();
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
