@@ -16,6 +16,8 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Application as FlarumApplication;
+use Flarum\Foundation\Site;
 use Flarum\Group\Group;
 use Flarum\Install\Prerequisite\PrerequisiteInterface;
 use Flarum\Settings\DatabaseSettingsRepository;
@@ -186,9 +188,20 @@ class InstallCommand extends AbstractCommand
 
             $this->createAdminUser();
 
-            $this->enableBundledExtensions();
-
             $this->publishAssets();
+
+            // Now that the installation of core is complete, boot up a new
+            // application instance before enabling extensions so that all of
+            // the application services are available.
+            Site::fromPaths([
+                'base' => $this->application->basePath(),
+                'public' => $this->application->publicPath(),
+                'storage' => $this->application->storagePath(),
+            ])->bootApp();
+
+            $this->application = FlarumApplication::getInstance();
+
+            $this->enableBundledExtensions();
         } catch (Exception $e) {
             @unlink($this->getConfigFile());
 
