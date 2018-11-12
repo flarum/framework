@@ -56,6 +56,9 @@
         opacity: 0.5;
       }
     }
+    > .Button--icon {
+      width: 40px;
+    }
   }
   .App-primaryControl {
     width: auto;
@@ -71,12 +74,15 @@
     }
   }
   .App-primaryControl, .App-backControl {
+    margin: 0 !important;
+
     > .Button {
       color: @header-control-color !important;
 
       .Button-icon {
         display: block;
         font-size: 20px;
+        margin: 0;
       }
       .Button-label {
         display: none;

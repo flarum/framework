@@ -70,7 +70,7 @@ export default class TextEditor extends Component {
     items.add('submit',
       Button.component({
         children: this.props.submitLabel,
-        icon: 'fas fa-check',
+        icon: 'fas fa-paper-plane',
         className: 'Button Button--primary',
         itemClassName: 'App-primaryControl',
         onclick: this.onsubmit.bind(this)
@@ -80,10 +80,11 @@ export default class TextEditor extends Component {
     if (this.props.preview) {
       items.add('preview',
         Button.component({
-          icon: 'fas fa-eye',
+          icon: 'far fa-eye',
           className: 'Button Button--icon',
           onclick: this.props.preview,
-          title: app.translator.trans('core.forum.composer.preview_tooltip')
+          title: app.translator.trans('core.forum.composer.preview_tooltip'),
+          config: elm => $(elm).tooltip()
         })
       );
     }
