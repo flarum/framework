@@ -16,10 +16,24 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class HandleErrorsWithWhoops implements Middleware
 {
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * Catch all errors that happen during further middleware execution.
      */
@@ -28,6 +42,10 @@ class HandleErrorsWithWhoops implements Middleware
         try {
             return $handler->handle($request);
         } catch (Throwable $e) {
+            if ($e->getCode() !== 404) {
+                $this->logger->error($e);
+            }
+
             return WhoopsRunner::handle($e, $request);
         }
     }
