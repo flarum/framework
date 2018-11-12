@@ -154,6 +154,8 @@ export default class TextEditor extends Component {
       const pos = index + insert.length;
       this.setSelectionRange(pos, pos);
     }
+
+    textarea.dispatchEvent(new CustomEvent('input', {bubbles: true, cancelable: true}));
   }
 
   /**
