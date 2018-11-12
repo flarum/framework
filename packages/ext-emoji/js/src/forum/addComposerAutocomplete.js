@@ -11,7 +11,6 @@ import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
 import AutocompleteDropdown from './components/AutocompleteDropdown';
 
 export default function addComposerAutocomplete() {
-
   const emojiKeys = Object.keys(emojiMap);
 
   extend(ComposerBody.prototype, 'config', function(original, isInitialized) {
@@ -150,6 +149,8 @@ export default function addComposerAutocomplete() {
               if (left + width > parent.width()) {
                 left = parent.width() - width;
               }
+              top = Math.max(-$(this).offset().top, top);
+              left = Math.max(-$(this).offset().left, left);
               dropdown.show(left, top);
             }
           };
