@@ -131,9 +131,7 @@ export default function addComposerAutocomplete() {
                 emoji,
                 name: emojiMap[emoji][0],
                 code: getEmojiIconCode(emoji),
-              })).sort((a, b) => {
-                return a.name.length - b.name.length;
-              }).map(makeSuggestion);
+              })).map(makeSuggestion);
 
             if (suggestions.length) {
               dropdown.props.items = suggestions;
