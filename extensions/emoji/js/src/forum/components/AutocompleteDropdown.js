@@ -10,6 +10,7 @@ export default class AutocompleteDropdown extends Component {
   view() {
     return (
       <ul className="Dropdown-menu EmojiDropdown">
+        <li className="Dropdown-header" key="0">{app.translator.trans('flarum-emoji.forum.composer.type_to_search_text')}</li>
         {this.props.items.map(item => <li key={item.attrs.key}>{item}</li>)}
       </ul>
     );
@@ -36,14 +37,14 @@ export default class AutocompleteDropdown extends Component {
   }
 
   complete() {
-    this.$('li').eq(this.index).find('button').click();
+    this.$('li:not(.Dropdown-header)').eq(this.index).find('button').click();
   }
 
   setIndex(index, scrollToItem) {
     if (this.keyWasJustPressed && !scrollToItem) return;
 
     const $dropdown = this.$();
-    const $items = $dropdown.find('li');
+    const $items = $dropdown.find('li:not(.Dropdown-header)');
     let rangedIndex = index;
 
     if (rangedIndex < 0) {
