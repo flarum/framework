@@ -2,6 +2,8 @@ import getCaretCoordinates from 'textarea-caret';
 
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
+import TextEditor from 'flarum/components/TextEditor';
+import TextEditorButton from 'flarum/components/TextEditorButton';
 import emojiMap from './generated/emojiMap.json';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
 import KeyboardNavigatable from 'flarum/utils/KeyboardNavigatable';
@@ -45,7 +47,7 @@ export default function addComposerAutocomplete() {
 
     $textarea
       .after($container)
-      .on('click keyup', function(e) {
+      .on('click keyup input', function(e) {
         // Up, down, enter, tab, escape, left, right.
         if ([9, 13, 27, 40, 38, 37, 39].indexOf(e.which) !== -1) return;
 
@@ -161,5 +163,13 @@ export default function addComposerAutocomplete() {
           dropdown.active = true;
         }
       });
+  });
+
+  extend(TextEditor.prototype, 'toolbarItems', function(items) {
+    items.add('emoji', (
+      <TextEditorButton onclick={() => this.insertAtCursor(':')} icon="far fa-smile">
+        {app.translator.trans('flarum-emoji.forum.composer.emoji_tooltip')}
+      </TextEditorButton>
+    ));
   });
 }
