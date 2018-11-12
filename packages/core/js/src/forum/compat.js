@@ -31,6 +31,7 @@ import ComposerButton from './components/ComposerButton';
 import DiscussionList from './components/DiscussionList';
 import ReplyPlaceholder from './components/ReplyPlaceholder';
 import TextEditor from './components/TextEditor';
+import TextEditorButton from './components/TextEditorButton';
 import AvatarEditor from './components/AvatarEditor';
 import Post from './components/Post';
 import SettingsPage from './components/SettingsPage';
@@ -99,6 +100,7 @@ export default Object.assign(compat, {
   'components/DiscussionList': DiscussionList,
   'components/ReplyPlaceholder': ReplyPlaceholder,
   'components/TextEditor': TextEditor,
+  'components/TextEditorButton': TextEditorButton,
   'components/AvatarEditor': AvatarEditor,
   'components/Post': Post,
   'components/SettingsPage': SettingsPage,
