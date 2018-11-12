@@ -36,6 +36,9 @@ export default class TextEditor extends Component {
 
         <ul className="TextEditor-controls Composer-footer">
           {listItems(this.controlItems().toArray())}
+          <li className="TextEditor-toolbar">
+            {this.toolbarItems().toArray()}
+          </li>
         </ul>
       </div>
     );
@@ -90,6 +93,15 @@ export default class TextEditor extends Component {
     }
 
     return items;
+  }
+
+  /**
+   * Build an item list for the toolbar controls.
+   *
+   * @return {ItemList}
+   */
+  toolbarItems() {
+    return new ItemList();
   }
 
   /**
