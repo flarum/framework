@@ -2,6 +2,8 @@ import getCaretCoordinates from 'textarea-caret';
 
 import { extend } from 'flarum/extend';
 import ComposerBody from 'flarum/components/ComposerBody';
+import TextEditor from 'flarum/components/TextEditor';
+import TextEditorButton from 'flarum/components/TextEditorButton';
 import avatar from 'flarum/helpers/avatar';
 import usernameHelper from 'flarum/helpers/username';
 import highlight from 'flarum/helpers/highlight';
@@ -188,5 +190,13 @@ export default function addComposerAutocomplete() {
           }
         }
       });
+  });
+
+  extend(TextEditor.prototype, 'toolbarItems', function(items) {
+    items.add('mention', (
+      <TextEditorButton onclick={() => this.insertAtCursor('@')} icon="fas fa-at">
+        {app.translator.trans('flarum-mentions.forum.composer.mention_tooltip')}
+      </TextEditorButton>
+    ));
   });
 }
