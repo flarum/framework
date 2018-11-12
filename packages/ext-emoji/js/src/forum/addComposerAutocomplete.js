@@ -84,7 +84,7 @@ export default function addComposerAutocomplete() {
                 key={emoji}
                 onclick={() => applySuggestion(emoji)}
                 onmouseenter={function() {
-                  dropdown.setIndex($(this).parent().index());
+                  dropdown.setIndex($(this).parent().index() - 1);
                 }}>
                   <img alt={emoji} class="emoji" draggable="false" src={'//twemoji.maxcdn.com/2/72x72/' + code + '.png'}/>
                   {name}
