@@ -54,9 +54,7 @@ class FallbackExceptionHandler implements ExceptionHandlerInterface
         $status = 500;
         $error = $this->constructError($e, $status);
 
-        if (! $this->debug) {
-            $this->logger->error($e);
-        }
+        $this->logger->error($e);
 
         return new ResponseBag($status, [$error]);
     }
