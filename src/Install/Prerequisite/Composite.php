@@ -11,6 +11,8 @@
 
 namespace Flarum\Install\Prerequisite;
 
+use Illuminate\Support\Collection;
+
 class Composite implements PrerequisiteInterface
 {
     /**
@@ -25,21 +27,14 @@ class Composite implements PrerequisiteInterface
         }
     }
 
-    public function check()
+    public function problems(): Collection
     {
         return array_reduce(
             $this->prerequisites,
-            function ($previous, PrerequisiteInterface $prerequisite) {
-                return $prerequisite->check() && $previous;
+            function (Collection $errors, PrerequisiteInterface $condition) {
+                return $errors->concat($condition->problems());
             },
-            true
+            collect()
         );
-    }
-
-    public function getErrors()
-    {
-        return collect($this->prerequisites)->map(function (PrerequisiteInterface $prerequisite) {
-            return $prerequisite->getErrors();
-        })->reduce('array_merge', []);
     }
 }

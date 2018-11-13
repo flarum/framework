@@ -46,14 +46,12 @@ class IndexController extends AbstractHtmlController
     {
         $view = $this->view->make('flarum.install::app')->with('title', 'Install Flarum');
 
-        $prerequisites = $this->installation->prerequisites();
-        $prerequisites->check();
-        $errors = $prerequisites->getErrors();
+        $problems = $this->installation->prerequisites()->problems();
 
-        if (count($errors)) {
-            $view->with('content', $this->view->make('flarum.install::errors')->with('errors', $errors));
-        } else {
+        if ($problems->isEmpty()) {
             $view->with('content', $this->view->make('flarum.install::install'));
+        } else {
+            $view->with('content', $this->view->make('flarum.install::problems')->with('problems', $problems));
         }
 
         return $view;

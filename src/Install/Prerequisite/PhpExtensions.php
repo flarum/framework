@@ -11,7 +11,9 @@
 
 namespace Flarum\Install\Prerequisite;
 
-class PhpExtensions extends AbstractPrerequisite
+use Illuminate\Support\Collection;
+
+class PhpExtensions implements PrerequisiteInterface
 {
     protected $extensions;
 
@@ -20,14 +22,15 @@ class PhpExtensions extends AbstractPrerequisite
         $this->extensions = $extensions;
     }
 
-    public function check()
+    public function problems(): Collection
     {
-        foreach ($this->extensions as $extension) {
-            if (! extension_loaded($extension)) {
-                $this->errors[] = [
+        return collect($this->extensions)
+            ->reject(function ($extension) {
+                return extension_loaded($extension);
+            })->map(function ($extension) {
+                return [
                     'message' => "The PHP extension '$extension' is required.",
                 ];
-            }
-        }
+            });
     }
 }
