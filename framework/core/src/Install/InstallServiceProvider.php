@@ -34,7 +34,6 @@ class InstallServiceProvider extends AbstractServiceProvider
                     new PhpVersion('7.1.0'),
                     new PhpExtensions([
                         'dom',
-                        'fileinfo',
                         'gd',
                         'json',
                         'mbstring',
