@@ -11,9 +11,9 @@
 
 namespace Flarum\Install\Controller;
 
-use Exception;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Install\Installation;
+use Flarum\Install\StepFailed;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -102,8 +102,8 @@ class InstallController implements RequestHandlerInterface
 
         try {
             $pipeline->run();
-        } catch (Exception $e) {
-            return new Response\HtmlResponse($e->getMessage(), 500);
+        } catch (StepFailed $e) {
+            return new Response\HtmlResponse($e->getPrevious()->getMessage(), 500);
         }
 
         $session = $request->getAttribute('session');
