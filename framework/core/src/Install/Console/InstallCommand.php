@@ -80,21 +80,16 @@ class InstallCommand extends AbstractCommand
     {
         $this->init();
 
-        $prerequisites = $this->installation->prerequisites();
-        $prerequisites->check();
-        $errors = $prerequisites->getErrors();
+        $problems = $this->installation->prerequisites()->problems();
 
-        if (empty($errors)) {
+        if ($problems->isEmpty()) {
             $this->info('Installing Flarum...');
 
             $this->install();
 
             $this->info('DONE.');
         } else {
-            $this->output->writeln(
-                '<error>Please fix the following errors before we can continue with the installation.</error>'
-            );
-            $this->showErrors($errors);
+            $this->showProblems($problems);
         }
     }
 
@@ -178,13 +173,17 @@ class InstallCommand extends AbstractCommand
             ->run();
     }
 
-    protected function showErrors($errors)
+    protected function showProblems($problems)
     {
-        foreach ($errors as $error) {
-            $this->info($error['message']);
+        $this->output->writeln(
+            '<error>Please fix the following problems before we can continue with the installation.</error>'
+        );
 
-            if (isset($error['detail'])) {
-                $this->output->writeln('<comment>'.$error['detail'].'</comment>');
+        foreach ($problems as $problem) {
+            $this->info($problem['message']);
+
+            if (isset($problem['detail'])) {
+                $this->output->writeln('<comment>'.$problem['detail'].'</comment>');
             }
         }
     }
