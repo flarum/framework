@@ -2,6 +2,7 @@ import { extend } from 'flarum/extend';
 import TextEditor from 'flarum/components/TextEditor';
 import icon from 'flarum/helpers/icon';
 
+import '@webcomponents/custom-elements';
 import '@github/markdown-toolbar-element';
 import MarkdownArea from 'mdarea/mdarea.js';
 
