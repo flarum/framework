@@ -11,7 +11,6 @@
 
 namespace Flarum\Http\Middleware;
 
-use Exception;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -20,6 +19,7 @@ use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Throwable;
 use Zend\Diactoros\Response\HtmlResponse;
 
 class HandleErrorsWithView implements Middleware
@@ -65,12 +65,12 @@ class HandleErrorsWithView implements Middleware
     {
         try {
             return $handler->handle($request);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return $this->formatException($e);
         }
     }
 
-    protected function formatException(Exception $error)
+    protected function formatException(Throwable $error)
     {
         $status = 500;
         $errorCode = $error->getCode();
@@ -81,11 +81,10 @@ class HandleErrorsWithView implements Middleware
             $status = $errorCode;
         }
 
-        // Log the exception (with trace)
-        $this->logger->debug($error);
-
         if (! $this->view->exists($name = "flarum.forum::error.$status")) {
             $name = 'flarum.forum::error.default';
+
+            $this->logger->error($error);
         }
 
         $view = $this->view->make($name)
