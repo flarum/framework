@@ -11,12 +11,12 @@
 
 namespace Flarum\Api\Middleware;
 
-use Exception;
 use Flarum\Api\ErrorHandler;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Throwable;
 
 class HandleErrors implements Middleware
 {
@@ -40,7 +40,7 @@ class HandleErrors implements Middleware
     {
         try {
             return $handler->handle($request);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return $this->errorHandler->handle($e);
         }
     }
