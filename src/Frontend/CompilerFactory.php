@@ -67,6 +67,14 @@ class CompilerFactory
         $this->lessImportDirs = $lessImportDirs;
     }
 
+    public function inherit($childName): self
+    {
+        // TODO: Probably some more deep cloning necessary here
+        $child = clone $this;
+        $child->name = $childName;
+        return $child;
+    }
+
     /**
      * @param callable $callback
      */

@@ -11,6 +11,7 @@
 
 namespace Flarum\Extend;
 
+use Exception;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Asset\ExtensionAssets;
 use Flarum\Frontend\CompilerFactory;
@@ -21,6 +22,7 @@ use Illuminate\Contracts\Container\Container;
 class Frontend implements ExtenderInterface
 {
     protected $frontend;
+    protected $inheritFrom;
 
     protected $css = [];
     protected $js;
@@ -30,6 +32,13 @@ class Frontend implements ExtenderInterface
     public function __construct($frontend)
     {
         $this->frontend = $frontend;
+    }
+
+    public function inherits($from)
+    {
+        $this->inheritFrom = $from;
+
+        return $this;
     }
 
     public function css($path)
@@ -48,9 +57,24 @@ class Frontend implements ExtenderInterface
 
     public function route($path, $name, $content = null)
     {
+        $this->ensureCanRegisterRoutes();
+
         $this->routes[] = compact('path', 'name', 'content');
 
         return $this;
+    }
+
+    private function ensureCanRegisterRoutes()
+    {
+        if (in_array($this->frontend, ['forum', 'admin'])) {
+            return;
+        }
+
+        throw new Exception(
+            'The Frontend extender can only handle routes for the forum and '.
+            'admin frontends. Other routes (e.g. for the API) need to be '.
+            'registered through the Routes extender.'
+        );
     }
 
     /**
@@ -66,9 +90,38 @@ class Frontend implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
+        $this->registerFrontend($container);
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);
         $this->registerContent($container);
+    }
+
+    private function registerFrontend(Container $container)
+    {
+        if ($container->bound("flarum.$this->frontend.frontend")) {
+            return;
+        }
+
+        $container->bind(
+            "flarum.$this->frontend.frontend",
+            function ($c) {
+                $view = $c->make('flarum.frontend.view.defaults')($this->frontend);
+
+                $view->setAssets($c->make("flarum.$this->frontend.assets"));
+
+                return $view;
+            }
+        );
+
+        $container->bind("flarum.$this->frontend.assets", function ($c) {
+            if ($this->inheritFrom) {
+                // FIXME: will contain Assets\CoreAssets instance with wrong name
+                return $c->make("flarum.$this->inheritFrom.assets")
+                    ->inherit($this->frontend);
+            } else {
+                return $c->make('flarum.frontend.assets.defaults')($this->frontend);
+            }
+        });
     }
 
     private function registerAssets(Container $container, string $moduleName)
