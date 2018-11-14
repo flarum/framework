@@ -270,11 +270,16 @@ class ExtensionManager
      */
     public function getEnabledExtensions()
     {
+        $enabled = [];
         $extensions = $this->getExtensions();
 
-        return array_filter(array_map(function ($id) use ($extensions) {
-            return $extensions[$id] ?? null;
-        }, $this->getEnabled()));
+        foreach ($this->getEnabled() as $id) {
+            if (isset($extensions[$id])) {
+                $enabled[$id] = $extensions[$id];
+            }
+        }
+
+        return $enabled;
     }
 
     /**
