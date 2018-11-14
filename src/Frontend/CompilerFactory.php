@@ -72,6 +72,7 @@ class CompilerFactory
         // TODO: Probably some more deep cloning necessary here
         $child = clone $this;
         $child->name = $childName;
+
         return $child;
     }
 
