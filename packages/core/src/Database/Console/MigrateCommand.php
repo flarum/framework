@@ -74,5 +74,12 @@ class MigrateCommand extends AbstractCommand
         }
 
         $this->container->make('Flarum\Settings\SettingsRepositoryInterface')->set('version', $this->container->version());
+
+        $this->info('Publishing assets...');
+
+        $this->container->make('files')->copyDirectory(
+            base_path().'/vendor/components/font-awesome/webfonts',
+            public_path().'/assets/fonts'
+        );
     }
 }
