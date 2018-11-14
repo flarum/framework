@@ -75,6 +75,7 @@ class FormatUserMentions
         $event->xml = Utils::replaceAttributes($event->xml, 'USERMENTION', function ($attributes) use ($post) {
             $user = $post->mentionsUsers->find($attributes['id']);
             if ($user) {
+                $attributes['username'] = $user->username;
                 $attributes['displayname'] = $user->display_name;
             }
 
