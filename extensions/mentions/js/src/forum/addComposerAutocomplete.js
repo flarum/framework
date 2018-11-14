@@ -28,10 +28,12 @@ export default function addComposerAutocomplete() {
     const applySuggestion = function(replacement) {
       const insert = replacement + ' ';
 
+      // When calling setValue(), mentionStart will be set back to 0 so we need to compute this beforehand
+      const index = mentionStart - 1 + insert.length;
+
       const content = composer.content();
       composer.editor.setValue(content.substring(0, mentionStart - 1) + insert + content.substr($textarea[0].selectionStart));
 
-      const index = mentionStart - 1 + insert.length;
       composer.editor.setSelectionRange(index, index);
 
       dropdown.hide();
