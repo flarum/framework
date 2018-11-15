@@ -8,12 +8,12 @@ import FlagsPage from './components/FlagsPage';
 import FlagsDropdown from './components/FlagsDropdown';
 
 export default {
-  'addFlagsToPosts': addFlagsToPosts,
-  'addFlagControl': addFlagControl,
-  'addFlagsDropdown': addFlagsDropdown,
-  'models/Flag': Flag,
-  'components/FlagList': FlagList,
-  'components/FlagPostModal': FlagPostModal,
-  'components/FlagsPage': FlagsPage,
-  'components/FlagsDropdown': FlagsDropdown,
+  'flags/addFlagsToPosts': addFlagsToPosts,
+  'flags/addFlagControl': addFlagControl,
+  'flags/addFlagsDropdown': addFlagsDropdown,
+  'flags/models/Flag': Flag,
+  'flags/components/FlagList': FlagList,
+  'flags/components/FlagPostModal': FlagPostModal,
+  'flags/components/FlagsPage': FlagsPage,
+  'flags/components/FlagsDropdown': FlagsDropdown,
 };
